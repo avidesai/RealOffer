@@ -1,15 +1,32 @@
-// src/components/LandingPage/LandingPage.js
 import React from 'react';
-import './LandingPage.css'; // CSS file for styling this component
+import Header from './components/Header/Header';
+import Hero from './components/Hero/Hero';
+import './LandingPage.css';
 
-const LandingPage = () => {
+function LandingPage() {
   return (
-    <div className="landing">
-      <h1>Welcome to RealOffer</h1>
-      <p>Your ultimate real estate transaction toolkit.</p>
-      <button>Sign Up For Free</button>
+    <div className="landing-page">
+      <Header />
+      <main className="landing-main">
+        <Hero />
+        <section className="features">
+          {/* Features content goes here */}
+        </section>
+        <section className="stats">
+          {/* Stats content goes here */}
+        </section>
+        <section className="how-it-works">
+          {/* 'How it works' content goes here */}
+        </section>
+        <section className="cta">
+          {/* Call to action content goes here */}
+        </section>
+      </main>
+      <footer className="landing-footer">
+        {/* Footer content goes here */}
+      </footer>
     </div>
   );
-};
+}
 
 export default LandingPage;

@@ -1,26 +1,79 @@
-/* src/components/LandingPage/LandingPage.css */
-.landing {
+/* LandingPage.css */
+.landing-page {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+.landing-header {
+  background: #fff;
+  padding: 1rem 5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Other styles remain the same */
+
+/* Hero section with image */
+.landing-main .hero {
+  height: 90vh;
+  background: no-repeat center/cover url('./images/hero.jpg'); /* Make sure the path is correct */
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   text-align: center;
-  padding: 50px;
 }
 
-.landing h1 {
-  margin-bottom: 20px;
+/* More detailed features, stats, how-it-works, cta, and footer styles */
+.features {
+  background-color: #f7f7f7;
+  padding: 4rem 2rem;
 }
 
-.landing p {
-  margin-bottom: 20px;
+.stats {
+  background-color: #e7e7e7;
+  padding: 4rem 2rem;
 }
 
-.landing button {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+.how-it-works {
+  padding: 4rem 2rem;
 }
 
-.landing button:hover {
+.cta {
   background-color: #0056b3;
+  color: #fff;
+  padding: 3rem 2rem;
+  margin-top: 2rem;
+}
+
+.landing-footer {
+  background-color: #343a40;
+  color: #fff;
+  padding: 1rem 5rem;
+  text-align: center;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .landing-header {
+    padding: 1rem;
+  }
+
+  .landing-main .hero {
+    height: 50vh;
+    padding: 1rem;
+  }
+
+  /* Adjust padding for smaller screens for other sections */
+  .features, .stats, .how-it-works, .cta {
+    padding: 2rem 1rem;
+  }
+
+  .landing-footer {
+    padding: 1rem;
+  }
 }

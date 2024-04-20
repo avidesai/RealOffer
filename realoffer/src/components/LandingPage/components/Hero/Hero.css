@@ -1,0 +1,82 @@
+/* src/components/LandingPage/components/Hero/Hero.css */
+.hero {
+    position: relative;
+    height: 75vh; /* Adjusted for a more proportionate height */
+    background: url('../../images/hero.jpg') no-repeat center center/cover;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    color: #fff;
+  }
+  
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6); /* Slightly darker overlay for improved text contrast */
+    z-index: 0;
+  }
+  
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    width: 40%; /* Limit width to improve readability */
+  }
+  
+  .hero-title {
+    font-size: 4rem; /* Larger font size for impact */
+    margin-bottom: 0.5rem;
+    line-height: 1.1;
+    font-weight: 700; /* Bold font weight for the title */
+  }
+  
+  .hero-subtitle {
+    font-size: 1.5rem;
+    margin-bottom: 3rem;
+    font-weight: 300; /* Lighter font weight for subtitle */
+  }
+  
+  .hero-cta {
+    padding: 1rem 2rem;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 600; /* Semi-bold for CTA */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    transition: all 0.3s ease;
+  }
+  
+  .hero-cta:hover,
+  .hero-cta:focus { /* Focus added for accessibility */
+    background-color: #0056b3;
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px); /* Subtle lift effect */
+  }
+  
+  @media (max-width: 768px) {
+    .hero {
+      padding-left: 5%; /* Reduced padding on smaller screens */
+      height: auto; /* Flexibility for content */
+      padding-top: 20vh; /* Space from the top */
+      padding-bottom: 20vh; /* Space from the bottom */
+    }
+    .hero-content {
+      width: 80%; /* More width for smaller screens */
+    }
+    .hero-title {
+      font-size: 2.5rem; /* Smaller font size for mobile */
+    }
+    .hero-subtitle {
+      font-size: 1.2rem;
+    }
+    .hero-cta {
+      padding: 0.8rem 1.5rem; /* Slightly smaller button on mobile */
+    }
+  }
+  

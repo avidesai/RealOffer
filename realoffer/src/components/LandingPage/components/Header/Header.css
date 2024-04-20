@@ -1,0 +1,42 @@
+/* src/components/LandingPage/components/Header/Header.css */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  
+  .header-logo {
+    height: 50px;
+  }
+  
+  .header-navigation {
+    display: flex;
+  }
+  
+  .header-link {
+    margin: 0 1rem;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+  }
+  
+  .header-link:hover {
+    text-decoration: underline;
+  }
+  
+  .header-button {
+    padding: 0.5rem 1rem;
+    margin-left: 1rem;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+  }
+  
+  .header-button:hover {
+    background-color: #0056b3;
+  }
+  
