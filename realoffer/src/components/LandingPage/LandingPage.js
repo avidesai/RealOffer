@@ -1,6 +1,7 @@
 import React from 'react';
 import Header from './components/Header/Header';
 import Hero from './components/Hero/Hero';
+import Features from './components/Features/Features';
 import './LandingPage.css';
 
 function LandingPage() {
@@ -9,8 +10,8 @@ function LandingPage() {
       <Header />
       <main className="landing-main">
         <Hero />
-        <section className="features">
-          {/* Features content goes here */}
+        <section className='features'>
+            <Features />
         </section>
         <section className="stats">
           {/* Stats content goes here */}

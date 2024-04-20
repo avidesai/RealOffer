@@ -1,7 +1,7 @@
 /* src/components/LandingPage/components/Hero/Hero.css */
 .hero {
     position: relative;
-    height: 75vh; /* Adjusted for a more proportionate height */
+    height: 65vh; /* Adjusted for a more proportionate height */
     background: url('../../images/hero.jpg') no-repeat center center/cover;
     display: flex;
     align-items: center;
@@ -25,6 +25,7 @@
     position: relative;
     z-index: 1;
     width: 40%; /* Limit width to improve readability */
+    padding-left: 10%;
   }
   
   .hero-title {
@@ -42,21 +43,23 @@
   
   .hero-cta {
     padding: 1rem 2rem;
-    background-color: #007bff;
-    color: #fff;
-    text-decoration: none;
+    background-color: rgb(0, 123, 259);
+    color: white;
+    border: none;
     border-radius: 4px;
-    font-size: 1rem;
-    font-weight: 600; /* Semi-bold for CTA */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
-    transition: all 0.3s ease;
+    cursor: pointer;
+    font-size: 17px;
+    font-weight: 600;
+    box-shadow: 0px 8px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease; /* Add a transition */
+    text-decoration: none;
   }
   
   .hero-cta:hover,
   .hero-cta:focus { /* Focus added for accessibility */
-    background-color: #0056b3;
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
-    transform: translateY(-2px); /* Subtle lift effect */
+    background-color: #004a8f; /* Change the hover color to a darker shade */
+    box-shadow: 0px 8px 25px rgba(0,0,0,0.2);
+    transform: translateY(-2px);
   }
   
   @media (max-width: 768px) {
@@ -68,6 +71,7 @@
     }
     .hero-content {
       width: 80%; /* More width for smaller screens */
+      padding-left: 5%;
     }
     .hero-title {
       font-size: 2.5rem; /* Smaller font size for mobile */
@@ -76,7 +80,7 @@
       font-size: 1.2rem;
     }
     .hero-cta {
-      padding: 0.8rem 1.5rem; /* Slightly smaller button on mobile */
+      padding: 0.7rem 1.0rem; /* Slightly smaller button on mobile */
     }
   }
   

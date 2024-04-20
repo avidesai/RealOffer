@@ -1,0 +1,132 @@
+/* Features.css */
+
+.features-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 2rem 0; /* Added padding for better spacing */
+  background-color: #ffffff; /* For a clean, modern look */
+}
+
+.features-title {
+  font-size: 2rem; /* Larger for emphasis */
+  font-weight: 500; /* Semi-bold for a stronger presence */
+  margin-bottom: 3rem; /* More space below the title */
+  color: #333; /* Deep color for contrast */
+}
+
+.features-toggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem; /* Increase spacing for aesthetic separation */
+}
+
+.toggle-btn {
+  font-size: 1rem;
+  padding: 10px 20px;
+  border: 2px solid #eaeaea;
+  background-color: transparent;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600; /* Make the text bolder */
+  box-shadow: 0px 2px 5px rgba(0,0,0,0.1); /* Add a subtle shadow */
+}
+
+.toggle-btn.active, .toggle-btn:hover {
+  background-color: #0056b3;
+  color: white;
+  border-color: #0056b3;
+  box-shadow: 0px 2px 5px rgba(0,0,0,0.2); /* Add a shadow to the active/hover state */
+}
+
+.feature-content {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  margin: 25px auto;
+  gap: 2rem;
+}
+
+.feature-image {
+  width: 50%;
+  display: flex; /* Ensures image container flexes */
+  justify-content: center; /* Centers image in the div */
+}
+
+.feature-section-image {
+  width: 80%; /* Image takes full width of its container */
+  border-radius: 8px;
+  box-shadow: 0px 10px 20px rgba(0,0,0,0.1); /* Adds shadow for depth */
+}
+
+.feature-details {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  margin-right: 30px;
+}
+
+.feature-point {
+  font-size: 1.2rem;
+  color: #454545; /* Lighter color for a modern look */
+  margin-bottom: 1rem;
+  line-height: 1.6; /* Increased line height for readability */
+  font-weight: 500;
+}
+
+.sign-up-btn {
+  padding: 1rem 2rem;
+  background-color: rgb(0, 123, 259);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 17px;
+  font-weight: 600;
+  box-shadow: 0px 8px 15px rgba(0,0,0,0.1);
+  transition: all 0.3s ease; /* Add a transition */
+  margin-top: 2rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.sign-up-btn:hover {
+  background-color: #004a8f; /* Change the hover color to a darker shade */
+  box-shadow: 0px 8px 25px rgba(0,0,0,0.2);
+  transform: translateY(-2px);
+}
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .feature-content {
+    flex-direction: column;
+  }
+
+  .feature-image, .feature-details {
+    width: 100%; /* Full width for smaller screens */
+  }
+
+  .feature-image {
+    margin-bottom: 2rem; /* Spacing after the image */
+  }
+}
+
+@media (max-width: 768px) {
+  .features-section {
+    padding: 3rem 1rem;
+  }
+
+  .features-title {
+    font-size: 2.5rem; /* Adjusting for mobile readability */
+  }
+
+  .toggle-btn {
+    font-size: 1rem; /* Slight decrease for mobile fit */
+    padding: 8px 16px; /* Proportionally smaller buttons */
+  }
+
+  .sign-up-btn {
+    padding: 0.8rem 1.6rem; /* Adjusting button size for mobile */
+  }
+}

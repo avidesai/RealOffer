@@ -4,76 +4,51 @@
   color: #333;
   margin: 0;
   padding: 0;
-}
-
-.landing-header {
-  background: #fff;
-  padding: 1rem 5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Other styles remain the same */
-
-/* Hero section with image */
-.landing-main .hero {
-  height: 90vh;
-  background: no-repeat center/cover url('./images/hero.jpg'); /* Make sure the path is correct */
-  color: #fff;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  text-align: center;
 }
 
-/* More detailed features, stats, how-it-works, cta, and footer styles */
-.features {
-  background-color: #f7f7f7;
-  padding: 4rem 2rem;
+/* Define consistent spacing for all main sections */
+.landing-main > section {
+  padding: 4rem 5%; /* Provides padding top and bottom with a responsive horizontal padding */
+}
+
+/* Background colors for alternate sections to visually separate them */
+.hero,
+.stats,
+.cta {
+  color: #fff; /* White text for darker backgrounds */
+}
+
+.features,
+.how-it-works {
+  background-color: #f7f7f7; /* Light gray background for a subtle contrast */
 }
 
 .stats {
-  background-color: #e7e7e7;
-  padding: 4rem 2rem;
-}
-
-.how-it-works {
-  padding: 4rem 2rem;
+  background-color: #e7e7e7; /* A slightly darker gray to distinguish from features */
 }
 
 .cta {
-  background-color: #0056b3;
-  color: #fff;
-  padding: 3rem 2rem;
-  margin-top: 2rem;
+  background-color: #0056b3; /* Your brand's primary color for the call to action */
+  margin-top: 2rem; /* Space above CTA */
 }
 
 .landing-footer {
-  background-color: #343a40;
-  color: #fff;
-  padding: 1rem 5rem;
+  background-color: #343a40; /* Dark background for the footer */
+  padding: 2rem 5%; /* Consistent vertical padding with responsive horizontal padding */
   text-align: center;
 }
 
-/* Responsive design */
+/* Responsive design for better mobile viewing */
 @media (max-width: 768px) {
-  .landing-header {
-    padding: 1rem;
+  .landing-main > section {
+    padding: 2rem 5%; /* Smaller padding on mobile */
   }
 
-  .landing-main .hero {
-    height: 50vh;
-    padding: 1rem;
-  }
-
-  /* Adjust padding for smaller screens for other sections */
-  .features, .stats, .how-it-works, .cta {
-    padding: 2rem 1rem;
-  }
-
-  .landing-footer {
-    padding: 1rem;
+  /* Adjust the hero section's height on mobile for better proportion */
+  .hero {
+    height: auto; /* Height auto for flexibility */
+    padding: 2rem 5%; /* Consistent padding with other sections */
   }
 }

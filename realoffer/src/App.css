@@ -1,0 +1,16 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%; /* Ensures that the body takes up the full viewport width */
+    height: 100%; /* Ensures that the body takes up the full viewport height */
+    overflow-x: hidden; /* Prevents horizontal scroll */
+  }
+
+  .container {
+    padding: 0;
+    margin: 0 auto; /* Centers the content without adding horizontal padding */
+  }
+
+  body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+}
