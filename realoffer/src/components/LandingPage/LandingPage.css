@@ -1,0 +1,26 @@
+/* src/components/LandingPage/LandingPage.css */
+.landing {
+  text-align: center;
+  padding: 50px;
+}
+
+.landing h1 {
+  margin-bottom: 20px;
+}
+
+.landing p {
+  margin-bottom: 20px;
+}
+
+.landing button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.landing button:hover {
+  background-color: #0056b3;
+}
