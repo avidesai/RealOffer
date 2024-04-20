@@ -43,10 +43,10 @@
   
   .hero-cta {
     padding: 1rem 2rem;
-    background-color: rgb(0, 123, 259);
+    background-color: rgb(27, 92, 243);
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 10px;
     cursor: pointer;
     font-size: 17px;
     font-weight: 600;
@@ -57,7 +57,7 @@
   
   .hero-cta:hover,
   .hero-cta:focus { /* Focus added for accessibility */
-    background-color: #004a8f; /* Change the hover color to a darker shade */
+    background-color: rgb(0, 83, 172); /* Change the hover color to a darker shade */
     box-shadow: 0px 8px 25px rgba(0,0,0,0.2);
     transform: translateY(-2px);
   }

@@ -1,42 +1,84 @@
 /* src/components/LandingPage/components/Header/Header.css */
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 2rem;
-    background-color: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  z-index: 10; /* Lower z-index since it's not fixed */
+}
+
+.header-logo {
+  height: 60px; /* Adjust size as needed */
+  cursor: pointer;
+}
+
+.header-navigation {
+  display: flex;
+  align-items: center;
+}
+
+.header-link {
+  margin: 0 1rem;
+  text-decoration: none;
+  color: #333;
+  font-weight: 600; /* Bold font weight */
+  font-size: 1.05rem; /* Slightly larger font size */
+  transition: color 0.3s ease;
+}
+
+.header-link:hover,
+.header-link:focus { /* Adding focus for keyboard navigation */
+  color: rgb(27, 92, 243); /* Highlight color */
+}
+
+.header-button {
+  padding: 0.6rem 1.2rem; /* Slightly larger padding */
+  margin-left: 2rem;
+  background-color: rgb(27, 92, 243);
+  color: #fff;
+  border: none;
+  border-radius: 5px; /* Rounded corners */
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 600; /* Bold font weight */
+  transition: background-color 0.3s ease;
+  outline: none; /* Remove the default focus outline */
+}
+
+.header-button:hover {
+  background-color: rgb(0, 83, 172); /* Slightly darker on hover */
+}
+
+/* Responsive design adjustments */
+@media (max-width: 768px) {
+  .header {
+      padding: 0.75rem 1.5rem; /* Smaller padding for mobile */
   }
   
   .header-logo {
-    height: 50px;
+      height: 50px; /* Smaller logo on mobile */
   }
   
   .header-navigation {
-    display: flex;
-  }
-  
-  .header-link {
-    margin: 0 1rem;
-    text-decoration: none;
-    color: #333;
-    font-weight: 500;
-  }
-  
-  .header-link:hover {
-    text-decoration: underline;
+      display: none; /* Optionally hide navigation on very small screens */
   }
   
   .header-button {
-    padding: 0.5rem 1rem;
-    margin-left: 1rem;
-    background-color: #007bff;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 4px;
+      padding: 0.5rem 1rem; /* Smaller button on mobile */
   }
   
-  .header-button:hover {
-    background-color: #0056b3;
+  /* If using a hamburger menu on mobile */
+  .hamburger-menu {
+      display: block; /* Show hamburger menu */
+      margin-left: auto; /* Align to the right side */
   }
-  
+
+  .header-navigation.active {
+      display: flex; /* Show navigation when active */
+      flex-direction: column; /* Stack links vertically */
+      padding: 1rem;
+      background-color: #fff; /* Match the header background */
+  }
+}

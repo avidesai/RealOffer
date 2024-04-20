@@ -13,18 +13,18 @@ const Features = () => {
       title: 'Sell Your Home',
       image: sellHomeImage,
       points: [
-        'Price your home intelligently using our AI pricing tool.',
-        'Receive, respond, and manage offers on our online dashboard.',
-        'Manage, store, and track activity on your listings.',
+        'Price your home intelligently using our RealListing™ algorithm',
+        'Receive, respond, and manage offers on our online dashboard',
+        'Manage, store, and track buyer activity on your listings',
       ],
     },
     buy: {
       title: 'Buy Your Home',
       image: buyHomeImage,
       points: [
-        'Make offers that win with our smart offer algorithm.',
-        'Download disclosures, fill out forms, and communicate directly with the seller\'s agent.',
-        'Simplify the home buying process with transparency.',
+        'Make winning offers on homes with our RealOffer™ algorithm',
+        'Download disclosures, fill out forms, and talk directly with the seller\'s agent',
+        'Simplify the home buying process with full transparency',
       ],
     },
   };
@@ -34,13 +34,13 @@ const Features = () => {
       <h2 className="features-title">Our Key Features</h2>
       <div className="features-toggle">
         <button
-          className={`toggle-btn ${activeFeature === 'sell' ? 'active' : ''}`}
+          className={`toggle-btn toggle-btn-left ${activeFeature === 'sell' ? 'active' : ''}`}
           onClick={() => setActiveFeature('sell')}
         >
           Sell Your Home
         </button>
         <button
-          className={`toggle-btn ${activeFeature === 'buy' ? 'active' : ''}`}
+          className={`toggle-btn toggle-btn-right ${activeFeature === 'buy' ? 'active' : ''}`}
           onClick={() => setActiveFeature('buy')}
         >
           Buy Your Home

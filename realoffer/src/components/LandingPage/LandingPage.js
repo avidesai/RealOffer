@@ -2,6 +2,8 @@ import React from 'react';
 import Header from './components/Header/Header';
 import Hero from './components/Hero/Hero';
 import Features from './components/Features/Features';
+import Stats from './components/Stats/Stats';
+import HowItWorks from './components/How-It-Works/HowItWorks';
 import './LandingPage.css';
 
 function LandingPage() {
@@ -14,10 +16,10 @@ function LandingPage() {
             <Features />
         </section>
         <section className="stats">
-          {/* Stats content goes here */}
+          <Stats />
         </section>
         <section className="how-it-works">
-          {/* 'How it works' content goes here */}
+          <HowItWorks />
         </section>
         <section className="cta">
           {/* Call to action content goes here */}

@@ -1,0 +1,35 @@
+/* Stats.css */
+.stats-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 50px 10px 50px 0px;
+    background-color: #f5f5f5; /* or any color you prefer */
+  }
+  
+  .stat {
+    text-align: center;
+  }
+
+  .stat-icon {
+    height: 36px; /* or your preferred size */
+    width: auto; /* maintain aspect ratio */
+    margin-bottom: 1rem; /* space between icon and number */
+    display: block; /* to center the icon in its container */
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .stat span {
+    font-size: 3rem;
+    font-weight: bold;
+    display: block;
+    color: rgb(27, 92, 243);; /* or your brand color */
+  }
+  
+  .stat p {
+    margin-top: 10px;
+    font-size: 1.25rem;
+    color: #333;
+  }
+  
