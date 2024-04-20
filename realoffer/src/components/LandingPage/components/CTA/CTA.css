@@ -1,0 +1,62 @@
+.cta-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem;
+    margin: 0;
+  }
+  
+  .cta-title {
+    margin-top: -1rem;
+    font-size: 2.5rem;
+    color: #ffffff;
+    margin-bottom: 1rem;
+  }
+  
+  .cta-subtitle {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #ffffff;
+    margin-bottom: 2.5rem;
+  }
+  
+  .cta-input-group {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .cta-input {
+    padding: 1rem;
+    font-size: 1rem;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    width: 250px; /* Adjust based on preference */
+  }
+  
+  .cta-button {
+    padding: 1rem 1.5rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .cta-button:hover {
+    background-color: #0056b3;
+  }
+  
+  @media (max-width: 768px) {
+    .cta-input-group {
+      flex-direction: column;
+    }
+  
+    .cta-input,
+    .cta-button {
+      width: 100%;
+      margin: 0.5rem 0; /* Add spacing between elements on mobile */
+    }
+  }
+  

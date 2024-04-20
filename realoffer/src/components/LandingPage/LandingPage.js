@@ -4,6 +4,7 @@ import Hero from './components/Hero/Hero';
 import Features from './components/Features/Features';
 import Stats from './components/Stats/Stats';
 import HowItWorks from './components/How-It-Works/HowItWorks';
+import CallToAction from './components/CTA/CTA'
 import './LandingPage.css';
 
 function LandingPage() {
@@ -22,7 +23,7 @@ function LandingPage() {
           <HowItWorks />
         </section>
         <section className="cta">
-          {/* Call to action content goes here */}
+          <CallToAction />
         </section>
       </main>
       <footer className="landing-footer">
