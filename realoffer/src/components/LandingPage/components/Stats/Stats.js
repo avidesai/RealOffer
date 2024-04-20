@@ -1,5 +1,5 @@
 // Stats.js
-import React, { useRef, useState, useEffect } from 'react';
+import React, {useState} from 'react';
 import CountUp from 'react-countup';
 import './Stats.css';
 import VisibilitySensor from 'react-visibility-sensor';
