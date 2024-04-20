@@ -32,4 +32,37 @@
     font-size: 1.25rem;
     color: #333;
   }
+
+  @media (max-width: 1024px) {
+    .stats-container {
+      flex-wrap: wrap; /* Allow the stats to wrap onto multiple lines */
+      justify-content: space-between; /* Add some space between the stats */
+    }
   
+    .stat {
+      flex: 0 0 45%; /* Make the stats take up 45% of the container's width */
+      margin-bottom: 2rem; /* Add some space below each stat */
+    }
+  
+    .stat span {
+      font-size: 2.5rem; /* Reduce the font size */
+    }
+  
+    .stat p {
+      font-size: 1rem; /* Reduce the font size */
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .stat {
+      flex: 0 0 100%; /* Make the stats take up 100% of the container's width */
+    }
+  
+    .stat span {
+      font-size: 2rem; /* Reduce the font size even more */
+    }
+  
+    .stat p {
+      font-size: 0.875rem; /* Reduce the font size even more */
+    }
+  }

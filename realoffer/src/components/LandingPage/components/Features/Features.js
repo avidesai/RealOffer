@@ -2,8 +2,14 @@
 
 import React, { useState } from 'react';
 import './Features.css';
-import sellHomeImage from './sell-home.jpeg'; // Replace with actual image path
-import buyHomeImage from './buy-home.jpeg'; // Replace with actual image path
+import sellHomeImage from './sell-home.jpeg';
+import buyHomeImage from './buy-home.jpeg';
+import chart from './chart.svg'
+import chat from './chat.svg'
+import dollar from './dollar.svg'
+import valuation from './valuation.svg'
+import clipboard from './clipboard.svg'
+import offer from './offer.svg'
 
 const Features = () => {
   const [activeFeature, setActiveFeature] = useState('sell');
@@ -13,18 +19,36 @@ const Features = () => {
       title: 'Sell Your Home',
       image: sellHomeImage,
       points: [
-        'Price your home intelligently using our RealListing™ algorithm',
-        'Receive, respond, and manage offers on our online dashboard',
-        'Manage, store, and track buyer activity on your listings',
+        {
+          text: 'Price your home intelligently using our RealListing™ algorithm',
+          icon: dollar,
+        },
+        {
+          text: 'Receive, respond, and manage offers on our online dashboard',
+          icon: chat,
+        },
+        {
+          text: 'Manage, store, and track buyer activity on your listings',
+          icon: chart,
+        },
       ],
     },
     buy: {
       title: 'Buy Your Home',
       image: buyHomeImage,
       points: [
-        'Make winning offers on homes with our RealOffer™ algorithm',
-        'Download disclosures, fill out forms, and talk directly with the seller\'s agent',
-        'Simplify the home buying process with full transparency',
+        {
+          text: 'Make winning offers on homes with our RealOffer™ algorithm',
+          icon: valuation,
+        },
+        {
+          text: 'Download disclosures, fill out forms, and talk directly with the seller\'s agent',
+          icon: clipboard,
+        },
+        {
+          text: 'Simplify the home buying process with full transparency',
+          icon: offer,
+        },
       ],
     },
   };
@@ -56,7 +80,10 @@ const Features = () => {
         </div>
         <div className="feature-details">
           {featureDetails[activeFeature].points.map((point, index) => (
-            <p key={index} className="feature-point">{point}</p>
+            <div key={index} className="feature-point">
+              <img src={point.icon} alt="" className="feature-point-icon" />
+              <p>{point.text}</p>
+            </div>
           ))}
           <button className="sign-up-btn">Sign Up Now</button>
         </div>

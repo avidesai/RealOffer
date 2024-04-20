@@ -5,14 +5,17 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  padding: 2rem 0; /* Added padding for better spacing */
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 0; /* Remove left padding */
+  padding-right: 0; /* Remove right padding */
   background-color: #ffffff; /* For a clean, modern look */
 }
 
 .features-title {
   font-size: 2rem; /* Larger for emphasis */
   font-weight: 500; /* Semi-bold for a stronger presence */
-  margin-bottom: 3rem; /* More space below the title */
+  margin-bottom: 2rem; /* More space below the title */
   color: #333; /* Deep color for contrast */
 }
 
@@ -62,8 +65,8 @@
   display: flex;
   width: 100%;
   max-width: 1200px;
-  margin: 25px auto;
-  gap: 2rem;
+  margin: 15px auto;
+  gap: 1rem;
 }
 
 .feature-image {
@@ -73,7 +76,7 @@
 }
 
 .feature-section-image {
-  width: 80%; /* Image takes full width of its container */
+  width: 90%; /* Image takes full width of its container */
   border-radius: 8px;
   box-shadow: 0px 10px 20px rgba(0,0,0,0.1); /* Adds shadow for depth */
 }
@@ -82,15 +85,26 @@
   width: 50%;
   display: flex;
   flex-direction: column;
-  margin-right: 30px;
+  justify-content: center; /* Centers content horizontally */
+  margin-right: 20px;
+  margin-bottom: 1rem;
+
 }
 
 .feature-point {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #454545; /* Lighter color for a modern look */
-  margin-bottom: 1rem;
-  line-height: 1.6; /* Increased line height for readability */
+  line-height: 1.5; /* Increased line height for readability */
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.feature-point-icon {
+  width: 28px;
+  height: 28px;
+  margin-right: 18px;
 }
 
 .sign-up-btn {
@@ -100,11 +114,11 @@
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 600;
   box-shadow: 0px 8px 15px rgba(0,0,0,0.1);
   transition: all 0.3s ease; /* Add a transition */
-  margin-top: 2.5rem;
+  margin-top: 1rem;
   margin-left: auto;
   margin-right: auto;
 }
@@ -116,34 +130,100 @@
 }
 /* Responsive adjustments */
 @media (max-width: 1024px) {
+  .features-section {
+    padding-left: 0.7rem; /* Add some left padding for smaller screens */
+    padding-right: 0rem; /* Add some right padding for smaller screens */
+  }
+
   .feature-content {
     flex-direction: column;
+  }
+
+  .features-title {
+    font-size: 1.7rem;
+    margin-bottom: 1.2rem;
   }
 
   .feature-image, .feature-details {
     width: 100%; /* Full width for smaller screens */
   }
 
+  .features-toggle {
+    margin-top: 1.2rem;
+    margin-bottom: 1rem; /* Increase spacing for aesthetic separation */
+  }
+
+  .toggle-btn {
+    font-size: 0.9rem;
+  }
+
+  .feature-details {
+    margin-top: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+    align-items: center; /* Centers content vertically */
+  }
+
   .feature-image {
-    margin-bottom: 2rem; /* Spacing after the image */
+    margin-bottom: 1rem; /* Spacing after the image */
+  }
+
+  .feature-section-image{
+    width: 55%;
+  }
+
+  .feature-point-icon {
+    width: 22px;
+    height: 22px;
   }
 }
 
 @media (max-width: 768px) {
   .features-section {
-    padding: 3rem 1rem;
+    padding-left: 0.5rem; /* Add some left padding for even smaller screens */
+    padding-right: 0.5rem; /* Add some right padding for even smaller screens */
   }
 
   .features-title {
-    font-size: 2.5rem; /* Adjusting for mobile readability */
+    font-size: 1.5rem; /* Adjust font size for mobile readability */
+    margin-bottom: 1rem; /* Adjust margin for mobile */
   }
 
   .toggle-btn {
-    font-size: 1rem; /* Slight decrease for mobile fit */
-    padding: 8px 16px; /* Proportionally smaller buttons */
+    font-size: 0.8rem; /* Adjust font size for mobile */
+    padding: 8px 12px; /* Adjust padding for mobile */
+  }
+
+  .feature-content {
+    flex-direction: column; /* Stack the image and details vertically */
+  }
+
+  .feature-image, .feature-details {
+    width: 100%; /* Full width for smaller screens */
+  }
+
+  .feature-section-image {
+    width: 60%; /* Adjust image width for mobile */
+  }
+
+  .feature-details {
+    margin-top: 0.5rem; /* Add some space above the details */
+    margin-left: auto;
+    margin-right: auto;
+    align-items: center; /* Centers content vertically */
+  }
+
+  .feature-point {
+    font-size: 1rem; /* Adjust font size for mobile readability */
+  }
+
+  .feature-point-icon {
+    width: 20px; /* Adjust icon size for mobile */
+    height: 20px; /* Adjust icon size for mobile */
   }
 
   .sign-up-btn {
-    padding: 0.8rem 1.6rem; /* Adjusting button size for mobile */
+    padding: 0.8rem 1.6rem; /* Adjust button size for mobile */
+    font-size: 0.9rem; /* Adjust font size for mobile */
   }
 }
