@@ -3,7 +3,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
+  padding: 0.5rem 2rem;
   background-color: #fff;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   z-index: 10; /* Lower z-index since it's not fixed */

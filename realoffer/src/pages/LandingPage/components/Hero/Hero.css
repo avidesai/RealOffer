@@ -31,6 +31,7 @@
   .hero-title {
     font-size: 4rem; /* Larger font size for impact */
     margin-bottom: 0.5rem;
+    margin-top: 0rem;
     line-height: 1.1;
     font-weight: 700; /* Bold font weight for the title */
   }
@@ -42,7 +43,7 @@
   }
   
   .hero-cta {
-    padding: 1rem 2rem;
+    padding: 1rem 1.5rem;
     background-color: rgb(27, 92, 243);
     color: white;
     border: none;
@@ -65,7 +66,7 @@
   @media (max-width: 768px) {
     .hero {
       padding-left: 5%; /* Reduced padding on smaller screens */
-      height: auto; /* Flexibility for content */
+      height: 100vh; /* Flexibility for content */
       padding-top: 20vh; /* Space from the top */
       padding-bottom: 20vh; /* Space from the bottom */
     }

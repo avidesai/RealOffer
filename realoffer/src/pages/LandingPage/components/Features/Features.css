@@ -6,7 +6,7 @@
   align-items: center;
   width: 100%;
   padding-top: 1rem;
-  padding-bottom: 1rem;
+  padding-bottom: 2rem;
   padding-left: 0; /* Remove left padding */
   padding-right: 0; /* Remove right padding */
   background-color: #ffffff; /* For a clean, modern look */
@@ -22,7 +22,7 @@
 .features-toggle {
   display: flex;
   justify-content: center;
-  margin-bottom: 2rem; /* Increase spacing for aesthetic separation */
+  margin-bottom: 3rem; /* Increase spacing for aesthetic separation */
 }
 
 .toggle-btn {
@@ -65,12 +65,12 @@
   display: flex;
   width: 100%;
   max-width: 1200px;
-  margin: 15px auto;
+  margin: auto;
   gap: 1rem;
 }
 
 .feature-image {
-  width: 50%;
+  width: 45%;
   display: flex; /* Ensures image container flexes */
   justify-content: center; /* Centers image in the div */
 }
@@ -82,7 +82,7 @@
 }
 
 .feature-details {
-  width: 50%;
+  width: 55%;
   display: flex;
   flex-direction: column;
   justify-content: center; /* Centers content horizontally */
@@ -92,7 +92,7 @@
 }
 
 .feature-point {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: #454545; /* Lighter color for a modern look */
   line-height: 1.5; /* Increased line height for readability */
   font-weight: 500;
@@ -150,7 +150,7 @@
 
   .features-toggle {
     margin-top: 1.2rem;
-    margin-bottom: 1rem; /* Increase spacing for aesthetic separation */
+    margin-bottom: 2rem; /* Increase spacing for aesthetic separation */
   }
 
   .toggle-btn {
@@ -158,7 +158,7 @@
   }
 
   .feature-details {
-    margin-top: 1rem;
+    margin-top: 0.5rem;
     margin-left: auto;
     margin-right: auto;
     align-items: center; /* Centers content vertically */
@@ -169,12 +169,21 @@
   }
 
   .feature-section-image{
-    width: 55%;
+    width: 45%;
+  }
+
+  .feature-point {
+    font-size: 1.1rem; /* Adjust font size for mobile readability */
+    margin-bottom: 0.2rem;
   }
 
   .feature-point-icon {
     width: 22px;
     height: 22px;
+  }
+
+  .sign-up-btn {
+    margin-top: 1.5rem;
   }
 }
 
@@ -187,6 +196,11 @@
   .features-title {
     font-size: 1.5rem; /* Adjust font size for mobile readability */
     margin-bottom: 1rem; /* Adjust margin for mobile */
+  }
+
+  .features-toggle {
+    margin-top: 1.2rem;
+    margin-bottom: 2rem; /* Increase spacing for aesthetic separation */
   }
 
   .toggle-btn {
@@ -214,7 +228,8 @@
   }
 
   .feature-point {
-    font-size: 1rem; /* Adjust font size for mobile readability */
+    font-size: 0.9rem; /* Adjust font size for mobile readability */
+    margin-bottom: 0.5rem;
   }
 
   .feature-point-icon {

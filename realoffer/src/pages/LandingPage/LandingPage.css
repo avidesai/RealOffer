@@ -33,21 +33,15 @@
   background-color: rgb(27, 92, 243); /* Your brand's primary color for the call to action */
 }
 
-.landing-footer {
-  background-color: rgb(255, 255, 255); /* Dark background for the footer */
-  padding: 1.5rem 8%; /* Consistent vertical padding with responsive horizontal padding */
-  text-align: center;
-}
-
 /* Responsive design for better mobile viewing */
 @media (max-width: 768px) {
   .landing-main > section {
-    padding: 1rem 5% 5%; /* Smaller padding on mobile */
+    padding: 5% 5% 5% 5%; /* Smaller padding on mobile */
   }
 
   /* Adjust the hero section's height on mobile for better proportion */
   .hero {
-    height: auto; /* Height auto for flexibility */
+    height: 40vh; /* Height auto for flexibility */
     padding: 2rem 5%; /* Consistent padding with other sections */
   }
 }

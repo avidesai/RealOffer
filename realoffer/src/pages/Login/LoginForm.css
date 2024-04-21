@@ -1,0 +1,124 @@
+/* LoginForm.css */
+.login-form {
+    width: 90%;
+    max-width: 360px; /* Smaller width for a more compact form */
+    margin: auto; /* Center the form in the login-content-wrapper */
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 10px; /* Soften the corners for a modern look */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05); /* Subtle shadow for depth */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* A modern font choice */
+  }
+  
+  .login-title {
+    font-size: 1.8rem; /* Large, readable title */
+    font-weight: 600; /* Semi-bold */
+    margin-bottom: 1.5rem; /* More defined space between title and inputs */
+    color: #333; /* Dark text for contrast */
+  }
+  
+  .input-group {
+    margin-bottom: 1rem;
+  }
+  
+  .input-group label {
+    display: block;
+    font-size: 0.9rem; /* Smaller label size */
+    color: #777; /* Subtle color */
+    margin-bottom: 0.5rem;
+    font-weight: 600; /* Semi-bold labels */
+  }
+  
+  .input-group input {
+    width: 100%;
+    padding: 10px 15px; /* Comfortable padding */
+    border: 1px solid #ccc;
+    border-radius: 5px; /* Round the edges */
+    font-size: 1rem; /* Easy-to-read text */
+  }
+  
+  .login-button {
+    width: 100%;
+    padding: 12px 0; /* Balanced padding */
+    margin-top: 1rem;
+    background-color: #0056b3; /* Consistent with your brand color */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600; /* Bold button text */
+    transition: background-color 0.2s; /* Smooth transition for hover effect */
+  }
+  
+  .login-button:hover {
+    background-color: #003d82; /* A darker shade when hovered */
+  }
+  
+  .login-footer {
+    margin-top: 1.5rem; /* Space from button to footer */
+    font-size: 0.9rem; /* Smaller, subtler text */
+  }
+  
+  .login-footer a {
+    color: #0056b3;
+    text-decoration: none; /* No underline */
+    font-weight: 600; /* Matches the form style */
+  }
+  
+  .login-footer a:hover {
+    text-decoration: underline; /* Underline on hover for clarity */
+  }
+  
+  .divider {
+    margin: 1.5rem 0; /* More spacing around divider */
+    border: none;
+    border-top: 1px solid #eaeaea; /* Lighter line for a clean look */
+  }
+  
+  .alternative-login-text {
+    color: #666; /* Subtle color for less emphasis */
+    margin-bottom: 1rem; /* Space before buttons */
+  }
+  
+  .alternative-login-methods button {
+    width: 100%;
+    padding: 10px 0; /* Less padding for a slimmer button */
+    margin-top: 0.5rem; /* Standardized margin */
+    border: none;
+    border-radius: 5px; /* Rounded edges for the buttons */
+    cursor: pointer;
+    font-weight: 00; /* Standard weight for less emphasis */
+    transition: all 0.2s; /* Transition for interaction */
+  }
+  
+  .google-button {
+    background-color: #db4437;
+    color: white;
+  }
+  
+  .google-button:hover {
+    background-color: #c1351d;
+  }
+  
+  .docuSign-button {
+    background-color: #ffcd00;
+    color: #333;
+  }
+  
+  .docuSign-button:hover {
+    background-color: #e6b800;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .login-form {
+      width: 100%;
+      padding: 1.5rem; /* Less padding on smaller screens */
+    }
+  
+    .login-footer, .alternative-login-text {
+      font-size: 0.8rem; /* Smaller font size on mobile */
+    }
+  }
+  

@@ -1,22 +1,23 @@
-// src/components/LandingPage/components/Header/Header.js
+// src/components/Header/Header.js
 import React from 'react';
+import { Link } from 'react-router-dom'; // Import Link
 import './Header.css';
 import logo from '../../assets/images/logo.svg'; // Update the path to your logo image
 
 function Header() {
   return (
     <header className="header">
-      <a href="#home">
+      <Link to="/">
         <img src={logo} alt="RealOffer Logo" className="header-logo" />
-      </a>
+      </Link>
       <nav className="header-navigation">
-        <a href="#features" className="header-link">Features</a>
-        <a href="#services" className="header-link">Services</a>
-        <a href="#pricing" className="header-link">Pricing</a>
+        <Link to="/features" className="header-link">Features</Link>
+        <Link to="/services" className="header-link">Services</Link>
+        <Link to="/pricing" className="header-link">Pricing</Link>
       </nav>
       <div className="header-actions">
-        <a href="#login" className="header-link">Log In</a>
-        <a href="#signup" className="header-button">Sign Up</a>
+        <Link to="/login" className="header-link">Log In</Link>
+        <Link to="/signup" className="header-button">Sign Up</Link>
       </div>
     </header>
   );
