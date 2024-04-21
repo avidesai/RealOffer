@@ -13,8 +13,6 @@ function Header() {
       <div className="header-group">
         <nav className="header-navigation">
           <Link to="/features" className="header-link">Features</Link>
-          <Link to="/services" className="header-link">Services</Link>
-          <Link to="/pricing" className="header-link">Pricing</Link>
         </nav>
         <div className="header-divider"></div>
         <div className="header-actions">
