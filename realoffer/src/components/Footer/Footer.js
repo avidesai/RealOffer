@@ -18,9 +18,7 @@ const Footer = () => {
         <p>RealOffer © {new Date().getFullYear()}</p>
       </div>
       <div className="footer-socials">
-        <LinkedInIcon />
-        <FacebookIcon />
-        <TwitterIcon />
+
       </div>
     </footer>
   );

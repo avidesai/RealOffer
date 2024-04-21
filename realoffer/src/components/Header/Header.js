@@ -10,14 +10,17 @@ function Header() {
       <Link to="/">
         <img src={logo} alt="RealOffer Logo" className="header-logo" />
       </Link>
-      <nav className="header-navigation">
-        <Link to="/features" className="header-link">Features</Link>
-        <Link to="/services" className="header-link">Services</Link>
-        <Link to="/pricing" className="header-link">Pricing</Link>
-      </nav>
-      <div className="header-actions">
-        <Link to="/login" className="header-link">Log In</Link>
-        <Link to="/signup" className="header-button">Sign Up</Link>
+      <div className="header-group">
+        <nav className="header-navigation">
+          <Link to="/features" className="header-link">Features</Link>
+          <Link to="/services" className="header-link">Services</Link>
+          <Link to="/pricing" className="header-link">Pricing</Link>
+        </nav>
+        <div className="header-divider"></div>
+        <div className="header-actions">
+          <Link to="/login" className="header-link">Log In</Link>
+          <Link to="/signup" className="header-button">Sign Up</Link>
+        </div>
       </div>
     </header>
   );

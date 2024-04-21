@@ -1,85 +1,100 @@
-/* src/components/LandingPage/components/Header/Header.css */
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 2rem;
-  background-color: #fff;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  z-index: 10; /* Lower z-index since it's not fixed */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 2rem;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 10; /* Lower z-index since it's not fixed */
 }
 
 .header-logo {
-  height: 60px; /* Adjust size as needed */
-  cursor: pointer;
+    height: 60px; /* Adjust size as needed */
+    cursor: pointer;
+}
+
+.header-group {
+    display: flex;
+    align-items: center;
 }
 
 .header-navigation {
-  display: flex;
-  align-items: center;
-  margin-right: 1rem; /* Add right margin */
+    display: flex;
+    align-items: center;
+    margin-right: 0rem; /* Add right margin */
 }
 
 .header-link {
-  margin: 0 1rem;
-  text-decoration: none;
-  color: #333;
-  font-weight: 600; /* Bold font weight */
-  font-size: 1.05rem; /* Slightly larger font size */
-  transition: color 0.3s ease;
+    margin: 0 1rem;
+    text-decoration: none;
+    color: #444;
+    font-weight: 600; /* Bold font weight */
+    font-size: 1.05rem; /* Slightly larger font size */
+    transition: color 0.3s ease;
 }
 
 .header-link:hover,
 .header-link:focus { /* Adding focus for keyboard navigation */
-  color: rgb(27, 92, 243); /* Highlight color */
+    color: rgb(27, 92, 243); /* Highlight color */
+}
+
+.header-divider {
+  height: 30px; /* Adjust as needed */
+  border-left: 2px solid #8a8a8a; /* Adjust color as needed */
+  margin: 0 2.2rem; /* Space on both sides */
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
 }
 
 .header-button {
-  padding: 0.6rem 1.2rem; /* Slightly larger padding */
-  margin-left: 2rem;
-  background-color: rgb(27, 92, 243);
-  color: #fff;
-  border: none;
-  border-radius: 5px; /* Rounded corners */
-  text-decoration: none;
-  cursor: pointer;
-  font-weight: 600; /* Bold font weight */
-  transition: background-color 0.3s ease;
-  outline: none; /* Remove the default focus outline */
+    padding: 0.6rem 1.2rem; /* Slightly larger padding */
+    margin-left: 20px;
+    background-color: rgb(27, 92, 243);
+    color: #fff;
+    border: none;
+    border-radius: 5px; /* Rounded corners */
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 600; /* Bold font weight */
+    transition: background-color 0.3s ease;
+    outline: none; /* Remove the default focus outline */
 }
 
 .header-button:hover {
-  background-color: rgb(0, 83, 172); /* Slightly darker on hover */
+    background-color: rgb(0, 83, 172); /* Slightly darker on hover */
 }
 
 /* Responsive design adjustments */
 @media (max-width: 768px) {
-  .header {
-      padding: 0.75rem 1.5rem; /* Smaller padding for mobile */
-  }
-  
-  .header-logo {
-      height: 50px; /* Smaller logo on mobile */
-  }
-  
-  .header-navigation {
-      display: none; /* Optionally hide navigation on very small screens */
-  }
-  
-  .header-button {
-      padding: 0.5rem 1rem; /* Smaller button on mobile */
-  }
-  
-  /* If using a hamburger menu on mobile */
-  .hamburger-menu {
-      display: block; /* Show hamburger menu */
-      margin-left: auto; /* Align to the right side */
-  }
+    .header {
+            padding: 0.75rem 1.5rem; /* Smaller padding for mobile */
+    }
+    
+    .header-logo {
+            height: 50px; /* Smaller logo on mobile */
+    }
+    
+    .header-navigation {
+            display: none; /* Optionally hide navigation on very small screens */
+    }
+    
+    .header-button {
+            padding: 0.5rem 1rem; /* Smaller button on mobile */
+    }
+    
+    /* If using a hamburger menu on mobile */
+    .hamburger-menu {
+            display: block; /* Show hamburger menu */
+            margin-left: auto; /* Align to the right side */
+    }
 
-  .header-navigation.active {
-      display: flex; /* Show navigation when active */
-      flex-direction: column; /* Stack links vertically */
-      padding: 1rem;
-      background-color: #fff; /* Match the header background */
-  }
+    .header-navigation.active {
+            display: flex; /* Show navigation when active */
+            flex-direction: column; /* Stack links vertically */
+            padding: 1rem;
+            background-color: #fff; /* Match the header background */
+    }
 }
