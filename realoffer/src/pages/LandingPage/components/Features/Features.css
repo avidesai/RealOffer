@@ -28,13 +28,13 @@
 .toggle-btn {
   font-size: 1rem;
   padding: 10px 10px;
-  border: 2px solid #eaeaea;
-  background-color: transparent;
+  border: 12px solid #000000; /* Darker border color */
+  background-color: #f9f9f9; /* Subtle background color */
   color: #333;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-weight: 600; /* Make the text bolder */
-  box-shadow: 0px 2px 5px rgba(0,0,0,0.1); /* Add a subtle shadow */
+  font-weight: 600;
+  box-shadow: 10px 20px 30px rgba(0,0,0.5,1);
 }
 
 .toggle-btn-left {
@@ -121,6 +121,7 @@
   margin-top: 1rem;
   margin-left: auto;
   margin-right: auto;
+  text-decoration: none;
 }
 
 .sign-up-btn:hover {

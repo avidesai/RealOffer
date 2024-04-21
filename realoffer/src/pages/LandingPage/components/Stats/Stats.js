@@ -21,7 +21,7 @@ const Stats = () => {
       <VisibilitySensor onChange={onChangeVisibility} delayedCall>
         <div className="stat">
           <img src={users} alt="" className="stat-icon" />
-          <CountUp start={focus ? 0 : null} end={2500} duration={2.75} redraw={true}>
+          <CountUp start={focus ? 0 : null} end={2522} duration={2.75} redraw={true}>
             {({ countUpRef }) => <span ref={countUpRef} />}
           </CountUp>
           <p>Users on Our Platform</p>
@@ -31,7 +31,7 @@ const Stats = () => {
       <VisibilitySensor onChange={onChangeVisibility} delayedCall>
         <div className="stat">
           <img src={database} alt="" className="stat-icon" />
-          <CountUp start={focus ? 0 : null} end={12000} duration={2.75} redraw={true}>
+          <CountUp start={focus ? 0 : null} end={12532} duration={2.75} redraw={true}>
             {({ countUpRef }) => <span ref={countUpRef} />}
           </CountUp>
           <p>Homes in Our Database</p>
@@ -41,7 +41,7 @@ const Stats = () => {
       <VisibilitySensor onChange={onChangeVisibility} delayedCall>
         <div className="stat">
           <img src={homes} alt="" className="stat-icon" />
-          <CountUp start={focus ? 0 : null} end={670} duration={2.75} redraw={true}>
+          <CountUp start={focus ? 0 : null} end={671} duration={2.75} redraw={true}>
             {({ countUpRef }) => <span ref={countUpRef} />}
           </CountUp>
           <p>Homes Sold</p>

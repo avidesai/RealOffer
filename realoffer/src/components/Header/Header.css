@@ -17,6 +17,7 @@
 .header-navigation {
   display: flex;
   align-items: center;
+  margin-right: 1rem; /* Add right margin */
 }
 
 .header-link {

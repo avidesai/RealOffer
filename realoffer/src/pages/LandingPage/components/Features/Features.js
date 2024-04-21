@@ -1,6 +1,7 @@
 // Features.js
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom'; // Import Link
 import './Features.css';
 import sellHomeImage from './sell-home.jpeg';
 import buyHomeImage from './buy-home.jpeg';
@@ -85,7 +86,7 @@ const Features = () => {
               <p>{point.text}</p>
             </div>
           ))}
-          <button className="sign-up-btn">Sign Up Now</button>
+          <Link to="/signup" className="sign-up-btn">Sign Up Now</Link> 
         </div>
       </div>
     </div>

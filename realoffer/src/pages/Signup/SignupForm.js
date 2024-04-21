@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
+import EmailContext from '../LandingPage/components/CTA/EmailContext';
 import './SignupForm.css'; // Ensure the path is correct
 
 function SignupForm() {
+  const { email, setEmail } = useContext(EmailContext); // Use email from context
   const [name, setName] = useState(''); // New state variable for name
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -30,8 +31,8 @@ function SignupForm() {
         <input
           type="email"
           id="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={email} // Use email from context
+          onChange={(e) => setEmail(e.target.value)} // Use setEmail from context
         />
       </div>
       <div className="input-group">
