@@ -1,6 +1,6 @@
 // CTA.js
 
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import EmailContext from './EmailContext';
 import './CTA.css';
@@ -8,29 +8,11 @@ import chart from './chart.svg';
 
 const CTA = () => {
   const { setEmail } = useContext(EmailContext);
-  const inputRef = useRef();
+  let inputRef = React.createRef();
 
   const handleClick = () => {
     setEmail(inputRef.current.value);
   };
-
-  useEffect(() => {
-    function handleResize() {
-      if (window.innerWidth <= 1024) {
-        inputRef.current.placeholder = 'Enter Your Email';
-      } else {
-        inputRef.current.placeholder = 'Enter Your Email to Get Started';
-      }
-    }
-
-    window.addEventListener('resize', handleResize);
-    handleResize(); // Call the function initially to set the correct placeholder
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
   return (
     <section className="cta-section">
       <h2 className="cta-title">It's easy to get started, and it's free!</h2>
