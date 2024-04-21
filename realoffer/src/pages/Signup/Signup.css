@@ -1,0 +1,25 @@
+/* Signup.css */
+.signup-page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensures full viewport height */
+    background-color: #f9f9f9; /* Light background color for the page */
+  }
+  
+  .signup-content-wrapper {
+    flex-grow: 1; /* Allows the content wrapper to grow and fill available space */
+    display: flex;
+    justify-content: center; /* Center the SignupForm horizontally */
+    align-items: center; /* Center the SignupForm vertically */
+    padding: 2rem; /* Adds padding around the form for better spacing */
+  }
+  
+  /* Ensure the footer is styled correctly via Footer.css and does not need specific styling here */
+  
+  /* Responsive behavior to ensure usability on mobile devices */
+  @media (max-width: 768px) {
+    .signup-content-wrapper {
+      padding: 1rem; /* Reduces padding on smaller screens for better spacing */
+    }
+  }
+  
