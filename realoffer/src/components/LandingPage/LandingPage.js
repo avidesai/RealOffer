@@ -1,5 +1,6 @@
 import React from 'react';
-import Header from './components/Header/Header';
+import Header from '../Header/Header';
+import Footer from '../Footer/Footer';
 import Hero from './components/Hero/Hero';
 import Features from './components/Features/Features';
 import Stats from './components/Stats/Stats';
@@ -27,7 +28,7 @@ function LandingPage() {
         </section>
       </main>
       <footer className="landing-footer">
-        {/* Footer content goes here */}
+        <Footer />
       </footer>
     </div>
   );

@@ -30,12 +30,12 @@
 }
 
 .cta {
-  background-color: rgb(27, 92, 243);; /* Your brand's primary color for the call to action */
+  background-color: rgb(27, 92, 243); /* Your brand's primary color for the call to action */
 }
 
 .landing-footer {
-  background-color: #343a40; /* Dark background for the footer */
-  padding: 2rem 5%; /* Consistent vertical padding with responsive horizontal padding */
+  background-color: rgb(255, 255, 255); /* Dark background for the footer */
+  padding: 1.5rem 8%; /* Consistent vertical padding with responsive horizontal padding */
   text-align: center;
 }
 

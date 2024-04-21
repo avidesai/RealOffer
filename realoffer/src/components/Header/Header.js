@@ -1,12 +1,14 @@
 // src/components/LandingPage/components/Header/Header.js
 import React from 'react';
 import './Header.css';
-import logo from '../../../../assets/images/logo.svg'; // Update the path to your logo image
+import logo from '../../assets/images/logo.svg'; // Update the path to your logo image
 
 function Header() {
   return (
     <header className="header">
-      <img src={logo} alt="RealOffer Logo" className="header-logo" />
+      <a href="#home">
+        <img src={logo} alt="RealOffer Logo" className="header-logo" />
+      </a>
       <nav className="header-navigation">
         <a href="#features" className="header-link">Features</a>
         <a href="#services" className="header-link">Services</a>

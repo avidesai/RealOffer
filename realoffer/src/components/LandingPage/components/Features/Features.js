@@ -55,7 +55,7 @@ const Features = () => {
 
   return (
     <div className="features-section">
-      <h2 className="features-title">Our Key Features</h2>
+      <h2 className="features-title">Key Features</h2>
       <div className="features-toggle">
         <button
           className={`toggle-btn toggle-btn-left ${activeFeature === 'sell' ? 'active' : ''}`}
