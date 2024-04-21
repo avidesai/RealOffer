@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import google from './google.svg'; // Ensure the path is correct
+import docusign from './docusign.svg'; // Ensure the path is correct
 import './LoginForm.css';
 
 function LoginForm() {
@@ -40,8 +42,14 @@ function LoginForm() {
       <hr className="divider"/>
       <p className="alternative-login-text">Other ways to login</p>
       <div className="alternative-login-methods">
-        <button className="google-button">Google</button>
-        <button className="docuSign-button">DocuSign</button>
+        <button className="google-button">
+          <img src={google} alt="Google logo" className="logo" />
+          Google
+        </button>
+        <button className="docuSign-button">
+          <img src={docusign} alt="DocuSign logo" className="logo" />
+          DocuSign
+        </button>
         {/* More buttons can be added here */}
       </div>
     </form>

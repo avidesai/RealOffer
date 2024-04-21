@@ -79,32 +79,38 @@
   color: #666;
 }
 
-.alternative-login-methods button {
-  width: 100%;
-  padding: 0.75rem;
-  margin-top: 0.5rem;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 500;
+.alternative-login-methods {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem; /* Add some space above the buttons */
 }
 
-.google-button, .docuSign-button {
-  background-color: #db4437;
-  color: white;
-}
-
-.google-button:hover {
-  background-color: #c1351d;
-}
-
+.google-button,
 .docuSign-button {
-  background-color: #ffcd00;
-  color: #333;
+  display: flex;
+  align-items: center;
+  background-color: #f6f6f6; /* Light grey background */
+  border: 1px solid #ddd; /* Light grey border */
+  padding: 10px 15px; /* Comfortable padding */
+  border-radius: 5px; /* Soft rounded corners */
+  color: #333; /* Dark grey text */
+  text-decoration: none; /* Remove underline */
+  font-size: 1rem; /* Slightly smaller text */
+  font-weight: 400;
+  transition: background-color 0.2s; /* Smooth transition for hover effect */
+  margin: 0 15px;
+  cursor: pointer;
 }
 
+.google-button:hover,
 .docuSign-button:hover {
-  background-color: #e6b800;
+  background-color: #e0e0e0; /* Slightly darker grey on hover */
+}
+
+.logo {
+  width: 26px;
+  height: 26px;
+  margin-right: 12px; /* Add some space between the logo and the text */
 }
 
 @media (max-width: 768px) {
