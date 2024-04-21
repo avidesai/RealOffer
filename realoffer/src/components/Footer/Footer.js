@@ -3,9 +3,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom'; // Import Link component
 import './Footer.css';
-import { ReactComponent as FacebookIcon } from './facebook.svg';
-import { ReactComponent as TwitterIcon } from './twitter.svg';
-import { ReactComponent as LinkedInIcon } from './linkedin.svg';
 import logo from '../../assets/images/logo.svg'; // Update the path to your logo image
 
 const Footer = () => {
