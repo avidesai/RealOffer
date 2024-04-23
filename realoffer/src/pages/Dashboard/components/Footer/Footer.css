@@ -1,0 +1,46 @@
+/* Footer.css */
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem; /* Increase horizontal padding */
+  background-color: #fff;
+  color: #141414; /* White text for contrast */
+  box-shadow: 0 -4px 6px rgba(0,0,0,0.1); /* Add box shadow to the top */
+}
+
+.footer-text {
+  display: flex;
+  align-items: center; /* Align items along the cross axis */
+}
+
+.footer-logo {
+  width: 28px; /* Adjust as needed */
+  height: 28px; /* Adjust as needed */
+  margin-right: 20px; /* Add some space to the right of the logo */
+}
+
+.footer-text p {
+  margin: 0;
+  font-weight: 500;
+  font-size: 17px;
+  letter-spacing: 0.5px; /* Add letter spacing for a sleek look */
+}
+.footer-socials {
+  display: flex;
+  gap: 1.5rem; /* Increase gap for a cleaner look */
+}
+
+.footer-socials svg {
+  fill: #fff;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  transition: fill 0.25s ease, transform 0.25s ease; /* Add transform to transition for a smooth hover effect */
+}
+
+.footer-socials svg:hover {
+  fill: #007bff;
+  transform: scale(1.1); /* Slightly increase size on hover for a modern look */
+}

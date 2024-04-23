@@ -6,6 +6,7 @@ import EmailContext from './pages/LandingPage/components/CTA/EmailContext';
 import Login from './pages/Login/Login';
 import Signup from './pages/Signup/Signup';
 import FeaturesPage from './pages/Features/FeaturesPage';
+import Dashboard from './pages/Dashboard/Dashboard';
 import './App.css'; // Your global styles
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path='/features' element={<FeaturesPage />} />
           {/* Add other routes here as needed */}
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </Router>
     </EmailContext.Provider>

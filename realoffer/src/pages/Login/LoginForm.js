@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate 
 import google from './google.svg'; // Ensure the path is correct
 import docusign from './docusign.svg'; // Ensure the path is correct
 import './LoginForm.css';
@@ -7,10 +7,12 @@ import './LoginForm.css';
 function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle login logic here
+    navigate('/dashboard');
   };
 
   return (

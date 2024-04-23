@@ -1,0 +1,128 @@
+/* DashboardHeader.css */
+
+.dashboard-header {
+    position: relative; /* Add this line */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 2rem;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+
+  
+  .header-logo {
+    justify-content: flex-start;
+    height: 60px;
+    cursor: pointer;
+  }
+  
+  .header-toggle {
+    display: flex;
+    align-items: center;
+    margin-left: 6.5rem;
+  }
+  
+  .toggle-btn {
+    padding: 0.6rem 1.2rem;
+    margin: 0 0.5rem;
+    background: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    border-radius: 10px;
+  }
+  
+  .toggle-btn.active{
+    color: #ffffff;
+    border-color: #0056b3;
+  }
+  .toggle-btn:hover { /* Focus added for accessibility */
+    background-color: rgb(0, 83, 172); /* Change the hover color to a darker shade */
+    box-shadow: 0px 8px 25px rgba(0,0,0,0.2);
+  }
+  
+  .header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  
+  .header-button {
+    padding: 0.6rem 1rem;
+    margin: 0 1.5rem;
+    background-color: rgb(27, 41, 243);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.7rem;
+    font-weight: 600;
+    transition: background-color 0.3s;
+    text-transform: uppercase; /* Optional: for uppercase text */
+  }
+  
+  .header-button:hover {
+    background-color: rgb(22, 76, 201);
+  }
+  
+  @media (max-width: 768px) {
+    .dashboard-header {
+      padding: 0.75rem 1.5rem;
+    }
+  
+    .header-logo {
+      height: 50px;
+    }
+  
+    .toggle-btn {
+      padding: 0.5rem 1rem;
+      margin: 0 0.5rem; /* adjust space for small screens */
+    }
+  
+    .header-actions {
+      display: none; /* or replace with a more suitable mobile layout */
+    }
+  }
+  
+  .user-avatar img {
+    width: 40px; /* Adjust as needed */
+    height: 40px; /* Adjust as needed */
+    border-radius: 50%; /* Circular avatar */
+    cursor: pointer;
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    top: 100%; /* Align below the avatar */
+    right: 2rem;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    width: 150px; /* Adjust as needed */
+  }
+  
+  .dropdown-item {
+    display: block;
+    padding: 0.5rem 1rem;
+    color: #333;
+    text-decoration: none;
+    border-bottom: 1px solid #eee; /* Divider between items */
+  }
+  
+  .dropdown-item:last-child {
+    border-bottom: none; /* No divider for the last item */
+  }
+  
+  .dropdown-item:hover {
+    background-color: #f6f6f6;
+  }
+  
+  /* Responsive adjustments for the dropdown menu */
+  @media (max-width: 768px) {
+    .dropdown-menu {
+      right: 1rem; /* Adjust position on smaller screens */
+    }
+  }
