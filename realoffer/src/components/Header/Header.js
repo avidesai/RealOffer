@@ -17,7 +17,7 @@ function Header() {
         <div className="header-divider"></div>
         <div className="header-actions">
           <Link to="/login" className="header-link">Log In</Link>
-          <Link to="/signup" className="header-button">Sign Up</Link>
+          <Link to="/signup" className="header-signup-button">Sign Up</Link>
         </div>
       </div>
     </header>
