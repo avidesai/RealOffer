@@ -19,39 +19,36 @@
   color: #333; /* Deep color for contrast */
 }
 
-.features-toggle {
+.features-feature-toggle {
   display: flex;
   justify-content: center;
   margin-bottom: 3rem; /* Increase spacing for aesthetic separation */
 }
 
-.toggle-btn {
-  font-size: 1rem;
-  padding: 10px 10px;
-  border: 12px solid #000000; /* Darker border color */
-  background-color: #f9f9f9; /* Subtle background color */
+.features-toggle-btn {
+  font-size: 1.1rem; /* Larger font size for readability */
+  padding: 12px 24px; /* Bigger padding for a larger button */
+  margin: 0 10px; /* Space between buttons */
+  background-color: #e2e2e2; /* Light gray background for inactive button */
   color: #333;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 600;
-  box-shadow: 10px 20px 30px rgba(0,0,0.5,1);
-}
-
-.toggle-btn-left {
-  /* ... */
   border-radius: 10px;
+  border: 2px solid #e2e2e2; /* Matching border to the background */
 }
 
-.toggle-btn-right {
-  /* ... */
-  border-radius: 10px;
-}
 
-.toggle-btn.active {
+.features-toggle-btn.active {
   background-color: rgb(27, 92, 243);
   color: white;
   border-color: rgb(27, 92, 243);
-  box-shadow: 0px 2px 5px rgba(0,0,0,0.2); /* Add a shadow to the active/hover state */
+  box-shadow: 0px 2px 5px rgba(0,0,0,0.2); /* Shadow for active button */
+}
+
+.features-toggle-btn:hover:not(.active) {
+  background-color: #d0d0d0; /* Darker shade on hover for inactive button */
+  border-color: #d0d0d0;
 }
 
 .toggle-btn:hover {
@@ -82,7 +79,7 @@
 }
 
 .feature-details {
-  width: 55%;
+  width: 50%;
   display: flex;
   flex-direction: column;
   justify-content: center; /* Centers content horizontally */

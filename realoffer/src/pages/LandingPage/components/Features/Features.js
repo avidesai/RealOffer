@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom'; // Import Link
 import './Features.css';
-import sellHomeImage from './sell-home.jpeg';
+import sellHomeImage from './sell-home.png';
 import buyHomeImage from './buy-home.jpeg';
 import chart from './chart.svg'
 import chat from './chat.svg'
@@ -11,6 +11,7 @@ import dollar from './dollar.svg'
 import valuation from './valuation.svg'
 import clipboard from './clipboard.svg'
 import offer from './offer.svg'
+import notifications from './notifications.svg'
 
 const Features = () => {
   const [activeFeature, setActiveFeature] = useState('sell');
@@ -29,8 +30,12 @@ const Features = () => {
           icon: chat,
         },
         {
+          text: 'Get notifications and updates on your home sale in real-time',
+          icon: notifications,
+        },
+        {
           text: 'Manage, store, and track buyer activity on your listings',
-          icon: chart,
+          icon: chart, // Replace with the appropriate icon
         },
       ],
     },
@@ -43,8 +48,12 @@ const Features = () => {
           icon: valuation,
         },
         {
-          text: 'Download disclosures, fill out forms, and talk directly with the seller\'s agent',
+          text: 'Download disclosures and fill out forms easily',
           icon: clipboard,
+        },
+        {
+          text: 'Communicate directly with the seller\'s agent',
+          icon: chat, // Replace with the appropriate icon
         },
         {
           text: 'Simplify the home buying process with full transparency',
@@ -57,15 +66,15 @@ const Features = () => {
   return (
     <div className="features-section">
       <h2 className="features-title">Key Features</h2>
-      <div className="features-toggle">
+      <div className="features-feature-toggle">
         <button
-          className={`toggle-btn toggle-btn-left ${activeFeature === 'sell' ? 'active' : ''}`}
+          className={`features-toggle-btn features-toggle-btn-left ${activeFeature === 'sell' ? 'active' : ''}`}
           onClick={() => setActiveFeature('sell')}
         >
           Sell Your Home
         </button>
         <button
-          className={`toggle-btn toggle-btn-right ${activeFeature === 'buy' ? 'active' : ''}`}
+          className={`features-toggle-btn features-toggle-btn-right ${activeFeature === 'buy' ? 'active' : ''}`}
           onClick={() => setActiveFeature('buy')}
         >
           Buy Your Home
