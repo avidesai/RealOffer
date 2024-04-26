@@ -10,6 +10,7 @@
   padding-left: 0; /* Remove left padding */
   padding-right: 0; /* Remove right padding */
   background-color: #ffffff; /* For a clean, modern look */
+  border-radius: 30px;
 }
 
 .features-title {
@@ -139,19 +140,18 @@
 
   .features-title {
     font-size: 1.7rem;
-    margin-bottom: 1.2rem;
+    margin-bottom: 2rem;
   }
 
   .feature-image, .feature-details {
     width: 100%; /* Full width for smaller screens */
   }
 
-  .features-toggle {
-    margin-top: 1.2rem;
-    margin-bottom: 2rem; /* Increase spacing for aesthetic separation */
+  .features-feature-toggle {
+    margin-bottom: 2.2rem; /* Increase spacing for aesthetic separation */
   }
 
-  .toggle-btn {
+  .features-toggle-btn {
     font-size: 0.9rem;
   }
 
@@ -196,12 +196,12 @@
     margin-bottom: 1rem; /* Adjust margin for mobile */
   }
 
-  .features-toggle {
+  .features-feature-toggle {
     margin-top: 1.2rem;
     margin-bottom: 2rem; /* Increase spacing for aesthetic separation */
   }
 
-  .toggle-btn {
+  .features-toggle-btn {
     font-size: 0.8rem; /* Adjust font size for mobile */
     padding: 8px 12px; /* Adjust padding for mobile */
   }

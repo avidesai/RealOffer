@@ -5,6 +5,7 @@
     align-items: center;
     padding: 50px 10px 50px 0px;
     background-color: #f5f5f5; /* or any color you prefer */
+    border-radius: 30px;
   }
   
   .stat {
