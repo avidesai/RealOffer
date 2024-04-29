@@ -1,0 +1,135 @@
+/* ListingItem.css */
+
+.listing-item {
+  display: grid;
+  grid-template-columns: 240px auto min-content; /* Add space for agent images */
+  gap: 1rem;
+  align-items: start;
+  margin-bottom: 1.5rem;
+  padding: 2rem;
+  border: 1px solid #e1e1e1;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Updated to include transform */
+  background: #fff;
+  cursor: pointer;
+}
+
+.listing-item:hover {
+  transform: translateY(-3px); /* Moves the item slightly up */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* More pronounced shadow to create depth */
+}
+
+.listing-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  object-fit: cover;
+  margin-right: 1.4rem;
+}
+
+.listing-details {
+  padding: 0.8rem;
+}
+
+.listing-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.listing-title {
+  font-size: 1.3rem;
+  color: #333;
+  font-weight: bold;
+  margin: 0 0 0.25rem 0;
+}
+
+.listing-location {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.listing-agents {
+  display: flex;
+  justify-content: flex-end; /* Position agent images to the right */
+  align-items: center;
+  margin-left: auto; /* Push to the far right */
+}
+
+.agent-image {
+  width: 55px; /* Increased size */
+  height: 55px; /* Increased size */
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 0.5rem;
+}
+
+.listing-action-buttons {
+  display: flex;
+  gap: 1rem;
+  padding-top: 0.5rem;
+}
+
+.listing-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  text-align: center;
+  width: 6rem;
+  height: 2.5rem;
+}
+
+.listing-button.share {
+  background-color: rgb(50, 182, 67);
+  color: white;
+}
+
+.listing-button.archive {
+  background-color: rgb(219, 73, 73);
+  color: rgb(255, 255, 255);
+}
+
+.listing-button.share:hover {
+  background-color: rgb(36, 128, 48);
+}
+
+.listing-button.archive:hover {
+  background-color: rgb(154, 42, 42);
+}
+
+@media (max-width: 768px) {
+  .listing-item {
+    grid-template-columns: 1fr; /* Stack on small screens */
+    gap: 0.5rem;
+  }
+
+  .listing-image {
+    width: 100%;
+    height: auto; /* Adjusted for better mobile layout */
+    border-radius: 8px 8px 0 0; /* Adjusted for mobile view */
+  }
+
+  .listing-details,
+  .listing-agents {
+    order: 2; /* Ensure details come first on mobile */
+  }
+
+  .listing-button {
+    width: full; /* Adjust button width for better mobile usability */
+    font-size: 0.9rem;
+  }
+
+  .listing-action-buttons {
+    justify-content: center; /* Center buttons on mobile for better aesthetics */
+  }
+  
+  .agent-image {
+    width: 30px; /* Adjust for mobile */
+    height: 30px; /* Adjust for mobile */
+  }
+}

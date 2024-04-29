@@ -1,14 +1,13 @@
 // DashboardHeader.js
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import './DashboardHeader.css';
 import logo from '../../../../assets/images/logo.svg';
 import avatar from '../../../../assets/images/avatar.svg'; // Replace with path to your avatar image
 
-function DashboardHeader() {
-  const [activeTab, setActiveTab] = useState('listings'); // default active tab
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+function DashboardHeader({ activeTab, setActiveTab }) {
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
 
   const handleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
