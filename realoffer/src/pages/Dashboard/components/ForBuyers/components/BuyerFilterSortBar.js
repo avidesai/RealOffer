@@ -1,20 +1,20 @@
 import React from 'react';
-import './ListingFilterSortBar.css';
+import './BuyerFilterSortBar.css';
 
-function ListingFilterSortBar() {
+function BuyerFilterSortBar() {
   // Handle filter and sorting state and functions here
   
   return (
-    <div className="listing-filter-sort-bar">
-      <div className="listing-filters">
-        <div className="listing-filter-section">
+    <div className="buyer-filter-sort-bar">
+      <div className="buyer-filters">
+        <div className="buyer-filter-section">
           <label htmlFor="filter">Filter:</label>
           <select id="filter">
             <option value="active">Active</option>
             {/* More filter options */}
           </select>
         </div>
-        <div className="listing-sort-section">
+        <div className="buyer-sort-section">
           <label htmlFor="sort">Sort:</label>
           <select id="sort">
             <option value="recent">Most Recent</option>
@@ -22,12 +22,12 @@ function ListingFilterSortBar() {
           </select>
         </div>
       </div>
-      <div className="listing-search-section">
+      <div className="buyer-search-section">
         <input type="text" placeholder="Search Packages" />
-        <button className="listing-search-button">Search</button>
+        <button className="buyer-search-button">Search</button>
       </div>
     </div>
   );
 }
 
-export default ListingFilterSortBar;
+export default BuyerFilterSortBar;

@@ -1,4 +1,4 @@
-.listing-filter-sort-bar {
+.buyer-filter-sort-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -12,37 +12,37 @@
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.listing-filters {
+.buyer-filters {
   display: flex;
   gap: 1rem;
 }
 
-.listing-filter-section,
-.listing-sort-section {
+.buyer-filter-section,
+.buyer-sort-section {
   display: flex;
   align-items: center;
   padding-right: 1rem;
 }
 
-.listing-filter-section label,
-.listing-sort-section label {
+.buyer-filter-section label,
+.buyer-sort-section label {
   margin-right: 0.8rem;
   font-weight: 600;
 }
 
-.listing-filter-section select,
-.listing-sort-section select {
+.buyer-filter-section select,
+.buyer-sort-section select {
   padding: 0.5rem;
   border-radius: 5px;
   border: 1px solid #ccc;
 }
 
-.listing-search-section {
+.buyer-search-section {
   display: flex;
   align-items: center;
 }
 
-.listing-search-section input {
+.buyer-search-section input {
   padding: 0.6rem;
   border-radius: 5px;
   border: 1px solid #ccc;
@@ -50,7 +50,7 @@
   font-size: 14px;
 }
 
-.listing-search-button {
+.buyer-search-button {
   padding: 0.6rem 1rem;
   background-color: #007bff;
   color: white;
@@ -61,24 +61,24 @@
   font-size: 14px;
 }
 
-.listing-search-button:hover {
+.buyer-search-button:hover {
   background-color: #0056b3;
 }
 
 @media (max-width: 768px) {
-  .listing-filters {
+  .buyer-filters {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
   }
 
-  .listing-filter-sort-bar {
+  .buyer-filter-sort-bar {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .listing-filter-section,
-  .listing-sort-section,
-  .listing-search-section {
+  .buyer-filter-section,
+  .buyer-sort-section,
+  .buyer-search-section {
     margin-bottom: 0.5rem;
   }
 }

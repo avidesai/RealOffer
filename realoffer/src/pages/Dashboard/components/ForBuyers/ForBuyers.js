@@ -1,7 +1,7 @@
 // src/pages/Dashboard/components/ForBuyers/ForBuyers.js
 import React, { useState, useEffect } from 'react';
 import BuyerItem from './components/BuyerItem';
-import ListingFilterSortBar from './components/ListingFilterSortBar';
+import BuyerFilterSortBar from './components/BuyerFilterSortBar';
 import Pagination from './components/Pagination';
 import './ForBuyers.css';
 
@@ -40,7 +40,7 @@ function ForBuyers() {
       <div className="create-buyer-package">
         <button className="create-package-button">Create Buyer Package</button>
       </div>
-      <ListingFilterSortBar />
+      <BuyerFilterSortBar />
       {currentListings.map(listing => (
         <BuyerItem key={listing._id} listing={listing} /> // Use _id as key
       ))}

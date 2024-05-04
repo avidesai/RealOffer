@@ -2,7 +2,7 @@
 
 .buyer-item {
   display: grid;
-  grid-template-columns: 240px auto min-content; /* Add space for agent images */
+  grid-template-columns: 240px auto min-content;
   gap: 1rem;
   align-items: start;
   margin-bottom: 1.5rem;
@@ -10,14 +10,14 @@
   border: 1px solid #e1e1e1;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Updated to include transform */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   background: #fff;
   cursor: pointer;
 }
 
 .buyer-item:hover {
-  transform: translateY(-3px); /* Moves the item slightly up */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* More pronounced shadow to create depth */
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
 .buyer-image {
@@ -53,14 +53,14 @@
 
 .buyer-agents {
   display: flex;
-  justify-content: flex-end; /* Position agent images to the right */
+  justify-content: flex-end;
   align-items: center;
-  margin-left: auto; /* Push to the far right */
+  margin-left: auto;
 }
 
 .agent-image {
-  width: 45px; /* Increased size */
-  height: 45px; /* Increased size */
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   object-fit: cover;
   margin-right: 0.5rem;
@@ -106,56 +106,56 @@
 @media (max-width: 768px) {
   .buyer-item {
     display: flex;
-    grid-template-columns: 1fr; /* Stack on small screens */
-    gap: 1rem; /* Increase gap for better spacing */
-    padding: 1rem; /* Reduce padding for smaller screens */
-    border-radius: 8px; /* Add border radius for a softer look */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add shadow for a 3D effect */
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
 
   .buyer-image {
     width: 100%;
-    max-width: 250px; /* Add this line */
+    max-width: 250px;
     height: auto;
     border-radius: 8px 8px 0 0;
     margin: 0 auto 1rem;
   }
 
   .buyer-details {
-    padding: 1rem; /* Reduce padding for smaller screens */
+    padding: 1rem;
   }
 
   .buyer-title {
-    font-size: 1.2rem; /* Reduce font size for smaller screens */
+    font-size: 1.2rem;
   }
 
   .buyer-location {
-    font-size: 1rem; /* Reduce font size for smaller screens */
+    font-size: 1rem;
   }
 
   .buyer-details,
   .buyer-agents {
-    order: 2; /* Ensure details come first on mobile */
+    order: 2;
   }
 
   .buyer-button {
-    width: 100%; /* Full width on small screens */
-    font-size: 0.9rem; /* Reduce font size for smaller screens */
-    margin-top: 0.5rem; /* Add space above the button */
+    width: 100%;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
   }
 
   .buyer-action-buttons {
-    justify-content: center; /* Center buttons on mobile for better aesthetics */
+    justify-content: center;
   }
 
   .agent-image {
-    width: 35px; /* Reduce size for smaller screens */
-    height: 35px; /* Reduce size for smaller screens */
+    width: 35px;
+    height: 35px;
   }
 }
 
 @media (max-width: 600px) {
   .buyer-image {
-    display: none; /* Hide the image */
+    display: none;
   }
 }
