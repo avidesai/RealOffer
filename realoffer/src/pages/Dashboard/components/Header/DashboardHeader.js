@@ -46,7 +46,7 @@ function DashboardHeader({ activeTab, setActiveTab }) {
           <div className="dropdown-menu">
             <Link to="/profile" className="dropdown-item">Profile</Link>
             <Link to="/settings" className="dropdown-item">Settings</Link>
-            <Link to="/logout" className="dropdown-item">Logout</Link>
+            <Link to="/" className="dropdown-item">Logout</Link>
             {/* Add other dropdown items here */}
           </div>
         )}

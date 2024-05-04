@@ -47,6 +47,7 @@
   .header-toggle-btn:hover:not(.active) {
     background-color: #d0d0d0; /* Darker shade on hover for inactive button */
     border-color: #d0d0d0;
+    color: black;
   }
   
   .header-toggle-btn:hover {
