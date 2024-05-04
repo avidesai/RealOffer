@@ -52,16 +52,6 @@ function MyListings() {
     },
     {
       id: 4,
-      address: '5357 Cribari Dell',
-      city: 'San Jose',
-      state: 'CA',
-      zip: '95135',
-      imageUrl: house4,
-      agents: [agent1], // Include agent images
-      isNew: true,
-    },
-    {
-      id: 5,
       address: '1234 New Street',
       city: 'Palo Alto',
       state: 'CA',
@@ -71,7 +61,7 @@ function MyListings() {
       isNew: true,
     },
     {
-      id: 6,
+      id: 5,
       address: '5678 Old Avenue',
       city: 'Mountain View',
       state: 'CA',
@@ -81,7 +71,7 @@ function MyListings() {
       isNew: false,
     },
     {
-      id: 7,
+      id: 6,
       address: '9101 Fresh Boulevard',
       city: 'Santa Clara',
       state: 'CA',
@@ -91,7 +81,7 @@ function MyListings() {
       isNew: true,
     },
     {
-      id: 8,
+      id: 7,
       address: '1213 Vintage Lane',
       city: 'Cupertino',
       state: 'CA',

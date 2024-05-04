@@ -30,6 +30,7 @@
 
 .listing-details {
   padding: 0.8rem;
+  padding-left: 1.5rem;
 }
 
 .listing-info {
@@ -58,8 +59,8 @@
 }
 
 .agent-image {
-  width: 55px; /* Increased size */
-  height: 55px; /* Increased size */
+  width: 45px; /* Increased size */
+  height: 45px; /* Increased size */
   border-radius: 50%;
   object-fit: cover;
   margin-right: 0.5rem;
@@ -104,14 +105,32 @@
 
 @media (max-width: 768px) {
   .listing-item {
+    display: flex;
     grid-template-columns: 1fr; /* Stack on small screens */
-    gap: 0.5rem;
+    gap: 1rem; /* Increase gap for better spacing */
+    padding: 1rem; /* Reduce padding for smaller screens */
+    border-radius: 8px; /* Add border radius for a softer look */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add shadow for a 3D effect */
   }
 
   .listing-image {
     width: 100%;
-    height: auto; /* Adjusted for better mobile layout */
-    border-radius: 8px 8px 0 0; /* Adjusted for mobile view */
+    max-width: 250px; /* Add this line */
+    height: auto;
+    border-radius: 8px 8px 0 0;
+    margin: 0 auto 1rem;
+  }
+
+  .listing-details {
+    padding: 1rem; /* Reduce padding for smaller screens */
+  }
+
+  .listing-title {
+    font-size: 1.2rem; /* Reduce font size for smaller screens */
+  }
+
+  .listing-location {
+    font-size: 1rem; /* Reduce font size for smaller screens */
   }
 
   .listing-details,
@@ -120,16 +139,23 @@
   }
 
   .listing-button {
-    width: full; /* Adjust button width for better mobile usability */
-    font-size: 0.9rem;
+    width: 100%; /* Full width on small screens */
+    font-size: 0.9rem; /* Reduce font size for smaller screens */
+    margin-top: 0.5rem; /* Add space above the button */
   }
 
   .listing-action-buttons {
     justify-content: center; /* Center buttons on mobile for better aesthetics */
   }
-  
+
   .agent-image {
-    width: 30px; /* Adjust for mobile */
-    height: 30px; /* Adjust for mobile */
+    width: 35px; /* Reduce size for smaller screens */
+    height: 35px; /* Reduce size for smaller screens */
+  }
+}
+
+@media (max-width: 600px) {
+  .listing-image {
+    display: none; /* Hide the image */
   }
 }

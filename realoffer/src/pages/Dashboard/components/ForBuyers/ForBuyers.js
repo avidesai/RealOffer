@@ -1,6 +1,6 @@
 // src/pages/Dashboard/components/ForBuyers/ForBuyers.js
 import React, { useState, useEffect } from 'react';
-import ListingItem from './components/ListingItem';
+import BuyerItem from './components/BuyerItem';
 import ListingFilterSortBar from './components/ListingFilterSortBar';
 import Pagination from './components/Pagination';
 import './ForBuyers.css';
@@ -42,7 +42,7 @@ function ForBuyers() {
       </div>
       <ListingFilterSortBar />
       {currentListings.map(listing => (
-        <ListingItem key={listing._id} listing={listing} /> // Use _id as key
+        <BuyerItem key={listing._id} listing={listing} /> // Use _id as key
       ))}
       {pageCount > 1 && (
         <Pagination

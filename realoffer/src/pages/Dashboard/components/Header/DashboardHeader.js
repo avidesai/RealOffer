@@ -25,13 +25,13 @@ function DashboardHeader({ activeTab, setActiveTab }) {
       <div className="header-toggle">
         <button
           onClick={() => setActiveTab('listings')}
-          className={`toggle-btn ${activeTab === 'listings' ? 'active' : ''}`}
+          className={`header-toggle-btn ${activeTab === 'listings' ? 'active' : ''}`}
         >
           My Listings
         </button>
         <button
           onClick={() => setActiveTab('buyers')}
-          className={`toggle-btn ${activeTab === 'buyers' ? 'active' : ''}`}
+          className={`header-toggle-btn ${activeTab === 'buyers' ? 'active' : ''}`}
         >
           For Buyers
         </button>
