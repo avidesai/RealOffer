@@ -1,28 +1,32 @@
-require('dotenv').config();
 const mongoose = require('mongoose');
-const Listing = require('./models/Listing'); // adjust the path as necessary
+const BuyerListing = require('./models/Buyer_Listings');
+const SellerListing = require('./models/Seller_Listings');
+const fs = require('fs');
+const path = require('path');
+require('dotenv').config(); // Make sure to load .env file
 
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.log(err));
 
-const seedListings = [
-  {
-    address: '93 Main Street',
-    city: 'Louisville',
-    state: 'KY',
-    zip: '40208',
-    imageUrl: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    agents: ['https://ssl.cdn-redfin.com/system_files/images/18888/640x460/6_78.jpg'], // Replace with the URL to the agent's image
-    isNew: false,
-  },
-  // Additional listings...
-];
+const buyerListingsPath = path.join(__dirname, 'dummy_data', 'buyerListings.json');
+const sellerListingsPath = path.join(__dirname, 'dummy_data', 'sellerListings.json');
 
-const seedDB = async () => {
-  await Listing.deleteMany({});
-  await Listing.insertMany(seedListings);
+const buyerListings = JSON.parse(fs.readFileSync(buyerListingsPath, 'utf-8'));
+const sellerListings = JSON.parse(fs.readFileSync(sellerListingsPath, 'utf-8'));
+
+const seedData = async () => {
+  try {
+    await BuyerListing.deleteMany();
+    await SellerListing.deleteMany();
+    await BuyerListing.insertMany(buyerListings);
+    await SellerListing.insertMany(sellerListings);
+    console.log('Data seeded');
+    mongoose.connection.close();
+  } catch (err) {
+    console.error(err);
+    mongoose.connection.close();
+  }
 };
 
-seedDB().then(() => {
-  console.log("Database seeded");
-  mongoose.connection.close();
-});
+seedData();

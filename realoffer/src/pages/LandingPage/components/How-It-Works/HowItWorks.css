@@ -23,16 +23,16 @@
   }
   
   .toggle-btn {
-    padding: 10px 20px;
-    margin: 0 10px;
-    border: 2px solid #eaeaea;
-    background-color: transparent;
+    font-size: 0.9rem; /* Larger font size for readability */
+    padding: 12px 24px; /* Bigger padding for a larger button */
+    margin: 0 10px; /* Space between buttons */
+    background-color: #e2e2e2; /* Light gray background for inactive button */
     color: #333;
-    border: none;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    font-weight: 600; /* Bold for emphasis */
-    box-shadow: 0px 2px 5px rgba(0,0,0,0.1); /* Add a subtle shadow */
+    transition: all 0.3s ease;
+    font-weight: 600;
+    border-radius: 10px;
+    border: 2px solid #e2e2e2; /* Matching border to the background */
   }
   
   .toggle-btn.active {

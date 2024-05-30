@@ -1,6 +1,4 @@
-// DashboardHeader.js
-
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import './DashboardHeader.css';
 import logo from '../../../../assets/images/logo.svg';
@@ -8,10 +6,25 @@ import avatar from '../../../../assets/images/avatar.svg'; // Replace with path 
 
 function DashboardHeader({ activeTab, setActiveTab }) {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const dropdownRef = useRef(null); // Add this line
 
   const handleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
+
+  // Add this useEffect hook
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <header className="dashboard-header">
@@ -43,7 +56,7 @@ function DashboardHeader({ activeTab, setActiveTab }) {
           <img src={avatar} alt="User Avatar" />
         </div>
         {isDropdownOpen && (
-          <div className="dropdown-menu">
+          <div className="dropdown-menu" ref={dropdownRef}>
             <Link to="/profile" className="dropdown-item">Profile</Link>
             <Link to="/settings" className="dropdown-item">Settings</Link>
             <Link to="/" className="dropdown-item">Logout</Link>

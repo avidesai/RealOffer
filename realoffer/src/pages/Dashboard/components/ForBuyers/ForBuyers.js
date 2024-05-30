@@ -1,4 +1,3 @@
-// src/pages/Dashboard/components/ForBuyers/ForBuyers.js
 import React, { useState, useEffect } from 'react';
 import BuyerItem from './components/BuyerItem';
 import BuyerFilterSortBar from './components/BuyerFilterSortBar';
@@ -11,20 +10,9 @@ function ForBuyers() {
   const [listings, setListings] = useState([]);
 
   useEffect(() => {
-    const fetchListings = async () => {
-      try {
-        const response = await fetch('http://localhost:8000/listings');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setListings(data);
-      } catch (error) {
-        console.error("Could not fetch listings:", error);
-      }
-    };
-
-    fetchListings();
+    fetch('http://localhost:8000/buyer_listings')
+      .then(response => response.json())
+      .then(data => setListings(data));
   }, []);
 
   const pageCount = Math.ceil(listings.length / LISTINGS_PER_PAGE);
@@ -42,7 +30,7 @@ function ForBuyers() {
       </div>
       <BuyerFilterSortBar />
       {currentListings.map(listing => (
-        <BuyerItem key={listing._id} listing={listing} /> // Use _id as key
+        <BuyerItem key={listing._id} listing={listing} />
       ))}
       {pageCount > 1 && (
         <Pagination

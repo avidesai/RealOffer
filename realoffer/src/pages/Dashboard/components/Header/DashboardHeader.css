@@ -20,7 +20,7 @@
   .header-toggle {
     display: flex;
     align-items: center;
-    margin-left: 10rem;
+    margin-left: 9rem;
   }
   
   .header-toggle-btn {
@@ -85,12 +85,22 @@
     cursor: pointer;
     margin-left: 2rem;
     margin-right: 1rem;
+    border-radius: 50%;
+    padding: 0.2rem 0.25rem;
+    border: 2px solid #eaeaea;
+    transition: border-color 0.3s ease, transform 0.3s ease; /* Add transition for smooth effect */
   }
 
   .user-avatar img {
-    width: 40px; /* Adjust as needed */
-    height: 40px; /* Adjust as needed */
-    border-radius: 50%; /* Circular avatar */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .user-avatar:hover {
+    border-color: rgb(27, 92, 243); /* Change border color on hover */
+    transform: scale(1.05); /* Slightly increase size on hover */
   }
   
   .dropdown-menu {
