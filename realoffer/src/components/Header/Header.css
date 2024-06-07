@@ -7,11 +7,11 @@
     padding: 0.5rem 2rem;
     background-color: #fff;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    z-index: 10; /* Lower z-index since it's not fixed */
+    z-index: 10;
 }
 
 .header-logo {
-    height: 60px; /* Adjust size as needed */
+    height: 60px;
     cursor: pointer;
 }
 
@@ -20,30 +20,29 @@
     align-items: center;
 }
 
-.header-navigation {
+.header-navigation,
+.header-divider {
     display: flex;
-    align-items: center;
-    margin-right: 0rem; /* Add right margin */
 }
 
 .header-link {
     margin: 0 1rem;
     text-decoration: none;
     color: #444;
-    font-weight: 600; /* Bold font weight */
-    font-size: 1.05rem; /* Slightly larger font size */
+    font-weight: 600;
+    font-size: 1.05rem;
     transition: color 0.3s ease;
 }
 
 .header-link:hover,
-.header-link:focus { /* Adding focus for keyboard navigation */
-    color: rgb(27, 92, 243); /* Highlight color */
+.header-link:focus {
+    color: rgb(27, 92, 243);
 }
 
 .header-divider {
-  height: 30px; /* Adjust as needed */
-  border-left: 2px solid #8a8a8a; /* Adjust color as needed */
-  margin: 0 2.2rem; /* Space on both sides */
+    height: 30px;
+    border-left: 2px solid #8a8a8a;
+    margin: 0 2.2rem;
 }
 
 .header-actions {
@@ -52,51 +51,55 @@
 }
 
 .header-signup-button {
-    padding: 0.6rem 1.2rem; /* Slightly larger padding */
+    padding: 0.6rem 1.2rem;
     margin-left: 20px;
     background-color: rgb(27, 92, 243);
     color: #fff;
     border: none;
-    border-radius: 5px; /* Rounded corners */
+    border-radius: 5px;
     text-decoration: none;
     cursor: pointer;
-    font-weight: 600; /* Bold font weight */
+    font-weight: 600;
     transition: background-color 0.3s ease;
-    outline: none; /* Remove the default focus outline */
+    outline: none;
 }
 
 .header-signup-button:hover {
-    background-color: rgb(0, 83, 172); /* Slightly darker on hover */
+    background-color: rgb(0, 83, 172);
 }
 
-/* Responsive design adjustments */
+/* Responsive design adjustments for small screens */
 @media (max-width: 768px) {
     .header {
-            padding: 0.75rem 1.5rem; /* Smaller padding for mobile */
-    }
-    
-    .header-logo {
-            height: 50px; /* Smaller logo on mobile */
-    }
-    
-    .header-navigation {
-            display: none; /* Optionally hide navigation on very small screens */
-    }
-    
-    .header-signup-button {
-            padding: 0.5rem 1rem; /* Smaller button on mobile */
-    }
-    
-    /* If using a hamburger menu on mobile */
-    .hamburger-menu {
-            display: block; /* Show hamburger menu */
-            margin-left: auto; /* Align to the right side */
+        padding: 0.75rem 1.5rem;
+        flex-wrap: wrap; /* Ensures content wraps and doesn't overflow */
     }
 
-    .header-navigation.active {
-            display: flex; /* Show navigation when active */
-            flex-direction: column; /* Stack links vertically */
-            padding: 1rem;
-            background-color: #fff; /* Match the header background */
+    .header-logo {
+        height: 50px;
+        flex-basis: 100%; /* Makes the logo take full width */
+        order: 1; /* Reorders the logo to the top */
+        text-align: center; /* Centers the logo */
+    }
+
+    .header-group {
+        width: 100%; /* Ensures group takes full width */
+        justify-content: space-between; /* Spreads items to full width */
+        order: 3; /* Places navigation at the bottom */
+    }
+
+    .header-navigation,
+    .header-divider {
+        display: none; /* Still hide navigation and divider */
+    }
+
+    .header-actions {
+        order: 2; /* Places actions below logo */
+        justify-content: center; /* Centers actions */
+        width: 100%; /* Full width to contain buttons */
+    }
+
+    .header-signup-button {
+        padding: 0.5rem 1rem;
     }
 }
