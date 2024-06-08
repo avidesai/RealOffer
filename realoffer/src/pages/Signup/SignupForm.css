@@ -1,4 +1,19 @@
-/* SignupForm.css */
+/* SignupForm.css adjustments */
+.name-group {
+    display: flex;
+    justify-content: space-between;
+}
+
+.input-group {
+    flex: 1; /* Allows input groups to fill the space equally */
+    margin-right: 10px; /* Adds spacing between fields within a group */
+}
+
+.input-group:last-child {
+    margin-right: 0; /* Removes margin from the last input group in any container */
+}
+
+/* Main styles */
 .signup-form {
     width: 90%;
     max-width: 360px;
@@ -20,12 +35,17 @@
     margin-bottom: 1rem;
 }
 
+.input-group label,
+.input-group button {
+    display: inline-block;
+}
+
 .input-group label {
-    display: block;
     font-size: 0.9rem;
     color: #777;
     margin-bottom: 0.5rem;
     font-weight: 600;
+    width: auto;
 }
 
 .input-group input,
@@ -39,12 +59,13 @@
 }
 
 .toggle-password {
-  flex: 0;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #777;
-  font-size: 1.2rem; /* adjust size as needed */
+    padding: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #777;
+    font-size: 1rem;
+    vertical-align: middle; /* Aligns button with label text */
 }
 
 .signup-button {
@@ -65,29 +86,18 @@
     background-color: #0056b3;
 }
 
-.signup-footer p {
-    margin-top: 1.5rem;
-}
-
-.signup-footer a {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.signup-footer a:hover {
-    text-decoration: underline;
-}
-
-.divider {
-    margin: 1.5rem 0;
-    border: none;
-    border-top: 1px solid #eaeaea;
-}
-
+/* Media queries for responsive adjustments */
 @media (max-width: 768px) {
     .signup-form {
         width: 100%;
         padding: 1.5rem;
+    }
+
+    .name-group {
+        flex-direction: column; /* Stacks the inputs vertically on smaller screens */
+    }
+
+    .input-group {
+        margin-right: 0; /* Removes right margin on smaller screens */
     }
 }

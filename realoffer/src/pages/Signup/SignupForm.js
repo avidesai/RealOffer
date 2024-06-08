@@ -6,7 +6,8 @@ import './SignupForm.css';
 
 function SignupForm() {
     const [formData, setFormData] = useState({
-        name: '',
+        firstName: '',
+        lastName: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -37,7 +38,6 @@ function SignupForm() {
             return;
         }
 
-        // Simplifying object for clarity; assume backend expects 'password' field now
         const { confirmPassword, ...userData } = formData;
 
         try {
@@ -53,20 +53,28 @@ function SignupForm() {
         <div className="signup-form">
             <h1 className="signup-title">Create Account</h1>
             <form onSubmit={handleSubmit}>
-                <div className="input-group">
-                    <label htmlFor="name">Full Name</label>
-                    <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required />
+                <div className="name-group">
+                    <div className="input-group">
+                        <label htmlFor="firstName">First Name</label>
+                        <input type="text" id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} required />
+                    </div>
+                    <div className="input-group">
+                        <label htmlFor="lastName">Last Name</label>
+                        <input type="text" id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required />
+                    </div>
                 </div>
                 <div className="input-group">
                     <label htmlFor="email">Email</label>
                     <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required />
                 </div>
                 <div className="input-group password-group">
-                    <label htmlFor="password">Password</label>
+                    <div className="password-label-group">
+                        <label htmlFor="password">Password</label>
+                        <button type="button" onClick={togglePasswordVisibility} className="toggle-password">
+                            {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </button>
+                    </div>
                     <input type={showPassword ? 'text' : 'password'} id="password" name="password" value={formData.password} onChange={handleChange} required />
-                    <button type="button" onClick={togglePasswordVisibility} className="toggle-password">
-                        {showPassword ? <FaEyeSlash /> : <FaEye />}
-                    </button>
                 </div>
                 <div className="input-group">
                     <label htmlFor="confirmPassword">Confirm Password</label>
