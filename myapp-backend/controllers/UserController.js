@@ -23,8 +23,16 @@ exports.getUserById = async (req, res) => {
 };
 
 exports.createUser = async (req, res) => {
-    const newUser = new User(req.body);
+    const { firstName, lastName, email, password, role, ...otherDetails } = req.body;
     try {
+        const newUser = new User({
+            firstName,
+            lastName,
+            email,
+            password,
+            role,
+            ...otherDetails
+        });
         const savedUser = await newUser.save();
         res.status(201).json(savedUser);
     } catch (error) {
@@ -33,8 +41,15 @@ exports.createUser = async (req, res) => {
 };
 
 exports.updateUser = async (req, res) => {
+    const { firstName, lastName, email, role, ...otherDetails } = req.body;
     try {
-        const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const updatedUser = await User.findByIdAndUpdate(req.params.id, {
+            firstName,
+            lastName,
+            email,
+            role,
+            ...otherDetails
+        }, { new: true });
         res.status(200).json(updatedUser);
     } catch (error) {
         res.status(400).json({ message: error.message });
