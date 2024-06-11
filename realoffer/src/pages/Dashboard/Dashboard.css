@@ -1,9 +1,21 @@
 .dashboard-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* Use 100% of the viewport height */
-    background-color: #f4f4f4; /* Light background for the dashboard */
-  }
-  
-  /* Additional styles will be added here as you expand the dashboard */
-  
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Use 100% of the viewport height */
+  background-color: #f4f4f4; /* Light background for the dashboard */
+}
+
+.content {
+  flex: 1; /* This will make the content area grow and push the footer down */
+  padding: 20px; /* Add padding to the content for better spacing */
+}
+
+.dashboard-footer { /* Specific class for footer within the dashboard */
+  width: 100%; /* Ensures the footer spans the full width of the container */
+  box-shadow: none; /* Avoids overriding the original shadow in Footer.css */
+}
+
+.footer { /* Reset or specify footer styles if necessary when inside dashboard */
+  margin-top: auto; /* Ensures footer sticks to the bottom */
+  box-shadow: 0 -4px 6px rgba(0,0,0,0.1); /* Keeps original shadow from Footer.css */
+}

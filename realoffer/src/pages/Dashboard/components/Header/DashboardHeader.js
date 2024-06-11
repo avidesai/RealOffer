@@ -1,20 +1,27 @@
-// DashboardHeader.js
+// /Header/DashboardHeader.js
 
 import React, { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../../context/AuthContext';
 import './DashboardHeader.css';
 import logo from '../../../../assets/images/logo.svg';
-import avatar from '../../../../assets/images/avatar.svg'; // Replace with path to your avatar image
+import avatar from '../../../../assets/images/avatar.svg';
 
 function DashboardHeader({ activeTab, setActiveTab }) {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
-  const dropdownRef = useRef(null); // Add this line
+  const dropdownRef = useRef(null);
+  const { logout } = useAuth(); // Using the logout function from AuthContext
+  const navigate = useNavigate();
 
   const handleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  // Add this useEffect hook
+  const handleLogout = () => {
+    logout();
+    navigate('/login'); // Redirect to login page after logout
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -61,7 +68,7 @@ function DashboardHeader({ activeTab, setActiveTab }) {
           <div className="dropdown-menu" ref={dropdownRef}>
             <Link to="/profile" className="dropdown-item">Profile</Link>
             <Link to="/settings" className="dropdown-item">Settings</Link>
-            <Link to="/" className="dropdown-item">Logout</Link>
+            <Link to="/" onClick={handleLogout} className="dropdown-item">Logout</Link>
             {/* Add other dropdown items here */}
           </div>
         )}
