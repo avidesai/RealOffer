@@ -9,11 +9,12 @@ function MyListings() {
   const [currentPage, setCurrentPage] = useState(1);
   const [listings, setListings] = useState([]);
 
-  useEffect(() => {
-    fetch('http://localhost:8000/seller_listings')
-      .then(response => response.json())
-      .then(data => setListings(data));
-  }, []);
+  // Adjusted to the correct endpoint or temporarily removed if not applicable
+  // useEffect(() => {
+  //   fetch('http://localhost:8000/api/your_correct_endpoint')
+  //     .then(response => response.json())
+  //     .then(data => setListings(data));
+  // }, []);
 
   const pageCount = Math.ceil(listings.length / LISTINGS_PER_PAGE);
   const startIndex = (currentPage - 1) * LISTINGS_PER_PAGE;

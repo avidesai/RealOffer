@@ -1,3 +1,5 @@
+// server.js
+
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -21,10 +23,8 @@ app.get('/', (req, res) => {
 });
 
 // Route Imports
-const buyerListingsRouter = require('./routes/buyer_listings');
-const sellerListingsRouter = require('./routes/seller_listings');
-const uploadRouter = require('./routes/upload');
 const usersRouter = require('./routes/users');
+const uploadRouter = require('./routes/upload');
 const propertyListingsRouter = require('./routes/propertyListings');
 const documentsRouter = require('./routes/documents');
 const transactionsRouter = require('./routes/transactions');
@@ -32,10 +32,8 @@ const favoritesRouter = require('./routes/favorites');
 const listingTemplatesRouter = require('./routes/listingTemplates');
 
 // Route Usage
-app.use('/buyer_listings', buyerListingsRouter);
-app.use('/seller_listings', sellerListingsRouter);
-app.use('/upload', uploadRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/upload', uploadRouter);
 app.use('/api/propertyListings', propertyListingsRouter);
 app.use('/api/documents', documentsRouter);
 app.use('/api/transactions', transactionsRouter);

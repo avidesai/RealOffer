@@ -17,8 +17,10 @@ function LoginForm() {
     setErrorMessage(''); // Clear any existing errors
     try {
       const response = await axios.post('http://localhost:8000/api/users/login', { email, password });
-      console.log('Login successful:', response.data);
-      navigate('/dashboard'); // Navigate to dashboard on successful login
+      if (response.data) {
+        console.log('Login successful:', response.data);
+        navigate('/dashboard'); // Navigate to dashboard on successful login
+      }
     } catch (error) {
       console.error('Error logging in:', error.response?.data?.message || 'Server error');
       setErrorMessage(error.response?.data?.message || 'Login failed, please try again.'); // Display error message
