@@ -7,6 +7,7 @@ import Login from './pages/Login/Login';
 import Signup from './pages/Signup/Signup';
 import FeaturesPage from './pages/Features/FeaturesPage';
 import Dashboard from './pages/Dashboard/Dashboard';
+import CreateListingPackage from './pages/Dashboard/components/CreateListingPackage/CreateListingPackage';
 import './App.css'; // Your global styles
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
           <Route path='/features' element={<FeaturesPage />} />
           {/* Add other routes here as needed */}
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/create-listing-package" component={CreateListingPackage} />
         </Routes>
       </Router>
     </EmailContext.Provider>

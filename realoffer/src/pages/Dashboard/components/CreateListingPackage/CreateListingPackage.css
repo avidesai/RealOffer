@@ -1,0 +1,150 @@
+/* src/pages/Dashboard/components/CreateListingPackage/CreateListingPackage.css */
+
+.create-package-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.create-package-content {
+    background: #ffffff;
+    padding-top: 2rem;
+    padding-left: 2.5rem;
+    padding-right: 4rem;
+    padding-bottom: 2rem;
+    border-radius: 10px;
+    width: 700px; /* Increased width */
+    height: auto; /* Adjust height automatically based on content */
+    min-height: 70%; /* Ensure it's taller */
+    max-width: 90%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow-y: auto;
+    max-height: 90%;
+}
+
+.create-package-title {
+    font-size: 2em;
+    margin-bottom: 2rem;
+    text-align: center;
+    color: #333333;
+}
+
+.create-package-step {
+    margin-bottom: 20px;
+}
+
+.create-package-step h2 {
+    font-size: 1.5em;
+    margin-bottom: 2rem;
+    color: #555555;
+}
+
+.create-package-step input,
+.create-package-step textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #dddddd;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.create-package-step textarea {
+  margin-bottom: 3rem;
+}
+
+.create-package-step label {
+    display: block; /* Stack radio buttons vertically */
+    margin-bottom: 10px; /* Add some space between radio buttons */
+}
+
+.create-package-step label:hover {
+  cursor: pointer; /* Changes cursor to a hand symbol on hover */
+}
+
+.create-package-step input[type="radio"] {
+    width: auto;
+    margin-right: 1.2rem;
+}
+
+.create-package-step input[type="radio"]:hover {
+  cursor:pointer; /* Changes cursor to a hand symbol on hover */
+}
+
+/* Add this new class for the button container */
+.button-container {
+    display: flex;
+    justify-content: space-between; /* This will place one button on each end */
+    position: absolute;
+    bottom: 30px; /* Adjust as needed to fit your design */
+    left: 30px;
+    right: 30px;
+}
+
+.back-button {
+  background-color: #a09f9f; /* Gray background for back buttons */
+  color: #000; /* Adjust text color as needed */
+}
+
+.next-button {
+  background-color: #007bff; /* Blue background for next buttons */
+  color: #fff; /* Adjust text color as needed */
+}
+
+.back-button:hover {
+  background-color: #7c7b7b; /* Slightly darker shade of gray on hover */
+}
+
+.next-button:hover {
+  background-color: #0056b3; /* Slightly darker shade of blue on hover */
+}
+
+.create-package-step button {
+    flex: 1; /* Make buttons flexible in size */
+    margin: 0 25px; /* Add some space between the buttons */
+    display: block; /* Ensure the button is a block element */
+    width: 100%; /* Full width */
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background 0.3s ease;
+}
+
+.create-package-step button:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+}
+
+.close-button {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: #ffffff; /* Light grey background */
+    border: 1px solid #dddddd; /* Slight border */
+    border-radius: 50%; /* Circle shape */
+    width: 40px; /* Fixed width */
+    height: 40px; /* Fixed height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #aaaaaa;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.close-button:hover {
+    color: #ff0000;
+    background-color: #e6e6e6; /* Slightly darker background on hover */
+}
