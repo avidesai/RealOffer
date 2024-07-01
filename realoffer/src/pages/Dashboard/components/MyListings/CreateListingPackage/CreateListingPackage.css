@@ -1,3 +1,5 @@
+/* CreateListingPackage.css */
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 
 .create-package-modal {
@@ -57,7 +59,7 @@
 .create-package-step textarea {
   width: 100%;
   padding: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
   border: 1px solid #dddddd;
   border-radius: 5px;
   font-size: 1em;
@@ -195,4 +197,11 @@ select {
   display: inline-block;
   margin-top: -0.15rem; /* Slightly raise the X */
   line-height: 1; /* Adjust line height for better vertical alignment */
+}
+
+.error {
+  color: red;
+  font-size: 0.9em;
+  margin-top: -10px;
+  margin-bottom: 10px;
 }

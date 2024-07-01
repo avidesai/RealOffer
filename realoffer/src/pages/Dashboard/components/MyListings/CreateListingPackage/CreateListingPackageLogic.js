@@ -1,5 +1,4 @@
 // CreateListingPackageLogic.js
-
 import React, { useState } from 'react';
 import axios from 'axios';
 import CreateListingPackageForm from './CreateListingPackageForm';
@@ -29,12 +28,22 @@ const CreateListingPackageLogic = ({ onClose, userId }) => {
     officerNumber: '',
     propertyImages: [],
   });
+  const [errors, setErrors] = useState({});
 
-  const handleNextStep = () => setStep(step + 1);
+  const handleNextStep = () => {
+    const currentErrors = validateForm(step);
+    if (Object.keys(currentErrors).length === 0) {
+      setStep(step + 1);
+    } else {
+      setErrors(currentErrors);
+    }
+  };
+
   const handlePrevStep = () => setStep(step - 1);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: '' });
   };
 
   const handleFileChange = (e) => {
@@ -55,7 +64,6 @@ const CreateListingPackageLogic = ({ onClose, userId }) => {
       }
     }
 
-    // Ensure userId is a valid ObjectId
     if (userId) {
       formDataToSend.append('agentIds', userId);
     }
@@ -72,6 +80,27 @@ const CreateListingPackageLogic = ({ onClose, userId }) => {
     }
   };
 
+  const validateForm = (currentStep) => {
+    const newErrors = {};
+    if (currentStep === 1 && !formData.role) newErrors.role = 'Role is required';
+    if (currentStep === 2) {
+      if (!formData.address) newErrors.address = 'Address is required';
+      if (!formData.city) newErrors.city = 'City is required';
+      if (!formData.state) newErrors.state = 'State is required';
+      if (!formData.zip) newErrors.zip = 'Zip is required';
+    }
+    if (currentStep === 3) {
+      if (!formData.propertyType) newErrors.propertyType = 'Property type is required';
+      if (!formData.askingPrice) newErrors.askingPrice = 'Asking price is required';
+      if (!formData.bedrooms) newErrors.bedrooms = 'Bedrooms are required';
+      if (!formData.bathrooms) newErrors.bathrooms = 'Bathrooms are required';
+      if (!formData.yearBuilt) newErrors.yearBuilt = 'Year built is required';
+      if (!formData.sqFootage) newErrors.sqFootage = 'Square footage is required';
+      if (!formData.lotSize) newErrors.lotSize = 'Lot size is required';
+    }
+    return newErrors;
+  };
+
   return (
     <CreateListingPackageForm
       step={step}
@@ -81,10 +110,10 @@ const CreateListingPackageLogic = ({ onClose, userId }) => {
       handleChange={handleChange}
       handleFileChange={handleFileChange}
       handleSubmit={handleSubmit}
+      errors={errors}
       onClose={onClose}
     />
   );
 };
 
 export default CreateListingPackageLogic;
-

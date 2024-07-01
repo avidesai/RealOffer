@@ -23,7 +23,7 @@ exports.getUserById = async (req, res) => {
 };
 
 exports.createUser = async (req, res) => {
-    const { firstName, lastName, email, password, role, ...otherDetails } = req.body;
+    const { firstName, lastName, email, password, role } = req.body;
     try {
         const newUser = new User({
             firstName,
@@ -31,7 +31,33 @@ exports.createUser = async (req, res) => {
             email,
             password,
             role,
-            ...otherDetails
+            profilePhotoUrl: 'https://realoffer-bucket.s3.us-east-2.amazonaws.com/avatar.svg',
+            isActive: false,
+            emailConfirmed: false,
+            lastLogin: null,
+            twoFactorAuthenticationEnabled: false,
+            notificationSettings: '',
+            phone: '',
+            addressLine1: '',
+            addressLine2: '',
+            homepage: '',
+            agentLicenseNumber: '',
+            brokerageLicenseNumber: '',
+            agencyName: '',
+            agencyWebsite: '',
+            agencyImage: '',
+            agencyAddressLine1: '',
+            agencyAddressLine2: '',
+            linkedIn: '',
+            twitter: '',
+            facebook: '',
+            bio: '',
+            isVerifiedAgent: false,
+            receiveMarketingMaterials: false,
+            isPremium: false,
+            premiumPlan: '',
+            templates: [],
+            contacts: []
         });
         const savedUser = await newUser.save();
         res.status(201).json(savedUser);

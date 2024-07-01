@@ -13,6 +13,7 @@ function SignupForm() {
         confirmPassword: '',
         role: ''
     });
+    const [errors, setErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
@@ -20,6 +21,10 @@ function SignupForm() {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
+        });
+        setErrors({
+            ...errors,
+            [e.target.name]: ''
         });
     };
 
@@ -29,12 +34,18 @@ function SignupForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.role) {
-            alert('Please select a role.');
-            return;
-        }
-        if (formData.password !== formData.confirmPassword) {
-            alert('Passwords do not match.');
+
+        // Form validation
+        const newErrors = {};
+        if (!formData.firstName) newErrors.firstName = 'First Name is required';
+        if (!formData.lastName) newErrors.lastName = 'Last Name is required';
+        if (!formData.email) newErrors.email = 'Email is required';
+        if (!formData.password) newErrors.password = 'Password is required';
+        if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+        if (!formData.role) newErrors.role = 'Role is required';
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
             return;
         }
 
@@ -57,15 +68,18 @@ function SignupForm() {
                     <div className="input-group">
                         <label htmlFor="firstName">First Name</label>
                         <input type="text" id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} required />
+                        {errors.firstName && <div className="error">{errors.firstName}</div>}
                     </div>
                     <div className="input-group">
                         <label htmlFor="lastName">Last Name</label>
                         <input type="text" id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required />
+                        {errors.lastName && <div className="error">{errors.lastName}</div>}
                     </div>
                 </div>
                 <div className="input-group">
                     <label htmlFor="email">Email</label>
                     <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required />
+                    {errors.email && <div className="error">{errors.email}</div>}
                 </div>
                 <div className="input-group password-group">
                     <div className="password-label-group">
@@ -75,10 +89,12 @@ function SignupForm() {
                         </button>
                     </div>
                     <input type={showPassword ? 'text' : 'password'} id="password" name="password" value={formData.password} onChange={handleChange} required />
+                    {errors.password && <div className="error">{errors.password}</div>}
                 </div>
                 <div className="input-group">
                     <label htmlFor="confirmPassword">Confirm Password</label>
                     <input type="password" id="confirmPassword" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required />
+                    {errors.confirmPassword && <div className="error">{errors.confirmPassword}</div>}
                 </div>
                 <div className="input-group">
                     <label htmlFor="role">Role</label>
@@ -88,6 +104,7 @@ function SignupForm() {
                         <option value="buyer">Buyer</option>
                         <option value="seller">Seller</option>
                     </select>
+                    {errors.role && <div className="error">{errors.role}</div>}
                 </div>
                 <button type="submit" className="signup-button">Sign Up</button>
             </form>

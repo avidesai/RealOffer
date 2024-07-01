@@ -86,6 +86,13 @@
     background-color: #0056b3;
 }
 
+.error {
+    color: red;
+    font-size: 0.9em;
+    margin-top: -10px;
+    margin-bottom: 10px;
+  }
+
 /* Media queries for responsive adjustments */
 @media (max-width: 768px) {
     .signup-form {

@@ -1,5 +1,4 @@
 // CreateListingPackageForm.js
-
 import React from 'react';
 import './CreateListingPackage.css';
 
@@ -11,6 +10,7 @@ const CreateListingPackageForm = ({
   handleChange,
   handleFileChange,
   handleSubmit,
+  errors,
   onClose
 }) => {
   return (
@@ -43,9 +43,10 @@ const CreateListingPackageForm = ({
                 />
                 I represent the Buyer
               </label>
+              {errors.role && <div className="error">{errors.role}</div>}
             </div>
             <div className='button-container'>
-              <button className="next-button" onClick={handleNextStep}>Next</button>
+              <button className="next-button" onClick={handleNextStep} disabled={!formData.role}>Next</button>
             </div>
           </div>
         )}
@@ -59,6 +60,7 @@ const CreateListingPackageForm = ({
               value={formData.address}
               onChange={handleChange}
             />
+            {errors.address && <div className="error">{errors.address}</div>}
             <input
               type="text"
               name="city"
@@ -66,6 +68,7 @@ const CreateListingPackageForm = ({
               value={formData.city}
               onChange={handleChange}
             />
+            {errors.city && <div className="error">{errors.city}</div>}
             <input
               type="text"
               name="state"
@@ -73,6 +76,7 @@ const CreateListingPackageForm = ({
               value={formData.state}
               onChange={handleChange}
             />
+            {errors.state && <div className="error">{errors.state}</div>}
             <input
               type="text"
               name="zip"
@@ -80,9 +84,10 @@ const CreateListingPackageForm = ({
               value={formData.zip}
               onChange={handleChange}
             />
+            {errors.zip && <div className="error">{errors.zip}</div>}
             <div className='button-container'>
               <button className="back-button" onClick={handlePrevStep}>Back</button>
-              <button className="next-button" onClick={handleNextStep}>Next</button>
+              <button className="next-button" onClick={handleNextStep} disabled={!formData.address || !formData.city || !formData.state || !formData.zip}>Next</button>
             </div>
           </div>
         )}
@@ -93,6 +98,7 @@ const CreateListingPackageForm = ({
               name="propertyType"
               value={formData.propertyType}
               onChange={handleChange}
+              className='property-type-select'
             >
               <option value="">Select Property Type</option>
               <option value="singleFamily">Single Family Home</option>
@@ -102,14 +108,16 @@ const CreateListingPackageForm = ({
               <option value="land">Land</option>
               <option value="commercial">Commercial</option>
             </select>
+            {errors.propertyType && <div className="error">{errors.propertyType}</div>}
             <input
               type="number"
               name="askingPrice"
               placeholder="List Price"
               value={formData.askingPrice}
               onChange={handleChange}
-              step="10000" // Allows increments of 1000
+              step="10000"
             />
+            {errors.askingPrice && <div className="error">{errors.askingPrice}</div>}
             <input
               type="number"
               name="bedrooms"
@@ -117,6 +125,7 @@ const CreateListingPackageForm = ({
               value={formData.bedrooms}
               onChange={handleChange}
             />
+            {errors.bedrooms && <div className="error">{errors.bedrooms}</div>}
             <input
               type="number"
               name="bathrooms"
@@ -124,6 +133,7 @@ const CreateListingPackageForm = ({
               value={formData.bathrooms}
               onChange={handleChange}
             />
+            {errors.bathrooms && <div className="error">{errors.bathrooms}</div>}
             <input
               type="number"
               name="yearBuilt"
@@ -131,6 +141,7 @@ const CreateListingPackageForm = ({
               value={formData.yearBuilt}
               onChange={handleChange}
             />
+            {errors.yearBuilt && <div className="error">{errors.yearBuilt}</div>}
             <input
               type="number"
               name="sqFootage"
@@ -139,6 +150,7 @@ const CreateListingPackageForm = ({
               onChange={handleChange}
               step="100"
             />
+            {errors.sqFootage && <div className="error">{errors.sqFootage}</div>}
             <input
               type="number"
               name="lotSize"
@@ -147,6 +159,7 @@ const CreateListingPackageForm = ({
               onChange={handleChange}
               step="100"
             />
+            {errors.lotSize && <div className="error">{errors.lotSize}</div>}
             <textarea
               name="description"
               placeholder="Description"
@@ -156,7 +169,7 @@ const CreateListingPackageForm = ({
             />
             <div className='button-container'>
               <button className="back-button" onClick={handlePrevStep}>Back</button>
-              <button className="next-button" onClick={handleNextStep}>Next</button>
+              <button className="next-button" onClick={handleNextStep} disabled={!formData.propertyType || !formData.askingPrice || !formData.bedrooms || !formData.bathrooms || !formData.yearBuilt || !formData.sqFootage || !formData.lotSize}>Next</button>
             </div>
           </div>
         )}
