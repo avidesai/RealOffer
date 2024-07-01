@@ -1,13 +1,19 @@
-// PropertyListingController.js
-
 const PropertyListing = require('../models/PropertyListing');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+const mongoose = require('mongoose');
+
+// Ensure the uploads directory exists
+const uploadDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);
@@ -92,3 +98,6 @@ exports.deleteListing = async (req, res) => {
     res.status(404).json({ message: "Listing not found" });
   }
 };
+
+// Export multer upload configuration
+exports.upload = upload;

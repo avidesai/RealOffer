@@ -29,9 +29,17 @@
 .create-package-title {
   font-size: 2em;
   margin-top: 2rem;
-  margin-bottom: 3rem;
+  margin-left: 2rem;
+  margin-bottom: 2rem;
   text-align: center;
   color: #333333;
+}
+
+.create-package-divider {
+  border: none;
+  height: 1px;
+  background-color: #e0e0e0; /* Light grey color for the divider */
+  margin: 2rem 0; /* Add some vertical spacing around the divider */
 }
 
 .create-package-step {
@@ -41,7 +49,7 @@
 
 .create-package-step h2 {
   font-size: 1.5em;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   color: #555555;
 }
 
@@ -70,14 +78,17 @@
 .create-package-step label {
   display: block;
   margin-bottom: 10px;
+  cursor: pointer;
 }
 
 .create-package-step input[type="radio"] {
   width: auto;
   margin-right: 1.2rem;
+  cursor: pointer;
 }
 
 select {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   width: 100%;
   padding: 12px;
   margin: 10px 0 20px;
@@ -93,12 +104,14 @@ select {
 }
 
 select:focus {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   outline: none;
   border-color: #0056b3;
   box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.2);
 }
 
 select {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill="%230056b3" d="M6.26 7.29L10 11l3.74-3.71a.75.75 0 0 1 1.07 1.05l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.05z"/></svg>');
   background-repeat: no-repeat;
   background-position: right 15px center;

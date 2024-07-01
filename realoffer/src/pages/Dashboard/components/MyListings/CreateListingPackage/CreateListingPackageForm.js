@@ -16,6 +16,7 @@ const CreateListingPackageForm = ({
       <div className="create-package-content">
         <button className="close-button" onClick={onClose}></button>
         <h1 className="create-package-title">Create Listing Package</h1>
+        <hr className="create-package-divider" />
         {step === 1 && (
           <div className="create-package-step">
             <h2>Role</h2>
