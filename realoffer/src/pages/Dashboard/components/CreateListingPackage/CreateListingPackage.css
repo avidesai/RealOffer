@@ -79,6 +79,67 @@
   cursor:pointer; /* Changes cursor to a hand symbol on hover */
 }
 
+/* Continue from the existing styles in CreateListingPackage.css */
+
+/* Enhance select dropdown styling to match the modal's aesthetic */
+select {
+  width: 100%; /* Full width to match container */
+  padding: 12px; /* Slightly larger padding for a modern look */
+  margin: 10px 0 20px; /* Consistent spacing */
+  background-color: #ffffff; /* Match the modal background */
+  border: 2px solid #e6e6e6; /* Slightly thicker border for definition */
+  border-radius: 8px; /* Increased border-radius for a modern, rounded look */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Slightly deeper shadow for depth */
+  font-size: 16px; /* Consistent font size */
+  color: #333333; /* Consistent text color */
+  appearance: none; /* Remove default styling */
+  -webkit-appearance: none; /* For Safari */
+  -moz-appearance: none; /* For Firefox */
+  cursor: pointer; /* Indicate it's clickable */
+}
+
+select:focus {
+  outline: none; /* Remove focus outline */
+  border-color: #0056b3; /* Use primary color for focus */
+  box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.2); /* Soft glow effect on focus */
+}
+
+/* Adjust the custom arrow to match the modal's color scheme */
+select {
+  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill="%230056b3" d="M6.26 7.29L10 11l3.74-3.71a.75.75 0 0 1 1.07 1.05l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.05z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 15px center; /* Adjust position for better alignment */
+  background-size: 16px; /* Slightly larger arrow for visibility */
+}
+
+/* Ensure buttons are styled consistently with the modal's theme */
+.create-package-step button {
+    background-color: #007bff; /* Primary button color */
+    color: #ffffff; /* Text color for readability */
+    padding: 12px 20px; /* Comfortable padding */
+    font-size: 18px; /* Slightly larger font size for emphasis */
+    border: none; /* Remove default border */
+    border-radius: 8px; /* Rounded corners for a modern look */
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1); /* Consistent shadow effect */
+    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.create-package-step button:hover {
+    background-color: #0056b3; /* Darker shade on hover for interaction feedback */
+}
+
+/* Ensure the close button aligns with the modal's design language */
+.close-button {
+    color: #aaaaaa; /* Subtle color for the close icon */
+    background-color: transparent; /* Transparent background to blend with the modal */
+    border: none; /* Remove border for a cleaner look */
+}
+
+.close-button:hover {
+    color: #ff0000; /* Highlight color on hover for clarity */
+    background-color: #f2f2f2; /* Slight background color change on hover */
+}
+
 /* Add this new class for the button container */
 .button-container {
     display: flex;

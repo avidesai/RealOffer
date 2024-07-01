@@ -1,9 +1,8 @@
-// server.js
-
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 app.use(cors());
@@ -39,6 +38,7 @@ app.use('/api/documents', documentsRouter);
 app.use('/api/transactions', transactionsRouter);
 app.use('/api/favorites', favoritesRouter);
 app.use('/api/listingTemplates', listingTemplatesRouter);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Server Configuration
 const PORT = process.env.PORT || 8000;

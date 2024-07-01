@@ -5,17 +5,35 @@ const propertyListingSchema = new mongoose.Schema({
     description: String,
     newListing: Boolean,
     homeCharacteristics: {
-        price: Number,
+        price: {
+            type: Number,
+            required: true
+        },
         address: String,
         city: String,
         state: String,
         zip: String,
-        beds: Number,
-        baths: Number,
-        squareFootage: Number,
-        lotSize: Number,
+        beds: {
+            type: Number,
+            required: true
+        },
+        baths: {
+            type: Number,
+            required: true
+        },
+        squareFootage: {
+            type: Number,
+            required: true
+        },
+        lotSize: {
+            type: Number,
+            required: true
+        },
         propertyType: String,
-        yearBuilt: Number
+        yearBuilt: {
+            type: Number,
+            required: true
+        }
     },
     imagesUrls: [String],
     status: String,

@@ -1,50 +1,18 @@
-import React, { useState } from 'react';
+// CreateListingPackageForm.js
+
+import React from 'react';
 import './CreateListingPackage.css';
 
-const CreateListingPackage = ({ onClose }) => {
-  const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
-    role: '',
-    address: '',
-    city: '',
-    state: '',
-    zip: '',
-    propertyType: '',
-    askingPrice: '',
-    bedrooms: '',
-    bathrooms: '',
-    yearBuilt: '',
-    sqFootage: '',
-    lotSize: '',
-    description: '',
-    agent1: '',
-    agent2: '',
-    companyName: '',
-    officerName: '',
-    officerPhone: '',
-    officerEmail: '',
-    officerNumber: '',
-    propertyImages: [],
-  });
-
-  const handleNextStep = () => setStep(step + 1);
-  const handlePrevStep = () => setStep(step - 1);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleFileChange = (e) => {
-    setFormData({ ...formData, propertyImages: e.target.files });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission
-    console.log(formData);
-    onClose(); // Close the modal after submission
-  };
-
+const CreateListingPackageForm = ({
+  step,
+  formData,
+  handleNextStep,
+  handlePrevStep,
+  handleChange,
+  handleFileChange,
+  handleSubmit,
+  onClose
+}) => {
   return (
     <div className="create-package-modal">
       <div className="create-package-content">
@@ -118,54 +86,63 @@ const CreateListingPackage = ({ onClose }) => {
         {step === 3 && (
           <div className="create-package-step">
             <h2>Property Features</h2>
-            <input
-              type="text"
+            <select
               name="propertyType"
-              placeholder="Property Type"
               value={formData.propertyType}
               onChange={handleChange}
-            />
+            >
+              <option value="">Select Property Type</option>
+              <option value="singleFamily">Single Family Home</option>
+              <option value="condo">Condominium</option>
+              <option value="townhouse">Townhouse</option>
+              <option value="multiFamily">Multi-Family Home</option>
+              <option value="land">Land</option>
+              <option value="commercial">Commercial</option>
+            </select>
             <input
-              type="text"
+              type="number"
               name="askingPrice"
-              placeholder="Asking Price"
+              placeholder="List Price"
               value={formData.askingPrice}
               onChange={handleChange}
+              step="10000" // Allows increments of 1000
             />
             <input
-              type="text"
+              type="number"
               name="bedrooms"
               placeholder="Bedrooms"
               value={formData.bedrooms}
               onChange={handleChange}
             />
             <input
-              type="text"
+              type="number"
               name="bathrooms"
               placeholder="Bathrooms"
               value={formData.bathrooms}
               onChange={handleChange}
             />
             <input
-              type="text"
+              type="number"
               name="yearBuilt"
               placeholder="Year Built"
               value={formData.yearBuilt}
               onChange={handleChange}
             />
             <input
-              type="text"
+              type="number"
               name="sqFootage"
               placeholder="Square Footage"
               value={formData.sqFootage}
               onChange={handleChange}
+              step="100"
             />
             <input
-              type="text"
+              type="number"
               name="lotSize"
               placeholder="Lot Size"
               value={formData.lotSize}
               onChange={handleChange}
+              step="100"
             />
             <textarea
               name="description"
@@ -266,4 +243,4 @@ const CreateListingPackage = ({ onClose }) => {
   );
 };
 
-export default CreateListingPackage;
+export default CreateListingPackageForm;
