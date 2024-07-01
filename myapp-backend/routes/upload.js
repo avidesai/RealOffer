@@ -1,26 +1,25 @@
+// routes/upload.js
+
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const s3 = require('../config/aws');
-const upload = multer({ storage: multer.memoryStorage() });
-require('dotenv').config();
+const multerS3 = require('multer-s3');
+const { s3Client } = require('../config/aws');
 
-router.post('/upload', upload.single('image'), (req, res) => {
-  const file = req.file;
-  const s3Params = {
-    Bucket: process.env.S3_BUCKET_NAME,
-    Key: `uploads/${Date.now()}_${file.originalname}`,
-    Body: file.buffer,
-    ACL: 'public-read', // Make the file publicly accessible
-  };
-
-  s3.upload(s3Params, (err, data) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Error uploading file' });
+const upload = multer({
+  storage: multerS3({
+    s3: s3Client,
+    bucket: process.env.AWS_BUCKET_NAME,
+    acl: 'public-read',
+    key: function (req, file, cb) {
+      cb(null, `${Date.now()}-${file.originalname}`);
     }
-    res.status(200).json({ imageUrl: data.Location });
-  });
+  })
+});
+
+router.post('/', upload.array('propertyImages', 10), (req, res) => {
+  const propertyImages = req.files.map(file => file.location);
+  res.json({ message: 'Files uploaded successfully', files: propertyImages });
 });
 
 module.exports = router;
