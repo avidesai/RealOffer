@@ -2,39 +2,52 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
-  padding-left: 2rem;
-  padding-right: 2rem;
+  padding: 0rem 2rem;
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
-  background-color: #f9f9f9;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
 }
 
 .buyer-filters {
   display: flex;
-  gap: 1rem;
+  gap: 2rem;
 }
 
 .buyer-filter-section,
 .buyer-sort-section {
   display: flex;
-  align-items: center;
-  padding-right: 1rem;
+  align-items: baseline;
+  padding-top: 10px;
 }
 
 .buyer-filter-section label,
 .buyer-sort-section label {
-  margin-right: 0.8rem;
+  margin-right: 1.2rem;
   font-weight: 600;
+  color: #333;
+  white-space: nowrap;
 }
 
 .buyer-filter-section select,
 .buyer-sort-section select {
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
+  width: 150px;
   border-radius: 5px;
   border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  font-size: 1rem;
+  color: #333;
+  transition: border-color 0.3s;
+  appearance: none;
+  outline: none;
+}
+
+.buyer-filter-section select:hover,
+.buyer-sort-section select:hover {
+  border-color: #007bff;
 }
 
 .buyer-search-section {
@@ -43,22 +56,32 @@
 }
 
 .buyer-search-section input {
-  padding: 0.6rem;
+  padding: 0.6rem 1rem;
   border-radius: 5px;
   border: 1px solid #ccc;
   margin-right: 1rem;
-  font-size: 14px;
+  font-size: 1rem;
+  color: #333;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s;
+  outline: none;
+}
+
+.buyer-search-section input:focus {
+  border-color: #007bff;
+  outline: none;
 }
 
 .buyer-search-button {
-  padding: 0.6rem 1rem;
+  padding: 0.6rem 1.2rem;
   background-color: #007bff;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  font-size: 14px;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .buyer-search-button:hover {
@@ -67,18 +90,52 @@
 
 @media (max-width: 768px) {
   .buyer-filters {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .buyer-filter-sort-bar {
     flex-direction: column;
-    align-items: stretch;
+    align-items: center;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .buyer-filter-section label,
+  .buyer-sort-section label {
+    margin-right: 0;
   }
 
   .buyer-filter-section,
   .buyer-sort-section,
   .buyer-search-section {
-    margin-bottom: 0.5rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .buyer-filter-section select,
+  .buyer-sort-section select,
+  .buyer-search-section input {
+    width: calc(100% - 1.5rem);
+    margin: 0;
+  }
+
+  .buyer-search-section {
+    padding-top: 1rem;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .buyer-search-section input {
+    flex-grow: 1;
+    margin-right: 1rem;
+  }
+
+  .buyer-search-button {
+    flex-shrink: 0;
+    padding: 0.6rem 1rem;
   }
 }

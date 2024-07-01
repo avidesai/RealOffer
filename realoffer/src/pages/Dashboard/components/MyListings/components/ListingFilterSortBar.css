@@ -2,39 +2,52 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
-  padding-left: 2rem;
-  padding-right: 2rem;
+  padding: 0rem 2rem;
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
-  background-color: #f9f9f9;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
 }
 
 .listing-filters {
   display: flex;
-  gap: 1rem;
+  gap: 2rem;
 }
 
 .listing-filter-section,
 .listing-sort-section {
   display: flex;
-  align-items: center;
-  padding-right: 1rem;
+  align-items: baseline; /* Updated alignment */
+  padding-top: 10px;
 }
 
 .listing-filter-section label,
 .listing-sort-section label {
-  margin-right: 0.8rem;
+  margin-right: 1.2rem;
   font-weight: 600;
+  color: #333;
+  white-space: nowrap;
 }
 
 .listing-filter-section select,
 .listing-sort-section select {
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
+  width: 150px;
   border-radius: 5px;
   border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  font-size: 1rem;
+  color: #333;
+  transition: border-color 0.3s;
+  appearance: none;
+  outline: none;
+}
+
+.listing-filter-section select:hover,
+.listing-sort-section select:hover {
+  border-color: #007bff;
 }
 
 .listing-search-section {
@@ -43,22 +56,32 @@
 }
 
 .listing-search-section input {
-  padding: 0.6rem;
+  padding: 0.6rem 1rem;
   border-radius: 5px;
   border: 1px solid #ccc;
   margin-right: 1rem;
-  font-size: 14px;
+  font-size: 1rem;
+  color: #333;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s;
+  outline: none;
+}
+
+.listing-search-section input:focus {
+  border-color: #007bff;
+  outline: none;
 }
 
 .listing-search-button {
-  padding: 0.6rem 1rem;
+  padding: 0.6rem 1.2rem;
   background-color: #007bff;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  font-size: 14px;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .listing-search-button:hover {
@@ -67,18 +90,52 @@
 
 @media (max-width: 768px) {
   .listing-filters {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    flex-direction: column;
+    gap: 0.5rem; /* Increased gap for better spacing */
   }
 
   .listing-filter-sort-bar {
     flex-direction: column;
-    align-items: stretch;
+    align-items: center; /* Center align items for a cleaner look */
+    padding: 1rem; /* Adjusted padding for consistency */
+    gap: 1rem; /* Added gap between child elements */
+  }
+
+  .listing-filter-section label,
+.listing-sort-section label {
+    margin-right: 0; /* Remove margin for better alignment */
   }
 
   .listing-filter-section,
   .listing-sort-section,
   .listing-search-section {
-    margin-bottom: 0.5rem;
+    width: 100%; /* Ensure full width for better utilization of space */
+    display: flex;
+    flex-direction: column; /* Stack elements vertically */
+    align-items: center; /* Center align items */
+    gap: 0.5rem; /* Added gap for spacing between label and select/input */
+  }
+
+  .listing-filter-section select,
+  .listing-sort-section select,
+  .listing-search-section input {
+    width: calc(100% - 1.5rem); /* Adjust width to account for padding */
+    margin: 0; /* Reset margin to ensure alignment */
+  }
+
+  .listing-search-section {
+    padding-top: 1rem;
+    flex-direction: row; /* Keep search input and button in a row */
+    justify-content: space-between; /* Space between search input and button */
+  }
+
+  .listing-search-section input {
+    flex-grow: 1; /* Allow input to fill available space */
+    margin-right: 1rem; /* Space between input and button */
+  }
+
+  .listing-search-button {
+    flex-shrink: 0; /* Prevent button from shrinking */
+    padding: 0.6rem 1rem; /* Adjust padding for better touch accessibility */
   }
 }
