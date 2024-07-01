@@ -1,5 +1,3 @@
-// CreateListingPackageForm.js
-
 import React from 'react';
 import './CreateListingPackage.css';
 
@@ -16,31 +14,33 @@ const CreateListingPackageForm = ({
   return (
     <div className="create-package-modal">
       <div className="create-package-content">
-        <button className="close-button" onClick={onClose}>X</button>
+        <button className="close-button" onClick={onClose}></button>
         <h1 className="create-package-title">Create Listing Package</h1>
         {step === 1 && (
           <div className="create-package-step">
             <h2>Role</h2>
-            <label>
-              <input
-                type="radio"
-                name="role"
-                value="seller"
-                checked={formData.role === 'seller'}
-                onChange={handleChange}
-              />
-              I represent the Seller
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="role"
-                value="buyer"
-                checked={formData.role === 'buyer'}
-                onChange={handleChange}
-              />
-              I represent the Buyer
-            </label>
+            <div className='radio-buttons-container'>
+              <label>
+                <input
+                  type="radio"
+                  name="role"
+                  value="seller"
+                  checked={formData.role === 'seller'}
+                  onChange={handleChange}
+                />
+                I represent the Seller
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="role"
+                  value="buyer"
+                  checked={formData.role === 'buyer'}
+                  onChange={handleChange}
+                />
+                I represent the Buyer
+              </label>
+            </div>
             <div className='button-container'>
               <button className="next-button" onClick={handleNextStep}>Next</button>
             </div>
@@ -149,6 +149,7 @@ const CreateListingPackageForm = ({
               placeholder="Description"
               value={formData.description}
               onChange={handleChange}
+              rows="4"
             />
             <div className='button-container'>
               <button className="back-button" onClick={handlePrevStep}>Back</button>

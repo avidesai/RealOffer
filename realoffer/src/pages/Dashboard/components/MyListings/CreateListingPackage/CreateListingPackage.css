@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+.create-package-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.create-package-content {
+  background: #ffffff;
+  padding-right: 6rem;
+  padding-left: 4rem;
+  border-radius: 20px;
+  width: 700px;
+  height: 85%; /* Fixed height */
+  max-width: 40%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow-y: auto; /* Scrollable content */
+}
+
+.create-package-title {
+  font-size: 2em;
+  margin-top: 2rem;
+  margin-bottom: 3rem;
+  text-align: center;
+  color: #333333;
+}
+
+.create-package-step {
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+}
+
+.create-package-step h2 {
+  font-size: 1.5em;
+  margin-bottom: 1.5rem;
+  color: #555555;
+}
+
+.create-package-step input,
+.create-package-step textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #dddddd;
+  border-radius: 5px;
+  font-size: 1em;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.radio-buttons-container {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.create-package-step textarea {
+  resize: vertical;
+  max-height: 300px;
+  font-size: 1.2rem;
+}
+
+.create-package-step label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.create-package-step input[type="radio"] {
+  width: auto;
+  margin-right: 1.2rem;
+}
+
+select {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0 20px;
+  background-color: #ffffff;
+  border: 2px solid #e6e6e6;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+  color: #333333;
+  appearance: none;
+  outline: none;
+  cursor: pointer;
+}
+
+select:focus {
+  outline: none;
+  border-color: #0056b3;
+  box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.2);
+}
+
+select {
+  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill="%230056b3" d="M6.26 7.29L10 11l3.74-3.71a.75.75 0 0 1 1.07 1.05l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.05z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 16px;
+}
+
+.create-package-step button {
+  color: #ffffff;
+  padding: 12px 20px;
+  font-size: 18px;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding-bottom: 2rem;
+}
+
+.back-button {
+  background-color: #a09f9f;
+  color: #000;
+  width: 30%;
+  margin-left: 1.5rem;
+}
+
+.next-button {
+  background-color: #007bff;
+  color: #fff;
+  width: 30%;
+}
+
+.back-button:hover {
+  background-color: #7c7b7b;
+  cursor: pointer;
+}
+
+.next-button:hover {
+  background-color: #0056b3;
+  cursor: pointer;
+}
+
+.create-package-step button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.close-button {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: #ffffff;
+  border: 2px solid #d5d5d5; /* Black border */
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #000000; /* Black X */
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), /* Slight shadow for 3D effect */
+              0 2px 3px rgba(0, 0, 0, 0.2); /* More depth */
+}
+
+.close-button:hover {
+  color: #ffffff; /* White X on hover */
+  background-color: #b12525; /* Black background on hover */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Enhanced shadow for 3D effect */
+}
+
+.close-button:before {
+  content: '×'; /* Using the times character for the X */
+  font-weight: bold; /* Make the X bold */
+  display: inline-block;
+  margin-top: -0.15rem; /* Slightly raise the X */
+  line-height: 1; /* Adjust line height for better vertical alignment */
+}
