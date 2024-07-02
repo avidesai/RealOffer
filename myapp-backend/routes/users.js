@@ -9,6 +9,7 @@ const UserController = require('../controllers/UserController');
 // Define all user-related routes here including login
 router.get('/', UserController.getAllUsers);
 router.get('/:id', UserController.getUserById);
+router.get('/:id/listingPackages', UserController.getUserWithListingPackages);
 router.post('/', UserController.createUser);
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;

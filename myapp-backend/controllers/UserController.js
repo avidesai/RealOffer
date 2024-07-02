@@ -1,3 +1,5 @@
+// controllers/UserController.js
+
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 
@@ -12,8 +14,24 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
+        // Populate the listingPackages field to get detailed information
+        const user = await User.findById(req.params.id).populate('listingPackages');
         if (!user) return res.status(404).json({ message: "User not found" });
+        console.log('Listing Packages IDs:', user.listingPackages.map(lp => lp._id)); // Log the IDs to the console
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.getUserWithListingPackages = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id)
+            .populate('listingPackages')  // Make sure this populates correctly based on your schema
+            .exec();
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
         res.status(200).json(user);
     } catch (error) {
         res.status(500).json({ message: error.message });
