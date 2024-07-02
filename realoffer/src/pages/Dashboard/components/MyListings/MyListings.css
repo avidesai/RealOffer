@@ -1,3 +1,5 @@
+/* MyListings.css */
+
 .my-listings {
   padding: 0.5rem 2rem 2rem 2rem;
 }
@@ -27,5 +29,3 @@
   opacity: 1;
   transition: opacity 0.1s ease-in-out;
 }
-
-/* Add more styles if necessary */
