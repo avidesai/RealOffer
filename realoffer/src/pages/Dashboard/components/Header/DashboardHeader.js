@@ -1,3 +1,5 @@
+// DashboardHeader.js
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../../context/AuthContext';
@@ -60,7 +62,9 @@ function DashboardHeader({ activeTab, setActiveTab }) {
       </nav>
 
       <div className="header-actions">
-        <button className="header-upgrade-btn">Upgrade to Pro</button>
+        {user && !user.isPremium && (
+          <button className="header-upgrade-btn">Upgrade to Pro</button>
+        )}
         <div className="user-avatar" onClick={handleDropdown}>
           <img src={avatar} alt="User Avatar" />
           {user && (
@@ -84,3 +88,4 @@ function DashboardHeader({ activeTab, setActiveTab }) {
 }
 
 export default DashboardHeader;
+

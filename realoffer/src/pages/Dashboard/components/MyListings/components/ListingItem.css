@@ -25,6 +25,7 @@
   height: auto; /* Adjusted for better aspect ratio */
   border-radius: 5px;
   object-fit: cover;
+  margin: auto 0; /* Ensures equal space above and below */
 }
 
 .listing-details {
@@ -48,7 +49,7 @@
 .listing-location {
   color: #666;
   font-size: 1rem; /* Slightly reduced */
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.4rem;
 }
 
 .listing-agents {
@@ -66,11 +67,11 @@
 
 .listing-action-buttons {
   display: flex;
-  gap: 0.5rem; /* Reduced gap */
+  gap: 1rem; /* Reduced gap */
 }
 
 .listing-button {
-  padding: 0.4rem 0.8rem; /* More compact */
+  padding: 0.4rem 1rem; /* More compact */
   border: none;
   border-radius: 4px;
   cursor: pointer;

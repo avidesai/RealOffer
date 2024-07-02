@@ -65,20 +65,20 @@
 
 .header-upgrade-btn {
   padding: 0.6rem 1rem;
-  background-image: linear-gradient(to right, #6a1b9a, #1b5cf3);
+  background-image: linear-gradient(to right, #9b2ae2, #4078fb);
   color: #fff;
   border: none;
   border-radius: 20px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 600;
   transition: background-color 0.3s;
   text-transform: uppercase;
-  margin-right: 1rem;
+  margin-right: 1.2rem;
 }
 
 .header-upgrade-btn:hover {
-  background-image: linear-gradient(to right, #4a148c, #174cd1);
+  background-image: linear-gradient(to right, #8423c1, #3460c8);
 }
 
 /* Avatar styles */
