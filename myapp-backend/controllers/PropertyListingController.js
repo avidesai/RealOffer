@@ -48,7 +48,7 @@ exports.createListing = async (req, res) => {
   let agentIds = [agent1, agent2].filter(Boolean); // Filter out any falsy values
   
   // Ensure agentIds is an array of ObjectIds
-  agentIds = agentIds.map(id => mongoose.Types.ObjectId(id));
+  agentIds = agentIds.map(id => new mongoose.Types.ObjectId(id));
 
   const newListing = new PropertyListing({
     role,

@@ -14,7 +14,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check local storage for user on initial load
     const storedUser = JSON.parse(localStorage.getItem('user'));
     if (storedUser) {
       setUser(storedUser);
@@ -23,10 +22,14 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const response = await axios.post('http://localhost:8000/api/login', { email, password });
-    if (response.data) {
-      localStorage.setItem('user', JSON.stringify(response.data));
-      setUser(response.data);
+    try {
+      const response = await axios.post('http://localhost:8000/api/users/login', { email, password });
+      if (response.data) {
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        setUser(response.data.user);
+      }
+    } catch (error) {
+      console.error('Error logging in:', error);
     }
   };
 

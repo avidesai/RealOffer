@@ -1,7 +1,6 @@
-// /Login/LoginForm.js
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useAuth } from '../../context/AuthContext'; // Ensure this path is correct
 import google from './google.svg'; // Ensure these paths are correct
 import docusign from './docusign.svg';
 import './LoginForm.css';
@@ -10,17 +9,15 @@ function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState(''); // State to hold login error messages
+  const { login } = useAuth(); // Use login function from context
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage(''); // Clear any existing errors
     try {
-      const response = await axios.post('http://localhost:8000/api/users/login', { email, password });
-      if (response.data) {
-        console.log('Login successful:', response.data);
-        navigate('/dashboard'); // Navigate to dashboard on successful login
-      }
+      await login(email, password);
+      navigate('/dashboard'); // Navigate to dashboard on successful login
     } catch (error) {
       console.error('Error logging in:', error.response?.data?.message || 'Server error');
       setErrorMessage(error.response?.data?.message || 'Login failed, please try again.'); // Display error message

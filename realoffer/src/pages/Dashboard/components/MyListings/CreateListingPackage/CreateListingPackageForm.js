@@ -1,263 +1,80 @@
-// CreateListingPackageForm.js
 import React from 'react';
 import './CreateListingPackage.css';
+import Role from './Steps/Role';
+import Address from './Steps/Address';
+import PropertyFeatures from './Steps/PropertyFeatures';
+import ListingAgents from './Steps/ListingAgents';
+import Escrow from './Steps/Escrow';
+import PropertyPhotos from './Steps/PropertyPhotos';
 
 const CreateListingPackageForm = ({
   step,
   formData,
+  errors,
   handleNextStep,
   handlePrevStep,
   handleChange,
   handleFileChange,
   handleSubmit,
-  errors,
   onClose
-}) => {
-  return (
-    <div className="create-package-modal">
-      <div className="create-package-content">
-        <button className="close-button" onClick={onClose}></button>
-        <h1 className="create-package-title">Create Listing Package</h1>
-        <hr className="create-package-divider" />
-        {step === 1 && (
-          <div className="create-package-step">
-            <h2>Role</h2>
-            <div className='radio-buttons-container'>
-              <label>
-                <input
-                  type="radio"
-                  name="role"
-                  value="seller"
-                  checked={formData.role === 'seller'}
-                  onChange={handleChange}
-                />
-                I represent the Seller
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="role"
-                  value="buyer"
-                  checked={formData.role === 'buyer'}
-                  onChange={handleChange}
-                />
-                I represent the Buyer
-              </label>
-              {errors.role && <div className="error">{errors.role}</div>}
-            </div>
-            <div className='button-container'>
-              <button className="next-button" onClick={handleNextStep} disabled={!formData.role}>Next</button>
-            </div>
-          </div>
-        )}
-        {step === 2 && (
-          <div className="create-package-step">
-            <h2>Address</h2>
-            <input
-              type="text"
-              name="address"
-              placeholder="Street Address"
-              value={formData.address}
-              onChange={handleChange}
-            />
-            {errors.address && <div className="error">{errors.address}</div>}
-            <input
-              type="text"
-              name="city"
-              placeholder="City"
-              value={formData.city}
-              onChange={handleChange}
-            />
-            {errors.city && <div className="error">{errors.city}</div>}
-            <input
-              type="text"
-              name="state"
-              placeholder="State"
-              value={formData.state}
-              onChange={handleChange}
-            />
-            {errors.state && <div className="error">{errors.state}</div>}
-            <input
-              type="text"
-              name="zip"
-              placeholder="Zip"
-              value={formData.zip}
-              onChange={handleChange}
-            />
-            {errors.zip && <div className="error">{errors.zip}</div>}
-            <div className='button-container'>
-              <button className="back-button" onClick={handlePrevStep}>Back</button>
-              <button className="next-button" onClick={handleNextStep} disabled={!formData.address || !formData.city || !formData.state || !formData.zip}>Next</button>
-            </div>
-          </div>
-        )}
-        {step === 3 && (
-          <div className="create-package-step">
-            <h2>Property Features</h2>
-            <select
-              name="propertyType"
-              value={formData.propertyType}
-              onChange={handleChange}
-              className='property-type-select'
-            >
-              <option value="">Select Property Type</option>
-              <option value="singleFamily">Single Family Home</option>
-              <option value="condo">Condominium</option>
-              <option value="townhouse">Townhouse</option>
-              <option value="multiFamily">Multi-Family Home</option>
-              <option value="land">Land</option>
-              <option value="commercial">Commercial</option>
-            </select>
-            {errors.propertyType && <div className="error">{errors.propertyType}</div>}
-            <input
-              type="number"
-              name="askingPrice"
-              placeholder="List Price"
-              value={formData.askingPrice}
-              onChange={handleChange}
-              step="10000"
-            />
-            {errors.askingPrice && <div className="error">{errors.askingPrice}</div>}
-            <input
-              type="number"
-              name="bedrooms"
-              placeholder="Bedrooms"
-              value={formData.bedrooms}
-              onChange={handleChange}
-            />
-            {errors.bedrooms && <div className="error">{errors.bedrooms}</div>}
-            <input
-              type="number"
-              name="bathrooms"
-              placeholder="Bathrooms"
-              value={formData.bathrooms}
-              onChange={handleChange}
-            />
-            {errors.bathrooms && <div className="error">{errors.bathrooms}</div>}
-            <input
-              type="number"
-              name="yearBuilt"
-              placeholder="Year Built"
-              value={formData.yearBuilt}
-              onChange={handleChange}
-            />
-            {errors.yearBuilt && <div className="error">{errors.yearBuilt}</div>}
-            <input
-              type="number"
-              name="sqFootage"
-              placeholder="Square Footage"
-              value={formData.sqFootage}
-              onChange={handleChange}
-              step="100"
-            />
-            {errors.sqFootage && <div className="error">{errors.sqFootage}</div>}
-            <input
-              type="number"
-              name="lotSize"
-              placeholder="Lot Size"
-              value={formData.lotSize}
-              onChange={handleChange}
-              step="100"
-            />
-            {errors.lotSize && <div className="error">{errors.lotSize}</div>}
-            <textarea
-              name="description"
-              placeholder="Description"
-              value={formData.description}
-              onChange={handleChange}
-              rows="4"
-            />
-            <div className='button-container'>
-              <button className="back-button" onClick={handlePrevStep}>Back</button>
-              <button className="next-button" onClick={handleNextStep} disabled={!formData.propertyType || !formData.askingPrice || !formData.bedrooms || !formData.bathrooms || !formData.yearBuilt || !formData.sqFootage || !formData.lotSize}>Next</button>
-            </div>
-          </div>
-        )}
-        {step === 4 && (
-          <div className="create-package-step">
-            <h2>Listing Agents</h2>
-            <input
-              type="text"
-              name="agent1"
-              placeholder="Agent 1"
-              value={formData.agent1}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="agent2"
-              placeholder="Agent 2"
-              value={formData.agent2}
-              onChange={handleChange}
-            />
-            <div className='button-container'>
-              <button className="back-button" onClick={handlePrevStep}>Back</button>
-              <button className="next-button" onClick={handleNextStep}>Next</button>
-            </div>
-          </div>
-        )}
-        {step === 5 && (
-          <div className="create-package-step">
-            <h2>Escrow</h2>
-            <input
-              type="text"
-              name="companyName"
-              placeholder="Company Name"
-              value={formData.companyName}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="officerName"
-              placeholder="Escrow Officer Name"
-              value={formData.officerName}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="officerPhone"
-              placeholder="Escrow Officer Phone"
-              value={formData.officerPhone}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="officerEmail"
-              placeholder="Escrow Officer Email"
-              value={formData.officerEmail}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="officerNumber"
-              placeholder="Escrow Number (Optional)"
-              value={formData.officerNumber}
-              onChange={handleChange}
-            />
-            <div className='button-container'>
-              <button className="back-button" onClick={handlePrevStep}>Back</button>
-              <button className="next-button" onClick={handleNextStep}>Next</button>
-            </div>
-          </div>
-        )}
-        {step === 6 && (
-          <div className="create-package-step">
-            <h2>Property Photos (Optional)</h2>
-            <input
-              type="file"
-              name="propertyImages"
-              multiple
-              onChange={handleFileChange}
-            />
-            <div className='button-container'>
-              <button className="back-button" onClick={handlePrevStep}>Back</button>
-              <button className="next-button" onClick={handleSubmit}>Create Package</button>
-            </div>
-          </div>
-        )}
-      </div>
+}) => (
+  <div className="create-package-modal">
+    <div className="create-package-content">
+      <button className="close-button" onClick={onClose}></button>
+      <h1 className="create-package-title">Create Listing Package</h1>
+      <hr className="create-package-divider" />
+      {step === 1 && (
+        <Role
+          formData={formData}
+          errors={errors}
+          handleChange={handleChange}
+          handleNextStep={handleNextStep}
+        />
+      )}
+      {step === 2 && (
+        <Address
+          formData={formData}
+          errors={errors}
+          handleChange={handleChange}
+          handleNextStep={handleNextStep}
+          handlePrevStep={handlePrevStep}
+        />
+      )}
+      {step === 3 && (
+        <PropertyFeatures
+          formData={formData}
+          errors={errors}
+          handleChange={handleChange}
+          handleNextStep={handleNextStep}
+          handlePrevStep={handlePrevStep}
+        />
+      )}
+      {step === 4 && (
+        <ListingAgents
+          formData={formData}
+          errors={errors}
+          handleChange={handleChange}
+          handleNextStep={handleNextStep}
+          handlePrevStep={handlePrevStep}
+        />
+      )}
+      {step === 5 && (
+        <Escrow
+          formData={formData}
+          handleChange={handleChange}
+          handleNextStep={handleNextStep}
+          handlePrevStep={handlePrevStep}
+        />
+      )}
+      {step === 6 && (
+        <PropertyPhotos
+          handleFileChange={handleFileChange}
+          handleSubmit={handleSubmit}
+          handlePrevStep={handlePrevStep}
+        />
+      )}
     </div>
-  );
-};
+  </div>
+);
 
 export default CreateListingPackageForm;

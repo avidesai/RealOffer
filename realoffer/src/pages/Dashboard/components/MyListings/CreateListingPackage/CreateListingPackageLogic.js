@@ -1,9 +1,10 @@
-// CreateListingPackageLogic.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import CreateListingPackageForm from './CreateListingPackageForm';
+import { useAuth } from '../../../../../context/AuthContext';
 
-const CreateListingPackageLogic = ({ onClose, userId }) => {
+const CreateListingPackageLogic = ({ onClose }) => {
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     role: '',
@@ -19,7 +20,7 @@ const CreateListingPackageLogic = ({ onClose, userId }) => {
     sqFootage: '',
     lotSize: '',
     description: '',
-    agent1: '',
+    agent1: user ? user._id : '',
     agent2: '',
     companyName: '',
     officerName: '',
@@ -31,12 +32,33 @@ const CreateListingPackageLogic = ({ onClose, userId }) => {
   const [errors, setErrors] = useState({});
 
   const handleNextStep = () => {
-    const currentErrors = validateForm(step);
-    if (Object.keys(currentErrors).length === 0) {
-      setStep(step + 1);
-    } else {
-      setErrors(currentErrors);
+    // Validate required fields for current step
+    const newErrors = {};
+    if (step === 1 && !formData.role) newErrors.role = 'Role is required';
+    if (step === 2) {
+      if (!formData.address) newErrors.address = 'Address is required';
+      if (!formData.city) newErrors.city = 'City is required';
+      if (!formData.state) newErrors.state = 'State is required';
+      if (!formData.zip) newErrors.zip = 'Zip is required';
     }
+    if (step === 3) {
+      if (!formData.propertyType) newErrors.propertyType = 'Property Type is required';
+      if (!formData.askingPrice) newErrors.askingPrice = 'Asking Price is required';
+      if (!formData.bedrooms) newErrors.bedrooms = 'Bedrooms is required';
+      if (!formData.bathrooms) newErrors.bathrooms = 'Bathrooms is required';
+      if (!formData.yearBuilt) newErrors.yearBuilt = 'Year Built is required';
+      if (!formData.sqFootage) newErrors.sqFootage = 'Square Footage is required';
+      if (!formData.lotSize) newErrors.lotSize = 'Lot Size is required';
+    }
+    if (step === 4 && !formData.agent1) newErrors.agent1 = 'At least one agent is required';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+    setStep(step + 1);
   };
 
   const handlePrevStep = () => setStep(step - 1);
@@ -64,10 +86,6 @@ const CreateListingPackageLogic = ({ onClose, userId }) => {
       }
     }
 
-    if (userId) {
-      formDataToSend.append('agentIds', userId);
-    }
-
     try {
       await axios.post('http://localhost:8000/api/propertyListings', formDataToSend, {
         headers: {
@@ -80,37 +98,16 @@ const CreateListingPackageLogic = ({ onClose, userId }) => {
     }
   };
 
-  const validateForm = (currentStep) => {
-    const newErrors = {};
-    if (currentStep === 1 && !formData.role) newErrors.role = 'Role is required';
-    if (currentStep === 2) {
-      if (!formData.address) newErrors.address = 'Address is required';
-      if (!formData.city) newErrors.city = 'City is required';
-      if (!formData.state) newErrors.state = 'State is required';
-      if (!formData.zip) newErrors.zip = 'Zip is required';
-    }
-    if (currentStep === 3) {
-      if (!formData.propertyType) newErrors.propertyType = 'Property type is required';
-      if (!formData.askingPrice) newErrors.askingPrice = 'Asking price is required';
-      if (!formData.bedrooms) newErrors.bedrooms = 'Bedrooms are required';
-      if (!formData.bathrooms) newErrors.bathrooms = 'Bathrooms are required';
-      if (!formData.yearBuilt) newErrors.yearBuilt = 'Year built is required';
-      if (!formData.sqFootage) newErrors.sqFootage = 'Square footage is required';
-      if (!formData.lotSize) newErrors.lotSize = 'Lot size is required';
-    }
-    return newErrors;
-  };
-
   return (
     <CreateListingPackageForm
       step={step}
       formData={formData}
+      errors={errors}
       handleNextStep={handleNextStep}
       handlePrevStep={handlePrevStep}
       handleChange={handleChange}
       handleFileChange={handleFileChange}
       handleSubmit={handleSubmit}
-      errors={errors}
       onClose={onClose}
     />
   );
