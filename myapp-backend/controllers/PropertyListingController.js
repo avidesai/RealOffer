@@ -1,9 +1,8 @@
-// /controllers/PropertyListingController.js
 const PropertyListing = require('../models/PropertyListing');
+const User = require('../models/User');
 const multer = require('multer');
 const { s3Client } = require('../config/aws');
 const multerS3 = require('multer-s3');
-const path = require('path');
 const mongoose = require('mongoose');
 
 // Configure multer-s3
@@ -44,11 +43,15 @@ exports.createListing = async (req, res) => {
   } = req.body;
 
   const propertyImages = req.files ? req.files.map(file => file.location) : [];
-  
+
   let agentIds = [agent1, agent2].filter(Boolean); // Filter out any falsy values
   
   // Ensure agentIds is an array of ObjectIds
-  agentIds = agentIds.map(id => new mongoose.Types.ObjectId(id));
+  try {
+    agentIds = agentIds.map(id => new mongoose.Types.ObjectId(id));
+  } catch (error) {
+    return res.status(400).json({ message: 'Invalid agent ID format' });
+  }
 
   const newListing = new PropertyListing({
     role,
@@ -71,6 +74,15 @@ exports.createListing = async (req, res) => {
 
   try {
     const savedListing = await newListing.save();
+
+    // Add the listing to the agent's listingPackages
+    const agent = await User.findById(agent1);
+    if (!agent) {
+      return res.status(404).json({ message: 'Agent not found' });
+    }
+    agent.listingPackages.push(savedListing._id);
+    await agent.save();
+
     res.status(201).json(savedListing);
   } catch (error) {
     res.status(400).json({ message: error.message });

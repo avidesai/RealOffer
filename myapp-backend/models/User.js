@@ -1,5 +1,3 @@
-// /models/User.js
-
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
@@ -35,7 +33,9 @@ const userSchema = new mongoose.Schema({
     isPremium: { type: Boolean, default: false },
     premiumPlan: { type: String, default: '' },
     templates: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ListingTemplate', default: [] }],
-    contacts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }]
+    contacts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
+    listingPackages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'PropertyListing', default: [] }],
+    buyerPackages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'BuyerPackage', default: [] }]
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {

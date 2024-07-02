@@ -1,5 +1,3 @@
-// /controllers/UserController.js
-
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 
@@ -57,7 +55,9 @@ exports.createUser = async (req, res) => {
             isPremium: false,
             premiumPlan: '',
             templates: [],
-            contacts: []
+            contacts: [],
+            listingPackages: [],
+            buyerPackages: []
         });
         const savedUser = await newUser.save();
         res.status(201).json(savedUser);
