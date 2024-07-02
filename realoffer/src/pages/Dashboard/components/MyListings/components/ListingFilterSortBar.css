@@ -1,17 +1,19 @@
+/* ListingFilterSortBar.css */
+
 .listing-filter-sort-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0rem 2rem;
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
-  background-color: #ffffff;
+  padding: 1rem 2rem 0.5rem 2rem;
+  background-color: rgb(255, 255, 255);
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid #e0e0e0;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
-.listing-filters {
+.filter-sort-section {
   display: flex;
   gap: 2rem;
 }
@@ -19,16 +21,14 @@
 .listing-filter-section,
 .listing-sort-section {
   display: flex;
-  align-items: baseline; /* Updated alignment */
-  padding-top: 10px;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .listing-filter-section label,
 .listing-sort-section label {
-  margin-right: 1.2rem;
   font-weight: 600;
   color: #333;
-  white-space: nowrap;
 }
 
 .listing-filter-section select,
@@ -37,7 +37,7 @@
   width: 150px;
   border-radius: 5px;
   border: 1px solid #ccc;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   font-size: 1rem;
   color: #333;
   transition: border-color 0.3s;
@@ -52,19 +52,34 @@
 
 .listing-search-section {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: -1rem;
+}
+
+.listing-search-section form {
+  display: flex;
+  flex-direction: column; /* Change from row to column */
+  align-items: flex-start; /* Align items to the start */
+  width: 100%; /* Ensure full width for alignment */
+}
+
+.listing-search-section label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
 }
 
 .listing-search-section input {
   padding: 0.6rem 1rem;
   border-radius: 5px;
   border: 1px solid #ccc;
-  margin-right: 1rem;
   font-size: 1rem;
   color: #333;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   transition: border-color 0.3s;
   outline: none;
+  width: 200px;
 }
 
 .listing-search-section input:focus {
@@ -73,7 +88,7 @@
 }
 
 .listing-search-button {
-  padding: 0.6rem 1.2rem;
+  padding: 0.6rem 1rem; /* Make the button the same height as the input */
   background-color: #007bff;
   color: white;
   border: none;
@@ -82,60 +97,124 @@
   transition: background-color 0.3s ease;
   font-size: 1rem;
   font-weight: 600;
+  margin-left: 0.5rem;
+  display: flex;
+  align-items: center;
 }
 
 .listing-search-button:hover {
   background-color: #0056b3;
 }
 
-@media (max-width: 768px) {
-  .listing-filters {
-    flex-direction: column;
-    gap: 0.5rem; /* Increased gap for better spacing */
-  }
+.listing-search-button i {
+  font-size: 1rem;
+  color: white;
+}
 
+@media (max-width: 768px) {
   .listing-filter-sort-bar {
     flex-direction: column;
-    align-items: center; /* Center align items for a cleaner look */
-    padding: 1rem; /* Adjusted padding for consistency */
-    gap: 1rem; /* Added gap between child elements */
+    padding: 1rem;
   }
 
-  .listing-filter-section label,
-.listing-sort-section label {
-    margin-right: 0; /* Remove margin for better alignment */
+  .filter-sort-section {
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+    margin-bottom: 1rem;
   }
 
   .listing-filter-section,
   .listing-sort-section,
   .listing-search-section {
-    width: 100%; /* Ensure full width for better utilization of space */
-    display: flex;
-    flex-direction: column; /* Stack elements vertically */
-    align-items: center; /* Center align items */
-    gap: 0.5rem; /* Added gap for spacing between label and select/input */
+    width: 100%;
   }
 
   .listing-filter-section select,
   .listing-sort-section select,
   .listing-search-section input {
-    width: calc(100% - 1.5rem); /* Adjust width to account for padding */
-    margin: 0; /* Reset margin to ensure alignment */
+    width: 100%;
   }
 
-  .listing-search-section {
-    padding-top: 1rem;
-    flex-direction: row; /* Keep search input and button in a row */
-    justify-content: space-between; /* Space between search input and button */
+  .listing-search-section form {
+    width: 100%;
   }
 
   .listing-search-section input {
-    flex-grow: 1; /* Allow input to fill available space */
-    margin-right: 1rem; /* Space between input and button */
+    flex-grow: 1;
   }
 
   .listing-search-button {
-    flex-shrink: 0; /* Prevent button from shrinking */
-    padding: 0.6rem 1rem; /* Adjust padding for better touch accessibility */
+    width: 100%;
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Newly added styles */
+.search-form {
+  width: 100%;
+}
+
+.search-input-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Adjust gap between input and button as needed */
+}
+
+@media (max-width: 768px) {
+  .listing-filter-sort-bar {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem; /* Added gap for spacing between elements */
+  }
+
+  .filter-sort-section {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem; /* Reduced gap for a tighter layout */
+  }
+
+  .listing-filter-section,
+  .listing-sort-section,
+  .listing-search-section {
+    width: 100%;
+    margin-bottom: 0.5rem; /* Added margin for spacing between sections */
+  }
+
+  .listing-filter-section select,
+  .listing-sort-section select {
+    width: 100%; /* Ensures select elements take full width */
+    margin-bottom: 0.2rem; /* Added margin for spacing */
+  }
+
+  .listing-search-section label {
+    display: none;
+  }
+
+  .listing-search-section form {
+    display: flex;
+    flex-direction: row; /* Changed to row for side-by-side layout */
+    justify-content: space-between; /* Space elements evenly */
+    align-items: center; /* Align items vertically */
+    gap: 0.5rem; /* Space between input and button */
+  }
+
+  .listing-search-section input {
+    flex-grow: 2; /* Allows input to take more space */
+    margin-right: 0.5rem; /* Space between input and button */
+  }
+
+  .listing-search-button {
+    flex-grow: 1; /* Allows button to grow but less than input */
+    width: auto; /* Auto width to fit content */
+    margin-left: 0; /* Align with input */
+    margin-top: 0;
+    padding: 0.6rem 1rem; /* Adjust padding for better touch */
+  }
+
+  .search-input-button {
+    display: flex;
+    width: 100%; /* Ensure container takes full width */
   }
 }

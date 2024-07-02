@@ -20,15 +20,16 @@ function ListingFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
     setSearchQuery(e.target.value);
   };
 
-  const handleSearchSubmit = () => {
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
     onSearch(searchQuery);
   };
 
   return (
     <div className="listing-filter-sort-bar">
-      <div className="listing-filters">
+      <div className="filter-sort-section">
         <div className="listing-filter-section">
-          <label htmlFor="filter">Filter:</label>
+          <label htmlFor="filter">Filter</label>
           <select id="filter" value={filter} onChange={handleFilterChange}>
             <option value="active">Active</option>
             <option value="sold">Sold</option>
@@ -37,7 +38,7 @@ function ListingFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
           </select>
         </div>
         <div className="listing-sort-section">
-          <label htmlFor="sort">Sort:</label>
+          <label htmlFor="sort">Sort</label>
           <select id="sort" value={sort} onChange={handleSortChange}>
             <option value="recent">Most Recent</option>
             <option value="priceHighLow">Price: High to Low</option>
@@ -47,15 +48,21 @@ function ListingFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
         </div>
       </div>
       <div className="listing-search-section">
-        <input
-          type="text"
-          placeholder="Search Packages"
-          value={searchQuery}
-          onChange={handleSearchChange}
-        />
-        <button className="listing-search-button" onClick={handleSearchSubmit}>
-          Search
-        </button>
+        <form onSubmit={handleSearchSubmit} className="search-form">
+          <label htmlFor="search">Search</label>
+          <div className="search-input-button">
+            <input
+              type="text"
+              id="search"
+              placeholder="Search Packages"
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
+            <button type="submit" className="listing-search-button">
+              Search
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
