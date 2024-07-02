@@ -43,16 +43,17 @@
   transition: all 0.3s ease;
   border-radius: 20px;
   border: 2px solid #e7e7e7;
+  font-weight: 600;
 }
 
 .header-nav-btn.active {
-  background-color: #1b5cf3;
+  background-color: rgb(27, 92, 243);
   color: #fff;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.header-nav-btn:hover {
-  background-color: #1d52cf;
+.header-nav-btn:not(.active):hover {
+  background-color: rgb(21, 68, 178);
   color: #fff;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
 }

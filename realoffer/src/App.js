@@ -6,6 +6,7 @@ import Login from './pages/Login/Login';
 import Signup from './pages/Signup/Signup';
 import FeaturesPage from './pages/Features/FeaturesPage';
 import Dashboard from './pages/Dashboard/Dashboard';
+import Profile from './pages/Dashboard/pages/Profile/Profile';
 import './App.css'; // Your global styles
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path='/features' element={<FeaturesPage />} />
           {/* Add other routes here as needed */}
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} /> 
           {/* Removed the route for create-listing-package as it's now handled within the Dashboard component */}
         </Routes>
       </Router>
