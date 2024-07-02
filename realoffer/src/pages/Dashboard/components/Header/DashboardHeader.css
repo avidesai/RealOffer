@@ -1,153 +1,183 @@
-/* DashboardHeader.css */
-
+/* General styles for the header */
 .dashboard-header {
-    position: relative; /* Add this line */
-    display: flex;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1000;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-logo {
+  height: 60px;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.header-logo:hover {
+  transform: scale(1.05);
+}
+
+/* Navigation styles */
+.header-nav {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+  padding-left: 10rem;
+}
+
+.header-nav-btn {
+  font-size: 1rem;
+  padding: 0.8rem 1.4rem;
+  margin: 0 0.5rem;
+  background-color: #f9f9f9;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 20px;
+  border: 2px solid #e7e7e7;
+}
+
+.header-nav-btn.active {
+  background-color: #1b5cf3;
+  color: #fff;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.header-nav-btn:hover {
+  background-color: #1d52cf;
+  color: #fff;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Actions styles */
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.header-upgrade-btn {
+  padding: 0.6rem 1rem;
+  background-image: linear-gradient(to right, #6a1b9a, #1b5cf3);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background-color 0.3s;
+  text-transform: uppercase;
+  margin-right: 1rem;
+}
+
+.header-upgrade-btn:hover {
+  background-image: linear-gradient(to right, #4a148c, #174cd1);
+}
+
+/* Avatar styles */
+.user-avatar {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.user-avatar img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-avatar:hover {
+  transform: scale(1.05);
+}
+
+.user-info {
+  margin-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.user-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.user-email {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* Dropdown styles */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  width: 200px;
+  margin-top: 0.5rem;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.dropdown-item:hover {
+  background-color: #f6f6f6;
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 0.75rem 1.5rem;
     justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 2rem;
-    background-color: #fff;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   }
 
   .header-logo {
+    display: none;
+  }
+
+  .header-nav {
+    padding-left: 0;
     justify-content: flex-start;
-    height: 60px;
-    cursor: pointer;
   }
-  
-  .header-toggle {
-    display: flex;
-    align-items: center;
-    margin-left: 9rem;
+
+  .header-nav-btn {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.8rem;
+    margin: 0 0.25rem;
   }
-  
-  .header-toggle-btn {
-    font-size: 1.1rem; /* Larger font size for readability */
-    padding: 8px 16px; /* Bigger padding for a larger button */
-    margin: 0 10px; /* Space between buttons */
-    background-color: #e2e2e2; /* Light gray background for inactive button */
-    color: #333;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 14px;
-    font-weight: 600;
-    border-radius: 10px;
-    border: 2px solid #e2e2e2; /* Matching border to the background */
-  }
-  
-  .header-toggle-btn.active {
-    background-color: rgb(27, 92, 243);
-    color: white;
-    border-color: rgb(27, 92, 243);
-    box-shadow: 0px 2px 5px rgba(0,0,0,0.2); /* Shadow for active button */
-  }
-  
-  .header-toggle-btn:hover:not(.active) {
-    background-color: #d0d0d0; /* Darker shade on hover for inactive button */
-    border-color: #d0d0d0;
-    color: black;
-  }
-  
-  .header-toggle-btn:hover {
-    background-color: rgb(27, 92, 243);
-    color: white;
-    border-color: rgb(27, 92, 243);
-    box-shadow: 0px 2px 5px rgba(0,0,0,0.2); /* Add a shadow to the active/hover state */
-  }
-  
+
   .header-actions {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-  }
-  
-  .header-button {
-    padding: 0.6rem 1rem;
-    background-color: rgb(27, 41, 243);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.7rem;
-    font-weight: 600;
-    transition: background-color 0.3s;
-    text-transform: uppercase; /* Optional: for uppercase text */
+    justify-content: flex-end; /* Align actions to the right */
+    flex: 1; /* Allow the container to grow, pushing actions to the edge */
+    padding-right: 0; /* Ensure there's no padding pushing content away from the edge */
   }
 
-  .header-button:hover {
-    background-color: rgb(22, 76, 201);
+  .header-upgrade-btn {
+    display: none;
   }
 
-  .user-avatar {
-    position: relative;
-    cursor: pointer;
-    margin-left: 2rem;
-    margin-right: 1rem;
-    border-radius: 50%;
-    padding: 0.2rem 0.25rem;
-    border: 2px solid #eaeaea;
-    transition: border-color 0.3s ease, transform 0.3s ease; /* Add transition for smooth effect */
-  }
-
-  .user-avatar img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
-  .user-avatar:hover {
-    border-color: rgb(27, 92, 243); /* Change border color on hover */
-    transform: scale(1.05); /* Slightly increase size on hover */
-  }
-  
   .dropdown-menu {
-    position: absolute;
-    top: 100%; /* Align below the avatar */
-    right: 2rem;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    width: 150px; /* Adjust as needed */
+    right: 0; /* Adjust to align dropdown right edge with the avatar */
   }
-  
-  .dropdown-item {
-    display: block;
-    padding: 0.5rem 1rem;
-    color: #333;
-    text-decoration: none;
-    border-bottom: 1px solid #eee; /* Divider between items */
-  }
-  
-  .dropdown-item:last-child {
-    border-bottom: none; /* No divider for the last item */
-  }
-  
-  .dropdown-item:hover {
-    background-color: #f6f6f6;
-  }
-  
-  @media (max-width: 768px) {
-    .dashboard-header {
-      padding: 0.75rem 1.5rem;
-    }
-  
-    .header-logo {
-      height: 50px;
-    }
-  
-    .toggle-btn {
-      padding: 0.5rem 1rem;
-      margin: 0 0.5rem; /* adjust space for small screens */
-    }
-  
-    .header-actions {
-      display: none; /* or replace with a more suitable mobile layout */
-    }
-
-    .dropdown-menu {
-      right: 1rem; /* Adjust position on smaller screens */
-    }
-  }
+}
