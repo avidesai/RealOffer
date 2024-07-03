@@ -1,21 +1,30 @@
+// Dashboard.js
+
 import React, { useState } from 'react';
 import DashboardHeader from './components/Header/DashboardHeader';
 import MyListings from './components/MyListings/MyListings';
 import ForBuyers from './components/ForBuyers/ForBuyers';
 import Footer from '../../components/Footer/Footer';
 import CreateListingPackageLogic from './components/MyListings/CreateListingPackage/CreateListingPackageLogic';
+import CreateBuyerPackageLogic from './components/ForBuyers/CreateBuyerPackage/CreateBuyerPackageLogic';
 import './Dashboard.css';
 
 function Dashboard({ userId }) {
   const [activeTab, setActiveTab] = useState('listings');
-  const [showCreatePackageModal, setShowCreatePackageModal] = useState(false);
+  const [showCreateListingModal, setShowCreateListingModal] = useState(false);
+  const [showCreateBuyerModal, setShowCreateBuyerModal] = useState(false);
 
-  const handleCreatePackageClick = () => {
-    setShowCreatePackageModal(true);
+  const handleCreateListingClick = () => {
+    setShowCreateListingModal(true);
+  };
+
+  const handleCreateBuyerClick = () => {
+    setShowCreateBuyerModal(true);
   };
 
   const handleCloseModal = () => {
-    setShowCreatePackageModal(false);
+    setShowCreateListingModal(false);
+    setShowCreateBuyerModal(false);
   };
 
   return (
@@ -23,15 +32,16 @@ function Dashboard({ userId }) {
       <DashboardHeader activeTab={activeTab} setActiveTab={setActiveTab} />
       <div className="content">
         {activeTab === 'listings' ? (
-          <MyListings onCreatePackageClick={handleCreatePackageClick} />
+          <MyListings onCreatePackageClick={handleCreateListingClick} />
         ) : (
-          <ForBuyers onCreatePackageClick={handleCreatePackageClick} />
+          <ForBuyers onCreatePackageClick={handleCreateBuyerClick} />
         )}
       </div>
       <div className="dashboard-footer">
         <Footer /> {/* Footer component wrapped in a div for specific styling */}
       </div>
-      {showCreatePackageModal && <CreateListingPackageLogic onClose={handleCloseModal} userId={userId} />}
+      {showCreateListingModal && <CreateListingPackageLogic onClose={handleCloseModal} userId={userId} />}
+      {showCreateBuyerModal && <CreateBuyerPackageLogic onClose={handleCloseModal} userId={userId} />}
     </div>
   );
 }

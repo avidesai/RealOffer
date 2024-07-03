@@ -1,13 +1,15 @@
+// CreateBuyerPackageLogic.js
+
 import React, { useState } from 'react';
 import axios from 'axios';
-import CreateListingPackageForm from './CreateListingPackageForm';
+import CreateBuyerPackageForm from './CreateBuyerPackageForm';
 import { useAuth } from '../../../../../context/AuthContext';
 
-const CreateListingPackageLogic = ({ onClose }) => {
+const CreateBuyerPackageLogic = ({ onClose }) => {
   const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    role: 'seller',
+    role: 'buyer',
     address: '',
     city: '',
     state: '',
@@ -87,19 +89,19 @@ const CreateListingPackageLogic = ({ onClose }) => {
     }
 
     try {
-      await axios.post('http://localhost:8000/api/propertyListings', formDataToSend, {
+      await axios.post('http://localhost:8000/api/buyerPackages', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
       onClose();
     } catch (error) {
-      console.error('Error creating listing:', error);
+      console.error('Error creating package:', error);
     }
   };
 
   return (
-    <CreateListingPackageForm
+    <CreateBuyerPackageForm
       step={step}
       formData={formData}
       errors={errors}
@@ -113,4 +115,4 @@ const CreateListingPackageLogic = ({ onClose }) => {
   );
 };
 
-export default CreateListingPackageLogic;
+export default CreateBuyerPackageLogic;

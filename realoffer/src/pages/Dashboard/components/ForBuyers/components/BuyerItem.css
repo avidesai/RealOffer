@@ -1,12 +1,10 @@
-/* BuyerItem.css */
-
 .buyer-item {
   display: grid;
-  grid-template-columns: 240px auto min-content;
+  grid-template-columns: 200px auto 80px; /* Optimized space allocation */
   gap: 1rem;
   align-items: start;
-  margin-bottom: 1.5rem;
-  padding: 2rem;
+  margin-bottom: 1rem; /* Reduced for compactness */
+  padding: 1rem; /* Reduced overall padding */
   border: 1px solid #e1e1e1;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -16,21 +14,21 @@
 }
 
 .buyer-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px); /* Subtle lift effect */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Slightly less pronounced for a cleaner look */
 }
 
 .buyer-image {
   width: 100%;
-  height: 100%;
+  height: auto; /* Adjusted for better aspect ratio */
   border-radius: 5px;
   object-fit: cover;
-  margin-right: 1.4rem;
+  margin: auto 0; /* Ensures equal space above and below */
 }
 
 .buyer-details {
-  padding: 0.8rem;
-  padding-left: 1.5rem;
+  padding-left: 1rem;
+  margin-bottom: 1rem;
 }
 
 .buyer-info {
@@ -40,122 +38,112 @@
 }
 
 .buyer-title {
-  font-size: 1.3rem;
+  font-size: 1.2rem; /* Slightly reduced */
   color: #333;
   font-weight: bold;
-  margin: 0 0 0.25rem 0;
+  margin-bottom: 1rem;
 }
 
 .buyer-location {
   color: #666;
-  font-size: 1.1rem;
+  font-size: 1rem; /* Slightly reduced */
+  margin-bottom: 1.4rem;
 }
 
 .buyer-agents {
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-left: auto;
+  align-items: center; /* Ensures vertical centering */
+  gap: 10px;
 }
 
 .agent-image {
-  width: 45px;
-  height: 45px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   object-fit: cover;
-  margin-right: 0.5rem;
 }
 
 .buyer-action-buttons {
   display: flex;
-  gap: 1rem;
-  padding-top: 0.5rem;
+  gap: 1rem; /* Reduced gap */
 }
 
 .buyer-button {
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 1rem; /* More compact */
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.9rem; /* Slightly smaller text */
   font-weight: 500;
   transition: all 0.2s;
   text-align: center;
-  width: 6rem;
-  height: 2.5rem;
+  width: auto; /* Auto width based on content */
+  height: 2.4rem; /* Slightly reduced */
 }
 
 .buyer-button.share {
-  background-color: rgb(50, 182, 67);
+  background-color: #32b643; /* Brighter green for visibility */
   color: white;
 }
 
 .buyer-button.archive {
-  background-color: rgb(223, 223, 223);
-  color: rgb(0, 0, 0);
+  background-color: #dfdfdf; /* Neutral grey */
+  color: #000;
 }
 
-.buyer-button.share:hover {
-  background-color: rgb(36, 128, 48);
+.buyer-button:hover {
+  opacity: 0.9; /* Subtle hover effect */
 }
 
-.buyer-button.archive:hover {
-  background-color: rgb(188, 188, 188);
+.buyer-agents {
+  display: flex;
+  align-items: center; /* Ensures vertical centering */
+  justify-content: flex-start; /* Aligns items to the start */
+  gap: 10px; /* Space between agent images */
+  height: 100%; /* Take full height of the parent */
+  margin-top: -0.8rem; /* Adjusted for better alignment */
+}
+
+.agent-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: #dbdbdb 1px solid; /* Added border for better visibility */
+  padding: 0.3rem;
 }
 
 @media (max-width: 768px) {
   .buyer-item {
-    display: flex;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    grid-template-columns: 1fr; /* Full width on smaller screens */
+    gap: 0.5rem;
   }
 
   .buyer-image {
-    width: 100%;
-    max-width: 250px;
-    height: auto;
-    border-radius: 8px 8px 0 0;
-    margin: 0 auto 1rem;
+    width: 100%; /* Adjust width */
+    max-height: 180px; /* Limit height on mobile */
+    border-radius: 5px;
   }
 
   .buyer-details {
-    padding: 1rem;
-  }
-
-  .buyer-title {
-    font-size: 1.2rem;
-  }
-
-  .buyer-location {
-    font-size: 1rem;
-  }
-
-  .buyer-details,
-  .buyer-agents {
-    order: 2;
-  }
-
-  .buyer-button {
-    width: 100%;
-    font-size: 0.9rem;
-    margin-top: 0.5rem;
-  }
-
-  .buyer-action-buttons {
-    justify-content: center;
+    order: 2; /* Ensure details are visually prioritized */
   }
 
   .agent-image {
-    width: 35px;
-    height: 35px;
+    display: none;
+  }
+
+  .buyer-button {
+    font-size: 0.8rem; /* Smaller font size on mobile */
   }
 }
 
 @media (max-width: 600px) {
   .buyer-image {
+    display: none; /* Hide image on very small screens */
+  }
+
+  .agent-image {
     display: none;
   }
 }

@@ -1,5 +1,3 @@
-/* MyListings.css */
-
 .my-listings {
   padding: 0.5rem 2rem 2rem 2rem;
 }
@@ -28,4 +26,10 @@
 .listings-container {
   opacity: 1;
   transition: opacity 0.1s ease-in-out;
+}
+
+.mylistings-error {
+  padding-left: 0.5rem;
+  padding-top: 1rem;
+  color: rgb(0, 0, 0);
 }

@@ -1,5 +1,3 @@
-// MyListings.js
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../../context/AuthContext';
@@ -26,7 +24,7 @@ function MyListings({ onCreatePackageClick }) {
           setError(''); // Reset the error on successful fetch
         } catch (error) {
           console.error('Failed to fetch user details:', error);
-          setError('Failed to load listings. Please try again.');
+          setError('No listings found.');
         }
         setLoading(false);
       }
@@ -51,10 +49,6 @@ function MyListings({ onCreatePackageClick }) {
     );
   }
 
-  if (error) {
-    return <div className="error">{error}</div>;
-  }
-
   return (
     <div className="my-listings">
       <div className="create-property-package">
@@ -62,20 +56,25 @@ function MyListings({ onCreatePackageClick }) {
           Create Listing Package
         </button>
       </div>
-      <ListingFilterSortBar />
-      {currentListings.length > 0 ? currentListings.map(listing => (
-        <ListingItem key={listing._id} listing={listing} />
-      )) : <div>No listings found.</div>}
-      {pageCount > 1 && (
-        <Pagination
-          currentPage={currentPage}
-          pageCount={pageCount}
-          onPageChange={handlePageChange}
-        />
+      {error ? (
+        <div className="mylistings">{error}</div>
+      ) : (
+        <>
+          <ListingFilterSortBar />
+          {currentListings.length > 0 ? currentListings.map(listing => (
+            <ListingItem key={listing._id} listing={listing} />
+          )) : <div>No listings found.</div>}
+          {pageCount > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              pageCount={pageCount}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </>
       )}
     </div>
   );
 }
 
 export default MyListings;
-

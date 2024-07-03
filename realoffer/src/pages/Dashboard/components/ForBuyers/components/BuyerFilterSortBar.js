@@ -20,15 +20,16 @@ function BuyerFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
     setSearchQuery(e.target.value);
   };
 
-  const handleSearchSubmit = () => {
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
     onSearch(searchQuery);
   };
 
   return (
-    <div className="buyer-filter-sort-bar">
-      <div className="buyer-filters">
-        <div className="buyer-filter-section">
-          <label htmlFor="filter">Filter:</label>
+    <div className="listing-filter-sort-bar">
+      <div className="filter-sort-section">
+        <div className="listing-filter-section">
+          <label htmlFor="filter">Filter</label>
           <select id="filter" value={filter} onChange={handleFilterChange}>
             <option value="active">Active</option>
             <option value="sold">Sold</option>
@@ -36,8 +37,8 @@ function BuyerFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
             {/* Add more filter options here */}
           </select>
         </div>
-        <div className="buyer-sort-section">
-          <label htmlFor="sort">Sort:</label>
+        <div className="listing-sort-section">
+          <label htmlFor="sort">Sort</label>
           <select id="sort" value={sort} onChange={handleSortChange}>
             <option value="recent">Most Recent</option>
             <option value="priceHighLow">Price: High to Low</option>
@@ -46,16 +47,22 @@ function BuyerFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
           </select>
         </div>
       </div>
-      <div className="buyer-search-section">
-        <input
-          type="text"
-          placeholder="Search Packages"
-          value={searchQuery}
-          onChange={handleSearchChange}
-        />
-        <button className="buyer-search-button" onClick={handleSearchSubmit}>
-          Search
-        </button>
+      <div className="listing-search-section">
+        <form onSubmit={handleSearchSubmit} className="search-form">
+          <label htmlFor="search">Search</label>
+          <div className="search-input-button">
+            <input
+              type="text"
+              id="search"
+              placeholder="Search Packages"
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
+            <button type="submit" className="listing-search-button">
+              Search
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
