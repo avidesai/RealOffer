@@ -1,6 +1,6 @@
-// /controllers/PropertyListingController.js
+// /controllers/BuyerPackageController.js
 
-const PropertyListing = require('../models/PropertyListing');
+const BuyerPackage = require('../models/BuyerPackage');
 const User = require('../models/User');
 const multer = require('multer');
 const { s3Client } = require('../config/aws');
@@ -18,26 +18,26 @@ const upload = multer({
   })
 });
 
-exports.getAllListings = async (req, res) => {
+exports.getAllPackages = async (req, res) => {
   try {
-    const listings = await PropertyListing.find();
-    res.status(200).json(listings);
+    const packages = await BuyerPackage.find();
+    res.status(200).json(packages);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-exports.getListingById = async (req, res) => {
+exports.getPackageById = async (req, res) => {
   try {
-    const listing = await PropertyListing.findById(req.params.id);
-    if (!listing) return res.status(404).json({ message: "Listing not found" });
-    res.status(200).json(listing);
+    const package = await BuyerPackage.findById(req.params.id);
+    if (!package) return res.status(404).json({ message: "Package not found" });
+    res.status(200).json(package);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-exports.createListing = async (req, res) => {
+exports.createPackage = async (req, res) => {
   const {
     role, address, city, state, zip, propertyType, askingPrice, bedrooms,
     bathrooms, yearBuilt, sqFootage, lotSize, description, agent1, agent2,
@@ -55,7 +55,7 @@ exports.createListing = async (req, res) => {
     return res.status(400).json({ message: 'Invalid agent ID format' });
   }
 
-  const newListing = new PropertyListing({
+  const newPackage = new BuyerPackage({
     role,
     homeCharacteristics: {
       address, city, state, zip, propertyType, price: askingPrice, beds: bedrooms,
@@ -75,37 +75,37 @@ exports.createListing = async (req, res) => {
   });
 
   try {
-    const savedListing = await newListing.save();
+    const savedPackage = await newPackage.save();
 
-    // Add the listing to the agent's listingPackages
+    // Add the package to the agent's buyerPackages
     const agent = await User.findById(agent1);
     if (!agent) {
       return res.status(404).json({ message: 'Agent not found' });
     }
-    agent.listingPackages.push(savedListing._id);
+    agent.buyerPackages.push(savedPackage._id);
     await agent.save();
 
-    res.status(201).json(savedListing);
+    res.status(201).json(savedPackage);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
-exports.updateListing = async (req, res) => {
+exports.updatePackage = async (req, res) => {
   try {
-    const updatedListing = await PropertyListing.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.status(200).json(updatedListing);
+    const updatedPackage = await BuyerPackage.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.status(200).json(updatedPackage);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
-exports.deleteListing = async (req, res) => {
+exports.deletePackage = async (req, res) => {
   try {
-    await PropertyListing.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Listing deleted" });
+    await BuyerPackage.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Package deleted" });
   } catch (error) {
-    res.status(404).json({ message: "Listing not found" });
+    res.status(404).json({ message: "Package not found" });
   }
 };
 
