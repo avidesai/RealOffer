@@ -22,7 +22,7 @@ function ForBuyers({ onCreatePackageClick }) {
         setLoading(true);
         try {
           const response = await axios.get(`http://localhost:8000/api/users/${user._id}/buyerPackages`);
-          setBuyerPackages(response.data.buyerPackages);
+          setBuyerPackages(response.data);
           setError(''); // Reset the error on successful fetch
         } catch (error) {
           console.error('Failed to fetch user details:', error);

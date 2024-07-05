@@ -1,14 +1,16 @@
+// BuyerItem.js
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './BuyerItem.css';
 
-function BuyerItem({ buyerPackage }) {
+function BuyerItem({ listing }) {
   const [agents, setAgents] = useState([]);
 
   useEffect(() => {
     const fetchAgents = async () => {
       const agentDetails = await Promise.all(
-        buyerPackage.agentIds.map(async (id) => {
+        listing.agentIds.map(async (id) => {
           const response = await axios.get(`http://localhost:8000/api/users/${id}`);
           return response.data;
         })
@@ -17,14 +19,14 @@ function BuyerItem({ buyerPackage }) {
     };
 
     fetchAgents();
-  }, [buyerPackage.agentIds]);
+  }, [listing.agentIds]);
 
   return (
     <div className="buyer-item">
-      <img src={buyerPackage.imagesUrls[0]} alt={`${buyerPackage.homeCharacteristics.address} view`} className="buyer-image" />
+      <img src={listing.imagesUrls[0]} alt={`${listing.homeCharacteristics.address} view`} className="buyer-image" />
       <div className="buyer-details">
-        <h3 className="buyer-title">{buyerPackage.homeCharacteristics.address}</h3>
-        <p className="buyer-location">{buyerPackage.homeCharacteristics.city}, {buyerPackage.homeCharacteristics.state} {buyerPackage.homeCharacteristics.zip}</p>
+        <h3 className="buyer-title">{listing.homeCharacteristics.address}</h3>
+        <p className="buyer-location">{listing.homeCharacteristics.city}, {listing.homeCharacteristics.state} {listing.homeCharacteristics.zip}</p>
         <div className="buyer-action-buttons">
           <button className="buyer-button share">Share</button>
           <button className="buyer-button archive">Archive</button>

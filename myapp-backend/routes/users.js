@@ -10,6 +10,7 @@ const UserController = require('../controllers/UserController');
 router.get('/', UserController.getAllUsers);
 router.get('/:id', UserController.getUserById);
 router.get('/:id/listingPackages', UserController.getUserWithListingPackages);
+router.get('/:id/buyerPackages', UserController.getUserBuyerPackages); // New route for buyer packages
 router.post('/', UserController.createUser);
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
