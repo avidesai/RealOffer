@@ -2,10 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import './ListingItem.css';
 
 function ListingItem({ listing }) {
   const [agents, setAgents] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAgents = async () => {
@@ -21,8 +23,12 @@ function ListingItem({ listing }) {
     fetchAgents();
   }, [listing.agentIds]);
 
+  const handleClick = () => {
+    navigate(`/mylisting/${listing._id}`);
+  };
+
   return (
-    <div className="listing-item">
+    <div className="listing-item" onClick={handleClick}>
       <img src={listing.imagesUrls[0]} alt={`${listing.homeCharacteristics.address} view`} className="listing-image" />
       <div className="listing-details">
         <h3 className="listing-title">{listing.homeCharacteristics.address}</h3>

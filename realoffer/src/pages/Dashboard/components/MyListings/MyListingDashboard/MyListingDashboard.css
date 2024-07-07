@@ -1,0 +1,18 @@
+/* MyListingDashboard.css */
+
+.my-listing-dashboard {
+    padding: 20px;
+  }
+  
+  .my-listing-dashboard h1 {
+    margin-bottom: 10px;
+  }
+  
+  .my-listing-dashboard p {
+    margin: 5px 0;
+  }
+  
+  .my-listing-dashboard img {
+    margin: 5px;
+  }
+  

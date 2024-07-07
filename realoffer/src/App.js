@@ -1,3 +1,5 @@
+// App.js
+
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage/LandingPage';
@@ -7,6 +9,7 @@ import Signup from './pages/Signup/Signup';
 import FeaturesPage from './pages/Features/FeaturesPage';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Profile from './pages/Dashboard/pages/Profile/Profile';
+import MyListingDashboard from './pages/Dashboard/components/MyListings/MyListingDashboard/MyListingDashboard';
 import './App.css'; // Your global styles
 
 function App() {
@@ -19,10 +22,9 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path='/features' element={<FeaturesPage />} />
-          {/* Add other routes here as needed */}
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} /> 
-          {/* Removed the route for create-listing-package as it's now handled within the Dashboard component */}
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/mylisting/:id" element={<MyListingDashboard />} /> {/* New Route */}
         </Routes>
       </Router>
     </EmailContext.Provider>
