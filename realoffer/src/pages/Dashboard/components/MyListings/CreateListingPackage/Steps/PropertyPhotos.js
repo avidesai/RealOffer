@@ -10,7 +10,7 @@ const PropertyPhotos = ({ handleFileChange, handleSubmit, handlePrevStep }) => (
       onChange={handleFileChange}
     />
     <div className='button-container'>
-      <button className="back-button" onClick={handlePrevStep}>Back</button>
+      <button className="step-back-button" onClick={handlePrevStep}>Back</button>
       <button className="next-button" onClick={handleSubmit}>Create Package</button>
     </div>
   </div>

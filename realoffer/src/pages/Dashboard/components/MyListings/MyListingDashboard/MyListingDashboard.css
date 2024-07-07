@@ -4,7 +4,7 @@
     background-color: #f4f4f4;
   }
 
-  .back-button {
+  .back-to-dashboard {
     background-color: #ffffff;
     color: #333;
     border: 2px solid #c4c4c4;;
@@ -21,7 +21,7 @@
     align-items: center;
   }
   
-  .back-button:hover {
+  .back-to-dashboard:hover {
     transform: translateY(-1px); /* Subtle lift effect */
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1); /* Shadow effect */
     background-color: #ffffff;

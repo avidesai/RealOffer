@@ -76,7 +76,7 @@ const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, hand
       rows="4"
     />
     <div className='button-container'>
-      <button className="back-button" onClick={handlePrevStep}>Back</button>
+      <button className="step-back-button" onClick={handlePrevStep}>Back</button>
       <button className="next-button" onClick={handleNextStep}>Next</button>
     </div>
   </div>

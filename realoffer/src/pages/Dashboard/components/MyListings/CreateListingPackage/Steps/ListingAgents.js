@@ -31,7 +31,7 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
       </select>
       {errors.agent1 && <div className="error">{errors.agent1}</div>}
       <div className='button-container'>
-        <button className="back-button" onClick={handlePrevStep}>Back</button>
+        <button className="step-back-button" onClick={handlePrevStep}>Back</button>
         <button className="next-button" onClick={handleNextStep}>Next</button>
       </div>
     </div>

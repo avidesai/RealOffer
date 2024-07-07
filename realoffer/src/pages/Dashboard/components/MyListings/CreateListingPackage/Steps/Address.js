@@ -36,7 +36,7 @@ const Address = ({ formData, errors, handleChange, handleNextStep, handlePrevSte
     />
     {errors.zip && <div className="error">{errors.zip}</div>}
     <div className='button-container'>
-      <button className="back-button" onClick={handlePrevStep}>Back</button>
+      <button className="step-back-button" onClick={handlePrevStep}>Back</button>
       <button className="next-button" onClick={handleNextStep}>Next</button>
     </div>
   </div>

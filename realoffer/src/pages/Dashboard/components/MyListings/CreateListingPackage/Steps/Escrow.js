@@ -39,7 +39,7 @@ const Escrow = ({ formData, handleChange, handleNextStep, handlePrevStep }) => (
       onChange={handleChange}
     />
     <div className='button-container'>
-      <button className="back-button" onClick={handlePrevStep}>Back</button>
+      <button className="step-back-button" onClick={handlePrevStep}>Back</button>
       <button className="next-button" onClick={handleNextStep}>Next</button>
     </div>
   </div>

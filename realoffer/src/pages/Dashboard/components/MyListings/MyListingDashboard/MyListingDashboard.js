@@ -36,7 +36,7 @@ function MyListingDashboard() {
     <div className="my-listing-dashboard">
       <MyListingDashboardHeader />
       <div className="my-listing-dashboard-content">
-        <button className="back-button" onClick={handleBackClick}>
+        <button className="back-to-dashboard" onClick={handleBackClick}>
           &larr; Back to Dashboard
         </button>
         <ListingOverview listing={listing} />
