@@ -1,7 +1,10 @@
+// CreateListingPackageLogic.js
+
 import React, { useState } from 'react';
 import axios from 'axios';
 import CreateListingPackageForm from './CreateListingPackageForm';
 import { useAuth } from '../../../../../context/AuthContext';
+import './CreateListingPackage.css';
 
 const CreateListingPackageLogic = ({ onClose }) => {
   const { user } = useAuth();
@@ -30,9 +33,9 @@ const CreateListingPackageLogic = ({ onClose }) => {
     propertyImages: [],
   });
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const handleNextStep = () => {
-    // Validate required fields for current step
     const newErrors = {};
     if (step === 1 && !formData.role) newErrors.role = 'Role is required';
     if (step === 2) {
@@ -74,6 +77,7 @@ const CreateListingPackageLogic = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const formDataToSend = new FormData();
     for (const key in formData) {
@@ -95,21 +99,26 @@ const CreateListingPackageLogic = ({ onClose }) => {
       onClose();
     } catch (error) {
       console.error('Error creating listing:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <CreateListingPackageForm
-      step={step}
-      formData={formData}
-      errors={errors}
-      handleNextStep={handleNextStep}
-      handlePrevStep={handlePrevStep}
-      handleChange={handleChange}
-      handleFileChange={handleFileChange}
-      handleSubmit={handleSubmit}
-      onClose={onClose}
-    />
+    <>
+      <CreateListingPackageForm
+        step={step}
+        formData={formData}
+        errors={errors}
+        handleNextStep={handleNextStep}
+        handlePrevStep={handlePrevStep}
+        handleChange={handleChange}
+        handleFileChange={handleFileChange}
+        handleSubmit={handleSubmit}
+        onClose={onClose}
+        loading={loading} // Pass loading state
+      />
+    </>
   );
 };
 

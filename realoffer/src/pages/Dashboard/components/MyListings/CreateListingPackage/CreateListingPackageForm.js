@@ -1,3 +1,5 @@
+// CreateListingPackageForm.js
+
 import React from 'react';
 import './CreateListingPackage.css';
 import Role from './Steps/Role';
@@ -16,9 +18,15 @@ const CreateListingPackageForm = ({
   handleChange,
   handleFileChange,
   handleSubmit,
+  loading, // Add loading prop
   onClose
 }) => (
   <div className="create-package-modal">
+    {loading && (
+      <div className="spinner-overlay">
+        <div className="spinner"></div>
+      </div>
+    )}
     <div className="create-package-content">
       <button className="close-button" onClick={onClose}></button>
       <h1 className="create-package-title">Create Listing Package</h1>

@@ -1,3 +1,5 @@
+// /CreateListingPackage/Steps/PropertyFeatures.js
+
 import React from 'react';
 
 const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, handlePrevStep }) => (

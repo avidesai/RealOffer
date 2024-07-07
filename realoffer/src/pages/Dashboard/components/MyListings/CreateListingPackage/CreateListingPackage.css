@@ -149,6 +149,9 @@ select {
   background-color: #007bff;
   color: #fff;
   width: 30%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .step-back-button:hover {
@@ -205,4 +208,31 @@ select {
   font-size: 0.9em;
   margin-top: -10px;
   margin-bottom: 10px;
+}
+
+.spinner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001; /* Higher than the modal */
+}
+
+.spinner {
+  border: 4px solid #f3f3f3; /* Light grey */
+  border-top: 4px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
