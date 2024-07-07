@@ -1,14 +1,15 @@
-// MyListingDashboard.js
-
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import MyListingDashboardHeader from './Header/MyListingDashboardHeader';
+import ListingOverview from './components/ListingOverview/ListingOverview';
+import Footer from '../../Footer/Footer';
 import './MyListingDashboard.css';
 
 function MyListingDashboard() {
   const { id } = useParams();
   const [listing, setListing] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchListingDetails = async () => {
@@ -27,34 +28,20 @@ function MyListingDashboard() {
     return <div>Loading...</div>;
   }
 
+  const handleBackClick = () => {
+    navigate('/dashboard');
+  };
+
   return (
-    <div>
+    <div className="my-listing-dashboard">
       <MyListingDashboardHeader />
-      <div className="my-listing-dashboard">
-        <h1>{listing.homeCharacteristics.address}</h1>
-        <p>City: {listing.homeCharacteristics.city}</p>
-        <p>State: {listing.homeCharacteristics.state}</p>
-        <p>Zip: {listing.homeCharacteristics.zip}</p>
-        <p>Price: ${listing.homeCharacteristics.price}</p>
-        <p>Beds: {listing.homeCharacteristics.beds}</p>
-        <p>Baths: {listing.homeCharacteristics.baths}</p>
-        <p>Square Footage: {listing.homeCharacteristics.squareFootage}</p>
-        <p>Lot Size: {listing.homeCharacteristics.lotSize}</p>
-        <p>Year Built: {listing.homeCharacteristics.yearBuilt}</p>
-        <p>Description: {listing.description}</p>
-        <div>
-          <h3>Agents:</h3>
-          {listing.agentIds.map(agent => (
-            <p key={agent}>{agent}</p>
-          ))}
-        </div>
-        <div>
-          <h3>Images:</h3>
-          {listing.imagesUrls.map((url, index) => (
-            <img key={index} src={url} alt="Property" style={{ width: '100px', height: '100px' }} />
-          ))}
-        </div>
+      <div className="my-listing-dashboard-content">
+        <button className="back-button" onClick={handleBackClick}>
+          &larr; Back to Dashboard
+        </button>
+        <ListingOverview listing={listing} />
       </div>
+      <Footer />
     </div>
   );
 }
