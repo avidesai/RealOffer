@@ -6,7 +6,7 @@ import CreateListingPackageForm from './CreateListingPackageForm';
 import { useAuth } from '../../../../../context/AuthContext';
 import './CreateListingPackage.css';
 
-const CreateListingPackageLogic = ({ onClose }) => {
+const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
   const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -91,11 +91,12 @@ const CreateListingPackageLogic = ({ onClose }) => {
     }
 
     try {
-      await axios.post('http://localhost:8000/api/propertyListings', formDataToSend, {
+      const response = await axios.post('http://localhost:8000/api/propertyListings', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
+      addNewListing(response.data); // Add new listing to MyListings
       onClose();
     } catch (error) {
       console.error('Error creating listing:', error);

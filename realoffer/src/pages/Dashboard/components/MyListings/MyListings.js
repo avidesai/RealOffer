@@ -4,6 +4,7 @@ import { useAuth } from '../../../../context/AuthContext';
 import ListingItem from './components/ListingItem';
 import ListingFilterSortBar from './components/ListingFilterSortBar';
 import Pagination from './components/Pagination';
+import CreateListingPackageLogic from './CreateListingPackage/CreateListingPackageLogic';
 import './MyListings.css';
 
 function MyListings({ onCreatePackageClick }) {
@@ -13,6 +14,7 @@ function MyListings({ onCreatePackageClick }) {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showCreateListingModal, setShowCreateListingModal] = useState(false);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -33,12 +35,24 @@ function MyListings({ onCreatePackageClick }) {
     fetchUserDetails();
   }, [user]);
 
+  const addNewListing = (newListing) => {
+    setListings((prevListings) => [newListing, ...prevListings]);
+  };
+
   const pageCount = Math.ceil(listings.length / LISTINGS_PER_PAGE);
   const startIndex = (currentPage - 1) * LISTINGS_PER_PAGE;
   const currentListings = listings.slice(startIndex, startIndex + LISTINGS_PER_PAGE);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
+  };
+
+  const handleCreateListingClick = () => {
+    setShowCreateListingModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowCreateListingModal(false);
   };
 
   if (loading) {
@@ -52,7 +66,7 @@ function MyListings({ onCreatePackageClick }) {
   return (
     <div className="my-listings">
       <div className="create-property-package">
-        <button className="create-package-button" onClick={onCreatePackageClick}>
+        <button className="create-package-button" onClick={handleCreateListingClick}>
           Create Listing Package
         </button>
       </div>
@@ -72,6 +86,9 @@ function MyListings({ onCreatePackageClick }) {
             />
           )}
         </>
+      )}
+      {showCreateListingModal && (
+        <CreateListingPackageLogic onClose={handleCloseModal} addNewListing={addNewListing} />
       )}
     </div>
   );
