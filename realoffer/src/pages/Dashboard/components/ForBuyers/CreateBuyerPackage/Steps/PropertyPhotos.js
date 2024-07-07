@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PropertyPhotos = ({ handleFileChange, handleSubmit, handlePrevStep }) => (
+const PropertyPhotos = ({ handleFileChange, handleSubmit, handlePrevStep, loading }) => (
   <div className="create-package-step">
     <h2>Property Photos (Optional)</h2>
     <input
@@ -11,7 +11,9 @@ const PropertyPhotos = ({ handleFileChange, handleSubmit, handlePrevStep }) => (
     />
     <div className='button-container'>
       <button className="back-button" onClick={handlePrevStep}>Back</button>
-      <button className="next-button" onClick={handleSubmit}>Create Package</button>
+      <button className="next-button" onClick={handleSubmit} disabled={loading}>
+        Create Package
+      </button>
     </div>
   </div>
 );

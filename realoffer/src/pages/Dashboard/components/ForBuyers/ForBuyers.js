@@ -1,11 +1,10 @@
-// ForBuyers.js
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../../context/AuthContext';
 import BuyerItem from './components/BuyerItem';
 import BuyerFilterSortBar from './components/BuyerFilterSortBar';
 import Pagination from './components/Pagination';
+import CreateBuyerPackageLogic from './CreateBuyerPackage/CreateBuyerPackageLogic';
 import './ForBuyers.css';
 
 function ForBuyers({ onCreatePackageClick }) {
@@ -15,6 +14,7 @@ function ForBuyers({ onCreatePackageClick }) {
   const [buyerPackages, setBuyerPackages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showCreateBuyerModal, setShowCreateBuyerModal] = useState(false);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -35,12 +35,24 @@ function ForBuyers({ onCreatePackageClick }) {
     fetchUserDetails();
   }, [user]);
 
+  const addNewBuyerPackage = (newBuyerPackage) => {
+    setBuyerPackages((prevPackages) => [newBuyerPackage, ...prevPackages]);
+  };
+
   const pageCount = Math.ceil(buyerPackages.length / PACKAGES_PER_PAGE);
   const startIndex = (currentPage - 1) * PACKAGES_PER_PAGE;
   const currentPackages = buyerPackages.slice(startIndex, startIndex + PACKAGES_PER_PAGE);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
+  };
+
+  const handleCreateBuyerClick = () => {
+    setShowCreateBuyerModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowCreateBuyerModal(false);
   };
 
   if (loading) {
@@ -54,7 +66,7 @@ function ForBuyers({ onCreatePackageClick }) {
   return (
     <div className="for-buyers">
       <div className="create-buyer-package">
-        <button className="create-package-button" onClick={onCreatePackageClick}>
+        <button className="create-package-button" onClick={handleCreateBuyerClick}>
           Create Buyer Package
         </button>
       </div>
@@ -74,6 +86,9 @@ function ForBuyers({ onCreatePackageClick }) {
             />
           )}
         </>
+      )}
+      {showCreateBuyerModal && (
+        <CreateBuyerPackageLogic onClose={handleCloseModal} addNewBuyerPackage={addNewBuyerPackage} />
       )}
     </div>
   );

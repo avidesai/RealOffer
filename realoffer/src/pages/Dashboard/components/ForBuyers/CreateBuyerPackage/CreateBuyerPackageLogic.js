@@ -4,8 +4,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import CreateBuyerPackageForm from './CreateBuyerPackageForm';
 import { useAuth } from '../../../../../context/AuthContext';
+import './CreateBuyerPackage.css'; // Ensure this CSS file is imported
 
-const CreateBuyerPackageLogic = ({ onClose }) => {
+const CreateBuyerPackageLogic = ({ onClose, addNewBuyerPackage }) => {
   const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -32,9 +33,9 @@ const CreateBuyerPackageLogic = ({ onClose }) => {
     propertyImages: [],
   });
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false); // Add loading state
 
   const handleNextStep = () => {
-    // Validate required fields for current step
     const newErrors = {};
     if (step === 1 && !formData.role) newErrors.role = 'Role is required';
     if (step === 2) {
@@ -76,6 +77,7 @@ const CreateBuyerPackageLogic = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Set loading to true when form is submitted
 
     const formDataToSend = new FormData();
     for (const key in formData) {
@@ -89,29 +91,40 @@ const CreateBuyerPackageLogic = ({ onClose }) => {
     }
 
     try {
-      await axios.post('http://localhost:8000/api/buyerPackages', formDataToSend, {
+      const response = await axios.post('http://localhost:8000/api/buyerPackages', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
+      addNewBuyerPackage(response.data); // Add new buyer package to ForBuyers
       onClose();
     } catch (error) {
       console.error('Error creating package:', error);
+    } finally {
+      setLoading(false); // Ensure loading is set to false after form submission
     }
   };
 
   return (
-    <CreateBuyerPackageForm
-      step={step}
-      formData={formData}
-      errors={errors}
-      handleNextStep={handleNextStep}
-      handlePrevStep={handlePrevStep}
-      handleChange={handleChange}
-      handleFileChange={handleFileChange}
-      handleSubmit={handleSubmit}
-      onClose={onClose}
-    />
+    <>
+      {loading && (
+        <div className="spinner-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
+      <CreateBuyerPackageForm
+        step={step}
+        formData={formData}
+        errors={errors}
+        handleNextStep={handleNextStep}
+        handlePrevStep={handlePrevStep}
+        handleChange={handleChange}
+        handleFileChange={handleFileChange}
+        handleSubmit={handleSubmit}
+        onClose={onClose}
+        loading={loading} // Pass loading state
+      />
+    </>
   );
 };
 

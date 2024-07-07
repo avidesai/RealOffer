@@ -18,9 +18,15 @@ const CreateBuyerPackageForm = ({
   handleChange,
   handleFileChange,
   handleSubmit,
+  loading,
   onClose
 }) => (
   <div className="create-package-modal">
+    {loading && (
+      <div className="spinner-overlay">
+        <div className="spinner"></div>
+      </div>
+    )}
     <div className="create-package-content">
       <button className="close-button" onClick={onClose}></button>
       <h1 className="create-package-title">Create Buyer Package</h1>
@@ -73,6 +79,7 @@ const CreateBuyerPackageForm = ({
           handleFileChange={handleFileChange}
           handleSubmit={handleSubmit}
           handlePrevStep={handlePrevStep}
+          loading={loading} // Pass loading state
         />
       )}
     </div>

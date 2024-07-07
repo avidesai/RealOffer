@@ -14,13 +14,7 @@ const PropertyPhotos = ({ handleFileChange, handleSubmit, handlePrevStep, loadin
     <div className='button-container'>
       <button className="step-back-button" onClick={handlePrevStep}>Back</button>
       <button className="next-button" onClick={handleSubmit} disabled={loading}>
-        {loading ? (
-          <div className="spinner-container">
-            <div className="spinner"></div>
-          </div>
-        ) : (
-          'Create Package'
-        )}
+        Create Package
       </button>
     </div>
   </div>
