@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import MyListingDashboardHeader from './Header/MyListingDashboardHeader';
 import ListingOverview from './components/ListingOverview/ListingOverview';
+import TabSection from './components/TabSection/TabSection';
 import Footer from '../../Footer/Footer';
 import './MyListingDashboard.css';
 
@@ -40,6 +41,7 @@ function MyListingDashboard() {
           &larr; Back to Dashboard
         </button>
         <ListingOverview listing={listing} />
+        <TabSection />
       </div>
       <Footer />
     </div>
