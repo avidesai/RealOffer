@@ -21,7 +21,7 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 80vh;  /* Adjust this value based on your layout needs */
+  height: 75vh;  /* Adjust this value based on your layout needs */
 }
 
 .spinner {
