@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import Documents from '../../Tabs/Documents/Documents';
 import './TabSection.css';
 
-function TabSection() {
+const TabSection = ({ listing }) => {
   const [activeTab, setActiveTab] = useState('docs');
 
   const handleTabClick = (tab) => {
@@ -49,7 +50,7 @@ function TabSection() {
         </button>
       </div>
       <div className="tab-content">
-        {activeTab === 'docs' && <div>Docs Content</div>}
+        {activeTab === 'docs' && <Documents documents={listing.documents} />}
         {activeTab === 'viewers' && <div>Viewers Content</div>}
         {activeTab === 'activity' && <div>Activity Content</div>}
         {activeTab === 'messages' && <div>Messages Content</div>}
@@ -58,6 +59,6 @@ function TabSection() {
       </div>
     </div>
   );
-}
+};
 
 export default TabSection;

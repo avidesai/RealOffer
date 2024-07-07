@@ -11,7 +11,7 @@ const mongoose = require('mongoose');
 const upload = multer({
   storage: multerS3({
     s3: s3Client,
-    bucket: process.env.AWS_BUCKET_NAME,
+    bucket: process.env.AWS_BUCKET_NAME_PHOTOS,
     key: function (req, file, cb) {
       cb(null, `${Date.now()}-${file.originalname}`);
     }

@@ -1,5 +1,3 @@
-// /controllers/PropertyListingController.js
-
 const PropertyListing = require('../models/PropertyListing');
 const User = require('../models/User');
 const multer = require('multer');
@@ -7,11 +5,11 @@ const { s3Client } = require('../config/aws');
 const multerS3 = require('multer-s3');
 const mongoose = require('mongoose');
 
-// Configure multer-s3
-const upload = multer({
+// Configure multer-s3 for photos
+const uploadPhotos = multer({
   storage: multerS3({
     s3: s3Client,
-    bucket: process.env.AWS_BUCKET_NAME,
+    bucket: process.env.AWS_BUCKET_NAME_PHOTOS,
     key: function (req, file, cb) {
       cb(null, `${Date.now()}-${file.originalname}`);
     }
@@ -110,4 +108,4 @@ exports.deleteListing = async (req, res) => {
 };
 
 // Export multer upload configuration
-exports.upload = upload;
+exports.uploadPhotos = uploadPhotos;

@@ -1,5 +1,3 @@
-// /models/PropertyListing.js
-
 const mongoose = require('mongoose');
 
 const propertyListingSchema = new mongoose.Schema({
@@ -48,6 +46,7 @@ const propertyListingSchema = new mongoose.Schema({
         }
     },
     agentIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    documents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Document' }],  // Add this line
 }, { timestamps: true });
 
 module.exports = mongoose.model('PropertyListing', propertyListingSchema);

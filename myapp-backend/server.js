@@ -1,10 +1,7 @@
-// server.js
-
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const path = require('path');
 
 const app = express();
 app.use(cors());
@@ -25,9 +22,8 @@ app.get('/', (req, res) => {
 
 // Route Imports
 const usersRouter = require('./routes/users');
-const uploadRouter = require('./routes/upload');
 const propertyListingsRouter = require('./routes/propertyListings');
-const buyerPackagesRouter = require('./routes/buyerPackages');  // Import the buyerPackages router
+const buyerPackagesRouter = require('./routes/buyerPackages');
 const documentsRouter = require('./routes/documents');
 const transactionsRouter = require('./routes/transactions');
 const favoritesRouter = require('./routes/favorites');
@@ -35,9 +31,8 @@ const listingTemplatesRouter = require('./routes/listingTemplates');
 
 // Route Usage
 app.use('/api/users', usersRouter);
-app.use('/api/upload', uploadRouter);
 app.use('/api/propertyListings', propertyListingsRouter);
-app.use('/api/buyerPackages', buyerPackagesRouter);  // Use the buyerPackages route
+app.use('/api/buyerPackages', buyerPackagesRouter);
 app.use('/api/documents', documentsRouter);
 app.use('/api/transactions', transactionsRouter);
 app.use('/api/favorites', favoritesRouter);
@@ -52,4 +47,3 @@ app.use((err, req, res, next) => {
 // Server Configuration
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-

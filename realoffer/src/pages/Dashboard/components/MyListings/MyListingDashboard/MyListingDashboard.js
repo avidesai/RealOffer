@@ -10,7 +10,7 @@ import './MyListingDashboard.css';
 function MyListingDashboard() {
   const { id } = useParams();
   const [listing, setListing] = useState(null);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,10 +18,10 @@ function MyListingDashboard() {
       try {
         const response = await axios.get(`http://localhost:8000/api/propertyListings/${id}`);
         setListing(response.data);
-        setLoading(false); // Set loading to false after data is fetched
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching listing details:', error);
-        setLoading(false); // Ensure loading is set to false even if there's an error
+        setLoading(false);
       }
     };
 
@@ -48,7 +48,7 @@ function MyListingDashboard() {
           &larr; Back to Dashboard
         </button>
         <ListingOverview listing={listing} />
-        <TabSection />
+        <TabSection listing={listing} />
       </div>
       <Footer />
     </div>
