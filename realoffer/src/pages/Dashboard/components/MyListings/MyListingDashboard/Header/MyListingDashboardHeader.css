@@ -1,0 +1,141 @@
+/* MyListingDashboardHeader.css */
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1000;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-logo {
+  height: 60px;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.header-logo:hover {
+  transform: scale(1.05);
+}
+
+/* Actions styles */
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.header-upgrade-btn {
+  padding: 0.6rem 1rem;
+  background-image: linear-gradient(to right, #9b2ae2, #4078fb);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: background-color 0.3s;
+  text-transform: uppercase;
+  margin-right: 1.2rem;
+}
+
+.header-upgrade-btn:hover {
+  background-image: linear-gradient(to right, #8423c1, #3460c8);
+}
+
+/* Avatar styles */
+.user-avatar {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.user-avatar img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-avatar:hover {
+  transform: scale(1.05);
+}
+
+.user-info {
+  margin-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.user-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.user-email {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* Dropdown styles */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  width: 200px;
+  margin-top: 0.5rem;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.dropdown-item:hover {
+  background-color: #f6f6f6;
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 0.75rem 1.5rem;
+    justify-content: space-between;
+  }
+
+  .header-logo {
+    display: none;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 1;
+    padding-right: 0;
+  }
+
+  .header-upgrade-btn {
+    display: none;
+  }
+
+  .dropdown-menu {
+    right: 0;
+  }
+}
