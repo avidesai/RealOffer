@@ -1,5 +1,5 @@
 .listing-overview {
-  padding: 30px;
+  padding: 1.5rem;
   padding-bottom: 5px;
   background-color: #fff;
   border-radius: 10px;
@@ -14,12 +14,12 @@
 }
 
 .overview-image {
-  margin-right: 20px;
+  margin-right: 2rem;
 }
 
 .property-image {
-  width: 150px;
-  height: 150px;
+  width: 175px;
+  height: 175px;
   object-fit: cover;
   border-radius: 10px;
 }
@@ -83,6 +83,7 @@
   flex-direction: column;
   text-align: right;
   margin-left: auto;
+  margin-right: 1rem;
 }
 
 .listing-overview-agent-info {
@@ -104,3 +105,47 @@
   font-size: 16px;
   color: #555;
 }
+
+@media (max-width: 768px) {
+  .overview-image,
+  .overview-agents {
+    display: none; /* Hide image and agent-related elements */
+  }
+
+  .listing-overview {
+    padding: 1rem; /* Adjust overall padding for smaller screens */
+  }
+
+  .overview-header {
+    justify-content: center; /* Center the header content */
+    padding-top: 1rem; /* Adds padding on top of the text */
+    margin-bottom: 1rem; /* Adjust bottom margin for spacing */
+  }
+
+  .property-address {
+    text-align: center; /* Center the property address */
+    font-size: 20px; /* Adjust font size for smaller screens */
+    margin-bottom: 1rem; /* Adds space below the address, before other text */
+  }
+
+  .property-location,
+  .property-price {
+    text-align: center; /* Center location and price information */
+    margin: 5px 0; /* Adjust margins for tighter spacing */
+  }
+
+  .overview-buttons {
+    display: flex;
+    justify-content: center; /* Centers buttons */
+    flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
+    gap: 10px; /* Adds gap between buttons */
+    padding-top: 1rem; /* Adds padding above buttons for cleaner separation */
+  }
+
+  .overview-btn,
+  .overview-btn-share-package {
+    margin: 5px; /* Uniform margin for cleaner look */
+    padding: 8px 12px; /* Adjust padding for smaller screens */
+  }
+}
+

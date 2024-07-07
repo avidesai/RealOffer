@@ -1,5 +1,7 @@
 .my-listing-dashboard-content {
-    padding: 30px 40px;
+    padding-left: 3rem;
+    padding-right: 3rem;
+    padding-top: 2rem;
     flex: 1;
     background-color: #f4f4f4;
   }
