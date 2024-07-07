@@ -1,3 +1,5 @@
+// server.js
+
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -9,15 +11,15 @@ app.use(express.json());
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true, 
-    useUnifiedTopology: true
+  useNewUrlParser: true, 
+  useUnifiedTopology: true
 })
 .then(() => console.log('MongoDB connected. We\'re live.'))
 .catch(err => console.log(err));
 
 // Root route
 app.get('/', (req, res) => {
-    res.send('Hello World');
+  res.send('Hello World');
 });
 
 // Route Imports
@@ -40,8 +42,8 @@ app.use('/api/listingTemplates', listingTemplatesRouter);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
 });
 
 // Server Configuration

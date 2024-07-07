@@ -2,13 +2,14 @@
 
 const BuyerPackage = require('../models/BuyerPackage');
 const User = require('../models/User');
-const multer = require('multer');
+const Document = require('../models/Document');
 const { s3Client } = require('../config/aws');
 const multerS3 = require('multer-s3');
+const multer = require('multer');
 const mongoose = require('mongoose');
 
-// Configure multer-s3
-const upload = multer({
+// Configure multer-s3 for photos
+const uploadPhotos = multer({
   storage: multerS3({
     s3: s3Client,
     bucket: process.env.AWS_BUCKET_NAME_PHOTOS,
@@ -18,9 +19,20 @@ const upload = multer({
   })
 });
 
+// Configure multer-s3 for documents
+const uploadDocuments = multer({
+  storage: multerS3({
+    s3: s3Client,
+    bucket: process.env.AWS_BUCKET_NAME_DOCUMENTS,
+    key: function (req, file, cb) {
+      cb(null, `documents/${Date.now()}-${file.originalname}`);
+    }
+  })
+});
+
 exports.getAllPackages = async (req, res) => {
   try {
-    const packages = await BuyerPackage.find();
+    const packages = await BuyerPackage.find().populate('documents');
     res.status(200).json(packages);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -29,7 +41,7 @@ exports.getAllPackages = async (req, res) => {
 
 exports.getPackageById = async (req, res) => {
   try {
-    const package = await BuyerPackage.findById(req.params.id);
+    const package = await BuyerPackage.findById(req.params.id).populate('documents');
     if (!package) return res.status(404).json({ message: "Package not found" });
     res.status(200).json(package);
   } catch (error) {
@@ -110,4 +122,5 @@ exports.deletePackage = async (req, res) => {
 };
 
 // Export multer upload configuration
-exports.upload = upload;
+exports.uploadPhotos = uploadPhotos;
+exports.uploadDocuments = uploadDocuments;

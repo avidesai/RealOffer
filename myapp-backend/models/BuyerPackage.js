@@ -48,6 +48,7 @@ const buyerPackageSchema = new mongoose.Schema({
         }
     },
     agentIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    documents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Document' }],  // Add this line
 }, { timestamps: true });
 
 module.exports = mongoose.model('BuyerPackage', buyerPackageSchema);
