@@ -1,4 +1,5 @@
 // UploadDocumentsModal.js
+
 import React, { useState, useRef } from 'react';
 import './UploadDocumentsModal.css';
 
@@ -47,7 +48,7 @@ const UploadDocumentsModal = ({ onClose }) => {
   return (
     <div className="upload-documents-modal" onDragOver={handleDragOver} onDrop={handleDrop}>
       <div className="modal-content">
-        <button className="close-button" onClick={onClose}>×</button>
+        <button className="close-button" onClick={onClose}></button>
         <h2>Add Documents</h2>
         <div className="upload-area">
           <div className="drag-drop">
@@ -80,12 +81,12 @@ const UploadDocumentsModal = ({ onClose }) => {
                 <option value="Report">Report</option>
                 <option value="Other">Other</option>
               </select>
-              <button onClick={() => handleDeleteFile(index)}>Delete</button>
+              <button className="delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>
             </div>
           ))}
         </div>
         <div className="modal-footer">
-          <button className="upload-button" onClick={handleUpload}>Upload Files</button>
+          <button className="upload-files-button" onClick={handleUpload}>Upload Files</button>
         </div>
         <div className="supported-methods">
           <p>Other supported methods:</p>

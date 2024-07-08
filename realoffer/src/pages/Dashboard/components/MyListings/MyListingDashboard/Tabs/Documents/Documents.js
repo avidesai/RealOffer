@@ -30,7 +30,7 @@ const Documents = ({ documents }) => {
               Add Documents <span className="arrow-down">▼</span>
             </button>
             {showDropdown && (
-              <div className="dropdown-menu">
+              <div className="documents-dropdown-menu">
                 <button onClick={handleUploadClick}>Upload Documents</button>
                 <button>Order NHD Report</button>
                 <button>Invite Seller to Disclose</button>

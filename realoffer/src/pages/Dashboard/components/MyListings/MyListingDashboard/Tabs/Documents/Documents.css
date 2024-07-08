@@ -1,60 +1,53 @@
-/* /MyListingDashboard/Tabs/Documents/Documents.css */
-
 .documents-tab {
-  padding: 20px;
-  background-color: #f4f4f4;
+  padding-top: 0.3rem;
+  padding-right: 0.8rem;
+  padding-left: 0.8rem;
+  background-color: #fff;
   border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .documents-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20px;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
-.notify-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
+.add-documents-button, .notify-button, .download-button, .docusign-button, .reorder-button, .stamp-button {
+  background-color: #ffffff;
+  color: rgb(38, 38, 38);
+  border: 1px solid #898888;
+  border-radius: 10px;
   padding: 10px 20px;
-  border-radius: 5px;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.notify-button:hover {
-  background-color: #0056b3;
+.add-documents-button, .notify-button, .download-button, .docusign-button, .reorder-button, .stamp-button {
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.add-documents-button:hover, .notify-button:hover, .download-button:hover, .docusign-button:hover, .reorder-button:hover, .stamp-button:hover {
+  transform: scale(1.05);
+  background-color: #ececec; /* Adjust the color to fit your design */
 }
 
 .action-buttons {
   display: flex;
-  gap: 10px;
+  gap: 1rem;
 }
 
 .add-documents-dropdown {
   position: relative;
 }
 
-.add-documents-button {
-  background-color: #e7e7e7;
-  color: #333;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
+.add-documents-button .arrow-down {
+  margin-left: 0.5rem;
 }
 
-.add-documents-button:hover {
-  background-color: #ddd;
-}
-
-.arrow-down {
-  margin-left: 8px;
-}
-
-.dropdown-menu {
+.documents-dropdown-menu {
   position: absolute;
   top: 100%;
   left: 0;
@@ -64,9 +57,10 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   z-index: 1000;
+  transition: all 0.3s ease;
 }
 
-.dropdown-menu button {
+.documents-dropdown-menu button {
   background-color: white;
   color: #333;
   border: none;
@@ -74,14 +68,15 @@
   width: 100%;
   text-align: left;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.dropdown-menu button:hover {
+.documents-dropdown-menu button:hover {
   background-color: #f4f4f4;
 }
 
 .documents-list {
-  margin-top: 20px;
+  margin-top: 1rem;
 }
 
 .document-item {
@@ -89,14 +84,16 @@
   justify-content: space-between;
   align-items: center;
   background-color: #fff;
-  padding: 15px;
+  padding: 1rem;
   border-radius: 10px;
-  margin-bottom: 10px;
-  transition: background-color 0.3s ease;
+  margin-bottom: 0.5rem;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .document-item:hover {
   background-color: #f0f8ff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .document-info {
@@ -107,7 +104,9 @@
 .document-thumbnail {
   width: 60px;
   height: 80px;
-  margin-right: 20px;
+  margin-right: 1rem;
+  border-radius: 5px;
+  object-fit: cover;
 }
 
 .document-details {
@@ -118,11 +117,13 @@
 .document-title {
   font-weight: bold;
   margin: 0;
+  color: #333;
 }
 
 .document-type {
   font-style: italic;
   margin: 0;
+  color: #666;
 }
 
 .document-meta {
@@ -132,18 +133,21 @@
 
 .document-actions {
   display: flex;
-  gap: 10px;
+  gap: 0.5rem;
 }
 
 .document-actions button {
-  background-color: #e7e7e7;
-  color: #333;
+  background-color: #007bff;
+  color: white;
   border: none;
-  padding: 8px 15px;
+  padding: 8px 12px;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .document-actions button:hover {
-  background-color: #ddd;
+  background-color: #0056b3;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }

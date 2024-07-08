@@ -1,14 +1,14 @@
 .my-listing-dashboard-content {
   padding-left: 3rem;
   padding-right: 3rem;
-  padding-top: 2rem;
+  padding-top: 1.2rem;
   flex: 1;
   background-color: #f4f4f4;
 }
 
 .back-to-dashboard {
   background-color: #ffffff;
-  color: #333;
+  color: #444444;
   border: 2px solid #c4c4c4;
   border-radius: 20px;
   margin-left: 0;

@@ -1,5 +1,5 @@
 .listing-overview {
-  padding: 1.5rem;
+  padding: 2rem;
   padding-bottom: 5px;
   background-color: #fff;
   border-radius: 10px;
@@ -18,8 +18,8 @@
 }
 
 .property-image {
-  width: 175px;
-  height: 175px;
+  width: 150px;
+  height: 150px;
   object-fit: cover;
   border-radius: 10px;
 }
