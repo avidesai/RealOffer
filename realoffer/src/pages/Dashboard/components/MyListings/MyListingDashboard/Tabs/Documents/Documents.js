@@ -1,12 +1,26 @@
-// Documents.js
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import './Documents.css';
 import UploadDocumentsLogic from './components/UploadDocuments/UploadDocumentsLogic';
 
-const Documents = ({ documents, listingId }) => {
+const Documents = ({ listingId }) => {
+  const [documents, setDocuments] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [selectedDocuments, setSelectedDocuments] = useState([]);
+
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/documents/${listingId}`);
+        setDocuments(response.data);
+      } catch (error) {
+        console.error('Error fetching documents:', error);
+      }
+    };
+
+    fetchDocuments();
+  }, [listingId]);
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
@@ -20,6 +34,16 @@ const Documents = ({ documents, listingId }) => {
   const closeUploadModal = () => {
     setShowUploadModal(false);
   };
+
+  const handleDocumentSelect = (id) => {
+    setSelectedDocuments((prevSelected) =>
+      prevSelected.includes(id)
+        ? prevSelected.filter((docId) => docId !== id)
+        : [...prevSelected, id]
+    );
+  };
+
+  const isSelected = (id) => selectedDocuments.includes(id);
 
   return (
     <div className="documents-tab">
@@ -45,14 +69,20 @@ const Documents = ({ documents, listingId }) => {
         <button className="notify-button">Notify Viewers of Updates</button>
       </div>
       <div className="documents-list">
-        {documents.map((doc, index) => (
-          <div key={index} className="document-item">
+        {documents.map((doc) => (
+          <div key={doc._id} className={`document-item ${isSelected(doc._id) ? 'selected' : ''}`}>
+            <input
+              type="checkbox"
+              className="document-checkbox"
+              checked={isSelected(doc._id)}
+              onChange={() => handleDocumentSelect(doc._id)}
+            />
             <div className="document-info">
-              <img src={doc.thumbnailUrl} alt="Document Thumbnail" className="document-thumbnail" />
+              <img src={doc.thumbnailUrl} alt="" className="document-thumbnail" />
               <div className="document-details">
-                <p className="document-title">{doc.title}</p>
-                <p className="document-type">{doc.type}</p>
-                <p className="document-meta">{doc.pages} PAGES | {doc.size} KB | UPDATED {doc.updatedAt}</p>
+                <p className="document-title">{doc.title || 'Untitled'}</p>
+                <p className="document-type">{doc.type || 'No type'}</p>
+                <p className="document-meta">{doc.pages || 0} PAGES | {Math.round(doc.size / 1024)} KB | UPDATED {new Date(doc.updatedAt).toLocaleDateString()}</p>
               </div>
             </div>
             <div className="document-actions">

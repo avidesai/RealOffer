@@ -52,7 +52,7 @@ const TabSection = ({ listing }) => {
         </button>
       </div>
       <div className="tab-content">
-        {activeTab === 'docs' && <Documents documents={listing.documents} listingId={listing._id} />}
+        {activeTab === 'docs' && <Documents listingId={listing._id} />}
         {activeTab === 'viewers' && <div>Viewers Content</div>}
         {activeTab === 'activity' && <div>Activity Content</div>}
         {activeTab === 'messages' && <div>Messages Content</div>}

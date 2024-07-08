@@ -1,8 +1,6 @@
 .documents-tab {
-  padding-top: 0.3rem;
-  padding-right: 0.8rem;
-  padding-left: 0.8rem;
-  background-color: #fff;
+  padding: 1rem;
+  background-color: #f9f9f9;
   border-radius: 10px;
 }
 
@@ -15,7 +13,7 @@
 
 .add-documents-button, .notify-button, .download-button, .docusign-button, .reorder-button, .stamp-button {
   background-color: #ffffff;
-  color: rgb(38, 38, 38);
+  color: #262626;
   border: 1px solid #898888;
   border-radius: 10px;
   padding: 10px 20px;
@@ -25,13 +23,9 @@
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.add-documents-button, .notify-button, .download-button, .docusign-button, .reorder-button, .stamp-button {
-  transition: transform 0.3s ease, background-color 0.3s ease;
-}
-
 .add-documents-button:hover, .notify-button:hover, .download-button:hover, .docusign-button:hover, .reorder-button:hover, .stamp-button:hover {
   transform: scale(1.05);
-  background-color: #ececec; /* Adjust the color to fit your design */
+  background-color: #ececec;
 }
 
 .action-buttons {
@@ -89,6 +83,7 @@
   margin-bottom: 0.5rem;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 .document-item:hover {
@@ -96,9 +91,15 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.document-checkbox {
+  position: absolute;
+  left: 10px;
+}
+
 .document-info {
   display: flex;
   align-items: center;
+  margin-left: 40px;
 }
 
 .document-thumbnail {
@@ -134,6 +135,12 @@
 .document-actions {
   display: flex;
   gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.document-item:hover .document-actions {
+  opacity: 1;
 }
 
 .document-actions button {
@@ -150,4 +157,8 @@
 .document-actions button:hover {
   background-color: #0056b3;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.selected {
+  background-color: #e6f7ff;
 }
