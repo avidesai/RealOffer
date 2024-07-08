@@ -7,7 +7,7 @@ import './MyListingDashboardHeader.css';
 import logo from '../../../../../../../src/assets/images/logo.svg';
 import avatar from '../../../../../../../src/assets/images/avatar.svg';
 
-function MyListingDashboardHeader() {
+function MyListingDashboardHeader({ onBackClick }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const { user, logout } = useAuth();
@@ -44,6 +44,9 @@ function MyListingDashboardHeader() {
           className="header-logo"
           onClick={() => navigate('/dashboard')}
         />
+        <button className="back-to-dashboard" onClick={onBackClick}>
+          &larr; Back to Dashboard
+        </button>
       </div>
 
       <div className="header-actions">

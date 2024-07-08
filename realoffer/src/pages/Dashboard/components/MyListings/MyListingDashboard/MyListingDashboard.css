@@ -6,29 +6,6 @@
   background-color: #f4f4f4;
 }
 
-.back-to-dashboard {
-  background-color: #ffffff;
-  color: #444444;
-  border: 2px solid #c4c4c4;
-  border-radius: 20px;
-  margin-left: 0;
-  padding: 8px 20px;
-  margin-bottom: 20px;
-  width: fit-content;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-}
-
-.back-to-dashboard:hover {
-  transform: translateY(-1px); /* Subtle lift effect */
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1); /* Shadow effect */
-  background-color: #ffffff;
-}
-
 .my-listing-dashboard {
   display: flex;
   flex-direction: column;

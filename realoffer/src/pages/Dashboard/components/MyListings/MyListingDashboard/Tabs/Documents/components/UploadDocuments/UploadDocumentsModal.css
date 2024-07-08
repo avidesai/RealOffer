@@ -16,19 +16,34 @@
   background: #fff;
   padding: 20px;
   border-radius: 10px;
-  width: 500px;
+  width: 600px;
   position: relative;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .close-button {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
+  top: 15px;
+  right: 20px;
+
+}
+
+.modal-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 .upload-area {
@@ -41,6 +56,18 @@
   text-align: center;
   border-radius: 10px;
   margin-bottom: 20px;
+  background-color: #f9f9f9;
+  transition: background-color 0.3s ease;
+}
+
+.drag-drop:hover {
+  background-color: #f1f1f1;
+}
+
+.drag-drop-text, .or-text {
+  margin-bottom: 5px;
+  font-size: 16px;
+  color: #666;
 }
 
 .upload-button {
@@ -51,6 +78,7 @@
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  margin-top: 10px;
 }
 
 .upload-button:hover {
@@ -60,6 +88,8 @@
 .spinner {
   text-align: center;
   margin-top: 20px;
+  font-size: 16px;
+  color: #007bff;
 }
 
 .file-list {
@@ -75,17 +105,48 @@
   border-radius: 5px;
   margin-bottom: 10px;
   transition: background-color 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.file-item p {
+.file-item:hover {
+  background-color: #f1f1f1;
+}
+
+.file-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.file-name {
   margin: 0;
+  font-weight: 500;
+  color: #333;
 }
 
-.file-item select {
+.file-title-input {
+  margin-top: 5px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  width: 200px;
+}
+
+.file-options {
+  display: flex;
+  align-items: center;
+}
+
+.file-type-select {
   margin-right: 10px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  width: 150px; /* Directly setting the width to double its assumed original */
 }
 
-.file-item button {
+.delete-file-button {
   background-color: #ff4d4d;
   color: white;
   border: none;
@@ -95,13 +156,27 @@
   transition: background-color 0.3s ease;
 }
 
-.file-item button:hover {
+.delete-file-button:hover {
   background-color: #cc0000;
 }
 
 .modal-footer {
   margin-top: 20px;
   text-align: right;
+}
+
+.upload-files-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.upload-files-button:hover {
+  background-color: #218838;
 }
 
 .errors {
@@ -118,6 +193,12 @@
 
 .supported-methods {
   margin-top: 20px;
+}
+
+.supported-methods-title {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #333;
 }
 
 .supported-methods ul {

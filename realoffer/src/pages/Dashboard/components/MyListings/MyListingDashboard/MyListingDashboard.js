@@ -44,11 +44,8 @@ function MyListingDashboard() {
 
   return (
     <div className="my-listing-dashboard">
-      <MyListingDashboardHeader />
+      <MyListingDashboardHeader onBackClick={handleBackClick} />
       <div className="my-listing-dashboard-content">
-        <button className="back-to-dashboard" onClick={handleBackClick}>
-          &larr; Back to Dashboard
-        </button>
         <ListingOverview listing={listing} />
         <TabSection listing={listing} />
       </div>
