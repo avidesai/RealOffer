@@ -1,3 +1,5 @@
+// /controllers/DocumentController.js
+
 const Document = require('../models/Document');
 const PropertyListing = require('../models/PropertyListing');
 const BuyerPackage = require('../models/BuyerPackage');
@@ -20,7 +22,7 @@ const uploadDocuments = multer({
 exports.uploadDocuments = uploadDocuments.array('documents', 10);
 
 exports.uploadDocument = async (req, res) => {
-  const { title, type, size, uploadedBy } = req.body;
+  const { title, type, size, uploadedBy, propertyListingId } = req.body;
   const files = req.files;
 
   if (!files || files.length === 0) {
@@ -28,6 +30,11 @@ exports.uploadDocument = async (req, res) => {
   }
 
   try {
+    const propertyListing = await PropertyListing.findById(propertyListingId);
+    if (!propertyListing) {
+      return res.status(404).json({ message: 'Property listing not found' });
+    }
+
     const documents = await Promise.all(files.map(async (file) => {
       const newDocument = new Document({
         title,
@@ -35,10 +42,15 @@ exports.uploadDocument = async (req, res) => {
         size,
         thumbnailUrl: file.location,
         uploadedBy,
+        propertyListing: propertyListingId,
         s3Key: file.key,
       });
-      return await newDocument.save();
+      const savedDocument = await newDocument.save();
+      propertyListing.documents.push(savedDocument._id);
+      return savedDocument;
     }));
+
+    await propertyListing.save();
 
     res.status(201).json(documents);
   } catch (error) {

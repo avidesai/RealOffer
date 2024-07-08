@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useAuth } from '../../../../../../../../../context/AuthContext';
 import UploadDocumentsModal from './UploadDocumentsModal';
 
-const UploadDocumentsLogic = ({ onClose }) => {
+const UploadDocumentsLogic = ({ onClose, listingId }) => {
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState([]);
@@ -81,6 +81,7 @@ const UploadDocumentsLogic = ({ onClose }) => {
       });
 
       formData.append('uploadedBy', user._id); // Assuming user._id contains the user's ID
+      formData.append('propertyListingId', listingId); // Add the property listing ID
       await axios.post(`http://localhost:8000/api/documents`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
