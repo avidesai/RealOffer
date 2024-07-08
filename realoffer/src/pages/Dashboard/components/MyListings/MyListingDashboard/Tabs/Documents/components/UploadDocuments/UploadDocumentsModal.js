@@ -1,55 +1,35 @@
 // UploadDocumentsModal.js
 
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import './UploadDocumentsModal.css';
 
-const UploadDocumentsModal = ({ onClose }) => {
-  const [files, setFiles] = useState([]);
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef(null);
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const droppedFiles = Array.from(e.dataTransfer.files);
-    setFiles((prevFiles) => [...prevFiles, ...droppedFiles]);
-  };
-
-  const handleFileSelect = (e) => {
-    const selectedFiles = Array.from(e.target.files);
-    setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
-  };
-
-  const handleUploadClick = () => {
-    fileInputRef.current.click();
-  };
-
-  const handleDeleteFile = (index) => {
-    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-  };
-
-  const handleFileTypeChange = (index, newType) => {
-    setFiles((prevFiles) =>
-      prevFiles.map((file, i) => (i === index ? { ...file, type: newType } : file))
-    );
-  };
-
-  const handleUpload = async () => {
-    setUploading(true);
-    // Simulate file upload
-    setTimeout(() => {
-      setUploading(false);
-    }, 2000);
-  };
-
+const UploadDocumentsModal = ({
+  onClose,
+  files,
+  uploading,
+  errors,
+  fileInputRef,
+  handleDragOver,
+  handleDrop,
+  handleFileSelect,
+  handleUploadClick,
+  handleDeleteFile,
+  handleFileTypeChange,
+  handleFileTitleChange,
+  handleUpload,
+}) => {
   return (
     <div className="upload-documents-modal" onDragOver={handleDragOver} onDrop={handleDrop}>
       <div className="modal-content">
         <button className="close-button" onClick={onClose}></button>
         <h2>Add Documents</h2>
+        {errors.length > 0 && (
+          <div className="errors">
+            {errors.map((error, index) => (
+              <p key={index} className="error">{error}</p>
+            ))}
+          </div>
+        )}
         <div className="upload-area">
           <div className="drag-drop">
             <p>Drag and drop PDF files or images here</p>
@@ -70,9 +50,15 @@ const UploadDocumentsModal = ({ onClose }) => {
         <div className="file-list">
           {files.map((file, index) => (
             <div key={index} className="file-item">
-              <p>{file.name} ({(file.size / 1024).toFixed(2)} KB)</p>
+              <p>{file.file.name} ({(file.file.size / 1024).toFixed(2)} KB)</p>
+              <input
+                type="text"
+                value={file.title}
+                onChange={(e) => handleFileTitleChange(index, e.target.value)}
+                placeholder="Document Title"
+              />
               <select
-                value={file.type || ''}
+                value={file.type}
                 onChange={(e) => handleFileTypeChange(index, e.target.value)}
               >
                 <option value="">Select Type</option>

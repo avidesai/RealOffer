@@ -1,5 +1,3 @@
-// /controllers/DocumentController.js
-
 const Document = require('../models/Document');
 const PropertyListing = require('../models/PropertyListing');
 const BuyerPackage = require('../models/BuyerPackage');
@@ -20,6 +18,33 @@ const uploadDocuments = multer({
 });
 
 exports.uploadDocuments = uploadDocuments.array('documents', 10);
+
+exports.uploadDocument = async (req, res) => {
+  const { title, type, size, uploadedBy } = req.body;
+  const files = req.files;
+
+  if (!files || files.length === 0) {
+    return res.status(400).json({ message: 'No files uploaded' });
+  }
+
+  try {
+    const documents = await Promise.all(files.map(async (file) => {
+      const newDocument = new Document({
+        title,
+        type,
+        size,
+        thumbnailUrl: file.location,
+        uploadedBy,
+        s3Key: file.key,
+      });
+      return await newDocument.save();
+    }));
+
+    res.status(201).json(documents);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 exports.addDocumentToPropertyListing = async (req, res) => {
   const { title, type, size, pages, uploadedBy } = req.body;
@@ -80,7 +105,7 @@ exports.addDocumentToBuyerPackage = async (req, res) => {
         size,
         pages,
         thumbnailUrl: file.location,
-        propertyListing: req.params.id,
+        buyerPackage: req.params.id,
         uploadedBy,
         s3Key: file.key,
       });

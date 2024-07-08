@@ -1,10 +1,10 @@
-// /MyListingDashboard/Tabs/Documents/Documents.js
+// Documents.js
 
 import React, { useState } from 'react';
 import './Documents.css';
-import UploadDocumentsModal from './components/UploadDocuments/UploadDocumentsModal';
+import UploadDocumentsLogic from './components/UploadDocuments/UploadDocumentsLogic';
 
-const Documents = ({ documents }) => {
+const Documents = ({ documents, listingId }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
 
@@ -66,7 +66,7 @@ const Documents = ({ documents }) => {
           </div>
         ))}
       </div>
-      {showUploadModal && <UploadDocumentsModal onClose={closeUploadModal} />}
+      {showUploadModal && <UploadDocumentsLogic onClose={closeUploadModal} listingId={listingId} />}
     </div>
   );
 };

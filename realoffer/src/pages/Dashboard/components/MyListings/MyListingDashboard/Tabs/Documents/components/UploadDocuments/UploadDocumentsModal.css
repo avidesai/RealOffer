@@ -9,6 +9,7 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  font-family: 'Inter', sans-serif;
 }
 
 .modal-content {
@@ -17,6 +18,7 @@
   border-radius: 10px;
   width: 500px;
   position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .close-button {
@@ -27,7 +29,6 @@
   border: none;
   font-size: 20px;
   cursor: pointer;
-  color: #333;
 }
 
 .upload-area {
@@ -35,12 +36,11 @@
 }
 
 .drag-drop {
-  border: 2px dashed #a3a3a3;
+  border: 2px dashed #ccc;
   padding: 40px;
   text-align: center;
   border-radius: 10px;
   margin-bottom: 20px;
-  background: #f9f9f9;
 }
 
 .upload-button {
@@ -70,27 +70,22 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #f9f9f9;
+  background: #f8f8f8;
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
 }
 
 .file-item p {
   margin: 0;
-  flex: 1;
 }
 
 .file-item select {
   margin-right: 10px;
-  padding: 5px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  flex: 1;
 }
 
-.delete-file-button {
+.file-item button {
   background-color: #ff4d4d;
   color: white;
   border: none;
@@ -100,7 +95,7 @@
   transition: background-color 0.3s ease;
 }
 
-.delete-file-button:hover {
+.file-item button:hover {
   background-color: #cc0000;
 }
 
@@ -109,18 +104,16 @@
   text-align: right;
 }
 
-.upload-files-button {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 10px 20px;
+.errors {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
   border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  margin-bottom: 20px;
 }
 
-.upload-files-button:hover {
-  background-color: #218838;
+.error {
+  margin: 0;
 }
 
 .supported-methods {
@@ -147,5 +140,4 @@
 
 .method-button:hover {
   color: #0056b3;
-  text-decoration: underline;
 }
