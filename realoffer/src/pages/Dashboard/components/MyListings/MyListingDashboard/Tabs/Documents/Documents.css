@@ -73,6 +73,13 @@
   margin-top: 1rem;
 }
 
+.no-documents-message {
+  margin-top: 2rem;
+  margin-left: 1rem;
+  color: #666;
+  font-size: 16px;
+}
+
 .document-item {
   display: flex;
   justify-content: space-between;

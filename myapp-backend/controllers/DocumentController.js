@@ -157,7 +157,7 @@ exports.deleteDocument = async (req, res) => {
 
     await s3Client.send(new DeleteObjectCommand(params));
 
-    await document.remove();
+    await Document.deleteOne({ _id: req.params.id });
 
     await PropertyListing.findByIdAndUpdate(document.propertyListing, { $pull: { documents: document._id } });
     await BuyerPackage.findByIdAndUpdate(document.propertyListing, { $pull: { documents: document._id } });

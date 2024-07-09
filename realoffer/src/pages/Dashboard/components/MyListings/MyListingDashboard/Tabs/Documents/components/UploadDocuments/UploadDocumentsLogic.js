@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useAuth } from '../../../../../../../../../context/AuthContext';
 import UploadDocumentsModal from './UploadDocumentsModal';
 
-const UploadDocumentsLogic = ({ onClose, listingId }) => {
+const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState([]);
@@ -90,6 +90,9 @@ const UploadDocumentsLogic = ({ onClose, listingId }) => {
 
       setUploading(false);
       onClose();
+      if (onUploadSuccess) {
+        onUploadSuccess();
+      }
     } catch (error) {
       setUploading(false);
       setErrors(['An error occurred while uploading. Please try again.']);
