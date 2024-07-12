@@ -1,3 +1,5 @@
+// controllers/PropertyListingController.js
+
 const PropertyListing = require('../models/PropertyListing');
 const User = require('../models/User');
 const multer = require('multer');

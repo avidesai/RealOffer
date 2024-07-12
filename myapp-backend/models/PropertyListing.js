@@ -1,3 +1,5 @@
+// /models/PropertyListing.js
+
 const mongoose = require('mongoose');
 
 const propertyListingSchema = new mongoose.Schema({

@@ -11,7 +11,7 @@ const documentSchema = new mongoose.Schema({
   propertyListing: { type: mongoose.Schema.Types.ObjectId, ref: 'PropertyListing', required: false },
   buyerPackage: { type: mongoose.Schema.Types.ObjectId, ref: 'BuyerPackage', required: false },
   uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
-  s3Key: { type: String, required: true },  // Key for the S3 object
+  azureKey: { type: String, required: true },
   updatedAt: { type: Date, default: Date.now }
 }, { timestamps: true });
 

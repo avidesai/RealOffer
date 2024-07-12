@@ -1,25 +1,17 @@
-// /controllers/DocumentController.js
+// controllers/DocumentController.js
 
 const Document = require('../models/Document');
 const PropertyListing = require('../models/PropertyListing');
 const BuyerPackage = require('../models/BuyerPackage');
-const { s3Client } = require('../config/aws');
-const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
-const multerS3 = require('multer-s3');
+const containerClient = require('../config/azureStorage');
 const multer = require('multer');
+const { v4: uuidv4 } = require('uuid');
 
-// Configure multer-s3 for documents
-const uploadDocuments = multer({
-  storage: multerS3({
-    s3: s3Client,
-    bucket: process.env.AWS_BUCKET_NAME_DOCUMENTS,
-    key: (req, file, cb) => {
-      cb(null, `documents/${Date.now()}-${file.originalname}`);
-    },
-  }),
-});
+// Configure multer for in-memory storage before uploading to Azure
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
-exports.uploadDocuments = uploadDocuments.array('documents', 10);
+exports.uploadDocuments = upload.array('documents', 10);
 
 exports.uploadDocument = async (req, res) => {
   const { title, type, size, uploadedBy, propertyListingId } = req.body;
@@ -36,15 +28,20 @@ exports.uploadDocument = async (req, res) => {
     }
 
     const documents = await Promise.all(files.map(async (file) => {
+      const blobName = `documents/${uuidv4()}-${file.originalname}`;
+      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+      await blockBlobClient.uploadData(file.buffer);
+
       const newDocument = new Document({
         title,
         type,
         size,
-        thumbnailUrl: file.location,
+        thumbnailUrl: blockBlobClient.url,
         uploadedBy,
         propertyListing: propertyListingId,
-        s3Key: file.key,
+        azureKey: blobName,
       });
+
       const savedDocument = await newDocument.save();
       propertyListing.documents.push(savedDocument._id);
       return savedDocument;
@@ -73,16 +70,21 @@ exports.addDocumentToPropertyListing = async (req, res) => {
     }
 
     const documents = await Promise.all(files.map(async (file) => {
+      const blobName = `documents/${uuidv4()}-${file.originalname}`;
+      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+      await blockBlobClient.uploadData(file.buffer);
+
       const newDocument = new Document({
         title,
         type,
         size,
         pages,
-        thumbnailUrl: file.location,
+        thumbnailUrl: blockBlobClient.url,
         propertyListing: req.params.id,
         uploadedBy,
-        s3Key: file.key,
+        azureKey: blobName,
       });
+
       const savedDocument = await newDocument.save();
       propertyListing.documents.push(savedDocument._id);
       return savedDocument;
@@ -92,7 +94,7 @@ exports.addDocumentToPropertyListing = async (req, res) => {
 
     res.status(201).json(documents);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status500.json({ message: error.message });
   }
 };
 
@@ -111,16 +113,21 @@ exports.addDocumentToBuyerPackage = async (req, res) => {
     }
 
     const documents = await Promise.all(files.map(async (file) => {
+      const blobName = `documents/${uuidv4()}-${file.originalname}`;
+      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+      await blockBlobClient.uploadData(file.buffer);
+
       const newDocument = new Document({
         title,
         type,
         size,
         pages,
-        thumbnailUrl: file.location,
+        thumbnailUrl: blockBlobClient.url,
         buyerPackage: req.params.id,
         uploadedBy,
-        s3Key: file.key,
+        azureKey: blobName,
       });
+
       const savedDocument = await newDocument.save();
       buyerPackage.documents.push(savedDocument._id);
       return savedDocument;
@@ -150,12 +157,9 @@ exports.deleteDocument = async (req, res) => {
       return res.status(404).json({ message: 'Document not found' });
     }
 
-    const params = {
-      Bucket: process.env.AWS_BUCKET_NAME_DOCUMENTS,
-      Key: document.s3Key,
-    };
-
-    await s3Client.send(new DeleteObjectCommand(params));
+    const blobName = document.azureKey;
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+    await blockBlobClient.delete();
 
     await Document.deleteOne({ _id: req.params.id });
 
