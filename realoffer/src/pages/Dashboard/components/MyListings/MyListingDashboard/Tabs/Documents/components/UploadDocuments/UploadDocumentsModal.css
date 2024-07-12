@@ -20,7 +20,7 @@
   position: relative;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   animation: fadeIn 0.3s ease-in-out;
-  max-height: 80vh; /* Fixed height */
+  max-height: 90vh; /* Fixed height */
   overflow-y: auto; /* Scrollable content */
 }
 
@@ -43,47 +43,59 @@
 
 .modal-title {
   font-size: 24px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   text-align: center;
 }
 
 .upload-area {
-  margin-top: 20px;
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically if needed */
+  width: 100%; /* Ensure the upload area takes full width */
 }
 
 .drag-drop {
-  border: 2px dashed #ccc;
-  padding: 40px;
-  text-align: center;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  background-color: #f9f9f9;
-  transition: background-color 0.3s ease;
+  width: 85%; /* Set the width as a percentage */
+  padding: 1.5rem; /* Add padding for better appearance */
+  padding-bottom: 2rem;
+  border: 2px dashed #c3c3c3; /* Dashed border */
+  border-radius: 10px; /* Rounded corners */
+  text-align: center; /* Center the text */
+  background-color: #f9f9f9; /* Light background color */
+  transition: background-color 0.3s ease; /* Smooth transition */
+  cursor: pointer; /* Pointer cursor on hover */
 }
 
 .drag-drop:hover {
-  background-color: #f1f1f1;
+  background-color: #ebebeb; /* Slightly darker background on hover */
 }
 
-.drag-drop-text, .or-text {
-  margin-bottom: 5px;
-  font-size: 16px;
-  color: #666;
+.drag-drop-text {
+  font-size: 16px; /* Increase font size */
+  color: #333; /* Text color */
+}
+
+.or-text {
+  margin: 10px 0; /* Add margin for spacing */
+  font-size: 14px; /* Font size for "Or" text */
+  color: #666; /* Text color */
 }
 
 .upload-button {
+  font-weight: bold; /* Make the text bold */
   background-color: #007bff;
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 8px 12px;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: 10px;
+  font-size: 14px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .upload-button:hover {
-  background-color: #0056b3;
+  background-color: #0056b3; /* Slightly darker color on hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .spinner {
@@ -94,8 +106,9 @@
 }
 
 .file-list-container {
-  max-height: 400px; /* Fixed height for the list container */
+  max-height: 800px; /* Fixed height for the list container */
   overflow-y: auto; /* Scrollable content */
+  padding-bottom: 1rem;
 }
 
 .file-list {
@@ -167,18 +180,33 @@
 }
 
 .modal-footer {
-  margin-top: 20px;
   text-align: right;
 }
 
 .upload-files-button {
+  width: 90%; /* Make the button full width */
+  padding: 12px; /* Add padding for better appearance */
   background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  color: white; /* Button text color */
+  border: none; /* Remove default border */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 16px; /* Increase font size */
+  font-weight: 600;
+  text-align: center; /* Center the text */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
+  margin-bottom: 3rem;
+}
+
+.upload-files-button:hover {
+  background-color: #0056b3; /* Slightly darker color on hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow on hover */
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: center; /* Center the button horizontally */
+  width: 100%; /* Ensure the footer takes full width */
 }
 
 .upload-files-button:hover {
@@ -191,6 +219,7 @@
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 20px;
+  text-align: center;
 }
 
 .error {
@@ -203,17 +232,24 @@
 
 .supported-methods-title {
   font-size: 16px;
-  margin-bottom: 10px;
+  margin-bottom: 2rem;
   color: #333;
+  margin-bottom: 2rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
 
 .supported-methods ul {
-  list-style: none;
+  display: flex;
+  justify-content: space-between; /* Distribute space evenly between items */
   padding: 0;
+  list-style-type: none;
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
 
 .supported-methods li {
-  margin-bottom: 10px;
+  margin: 0 10px; /* Add horizontal spacing between items */
 }
 
 .method-button {
@@ -222,6 +258,8 @@
   color: #007bff;
   cursor: pointer;
   padding: 0;
+  font-weight: 600;
+  font-size: 16px;
   transition: color 0.3s ease;
 }
 
