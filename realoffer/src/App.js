@@ -10,6 +10,7 @@ import FeaturesPage from './pages/Features/FeaturesPage';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Profile from './pages/Dashboard/pages/Profile/Profile';
 import MyListingDashboard from './pages/Dashboard/components/MyListings/MyListingDashboard/MyListingDashboard';
+import UpgradeToPro from './pages/Dashboard/pages/UpgradeToPro/UpgradeToPro';
 import './App.css'; // Your global styles
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/mylisting/:id" element={<MyListingDashboard />} /> {/* New Route */}
+          <Route path="/upgrade" element={<UpgradeToPro />} />
         </Routes>
       </Router>
     </EmailContext.Provider>

@@ -22,6 +22,10 @@ function DashboardHeader({ activeTab, setActiveTab }) {
     navigate('/login');
   };
 
+  const handleUpgradeClick = () => {
+    navigate('/upgrade');
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -63,7 +67,9 @@ function DashboardHeader({ activeTab, setActiveTab }) {
 
       <div className="header-actions">
         {user && !user.isPremium && (
-          <button className="header-upgrade-btn">Upgrade to Pro</button>
+          <button className="header-upgrade-btn" onClick={handleUpgradeClick}>
+            Upgrade to Pro
+          </button>
         )}
         <div className="user-avatar" onClick={handleDropdown}>
           <img src={avatar} alt="User Avatar" />
@@ -88,4 +94,3 @@ function DashboardHeader({ activeTab, setActiveTab }) {
 }
 
 export default DashboardHeader;
-

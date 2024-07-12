@@ -1,0 +1,172 @@
+.upgrade-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.upgrade-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.upgrade-title {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.upgrade-description {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.upgrade-content {
+  display: flex;
+  justify-content: space-between;
+}
+
+.benefits-section {
+  width: 45%;
+}
+
+.benefits-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.benefits-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.benefits-section li {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.subscription-section {
+  width: 50%;
+}
+
+.plan-section,
+.payment-section,
+.promotion-section,
+.terms-section,
+.enroll-section {
+  margin-bottom: 1.5rem;
+}
+
+.plan-section h2,
+.payment-section h2,
+.promotion-section h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.plan-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.discount-tag {
+  background-color: #28a745;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 5px;
+  margin-left: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.payment-section input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.expiration-cvc {
+  display: flex;
+  justify-content: space-between;
+}
+
+.expiration-cvc div {
+  width: 48%;
+}
+
+.billing-address h3 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.city-state-zip {
+  display: flex;
+  justify-content: space-between;
+}
+
+.city-state-zip div {
+  width: 30%;
+}
+
+.promotion-section input {
+  width: 70%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-right: 1rem;
+}
+
+.redeem-button {
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.redeem-button:hover {
+  background-color: #0056b3;
+}
+
+.terms-section label {
+  font-size: 0.875rem;
+}
+
+.terms-section a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.terms-section a:hover {
+  text-decoration: underline;
+}
+
+.enroll-section {
+  text-align: center;
+}
+
+.enroll-section p {
+  margin-bottom: 0.5rem;
+}
+
+.enroll-button {
+  width: 100%;
+  padding: 1rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.enroll-button:hover {
+  background-color: #218838;
+}
