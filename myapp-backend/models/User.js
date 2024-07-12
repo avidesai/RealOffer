@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
     brokerageLicenseNumber: { type: String, default: '' },
     agencyName: { type: String, default: '' },
     agencyWebsite: { type: String, default: '' },
-    agencyImage: { type: String, default: '' },
+    agencyImage: { type: String, default: 'https://realoffer-bucket.s3.us-east-2.amazonaws.com/avatar.svg' },
     agencyAddressLine1: { type: String, default: '' },
     agencyAddressLine2: { type: String, default: '' },
     linkedIn: { type: String, default: '' },

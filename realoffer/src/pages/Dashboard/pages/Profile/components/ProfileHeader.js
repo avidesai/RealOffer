@@ -62,7 +62,7 @@ function ProfileHeader() {
           </button>
         )}
         <div className="user-avatar" onClick={handleDropdown}>
-          <img src={avatar} alt="User Avatar" />
+          <img src={user.profilePhotoUrl || avatar} alt="User Avatar" />
           {user && (
             <div className="user-info">
               <span className="user-name">{user.firstName}</span>

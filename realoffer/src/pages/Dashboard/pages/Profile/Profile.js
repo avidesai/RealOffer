@@ -1,3 +1,5 @@
+// Profile.js
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../../../context/AuthContext';
 import ProfileHeader from './components/ProfileHeader';
@@ -180,14 +182,14 @@ const Profile = () => {
               <div className="profile-form">
                 <div className="form-group">
                   <label htmlFor="agencyPhotoUrl">Agency Photo</label>
-                  <img src={profileData.agencyPhotoUrl} alt={profileData.agencyName} className="agency-photo" />
+                  <img src={profileData.agencyImage} className="agency-photo" />
                   <input
                     type="file"
                     id="agencyPhotoUrl"
                     className="upload-input"
                     onChange={(e) => handlePhotoUpload(e, 'agencyPhotoUrl')}
                   />
-                  {isUploading.agencyPhotoUrl && <div className="input-spinner"></div>}
+                  {isUploading.agencyImage && <div className="input-spinner"></div>}
                 </div>
                 <div className="form-group">
                   <label htmlFor="agencyName">Name</label>
