@@ -120,7 +120,6 @@ const Documents = ({ listingId }) => {
                   onChange={() => handleDocumentSelect(doc._id)}
                 />
                 <div className="document-info" onClick={() => handleViewDocument(doc)}>
-                  <img src={doc.thumbnailUrl} alt="" className="document-thumbnail" />
                   <div className="document-details">
                     <p className="document-title">{doc.title || 'Untitled'}</p>
                     <p className="document-type">{doc.type || 'No type'}</p>
@@ -131,9 +130,8 @@ const Documents = ({ listingId }) => {
                   <button className="split-button">Split</button>
                   <button className="annotate-button">Annotate</button>
                   <button className="rename-button">Rename</button>
-                  <button className="replace-button">Replace</button>
                   <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
-                    <button className="download-button">Download</button>
+                    <button className="download-action-button">Download</button>
                   </a>
                   <button className="delete-button" onClick={() => handleDeleteDocument(doc._id)}>Delete</button>
                 </div>

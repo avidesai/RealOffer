@@ -88,35 +88,33 @@
   align-items: center;
   background-color: #fff;
   padding: 1rem;
+  padding-bottom: 0.8rem;
   border-radius: 10px;
   margin-bottom: 0.5rem;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
+  cursor: pointer;
 }
 
 .document-item:hover {
-  background-color: #f0f8ff;
+  background-color: #ecf5fe;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .document-checkbox {
   position: absolute;
-  left: 10px;
+  left: 25px; /* Increase padding to the left */
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  margin-bottom: 10px;
 }
 
 .document-info {
   display: flex;
   align-items: center;
-  margin-left: 40px;
-}
-
-.document-thumbnail {
-  width: 60px;
-  height: 80px;
-  margin-right: 1rem;
-  border-radius: 5px;
-  object-fit: cover;
+  margin-left: 4rem;
 }
 
 .document-details {
@@ -128,6 +126,7 @@
   font-weight: bold;
   margin: 0;
   color: #333;
+  margin-bottom: 0.7rem; /* Add space below the title */
 }
 
 .document-type {
@@ -153,6 +152,7 @@
 }
 
 .document-actions button {
+  font-weight: bold;
   background-color: #007bff;
   color: white;
   border: none;
@@ -167,6 +167,23 @@
   background-color: #0056b3;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+.document-actions .delete-button {
+  background-color: #ff4d4d; /* Red background for delete button */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.document-actions .delete-button:hover {
+  background-color: #cc0000; /* Darker red on hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 
 .selected {
   background-color: #e6f7ff;
