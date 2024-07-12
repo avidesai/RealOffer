@@ -11,6 +11,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
 
 .notify-button, .download-button, .docusign-button, .reorder-button, .stamp-button {
@@ -30,7 +32,7 @@
   color: #262626;
   border: 1px solid #898888;
   border-radius: 10px;
-  padding: 10px 30px;
+  padding: 10px 25px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
@@ -52,7 +54,7 @@
 }
 
 .add-documents-button .arrow-down {
-  margin-left: 0.5rem;
+  margin-left: 1rem;
 }
 
 .documents-dropdown-menu {
