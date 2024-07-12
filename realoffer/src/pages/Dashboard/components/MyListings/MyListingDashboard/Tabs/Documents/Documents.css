@@ -2,7 +2,7 @@
 
 .documents-tab {
   padding: 1rem;
-  background-color: #f9f9f9;
+  background-color: #f1f1f1;
   border-radius: 10px;
 }
 
@@ -13,12 +13,24 @@
   margin-bottom: 1rem;
 }
 
-.add-documents-button, .notify-button, .download-button, .docusign-button, .reorder-button, .stamp-button {
+.notify-button, .download-button, .docusign-button, .reorder-button, .stamp-button {
   background-color: #ffffff;
   color: #262626;
   border: 1px solid #898888;
   border-radius: 10px;
   padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.add-documents-button {
+  background-color: #ffffff;
+  color: #262626;
+  border: 1px solid #898888;
+  border-radius: 10px;
+  padding: 10px 30px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
@@ -50,7 +62,7 @@
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 5px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   z-index: 1000;
   transition: all 0.3s ease;
@@ -60,8 +72,10 @@
   background-color: white;
   color: #333;
   border: none;
-  padding: 10px 20px;
+  padding: 12px 25px;
   width: 100%;
+  font-size: 0.9rem;
+  font-weight: 400;
   text-align: left;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -88,9 +102,10 @@
   align-items: center;
   background-color: #fff;
   padding: 1rem;
-  padding-bottom: 0.8rem;
+  padding-top: 1.2rem;
+  padding-bottom: 0.6rem;
   border-radius: 10px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
@@ -98,7 +113,7 @@
 }
 
 .document-item:hover {
-  background-color: #ecf5fe;
+  background-color: #dceeff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -187,5 +202,5 @@
 }
 
 .selected {
-  background-color: #ecf5fe;
+  background-color: #dceeff;
 }

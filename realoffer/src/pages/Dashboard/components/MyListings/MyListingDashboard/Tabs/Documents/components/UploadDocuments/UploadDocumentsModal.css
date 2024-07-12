@@ -199,7 +199,7 @@
 }
 
 .upload-files-button:hover {
-  background-color: #0056b3; /* Slightly darker color on hover */
+  background-color: #238c31;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow on hover */
 }
 
@@ -209,16 +209,17 @@
   width: 100%; /* Ensure the footer takes full width */
 }
 
-.upload-files-button:hover {
-  background-color: #218838;
-}
+
 
 .errors {
+  width: 90%; /* Match the width of the drag-drop area */
+  margin: 0 auto; /* Center the error box horizontally */
   background-color: #f8d7da;
   color: #721c24;
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 20px;
+  font-weight: 600;
   text-align: center;
 }
 
