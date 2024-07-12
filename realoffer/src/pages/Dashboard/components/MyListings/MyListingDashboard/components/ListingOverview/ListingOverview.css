@@ -58,7 +58,8 @@
 }
 
 .overview-btn:hover {
-  opacity: 0.85;
+  background-color: #888888;
+  color: #ffffff;
 }
 
 .overview-btn-share-package {
@@ -75,7 +76,7 @@
 }
 
 .overview-btn-share-package:hover {
-  opacity: 0.85;
+  background-color: #238c31;
 }
 
 .overview-agents {

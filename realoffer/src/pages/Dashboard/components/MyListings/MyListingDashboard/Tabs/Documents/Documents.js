@@ -79,6 +79,15 @@ const Documents = ({ listingId }) => {
     window.open(documentUrlWithSAS, '_blank'); // Open the document in a new tab
   };
 
+  const handleItemClick = (e, doc) => {
+    if (
+      !e.target.classList.contains('document-checkbox') &&
+      !e.target.classList.contains('document-actions-button')
+    ) {
+      handleViewDocument(doc);
+    }
+  };
+
   return (
     <div className="documents-tab">
       <div className="documents-header">
@@ -112,14 +121,18 @@ const Documents = ({ listingId }) => {
             <p className="no-documents-message">No documents uploaded yet.</p>
           ) : (
             documents.map((doc) => (
-              <div key={doc._id} className={`document-item ${isSelected(doc._id) ? 'selected' : ''}`}>
+              <div
+                key={doc._id}
+                className={`document-item ${isSelected(doc._id) ? 'selected' : ''}`}
+                onClick={(e) => handleItemClick(e, doc)}
+              >
                 <input
                   type="checkbox"
                   className="document-checkbox"
                   checked={isSelected(doc._id)}
                   onChange={() => handleDocumentSelect(doc._id)}
                 />
-                <div className="document-info" onClick={() => handleViewDocument(doc)}>
+                <div className="document-info">
                   <div className="document-details">
                     <p className="document-title">{doc.title || 'Untitled'}</p>
                     <p className="document-type">{doc.type || 'No type'}</p>
@@ -127,13 +140,13 @@ const Documents = ({ listingId }) => {
                   </div>
                 </div>
                 <div className="document-actions">
-                  <button className="split-button">Split</button>
-                  <button className="annotate-button">Annotate</button>
-                  <button className="rename-button">Rename</button>
+                  <button className="split-button document-actions-button">Split</button>
+                  <button className="annotate-button document-actions-button">Annotate</button>
+                  <button className="rename-button document-actions-button">Rename</button>
                   <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
-                    <button className="download-action-button">Download</button>
+                    <button className="download-action-button document-actions-button">Download</button>
                   </a>
-                  <button className="delete-button" onClick={() => handleDeleteDocument(doc._id)}>Delete</button>
+                  <button className="delete-button document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>Delete</button>
                 </div>
               </div>
             ))

@@ -170,13 +170,6 @@
 
 .document-actions .delete-button {
   background-color: #ff4d4d; /* Red background for delete button */
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 12px;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .document-actions .delete-button:hover {
@@ -184,6 +177,14 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.document-actions .download-action-button {
+  background-color: #32b643;
+}
+
+.document-actions .download-action-button:hover {
+  background-color: #238c31;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
 .selected {
   background-color: #e6f7ff;
