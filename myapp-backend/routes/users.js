@@ -12,6 +12,7 @@ router.get('/:id/buyerPackages', UserController.getUserBuyerPackages);
 router.post('/', UserController.createUser);
 router.post('/login', UserController.loginUser);
 router.put('/:id', UserController.updateUser);
+router.put('/:id/upload-photo', UserController.uploadPhoto);
 router.delete('/:id', UserController.deleteUser);
 
 module.exports = router;

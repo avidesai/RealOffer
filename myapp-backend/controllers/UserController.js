@@ -2,6 +2,32 @@
 
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
+const multer = require('multer');
+const { uploadFile } = require('../config/aws');
+
+const upload = multer({ storage: multer.memoryStorage() });
+
+exports.uploadPhoto = [
+  upload.single('file'),
+  async (req, res) => {
+    const { id } = req.params;
+    const { field } = req.body;
+
+    try {
+      const file = req.file;
+      if (!file) {
+        return res.status(400).json({ message: 'No file provided' });
+      }
+
+      const photoUrl = await uploadFile(file, process.env.AWS_BUCKET_NAME_PROFILE_PHOTOS);
+
+      const updatedUser = await User.findByIdAndUpdate(id, { [field]: photoUrl }, { new: true });
+      res.status(200).json(updatedUser);
+    } catch (error) {
+      res.status(500).json({ message: 'Error uploading photo', error: error.message });
+    }
+  },
+];
 
 exports.getAllUsers = async (req, res) => {
     try {

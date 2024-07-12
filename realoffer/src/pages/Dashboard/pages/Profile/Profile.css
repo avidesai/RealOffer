@@ -81,7 +81,8 @@ body {
 }
 
 input[type="text"],
-input[type="email"] {
+input[type="email"],
+.upload-input {
   width: 100%;
   padding: 0.5rem;
   border: 1px solid #ddd;
@@ -109,4 +110,13 @@ input[type="email"] {
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
