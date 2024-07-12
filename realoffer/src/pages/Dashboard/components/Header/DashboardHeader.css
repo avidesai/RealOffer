@@ -75,11 +75,13 @@
   font-weight: 600;
   transition: background-color 0.3s;
   text-transform: uppercase;
-  margin-right: 1.2rem;
+  margin-right: 2rem;
+  transition: transform 0.3s ease;
 }
 
 .header-upgrade-btn:hover {
   background-image: linear-gradient(to right, #8423c1, #3460c8);
+  transform: scale(1.05);
 }
 
 /* Avatar styles */
