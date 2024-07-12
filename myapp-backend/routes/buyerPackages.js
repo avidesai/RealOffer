@@ -12,6 +12,6 @@ router.put('/:id', BuyerPackageController.updatePackage);
 router.delete('/:id', BuyerPackageController.deletePackage);
 
 // Document upload routes for BuyerPackage
-router.post('/:id/documents', BuyerPackageController.uploadDocuments.array('documents', 10), DocumentController.addDocumentToBuyerPackage);
+router.post('/:id/documents', BuyerPackageController.uploadDocuments, DocumentController.addDocumentToBuyerPackage);
 
 module.exports = router;

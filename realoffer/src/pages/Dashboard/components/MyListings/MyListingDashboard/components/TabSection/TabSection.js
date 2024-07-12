@@ -1,3 +1,5 @@
+// TabSection.js
+
 import React, { useState } from 'react';
 import Documents from '../../Tabs/Documents/Documents';
 import './TabSection.css';

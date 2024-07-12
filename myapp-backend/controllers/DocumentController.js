@@ -3,7 +3,7 @@
 const Document = require('../models/Document');
 const PropertyListing = require('../models/PropertyListing');
 const BuyerPackage = require('../models/BuyerPackage');
-const containerClient = require('../config/azureStorage');
+const { containerClient, generateSASToken } = require('../config/azureStorage');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 
@@ -94,7 +94,7 @@ exports.addDocumentToPropertyListing = async (req, res) => {
 
     res.status(201).json(documents);
   } catch (error) {
-    res.status500.json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -144,7 +144,11 @@ exports.addDocumentToBuyerPackage = async (req, res) => {
 exports.getDocumentsByListing = async (req, res) => {
   try {
     const documents = await Document.find({ propertyListing: req.params.listingId });
-    res.status(200).json(documents);
+    const documentsWithSAS = documents.map(doc => ({
+      ...doc._doc,
+      sasToken: generateSASToken(doc.azureKey),
+    }));
+    res.status(200).json(documentsWithSAS);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

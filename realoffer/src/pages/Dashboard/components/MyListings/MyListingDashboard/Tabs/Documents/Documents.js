@@ -1,3 +1,5 @@
+// Documents.js
+
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import './Documents.css';
@@ -54,6 +56,11 @@ const Documents = ({ listingId }) => {
     }
   };
 
+  const handleViewDocument = (doc) => {
+    const documentUrlWithSAS = `${doc.thumbnailUrl}?${doc.sasToken}`;
+    window.open(documentUrlWithSAS, '_blank'); // Open the document in a new tab
+  };
+
   return (
     <div className="documents-tab">
       <div className="documents-header">
@@ -89,7 +96,7 @@ const Documents = ({ listingId }) => {
                 checked={isSelected(doc._id)}
                 onChange={() => handleDocumentSelect(doc._id)}
               />
-              <div className="document-info">
+              <div className="document-info" onClick={() => handleViewDocument(doc)}>
                 <img src={doc.thumbnailUrl} alt="" className="document-thumbnail" />
                 <div className="document-details">
                   <p className="document-title">{doc.title || 'Untitled'}</p>
@@ -102,7 +109,9 @@ const Documents = ({ listingId }) => {
                 <button className="annotate-button">Annotate</button>
                 <button className="rename-button">Rename</button>
                 <button className="replace-button">Replace</button>
-                <button className="download-button">Download</button>
+                <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
+                  <button className="download-button">Download</button>
+                </a>
                 <button className="delete-button" onClick={() => handleDeleteDocument(doc._id)}>Delete</button>
               </div>
             </div>
