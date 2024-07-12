@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../../../../context/AuthContext';
-import DashboardHeader from '../../components/Header/DashboardHeader';
+import ProfileHeader from './components/ProfileHeader';
 import Footer from '../../components/Footer/Footer';
 import './Profile.css';
 
@@ -9,7 +9,7 @@ const Profile = () => {
 
   return (
     <>
-      <DashboardHeader />
+      <ProfileHeader />
       <div className="profile-container">
         <div className="profile-header">
           <img src={user.profilePhotoUrl} alt={`${user.firstName} ${user.lastName}`} className="profile-photo" />
