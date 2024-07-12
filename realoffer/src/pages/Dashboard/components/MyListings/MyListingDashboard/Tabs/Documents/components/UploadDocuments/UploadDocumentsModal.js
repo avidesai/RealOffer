@@ -67,9 +67,15 @@ const UploadDocumentsModal = ({
                   className="file-type-select"
                 >
                   <option value="">Select Type</option>
-                  <option value="Disclosure">Disclosure</option>
-                  <option value="Agreement">Agreement</option>
-                  <option value="Report">Report</option>
+                  <option value="Disclosures">Disclosures</option>
+                  <option value="Home Inspection Report">Home Inspection Report</option>
+                  <option value="Pest Inspection Report">Pest Inspection Report</option>
+                  <option value="Preliminary Title Report">Preliminary Title Report</option>
+                  <option value="Seller Disclosures">Seller Disclosures</option>
+                  <option value="Natural Hazard Disclosures">Natural Hazard Disclosures</option>
+                  <option value="HOA Documents">HOA Documents</option>
+                  <option value="Floor Plan">Floor Plan</option>
+                  <option value="Offer Instructions">Offer Instructions</option>
                   <option value="Other">Other</option>
                 </select>
                 <button className="delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>
