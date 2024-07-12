@@ -3,7 +3,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom'; // Import Link component
 import './Footer.css';
-import logo from '../../../../assets/images/logo.svg';
+import logo from '../../../../../assets/images/logo.svg';
 
 const Footer = () => {
   return (

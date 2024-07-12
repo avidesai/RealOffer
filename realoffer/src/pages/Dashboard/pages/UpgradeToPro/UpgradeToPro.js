@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import UpgradeHeader from './components/UpgradeHeader';
+import Footer from './components/Footer'; // Import the Footer component
 import './UpgradeToPro.css';
 
 const UpgradeToPro = () => {
@@ -147,6 +148,7 @@ const UpgradeToPro = () => {
           </div>
         </div>
       </div>
+      <Footer /> {/* Add Footer component here */}
     </div>
   );
 };
