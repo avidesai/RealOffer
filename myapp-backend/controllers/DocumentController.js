@@ -6,12 +6,23 @@ const BuyerPackage = require('../models/BuyerPackage');
 const { containerClient, generateSASToken } = require('../config/azureStorage');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
+const { PDFDocument } = require('pdf-lib');
 
 // Configure multer for in-memory storage before uploading to Azure
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 exports.uploadDocuments = upload.array('documents', 10);
+
+const getPdfPageCount = async (buffer) => {
+  try {
+    const pdfDoc = await PDFDocument.load(buffer);
+    return pdfDoc.getPageCount();
+  } catch (error) {
+    console.error('Error reading PDF:', error);
+    return 0;
+  }
+};
 
 exports.uploadDocument = async (req, res) => {
   const { title, type, size, uploadedBy, propertyListingId } = req.body;
@@ -32,10 +43,13 @@ exports.uploadDocument = async (req, res) => {
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
       await blockBlobClient.uploadData(file.buffer);
 
+      const pages = file.mimetype === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
+
       const newDocument = new Document({
         title,
         type,
         size,
+        pages,
         thumbnailUrl: blockBlobClient.url,
         uploadedBy,
         propertyListing: propertyListingId,
@@ -73,6 +87,8 @@ exports.addDocumentToPropertyListing = async (req, res) => {
       const blobName = `documents/${uuidv4()}-${file.originalname}`;
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
       await blockBlobClient.uploadData(file.buffer);
+
+      const pages = file.mimetype === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
 
       const newDocument = new Document({
         title,
@@ -116,6 +132,8 @@ exports.addDocumentToBuyerPackage = async (req, res) => {
       const blobName = `documents/${uuidv4()}-${file.originalname}`;
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
       await blockBlobClient.uploadData(file.buffer);
+
+      const pages = file.mimetype === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
 
       const newDocument = new Document({
         title,

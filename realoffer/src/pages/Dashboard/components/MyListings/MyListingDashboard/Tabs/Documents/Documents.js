@@ -1,6 +1,6 @@
 // Documents.js
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import axios from 'axios';
 import './Documents.css';
 import UploadDocumentsLogic from './components/UploadDocuments/UploadDocumentsLogic';
@@ -11,6 +11,7 @@ const Documents = ({ listingId }) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
   const [loading, setLoading] = useState(false); // Add loading state for delete operation
+  const dropdownRef = useRef(null); // Reference for the dropdown menu
 
   const fetchDocuments = useCallback(async () => {
     try {
@@ -24,6 +25,19 @@ const Documents = ({ listingId }) => {
   useEffect(() => {
     fetchDocuments();
   }, [fetchDocuments]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
@@ -69,7 +83,7 @@ const Documents = ({ listingId }) => {
     <div className="documents-tab">
       <div className="documents-header">
         <div className="action-buttons">
-          <div className="add-documents-dropdown">
+          <div className="add-documents-dropdown" ref={dropdownRef}>
             <button className="add-documents-button" onClick={toggleDropdown}>
               Add Documents <span className="arrow-down">▼</span>
             </button>
@@ -95,7 +109,7 @@ const Documents = ({ listingId }) => {
       ) : (
         <div className="documents-list">
           {documents.length === 0 ? (
-            <p className="no-documents-message">No documents available. Please upload documents.</p>
+            <p className="no-documents-message">No documents uploaded yet.</p>
           ) : (
             documents.map((doc) => (
               <div key={doc._id} className={`document-item ${isSelected(doc._id) ? 'selected' : ''}`}>
