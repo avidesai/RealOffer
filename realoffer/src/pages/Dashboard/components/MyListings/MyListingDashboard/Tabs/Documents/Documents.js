@@ -10,6 +10,7 @@ const Documents = ({ listingId }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
+  const [loading, setLoading] = useState(false); // Add loading state for delete operation
 
   const fetchDocuments = useCallback(async () => {
     try {
@@ -48,11 +49,14 @@ const Documents = ({ listingId }) => {
   const isSelected = (id) => selectedDocuments.includes(id);
 
   const handleDeleteDocument = async (id) => {
+    setLoading(true); // Set loading to true when delete operation starts
     try {
       await axios.delete(`http://localhost:8000/api/documents/${id}`);
       fetchDocuments();
     } catch (error) {
       console.error('Error deleting document:', error);
+    } finally {
+      setLoading(false); // Set loading to false when delete operation ends
     }
   };
 
@@ -84,40 +88,46 @@ const Documents = ({ listingId }) => {
         </div>
         <button className="notify-button">Notify Viewers of Updates</button>
       </div>
-      <div className="documents-list">
-        {documents.length === 0 ? (
-          <p className="no-documents-message">No documents available. Please upload documents.</p>
-        ) : (
-          documents.map((doc) => (
-            <div key={doc._id} className={`document-item ${isSelected(doc._id) ? 'selected' : ''}`}>
-              <input
-                type="checkbox"
-                className="document-checkbox"
-                checked={isSelected(doc._id)}
-                onChange={() => handleDocumentSelect(doc._id)}
-              />
-              <div className="document-info" onClick={() => handleViewDocument(doc)}>
-                <img src={doc.thumbnailUrl} alt="" className="document-thumbnail" />
-                <div className="document-details">
-                  <p className="document-title">{doc.title || 'Untitled'}</p>
-                  <p className="document-type">{doc.type || 'No type'}</p>
-                  <p className="document-meta">{doc.pages || 0} PAGES | {Math.round(doc.size / 1024)} KB | UPDATED {new Date(doc.updatedAt).toLocaleDateString()}</p>
+      {loading ? ( // Show spinner while loading
+        <div className="spinner-container">
+          <div className="spinner"></div>
+        </div>
+      ) : (
+        <div className="documents-list">
+          {documents.length === 0 ? (
+            <p className="no-documents-message">No documents available. Please upload documents.</p>
+          ) : (
+            documents.map((doc) => (
+              <div key={doc._id} className={`document-item ${isSelected(doc._id) ? 'selected' : ''}`}>
+                <input
+                  type="checkbox"
+                  className="document-checkbox"
+                  checked={isSelected(doc._id)}
+                  onChange={() => handleDocumentSelect(doc._id)}
+                />
+                <div className="document-info" onClick={() => handleViewDocument(doc)}>
+                  <img src={doc.thumbnailUrl} alt="" className="document-thumbnail" />
+                  <div className="document-details">
+                    <p className="document-title">{doc.title || 'Untitled'}</p>
+                    <p className="document-type">{doc.type || 'No type'}</p>
+                    <p className="document-meta">{doc.pages || 0} PAGES | {Math.round(doc.size / 1024)} KB | UPDATED {new Date(doc.updatedAt).toLocaleDateString()}</p>
+                  </div>
+                </div>
+                <div className="document-actions">
+                  <button className="split-button">Split</button>
+                  <button className="annotate-button">Annotate</button>
+                  <button className="rename-button">Rename</button>
+                  <button className="replace-button">Replace</button>
+                  <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
+                    <button className="download-button">Download</button>
+                  </a>
+                  <button className="delete-button" onClick={() => handleDeleteDocument(doc._id)}>Delete</button>
                 </div>
               </div>
-              <div className="document-actions">
-                <button className="split-button">Split</button>
-                <button className="annotate-button">Annotate</button>
-                <button className="rename-button">Rename</button>
-                <button className="replace-button">Replace</button>
-                <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
-                  <button className="download-button">Download</button>
-                </a>
-                <button className="delete-button" onClick={() => handleDeleteDocument(doc._id)}>Delete</button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+            ))
+          )}
+        </div>
+      )}
       {showUploadModal && (
         <UploadDocumentsLogic
           onClose={closeUploadModal}
