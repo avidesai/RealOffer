@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema({
     twoFactorAuthenticationEnabled: { type: Boolean, default: false },
     notificationSettings: { type: String, default: '' },
     phone: { type: String, default: '' },
+    brokeragePhoneNumber: { type: String, default: '' }, // Added this line
     addressLine1: { type: String, default: '' },
     addressLine2: { type: String, default: '' },
     homepage: { type: String, default: '' },

@@ -19,7 +19,8 @@ exports.uploadPhoto = [
         return res.status(400).json({ message: 'No file provided' });
       }
 
-      const photoUrl = await uploadFile(file, process.env.AWS_BUCKET_NAME_PROFILE_PHOTOS);
+      const bucketName = process.env.AWS_BUCKET_NAME_PROFILE_PHOTOS; // Adjust this for different buckets if needed
+      const photoUrl = await uploadFile(file, bucketName);
 
       const updatedUser = await User.findByIdAndUpdate(id, { [field]: photoUrl }, { new: true });
       res.status(200).json(updatedUser);
@@ -54,7 +55,7 @@ exports.getUserWithListingPackages = async (req, res) => {
         if (!user) return res.status(404).json({ message: "User not found" });
         res.status(200).json(user);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status500.json({ message: error.message });
     }
 };
 
@@ -84,6 +85,7 @@ exports.createUser = async (req, res) => {
             twoFactorAuthenticationEnabled: false,
             notificationSettings: '',
             phone: '',
+            brokeragePhoneNumber: '', // Added this line
             addressLine1: '',
             addressLine2: '',
             homepage: '',
@@ -91,7 +93,7 @@ exports.createUser = async (req, res) => {
             brokerageLicenseNumber: '',
             agencyName: '',
             agencyWebsite: '',
-            agencyImage: '',
+            agencyImage: 'https://realoffer-bucket.s3.us-east-2.amazonaws.com/avatar.svg',
             agencyAddressLine1: '',
             agencyAddressLine2: '',
             linkedIn: '',

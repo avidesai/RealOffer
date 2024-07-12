@@ -3,16 +3,16 @@ body {
 }
 
 .profile-background {
-  padding-top: 3rem; /* Increased spacing above the profile container */
-  padding-bottom: 3rem; /* Increased spacing below the profile container */
+  padding-top: 2.5rem; /* Increased spacing above the profile container */
+  padding-bottom: 2.5rem; /* Increased spacing below the profile container */
 }
 
 .profile-container {
-  max-width: 80%; /* Adjusted max width to a percentage */
+  max-width: 65%; /* Adjusted max width to a percentage */
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem 3rem; /* Added more padding on the left and right */
   background-color: #fff;
-  border-radius: 8px;
+  border-radius: 1.5rem;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -25,7 +25,7 @@ body {
 .profile-content {
   display: flex;
   justify-content: space-between;
-  gap: 3rem; /* Increased gap for more spacing */
+  gap: 3rem; /* Added more gap for more spacing */
 }
 
 .profile-section {
@@ -34,7 +34,7 @@ body {
 
 .profile-section h3 {
   font-size: 1.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .profile-form {
@@ -49,23 +49,26 @@ body {
 
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem; /* Added more spacing beneath labels */
   font-weight: bold;
 }
 
-.profile-photo,
-.agency-photo {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 1rem;
+input[type="text"],
+input[type="email"],
+.upload-input {
+  width: calc(100% - 1rem); /* Reduced width */
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
 }
 
-.upload-button,
-.edit-button {
-  display: block;
-  margin-top: 0.5rem;
+.upload-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.upload-button {
   padding: 0.5rem 1rem;
   background-color: #007bff;
   color: #fff;
@@ -75,24 +78,24 @@ body {
   font-size: 1rem;
 }
 
-.upload-button:hover,
-.edit-button:hover {
+.upload-button:hover {
   background-color: #0056b3;
 }
 
-input[type="text"],
-input[type="email"],
-.upload-input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+.profile-photo,
+.agency-photo {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .checkbox-label {
   display: flex;
   align-items: center;
   margin-top: 0.5rem;
+  font-weight: normal; /* Make text not bold */
+  font-size: 0.9rem; /* Make text smaller */
 }
 
 .checkbox-label input[type="checkbox"] {
@@ -110,6 +113,69 @@ input[type="email"],
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
+}
+
+.email-group {
+  display: flex;
+  align-items: center;
+}
+
+.edit-button {
+  margin-left: 0.5rem;
+  padding: 0.4rem 1rem;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.edit-button:hover {
+  background-color: #0056b3;
+}
+
+.role-dropdown {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.role-dropdown-menu {
+  position: absolute;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-top: 0.5rem;
+  z-index: 10;
+}
+
+.role-dropdown-menu div {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.role-dropdown-menu div:hover {
+  background-color: #f4f4f4;
+}
+
+.pro-status {
+  padding: 0.5rem;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.pro-status.enabled {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.pro-status.disabled {
+  background-color: #e2e3e5;
+  color: #6c757d;
+  border: 1px solid #d6d8db;
 }
 
 @keyframes spin {
