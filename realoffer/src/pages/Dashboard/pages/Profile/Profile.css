@@ -1,93 +1,112 @@
-.profile-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* Use 100% of the viewport height */
-    background-color: #f4f4f4; /* Light background for the dashboard */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-  }
-  
-  .profile-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 2rem;
-  }
-  
-  .profile-photo {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 2rem;
-  }
-  
-  .profile-info {
-    flex: 1;
-  }
-  
-  .profile-info h1 {
-    margin: 0;
-    font-size: 2rem;
-    color: #333;
-  }
-  
-  .profile-info .profile-role {
-    font-size: 1rem;
-    color: #777;
-  }
-  
-  .profile-details {
-    margin-top: 2rem;
-  }
-  
-  .profile-section {
-    margin-bottom: 2rem;
-  }
-  
-  .profile-section h2 {
-    font-size: 1.5rem;
-    color: #444;
-    margin-bottom: 0.5rem;
-  }
-  
-  .profile-section p {
-    font-size: 1rem;
-    color: #555;
-    margin: 0.5rem 0;
-  }
-  
-  .profile-section a {
-    color: #1b5cf3;
-    text-decoration: none;
-  }
-  
-  .profile-section a:hover {
-    text-decoration: underline;
-  }
-  
-  /* Spinner Styles */
-  .spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-top: 4px solid #3498db;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    margin: 50px auto;
-    display: block;
-  }
+body {
+  background-color: #f4f4f4;
+}
 
-  
-  
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-  
+.profile-background {
+  padding-top: 3rem; /* Increased spacing above the profile container */
+  padding-bottom: 3rem; /* Increased spacing below the profile container */
+}
+
+.profile-container {
+  max-width: 80%; /* Adjusted max width to a percentage */
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.profile-title {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.profile-content {
+  display: flex;
+  justify-content: space-between;
+  gap: 3rem; /* Increased gap for more spacing */
+}
+
+.profile-section {
+  width: 48%; /* Adjust width to make them side by side */
+}
+
+.profile-section h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  position: relative; /* Position for input-spinner */
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.profile-photo,
+.agency-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1rem;
+}
+
+.upload-button,
+.edit-button {
+  display: block;
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.upload-button:hover,
+.edit-button:hover {
+  background-color: #0056b3;
+}
+
+input[type="text"],
+input[type="email"] {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+.input-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}

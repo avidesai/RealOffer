@@ -14,7 +14,6 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
     try {
-        // Populate the listingPackages field to get detailed information
         const user = await User.findById(req.params.id).populate('listingPackages');
         if (!user) return res.status(404).json({ message: "User not found" });
         res.status(200).json(user);
@@ -25,12 +24,8 @@ exports.getUserById = async (req, res) => {
 
 exports.getUserWithListingPackages = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id)
-            .populate('listingPackages')  // Make sure this populates correctly based on your schema
-            .exec();
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
+        const user = await User.findById(req.params.id).populate('listingPackages');
+        if (!user) return res.status(404).json({ message: "User not found" });
         res.status(200).json(user);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -39,11 +34,8 @@ exports.getUserWithListingPackages = async (req, res) => {
 
 exports.getUserBuyerPackages = async (req, res) => {
     try {
-        const userId = req.params.id;
-        const user = await User.findById(userId).populate('buyerPackages');
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
+        const user = await User.findById(req.params.id).populate('buyerPackages');
+        if (!user) return res.status(404).json({ message: "User not found" });
         res.status(200).json(user.buyerPackages);
     } catch (error) {
         res.status(500).json({ message: error.message });
