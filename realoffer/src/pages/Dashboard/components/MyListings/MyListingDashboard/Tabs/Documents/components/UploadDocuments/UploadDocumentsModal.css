@@ -20,6 +20,8 @@
   position: relative;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   animation: fadeIn 0.3s ease-in-out;
+  max-height: 80vh; /* Fixed height */
+  overflow-y: auto; /* Scrollable content */
 }
 
 @keyframes fadeIn {
@@ -37,7 +39,6 @@
   position: absolute;
   top: 15px;
   right: 20px;
-
 }
 
 .modal-title {
@@ -90,6 +91,11 @@
   margin-top: 20px;
   font-size: 16px;
   color: #007bff;
+}
+
+.file-list-container {
+  max-height: 400px; /* Fixed height for the list container */
+  overflow-y: auto; /* Scrollable content */
 }
 
 .file-list {

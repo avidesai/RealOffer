@@ -25,7 +25,7 @@ const getPdfPageCount = async (buffer) => {
 };
 
 exports.uploadDocument = async (req, res) => {
-  const { title, type, size, uploadedBy, propertyListingId } = req.body;
+  const { uploadedBy, propertyListingId } = req.body;
   const files = req.files;
 
   if (!files || files.length === 0) {
@@ -38,7 +38,11 @@ exports.uploadDocument = async (req, res) => {
       return res.status(404).json({ message: 'Property listing not found' });
     }
 
-    const documents = await Promise.all(files.map(async (file) => {
+    const documents = await Promise.all(files.map(async (file, index) => {
+      const title = req.body.title[index];
+      const type = req.body.type[index];
+      const size = file.size;
+
       const blobName = `documents/${uuidv4()}-${file.originalname}`;
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
       await blockBlobClient.uploadData(file.buffer);
@@ -70,7 +74,7 @@ exports.uploadDocument = async (req, res) => {
 };
 
 exports.addDocumentToPropertyListing = async (req, res) => {
-  const { title, type, size, pages, uploadedBy } = req.body;
+  const { uploadedBy } = req.body;
   const files = req.files;
 
   if (!files || files.length === 0) {
@@ -83,7 +87,11 @@ exports.addDocumentToPropertyListing = async (req, res) => {
       return res.status(404).json({ message: 'Property listing not found' });
     }
 
-    const documents = await Promise.all(files.map(async (file) => {
+    const documents = await Promise.all(files.map(async (file, index) => {
+      const title = req.body.title[index];
+      const type = req.body.type[index];
+      const size = file.size;
+
       const blobName = `documents/${uuidv4()}-${file.originalname}`;
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
       await blockBlobClient.uploadData(file.buffer);
@@ -115,7 +123,7 @@ exports.addDocumentToPropertyListing = async (req, res) => {
 };
 
 exports.addDocumentToBuyerPackage = async (req, res) => {
-  const { title, type, size, pages, uploadedBy } = req.body;
+  const { uploadedBy } = req.body;
   const files = req.files;
 
   if (!files || files.length === 0) {
@@ -128,7 +136,11 @@ exports.addDocumentToBuyerPackage = async (req, res) => {
       return res.status(404).json({ message: 'Buyer package not found' });
     }
 
-    const documents = await Promise.all(files.map(async (file) => {
+    const documents = await Promise.all(files.map(async (file, index) => {
+      const title = req.body.title[index];
+      const type = req.body.type[index];
+      const size = file.size;
+
       const blobName = `documents/${uuidv4()}-${file.originalname}`;
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
       await blockBlobClient.uploadData(file.buffer);

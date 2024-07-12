@@ -47,41 +47,43 @@ const UploadDocumentsModal = ({
           </div>
         </div>
         {uploading && <div className="spinner"></div>}
-        <div className="file-list">
-          {files.map((file, index) => (
-            <div key={index} className="file-item">
-              <div className="file-info">
-                <p className="file-name">{file.file.name} ({(file.file.size / 1024).toFixed(2)} KB)</p>
-                <input
-                  type="text"
-                  value={file.title}
-                  onChange={(e) => handleFileTitleChange(index, e.target.value)}
-                  placeholder="Document Title"
-                  className="file-title-input"
-                />
+        <div className="file-list-container">
+          <div className="file-list">
+            {files.map((file, index) => (
+              <div key={index} className="file-item">
+                <div className="file-info">
+                  <p className="file-name">{file.file.name} ({(file.file.size / 1024).toFixed(2)} KB)</p>
+                  <input
+                    type="text"
+                    value={file.title}
+                    onChange={(e) => handleFileTitleChange(index, e.target.value)}
+                    placeholder="Document Title"
+                    className="file-title-input"
+                  />
+                </div>
+                <div className="file-options">
+                  <select
+                    value={file.type}
+                    onChange={(e) => handleFileTypeChange(index, e.target.value)}
+                    className="file-type-select"
+                  >
+                    <option value="">Select Type</option>
+                    <option value="Disclosures">Disclosures</option>
+                    <option value="Home Inspection Report">Home Inspection Report</option>
+                    <option value="Pest Inspection Report">Pest Inspection Report</option>
+                    <option value="Preliminary Title Report">Preliminary Title Report</option>
+                    <option value="Seller Disclosures">Seller Disclosures</option>
+                    <option value="Natural Hazard Disclosures">Natural Hazard Disclosures</option>
+                    <option value="HOA Documents">HOA Documents</option>
+                    <option value="Floor Plan">Floor Plan</option>
+                    <option value="Offer Instructions">Offer Instructions</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  <button className="delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>
+                </div>
               </div>
-              <div className="file-options">
-                <select
-                  value={file.type}
-                  onChange={(e) => handleFileTypeChange(index, e.target.value)}
-                  className="file-type-select"
-                >
-                  <option value="">Select Type</option>
-                  <option value="Disclosures">Disclosures</option>
-                  <option value="Home Inspection Report">Home Inspection Report</option>
-                  <option value="Pest Inspection Report">Pest Inspection Report</option>
-                  <option value="Preliminary Title Report">Preliminary Title Report</option>
-                  <option value="Seller Disclosures">Seller Disclosures</option>
-                  <option value="Natural Hazard Disclosures">Natural Hazard Disclosures</option>
-                  <option value="HOA Documents">HOA Documents</option>
-                  <option value="Floor Plan">Floor Plan</option>
-                  <option value="Offer Instructions">Offer Instructions</option>
-                  <option value="Other">Other</option>
-                </select>
-                <button className="delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
         <div className="modal-footer">
           <button className="upload-files-button" onClick={handleUpload}>Upload Files</button>
