@@ -20,13 +20,13 @@ const UploadDocumentsModal = ({
 }) => {
   return (
     <div className="upload-documents-modal" onDragOver={handleDragOver} onDrop={handleDrop}>
-      <div className="modal-content">
+      <div className="upload-modal-content">
         <button className="close-button" onClick={onClose}></button>
         <h2 className="modal-title">Add Documents</h2>
         {errors.length > 0 && (
-          <div className="errors">
+          <div className="upload-errors">
             {errors.map((error, index) => (
-              <p key={index} className="error">{error}</p>
+              <p key={index} className="upload-error">{error}</p>
             ))}
           </div>
         )}
@@ -46,7 +46,7 @@ const UploadDocumentsModal = ({
             />
           </div>
         </div>
-        {uploading && <div className="spinner"></div>}
+        {uploading && <div className="upload-spinner-container"><div className="upload-spinner"></div></div>}
         <div className="file-list-container">
           <div className="file-list">
             {files.map((file, index) => (

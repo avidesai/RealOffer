@@ -12,11 +12,11 @@
   font-family: 'Inter', sans-serif;
 }
 
-.modal-content {
+.upload-modal-content {
   background: #fff;
   padding: 20px;
   border-radius: 10px;
-  width: 600px;
+  width: 55%;
   position: relative;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   animation: fadeIn 0.3s ease-in-out;
@@ -98,29 +98,63 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.spinner {
-  text-align: center;
-  margin-top: 20px;
-  font-size: 16px;
-  color: #007bff;
+.upload-spinner-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 1000;
+}
+
+.upload-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .file-list-container {
   max-height: 800px; /* Fixed height for the list container */
   overflow-y: auto; /* Scrollable content */
   padding-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center children horizontally */
 }
 
 .file-list {
   margin-top: 20px;
+  width: 100%; /* Ensure the file-list takes full width */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center children horizontally */
 }
 
 .file-item {
+  width: 85%; /* Match the width of the drag-drop area */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #f8f8f8;
-  padding: 10px;
+  background: #f0f0f0;
+  padding: 1rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
   border-radius: 5px;
   margin-bottom: 10px;
   transition: background-color 0.3s ease;
@@ -143,12 +177,12 @@
 }
 
 .file-title-input {
-  margin-top: 5px;
+  margin-top: 12px;
   padding: 5px;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 14px;
-  width: 200px;
+  max-width: 250px;
 }
 
 .file-options {
@@ -157,12 +191,14 @@
 }
 
 .file-type-select {
-  margin-right: 10px;
+  margin-top: 20px;
+  margin-right: 15px;
   padding: 5px;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 14px;
-  width: 150px; /* Directly setting the width to double its assumed original */
+  width: 225px;
+  max-width: 225px;
 }
 
 .delete-file-button {
@@ -209,21 +245,19 @@
   width: 100%; /* Ensure the footer takes full width */
 }
 
-
-
-.errors {
+.upload-errors {
   width: 90%; /* Match the width of the drag-drop area */
   margin: 0 auto; /* Center the error box horizontally */
   background-color: #f8d7da;
-  color: #721c24;
+  color: #df3243;
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 20px;
-  font-weight: 600;
+  font-weight: 500;
   text-align: center;
 }
 
-.error {
+.upload-error {
   margin: 0;
 }
 
