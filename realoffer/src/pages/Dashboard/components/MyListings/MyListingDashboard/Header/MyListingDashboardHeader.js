@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { useAuth } from '../../../../../../context/AuthContext';
 import './MyListingDashboardHeader.css';
 import logo from '../../../../../../../src/assets/images/logo.svg';
@@ -10,6 +11,7 @@ import avatar from '../../../../../../../src/assets/images/avatar.svg';
 function MyListingDashboardHeader({ onBackClick }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const [userData, setUserData] = useState({});
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -39,6 +41,19 @@ function MyListingDashboardHeader({ onBackClick }) {
     };
   }, []);
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/users/${user._id}`);
+        setUserData(response.data);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, [user._id]);
+
   return (
     <header className="dashboard-header">
       <div className="header-left">
@@ -54,17 +69,17 @@ function MyListingDashboardHeader({ onBackClick }) {
       </div>
 
       <div className="header-actions">
-        {user && !user.isPremium && (
+        {userData && !userData.isPremium && (
           <button className="header-upgrade-btn" onClick={handleUpgradeClick}>
             Upgrade to Pro
           </button>
         )}
         <div className="user-avatar" onClick={handleDropdown}>
-          <img src={user.profilePhotoUrl || avatar} alt="User Avatar" />
-          {user && (
+          <img src={userData.profilePhotoUrl || avatar} alt="User Avatar" />
+          {userData && (
             <div className="user-info">
-              <span className="user-name">{user.firstName}</span>
-              <span className="user-email">{user.email}</span>
+              <span className="user-name">{userData.firstName}</span>
+              <span className="user-email">{userData.email}</span>
             </div>
           )}
         </div>

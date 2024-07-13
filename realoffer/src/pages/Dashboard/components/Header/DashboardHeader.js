@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { useAuth } from '../../../../context/AuthContext';
 import './DashboardHeader.css';
 import logo from '../../../../assets/images/logo.svg';
@@ -10,6 +11,7 @@ import avatar from '../../../../assets/images/avatar.svg';
 function DashboardHeader({ activeTab, setActiveTab }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const [userData, setUserData] = useState({});
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -39,6 +41,19 @@ function DashboardHeader({ activeTab, setActiveTab }) {
     };
   }, []);
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/users/${user._id}`);
+        setUserData(response.data);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, [user._id]);
+
   return (
     <header className="dashboard-header">
       <div className="header-left">
@@ -66,17 +81,17 @@ function DashboardHeader({ activeTab, setActiveTab }) {
       </nav>
 
       <div className="header-actions">
-        {user && !user.isPremium && (
+        {userData && !userData.isPremium && (
           <button className="header-upgrade-btn" onClick={handleUpgradeClick}>
             Upgrade to Pro
           </button>
         )}
         <div className="user-avatar" onClick={handleDropdown}>
-          <img src={user.profilePhotoUrl || avatar} alt="User Avatar" />
-          {user && (
+          <img src={userData.profilePhotoUrl || avatar} alt="User Avatar" />
+          {userData && (
             <div className="user-info">
-              <span className="user-name">{user.firstName}</span>
-              <span className="user-email">{user.email}</span>
+              <span className="user-name">{userData.firstName}</span>
+              <span className="user-email">{userData.email}</span>
             </div>
           )}
         </div>

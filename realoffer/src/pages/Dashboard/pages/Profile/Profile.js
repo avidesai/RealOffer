@@ -38,7 +38,7 @@ const Profile = () => {
               <h3>Profile Information</h3>
               <div className="profile-form">
                 <div className="form-group">
-                  <label htmlFor="profilePhotoUrl">Profile Photo</label>
+                  <label htmlFor="profilePhotoUrl" className='photo-text'>Profile Photo</label>
                   <div className="upload-container">
                     <img src={profileData.profilePhotoUrl} alt={`${profileData.firstName} ${profileData.lastName}`} className="profile-photo" />
                     <input
@@ -169,7 +169,7 @@ const Profile = () => {
               <h3>Brokerage Information</h3>
               <div className="profile-form">
                 <div className="form-group">
-                  <label htmlFor="agencyImage">Agency Photo</label>
+                  <label htmlFor="agencyImage" className='photo-text'>Agency Photo</label>
                   <div className="upload-container">
                     <img src={profileData.agencyImage} alt="" className="agency-photo" />
                     <input

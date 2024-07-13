@@ -82,6 +82,7 @@
 .header-upgrade-btn:hover {
   background-image: linear-gradient(to right, #8423c1, #3460c8);
   transform: scale(1.05);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Avatar styles */
