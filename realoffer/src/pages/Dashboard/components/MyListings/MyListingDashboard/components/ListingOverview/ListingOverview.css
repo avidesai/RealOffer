@@ -19,7 +19,7 @@
 }
 
 .property-image {
-  width: 150px;
+  width: 200px;
   height: 150px;
   object-fit: cover;
   border-radius: 10px;
@@ -95,17 +95,17 @@
 }
 
 .listing-overview-agent-image {
-  width: 35px;
-  height: 35px;
+  width: 42px;
+  height: 42px;
   object-fit: cover;
   border-radius: 50%;
-  margin-right: 15px;
+  margin-right: 18px;
 }
 
 .listing-overview-agent-info p {
   margin: 0;
-  font-size: 16px;
-  color: #555;
+  font-size: 18px;
+  color: #353535;
 }
 
 @media (max-width: 768px) {
