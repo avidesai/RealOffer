@@ -75,13 +75,13 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
       const formData = new FormData();
       files.forEach(({ file, type, title }) => {
         formData.append('documents', file);
-        formData.append('type', type);
-        formData.append('title', title);
-        formData.append('size', file.size);
+        formData.append('type[]', type);
+        formData.append('title[]', title);
       });
 
       formData.append('uploadedBy', user._id); // Assuming user._id contains the user's ID
       formData.append('propertyListingId', listingId); // Add the property listing ID
+
       await axios.post(`http://localhost:8000/api/documents`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',

@@ -38,9 +38,12 @@ exports.uploadDocument = async (req, res) => {
       return res.status(404).json({ message: 'Property listing not found' });
     }
 
+    const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
+    const types = Array.isArray(req.body.type) ? req.body.type : [req.body.type];
+
     const documents = await Promise.all(files.map(async (file, index) => {
-      const title = req.body.title[index];
-      const type = req.body.type[index];
+      const title = titles[index];
+      const type = types[index];
       const size = file.size;
 
       const blobName = `documents/${uuidv4()}-${file.originalname}`;
@@ -87,9 +90,12 @@ exports.addDocumentToPropertyListing = async (req, res) => {
       return res.status(404).json({ message: 'Property listing not found' });
     }
 
+    const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
+    const types = Array.isArray(req.body.type) ? req.body.type : [req.body.type];
+
     const documents = await Promise.all(files.map(async (file, index) => {
-      const title = req.body.title[index];
-      const type = req.body.type[index];
+      const title = titles[index];
+      const type = types[index];
       const size = file.size;
 
       const blobName = `documents/${uuidv4()}-${file.originalname}`;
@@ -136,9 +142,12 @@ exports.addDocumentToBuyerPackage = async (req, res) => {
       return res.status(404).json({ message: 'Buyer package not found' });
     }
 
+    const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
+    const types = Array.isArray(req.body.type) ? req.body.type : [req.body.type];
+
     const documents = await Promise.all(files.map(async (file, index) => {
-      const title = req.body.title[index];
-      const type = req.body.type[index];
+      const title = titles[index];
+      const type = types[index];
       const size = file.size;
 
       const blobName = `documents/${uuidv4()}-${file.originalname}`;
