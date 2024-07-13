@@ -27,6 +27,7 @@ const documentsRouter = require('./routes/documents');
 const transactionsRouter = require('./routes/transactions');
 const favoritesRouter = require('./routes/favorites');
 const listingTemplatesRouter = require('./routes/listingTemplates');
+const viewersRouter = require('./routes/viewers');  // Import the viewers router
 
 // Route Usage
 app.use('/api/users', usersRouter);
@@ -36,6 +37,7 @@ app.use('/api/documents', documentsRouter);
 app.use('/api/transactions', transactionsRouter);
 app.use('/api/favorites', favoritesRouter);
 app.use('/api/listingTemplates', listingTemplatesRouter);
+app.use('/api/viewers', viewersRouter);  // Add the viewers route
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

@@ -105,7 +105,6 @@
   justify-content: flex-start; /* Aligns items to the start */
   gap: 10px; /* Space between agent images */
   height: 100%; /* Take full height of the parent */
-  margin-top: -0.8rem; /* Adjusted for better alignment */
 }
 
 .agent-image {

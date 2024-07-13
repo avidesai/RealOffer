@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Documents from '../../Tabs/Documents/Documents';
+import Viewers from '../../Tabs/Viewers/Viewers';
 import './TabSection.css';
 
 const TabSection = ({ listing }) => {
@@ -53,7 +54,7 @@ const TabSection = ({ listing }) => {
       </div>
       <div className="tab-content">
         {activeTab === 'docs' && <Documents listingId={listing._id} />}
-        {activeTab === 'viewers' && <div>Viewers Content</div>}
+        {activeTab === 'viewers' && <Viewers />}
         {activeTab === 'activity' && <div>Activity Content</div>}
         {activeTab === 'messages' && <div>Messages Content</div>}
         {activeTab === 'offers' && <div>Offers Content</div>}
