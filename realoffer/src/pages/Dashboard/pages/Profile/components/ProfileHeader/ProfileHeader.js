@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../../../context/AuthContext';
+import { useAuth } from '../../../../../../context/AuthContext';
 import './ProfileHeader.css';
-import logo from '../../../../../../src/assets/images/logo.svg';
-import avatar from '../../../../../../src/assets/images/avatar.svg';
+import logo from '../../../../../../../src/assets/images/logo.svg';
+import avatar from '../../../../../../../src/assets/images/avatar.svg';
 
 function ProfileHeader() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);

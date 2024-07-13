@@ -1,3 +1,5 @@
+/* Profile.css */
+
 body {
   background-color: #f4f4f4;
 }
@@ -10,7 +12,7 @@ body {
 .profile-container {
   max-width: 65%; /* Adjusted max width to a percentage */
   margin: 0 auto;
-  padding: 1rem 3rem; /* Added more padding on the left and right */
+  padding: 1rem 4rem; /* Added more padding on the left and right */
   background-color: #fff;
   border-radius: 1.5rem;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -18,7 +20,7 @@ body {
 
 .profile-title {
   font-size: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   text-align: center;
 }
 
@@ -29,12 +31,12 @@ body {
 }
 
 .profile-section {
-  width: 48%; /* Adjust width to make them side by side */
+  width: 45%; /* Adjust width to make them side by side */
 }
 
 .profile-section h3 {
   font-size: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .profile-form {
@@ -55,11 +57,13 @@ body {
 
 input[type="text"],
 input[type="email"],
-.upload-input {
+.upload-input,
+.form-control {
   width: calc(100% - 1rem); /* Reduced width */
   padding: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 5px;
+  font-size: 1rem; /* Set the font size for form controls */
 }
 
 .upload-container {
@@ -118,6 +122,17 @@ input[type="email"],
 .email-group {
   display: flex;
   align-items: center;
+  background-color: #f4f4f4;
+  padding: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-radius: 4px;
+}
+
+.email-display {
+  flex-grow: 1;
+  font-size: 1rem;
+  color: #666;
 }
 
 .edit-button {
@@ -135,29 +150,8 @@ input[type="email"],
   background-color: #0056b3;
 }
 
-.role-dropdown {
+.role-display {
   padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.role-dropdown-menu {
-  position: absolute;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  margin-top: 0.5rem;
-  z-index: 10;
-}
-
-.role-dropdown-menu div {
-  padding: 0.5rem;
-  cursor: pointer;
-}
-
-.role-dropdown-menu div:hover {
-  background-color: #f4f4f4;
 }
 
 .pro-status {

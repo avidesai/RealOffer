@@ -1,126 +1,31 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../../../../context/AuthContext';
-import ProfileHeader from './components/ProfileHeader';
+// Profile.js
+
+import React, { useState } from 'react';
+import InputMask from 'react-input-mask';
+import useProfileLogic from './ProfileLogic';
+import ProfileHeader from './components/ProfileHeader/ProfileHeader';
 import Footer from '../../components/Footer/Footer';
-import ProfileSpinner from './components/ProfileSpinner';
+import ProfileSpinner from './components/ProfileSpinner/ProfileSpinner';
+import EditEmailModal from './components/EditEmailModal/EditEmailModal';
 import './Profile.css';
-import axios from 'axios';
 
 const Profile = () => {
-  const { user } = useAuth();
-  const [profileData, setProfileData] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState({});
-  const [isUploading, setIsUploading] = useState({});
-  const [noLicense, setNoLicense] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const {
+    profileData,
+    loading,
+    updating,
+    isUploading,
+    noLicense,
+    handleInputChange,
+    handlePhotoUpload,
+    handleCheckboxChange
+  } = useProfileLogic();
 
-  const debounceTimer = useRef({});
-
-  useEffect(() => {
-    // Fetch the user's data from the backend
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get(`http://localhost:8000/api/users/${user._id}`);
-        setProfileData(response.data);
-        setLoading(false);
-        setNoLicense(!response.data.agentLicenseNumber); // Set initial state based on fetched data
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
-
-    fetchUserData();
-  }, [user._id]);
-
-  const handleInputChange = (e) => {
-    const { id, value } = e.target;
-    setProfileData({ ...profileData, [id]: value });
-
-    if (debounceTimer.current[id]) {
-      clearTimeout(debounceTimer.current[id]);
-    }
-
-    debounceTimer.current[id] = setTimeout(async () => {
-      setUpdating({ ...updating, [id]: true });
-      try {
-        await axios.put(`http://localhost:8000/api/users/${user._id}`, { [id]: value });
-      } catch (error) {
-        console.error('Error updating user data:', error);
-      } finally {
-        setUpdating({ ...updating, [id]: false });
-      }
-    }, 1000); // Adjust debounce delay as needed
-  };
-
-  const handlePhotoUpload = async (e, field) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setIsUploading({ ...isUploading, [field]: true });
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('field', field);
-
-    try {
-      const response = await axios.put(`http://localhost:8000/api/users/${user._id}/upload-photo`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      const updatedUser = response.data;
-      setProfileData(updatedUser);
-    } catch (error) {
-      console.error('Error uploading photo:', error);
-    } finally {
-      setIsUploading({ ...isUploading, [field]: false });
-    }
-  };
-
-  const handleCheckboxChange = (e) => {
-    const isChecked = e.target.checked;
-    setNoLicense(isChecked);
-    if (isChecked) {
-      setProfileData({ ...profileData, agentLicenseNumber: '' });
-      setUpdating({ ...updating, agentLicenseNumber: true });
-      axios.put(`http://localhost:8000/api/users/${user._id}`, { agentLicenseNumber: '' })
-        .then(() => setUpdating({ ...updating, agentLicenseNumber: false }))
-        .catch(error => {
-          console.error('Error updating user data:', error);
-          setUpdating({ ...updating, agentLicenseNumber: false });
-        });
-    }
-  };
-
-  const handleRoleChange = async (newRole) => {
-    try {
-      const updatedUser = await axios.put(`http://localhost:8000/api/users/${user._id}`, { role: newRole });
-      setProfileData(updatedUser.data);
-    } catch (error) {
-      console.error('Error updating user role:', error);
-    }
-  };
-
-  const handleRoleDropdownToggle = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const handleClickOutside = (event) => {
-    if (isDropdownOpen && !event.target.closest('.role-dropdown')) {
-      setIsDropdownOpen(false);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isDropdownOpen]);
+  const [isEmailModalOpen, setEmailModalOpen] = useState(false);
 
   if (loading) return <ProfileSpinner />;
+
+  const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
 
   return (
     <>
@@ -152,19 +57,10 @@ const Profile = () => {
                   </div>
                 </div>
                 <div className="form-group">
-                  <label htmlFor="role">Role</label>
-                  <div className="role-dropdown" onClick={handleRoleDropdownToggle}>
-                    {profileData.role}
+                  <label>Role</label>
+                  <div className="role-display">
+                    {capitalize(profileData.role)}
                   </div>
-                  {isDropdownOpen && (
-                    <div className="role-dropdown-menu">
-                      {['agent', 'buyer', 'seller'].map((role) => (
-                        <div key={role} onClick={() => handleRoleChange(role)}>
-                          {role}
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
                 <div className="form-group">
                   <label htmlFor="firstName">First Name</label>
@@ -173,6 +69,7 @@ const Profile = () => {
                     id="firstName"
                     value={profileData.firstName || ''}
                     onChange={handleInputChange}
+                    className="form-control"
                   />
                   {updating.firstName && <div className="input-spinner"></div>}
                 </div>
@@ -183,19 +80,15 @@ const Profile = () => {
                     id="lastName"
                     value={profileData.lastName || ''}
                     onChange={handleInputChange}
+                    className="form-control"
                   />
                   {updating.lastName && <div className="input-spinner"></div>}
                 </div>
                 <div className="form-group">
-                  <label htmlFor="email">Email</label>
+                  <label>Email</label>
                   <div className="email-group">
-                    <input
-                      type="email"
-                      id="email"
-                      value={profileData.email || ''}
-                      onChange={handleInputChange}
-                    />
-                    <button className="edit-button">Edit</button>
+                    <div className="email-display">{profileData.email}</div>
+                    <button className="edit-button" onClick={() => setEmailModalOpen(true)}>Edit</button>
                   </div>
                   {updating.email && <div className="input-spinner"></div>}
                 </div>
@@ -207,6 +100,7 @@ const Profile = () => {
                     value={profileData.agentLicenseNumber || ''}
                     onChange={handleInputChange}
                     disabled={noLicense}
+                    className="form-control"
                   />
                   {updating.agentLicenseNumber && <div className="input-spinner"></div>}
                   <label className="checkbox-label">
@@ -218,15 +112,22 @@ const Profile = () => {
                     I do not have a real estate license number
                   </label>
                 </div>
-                
                 <div className="form-group">
                   <label htmlFor="phone">Phone Number</label>
-                  <input
-                    type="text"
-                    id="phone"
+                  <InputMask
+                    mask="(999) 999-9999"
                     value={profileData.phone || ''}
                     onChange={handleInputChange}
-                  />
+                  >
+                    {(inputProps) => (
+                      <input
+                        {...inputProps}
+                        type="text"
+                        id="phone"
+                        className="form-control"
+                      />
+                    )}
+                  </InputMask>
                   {updating.phone && <div className="input-spinner"></div>}
                 </div>
                 <div className="form-group">
@@ -236,6 +137,7 @@ const Profile = () => {
                     id="addressLine1"
                     value={profileData.addressLine1 || ''}
                     onChange={handleInputChange}
+                    className="form-control"
                   />
                   {updating.addressLine1 && <div className="input-spinner"></div>}
                 </div>
@@ -246,16 +148,18 @@ const Profile = () => {
                     id="addressLine2"
                     value={profileData.addressLine2 || ''}
                     onChange={handleInputChange}
+                    className="form-control"
                   />
                   {updating.addressLine2 && <div className="input-spinner"></div>}
                 </div>
                 <div className="form-group">
-                  <label htmlFor="homepage">Homepage</label>
+                  <label htmlFor="homepage">Website</label>
                   <input
                     type="text"
                     id="homepage"
                     value={profileData.homepage || ''}
                     onChange={handleInputChange}
+                    className="form-control"
                   />
                   {updating.homepage && <div className="input-spinner"></div>}
                 </div>
@@ -284,6 +188,7 @@ const Profile = () => {
                     id="agencyName"
                     value={profileData.agencyName || ''}
                     onChange={handleInputChange}
+                    className="form-control"
                   />
                   {updating.agencyName && <div className="input-spinner"></div>}
                 </div>
@@ -294,17 +199,26 @@ const Profile = () => {
                     id="brokerageLicenseNumber"
                     value={profileData.brokerageLicenseNumber || ''}
                     onChange={handleInputChange}
+                    className="form-control"
                   />
-                  {updating.brokerageLicenseNumber && <div className="input-spinner"></div>}
+                  {updating.brokerageLicenseNumber && <div class="input-spinner"></div>}
                 </div>
                 <div className="form-group">
                   <label htmlFor="brokeragePhoneNumber">Phone Number</label>
-                  <input
-                    type="text"
-                    id="brokeragePhoneNumber"
+                  <InputMask
+                    mask="(999) 999-9999"
                     value={profileData.brokeragePhoneNumber || ''}
                     onChange={handleInputChange}
-                  />
+                  >
+                    {(inputProps) => (
+                      <input
+                        {...inputProps}
+                        type="text"
+                        id="brokeragePhoneNumber"
+                        className="form-control"
+                      />
+                    )}
+                  </InputMask>
                   {updating.brokeragePhoneNumber && <div className="input-spinner"></div>}
                 </div>
                 <div className="form-group">
@@ -314,6 +228,7 @@ const Profile = () => {
                     id="agencyAddressLine1"
                     value={profileData.agencyAddressLine1 || ''}
                     onChange={handleInputChange}
+                    className="form-control"
                   />
                   {updating.agencyAddressLine1 && <div className="input-spinner"></div>}
                 </div>
@@ -324,6 +239,7 @@ const Profile = () => {
                     id="agencyAddressLine2"
                     value={profileData.agencyAddressLine2 || ''}
                     onChange={handleInputChange}
+                    className="form-control"
                   />
                   {updating.agencyAddressLine2 && <div className="input-spinner"></div>}
                 </div>
@@ -334,6 +250,7 @@ const Profile = () => {
                     id="agencyWebsite"
                     value={profileData.agencyWebsite || ''}
                     onChange={handleInputChange}
+                    className="form-control"
                   />
                   {updating.agencyWebsite && <div className="input-spinner"></div>}
                 </div>
@@ -343,9 +260,9 @@ const Profile = () => {
         </div>
       </div>
       <Footer />
+      <EditEmailModal isOpen={isEmailModalOpen} onClose={() => setEmailModalOpen(false)} />
     </>
   );
 }
 
 export default Profile;
-
