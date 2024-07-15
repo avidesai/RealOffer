@@ -1,8 +1,8 @@
-// TabSection.js
-
 import React, { useState } from 'react';
 import Documents from '../../Tabs/Documents/Documents';
 import Viewers from '../../Tabs/Viewers/Viewers';
+import Activity from '../../Tabs/Activity/Activity';
+import Messages from '../../Tabs/Messages/Messages';
 import './TabSection.css';
 
 const TabSection = ({ listing }) => {
@@ -54,9 +54,9 @@ const TabSection = ({ listing }) => {
       </div>
       <div className="tab-content">
         {activeTab === 'docs' && <Documents listingId={listing._id} />}
-        {activeTab === 'viewers' && <Viewers />}
-        {activeTab === 'activity' && <div>Activity Content</div>}
-        {activeTab === 'messages' && <div>Messages Content</div>}
+        {activeTab === 'viewers' && <Viewers listingId={listing._id} />}
+        {activeTab === 'activity' && <Activity />}
+        {activeTab === 'messages' && <Messages />}
         {activeTab === 'offers' && <div>Offers Content</div>}
         {activeTab === 'settings' && <div>Settings Content</div>}
       </div>
