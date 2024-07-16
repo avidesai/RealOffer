@@ -7,11 +7,9 @@ import UploadDocumentsLogic from './components/UploadDocuments/UploadDocumentsLo
 
 const Documents = ({ listingId }) => {
   const [documents, setDocuments] = useState([]);
-  const [showDropdown, setShowDropdown] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
-  const [loading, setLoading] = useState(false); // Add loading state for delete operation
-  const dropdownRef = useRef(null); // Reference for the dropdown menu
+  const [loading, setLoading] = useState(false);
 
   const fetchDocuments = useCallback(async () => {
     try {
@@ -26,26 +24,8 @@ const Documents = ({ listingId }) => {
     fetchDocuments();
   }, [fetchDocuments]);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowDropdown(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
-  };
-
   const handleUploadClick = () => {
     setShowUploadModal(true);
-    setShowDropdown(false);
   };
 
   const closeUploadModal = () => {
@@ -63,20 +43,48 @@ const Documents = ({ listingId }) => {
   const isSelected = (id) => selectedDocuments.includes(id);
 
   const handleDeleteDocument = async (id) => {
-    setLoading(true); // Set loading to true when delete operation starts
+    setLoading(true);
     try {
       await axios.delete(`http://localhost:8000/api/documents/${id}`);
       fetchDocuments();
     } catch (error) {
       console.error('Error deleting document:', error);
     } finally {
-      setLoading(false); // Set loading to false when delete operation ends
+      setLoading(false);
     }
+  };
+
+  const handleDeleteSelectedDocuments = async () => {
+    setLoading(true);
+    try {
+      await Promise.all(selectedDocuments.map((id) => axios.delete(`http://localhost:8000/api/documents/${id}`)));
+      setSelectedDocuments([]);
+      fetchDocuments();
+    } catch (error) {
+      console.error('Error deleting selected documents:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDownloadSelectedDocuments = () => {
+    selectedDocuments.forEach((id) => {
+      const doc = documents.find((d) => d._id === id);
+      if (doc) {
+        const documentUrlWithSAS = `${doc.thumbnailUrl}?${doc.sasToken}`;
+        const link = document.createElement('a');
+        link.href = documentUrlWithSAS;
+        link.download = doc.title || 'document';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    });
   };
 
   const handleViewDocument = (doc) => {
     const documentUrlWithSAS = `${doc.thumbnailUrl}?${doc.sasToken}`;
-    window.open(documentUrlWithSAS, '_blank'); // Open the document in a new tab
+    window.open(documentUrlWithSAS, '_blank');
   };
 
   const handleItemClick = (e, doc) => {
@@ -92,26 +100,18 @@ const Documents = ({ listingId }) => {
     <div className="documents-tab">
       <div className="documents-header">
         <div className="action-buttons">
-          <div className="add-documents-dropdown" ref={dropdownRef}>
-            <button className="add-documents-button" onClick={toggleDropdown}>
-              Add Documents <span className="arrow-down">▼</span>
-            </button>
-            {showDropdown && (
-              <div className="documents-dropdown-menu">
-                <button onClick={handleUploadClick}>Upload Documents</button>
-                <button>Order NHD Report</button>
-                <button>Invite Seller to Disclose</button>
-              </div>
-            )}
-          </div>
-          <button className="download-button">Download</button>
+          <button className="add-documents-button" onClick={handleUploadClick}>
+            Upload Documents
+          </button>
+          <button className="delete-button" onClick={handleDeleteSelectedDocuments}>
+            Delete
+          </button>
           <button className="docusign-button">DocuSign</button>
-          <button className="reorder-button">Reorder</button>
-          <button className="stamp-button">Stamp</button>
+          <button className="signature-button">Create Signature Package</button>
         </div>
         <button className="notify-button">Notify Viewers of Updates</button>
       </div>
-      {loading ? ( // Show spinner while loading
+      {loading ? (
         <div className="spinner-container">
           <div className="spinner"></div>
         </div>
@@ -136,17 +136,20 @@ const Documents = ({ listingId }) => {
                   <div className="document-details">
                     <p className="document-title">{doc.title || 'Untitled'}</p>
                     <p className="document-type">{doc.type || 'No type'}</p>
-                    <p className="document-meta">{doc.pages || 0} PAGES | {Math.round(doc.size / 1024)} KB | UPDATED {new Date(doc.updatedAt).toLocaleDateString()}</p>
+                    <p className="document-meta">
+                      {doc.pages || 0} PAGES | {Math.round(doc.size / 1024)} KB | UPDATED {new Date(doc.updatedAt).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
                 <div className="document-actions">
                   <button className="split-button document-actions-button">Split</button>
-                  <button className="annotate-button document-actions-button">Annotate</button>
                   <button className="rename-button document-actions-button">Rename</button>
                   <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
                     <button className="download-action-button document-actions-button">Download</button>
                   </a>
-                  <button className="delete-button document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>Delete</button>
+                  <button className="delete-actions-button document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
+                    Delete
+                  </button>
                 </div>
               </div>
             ))

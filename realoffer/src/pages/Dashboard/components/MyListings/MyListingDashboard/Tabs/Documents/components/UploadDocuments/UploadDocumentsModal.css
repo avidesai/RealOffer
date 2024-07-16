@@ -182,7 +182,7 @@
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 14px;
-  max-width: 250px;
+  max-width: 300px;
 }
 
 .file-options {
@@ -259,45 +259,4 @@
 
 .upload-error {
   margin: 0;
-}
-
-.supported-methods {
-  margin-top: 20px;
-}
-
-.supported-methods-title {
-  font-size: 16px;
-  margin-bottom: 2rem;
-  color: #333;
-  margin-bottom: 2rem;
-  margin-left: 1rem;
-  margin-right: 1rem;
-}
-
-.supported-methods ul {
-  display: flex;
-  justify-content: space-between; /* Distribute space evenly between items */
-  padding: 0;
-  list-style-type: none;
-  margin-left: 1rem;
-  margin-right: 1rem;
-}
-
-.supported-methods li {
-  margin: 0 10px; /* Add horizontal spacing between items */
-}
-
-.method-button {
-  background: none;
-  border: none;
-  color: #007bff;
-  cursor: pointer;
-  padding: 0;
-  font-weight: 600;
-  font-size: 16px;
-  transition: color 0.3s ease;
-}
-
-.method-button:hover {
-  color: #0056b3;
 }

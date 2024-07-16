@@ -16,7 +16,7 @@ exports.uploadDocuments = upload.array('documents', 10);
 
 const getPdfPageCount = async (buffer) => {
   try {
-    const pdfDoc = await PDFDocument.load(buffer);
+    const pdfDoc = await PDFDocument.load(buffer, { ignoreEncryption: true });
     return pdfDoc.getPageCount();
   } catch (error) {
     console.error('Error reading PDF:', error);
@@ -24,8 +24,10 @@ const getPdfPageCount = async (buffer) => {
   }
 };
 
+
+// Upload a new document
 exports.uploadDocument = async (req, res) => {
-  const { uploadedBy, propertyListingId } = req.body;
+  const { uploadedBy, propertyListingId, visibility = 'public' } = req.body;
   const files = req.files;
 
   if (!files || files.length === 0) {
@@ -61,6 +63,7 @@ exports.uploadDocument = async (req, res) => {
         uploadedBy,
         propertyListing: propertyListingId,
         azureKey: blobName,
+        visibility, // Include visibility field
       });
 
       const savedDocument = await newDocument.save();
@@ -77,7 +80,7 @@ exports.uploadDocument = async (req, res) => {
 };
 
 exports.addDocumentToPropertyListing = async (req, res) => {
-  const { uploadedBy } = req.body;
+  const { uploadedBy, visibility = 'public' } = req.body;
   const files = req.files;
 
   if (!files || files.length === 0) {
@@ -113,6 +116,7 @@ exports.addDocumentToPropertyListing = async (req, res) => {
         propertyListing: req.params.id,
         uploadedBy,
         azureKey: blobName,
+        visibility, // Include visibility field
       });
 
       const savedDocument = await newDocument.save();
@@ -129,7 +133,7 @@ exports.addDocumentToPropertyListing = async (req, res) => {
 };
 
 exports.addDocumentToBuyerPackage = async (req, res) => {
-  const { uploadedBy } = req.body;
+  const { uploadedBy, visibility = 'public' } = req.body;
   const files = req.files;
 
   if (!files || files.length === 0) {
@@ -165,6 +169,7 @@ exports.addDocumentToBuyerPackage = async (req, res) => {
         buyerPackage: req.params.id,
         uploadedBy,
         azureKey: blobName,
+        visibility, // Include visibility field
       });
 
       const savedDocument = await newDocument.save();

@@ -68,15 +68,16 @@ const UploadDocumentsModal = ({
                     className="file-type-select"
                   >
                     <option value="">Select Type</option>
-                    <option value="Disclosures">Disclosures</option>
+                    <option value="Offer Instructions">Offer Instructions</option>
+                    <option value="Seller Property Questionnaire">Seller Property Questionnaire</option>
+                    <option value="Agent Visual Inspection">Agent Visual Inspection</option>
                     <option value="Home Inspection Report">Home Inspection Report</option>
                     <option value="Pest Inspection Report">Pest Inspection Report</option>
                     <option value="Preliminary Title Report">Preliminary Title Report</option>
-                    <option value="Seller Disclosures">Seller Disclosures</option>
+                    <option value="Real Estate Transfer Disclosure Statement">Real Estate Transfer Disclosure Statement</option>
                     <option value="Natural Hazard Disclosures">Natural Hazard Disclosures</option>
+                    <option value="Lead Based Paint Disclosures">Lead Based Paint Disclosures</option>
                     <option value="HOA Documents">HOA Documents</option>
-                    <option value="Floor Plan">Floor Plan</option>
-                    <option value="Offer Instructions">Offer Instructions</option>
                     <option value="Other">Other</option>
                   </select>
                   <button className="delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>
@@ -87,15 +88,6 @@ const UploadDocumentsModal = ({
         </div>
         <div className="modal-footer">
           <button className="upload-files-button" onClick={handleUpload}>Upload Files</button>
-        </div>
-        <div className="supported-methods">
-          <p className="supported-methods-title">Other supported methods:</p>
-          <ul>
-            <li><button className="method-button">Email</button></li>
-            <li><button className="method-button">Dropbox</button></li>
-            <li><button className="method-button">Google Drive</button></li>
-            <li><button className="method-button">DocuSign</button></li>
-          </ul>
         </div>
       </div>
     </div>

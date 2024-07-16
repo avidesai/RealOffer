@@ -27,7 +27,7 @@ const documentsRouter = require('./routes/documents');
 const transactionsRouter = require('./routes/transactions');
 const favoritesRouter = require('./routes/favorites');
 const listingTemplatesRouter = require('./routes/listingTemplates');
-const viewersRouter = require('./routes/viewers');  // Import the viewers router
+const viewersRouter = require('./routes/viewers');
 
 // Route Usage
 app.use('/api/users', usersRouter);
