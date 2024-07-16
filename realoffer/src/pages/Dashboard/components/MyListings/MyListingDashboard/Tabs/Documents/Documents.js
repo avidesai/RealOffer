@@ -72,21 +72,6 @@ const Documents = ({ listingId }) => {
     }
   };
 
-  const handleDownloadSelectedDocuments = () => {
-    selectedDocuments.forEach((id) => {
-      const doc = documents.find((d) => d._id === id);
-      if (doc) {
-        const documentUrlWithSAS = `${doc.thumbnailUrl}?${doc.sasToken}`;
-        const link = document.createElement('a');
-        link.href = documentUrlWithSAS;
-        link.download = doc.title || 'document';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
-    });
-  };
-
   const handleViewDocument = (doc) => {
     const documentUrlWithSAS = `${doc.thumbnailUrl}?${doc.sasToken}`;
     setCurrentFileUrl(documentUrlWithSAS);
@@ -109,10 +94,7 @@ const Documents = ({ listingId }) => {
       <div className="documents-header">
         <div className="action-buttons">
           <button className="add-documents-button" onClick={handleUploadClick}>
-            Upload Documents
-          </button>
-          <button className="download-doc-button" onClick={handleDownloadSelectedDocuments}>
-            Download
+            Upload
           </button>
           <button className="delete-button" onClick={handleDeleteSelectedDocuments}>
             Delete
@@ -153,12 +135,10 @@ const Documents = ({ listingId }) => {
                   </div>
                 </div>
                 <div className="document-actions">
-                  <button className="split-button document-actions-button">Split</button>
-                  <button className="annotate-button document-actions-button">Annotate</button>
-                  <button className="rename-button document-actions-button">Rename</button>
                   <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
                     <button className="download-action-button document-actions-button">Download</button>
                   </a>
+                  <button className="rename-button document-actions-button">Rename</button>
                   <button className="delete-button document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
                     Delete
                   </button>

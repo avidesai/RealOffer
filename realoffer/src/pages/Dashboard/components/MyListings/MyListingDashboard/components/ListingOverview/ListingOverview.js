@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import MoreInfo from './components/MoreInfo/MoreInfo';
 import './ListingOverview.css';
 
 function ListingOverview({ listing }) {
   const [agents, setAgents] = useState([]);
+  const [showMoreInfo, setShowMoreInfo] = useState(false); // State to manage modal visibility
 
   useEffect(() => {
     const fetchAgentDetails = async () => {
@@ -39,8 +41,7 @@ function ListingOverview({ listing }) {
           <p className="property-price">${formatPrice(listing.homeCharacteristics.price)} | {listing.homeCharacteristics.beds} Bed, {listing.homeCharacteristics.baths} Bath</p>
           <div className="overview-buttons">
             <button className="overview-btn-share-package">Share Package</button>
-            <button className="overview-btn">Edit Info</button>
-            <button className="overview-btn">Add Videos</button>
+            <button className="overview-btn" onClick={() => setShowMoreInfo(true)}>Edit Info</button>
           </div>
         </div>
         <div className="overview-agents">
@@ -52,6 +53,13 @@ function ListingOverview({ listing }) {
           ))}
         </div>
       </div>
+      {showMoreInfo && (
+        <MoreInfo
+          isOpen={showMoreInfo}
+          onClose={() => setShowMoreInfo(false)}
+          listingId={listing._id}
+        />
+      )}
     </div>
   );
 }
