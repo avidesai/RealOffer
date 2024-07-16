@@ -13,6 +13,8 @@ const Documents = ({ listingId }) => {
   const [loading, setLoading] = useState(false);
   const [showPDFViewer, setShowPDFViewer] = useState(false);
   const [currentFileUrl, setCurrentFileUrl] = useState('');
+  const [currentDocTitle, setCurrentDocTitle] = useState('');
+  const [currentDocType, setCurrentDocType] = useState('');
 
   const fetchDocuments = useCallback(async () => {
     try {
@@ -88,6 +90,8 @@ const Documents = ({ listingId }) => {
   const handleViewDocument = (doc) => {
     const documentUrlWithSAS = `${doc.thumbnailUrl}?${doc.sasToken}`;
     setCurrentFileUrl(documentUrlWithSAS);
+    setCurrentDocTitle(doc.title || 'Untitled');
+    setCurrentDocType(doc.type || 'No type');
     setShowPDFViewer(true);
   };
 
@@ -176,6 +180,8 @@ const Documents = ({ listingId }) => {
           fileUrl={currentFileUrl}
           isOpen={showPDFViewer}
           onClose={() => setShowPDFViewer(false)}
+          docTitle={currentDocTitle}
+          docType={currentDocType}
         />
       )}
     </div>

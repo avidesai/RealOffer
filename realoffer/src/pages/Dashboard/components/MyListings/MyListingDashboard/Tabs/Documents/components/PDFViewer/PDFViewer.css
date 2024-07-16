@@ -1,3 +1,5 @@
+/* PDFViewer.css */
+
 .pdf-viewer-modal {
     position: fixed;
     top: 0;
@@ -22,11 +24,19 @@
     border-bottom: 1px solid #ddd;
   }
   
-  .close-button {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
+  .pdf-title-container {
+    flex-grow: 1;
+    text-align: center;
+  }
+  
+  .pdf-title {
+    margin: 0;
+  }
+  
+  .pdf-type {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #666;
   }
   
   .pdf-controls {
@@ -35,7 +45,8 @@
   }
   
   .zoom-button,
-  .download-button {
+  .download-button,
+  .print-button {
     background-color: #007bff;
     color: white;
     border: none;
@@ -45,6 +56,7 @@
   }
   
   .pdf-viewer-container {
+    height: 80%;
     width: 100%;
     flex: 1;
     display: flex;
@@ -79,3 +91,8 @@
     border-radius: 5px;
     cursor: pointer;
   }
+  
+  .pdf-navigation span {
+    font-size: 1rem;
+  }
+  

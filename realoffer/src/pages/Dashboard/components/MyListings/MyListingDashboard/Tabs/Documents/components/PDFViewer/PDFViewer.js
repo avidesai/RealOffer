@@ -3,7 +3,7 @@ import * as pdfjsLib from 'pdfjs-dist/build/pdf';
 import 'pdfjs-dist/build/pdf.worker';
 import './PDFViewer.css';
 
-const PDFViewer = ({ isOpen, onClose, fileUrl }) => {
+const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
   const [pdf, setPdf] = useState(null);
   const [page, setPage] = useState(1);
   const [scale, setScale] = useState(1);
@@ -22,7 +22,13 @@ const PDFViewer = ({ isOpen, onClose, fileUrl }) => {
         }
       );
     }
-  }, [fileUrl, page, scale]);
+  }, [fileUrl]);
+
+  useEffect(() => {
+    if (pdf) {
+      renderPage(pdf, page, scale);
+    }
+  }, [pdf, page, scale]);
 
   const renderPage = (pdf, pageNum, scale) => {
     pdf.getPage(pageNum).then((page) => {
@@ -39,12 +45,6 @@ const PDFViewer = ({ isOpen, onClose, fileUrl }) => {
       page.render(renderContext);
     });
   };
-
-  useEffect(() => {
-    if (pdf) {
-      renderPage(pdf, page, scale);
-    }
-  }, [pdf, page, scale]);
 
   const handleZoomIn = () => {
     setScale(scale + 0.1);
@@ -75,11 +75,16 @@ const PDFViewer = ({ isOpen, onClose, fileUrl }) => {
     isOpen && (
       <div className="pdf-viewer-modal">
         <div className="pdf-viewer-header">
-          <button className="close-button" onClick={onClose}>× Close</button>
+          <button className="close-button" onClick={onClose}></button>
+          <div className="pdf-title-container">
+            <h2 className="pdf-title">{docTitle}</h2>
+            <p className="pdf-type">{docType}</p>
+          </div>
           <div className="pdf-controls">
             <button className="zoom-button" onClick={handleZoomOut}>-</button>
             <button className="zoom-button" onClick={handleZoomIn}>+</button>
             <button className="download-button" onClick={handleDownload}>Download</button>
+            <button className="print-button" onClick={() => window.print()}>Print</button>
           </div>
         </div>
         <div className="pdf-viewer-container">
