@@ -1,15 +1,18 @@
 // Documents.js
 
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import './Documents.css';
 import UploadDocumentsLogic from './components/UploadDocuments/UploadDocumentsLogic';
+import PDFViewer from './components/PDFViewer/PDFViewer';
 
 const Documents = ({ listingId }) => {
   const [documents, setDocuments] = useState([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showPDFViewer, setShowPDFViewer] = useState(false);
+  const [currentFileUrl, setCurrentFileUrl] = useState('');
 
   const fetchDocuments = useCallback(async () => {
     try {
@@ -84,7 +87,8 @@ const Documents = ({ listingId }) => {
 
   const handleViewDocument = (doc) => {
     const documentUrlWithSAS = `${doc.thumbnailUrl}?${doc.sasToken}`;
-    window.open(documentUrlWithSAS, '_blank');
+    setCurrentFileUrl(documentUrlWithSAS);
+    setShowPDFViewer(true);
   };
 
   const handleItemClick = (e, doc) => {
@@ -102,6 +106,9 @@ const Documents = ({ listingId }) => {
         <div className="action-buttons">
           <button className="add-documents-button" onClick={handleUploadClick}>
             Upload Documents
+          </button>
+          <button className="download-doc-button" onClick={handleDownloadSelectedDocuments}>
+            Download
           </button>
           <button className="delete-button" onClick={handleDeleteSelectedDocuments}>
             Delete
@@ -143,11 +150,12 @@ const Documents = ({ listingId }) => {
                 </div>
                 <div className="document-actions">
                   <button className="split-button document-actions-button">Split</button>
+                  <button className="annotate-button document-actions-button">Annotate</button>
                   <button className="rename-button document-actions-button">Rename</button>
                   <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
                     <button className="download-action-button document-actions-button">Download</button>
                   </a>
-                  <button className="delete-actions-button document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
+                  <button className="delete-button document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
                     Delete
                   </button>
                 </div>
@@ -161,6 +169,13 @@ const Documents = ({ listingId }) => {
           onClose={closeUploadModal}
           listingId={listingId}
           onUploadSuccess={fetchDocuments}
+        />
+      )}
+      {showPDFViewer && (
+        <PDFViewer
+          fileUrl={currentFileUrl}
+          isOpen={showPDFViewer}
+          onClose={() => setShowPDFViewer(false)}
         />
       )}
     </div>

@@ -15,7 +15,7 @@
   margin-right: 1rem;
 }
 
-.notify-button, .signature-button, .docusign-button, .add-documents-button, .delete-button {
+.notify-button, .signature-button, .docusign-button, .add-documents-button, .delete-button, .download-doc-button {
   background-color: #ffffff;
   color: #262626;
   border: 1px solid #898888;
@@ -31,7 +31,7 @@
   padding: 10px 25px; /* Match the padding of the other buttons */
 }
 
-.add-documents-button:hover, .notify-button:hover, .signature-button:hover, .docusign-button:hover, .delete-button:hover {
+.add-documents-button:hover, .notify-button:hover, .signature-button:hover, .docusign-button:hover, .delete-button:hover, .download-doc-button:hover {
   transform: scale(1.05);
   background-color: #ececec;
 }
