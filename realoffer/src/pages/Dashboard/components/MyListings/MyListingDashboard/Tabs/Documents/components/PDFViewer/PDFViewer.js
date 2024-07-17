@@ -7,19 +7,22 @@ const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
   const [pdf, setPdf] = useState(null);
   const [page, setPage] = useState(1);
   const [scale, setScale] = useState(1.7);
+  const [isLoading, setIsLoading] = useState(true);
   const canvasRef = useRef(null);
   const renderTaskRef = useRef(null);
 
   const fetchPdf = useCallback(async () => {
     if (fileUrl) {
+      setIsLoading(true);
       try {
         const loadingTask = pdfjsLib.getDocument(fileUrl);
         const pdfDoc = await loadingTask.promise;
         setPdf(pdfDoc);
-        renderPage(pdfDoc, page, scale);
+        await renderPage(pdfDoc, page, scale);
       } catch (error) {
         console.error('Error loading PDF:', error);
       }
+      setIsLoading(false);
     }
   }, [fileUrl]);
 
@@ -34,6 +37,7 @@ const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
   }, [pdf, page, scale]);
 
   const renderPage = async (pdf, pageNum, scale) => {
+    setIsLoading(true);
     if (renderTaskRef.current) {
       renderTaskRef.current.cancel();
     }
@@ -57,6 +61,7 @@ const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
         throw error;
       }
     });
+    setIsLoading(false);
   };
 
   const handleZoomIn = () => {
@@ -110,6 +115,11 @@ const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
           <button className="close-button" onClick={handleClose}></button>
         </div>
         <div className="pdf-viewer-container">
+          {isLoading && (
+            <div className="pdf-spinner-overlay">
+              <div className="pdf-spinner"></div>
+            </div>
+          )}
           <canvas ref={canvasRef} className="pdf-canvas" />
           {pdf && (
             <div className="pdf-float-toolbar">
