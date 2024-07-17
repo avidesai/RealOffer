@@ -93,6 +93,13 @@
   position: relative;  /* Needed for floating toolbar */
 }
 
+.pdf-pages-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
 .pdf-canvas {
   border: 1px solid #ddd;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -145,6 +152,11 @@
 .pdf-float-toolbar .toolbar-button:hover, .pdf-float-toolbar .toolbar-button-zoom:hover {
   background-color: rgba(0, 0, 0, 1);
   scale: 1.05;
+}
+
+.pdf-float-toolbar .toolbar-button:disabled, .pdf-float-toolbar .toolbar-button-zoom:disabled {
+  background-color: rgba(0, 0, 0, 0.5);
+  cursor: not-allowed;
 }
 
 .pdf-float-toolbar .nav-page-info {
