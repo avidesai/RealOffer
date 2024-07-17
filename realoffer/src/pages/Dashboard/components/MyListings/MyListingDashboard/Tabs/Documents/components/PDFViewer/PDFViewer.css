@@ -10,7 +10,7 @@
   justify-content: flex-start;
   align-items: center;
   z-index: 1000;
-  overflow: hidden;
+  overflow: hidden;  /* Ensure no overflow */
 }
 
 .pdf-viewer-header {
@@ -27,7 +27,18 @@
 
 .pdf-title-container {
   flex-grow: 1;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.title-buttons {
+  position: absolute;
+  left: 0;
+  display: flex;
+  gap: 10px;
 }
 
 .pdf-title {
@@ -47,16 +58,6 @@
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-}
-
-.pdf-viewer-toolbar {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  padding: 10px;
-  background-color: #f7f7f7;
-  border-bottom: 1px solid #ddd;
-  width: 100%;
 }
 
 .toolbar-button {
@@ -81,7 +82,8 @@
   align-items: center;
   background-color: #fff;
   padding: 20px;
-  overflow-y: auto;
+  overflow-y: auto;  /* Ensure the container can scroll */
+  position: relative;  /* Needed for floating toolbar */
 }
 
 .pdf-canvas {
@@ -90,32 +92,38 @@
   max-width: 100%;
 }
 
-.pdf-navigation {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 10px;
-  background-color: #f7f7f7;
-  border-top: 1px solid #ddd;
+.pdf-float-toolbar {
   position: absolute;
-  bottom: 0;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  background-color: rgba(0, 0, 0, 0.75);
+  padding: 10px;
+  border-radius: 5px;
 }
 
-.nav-button {
-  background-color: #007bff;
+.pdf-viewer-container:hover .pdf-float-toolbar {
+  opacity: 1;
+}
+
+.pdf-float-toolbar .toolbar-button {
+  background-color: rgba(0, 0, 0, 0.75);
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
 }
 
-.nav-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+.pdf-float-toolbar .toolbar-button:hover {
+  background-color: rgba(0, 0, 0, 0.85);
 }
 
-.nav-page-info {
+.pdf-float-toolbar .nav-page-info {
   font-size: 1rem;
+  color: white;
 }
