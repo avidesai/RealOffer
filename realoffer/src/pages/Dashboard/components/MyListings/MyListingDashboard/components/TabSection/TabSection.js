@@ -4,17 +4,37 @@ import Viewers from '../../Tabs/Viewers/Viewers';
 import Activity from '../../Tabs/Activity/Activity';
 import Messages from '../../Tabs/Messages/Messages';
 import Settings from '../../Tabs/Settings/Settings';
+import axios from 'axios';
 import './TabSection.css';
 
 const TabSection = ({ listing }) => {
   const [activeTab, setActiveTab] = useState('docs');
+  const [loading, setLoading] = useState(false);
+  const [updatedListing, setUpdatedListing] = useState(listing);
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
 
+  const handleStatusChange = async (listingId, newStatus) => {
+    setLoading(true);
+    try {
+      // Fetch the updated listing
+      const response = await axios.get(`http://localhost:8000/api/propertyListings/${listingId}`);
+      setUpdatedListing(response.data);
+    } catch (error) {
+      console.error('Error fetching updated listing:', error);
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="tab-section">
+      {loading && (
+        <div className="spinner-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
       <div className="tab-navigation">
         <button
           className={`tab-button ${activeTab === 'docs' ? 'active' : ''}`}
@@ -54,12 +74,12 @@ const TabSection = ({ listing }) => {
         </button>
       </div>
       <div className="tab-content">
-        {activeTab === 'docs' && <Documents listingId={listing._id} />}
-        {activeTab === 'viewers' && <Viewers listingId={listing._id} />}
+        {activeTab === 'docs' && <Documents listingId={updatedListing._id} />}
+        {activeTab === 'viewers' && <Viewers listingId={updatedListing._id} />}
         {activeTab === 'activity' && <Activity />}
         {activeTab === 'messages' && <Messages />}
         {activeTab === 'offers' && <div>Offers Content</div>}
-        {activeTab === 'settings' && <Settings listing={listing} />}
+        {activeTab === 'settings' && <Settings listing={updatedListing} onStatusChange={handleStatusChange} />}
       </div>
     </div>
   );

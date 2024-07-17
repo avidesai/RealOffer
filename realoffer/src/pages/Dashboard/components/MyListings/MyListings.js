@@ -1,6 +1,4 @@
-// MyListings.js
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../../context/AuthContext';
 import ListingItem from './components/ListingItem';
@@ -21,24 +19,24 @@ function MyListings() {
   const [filter, setFilter] = useState('active');
   const [sort, setSort] = useState('recent');
 
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      if (user?._id) {
-        setLoading(true);
-        try {
-          const response = await axios.get(`http://localhost:8000/api/users/${user._id}/listingPackages`);
-          setListings(response.data.listingPackages);
-          setError(''); // Reset the error on successful fetch
-        } catch (error) {
-          console.error('Failed to fetch user details:', error);
-          setError('No listings found.');
-        }
-        setLoading(false);
+  const fetchUserDetails = useCallback(async () => {
+    if (user?._id) {
+      setLoading(true);
+      try {
+        const response = await axios.get(`http://localhost:8000/api/users/${user._id}/listingPackages`);
+        setListings(response.data.listingPackages);
+        setError(''); // Reset the error on successful fetch
+      } catch (error) {
+        console.error('Failed to fetch user details:', error);
+        setError('No listings found.');
       }
-    };
-
-    fetchUserDetails();
+      setLoading(false);
+    }
   }, [user]);
+
+  useEffect(() => {
+    fetchUserDetails();
+  }, [fetchUserDetails]);
 
   useEffect(() => {
     const filterAndSortListings = () => {
@@ -90,6 +88,17 @@ function MyListings() {
     setSort(newSort);
   };
 
+  const handleStatusChange = async (listingId, newStatus) => {
+    setLoading(true);
+    try {
+      await axios.put(`http://localhost:8000/api/propertyListings/${listingId}`, { status: newStatus });
+      await fetchUserDetails(); // Re-fetch listings to update the displayed list
+    } catch (error) {
+      console.error('Failed to update listing status:', error);
+    }
+    setLoading(false);
+  };
+
   if (loading) {
     return (
       <div className="spinner-container">
@@ -115,7 +124,7 @@ function MyListings() {
             onSearch={() => {}} // Keeping the search function as a placeholder
           />
           {currentListings.length > 0 ? currentListings.map(listing => (
-            <ListingItem key={listing._id} listing={listing} />
+            <ListingItem key={listing._id} listing={listing} onStatusChange={handleStatusChange} />
           )) : <div>No listings found.</div>}
           {pageCount > 1 && (
             <Pagination
