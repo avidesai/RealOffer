@@ -9,6 +9,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
   const [listing, setListing] = useState(null);
   const [isEditing, setIsEditing] = useState(null);
   const [newValue, setNewValue] = useState('');
+  const [originalValue, setOriginalValue] = useState('');
   const [loading, setLoading] = useState(false);
 
   const fetchListing = useCallback(async () => {
@@ -28,11 +29,17 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
 
   const handleEdit = (field, value) => {
     setIsEditing(field);
+    setOriginalValue(value);
     setNewValue(value);
   };
 
   const handleChange = (e) => {
     setNewValue(e.target.value);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(null);
+    setNewValue(originalValue);
   };
 
   const handleSubmit = async (field, value) => {
@@ -64,22 +71,55 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
 
   if (!listing) return null;
 
-  const renderField = (label, field, value) => (
+  const formatPrice = (price) => `$${price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+  const formatNumber = (number) => number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const formatPhone = (phone) => phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+  const formatPropertyType = (type) => {
+    const types = {
+      singleFamily: "Single Family Home",
+      condo: "Condominium",
+      townhouse: "Townhouse",
+      multiFamily: "Multi-Family Home",
+      land: "Land",
+      commercial: "Commercial"
+    };
+    return types[type] || type;
+  };
+
+  const renderField = (label, field, value, formatter) => (
     <div className="info-row" key={field}>
       <span className="info-label">{label}</span>
       {isEditing === field ? (
         <div className="edit-container">
-          <input
-            type="text"
-            value={newValue}
-            onChange={handleChange}
-            className="form-control"
-          />
+          {field === 'homeCharacteristics.propertyType' ? (
+            <select
+              name="propertyType"
+              value={newValue}
+              onChange={handleChange}
+              className="form-control"
+            >
+              <option value="">Select Property Type</option>
+              <option value="singleFamily">Single Family Home</option>
+              <option value="condo">Condominium</option>
+              <option value="townhouse">Townhouse</option>
+              <option value="multiFamily">Multi-Family Home</option>
+              <option value="land">Land</option>
+              <option value="commercial">Commercial</option>
+            </select>
+          ) : (
+            <input
+              type="text"
+              value={newValue}
+              onChange={handleChange}
+              className="form-control"
+            />
+          )}
           <button className="submit-button" onClick={() => handleSubmit(field, newValue)}>Submit</button>
+          <button className="cancel-button" onClick={handleCancel}>Cancel</button>
         </div>
       ) : (
         <>
-          <span className="info-value">{value}</span>
+          <span className="info-value">{formatter ? formatter(value) : value}</span>
           <button className="edit-button" onClick={() => handleEdit(field, value)}>Edit</button>
         </>
       )}
@@ -91,38 +131,41 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
       <div className="more-info-content">
         <div className="more-info-header">
           <h2>Property Information</h2>
-          <button className="close-button" onClick={onClose}></button>
+          <button className="close-button more-info-close-button" onClick={onClose}></button>
         </div>
         <div className="info-section">
-          {renderField('Price', 'homeCharacteristics.price', listing.homeCharacteristics.price)}
+          {renderField('Price', 'homeCharacteristics.price', listing.homeCharacteristics.price, formatPrice)}
           {renderField('Address', 'homeCharacteristics.address', listing.homeCharacteristics.address)}
           {renderField('City', 'homeCharacteristics.city', listing.homeCharacteristics.city)}
           {renderField('State', 'homeCharacteristics.state', listing.homeCharacteristics.state)}
           {renderField('ZIP', 'homeCharacteristics.zip', listing.homeCharacteristics.zip)}
           {renderField('Beds', 'homeCharacteristics.beds', listing.homeCharacteristics.beds)}
           {renderField('Baths', 'homeCharacteristics.baths', listing.homeCharacteristics.baths)}
-          {renderField('Square Footage', 'homeCharacteristics.squareFootage', listing.homeCharacteristics.squareFootage)}
-          {renderField('Lot Size', 'homeCharacteristics.lotSize', listing.homeCharacteristics.lotSize)}
-          {renderField('Property Type', 'homeCharacteristics.propertyType', listing.homeCharacteristics.propertyType)}
+          {renderField('Square Footage', 'homeCharacteristics.squareFootage', listing.homeCharacteristics.squareFootage, formatNumber)}
+          {renderField('Lot Size', 'homeCharacteristics.lotSize', listing.homeCharacteristics.lotSize, formatNumber)}
+          {renderField('Property Type', 'homeCharacteristics.propertyType', listing.homeCharacteristics.propertyType, formatPropertyType)}
           {renderField('Year Built', 'homeCharacteristics.yearBuilt', listing.homeCharacteristics.yearBuilt)}
         </div>
         <div className="info-section">
-          <h3>Escrow Information</h3>
+        <h3 className="more-info-modal-subheader">Escrow Information</h3>
           {renderField('Escrow Number', 'escrowInfo.escrowNumber', listing.escrowInfo.escrowNumber)}
           {renderField('Company Name', 'escrowInfo.company.name', listing.escrowInfo.company.name)}
-          {renderField('Phone', 'escrowInfo.company.phone', listing.escrowInfo.company.phone)}
+          {renderField('Phone', 'escrowInfo.company.phone', listing.escrowInfo.company.phone, formatPhone)}
           {renderField('Email', 'escrowInfo.company.email', listing.escrowInfo.company.email)}
         </div>
         <div className="info-section">
-          <h3>Property Description</h3>
+          <h3 className="more-info-modal-subheader">Property Description</h3>
           {isEditing === 'description' ? (
-            <div className="edit-container">
+            <div className="edit-container description-edit-container">
               <textarea
                 value={newValue}
                 onChange={handleChange}
                 className="form-control"
               />
-              <button className="submit-button" onClick={() => handleSubmit('description')}>Submit</button>
+              <div className="edit-buttons">
+                <button className="submit-button" onClick={() => handleSubmit('description')}>Submit</button>
+                <button className="cancel-button" onClick={handleCancel}>Cancel</button>
+              </div>
             </div>
           ) : (
             <>
