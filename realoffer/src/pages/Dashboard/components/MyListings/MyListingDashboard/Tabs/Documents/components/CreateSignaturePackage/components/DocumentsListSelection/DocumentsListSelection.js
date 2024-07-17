@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import './DocumentsListSelection.css';
 
-const DocumentsListSelection = ({ documents, onDocumentSelect }) => {
+const DocumentsListSelection = ({ documents, onDocumentSelect, selectedPages }) => {
   const [selectedDocumentId, setSelectedDocumentId] = useState(null);
 
   const handleDocumentClick = (document) => {
@@ -14,7 +14,7 @@ const DocumentsListSelection = ({ documents, onDocumentSelect }) => {
   return (
     <div className="dls-documents-list">
       <h3>Documents</h3>
-      <p>Select from documents below and choose pages to add to your signature package.</p>
+      <p>Browse documents below and choose pages to add to your signature package.</p>
       <ul>
         {documents.map((document) => (
           <li
@@ -25,6 +25,9 @@ const DocumentsListSelection = ({ documents, onDocumentSelect }) => {
             <div className="dls-document-info">
               <span className="dls-document-title">{document.title}</span>
               <span className="dls-document-type">{document.type}</span>
+              <span className="dls-document-pages">
+                {selectedPages[document._id] ? `${selectedPages[document._id].length} Pages Selected` : 'No Pages Selected'}
+              </span>
             </div>
           </li>
         ))}

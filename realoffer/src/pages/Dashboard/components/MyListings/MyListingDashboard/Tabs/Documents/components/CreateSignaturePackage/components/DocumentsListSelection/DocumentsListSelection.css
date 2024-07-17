@@ -44,8 +44,9 @@
   color: white; /* Text color for highlighted item */
 }
 
-.dls-document-item.selected .dls-document-type {
-  color: white; /* Text color for highlighted document type */
+.dls-document-item.selected .dls-document-type,
+.dls-document-item.selected .dls-document-pages {
+  color: white; /* Text color for highlighted document type and pages */
 }
 
 .dls-document-info {
@@ -59,6 +60,11 @@
 }
 
 .dls-document-type {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.dls-document-pages {
   font-size: 0.9rem;
   color: #888;
 }

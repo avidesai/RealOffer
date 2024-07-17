@@ -9,6 +9,7 @@ import './CreateSignaturePackage.css';
 const CreateSignaturePackage = ({ listingId, isOpen, onClose, onCreateSignaturePackage }) => {
   const [documents, setDocuments] = useState([]);
   const [selectedDocument, setSelectedDocument] = useState(null);
+  const [selectedPages, setSelectedPages] = useState({});
 
   const fetchDocuments = useCallback(async () => {
     try {
@@ -31,6 +32,13 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, onCreateSignatureP
     setSelectedDocument({ ...document, fileUrl: documentUrlWithSAS });
   };
 
+  const updateSelectedPages = (documentId, pages) => {
+    setSelectedPages(prev => ({
+      ...prev,
+      [documentId]: pages
+    }));
+  };
+
   return (
     isOpen && (
       <div className="csp-modal">
@@ -40,10 +48,21 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, onCreateSignatureP
         </div>
         <div className="csp-body">
           <div className="csp-documents-list">
-            <DocumentsListSelection documents={documents} onDocumentSelect={handleDocumentSelect} />
+            <DocumentsListSelection 
+              documents={documents} 
+              onDocumentSelect={handleDocumentSelect} 
+              selectedPages={selectedPages}
+            />
           </div>
           <div className="csp-pdf-viewer">
-            {selectedDocument && <SignaturePDFViewer fileUrl={selectedDocument.fileUrl} documentTitle={selectedDocument.title} />}
+            {selectedDocument && 
+              <SignaturePDFViewer 
+                fileUrl={selectedDocument.fileUrl} 
+                documentTitle={selectedDocument.title} 
+                documentId={selectedDocument._id}
+                selectedPages={selectedPages[selectedDocument._id] || []}
+                updateSelectedPages={updateSelectedPages}
+              />}
           </div>
         </div>
         <div className="csp-footer">

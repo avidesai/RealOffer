@@ -103,6 +103,19 @@
 .spv-page {
   position: relative;
   margin: 10px 0;
+  cursor: pointer;
+}
+
+.spv-page.selected {
+  outline: 3px solid #007bff; /* Highlight selected pages */
+}
+
+.spv-page:hover .spv-overlay {
+  display: flex;
+}
+
+.spv-overlay.active {
+  display: flex;
 }
 
 .spv-canvas {
@@ -150,4 +163,26 @@
   display: flex;
   align-items: center;
   font-size: 1rem;
+}
+
+/* Overlay and checkbox styling */
+.spv-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(173, 216, 230, 0.5); /* Light blue overlay */
+  display: none;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.spv-checkbox {
+  width: 2rem; /* Bigger size for checkbox */
+  height: 2rem;
+  cursor: pointer;
+  z-index: 2;
 }

@@ -1,10 +1,10 @@
 // SignaturePDFViewer.js
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import useSignaturePDFViewer from './SignaturePDFViewerLogic';
 import './SignaturePDFViewer.css';
 
-const SignaturePDFViewer = ({ fileUrl, documentTitle }) => {
+const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, selectedPages, updateSelectedPages }) => {
   const {
     pdf,
     scale,
@@ -20,9 +20,21 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle }) => {
     handleNextPage,
   } = useSignaturePDFViewer(fileUrl);
 
+  const [localSelectedPages, setLocalSelectedPages] = useState(selectedPages);
+
   useEffect(() => {
-    console.log('PDF fileUrl:', fileUrl);
-  }, [fileUrl]);
+    setLocalSelectedPages(selectedPages);
+  }, [selectedPages]);
+
+  useEffect(() => {
+    updateSelectedPages(documentId, localSelectedPages);
+  }, [localSelectedPages, documentId, updateSelectedPages]);
+
+  const handlePageSelect = (pageIndex) => {
+    setLocalSelectedPages((prev) =>
+      prev.includes(pageIndex) ? prev.filter((page) => page !== pageIndex) : [...prev, pageIndex]
+    );
+  };
 
   return (
     <div className="spv-container">
@@ -30,10 +42,10 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle }) => {
         <button className="spv-select-page-button">Select Page</button>
         <div className="spv-document-title">{documentTitle}</div>
         <div className="spv-toolbar">
-          <button className="spv-zoom-button" onClick={handleZoomOut} disabled={isZooming || scale <= 0.7}>
+          <button className="spv-zoom-button" onClick={handleZoomOut} disabled={isZooming || scale <= 0.4}>
             -
           </button>
-          <button className="spv-zoom-button" onClick={handleZoomIn} disabled={isZooming || scale >= 3.0}>
+          <button className="spv-zoom-button" onClick={handleZoomIn} disabled={isZooming || scale >= 2.5}>
             +
           </button>
         </div>
@@ -41,12 +53,26 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle }) => {
       <div className="spv-body" onScroll={handleScroll} ref={containerRef}>
         {isLoading && <div className="spv-spinner-overlay"><div className="spv-spinner"></div></div>}
         <div className="spv-pages">
-          {pdf && Array.from(new Array(pdf.numPages), (el, index) => (
-            <div key={index} className="spv-page">
-              <canvas ref={(el) => (pagesRef.current[index] = { ...pagesRef.current[index], canvas: el })} className="spv-canvas" />
-              <div ref={(el) => (pagesRef.current[index] = { ...pagesRef.current[index], textLayer: el })} className="spv-text-layer" />
-            </div>
-          ))}
+          {pdf &&
+            Array.from(new Array(pdf.numPages), (el, index) => (
+              <div
+                key={index}
+                className={`spv-page ${localSelectedPages.includes(index + 1) ? 'selected' : ''}`}
+                onClick={() => handlePageSelect(index + 1)}
+              >
+                <canvas ref={(el) => (pagesRef.current[index] = { ...pagesRef.current[index], canvas: el })} className="spv-canvas" />
+                <div ref={(el) => (pagesRef.current[index] = { ...pagesRef.current[index], textLayer: el })} className="spv-text-layer" />
+                <div className={`spv-overlay ${localSelectedPages.includes(index + 1) ? 'active' : ''}`}>
+                  <input 
+                    type="checkbox" 
+                    className="spv-checkbox"
+                    checked={localSelectedPages.includes(index + 1)} 
+                    onChange={() => handlePageSelect(index + 1)} 
+                    onClick={(e) => e.stopPropagation()} // Prevents click event on the parent div
+                  />
+                </div>
+              </div>
+            ))}
         </div>
       </div>
       <div className="spv-footer">
