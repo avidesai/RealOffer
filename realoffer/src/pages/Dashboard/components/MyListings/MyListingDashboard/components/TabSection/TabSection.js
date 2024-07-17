@@ -59,7 +59,7 @@ const TabSection = ({ listing }) => {
         {activeTab === 'activity' && <Activity />}
         {activeTab === 'messages' && <Messages />}
         {activeTab === 'offers' && <div>Offers Content</div>}
-        {activeTab === 'settings' && <Settings />}
+        {activeTab === 'settings' && <Settings listing={listing} />}
       </div>
     </div>
   );

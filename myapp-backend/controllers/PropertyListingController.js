@@ -47,7 +47,7 @@ exports.createListing = async (req, res) => {
   const propertyImages = req.files ? req.files.map(file => file.location) : [];
 
   let agentIds = [agent1, agent2].filter(Boolean); // Filter out any falsy values
-  
+
   // Ensure agentIds is an array of ObjectIds
   try {
     agentIds = agentIds.map(id => new mongoose.Types.ObjectId(id));
@@ -64,6 +64,7 @@ exports.createListing = async (req, res) => {
     description,
     agentIds: agentIds,
     imagesUrls: propertyImages,
+    status: "active", // Set status to active upon creation
     escrowInfo: {
       escrowNumber: officerNumber,
       company: {
@@ -90,6 +91,7 @@ exports.createListing = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
 
 exports.updateListing = async (req, res) => {
   try {

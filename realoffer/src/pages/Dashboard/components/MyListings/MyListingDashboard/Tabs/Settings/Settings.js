@@ -1,15 +1,24 @@
 import React from 'react';
 import './Settings.css';
+import axios from 'axios';
 
-const Settings = () => {
-  const handleArchivePackage = () => {
-    // Add your archive package logic here
-    console.log('Package archived');
+const Settings = ({ listing }) => {
+  const handleArchivePackage = async () => {
+    try {
+      await axios.put(`http://localhost:8000/api/propertyListings/${listing._id}`, { status: 'archived' });
+      console.log('Package archived');
+    } catch (error) {
+      console.error('Error archiving package:', error);
+    }
   };
 
-  const handleDeletePackage = () => {
-    // Add your delete package logic here
-    console.log('Package deleted');
+  const handleDeletePackage = async () => {
+    try {
+      await axios.delete(`http://localhost:8000/api/propertyListings/${listing._id}`);
+      console.log('Package deleted');
+    } catch (error) {
+      console.error('Error deleting package:', error);
+    }
   };
 
   return (
