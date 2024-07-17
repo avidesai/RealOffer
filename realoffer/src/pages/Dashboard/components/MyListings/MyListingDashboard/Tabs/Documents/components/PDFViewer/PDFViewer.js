@@ -24,17 +24,11 @@ const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
       }
       setIsLoading(false);
     }
-  }, [fileUrl]);
+  }, [fileUrl, page, scale]);
 
   useEffect(() => {
     fetchPdf();
   }, [fetchPdf]);
-
-  useEffect(() => {
-    if (pdf) {
-      renderPage(pdf, page, scale);
-    }
-  }, [pdf, page, scale]);
 
   const renderPage = async (pdf, pageNum, scale) => {
     setIsLoading(true);
@@ -42,38 +36,42 @@ const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
       renderTaskRef.current.cancel();
     }
 
-    const page = await pdf.getPage(pageNum);
-    const viewport = page.getViewport({ scale });
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-    canvas.height = viewport.height;
-    canvas.width = viewport.width;
+    try {
+      const page = await pdf.getPage(pageNum);
+      const viewport = page.getViewport({ scale });
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
 
-    const renderContext = {
-      canvasContext: context,
-      viewport: viewport,
-    };
-    renderTaskRef.current = page.render(renderContext);
-    await renderTaskRef.current.promise.catch((error) => {
-      if (error instanceof pdfjsLib.RenderingCancelledException) {
-        console.log('Rendering cancelled:', error.message);
+      const renderContext = {
+        canvasContext: context,
+        viewport: viewport,
+      };
+      renderTaskRef.current = page.render(renderContext);
+      await renderTaskRef.current.promise.catch((error) => {
+        if (error instanceof pdfjsLib.RenderingCancelledException) {
+          console.log('Rendering cancelled:', error.message);
+        } else {
+          console.error('Error rendering PDF:', error);
+        }
+      });
+    } catch (error) {
+      if (error.message.includes("Unexpected input after the end of stream")) {
+        console.warn('Handled PDF rendering error: ', error.message);
       } else {
-        throw error;
+        console.error('Error rendering PDF:', error);
       }
-    });
+    }
     setIsLoading(false);
   };
 
   const handleZoomIn = () => {
-    const newScale = scale + 0.2;
-    setScale(newScale);
-    console.log('Zoom scale:', newScale);
+    setScale(scale + 0.2);
   };
 
   const handleZoomOut = () => {
-    const newScale = scale - 0.2;
-    setScale(newScale);
-    console.log('Zoom scale:', newScale);
+    setScale(scale - 0.2);
   };
 
   const handlePrevPage = () => {
@@ -109,7 +107,6 @@ const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
             <p className="pdf-type">{docType}</p>
             <div className="title-buttons">
               <button className="toolbar-download-button" onClick={handleDownload}>Download</button>
-              <button className="toolbar-print-button" onClick={() => window.print()}>Print</button>
             </div>
           </div>
           <button className="close-button" onClick={handleClose}></button>
