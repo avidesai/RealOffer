@@ -6,7 +6,7 @@ import './PDFViewer.css';
 const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
   const [pdf, setPdf] = useState(null);
   const [page, setPage] = useState(1);
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(1.5);
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -75,34 +75,34 @@ const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
     isOpen && (
       <div className="pdf-viewer-modal">
         <div className="pdf-viewer-header">
-          <button className="close-button" onClick={onClose}></button>
           <div className="pdf-title-container">
             <h2 className="pdf-title">{docTitle}</h2>
             <p className="pdf-type">{docType}</p>
           </div>
-          <div className="pdf-controls">
-            <button className="zoom-button" onClick={handleZoomOut}>-</button>
-            <button className="zoom-button" onClick={handleZoomIn}>+</button>
-            <button className="download-button" onClick={handleDownload}>Download</button>
-            <button className="print-button" onClick={() => window.print()}>Print</button>
-          </div>
+          <button className="close-button" onClick={onClose}>×</button>
+        </div>
+        <div className="pdf-viewer-toolbar">
+          <button className="toolbar-button" onClick={handleZoomOut}>-</button>
+          <button className="toolbar-button" onClick={handleZoomIn}>+</button>
+          <button className="toolbar-button" onClick={handleDownload}>Download</button>
+          <button className="toolbar-button" onClick={() => window.print()}>Print</button>
         </div>
         <div className="pdf-viewer-container">
           <canvas ref={canvasRef} className="pdf-canvas" />
-          {pdf && (
-            <div className="pdf-navigation">
-              <button onClick={handlePrevPage} disabled={page <= 1}>
-                Previous
-              </button>
-              <span>
-                Page {page} of {pdf.numPages}
-              </span>
-              <button onClick={handleNextPage} disabled={page >= pdf.numPages}>
-                Next
-              </button>
-            </div>
-          )}
         </div>
+        {pdf && (
+          <div className="pdf-navigation">
+            <button className="nav-button" onClick={handlePrevPage} disabled={page <= 1}>
+              Previous
+            </button>
+            <span className="nav-page-info">
+              Page {page} of {pdf.numPages}
+            </span>
+            <button className="nav-button" onClick={handleNextPage} disabled={page >= pdf.numPages}>
+              Next
+            </button>
+          </div>
+        )}
       </div>
     )
   );
