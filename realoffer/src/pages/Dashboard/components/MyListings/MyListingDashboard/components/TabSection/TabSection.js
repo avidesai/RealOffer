@@ -3,6 +3,7 @@ import Documents from '../../Tabs/Documents/Documents';
 import Viewers from '../../Tabs/Viewers/Viewers';
 import Activity from '../../Tabs/Activity/Activity';
 import Messages from '../../Tabs/Messages/Messages';
+import Settings from '../../Tabs/Settings/Settings';
 import './TabSection.css';
 
 const TabSection = ({ listing }) => {
@@ -58,7 +59,7 @@ const TabSection = ({ listing }) => {
         {activeTab === 'activity' && <Activity />}
         {activeTab === 'messages' && <Messages />}
         {activeTab === 'offers' && <div>Offers Content</div>}
-        {activeTab === 'settings' && <div>Settings Content</div>}
+        {activeTab === 'settings' && <Settings />}
       </div>
     </div>
   );
