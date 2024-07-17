@@ -100,11 +100,34 @@
   width: 100%;
 }
 
+.pdf-page {
+  position: relative;
+}
+
 .pdf-canvas {
   border: 1px solid #ddd;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   max-width: 100%;
   margin-top: 20px;  /* Added margin for better scrolling */
+}
+
+.pdf-text-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  opacity: 0.8;
+  font-family: sans-serif;
+}
+
+.pdf-text-layer div {
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0 0;
+  pointer-events: auto;
 }
 
 .pdf-float-toolbar {

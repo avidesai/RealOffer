@@ -40,7 +40,10 @@ const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
           )}
           <div className="pdf-pages-container">
             {pdf && Array.from(new Array(pdf.numPages), (el, index) => (
-              <canvas key={index} ref={(el) => (pagesRef.current[index] = el)} className="pdf-canvas" />
+              <div key={index} className="pdf-page">
+                <canvas ref={(el) => (pagesRef.current[index] = { ...pagesRef.current[index], canvas: el })} className="pdf-canvas" />
+                <div ref={(el) => (pagesRef.current[index] = { ...pagesRef.current[index], textLayer: el })} className="pdf-text-layer" />
+              </div>
             ))}
           </div>
           {pdf && (

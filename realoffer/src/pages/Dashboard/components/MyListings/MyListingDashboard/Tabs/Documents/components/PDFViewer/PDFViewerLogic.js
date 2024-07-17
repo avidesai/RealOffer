@@ -37,17 +37,37 @@ const usePDFViewer = (fileUrl) => {
     try {
       const page = await pdf.getPage(pageNum);
       const viewport = page.getViewport({ scale });
-      const canvas = pagesRef.current[pageNum - 1];
+      const canvas = pagesRef.current[pageNum - 1].canvas;
+      const textLayer = pagesRef.current[pageNum - 1].textLayer;
       const context = canvas.getContext('2d');
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
+      
+      // Adjust the scale factor for higher DPI rendering
+      const outputScale = window.devicePixelRatio || 1;
+      canvas.width = Math.floor(viewport.width * outputScale);
+      canvas.height = Math.floor(viewport.height * outputScale);
+      canvas.style.width = Math.floor(viewport.width) + "px";
+      canvas.style.height = Math.floor(viewport.height) + "px";
+
+      const transform = outputScale !== 1
+        ? [outputScale, 0, 0, outputScale, 0, 0]
+        : null;
 
       const renderContext = {
         canvasContext: context,
         viewport: viewport,
+        transform: transform,
       };
 
       await page.render(renderContext).promise;
+
+      const textContent = await page.getTextContent();
+      pdfjsLib.renderTextLayer({
+        textContent,
+        container: textLayer,
+        viewport,
+        textDivs: [],
+        enhanceTextSelection: true, // Enables text selection
+      });
     } catch (error) {
       console.error('Error rendering PDF:', error);
     }
@@ -69,7 +89,7 @@ const usePDFViewer = (fileUrl) => {
     if (scale < MAX_SCALE) {
       setIsZooming(true);
       setScale((prevScale) => prevScale + 0.2);
-      await new Promise((resolve) => setTimeout(resolve, 300)); // Simulating rendering delay
+      await new Promise((resolve) => setTimeout(resolve, 150)); // Simulating rendering delay
       setIsZooming(false);
     }
   };
@@ -78,7 +98,7 @@ const usePDFViewer = (fileUrl) => {
     if (scale > MIN_SCALE) {
       setIsZooming(true);
       setScale((prevScale) => prevScale - 0.2);
-      await new Promise((resolve) => setTimeout(resolve, 300)); // Simulating rendering delay
+      await new Promise((resolve) => setTimeout(resolve, 150)); // Simulating rendering delay
       setIsZooming(false);
     }
   };
@@ -99,7 +119,7 @@ const usePDFViewer = (fileUrl) => {
     let minDistance = Infinity;
 
     for (let i = 0; i < pdf.numPages; i++) {
-      const canvas = pagesRef.current[i];
+      const canvas = pagesRef.current[i].canvas;
       const rect = canvas.getBoundingClientRect();
       const distance = Math.abs(rect.top);
 
@@ -113,7 +133,7 @@ const usePDFViewer = (fileUrl) => {
   };
 
   const scrollToPage = (pageNum) => {
-    const canvas = pagesRef.current[pageNum - 1];
+    const canvas = pagesRef.current[pageNum - 1].canvas;
     if (canvas) {
       canvas.scrollIntoView({ behavior: 'smooth' });
       setCurrentPage(pageNum);
