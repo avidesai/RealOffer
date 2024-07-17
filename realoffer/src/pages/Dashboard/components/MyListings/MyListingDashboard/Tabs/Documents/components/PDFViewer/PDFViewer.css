@@ -18,7 +18,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 30px;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
   background-color: #fff;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -36,9 +39,10 @@
 
 .title-buttons {
   position: absolute;
-  left: 0;
+  left: 2rem;
   display: flex;
-  gap: 10px;
+  gap: 1rem;
+
 }
 
 .pdf-title {
@@ -49,8 +53,9 @@
 
 .pdf-type {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   color: #666;
+  padding-top: 0.4rem;
 }
 
 .close-button {
@@ -60,17 +65,32 @@
   cursor: pointer;
 }
 
-.toolbar-button {
+.toolbar-download-button {
   background-color: #007bff;
   color: white;
   border: none;
   padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
+  font-weight: 500;
 }
 
-.toolbar-button:hover {
+.toolbar-download-button:hover {
   background-color: #0056b3;
+}
+
+.toolbar-print-button {
+  background-color: #383d42;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.toolbar-print-button:hover {
+  background-color: #080809;
 }
 
 .pdf-viewer-container {
@@ -78,10 +98,11 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   background-color: #fff;
-  padding: 20px;
+  padding-top: 2rem;
+  padding-bottom: 6rem;
   overflow-y: auto;  /* Ensure the container can scroll */
   position: relative;  /* Needed for floating toolbar */
 }
@@ -90,20 +111,22 @@
   border: 1px solid #ddd;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   max-width: 100%;
+  margin-top: 20px;  /* Added margin for better scrolling */
 }
 
 .pdf-float-toolbar {
-  position: absolute;
-  bottom: 20px;
+  position: fixed; /* Changed from absolute to fixed */
+  bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 10px;
+  gap: 1rem;
   opacity: 0;
   transition: opacity 0.3s;
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: rgba(20, 20, 20, 0.80);
   padding: 10px;
   border-radius: 5px;
+  font-weight: 500;
 }
 
 .pdf-viewer-container:hover .pdf-float-toolbar {
@@ -111,19 +134,36 @@
 }
 
 .pdf-float-toolbar .toolbar-button {
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: rgba(0, 0, 0, 0.950);
   color: white;
   border: none;
   padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
+  font-weight: 500;
+  transition: smooth 0.3s;
 }
 
-.pdf-float-toolbar .toolbar-button:hover {
-  background-color: rgba(0, 0, 0, 0.85);
+.pdf-float-toolbar .toolbar-button-zoom {
+  background-color: rgba(0, 0, 0, 0.950);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 18px;
+  transition: smooth 0.3s;
+}
+
+.pdf-float-toolbar .toolbar-button:hover, .pdf-float-toolbar .toolbar-button-zoom:hover {
+  background-color: rgba(0, 0, 0, 1);
+  scale: 1.05;
 }
 
 .pdf-float-toolbar .nav-page-info {
   font-size: 1rem;
   color: white;
+  display: flex;
+  align-items: center;
 }

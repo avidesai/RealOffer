@@ -6,7 +6,7 @@ import './PDFViewer.css';
 const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
   const [pdf, setPdf] = useState(null);
   const [page, setPage] = useState(1);
-  const [scale, setScale] = useState(0.8);
+  const [scale, setScale] = useState(1.7);
   const canvasRef = useRef(null);
   const renderTaskRef = useRef(null);
 
@@ -21,7 +21,7 @@ const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
         console.error('Error loading PDF:', error);
       }
     }
-  }, [fileUrl, page, scale]);
+  }, [fileUrl]);
 
   useEffect(() => {
     fetchPdf();
@@ -60,13 +60,13 @@ const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
   };
 
   const handleZoomIn = () => {
-    const newScale = scale + 0.1;
+    const newScale = scale + 0.2;
     setScale(newScale);
     console.log('Zoom scale:', newScale);
   };
 
   const handleZoomOut = () => {
-    const newScale = scale - 0.1;
+    const newScale = scale - 0.2;
     setScale(newScale);
     console.log('Zoom scale:', newScale);
   };
@@ -103,11 +103,11 @@ const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
             <h2 className="pdf-title">{docTitle}</h2>
             <p className="pdf-type">{docType}</p>
             <div className="title-buttons">
-              <button className="toolbar-button" onClick={handleDownload}>Download</button>
-              <button className="toolbar-button" onClick={() => window.print()}>Print</button>
+              <button className="toolbar-download-button" onClick={handleDownload}>Download</button>
+              <button className="toolbar-print-button" onClick={() => window.print()}>Print</button>
             </div>
           </div>
-          <button className="close-button" onClick={handleClose}>×</button>
+          <button className="close-button" onClick={handleClose}></button>
         </div>
         <div className="pdf-viewer-container">
           <canvas ref={canvasRef} className="pdf-canvas" />
@@ -122,8 +122,8 @@ const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
               <button className="toolbar-button" onClick={handleNextPage} disabled={page >= pdf.numPages}>
                 Next
               </button>
-              <button className="toolbar-button" onClick={handleZoomOut}>-</button>
-              <button className="toolbar-button" onClick={handleZoomIn}>+</button>
+              <button className="toolbar-button-zoom" onClick={handleZoomOut}>-</button>
+              <button className="toolbar-button-zoom" onClick={handleZoomIn}>+</button>
             </div>
           )}
         </div>
