@@ -23,6 +23,7 @@
   flex-grow: 1;
   text-align: center;
   font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .spv-toolbar {
@@ -44,16 +45,6 @@
 .spv-zoom-button:disabled {
   background-color: #b0c4de;
   cursor: not-allowed;
-}
-
-.spv-select-page-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
 }
 
 .spv-body {

@@ -6,7 +6,7 @@ import 'pdfjs-dist/build/pdf.worker';
 
 const useSignaturePDFViewer = (fileUrl) => {
   const [pdf, setPdf] = useState(null);
-  const [scale, setScale] = useState(0.8);
+  const [scale, setScale] = useState(0.6);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [isZooming, setIsZooming] = useState(false);
