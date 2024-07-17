@@ -1,0 +1,32 @@
+.dls-documents-list {
+  width: 100%;
+  overflow-y: auto;
+  padding: 10px; /* Add padding */
+}
+
+.dls-documents-list h3 {
+  margin: 0;
+  padding-top: 1rem;
+  padding-left: 2.5rem; /* Ensure padding aligns with list */
+  padding-bottom: 10px; /* Add padding below the header */
+}
+
+.dls-document-item {
+  padding: 10px;
+  padding-left: 10px; /* Align padding with header */
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  color: black;
+}
+
+.dls-document-item:hover {
+  background-color: #f1f1f1;
+}
+
+.dls-document-item.selected {
+  background-color: #007bff; /* Highlight color */
+  color: white; /* Text color for highlighted item */
+}

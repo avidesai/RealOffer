@@ -1,12 +1,10 @@
-// PDFViewerLogic.js
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist/build/pdf';
 import 'pdfjs-dist/build/pdf.worker';
 
-const usePDFViewer = (fileUrl) => {
+const useSignaturePDFViewer = (fileUrl) => {
   const [pdf, setPdf] = useState(null);
-  const [scale, setScale] = useState(1.7);
+  const [scale, setScale] = useState(0.8);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [isZooming, setIsZooming] = useState(false);
@@ -105,15 +103,6 @@ const usePDFViewer = (fileUrl) => {
     }
   };
 
-  const handleDownload = () => {
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.download = 'document.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   const handleScroll = () => {
     if (!pdf) return;
 
@@ -164,11 +153,10 @@ const usePDFViewer = (fileUrl) => {
     containerRef,
     handleZoomIn,
     handleZoomOut,
-    handleDownload,
     handleScroll,
     handlePrevPage,
     handleNextPage,
   };
 };
 
-export default usePDFViewer;
+export default useSignaturePDFViewer;

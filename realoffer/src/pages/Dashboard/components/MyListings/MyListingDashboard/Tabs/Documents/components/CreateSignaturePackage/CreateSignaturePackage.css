@@ -1,0 +1,115 @@
+.csp-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%; /* Increase width */
+  height: 100%; /* Increase height */
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.csp-header {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 2rem;
+  background-color: #fff;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  position: relative; /* Add position relative */
+}
+
+.csp-body {
+  width: 100%;
+  max-width: 1200px;
+  height: 80%;
+  background-color: #fff;
+  display: flex;
+  box-sizing: border-box;
+
+  overflow: hidden;
+}
+
+.csp-documents-list {
+  width: 30%;
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+}
+
+.csp-pdf-viewer {
+  width: 70%;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.csp-footer {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: flex-end;
+  padding: 15px 20px;
+  background-color: #fff;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.csp-close-button {
+  position: absolute;
+  top: 1.2rem; /* Adjust as necessary */
+  right: 2rem; /* Adjust as necessary */
+  background: #ffffff;
+  border: 2px solid #d5d5d5;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #000000;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+.csp-close-button:hover {
+  color: #ffffff;
+  background-color: #b12525;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.csp-close-button:before {
+  content: '×';
+  font-weight: bold;
+  display: inline-block;
+  margin-top: -0.15rem;
+  line-height: 1;
+}
+
+.csp-create-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.csp-create-button:hover {
+  background-color: #0056b3;
+}

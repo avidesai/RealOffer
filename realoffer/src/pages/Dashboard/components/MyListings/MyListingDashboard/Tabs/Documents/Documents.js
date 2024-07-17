@@ -1,10 +1,10 @@
 // Documents.js
-
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import './Documents.css';
 import UploadDocumentsLogic from './components/UploadDocuments/UploadDocumentsLogic';
 import PDFViewer from './components/PDFViewer/PDFViewer';
+import CreateSignaturePackage from './components/CreateSignaturePackage/CreateSignaturePackage';
 
 const Documents = ({ listingId }) => {
   const [documents, setDocuments] = useState([]);
@@ -15,6 +15,7 @@ const Documents = ({ listingId }) => {
   const [currentFileUrl, setCurrentFileUrl] = useState('');
   const [currentDocTitle, setCurrentDocTitle] = useState('');
   const [currentDocType, setCurrentDocType] = useState('');
+  const [showSignaturePackageModal, setShowSignaturePackageModal] = useState(false);
 
   const fetchDocuments = useCallback(async () => {
     try {
@@ -89,6 +90,19 @@ const Documents = ({ listingId }) => {
     }
   };
 
+  const openSignaturePackageModal = () => {
+    setShowSignaturePackageModal(true);
+  };
+
+  const closeSignaturePackageModal = () => {
+    setShowSignaturePackageModal(false);
+  };
+
+  const handleCreateSignaturePackage = (signaturePackage) => {
+    console.log('Signature Package created with:', signaturePackage);
+    closeSignaturePackageModal();
+  };
+
   return (
     <div className="documents-tab">
       <div className="documents-header">
@@ -100,7 +114,7 @@ const Documents = ({ listingId }) => {
             Delete
           </button>
           <button className="docusign-button">DocuSign</button>
-          <button className="signature-button">Create Signature Package</button>
+          <button className="signature-button" onClick={openSignaturePackageModal}>Create Signature Package</button>
         </div>
         <button className="notify-button">Notify Viewers of Updates</button>
       </div>
@@ -162,6 +176,14 @@ const Documents = ({ listingId }) => {
           onClose={() => setShowPDFViewer(false)}
           docTitle={currentDocTitle}
           docType={currentDocType}
+        />
+      )}
+      {showSignaturePackageModal && (
+        <CreateSignaturePackage
+          listingId={listingId}
+          isOpen={showSignaturePackageModal}
+          onClose={closeSignaturePackageModal}
+          onCreateSignaturePackage={handleCreateSignaturePackage}
         />
       )}
     </div>

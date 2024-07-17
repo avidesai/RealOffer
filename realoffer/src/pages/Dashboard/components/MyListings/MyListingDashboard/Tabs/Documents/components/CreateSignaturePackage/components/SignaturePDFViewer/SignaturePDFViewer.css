@@ -1,0 +1,151 @@
+.spv-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background-color: #f8f9fa;
+  position: relative;
+}
+
+.spv-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: #000000;
+  color: white;
+  border-bottom: 1px solid #ddd;
+}
+
+.spv-document-title {
+  flex-grow: 1;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+.spv-toolbar {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.spv-zoom-button {
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.spv-zoom-button:disabled {
+  background-color: #b0c4de;
+  cursor: not-allowed;
+}
+
+.spv-select-page-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.spv-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.spv-spinner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.spv-spinner {
+  border: 8px solid rgba(0, 0, 0, 0.1);
+  border-top: 8px solid #007bff;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spv-spin 1s linear infinite;
+}
+
+@keyframes spv-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spv-pages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.spv-page {
+  position: relative;
+  margin: 10px 0;
+}
+
+.spv-canvas {
+  border: 1px solid #ddd;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+}
+
+.spv-text-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  opacity: 0.8;
+  font-family: sans-serif;
+}
+
+.spv-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background-color: #000000;
+  color: white;
+}
+
+.spv-nav-button {
+  background-color: white;
+  color: rgb(0, 0, 0);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.spv-nav-button:disabled {
+  background-color: #b9b9b9;
+  cursor: not-allowed;
+}
+
+.spv-page-info {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+}
