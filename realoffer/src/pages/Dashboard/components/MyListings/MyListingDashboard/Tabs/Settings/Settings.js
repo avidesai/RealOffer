@@ -2,13 +2,15 @@ import React from 'react';
 import './Settings.css';
 import axios from 'axios';
 
-const Settings = ({ listing }) => {
+const Settings = ({ listing, onStatusChange }) => {
   const handleArchivePackage = async () => {
     try {
-      await axios.put(`http://localhost:8000/api/propertyListings/${listing._id}`, { status: 'archived' });
-      console.log('Package archived');
+      const newStatus = listing.status === 'active' ? 'archived' : 'active';
+      await axios.put(`http://localhost:8000/api/propertyListings/${listing._id}`, { status: newStatus });
+      console.log(`Package ${newStatus}`);
+      onStatusChange(listing._id, newStatus); // Notify parent of status change
     } catch (error) {
-      console.error('Error archiving package:', error);
+      console.error(`Error changing package status to ${listing.status === 'active' ? 'archived' : 'active'}:`, error);
     }
   };
 
@@ -26,7 +28,9 @@ const Settings = ({ listing }) => {
       <div className="settings-section">
         <h2 className="settings-title">Archive Package</h2>
         <p className="settings-description">Archived packages are read only and buyer parties lose access.</p>
-        <button className="archive-button" onClick={handleArchivePackage}>Archive Package</button>
+        <button className="archive-button" onClick={handleArchivePackage}>
+          {listing.status === 'active' ? 'Archive Package' : 'Unarchive Package'}
+        </button>
       </div>
       <div className="settings-section danger-zone">
         <h2 className="settings-title">Danger Zone</h2>

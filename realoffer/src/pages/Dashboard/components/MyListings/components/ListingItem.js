@@ -1,12 +1,11 @@
-// ListingItem.js
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './ListingItem.css';
 
-function ListingItem({ listing }) {
+function ListingItem({ listing, onStatusChange }) {
   const [agents, setAgents] = useState([]);
+  const [status, setStatus] = useState(listing.status);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,6 +22,18 @@ function ListingItem({ listing }) {
     fetchAgents();
   }, [listing.agentIds]);
 
+  const handleArchivePackage = async (e) => {
+    e.stopPropagation();
+    try {
+      const newStatus = status === 'active' ? 'archived' : 'active';
+      await axios.put(`http://localhost:8000/api/propertyListings/${listing._id}`, { status: newStatus });
+      setStatus(newStatus);
+      onStatusChange(listing._id, newStatus); // Notify parent of status change
+    } catch (error) {
+      console.error(`Error changing package status to ${status === 'active' ? 'archived' : 'active'}:`, error);
+    }
+  };
+
   const handleClick = () => {
     navigate(`/mylisting/${listing._id}`);
   };
@@ -35,7 +46,9 @@ function ListingItem({ listing }) {
         <p className="listing-location">{listing.homeCharacteristics.city}, {listing.homeCharacteristics.state} {listing.homeCharacteristics.zip}</p>
         <div className="listing-action-buttons">
           <button className="listing-button share">Share</button>
-          <button className="listing-button archive">Archive</button>
+          <button className="listing-button archive" onClick={handleArchivePackage}>
+            {status === 'active' ? 'Archive' : 'Unarchive'}
+          </button>
         </div>
       </div>
       <div className="listing-agents">

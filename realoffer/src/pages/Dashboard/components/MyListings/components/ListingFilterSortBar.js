@@ -34,18 +34,15 @@ function ListingFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
           <label htmlFor="filter">Filter</label>
           <select id="filter" value={filter} onChange={handleFilterChange}>
             <option value="active">Active</option>
-            <option value="sold">Sold</option>
-            <option value="pending">Pending</option>
-            {/* Add more filter options here */}
+            <option value="archived">Archived</option>
+            <option value="all">All Listings</option>
           </select>
         </div>
         <div className="listing-sort-section">
           <label htmlFor="sort">Sort</label>
           <select id="sort" value={sort} onChange={handleSortChange}>
             <option value="recent">Most Recent</option>
-            <option value="priceHighLow">Price: High to Low</option>
-            <option value="priceLowHigh">Price: Low to High</option>
-            {/* Add more sort options here */}
+            <option value="oldest">Oldest</option>
           </select>
         </div>
       </div>
