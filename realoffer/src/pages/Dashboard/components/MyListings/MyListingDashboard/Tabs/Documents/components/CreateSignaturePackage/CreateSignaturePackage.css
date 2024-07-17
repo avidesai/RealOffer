@@ -1,9 +1,11 @@
+/* CreateSignaturePackage.css */
+
 .csp-modal {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%; /* Increase width */
-  height: 100%; /* Increase height */
+  width: 100%;
+  height: 100%;
   background-color: rgba(0, 0, 0, 0.75);
   display: flex;
   flex-direction: column;
@@ -16,7 +18,7 @@
 
 .csp-header {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px; /* Increase max-width */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -26,12 +28,12 @@
   border-top-right-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
-  position: relative; /* Add position relative */
+  position: relative;
 }
 
 .csp-body {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px; /* Increase max-width */
   height: 80%;
   background-color: #fff;
   display: flex;
@@ -40,13 +42,13 @@
 }
 
 .csp-documents-list {
-  width: 30%;
+  width: 33%;
   border-right: 1px solid #ddd;
   overflow-y: auto;
 }
 
 .csp-pdf-viewer {
-  width: 70%;
+  width: 66%;
   padding: 20px;
   box-sizing: border-box;
   overflow-y: auto;
@@ -54,7 +56,7 @@
 
 .csp-footer {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px; /* Increase max-width */
   display: flex;
   justify-content: flex-end;
   padding: 15px 20px;
@@ -105,7 +107,7 @@
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
   transition: background-color 0.3s ease;
 }
 

@@ -1,3 +1,5 @@
+/* DocumentsListSelection.css */
+
 .dls-documents-list {
   width: 100%;
   overflow-y: auto;
@@ -8,17 +10,29 @@
   padding-top: 2rem;
   padding-left: 3rem; /* Ensure padding aligns with list */
   padding-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.dls-documents-list p {
+  margin: 0;
+  padding-left: 3rem; /* Align with h3 */
+  padding-right: 1rem;
+  padding-bottom: 1rem;
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.5; /* Improve readability */
 }
 
 .dls-document-item {
   padding: 10px;
-  padding-left: 10px; /* Align padding with header */
+  padding-left: 2rem; /* Align padding with header */
   cursor: pointer;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start; /* Align items to the start */
   border-bottom: 1px solid #ddd;
   color: black;
+  font-weight: 500;
 }
 
 .dls-document-item:hover {
@@ -28,4 +42,23 @@
 .dls-document-item.selected {
   background-color: #007bff; /* Highlight color */
   color: white; /* Text color for highlighted item */
+}
+
+.dls-document-item.selected .dls-document-type {
+  color: white; /* Text color for highlighted document type */
+}
+
+.dls-document-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.dls-document-title {
+  font-size: 1.1rem;
+  margin-bottom: 0.3rem;
+}
+
+.dls-document-type {
+  font-size: 0.9rem;
+  color: #888;
 }

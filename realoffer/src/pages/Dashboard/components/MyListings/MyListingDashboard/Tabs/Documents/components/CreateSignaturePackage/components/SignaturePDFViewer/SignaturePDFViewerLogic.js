@@ -1,3 +1,5 @@
+// SignaturePDFViewerLogic.js
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist/build/pdf';
 import 'pdfjs-dist/build/pdf.worker';
@@ -11,8 +13,8 @@ const useSignaturePDFViewer = (fileUrl) => {
   const pagesRef = useRef([]);
   const containerRef = useRef(null);
 
-  const MIN_SCALE = 0.7;
-  const MAX_SCALE = 3.0;
+  const MIN_SCALE = 0.4;
+  const MAX_SCALE = 2.5;
 
   const fetchPdf = useCallback(async () => {
     if (fileUrl) {
@@ -88,7 +90,7 @@ const useSignaturePDFViewer = (fileUrl) => {
   const handleZoomIn = async () => {
     if (scale < MAX_SCALE) {
       setIsZooming(true);
-      setScale((prevScale) => prevScale + 0.2);
+      setScale((prevScale) => prevScale + 0.1);
       await new Promise((resolve) => setTimeout(resolve, 150)); // Simulating rendering delay
       setIsZooming(false);
     }
@@ -97,7 +99,7 @@ const useSignaturePDFViewer = (fileUrl) => {
   const handleZoomOut = async () => {
     if (scale > MIN_SCALE) {
       setIsZooming(true);
-      setScale((prevScale) => prevScale - 0.2);
+      setScale((prevScale) => prevScale - 0.1);
       await new Promise((resolve) => setTimeout(resolve, 150)); // Simulating rendering delay
       setIsZooming(false);
     }
