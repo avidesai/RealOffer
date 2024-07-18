@@ -6,7 +6,7 @@ import DocumentsListSelection from './components/DocumentsListSelection/Document
 import SignaturePDFViewer from './components/SignaturePDFViewer/SignaturePDFViewer';
 import './CreateSignaturePackage.css';
 
-const CreateSignaturePackage = ({ listingId, isOpen, onClose, onCreateSignaturePackage }) => {
+const CreateSignaturePackage = ({ listingId, isOpen, onClose }) => {
   const [documents, setDocuments] = useState([]);
   const [selectedDocument, setSelectedDocument] = useState(null);
 
@@ -26,7 +26,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, onCreateSignatureP
   }, [isOpen, fetchDocuments]);
 
   const handleDocumentSelect = (document) => {
-    const documentUrlWithSAS = `${document.thumbnailUrl}?${document.sasToken}`;
+    const documentUrlWithSAS = `${document.azureKey}?${document.sasToken}`;
     setSelectedDocument({ ...document, fileUrl: documentUrlWithSAS });
   };
 
@@ -34,6 +34,15 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, onCreateSignatureP
     setDocuments((prevDocuments) =>
       prevDocuments.map((doc) => (doc._id === updatedDocument._id ? updatedDocument : doc))
     );
+  };
+
+  const handleCreateSignaturePackage = async () => {
+    try {
+      await axios.post('http://localhost:8000/api/documents/createBuyerSignaturePacket', { listingId });
+      onClose();
+    } catch (error) {
+      console.error('Error creating buyer signature package:', error);
+    }
   };
 
   return (
@@ -63,7 +72,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, onCreateSignatureP
           </div>
         </div>
         <div className="csp-footer">
-          <button className="csp-create-button" onClick={onCreateSignaturePackage}>
+          <button className="csp-create-button" onClick={handleCreateSignaturePackage}>
             Create Buyer Signature Package
           </button>
         </div>

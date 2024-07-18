@@ -24,8 +24,6 @@ const getPdfPageCount = async (buffer) => {
   }
 };
 
-
-// Upload a new document
 exports.uploadDocument = async (req, res) => {
   const { uploadedBy, propertyListingId, visibility = 'public' } = req.body;
   const files = req.files;
@@ -50,7 +48,12 @@ exports.uploadDocument = async (req, res) => {
 
       const blobName = `documents/${uuidv4()}-${file.originalname}`;
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-      await blockBlobClient.uploadData(file.buffer);
+
+      // Set content type to application/pdf if the file is a PDF
+      const contentType = file.mimetype === 'application/pdf' ? 'application/pdf' : file.mimetype;
+      await blockBlobClient.uploadData(file.buffer, {
+        blobHTTPHeaders: { blobContentType: contentType }
+      });
 
       const pages = file.mimetype === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
 
@@ -103,7 +106,12 @@ exports.addDocumentToPropertyListing = async (req, res) => {
 
       const blobName = `documents/${uuidv4()}-${file.originalname}`;
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-      await blockBlobClient.uploadData(file.buffer);
+
+      // Set content type to application/pdf if the file is a PDF
+      const contentType = file.mimetype === 'application/pdf' ? 'application/pdf' : file.mimetype;
+      await blockBlobClient.uploadData(file.buffer, {
+        blobHTTPHeaders: { blobContentType: contentType }
+      });
 
       const pages = file.mimetype === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
 
@@ -156,7 +164,12 @@ exports.addDocumentToBuyerPackage = async (req, res) => {
 
       const blobName = `documents/${uuidv4()}-${file.originalname}`;
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-      await blockBlobClient.uploadData(file.buffer);
+
+      // Set content type to application/pdf if the file is a PDF
+      const contentType = file.mimetype === 'application/pdf' ? 'application/pdf' : file.mimetype;
+      await blockBlobClient.uploadData(file.buffer, {
+        blobHTTPHeaders: { blobContentType: contentType }
+      });
 
       const pages = file.mimetype === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
 
@@ -258,3 +271,76 @@ exports.removePageFromSignaturePackage = async (req, res) => {
   }
 };
 
+exports.createBuyerSignaturePacket = async (req, res) => {
+  const { listingId } = req.body;
+
+  try {
+    const documents = await Document.find({ propertyListing: listingId });
+
+    const selectedDocuments = documents.filter(doc => doc.signaturePackagePages.length > 0);
+
+    if (selectedDocuments.length === 0) {
+      return res.status(400).json({ message: 'No pages selected for the signature package.' });
+    }
+
+    const mergedPdf = await PDFDocument.create();
+
+    for (const document of selectedDocuments) {
+      try {
+        const sasToken = generateSASToken(document.azureKey);
+        const documentUrlWithSAS = `${document.thumbnailUrl}?${sasToken}`;
+        console.log(`Fetching document from URL: ${documentUrlWithSAS}`);
+        
+        const fetch = (await import('node-fetch')).default;
+        const response = await fetch(documentUrlWithSAS);
+        
+        if (!response.ok) {
+          console.error(`Failed to fetch document ${document._id}: ${response.statusText}`);
+          continue;
+        }
+        
+        const contentType = response.headers.get('content-type');
+        console.log(`Content-Type of document ${document._id}: ${contentType}`);
+        
+        if (!contentType || (!contentType.includes('pdf') && contentType !== 'application/octet-stream')) {
+          console.error(`Document ${document._id} is not a PDF`);
+          continue;
+        }
+
+        const existingPdfBytes = await response.arrayBuffer();
+        const existingPdf = await PDFDocument.load(existingPdfBytes);
+      
+        for (const pageNumber of document.signaturePackagePages) {
+          const [copiedPage] = await mergedPdf.copyPages(existingPdf, [pageNumber - 1]);
+          mergedPdf.addPage(copiedPage);
+        }
+      } catch (err) {
+        console.error(`Error processing document ${document._id}:`, err.message);
+        continue; // Skip this document and continue with the next one
+      }
+    }
+
+    const pdfBytes = await mergedPdf.save();
+    const blobName = `documents/${uuidv4()}-BuyerSignaturePacket.pdf`;
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+    await blockBlobClient.uploadData(pdfBytes);
+
+    const newDocument = new Document({
+      title: 'Buyer Signature Packet',
+      type: 'Signature Packet',
+      size: pdfBytes.byteLength,
+      pages: mergedPdf.getPageCount(),
+      thumbnailUrl: blockBlobClient.url,
+      propertyListing: listingId,
+      azureKey: blobName,
+    });
+
+    await newDocument.save();
+    await PropertyListing.findByIdAndUpdate(listingId, { $push: { documents: newDocument._id } });
+
+    res.status(201).json(newDocument);
+  } catch (error) {
+    console.error('Error creating buyer signature packet:', error);
+    res.status(500).json({ message: 'Error creating buyer signature packet', error: error.message });
+  }
+};
