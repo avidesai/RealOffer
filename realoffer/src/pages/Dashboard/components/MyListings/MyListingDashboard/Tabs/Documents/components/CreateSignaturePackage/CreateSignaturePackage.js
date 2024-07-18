@@ -6,9 +6,10 @@ import DocumentsListSelection from './components/DocumentsListSelection/Document
 import SignaturePDFViewer from './components/SignaturePDFViewer/SignaturePDFViewer';
 import './CreateSignaturePackage.css';
 
-const CreateSignaturePackage = ({ listingId, isOpen, onClose }) => {
+const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }) => {
   const [documents, setDocuments] = useState([]);
   const [selectedDocument, setSelectedDocument] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchDocuments = useCallback(async () => {
     try {
@@ -37,17 +38,26 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose }) => {
   };
 
   const handleCreateSignaturePackage = async () => {
+    setIsLoading(true);
     try {
       await axios.post('http://localhost:8000/api/documents/createBuyerSignaturePacket', { listingId });
       onClose();
+      refreshDocuments();
     } catch (error) {
       console.error('Error creating buyer signature package:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     isOpen && (
       <div className="csp-modal">
+        {isLoading && (
+          <div className="spinner-overlay">
+            <div className="spinner"></div>
+          </div>
+        )}
         <div className="csp-header">
           <h2>Create Buyer Signature Package</h2>
           <button className="csp-close-button" onClick={onClose}></button>
@@ -82,3 +92,4 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose }) => {
 };
 
 export default CreateSignaturePackage;
+

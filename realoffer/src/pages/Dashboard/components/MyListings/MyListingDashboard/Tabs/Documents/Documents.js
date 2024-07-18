@@ -1,4 +1,5 @@
 // Documents.js
+
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import './Documents.css';
@@ -18,11 +19,14 @@ const Documents = ({ listingId }) => {
   const [showSignaturePackageModal, setShowSignaturePackageModal] = useState(false);
 
   const fetchDocuments = useCallback(async () => {
+    setLoading(true);
     try {
       const response = await axios.get(`http://localhost:8000/api/documents/${listingId}`);
       setDocuments(response.data);
     } catch (error) {
       console.error('Error fetching documents:', error);
+    } finally {
+      setLoading(false);
     }
   }, [listingId]);
 
@@ -98,9 +102,17 @@ const Documents = ({ listingId }) => {
     setShowSignaturePackageModal(false);
   };
 
-  const handleCreateSignaturePackage = (signaturePackage) => {
-    console.log('Signature Package created with:', signaturePackage);
-    closeSignaturePackageModal();
+  const handleCreateSignaturePackage = async () => {
+    setLoading(true);
+    try {
+      await axios.post('http://localhost:8000/api/documents/createBuyerSignaturePacket', { listingId });
+      fetchDocuments();
+      closeSignaturePackageModal();
+    } catch (error) {
+      console.error('Error creating buyer signature package:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -183,7 +195,7 @@ const Documents = ({ listingId }) => {
           listingId={listingId}
           isOpen={showSignaturePackageModal}
           onClose={closeSignaturePackageModal}
-          onCreateSignaturePackage={handleCreateSignaturePackage}
+          refreshDocuments={fetchDocuments}
         />
       )}
     </div>
