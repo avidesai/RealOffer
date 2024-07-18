@@ -16,7 +16,7 @@
 .dls-documents-list p {
   margin: 0;
   padding-left: 3rem; /* Align with h3 */
-  padding-right: 1rem;
+  padding-right: 1.5rem;
   padding-bottom: 1rem;
   font-size: 1rem;
   color: #555;
@@ -68,10 +68,10 @@
 .dls-document-pages {
   font-size: 0.9rem;
   color: #888;
-  width: 120px;
+  width: 125px;
   text-align: center;
   background-color: #f1f1f1; /* Default background color */
-  padding: 0.2rem 0.8rem; /* Add some padding */
+  padding: 0.25rem 0.8rem; /* Add some padding */
   border-radius: 1rem; /* Make it rounded */
   display: inline-block; /* Ensure it's inline-block */
   transition: background-color 0.3s;
