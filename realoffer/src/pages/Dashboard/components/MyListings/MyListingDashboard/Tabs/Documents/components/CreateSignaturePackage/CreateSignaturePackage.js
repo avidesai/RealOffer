@@ -30,6 +30,12 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, onCreateSignatureP
     setSelectedDocument({ ...document, fileUrl: documentUrlWithSAS });
   };
 
+  const handlePageSelectionChange = (updatedDocument) => {
+    setDocuments((prevDocuments) =>
+      prevDocuments.map((doc) => (doc._id === updatedDocument._id ? updatedDocument : doc))
+    );
+  };
+
   return (
     isOpen && (
       <div className="csp-modal">
@@ -45,13 +51,15 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, onCreateSignatureP
             />
           </div>
           <div className="csp-pdf-viewer">
-            {selectedDocument &&
+            {selectedDocument && (
               <SignaturePDFViewer
                 fileUrl={selectedDocument.fileUrl}
                 documentTitle={selectedDocument.title}
                 documentId={selectedDocument._id}
-                signaturePackagePages={selectedDocument.signaturePackagePages || []}
-              />}
+                signaturePackagePages={selectedDocument.signaturePackagePages}
+                onPageSelectionChange={handlePageSelectionChange}
+              />
+            )}
           </div>
         </div>
         <div className="csp-footer">

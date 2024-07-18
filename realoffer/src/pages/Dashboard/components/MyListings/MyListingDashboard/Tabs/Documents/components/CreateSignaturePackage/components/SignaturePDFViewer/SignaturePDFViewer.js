@@ -5,7 +5,7 @@ import axios from 'axios';
 import useSignaturePDFViewer from './SignaturePDFViewerLogic';
 import './SignaturePDFViewer.css';
 
-const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePackagePages }) => {
+const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePackagePages, onPageSelectionChange }) => {
   const {
     pdf,
     scale,
@@ -34,7 +34,8 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
     setLocalSelectedPages((prev) =>
       prev.includes(pageIndex) ? prev.filter((page) => page !== pageIndex) : [...prev, pageIndex]
     );
-    await axios.post(url, { documentId, page: pageIndex });
+    const response = await axios.post(url, { documentId, page: pageIndex });
+    onPageSelectionChange(response.data); // Notify parent of the updated document
   };
 
   const handleMouseEnter = (pageIndex) => {

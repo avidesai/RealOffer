@@ -224,11 +224,16 @@ exports.addPageToSignaturePackage = async (req, res) => {
   const { documentId, page } = req.body;
 
   try {
-    const document = await Document.findByIdAndUpdate(
-      documentId,
-      { $addToSet: { signaturePackagePages: page } },
-      { new: true }
-    );
+    const document = await Document.findById(documentId);
+    if (!document) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+
+    if (!document.signaturePackagePages.includes(page)) {
+      document.signaturePackagePages.push(page);
+      await document.save();
+    }
+
     res.status(200).json(document);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -239,13 +244,17 @@ exports.removePageFromSignaturePackage = async (req, res) => {
   const { documentId, page } = req.body;
 
   try {
-    const document = await Document.findByIdAndUpdate(
-      documentId,
-      { $pull: { signaturePackagePages: page } },
-      { new: true }
-    );
+    const document = await Document.findById(documentId);
+    if (!document) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+
+    document.signaturePackagePages = document.signaturePackagePages.filter(p => p !== page);
+    await document.save();
+
     res.status(200).json(document);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
