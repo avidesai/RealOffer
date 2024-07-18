@@ -19,6 +19,17 @@
   border-bottom: 1px solid #ddd;
 }
 
+.spv-add-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
 .spv-document-title {
   flex-grow: 1;
   text-align: center;

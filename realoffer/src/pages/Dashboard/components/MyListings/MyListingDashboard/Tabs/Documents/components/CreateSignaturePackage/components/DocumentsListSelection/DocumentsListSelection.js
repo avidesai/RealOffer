@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import './DocumentsListSelection.css';
 
-const DocumentsListSelection = ({ documents, onDocumentSelect, selectedPages }) => {
+const DocumentsListSelection = ({ documents, onDocumentSelect }) => {
   const [selectedDocumentId, setSelectedDocumentId] = useState(null);
 
   const handleDocumentClick = (document) => {
@@ -26,7 +26,7 @@ const DocumentsListSelection = ({ documents, onDocumentSelect, selectedPages }) 
               <span className="dls-document-title">{document.title}</span>
               <span className="dls-document-type">{document.type}</span>
               <span className="dls-document-pages">
-                {selectedPages[document._id] ? `${selectedPages[document._id].length} Pages Selected` : 'No Pages Selected'}
+                {document.signaturePackagePages ? `${document.signaturePackagePages.length} Pages Selected` : 'No Pages Selected'}
               </span>
             </div>
           </li>

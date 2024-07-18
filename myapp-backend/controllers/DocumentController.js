@@ -219,3 +219,33 @@ exports.deleteDocument = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.addPageToSignaturePackage = async (req, res) => {
+  const { documentId, page } = req.body;
+
+  try {
+    const document = await Document.findByIdAndUpdate(
+      documentId,
+      { $addToSet: { signaturePackagePages: page } },
+      { new: true }
+    );
+    res.status(200).json(document);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.removePageFromSignaturePackage = async (req, res) => {
+  const { documentId, page } = req.body;
+
+  try {
+    const document = await Document.findByIdAndUpdate(
+      documentId,
+      { $pull: { signaturePackagePages: page } },
+      { new: true }
+    );
+    res.status(200).json(document);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

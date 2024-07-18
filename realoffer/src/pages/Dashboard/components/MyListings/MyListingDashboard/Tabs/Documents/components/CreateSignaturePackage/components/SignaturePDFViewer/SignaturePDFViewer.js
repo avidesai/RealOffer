@@ -1,10 +1,11 @@
 // SignaturePDFViewer.js
 
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import useSignaturePDFViewer from './SignaturePDFViewerLogic';
 import './SignaturePDFViewer.css';
 
-const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, selectedPages, updateSelectedPages }) => {
+const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePackagePages }) => {
   const {
     pdf,
     scale,
@@ -20,21 +21,20 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, selectedPages,
     handleNextPage,
   } = useSignaturePDFViewer(fileUrl);
 
-  const [localSelectedPages, setLocalSelectedPages] = useState(selectedPages);
+  const [localSelectedPages, setLocalSelectedPages] = useState(signaturePackagePages);
   const [hoveredPage, setHoveredPage] = useState(null);
 
   useEffect(() => {
-    setLocalSelectedPages(selectedPages);
-  }, [selectedPages]);
+    setLocalSelectedPages(signaturePackagePages);
+  }, [signaturePackagePages]);
 
-  useEffect(() => {
-    updateSelectedPages(documentId, localSelectedPages);
-  }, [localSelectedPages, documentId, updateSelectedPages]);
-
-  const handlePageSelect = (pageIndex) => {
+  const handlePageSelect = async (pageIndex) => {
+    const isSelected = localSelectedPages.includes(pageIndex);
+    const url = `http://localhost:8000/api/documents/${isSelected ? 'removePage' : 'addPage'}`;
     setLocalSelectedPages((prev) =>
       prev.includes(pageIndex) ? prev.filter((page) => page !== pageIndex) : [...prev, pageIndex]
     );
+    await axios.post(url, { documentId, page: pageIndex });
   };
 
   const handleMouseEnter = (pageIndex) => {
@@ -73,11 +73,11 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, selectedPages,
                 <canvas ref={(el) => (pagesRef.current[index] = { ...pagesRef.current[index], canvas: el })} className="spv-canvas" />
                 <div ref={(el) => (pagesRef.current[index] = { ...pagesRef.current[index], textLayer: el })} className="spv-text-layer" />
                 <div className={`spv-overlay ${hoveredPage === index + 1 || localSelectedPages.includes(index + 1) ? 'active' : ''}`}>
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     className="spv-checkbox"
-                    checked={localSelectedPages.includes(index + 1)} 
-                    onChange={() => handlePageSelect(index + 1)} 
+                    checked={localSelectedPages.includes(index + 1)}
+                    onChange={() => handlePageSelect(index + 1)}
                     onClick={(e) => e.stopPropagation()} // Prevents click event on the parent div
                   />
                 </div>
