@@ -6,15 +6,15 @@ import 'pdfjs-dist/build/pdf.worker';
 
 const useSignaturePDFViewer = (fileUrl) => {
   const [pdf, setPdf] = useState(null);
-  const [scale, setScale] = useState(0.6);
+  const [scale, setScale] = useState(0.6); // Matching the scale factor with PDFViewer
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [isZooming, setIsZooming] = useState(false);
   const pagesRef = useRef([]);
   const containerRef = useRef(null);
 
-  const MIN_SCALE = 0.4;
-  const MAX_SCALE = 2.5;
+  const MIN_SCALE = 0.4; // Matching the scale factors with PDFViewer
+  const MAX_SCALE = 1.6;
 
   const fetchPdf = useCallback(async () => {
     if (fileUrl) {
@@ -42,7 +42,7 @@ const useSignaturePDFViewer = (fileUrl) => {
       const canvas = pagesRef.current[pageNum - 1].canvas;
       const textLayer = pagesRef.current[pageNum - 1].textLayer;
       const context = canvas.getContext('2d');
-      
+
       // Adjust the scale factor for higher DPI rendering
       const outputScale = window.devicePixelRatio || 1;
       canvas.width = Math.floor(viewport.width * outputScale);

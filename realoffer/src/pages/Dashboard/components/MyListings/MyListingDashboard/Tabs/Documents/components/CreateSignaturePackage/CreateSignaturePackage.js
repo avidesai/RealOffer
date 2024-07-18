@@ -27,7 +27,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
   }, [isOpen, fetchDocuments]);
 
   const handleDocumentSelect = (document) => {
-    const documentUrlWithSAS = `${document.azureKey}?${document.sasToken}`;
+    const documentUrlWithSAS = `${document.thumbnailUrl}?${document.sasToken}`;
     setSelectedDocument({ ...document, fileUrl: documentUrlWithSAS });
   };
 
