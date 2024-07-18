@@ -40,7 +40,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, onCreateSignatureP
     isOpen && (
       <div className="csp-modal">
         <div className="csp-header">
-          <h2>Create Signature Package</h2>
+          <h2>Create Buyer Signature Package</h2>
           <button className="csp-close-button" onClick={onClose}></button>
         </div>
         <div className="csp-body">
@@ -64,7 +64,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, onCreateSignatureP
         </div>
         <div className="csp-footer">
           <button className="csp-create-button" onClick={onCreateSignaturePackage}>
-            Create Signature Package
+            Create Buyer Signature Package
           </button>
         </div>
       </div>

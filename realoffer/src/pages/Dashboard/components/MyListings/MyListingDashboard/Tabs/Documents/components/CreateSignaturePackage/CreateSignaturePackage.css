@@ -45,6 +45,7 @@
   width: 33%;
   border-right: 1px solid #ddd;
   overflow-y: auto;
+  padding-bottom: 1rem;
 }
 
 .csp-pdf-viewer {

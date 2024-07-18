@@ -14,7 +14,7 @@ const DocumentsListSelection = ({ documents, onDocumentSelect }) => {
   return (
     <div className="dls-documents-list">
       <h3>Documents</h3>
-      <p>Browse documents below and choose pages to add to your signature package.</p>
+      <p>Browse documents below and choose pages to add to your buyer signature package.</p>
       <ul>
         {documents.map((document) => (
           <li

@@ -114,7 +114,7 @@ const Documents = ({ listingId }) => {
             Delete
           </button>
           <button className="docusign-button">DocuSign</button>
-          <button className="signature-button" onClick={openSignaturePackageModal}>Create Signature Package</button>
+          <button className="signature-button" onClick={openSignaturePackageModal}>Create Buyer Signature Package</button>
         </div>
         <button className="notify-button">Notify Viewers of Updates</button>
       </div>
