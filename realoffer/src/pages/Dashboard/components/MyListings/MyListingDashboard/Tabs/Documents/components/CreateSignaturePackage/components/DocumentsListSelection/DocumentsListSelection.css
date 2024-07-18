@@ -24,8 +24,8 @@
 }
 
 .dls-document-item {
-  padding: 10px;
-  padding-left: 2rem; /* Align padding with header */
+  padding: 1rem;
+  padding-left: 1.5rem; /* Align padding with header */
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -33,6 +33,7 @@
   border-bottom: 1px solid #ddd;
   color: black;
   font-weight: 500;
+  transition: background-color 0.3s;
 }
 
 .dls-document-item:hover {
@@ -44,8 +45,7 @@
   color: white; /* Text color for highlighted item */
 }
 
-.dls-document-item.selected .dls-document-type,
-.dls-document-item.selected .dls-document-pages {
+.dls-document-item.selected .dls-document-type {
   color: white; /* Text color for highlighted document type and pages */
 }
 
@@ -56,16 +56,28 @@
 
 .dls-document-title {
   font-size: 1.1rem;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.7rem;
 }
 
 .dls-document-type {
   font-size: 0.9rem;
   color: #888;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.9rem;
 }
 
 .dls-document-pages {
   font-size: 0.9rem;
   color: #888;
+  width: 120px;
+  text-align: center;
+  background-color: #f1f1f1; /* Default background color */
+  padding: 0.2rem 0.8rem; /* Add some padding */
+  border-radius: 1rem; /* Make it rounded */
+  display: inline-block; /* Ensure it's inline-block */
+  transition: background-color 0.3s;
+}
+
+.dls-document-pages.morethanzero {
+  background-color: #32b643;
+  color: white; /* Text color when pages are selected */
 }

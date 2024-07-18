@@ -25,7 +25,7 @@ const DocumentsListSelection = ({ documents, onDocumentSelect }) => {
             <div className="dls-document-info">
               <span className="dls-document-title">{document.title}</span>
               <span className="dls-document-type">{document.type}</span>
-              <span className="dls-document-pages">
+              <span className={`dls-document-pages ${document.signaturePackagePages.length > 0 ? 'morethanzero' : ''}`}>
                 {document.signaturePackagePages ? `${document.signaturePackagePages.length} Pages Selected` : 'No Pages Selected'}
               </span>
             </div>
