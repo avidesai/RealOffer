@@ -1,3 +1,5 @@
+// /controllers/offerController.js
+
 const Offer = require('../models/Offer');
 
 // Create a new offer
