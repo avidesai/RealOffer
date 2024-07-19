@@ -24,16 +24,33 @@
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.5s ease, box-shadow 0.5s ease;
 }
 
 .add-documents-button {
-  padding: 10px 25px; /* Match the padding of the other buttons */
+  background-color: #007bff;
+  padding: 10px 25px;
+  color: #fff;
 }
 
-.add-documents-button:hover, .notify-button:hover, .signature-button:hover, .docusign-button:hover, .delete-button:hover, .download-doc-button:hover {
+.signature-button {
+  background-image: linear-gradient(to right, #9b2ae2, #4078fb);
+  color: #fff;
+}
+
+.notify-button:hover, .signature-button:hover, .docusign-button:hover, .download-doc-button:hover, .delete-button:hover {
   transform: scale(1.05);
   background-color: #ececec;
+}
+
+.add-documents-button:hover {
+  transform: scale(1.05);
+  background-color: #0056b3;
+}
+
+.signature-button:hover {
+  background-image: linear-gradient(to right, #8423c1, #3460c8);
+  color: #fff;
 }
 
 .action-buttons {
@@ -62,7 +79,7 @@
   padding-bottom: 0.6rem;
   border-radius: 10px;
   margin-bottom: 1rem;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.5s ease, box-shadow 0.5s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
   cursor: pointer;
@@ -119,7 +136,7 @@
   display: flex;
   gap: 0.6rem;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.5s ease;
   margin-top: -10px;
   padding-right: 1rem;
 }
@@ -134,15 +151,34 @@
   border: 1px solid #898888;
   border-radius: 10px;
   padding: 10px 20px;
+  margin-right: 0.2rem;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.5s ease, box-shadow 0.5s ease;
 }
 
 .download-actions-button {
   background-color: #007bff;
   color: white;
+}
+
+.document-actions .download-action-button {
+  background-color: #007bff;
+  color: white;
+}
+
+
+.document-actions .delete-action-button:hover,
+.document-actions .document-actions-button:hover {
+  transform: scale(1.05);
+  background-color: #ececec;
+
+}
+
+.document-actions .download-action-button:hover {
+  transform: scale(1.05);
+  background-color: #0056b3;
 }
 
 .selected {
