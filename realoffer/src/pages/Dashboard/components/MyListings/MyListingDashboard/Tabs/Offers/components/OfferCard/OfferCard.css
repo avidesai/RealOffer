@@ -1,0 +1,117 @@
+/* OfferCard.css */
+
+.offer-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+    padding: 1rem;
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .offer-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .offer-avatar {
+    background-color: #007bff;
+    color: #ffffff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+  }
+  
+  .offer-agent-info {
+    flex: 1;
+  }
+  
+  .offer-agent-name {
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  .offer-agent-email,
+  .offer-agent-phone,
+  .offer-agent-license {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #666666;
+  }
+  
+  .offer-card-body {
+    margin-bottom: 1rem;
+  }
+  
+  .offer-price {
+    text-align: center;
+  }
+  
+  .offer-price p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #666666;
+  }
+  
+  .offer-price h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333333;
+  }
+  
+  .offer-actions {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 1rem;
+  }
+  
+  .view-offer-button,
+  .respond-offer-button {
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background-color 0.3s;
+  }
+  
+  .view-offer-button:hover,
+  .respond-offer-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .offer-details {
+    margin-top: 1rem;
+  }
+  
+  .offer-details p {
+    margin: 0.5rem 0;
+    font-size: 0.875rem;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .offer-card-footer {
+    margin-top: 1rem;
+  }
+  
+  .team-notes {
+    width: 100%;
+    height: 80px;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 0.875rem;
+    outline: none;
+  }
+  

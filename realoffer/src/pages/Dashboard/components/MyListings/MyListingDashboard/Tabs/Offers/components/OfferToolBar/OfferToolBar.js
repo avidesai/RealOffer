@@ -9,7 +9,7 @@ const OfferToolBar = ({ onAddOffer, onDownloadSummary, currentPage, totalPages, 
     <div className="offer-toolbar">
       <div className="toolbar-left">
         <button className="add-offer-button" onClick={onAddOffer}>
-          Add Offer
+          Make an Offer
         </button>
         <button className="download-button" onClick={onDownloadSummary}>
           Download Summary

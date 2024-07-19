@@ -5,6 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import OfferSortBar from './components/OfferSortBar/OfferSortBar';
+import OfferCard from './components/OfferCard/OfferCard';
 import './Offers.css';
 
 const Offers = ({ listingId }) => {
@@ -70,9 +71,9 @@ const Offers = ({ listingId }) => {
 
   return (
     <div className="offers-tab">
-      <OfferSortBar
-        onFilterChange={handleFilterChange}
-        onSortChange={handleSortChange}
+      <OfferSortBar 
+        onFilterChange={handleFilterChange} 
+        onSortChange={handleSortChange} 
         onSearch={handleSearch}
         onAddOffer={handleAddOffer}
         onDownloadSummary={handleDownloadSummary}
@@ -85,17 +86,7 @@ const Offers = ({ listingId }) => {
           <p className="no-offers-message">No offers found.</p>
         ) : (
           paginatedOffers.map(offer => (
-            <div key={offer._id} className="offer-item">
-              <div className="offer-info">
-                <p className="offer-title">{offer.title}</p>
-                <p className="offer-price">${offer.price}</p>
-                <p className="offer-agent">{offer.buyersAgent.name}</p>
-              </div>
-              <div className="offer-actions">
-                <button className="view-button">View</button>
-                <button className="respond-button">Respond</button>
-              </div>
-            </div>
+            <OfferCard key={offer._id} offer={offer} />
           ))
         )}
       </div>

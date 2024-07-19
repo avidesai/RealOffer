@@ -1,5 +1,7 @@
 /* Offers.css */
 
+/* Offers.css */
+
 .offers-tab {
   padding: 1rem;
   background-color: #f1f1f1;
@@ -7,6 +9,9 @@
 }
 
 .offers-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
   margin-top: 1rem;
 }
 
@@ -15,80 +20,4 @@
   margin-left: 1rem;
   color: #666;
   font-size: 16px;
-}
-
-.offer-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #fff;
-  padding: 1rem;
-  padding-top: 1.2rem;
-  padding-bottom: 0.6rem;
-  border-radius: 10px;
-  margin-bottom: 1rem;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: relative;
-  cursor: pointer;
-}
-
-.offer-item:hover {
-  background-color: #dceeff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.offer-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.offer-title {
-  font-weight: bold;
-  margin: 0;
-  color: #333;
-}
-
-.offer-price,
-.offer-agent {
-  margin: 0;
-  color: #666;
-}
-
-.offer-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.offer-actions button {
-  font-weight: bold;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.offer-actions button:hover {
-  background-color: #0056b3;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.offer-actions .view-button {
-  background-color: #28a745;
-}
-
-.offer-actions .view-button:hover {
-  background-color: #238c31;
-}
-
-.offer-actions .respond-button {
-  background-color: #ffc107;
-}
-
-.offer-actions .respond-button:hover {
-  background-color: #e0a800;
 }
