@@ -1,5 +1,3 @@
-// OffersPagination.js
-
 import React from 'react';
 import './OffersPagination.css';
 

@@ -1,9 +1,10 @@
 // Offers.js
 
+// Offers.js
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import OfferSortBar from './components/OfferSortBar/OfferSortBar';
-import OfferToolBar from './components/OfferToolBar/OfferToolBar';
 import './Offers.css';
 
 const Offers = ({ listingId }) => {
@@ -69,13 +70,15 @@ const Offers = ({ listingId }) => {
 
   return (
     <div className="offers-tab">
-      <OfferSortBar onFilterChange={handleFilterChange} onSortChange={handleSortChange} onSearch={handleSearch} />
-      <OfferToolBar 
-        onAddOffer={handleAddOffer} 
-        onDownloadSummary={handleDownloadSummary} 
-        currentPage={currentPage} 
-        totalPages={totalPages} 
-        onPageChange={handlePageChange} 
+      <OfferSortBar
+        onFilterChange={handleFilterChange}
+        onSortChange={handleSortChange}
+        onSearch={handleSearch}
+        onAddOffer={handleAddOffer}
+        onDownloadSummary={handleDownloadSummary}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
       />
       <div className="offers-list">
         {paginatedOffers.length === 0 ? (

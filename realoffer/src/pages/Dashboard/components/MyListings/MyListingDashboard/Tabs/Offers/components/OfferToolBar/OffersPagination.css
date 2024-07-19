@@ -1,9 +1,8 @@
-/* OffersPagination.css */
-
 .offers-pagination {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 0;
 }
 
 .offers-page-item {
@@ -14,7 +13,7 @@
   border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
-  transition: background-color 0.2s, box-shadow 0.3s ease;
+  transition: background-color 0.5s, box-shadow 0.5s ease;
 }
 
 .offers-page-item:hover {
@@ -25,6 +24,12 @@
   background-color: #007bff;
   color: white;
   border-color: #007bff;
+}
+
+.offers-page-item.active:hover {
+  background-color: #0056b3;
+  color: white;
+  border-color: #0056b3;
 }
 
 .offers-page-item:disabled {
