@@ -134,7 +134,7 @@
 
 .pdf-float-toolbar {
   position: fixed; /* Changed from absolute to fixed */
-  bottom: 2rem;
+  bottom: 3rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -152,7 +152,7 @@
 }
 
 .pdf-float-toolbar .toolbar-button {
-  background-color: #007bff;
+  background-color: #0056b3;
   color: white;
   border: none;
   padding: 10px 15px;
@@ -163,7 +163,7 @@
 }
 
 .pdf-float-toolbar .toolbar-button-zoom {
-  background-color: #007bff;
+  background-color: #0056b3;
   color: white;
   border: none;
   padding: 10px 15px;
@@ -176,7 +176,7 @@
 
 .pdf-float-toolbar .toolbar-button:hover,
 .pdf-float-toolbar .toolbar-button-zoom:hover {
-  background-color: #0056b3;
+  background-color: #003874;
   transform: scale(1.05);
 }
 

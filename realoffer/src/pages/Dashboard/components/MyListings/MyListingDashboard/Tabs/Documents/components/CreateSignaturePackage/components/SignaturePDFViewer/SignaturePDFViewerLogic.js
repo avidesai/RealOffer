@@ -14,7 +14,7 @@ const useSignaturePDFViewer = (fileUrl) => {
   const pagesRef = useRef([]);
   const containerRef = useRef(null);
 
-  const MIN_SCALE = 0.4; // Matching the scale factors with PDFViewer
+  const MIN_SCALE = 0.6; // Matching the scale factors with PDFViewer
   const MAX_SCALE = 1.6;
 
   const fetchPdf = useCallback(async () => {

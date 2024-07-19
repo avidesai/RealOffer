@@ -51,10 +51,10 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
       <div className="spv-header">
         <div className="spv-document-title">{documentTitle}</div>
         <div className="spv-toolbar">
-          <button className="spv-zoom-button" onClick={handleZoomOut} disabled={isZooming || scale <= 0.7}>
+          <button className="spv-zoom-button" onClick={handleZoomOut} disabled={isZooming || scale <= 0.6}>
             -
           </button>
-          <button className="spv-zoom-button" onClick={handleZoomIn} disabled={isZooming || scale >= 3.0}>
+          <button className="spv-zoom-button" onClick={handleZoomIn} disabled={isZooming || scale >= 1.6}>
             +
           </button>
         </div>

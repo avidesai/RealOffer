@@ -131,7 +131,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
       <div className="more-info-content">
         <div className="more-info-header">
           <h2>Property Information</h2>
-          <button className="close-button more-info-close-button" onClick={onClose}></button>
+          <button className="more-info-close-button" onClick={onClose}></button>
         </div>
         <div className="info-section">
           {renderField('Price', 'homeCharacteristics.price', listing.homeCharacteristics.price, formatPrice)}
@@ -169,7 +169,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
             </div>
           ) : (
             <>
-              <p className="info-value">{listing.description}</p>
+              <p className="info-value listing-description">{listing.description}</p>
               <button className="edit-button" onClick={() => handleEdit('description', listing.description)}>Edit</button>
             </>
           )}

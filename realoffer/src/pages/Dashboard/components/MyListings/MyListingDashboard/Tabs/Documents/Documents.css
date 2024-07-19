@@ -15,7 +15,7 @@
   margin-right: 1rem;
 }
 
-.notify-button, .signature-button, .docusign-button, .add-documents-button, .delete-button, .download-doc-button {
+.signature-button, .docusign-button, .add-documents-button, .delete-button, .download-doc-button {
   background-color: #ffffff;
   color: #262626;
   border: 1px solid #898888;
@@ -33,12 +33,7 @@
   color: #fff;
 }
 
-.signature-button {
-  background-image: linear-gradient(to right, #9b2ae2, #4078fb);
-  color: #fff;
-}
-
-.notify-button:hover, .signature-button:hover, .docusign-button:hover, .download-doc-button:hover, .delete-button:hover {
+.signature-button:hover, .docusign-button:hover, .download-doc-button:hover, .delete-button:hover {
   transform: scale(1.05);
   background-color: #ececec;
 }
@@ -46,11 +41,6 @@
 .add-documents-button:hover {
   transform: scale(1.05);
   background-color: #0056b3;
-}
-
-.signature-button:hover {
-  background-image: linear-gradient(to right, #8423c1, #3460c8);
-  color: #fff;
 }
 
 .action-buttons {
