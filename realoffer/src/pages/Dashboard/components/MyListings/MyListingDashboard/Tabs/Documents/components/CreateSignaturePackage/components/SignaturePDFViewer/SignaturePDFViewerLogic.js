@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist/build/pdf';
 import 'pdfjs-dist/build/pdf.worker';
+import { TextLayerBuilder } from 'pdfjs-dist/web/pdf_viewer';
 
 const useSignaturePDFViewer = (fileUrl) => {
   const [pdf, setPdf] = useState(null);
@@ -35,12 +36,12 @@ const useSignaturePDFViewer = (fileUrl) => {
     fetchPdf();
   }, [fetchPdf]);
 
-  const renderPage = async (pageNum) => {
+  const renderPage = useCallback(async (pageNum) => {
     try {
       const page = await pdf.getPage(pageNum);
       const viewport = page.getViewport({ scale });
       const canvas = pagesRef.current[pageNum - 1].canvas;
-      const textLayer = pagesRef.current[pageNum - 1].textLayer;
+      const textLayerDiv = pagesRef.current[pageNum - 1].textLayer;
       const context = canvas.getContext('2d');
 
       // Adjust the scale factor for higher DPI rendering
@@ -50,9 +51,7 @@ const useSignaturePDFViewer = (fileUrl) => {
       canvas.style.width = Math.floor(viewport.width) + "px";
       canvas.style.height = Math.floor(viewport.height) + "px";
 
-      const transform = outputScale !== 1
-        ? [outputScale, 0, 0, outputScale, 0, 0]
-        : null;
+      const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
 
       const renderContext = {
         canvasContext: context,
@@ -63,17 +62,19 @@ const useSignaturePDFViewer = (fileUrl) => {
       await page.render(renderContext).promise;
 
       const textContent = await page.getTextContent();
-      pdfjsLib.renderTextLayer({
-        textContent,
-        container: textLayer,
+
+      const textLayer = new TextLayerBuilder({
+        textLayerDiv,
+        pageIndex: pageNum - 1,
         viewport,
-        textDivs: [],
-        enhanceTextSelection: true, // Enables text selection
       });
+
+      textLayer.setTextContent(textContent);
+      textLayer.render();
     } catch (error) {
       console.error('Error rendering PDF:', error);
     }
-  };
+  }, [pdf, scale]);
 
   useEffect(() => {
     const renderAllPages = async () => {
@@ -85,7 +86,7 @@ const useSignaturePDFViewer = (fileUrl) => {
     };
 
     renderAllPages();
-  }, [pdf, scale]);
+  }, [pdf, scale, renderPage]);
 
   const handleZoomIn = async () => {
     if (scale < MAX_SCALE) {

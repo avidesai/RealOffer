@@ -152,18 +152,18 @@
 }
 
 .pdf-float-toolbar .toolbar-button {
-  background-color: rgba(0, 0, 0, 0.950);
+  background-color: #007bff;
   color: white;
   border: none;
   padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
   font-weight: 500;
-  transition: smooth 0.3s;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .pdf-float-toolbar .toolbar-button-zoom {
-  background-color: rgba(0, 0, 0, 0.950);
+  background-color: #007bff;
   color: white;
   border: none;
   padding: 10px 15px;
@@ -171,16 +171,18 @@
   cursor: pointer;
   font-weight: 500;
   font-size: 18px;
-  transition: smooth 0.3s;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-.pdf-float-toolbar .toolbar-button:hover, .pdf-float-toolbar .toolbar-button-zoom:hover {
-  background-color: rgba(0, 0, 0, 1);
-  scale: 1.05;
+.pdf-float-toolbar .toolbar-button:hover,
+.pdf-float-toolbar .toolbar-button-zoom:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
 }
 
-.pdf-float-toolbar .toolbar-button:disabled, .pdf-float-toolbar .toolbar-button-zoom:disabled {
-  background-color: rgba(0, 0, 0, 0.5);
+.pdf-float-toolbar .toolbar-button:disabled,
+.pdf-float-toolbar .toolbar-button-zoom:disabled {
+  background-color: #a9a9a9;
   cursor: not-allowed;
 }
 

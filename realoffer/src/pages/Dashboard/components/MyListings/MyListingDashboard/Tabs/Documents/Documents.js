@@ -102,17 +102,9 @@ const Documents = ({ listingId }) => {
     setShowSignaturePackageModal(false);
   };
 
-  const handleCreateSignaturePackage = async () => {
-    setLoading(true);
-    try {
-      await axios.post('http://localhost:8000/api/documents/createBuyerSignaturePacket', { listingId });
-      fetchDocuments();
-      closeSignaturePackageModal();
-    } catch (error) {
-      console.error('Error creating buyer signature package:', error);
-    } finally {
-      setLoading(false);
-    }
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
+    return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
   return (
@@ -126,7 +118,7 @@ const Documents = ({ listingId }) => {
             Delete
           </button>
           <button className="docusign-button">DocuSign</button>
-          <button className="signature-button" onClick={openSignaturePackageModal}>Create Buyer Signature Package</button>
+          <button className="signature-button" onClick={openSignaturePackageModal}>Create Buyer Signature Packet</button>
         </div>
         <button className="notify-button">Notify Viewers of Updates</button>
       </div>
@@ -156,7 +148,7 @@ const Documents = ({ listingId }) => {
                     <p className="document-title">{doc.title || 'Untitled'}</p>
                     <p className="document-type">{doc.type || 'No type'}</p>
                     <p className="document-meta">
-                      {doc.pages || 0} PAGES | {Math.round(doc.size / 1024)} KB | UPDATED {new Date(doc.updatedAt).toLocaleDateString()}
+                      {doc.pages || 0} {doc.pages === 1 ? 'Page' : 'Pages'} <span className="meta-divider">•</span> {formatDate(doc.updatedAt)}
                     </p>
                   </div>
                 </div>

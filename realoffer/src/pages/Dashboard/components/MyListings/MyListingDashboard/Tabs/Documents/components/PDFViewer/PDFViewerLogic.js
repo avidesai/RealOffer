@@ -6,7 +6,7 @@ import 'pdfjs-dist/build/pdf.worker';
 
 const usePDFViewer = (fileUrl) => {
   const [pdf, setPdf] = useState(null);
-  const [scale, setScale] = useState(1.7);
+  const [scale, setScale] = useState(1.5);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [isZooming, setIsZooming] = useState(false);
@@ -14,7 +14,7 @@ const usePDFViewer = (fileUrl) => {
   const containerRef = useRef(null);
 
   const MIN_SCALE = 0.7;
-  const MAX_SCALE = 3.0;
+  const MAX_SCALE = 2.5;
 
   const fetchPdf = useCallback(async () => {
     if (fileUrl) {
@@ -35,7 +35,7 @@ const usePDFViewer = (fileUrl) => {
     fetchPdf();
   }, [fetchPdf]);
 
-  const renderPage = async (pageNum) => {
+  const renderPage = useCallback(async (pageNum) => {
     try {
       const page = await pdf.getPage(pageNum);
       const viewport = page.getViewport({ scale });
@@ -73,7 +73,7 @@ const usePDFViewer = (fileUrl) => {
     } catch (error) {
       console.error('Error rendering PDF:', error);
     }
-  };
+  }, [pdf, scale]);
 
   useEffect(() => {
     const renderAllPages = async () => {
@@ -85,7 +85,7 @@ const usePDFViewer = (fileUrl) => {
     };
 
     renderAllPages();
-  }, [pdf, scale]);
+  }, [pdf, scale, renderPage]);
 
   const handleZoomIn = async () => {
     if (scale < MAX_SCALE) {

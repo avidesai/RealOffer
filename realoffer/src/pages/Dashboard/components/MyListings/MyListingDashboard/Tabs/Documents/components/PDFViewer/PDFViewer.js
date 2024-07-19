@@ -51,13 +51,13 @@ const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
           {pdf && (
             <div className="pdf-float-toolbar">
               <button className="toolbar-button" onClick={handlePrevPage} disabled={currentPage <= 1}>
-                Previous
+                Previous Page
               </button>
               <span className="nav-page-info">
                 Page {currentPage} of {pdf.numPages}
               </span>
               <button className="toolbar-button" onClick={handleNextPage} disabled={currentPage >= pdf.numPages}>
-                Next
+                Next Page
               </button>
               <button
                 className="toolbar-button-zoom"

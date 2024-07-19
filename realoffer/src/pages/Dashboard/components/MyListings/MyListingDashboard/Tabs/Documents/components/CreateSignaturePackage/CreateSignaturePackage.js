@@ -54,8 +54,8 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
     isOpen && (
       <div className="csp-modal">
         {isLoading && (
-          <div className="spinner-overlay">
-            <div className="spinner"></div>
+          <div className="csp-spinner-overlay">
+            <div className="csp-spinner"></div>
           </div>
         )}
         <div className="csp-header">
