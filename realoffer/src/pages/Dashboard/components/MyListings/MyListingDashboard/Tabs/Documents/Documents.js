@@ -156,8 +156,8 @@ const Documents = ({ listingId }) => {
                   <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
                     <button className="download-action-button document-actions-button">Download</button>
                   </a>
-                  <button className="rename-button document-actions-button">Rename</button>
-                  <button className="delete-button document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
+                  <button className="rename-action-button document-actions-button">Rename</button>
+                  <button className="delete-action-button document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
                     Delete
                   </button>
                 </div>

@@ -140,9 +140,9 @@
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.document-actions button:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  scale: 1.05;
+.download-actions-button {
+  background-color: #007bff;
+  color: white;
 }
 
 .selected {

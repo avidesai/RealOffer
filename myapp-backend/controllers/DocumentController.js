@@ -289,7 +289,6 @@ exports.createBuyerSignaturePacket = async (req, res) => {
       try {
         const sasToken = generateSASToken(document.azureKey);
         const documentUrlWithSAS = `${document.thumbnailUrl}?${sasToken}`;
-        console.log(`Fetching document from URL: ${documentUrlWithSAS}`);
         
         const fetch = (await import('node-fetch')).default;
         const response = await fetch(documentUrlWithSAS);
@@ -298,9 +297,7 @@ exports.createBuyerSignaturePacket = async (req, res) => {
           console.error(`Failed to fetch document ${document._id}: ${response.statusText}`);
           continue;
         }
-        
         const contentType = response.headers.get('content-type');
-        console.log(`Content-Type of document ${document._id}: ${contentType}`);
         
         if (!contentType || (!contentType.includes('pdf') && contentType !== 'application/octet-stream')) {
           console.error(`Document ${document._id} is not a PDF`);

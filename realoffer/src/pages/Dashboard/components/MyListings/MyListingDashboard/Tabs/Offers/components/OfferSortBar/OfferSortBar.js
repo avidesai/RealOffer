@@ -1,11 +1,11 @@
-// ViewerSortBar.js
+// OfferSortBar.js
 
 import React, { useState } from 'react';
-import './ViewerSortBar.css';
+import './OfferSortBar.css';
 
-function ViewerSortBar({ onFilterChange, onSortChange, onSearch }) {
+function OfferSortBar({ onFilterChange, onSortChange, onSearch }) {
   const [filter, setFilter] = useState('active');
-  const [sort, setSort] = useState('name-asc');
+  const [sort, setSort] = useState('recent');
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleFilterChange = (e) => {
@@ -28,34 +28,34 @@ function ViewerSortBar({ onFilterChange, onSortChange, onSearch }) {
   };
 
   return (
-    <div className="viewer-sort-bar">
+    <div className="offer-sort-bar">
       <div className="filter-sort-section">
-        <div className="viewer-filter-section">
+        <div className="offer-filter-section">
           <label htmlFor="filter">Filter</label>
           <select id="filter" value={filter} onChange={handleFilterChange}>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
         </div>
-        <div className="viewer-sort-section">
+        <div className="offer-sort-section">
           <label htmlFor="sort">Sort</label>
           <select id="sort" value={sort} onChange={handleSortChange}>
-            <option value="name-asc">Name (A-Z)</option>
-            <option value="name-desc">Name (Z-A)</option>
+            <option value="recent">Most Recent</option>
+            <option value="oldest">Oldest</option>
           </select>
         </div>
       </div>
-      <div className="viewer-search-section">
+      <div className="offer-search-section">
         <form onSubmit={handleSearchSubmit} className="search-form">
           <div className="search-input">
             <input
               type="text"
               id="search"
-              placeholder="Search Viewers"
+              placeholder="Search Offers"
               value={searchQuery}
               onChange={handleSearchChange}
             />
-            <button type="submit" className="viewer-search-button">
+            <button type="submit" className="offer-search-button">
               Search
             </button>
           </div>
@@ -65,4 +65,4 @@ function ViewerSortBar({ onFilterChange, onSortChange, onSearch }) {
   );
 }
 
-export default ViewerSortBar;
+export default OfferSortBar;

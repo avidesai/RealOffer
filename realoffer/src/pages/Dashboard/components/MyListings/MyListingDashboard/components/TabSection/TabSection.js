@@ -4,6 +4,7 @@ import Viewers from '../../Tabs/Viewers/Viewers';
 import Activity from '../../Tabs/Activity/Activity';
 import Messages from '../../Tabs/Messages/Messages';
 import Settings from '../../Tabs/Settings/Settings';
+import Offers from '../../Tabs/Offers/Offers';
 import axios from 'axios';
 import './TabSection.css';
 
@@ -78,7 +79,7 @@ const TabSection = ({ listing }) => {
         {activeTab === 'viewers' && <Viewers listingId={updatedListing._id} />}
         {activeTab === 'activity' && <Activity />}
         {activeTab === 'messages' && <Messages />}
-        {activeTab === 'offers' && <div>Offers Content</div>}
+        {activeTab === 'offers' && <Offers />}
         {activeTab === 'settings' && <Settings listing={updatedListing} onStatusChange={handleStatusChange} />}
       </div>
     </div>
