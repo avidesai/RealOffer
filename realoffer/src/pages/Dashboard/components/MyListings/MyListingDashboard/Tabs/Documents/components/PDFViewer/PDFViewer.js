@@ -32,7 +32,7 @@ const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
               <button className="toolbar-download-button" onClick={handleDownload}>Download</button>
             </div>
           </div>
-          <button className="close-button" onClick={onClose}></button>
+          <button className="pdfviewer-close-button" onClick={onClose}></button>
         </div>
         <div className="pdf-viewer-container" onScroll={handleScroll} ref={containerRef}>
           {isLoading && (

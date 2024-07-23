@@ -60,11 +60,36 @@
   padding-top: 0.4rem;
 }
 
-.close-button {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
+.pdfviewer-close-button {
+  position: absolute;
+  top: 1rem;
+  right: 2rem;
+  background: #ffffff;
+  border: 2px solid #d5d5d5;
+  border-radius: 50%;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5em;
   cursor: pointer;
+  color: #000000;
+  transition: all 0.3s ease;
+}
+
+.pdfviewer-close-button:hover {
+  color: #ffffff;
+  background-color: #b12525;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.pdfviewer-close-button:before {
+  content: '×';
+  font-weight: bold;
+  display: inline-block;
+  line-height: 1;
+  margin-bottom: 2px;
 }
 
 .toolbar-download-button {

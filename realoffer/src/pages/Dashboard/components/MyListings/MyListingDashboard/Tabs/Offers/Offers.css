@@ -1,23 +1,67 @@
 /* Offers.css */
-
-/* Offers.css */
-
 .offers-tab {
   padding: 1rem;
-  background-color: #f1f1f1;
-  border-radius: 10px;
 }
 
 .offers-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
   margin-top: 1rem;
 }
 
 .no-offers-message {
   margin-top: 2rem;
-  margin-left: 1rem;
   color: #666;
   font-size: 16px;
+}
+
+.offer-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.offer-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.offer-title {
+  font-weight: bold;
+  margin: 0;
+  color: #333;
+}
+
+.offer-price {
+  margin: 0;
+  color: #666;
+}
+
+.offer-agent {
+  margin: 0;
+  color: #888;
+}
+
+.offer-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.view-button,
+.respond-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.view-button:hover,
+.respond-button:hover {
+  background-color: #0056b3;
 }

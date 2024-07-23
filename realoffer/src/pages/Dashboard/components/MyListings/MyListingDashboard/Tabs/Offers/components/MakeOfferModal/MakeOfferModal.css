@@ -1,0 +1,178 @@
+.make-offer-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 20px;
+    width: 700px;
+    max-width: 90%;
+    max-height: 80%; /* Adjust the maximum height */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow-y: auto; /* Enable vertical scrolling */
+  }
+  
+  .modal-title {
+    font-size: 2em;
+    margin-bottom: 1rem;
+    text-align: center;
+    color: #333333;
+  }
+  
+  .modal-divider {
+    border: none;
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 1rem 0;
+  }
+  
+  .modal-step {
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+  }
+  
+  .modal-step h2 {
+    font-size: 1.5em;
+    margin-bottom: 1rem;
+    color: #555555;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+  }
+  
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #dddddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+  
+  .form-group textarea {
+    resize: vertical;
+    max-height: 300px;
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+  }
+  
+  .step-back-button,
+  .next-button {
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+  }
+  
+  .step-back-button {
+    background-color: #a09f9f;
+    width: 45%;
+  }
+  
+  .next-button {
+    background-color: #007bff;
+    width: 45%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .step-back-button:hover {
+    background-color: #7c7b7b;
+    cursor: pointer;
+  }
+  
+  .next-button:hover {
+    background-color: #0056b3;
+    cursor: pointer;
+  }
+  
+  .offer-close-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #ffffff;
+    border: 2px solid #d5d5d5;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #000000;
+    transition: all 0.3s ease;
+  }
+  
+  .offer-close-button:hover {
+    color: #ffffff;
+    background-color: #b12525;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  .offer-close-button:before {
+    content: '×';
+    font-weight: bold;
+    display: inline-block;
+    line-height: 1;
+  }
+  
+  .summary-section {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .summary-item {
+    margin-bottom: 1rem;
+  }
+  
+  .summary-item h3 {
+    font-size: 1.2em;
+    margin-bottom: 0.5rem;
+    color: #333333;
+  }
+  
+  .summary-item p {
+    margin: 0.25rem 0;
+  }
+  
+  .summary-item ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  
+  .summary-item ul li {
+    background-color: #f0f0f0;
+    padding: 0.5rem;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+  }
+  

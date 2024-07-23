@@ -20,7 +20,22 @@ const OfferSchema = new Schema({
   specialTerms: { type: String },
   buyersAgent: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   propertyListing: { type: Schema.Types.ObjectId, ref: 'PropertyListing', required: true },
-  notes: { type: String }
+  notes: { type: String },
+  presentedBy: {
+    name: { type: String, required: true },
+    licenseNumber: { type: String, required: true },
+    email: { type: String, required: true },
+    phoneNumber: { type: String, required: true },
+  },
+  brokerageInfo: {
+    name: { type: String, required: true },
+    licenseNumber: { type: String, required: true },
+    addressLine1: { type: String, required: true },
+    addressLine2: { type: String },
+    brokerageLogo: { type: String },
+  },
+  documents: [{ type: String }] // Assuming documents are stored as URLs or file paths
 });
 
 module.exports = mongoose.model('Offer', OfferSchema);
+
