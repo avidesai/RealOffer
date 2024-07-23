@@ -25,16 +25,16 @@ const PurchasePrice = ({ formData, handleChange, handleNextStep }) => {
   }, [formData]);
 
   const calculatedValues = () => {
-    const purchasePrice = parseNumber(formData.purchasePrice) || 0;
-    const loanAmount = parseNumber(formData.loanAmount) || 0;
-    const initialDeposit = parseNumber(formData.initialDeposit) || 0;
+    const purchasePrice = parseNumber(formData.purchasePrice);
+    const loanAmount = parseNumber(formData.loanAmount);
+    const initialDeposit = parseNumber(formData.initialDeposit);
     const downPayment = purchasePrice - loanAmount;
     const percentDown = ((downPayment / purchasePrice) * 100).toFixed(2);
     const balanceOfDownPayment = downPayment - initialDeposit;
     return {
       percentDown: isNaN(percentDown) ? '' : percentDown,
-      downPayment: isNaN(downPayment) ? '' : downPayment.toFixed(0),
-      balanceOfDownPayment: isNaN(balanceOfDownPayment) ? '' : balanceOfDownPayment.toFixed(0),
+      downPayment: isNaN(downPayment) ? '' : formatNumber(downPayment.toFixed(0)),
+      balanceOfDownPayment: isNaN(balanceOfDownPayment) ? '' : formatNumber(balanceOfDownPayment.toFixed(0)),
     };
   };
 
@@ -69,13 +69,25 @@ const PurchasePrice = ({ formData, handleChange, handleNextStep }) => {
     }
   };
 
+  const handleFinanceTypeChange = (e) => {
+    const { name, value } = e.target;
+    handleChange(e);
+    if (value === 'CASH') {
+      handleChange({ target: { name: 'loanAmount', value: '0' } });
+      setDisplayValues((prevValues) => ({
+        ...prevValues,
+        loanAmount: '0',
+      }));
+    }
+  };
+
   return (
     <div className="modal-step">
       <div className="offer-modal-header">
         <h2>Purchase Price</h2>
         <p>Provide the terms for the Purchase Price.</p>
       </div>
-      <div className="form-group">
+      <div className="form-group dollar-input">
         <label>Purchase Price</label>
         <input
           type="text"
@@ -86,7 +98,7 @@ const PurchasePrice = ({ formData, handleChange, handleNextStep }) => {
           onFocus={handleFocus}
         />
       </div>
-      <div className="form-group">
+      <div className="form-group dollar-input">
         <label>Initial Deposit</label>
         <input
           type="text"
@@ -102,30 +114,34 @@ const PurchasePrice = ({ formData, handleChange, handleNextStep }) => {
         <select
           name="financeType"
           value={formData.financeType}
-          onChange={handleChange}
+          onChange={handleFinanceTypeChange}
         >
           <option value="LOAN">Loan</option>
           <option value="CASH">Cash</option>
           <option value="FHA/VA">FHA/VA Loan</option>
         </select>
       </div>
-      <div className="form-group">
-        <label>Loan Amount</label>
-        <input
-          type="text"
-          name="loanAmount"
-          value={displayValues.loanAmount}
-          onChange={handleNumberChange}
-          onBlur={handleBlur}
-          onFocus={handleFocus}
-        />
-      </div>
-      <div className="calculated-values">
-        <p><strong>Calculated Values</strong></p>
-        {percentDown && <p>Percent Down: {percentDown}%</p>}
-        {downPayment && <p>Down Payment: ${downPayment}</p>}
-        {balanceOfDownPayment && <p>Balance of Down Payment: ${balanceOfDownPayment}</p>}
-      </div>
+      {formData.financeType !== 'CASH' && (
+        <>
+          <div className="form-group dollar-input">
+            <label>Loan Amount</label>
+            <input
+              type="text"
+              name="loanAmount"
+              value={displayValues.loanAmount}
+              onChange={handleNumberChange}
+              onBlur={handleBlur}
+              onFocus={handleFocus}
+            />
+          </div>
+          <div className="calculated-values">
+            <p><strong>Calculated Values</strong></p>
+            {percentDown && <p>Percent Down: {percentDown}%</p>}
+            {downPayment && <p>Down Payment: ${downPayment}</p>}
+            {balanceOfDownPayment && <p>Balance of Down Payment: ${balanceOfDownPayment}</p>}
+          </div>
+        </>
+      )}
       <div className="button-container">
         <button className="step-back-button" disabled>
           Back
