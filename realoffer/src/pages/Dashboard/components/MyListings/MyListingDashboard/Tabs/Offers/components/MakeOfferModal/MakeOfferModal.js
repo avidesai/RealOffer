@@ -7,6 +7,10 @@ import Documents from './Steps/Documents';
 import FinalReview from './Steps/FinalReview';
 import axios from 'axios';
 
+const parseNumber = (value) => {
+  return parseFloat(value.replace(/,/g, '')) || 0;
+};
+
 const MakeOfferModal = ({ onClose, listingId }) => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -100,14 +104,16 @@ const MakeOfferModal = ({ onClose, listingId }) => {
   };
 
   useEffect(() => {
-    const percentDown = ((formData.downPayment / formData.purchasePrice) * 100).toFixed(2);
-    const balanceOfDownPayment = formData.downPayment - formData.initialDeposit;
-    setFormData({
-      ...formData,
-      percentDown,
-      balanceOfDownPayment,
-    });
-  }, [formData.downPayment, formData.purchasePrice, formData.initialDeposit]);
+    const downPayment = parseNumber(formData.purchasePrice) - parseNumber(formData.loanAmount);
+    const percentDown = ((downPayment / parseNumber(formData.purchasePrice)) * 100).toFixed(2);
+    const balanceOfDownPayment = downPayment - parseNumber(formData.initialDeposit);
+    setFormData((prevData) => ({
+      ...prevData,
+      downPayment,
+      percentDown: isNaN(percentDown) ? '' : percentDown,
+      balanceOfDownPayment: isNaN(balanceOfDownPayment) ? '' : balanceOfDownPayment,
+    }));
+  }, [formData.purchasePrice, formData.loanAmount, formData.initialDeposit]);
 
   return (
     <div className="make-offer-modal">
