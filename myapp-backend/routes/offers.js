@@ -4,8 +4,8 @@ const express = require('express');
 const router = express.Router();
 const offerController = require('../controllers/offerController');
 
-// Create a new offer
-router.post('/', offerController.createOffer);
+// Create a new offer with file uploads
+router.post('/', offerController.uploadOfferDocuments, offerController.createOffer);
 
 // Get all offers for a specific listing
 router.get('/property/:listingId', offerController.getOffersByListing);

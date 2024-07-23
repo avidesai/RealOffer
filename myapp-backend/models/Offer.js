@@ -34,7 +34,7 @@ const OfferSchema = new Schema({
     brokerageLogo: { type: String, required: false },
   },
   documents: [{ type: String, required: false }],
-  buyersAgent: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  buyersAgent: { type: Schema.Types.ObjectId, ref: 'User', required: false },
   propertyListing: { type: Schema.Types.ObjectId, ref: 'PropertyListing', required: true },
   notes: { type: String }
 });

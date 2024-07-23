@@ -1,11 +1,44 @@
 // /controllers/offerController.js
 
+const mongoose = require('mongoose');
 const Offer = require('../models/Offer');
+const multer = require('multer');
+const { v4: uuidv4 } = require('uuid');
+
+// Configure multer for in-memory storage before uploading to Azure
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+exports.uploadOfferDocuments = upload.array('documents', 10);
 
 // Create a new offer
 exports.createOffer = async (req, res) => {
+  const files = req.files || []; // Ensure files is an array even if no files are uploaded
+
   try {
-    const offer = new Offer(req.body);
+    const documents = files.map(file => {
+      const blobName = `offers/${uuidv4()}-${file.originalname}`;
+      // Upload to Azure or other storage solution
+      const url = `https://your-storage-url/${blobName}`;
+      return {
+        title: file.originalname,
+        url: url,
+      };
+    });
+
+    const offerData = {
+      ...req.body,
+      documents: documents,
+    };
+
+    // Ensure propertyListing is set as an ObjectId if it's a valid 24-character hex string
+    if (mongoose.Types.ObjectId.isValid(offerData.propertyListing)) {
+      offerData.propertyListing = new mongoose.Types.ObjectId(offerData.propertyListing);
+    } else {
+      return res.status(400).json({ message: 'Invalid propertyListing ID' });
+    }
+
+    const offer = new Offer(offerData);
     await offer.save();
     res.status(201).json(offer);
   } catch (error) {

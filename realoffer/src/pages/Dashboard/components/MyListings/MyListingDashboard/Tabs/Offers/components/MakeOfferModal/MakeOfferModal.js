@@ -12,6 +12,7 @@ const parseNumber = (value) => {
 };
 
 const MakeOfferModal = ({ onClose, listingId }) => {
+  console.log('listingId:', listingId);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     purchasePrice: '',
@@ -76,7 +77,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
   const handleSubmit = async () => {
     const formDataToSend = new FormData();
     for (const key in formData) {
-      if (key === 'documents') {
+      if (key === 'documents' && formData[key].length > 0) {
         for (let i = 0; i < formData[key].length; i++) {
           formDataToSend.append('documents', formData[key][i]);
         }
