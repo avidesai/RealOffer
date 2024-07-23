@@ -4,21 +4,22 @@ import React from 'react';
 import './OfferCard.css';
 
 const OfferCard = ({ offer }) => {
+  console.log('Rendering OfferCard:', offer); // Log each offer being rendered
   return (
     <div className="offer-card">
       <div className="offer-card-header">
-        <div className="offer-avatar">{offer.buyersAgent.name[0]}</div>
+        <div className="offer-avatar">{offer.presentedBy.name ? offer.presentedBy.name[0] : 'N/A'}</div>
         <div className="offer-agent-info">
-          <p className="offer-agent-name">{offer.buyersAgent.name}</p>
-          <p className="offer-agent-email">{offer.buyersAgent.email}</p>
-          <p className="offer-agent-phone">Phone: {offer.buyersAgent.phone}</p>
-          <p className="offer-agent-license">License: {offer.buyersAgent.license}</p>
+          <p className="offer-agent-name">{offer.presentedBy.name}</p>
+          <p className="offer-agent-email">{offer.presentedBy.email}</p>
+          <p className="offer-agent-phone">Phone: {offer.presentedBy.phoneNumber}</p>
+          <p className="offer-agent-license">License: {offer.presentedBy.licenseNumber}</p>
         </div>
       </div>
       <div className="offer-card-body">
         <div className="offer-price">
           <p>Price</p>
-          <h3>${offer.price.toLocaleString()}</h3>
+          <h3>${offer.purchasePrice.toLocaleString()}</h3>
         </div>
         <div className="offer-actions">
           <button className="view-offer-button">View Offer</button>

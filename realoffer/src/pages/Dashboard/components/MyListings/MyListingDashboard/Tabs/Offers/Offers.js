@@ -1,7 +1,10 @@
+// Offers.js
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import OfferSortBar from './components/OfferSortBar/OfferSortBar';
 import MakeOfferModal from './components/MakeOfferModal/MakeOfferModal';
+import OfferCard from './components/OfferCard/OfferCard'; // Import OfferCard
 import './Offers.css';
 
 const Offers = ({ listingId }) => {
@@ -16,9 +19,10 @@ const Offers = ({ listingId }) => {
   useEffect(() => {
     const fetchOffers = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/offers/property/${listingId}`);
-        setOffers(response.data);
-        setTotalPages(Math.ceil(response.data.length / 10)); // Assuming 10 offers per page
+        const response = await axios.get(`http://localhost:8000/api/propertyListings/${listingId}`);
+        console.log('Fetched Offers:', response.data.offers); // Log fetched offers
+        setOffers(response.data.offers);
+        setTotalPages(Math.ceil(response.data.offers.length / 10)); // Assuming 10 offers per page
       } catch (error) {
         console.error('Error fetching offers:', error);
       }
@@ -56,7 +60,8 @@ const Offers = ({ listingId }) => {
     // Add logic to download summary
   };
 
-  const filteredOffers = offers.filter(offer => filter === 'active' ? offer.active : !offer.active);
+  const filteredOffers = offers; // Remove any filtering logic to ensure all offers are displayed initially
+
   const sortedOffers = filteredOffers.sort((a, b) => {
     if (sort === 'recent') {
       return new Date(b.createdAt) - new Date(a.createdAt);
@@ -64,10 +69,10 @@ const Offers = ({ listingId }) => {
       return new Date(a.createdAt) - new Date(b.createdAt);
     }
   });
-
-  const searchedOffers = sortedOffers.filter(offer => offer.title.toLowerCase().includes(searchQuery.toLowerCase()));
-
-  const paginatedOffers = searchedOffers.slice((currentPage - 1) * 10, currentPage * 10);
+  
+  const searchedOffers = sortedOffers.filter(offer => offer.specialTerms?.toLowerCase().includes(searchQuery.toLowerCase()));
+  
+  const paginatedOffers = searchedOffers.slice((currentPage - 1) * 10, currentPage * 10);  
 
   return (
     <div className="offers-tab">
@@ -86,17 +91,7 @@ const Offers = ({ listingId }) => {
           <p className="no-offers-message">No offers found.</p>
         ) : (
           paginatedOffers.map(offer => (
-            <div key={offer._id} className="offer-item">
-              <div className="offer-info">
-                <p className="offer-title">{offer.title}</p>
-                <p className="offer-price">${offer.price}</p>
-                <p className="offer-agent">{offer.buyersAgent.name}</p>
-              </div>
-              <div className="offer-actions">
-                <button className="view-button">View</button>
-                <button className="respond-button">Respond</button>
-              </div>
-            </div>
+            <OfferCard key={offer._id} offer={offer} /> // Use OfferCard to render each offer
           ))
         )}
       </div>

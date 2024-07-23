@@ -190,6 +190,29 @@
   font-size: 1.2rem;
 }
 
+.special-terms {
+  height: 100px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.contingency {
+  font-weight: 600;
+}
+
+.form-group-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* Adjust the gap as needed */
+}
+
+.form-input-left {
+  width: 35%; /* 35% width for the input box */
+}
+
+.form-select-right {
+  width: 65%; /* 65% width for the select box */
+}
+
 .summary-section {
   display: flex;
   flex-direction: column;

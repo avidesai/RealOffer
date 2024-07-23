@@ -71,6 +71,7 @@
     display: flex;
     justify-content: space-around;
     margin-top: 1rem;
+    margin-bottom: 1.5rem;
   }
   
   .view-offer-button,
@@ -95,20 +96,20 @@
   }
   
   .offer-details p {
-    margin: 0.5rem 0;
+    margin: 0.75rem 0;
     font-size: 0.875rem;
     display: flex;
     justify-content: space-between;
   }
   
   .offer-card-footer {
-    margin-top: 1rem;
+    margin-top: 1.5rem;
   }
   
   .team-notes {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
     width: 100%;
     height: 80px;
-    padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 0.875rem;
