@@ -2,6 +2,7 @@
 
 const mongoose = require('mongoose');
 const Offer = require('../models/Offer');
+const PropertyListing = require('../models/PropertyListing');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 
@@ -40,6 +41,13 @@ exports.createOffer = async (req, res) => {
 
     const offer = new Offer(offerData);
     await offer.save();
+
+    // Add the offer to the property listing's offers array
+    await PropertyListing.findByIdAndUpdate(
+      offerData.propertyListing,
+      { $push: { offers: offer._id } }
+    );
+
     res.status(201).json(offer);
   } catch (error) {
     res.status(500).json({ message: error.message });

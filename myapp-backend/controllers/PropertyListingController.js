@@ -29,13 +29,14 @@ exports.getAllListings = async (req, res) => {
 
 exports.getListingById = async (req, res) => {
   try {
-    const listing = await PropertyListing.findById(req.params.id);
+    const listing = await PropertyListing.findById(req.params.id).populate('offers');
     if (!listing) return res.status(404).json({ message: "Listing not found" });
     res.status(200).json(listing);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 exports.createListing = async (req, res) => {
   const {

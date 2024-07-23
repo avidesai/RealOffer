@@ -48,7 +48,8 @@ const propertyListingSchema = new mongoose.Schema({
         }
     },
     agentIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    documents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Document' }],  // Add this line
+    documents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Document' }],
+    offers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Offer' }] // Add this line
 }, { timestamps: true });
 
 module.exports = mongoose.model('PropertyListing', propertyListingSchema);
