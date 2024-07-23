@@ -2,33 +2,65 @@ import React from 'react';
 
 const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep }) => (
   <div className="modal-step">
-    <h2>Contingencies</h2>
-    <p>Provide contingencies and special terms.</p>
+    <div className='offer-modal-header'>
+      <h2>Contingencies</h2>
+      <p>Provide contingencies and special terms.</p>
+    </div>
     <div className="form-group">
       <label>Finance Contingency</label>
-      <input
-        type="text"
+      <select
         name="financeContingency"
         value={formData.financeContingency}
         onChange={handleChange}
+      >
+        <option value="Days">Days</option>
+        <option value="Waived">Waived</option>
+      </select>
+      <input
+        type="number"
+        name="financeContingencyDays"
+        placeholder="Number of days"
+        value={formData.financeContingency === 'Waived' ? 0 : formData.financeContingencyDays}
+        onChange={handleChange}
+        disabled={formData.financeContingency === 'Waived'}
       />
     </div>
     <div className="form-group">
       <label>Appraisal Contingency</label>
-      <input
-        type="text"
+      <select
         name="appraisalContingency"
         value={formData.appraisalContingency}
         onChange={handleChange}
+      >
+        <option value="Days">Days</option>
+        <option value="Waived">Waived</option>
+      </select>
+      <input
+        type="number"
+        name="appraisalContingencyDays"
+        placeholder="Number of days"
+        value={formData.appraisalContingency === 'Waived' ? 0 : formData.appraisalContingencyDays}
+        onChange={handleChange}
+        disabled={formData.appraisalContingency === 'Waived'}
       />
     </div>
     <div className="form-group">
       <label>Inspection Contingency</label>
-      <input
-        type="text"
+      <select
         name="inspectionContingency"
         value={formData.inspectionContingency}
         onChange={handleChange}
+      >
+        <option value="Days">Days</option>
+        <option value="Waived">Waived</option>
+      </select>
+      <input
+        type="number"
+        name="inspectionContingencyDays"
+        placeholder="Number of days"
+        value={formData.inspectionContingency === 'Waived' ? 0 : formData.inspectionContingencyDays}
+        onChange={handleChange}
+        disabled={formData.inspectionContingency === 'Waived'}
       />
     </div>
     <div className="form-group">
@@ -45,8 +77,9 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
     <div className="form-group">
       <label>Close of Escrow</label>
       <input
-        type="text"
+        type="number"
         name="closeOfEscrow"
+        placeholder="Number of days"
         value={formData.closeOfEscrow}
         onChange={handleChange}
       />

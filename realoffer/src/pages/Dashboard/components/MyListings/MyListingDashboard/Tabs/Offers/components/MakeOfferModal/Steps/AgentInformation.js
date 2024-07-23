@@ -2,8 +2,10 @@ import React from 'react';
 
 const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handlePrevStep }) => (
   <div className="modal-step">
-    <h2>Agent Information</h2>
-    <p>Provide contact and brokerage info for the Buyer Agent.</p>
+    <div className='offer-modal-header'>
+      <h2>Agent Information</h2>
+      <p>Provide contact and brokerage info for the Buyer Agent.</p>
+    </div>
     <div className="form-group">
       <label>Presented By</label>
       <input

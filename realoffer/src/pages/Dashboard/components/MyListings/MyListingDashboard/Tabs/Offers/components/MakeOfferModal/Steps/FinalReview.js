@@ -2,8 +2,10 @@ import React from 'react';
 
 const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => (
   <div className="modal-step">
-    <h2>Final Review</h2>
-    <p>Please confirm the following is correct.</p>
+    <div className='offer-modal-header'>
+      <h2>Final Review</h2>
+      <p>Please confirm the following is correct.</p>
+    </div>
     <div className="summary-section">
       <div className="summary-item">
         <h3>Summary of Terms</h3>

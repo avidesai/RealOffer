@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './MakeOfferModal.css';
 import PurchasePrice from './Steps/PurchasePrice';
 import Contingencies from './Steps/Contingencies';
@@ -98,6 +98,16 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       console.error('Error creating offer:', error);
     }
   };
+
+  useEffect(() => {
+    const percentDown = ((formData.downPayment / formData.purchasePrice) * 100).toFixed(2);
+    const balanceOfDownPayment = formData.downPayment - formData.initialDeposit;
+    setFormData({
+      ...formData,
+      percentDown,
+      balanceOfDownPayment,
+    });
+  }, [formData.downPayment, formData.purchasePrice, formData.initialDeposit]);
 
   return (
     <div className="make-offer-modal">
