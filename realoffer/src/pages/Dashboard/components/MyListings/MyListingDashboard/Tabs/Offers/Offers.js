@@ -83,11 +83,6 @@ const Offers = ({ listingId }) => {
 
   return (
     <div className="offers-tab">
-      {loading && (
-        <div className="spinner-container">
-          <div className="spinner"></div>
-        </div>
-      )} {/* Show spinner when loading */}
       <OfferSortBar
         onFilterChange={handleFilterChange}
         onSortChange={handleSortChange}
@@ -99,6 +94,11 @@ const Offers = ({ listingId }) => {
         onPageChange={handlePageChange}
       />
       <div className="offers-list">
+        {loading && (
+          <div className="spinner-container">
+            <div className="spinner"></div>
+          </div>
+        )}
         {paginatedOffers.length === 0 ? (
           <p className="no-offers-message">No offers found.</p>
         ) : (

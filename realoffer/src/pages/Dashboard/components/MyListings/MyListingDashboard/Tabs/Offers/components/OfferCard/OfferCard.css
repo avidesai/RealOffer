@@ -9,6 +9,13 @@
     padding: 1.5rem;
     width: 100%;
     max-width: 285px;
+    transition: box-shadow 0.3s, scale 0.3s;
+  }
+
+  .offer-card:hover {
+    scale: 1.005;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
   }
   
   .offer-card-header {

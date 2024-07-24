@@ -3,8 +3,16 @@
 import React from 'react';
 import './OfferCard.css';
 
+const formatPhoneNumber = (phoneNumber) => {
+  const cleaned = ('' + phoneNumber).replace(/\D/g, '');
+  const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+  if (match) {
+    return `(${match[1]}) ${match[2]}-${match[3]}`;
+  }
+  return phoneNumber;
+};
+
 const OfferCard = ({ offer }) => {
-  console.log('Rendering OfferCard:', offer); // Log each offer being rendered
   return (
     <div className="offer-card">
       <div className="offer-card-header">
@@ -12,7 +20,7 @@ const OfferCard = ({ offer }) => {
         <div className="offer-agent-info">
           <p className="offer-agent-name">{offer.presentedBy.name}</p>
           <p className="offer-agent-email">{offer.presentedBy.email}</p>
-          <p className="offer-agent-phone">Phone: {offer.presentedBy.phoneNumber}</p>
+          <p className="offer-agent-phone">{formatPhoneNumber(offer.presentedBy.phoneNumber)}</p>
         </div>
       </div>
       <div className="offer-card-body">

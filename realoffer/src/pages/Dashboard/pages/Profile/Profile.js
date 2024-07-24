@@ -103,7 +103,7 @@ const Profile = () => {
                     className="form-control"
                   />
                   {updating.agentLicenseNumber && <div className="input-spinner"></div>}
-                  <label className="checkbox-label">
+                  <label className="profile-checkbox-label">
                     <input
                       type="checkbox"
                       checked={noLicense}

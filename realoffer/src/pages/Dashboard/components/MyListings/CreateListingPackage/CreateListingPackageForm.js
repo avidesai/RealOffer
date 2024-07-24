@@ -28,7 +28,7 @@ const CreateListingPackageForm = ({
       </div>
     )}
     <div className="create-package-content">
-      <button className="close-button" onClick={onClose}></button>
+      <button className="create-listing-package-close-button" onClick={onClose}></button>
       <h1 className="create-package-title">Create Listing Package</h1>
       <hr className="create-package-divider" />
       {step === 1 && (

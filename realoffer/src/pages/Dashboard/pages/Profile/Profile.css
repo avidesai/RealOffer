@@ -96,16 +96,19 @@ input[type="email"],
   margin-bottom: 0.5rem;
 }
 
-.checkbox-label {
+.profile-checkbox-label {
   display: flex;
   align-items: center;
   margin-top: 0.5rem;
   font-weight: normal; /* Make text not bold */
   font-size: 0.9rem; /* Make text smaller */
+  gap: 0.5rem; /* Add gap between checkbox and text */
 }
 
-.checkbox-label input[type="checkbox"] {
-  margin-right: 0.5rem;
+.profile-checkbox-label input[type="checkbox"] {
+  margin-right: 1rem; /* Remove default margin */
+  width: 1rem;
+  height: 1rem;
 }
 
 .input-spinner {

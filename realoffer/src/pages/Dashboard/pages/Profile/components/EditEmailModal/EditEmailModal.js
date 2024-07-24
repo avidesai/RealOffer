@@ -32,7 +32,7 @@ const EditEmailModal = ({ isOpen, onClose }) => {
       <div className="email-modal-content">
         <div className="email-modal-header">
           <h2>Change Email Address</h2>
-          <button className="close-button" onClick={onClose}></button>
+          <button className="edit-email-close-button" onClick={onClose}></button>
         </div>
         <div className="email-modal-body">
           <div className="email-form-group">
