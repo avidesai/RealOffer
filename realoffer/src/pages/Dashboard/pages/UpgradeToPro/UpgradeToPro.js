@@ -43,7 +43,7 @@ const UpgradeToPro = () => {
             <ul>
               <li><strong>Listing Activity:</strong> View detailed buyer activity including views, downloads, and document interactions.</li>
               <li><strong>Listing Messaging:</strong> Communicate seamlessly with buyers and buyer agents directly through the platform.</li>
-              <li><strong>AI Listing Price Suggestion:</strong> Utilize AI to intelligently price properties based on MLS data, disclosure documents, images, and comparable sales.</li>
+              <li><strong>AI Listing Price Suggestion:</strong> Utilize AI to intelligently price listings based on MLS data, disclosure documents, images, and comparable sales.</li>
               <li><strong>One Click Offer:</strong> Automatically generate signature packages for buyers, complete with AI-driven document processing and signature placement.</li>
             </ul>
             <h3>Buyer's Agents</h3>

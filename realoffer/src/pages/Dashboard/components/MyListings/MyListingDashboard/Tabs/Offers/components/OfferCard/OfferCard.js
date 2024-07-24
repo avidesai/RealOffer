@@ -13,25 +13,23 @@ const OfferCard = ({ offer }) => {
           <p className="offer-agent-name">{offer.presentedBy.name}</p>
           <p className="offer-agent-email">{offer.presentedBy.email}</p>
           <p className="offer-agent-phone">Phone: {offer.presentedBy.phoneNumber}</p>
-          <p className="offer-agent-license">License: {offer.presentedBy.licenseNumber}</p>
         </div>
       </div>
       <div className="offer-card-body">
         <div className="offer-price">
-          <p>Price</p>
           <h3>${offer.purchasePrice.toLocaleString()}</h3>
         </div>
         <div className="offer-actions">
-          <button className="view-offer-button">View Offer</button>
-          <button className="respond-offer-button">Respond to Offer</button>
+          <button className="view-offer-button">View</button>
+          <button className="respond-offer-button">Respond</button>
         </div>
         <div className="offer-details">
-          <p><strong>Initial Deposit</strong> <span>${offer.initialDeposit.toLocaleString()}</span></p>
+
           <p><strong>Finance Type</strong> <span>{offer.financeType}</span></p>
-          <p><strong>Loan Amount</strong> <span>${offer.loanAmount.toLocaleString()}</span></p>
           <p><strong>Percent Down</strong> <span>{offer.percentDown}%</span></p>
           <p><strong>Down Payment</strong> <span>${offer.downPayment.toLocaleString()}</span></p>
-          <p><strong>Balance of Downpayment</strong> <span>${offer.balanceOfDownPayment.toLocaleString()}</span></p>
+          <p><strong>Loan Amount</strong> <span>${offer.loanAmount.toLocaleString()}</span></p>
+          <p><strong>Initial Deposit</strong> <span>${offer.initialDeposit.toLocaleString()}</span></p>
           <p><strong>Finance Contingency</strong> <span>{offer.financeContingency}</span></p>
           <p><strong>Appraisal Contingency</strong> <span>{offer.appraisalContingency}</span></p>
           <p><strong>Inspection Contingency</strong> <span>{offer.inspectionContingency}</span></p>

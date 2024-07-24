@@ -6,9 +6,9 @@
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     margin-bottom: 1rem;
-    padding: 1rem;
+    padding: 1.5rem;
     width: 100%;
-    max-width: 300px;
+    max-width: 285px;
   }
   
   .offer-card-header {
@@ -21,13 +21,14 @@
     background-color: #007bff;
     color: #ffffff;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
-    margin-right: 1rem;
+    margin-left: 1rem;
+    margin-right: 1.5rem;
   }
   
   .offer-agent-info {
@@ -36,13 +37,13 @@
   
   .offer-agent-name {
     font-weight: bold;
-    margin: 0;
+    margin: 0.4rem;
   }
   
   .offer-agent-email,
   .offer-agent-phone,
   .offer-agent-license {
-    margin: 0;
+    margin: 0.4rem;
     font-size: 0.875rem;
     color: #666666;
   }
@@ -57,6 +58,7 @@
   
   .offer-price p {
     margin: 0;
+    padding-bottom: 0.2rem;
     font-size: 0.875rem;
     color: #666666;
   }
@@ -69,12 +71,23 @@
   
   .offer-actions {
     display: flex;
-    justify-content: space-around;
-    margin-top: 1rem;
-    margin-bottom: 1.5rem;
+    justify-content:center;
+    margin-top: 1.5rem;
+    margin-bottom: 2rem;
   }
   
-  .view-offer-button,
+  .view-offer-button {
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background-color 0.3s;
+    margin-right: 0.25rem;
+  }
+
   .respond-offer-button {
     background-color: #007bff;
     color: #ffffff;
@@ -86,7 +99,10 @@
     transition: background-color 0.3s;
   }
   
-  .view-offer-button:hover,
+  .view-offer-button:hover {
+    background-color: #0056b3;
+  }
+
   .respond-offer-button:hover {
     background-color: #0056b3;
   }
@@ -96,14 +112,14 @@
   }
   
   .offer-details p {
-    margin: 0.75rem 0;
+    margin: 1rem 0;
     font-size: 0.875rem;
     display: flex;
     justify-content: space-between;
   }
   
   .offer-card-footer {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
   }
   
   .team-notes {

@@ -22,7 +22,8 @@ const Documents = ({ listingId }) => {
     setLoading(true);
     try {
       const response = await axios.get(`http://localhost:8000/api/documents/${listingId}`);
-      setDocuments(response.data);
+      const listingDocuments = response.data.filter(doc => doc.purpose === 'listing');
+      setDocuments(listingDocuments);
     } catch (error) {
       console.error('Error fetching documents:', error);
     } finally {
@@ -120,7 +121,6 @@ const Documents = ({ listingId }) => {
           <button className="docusign-button">DocuSign</button>
         </div>
         <button className="signature-button" onClick={openSignaturePackageModal}>Create Signature Packet</button>
-
       </div>
       {loading ? (
         <div className="spinner-container">

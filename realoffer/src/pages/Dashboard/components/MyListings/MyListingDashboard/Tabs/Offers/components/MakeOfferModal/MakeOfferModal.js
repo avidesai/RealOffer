@@ -29,7 +29,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     inspectionContingency: '',
     homeSaleContingency: 'Waived',
     closeOfEscrow: '',
-    submittedOn: new Date().toISOString().slice(0, 16),
+    submittedOn: new Date().toISOString(), // Set the current date and time in ISO format
     specialTerms: '',
     presentedBy: {
       name: '',

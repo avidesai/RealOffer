@@ -108,10 +108,10 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
       <div className="form-group">
         <label>Submitted On</label>
         <input
-          type="datetime-local"
+          type="text"
           name="submittedOn"
           value={formatToPacificTime(formData.submittedOn)}
-          onChange={handleChange}
+          readOnly
         />
       </div>
       <div className="form-group">

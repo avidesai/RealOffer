@@ -153,9 +153,9 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
                       className="offer-file-type-select"
                     >
                       <option value="">Select Type</option>
-                      <option value="Pre-Approval">Pre-Approval Letter</option>
-                      <option value="ProofOfFunds">Proof of Funds</option>
-                      <option value="PurchaseAgreement">Purchase Agreement</option>
+                      <option value="Pre-Approval Letter">Pre-Approval Letter</option>
+                      <option value="Proof of Funds">Proof of Funds</option>
+                      <option value="Purchase Agreement">Purchase Agreement</option>
                       <option value="Other">Other</option>
                     </select>
                     <button className="offer-delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>

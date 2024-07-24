@@ -36,6 +36,6 @@ const OfferSchema = new Schema({
   buyersAgent: { type: Schema.Types.ObjectId, ref: 'User', required: false },
   propertyListing: { type: Schema.Types.ObjectId, ref: 'PropertyListing', required: true },
   notes: { type: String }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Offer', OfferSchema);
