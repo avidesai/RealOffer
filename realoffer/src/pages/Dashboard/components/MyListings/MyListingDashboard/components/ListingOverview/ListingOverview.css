@@ -1,3 +1,5 @@
+/* ListingOverview.css */
+
 .listing-overview {
   padding: 2rem;
   margin-top: 0.5rem;
@@ -105,8 +107,36 @@
 .listing-overview-agent-info p {
   margin: 0;
   font-size: 18px;
-  color: #353535;
+  color: #000000;
 }
+
+.listing-overview-spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 1000;
+}
+
+.listing-overview-spinner {
+  border: 8px solid rgba(0, 0, 0, 0.1);
+  border-top: 8px solid #007bff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 
 @media (max-width: 768px) {
   .overview-image,

@@ -1,3 +1,5 @@
+// MoreInfo.js
+
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Modal from 'react-modal';
@@ -138,7 +140,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
           {renderField('Address', 'homeCharacteristics.address', listing.homeCharacteristics.address)}
           {renderField('City', 'homeCharacteristics.city', listing.homeCharacteristics.city)}
           {renderField('State', 'homeCharacteristics.state', listing.homeCharacteristics.state)}
-          {renderField('ZIP', 'homeCharacteristics.zip', listing.homeCharacteristics.zip)}
+          {renderField('Zip Code', 'homeCharacteristics.zip', listing.homeCharacteristics.zip)}
           {renderField('Beds', 'homeCharacteristics.beds', listing.homeCharacteristics.beds)}
           {renderField('Baths', 'homeCharacteristics.baths', listing.homeCharacteristics.baths)}
           {renderField('Square Footage', 'homeCharacteristics.squareFootage', listing.homeCharacteristics.squareFootage, formatNumber)}
@@ -147,14 +149,14 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
           {renderField('Year Built', 'homeCharacteristics.yearBuilt', listing.homeCharacteristics.yearBuilt)}
         </div>
         <div className="info-section">
-        <h3 className="more-info-modal-subheader">Escrow Information</h3>
+          <h3 className="more-info-modal-subheader">Escrow Information</h3>
           {renderField('Escrow Number', 'escrowInfo.escrowNumber', listing.escrowInfo.escrowNumber)}
           {renderField('Company Name', 'escrowInfo.company.name', listing.escrowInfo.company.name)}
           {renderField('Phone', 'escrowInfo.company.phone', listing.escrowInfo.company.phone, formatPhone)}
           {renderField('Email', 'escrowInfo.company.email', listing.escrowInfo.company.email)}
         </div>
-        <div className="info-section">
-          <h3 className="more-info-modal-subheader">Property Description</h3>
+        <div className="info-section property-description-container">
+          <h3 className="property-description-title">Property Description</h3>
           {isEditing === 'description' ? (
             <div className="edit-container description-edit-container">
               <textarea
@@ -170,7 +172,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
           ) : (
             <>
               <p className="info-value listing-description">{listing.description}</p>
-              <button className="edit-button" onClick={() => handleEdit('description', listing.description)}>Edit</button>
+              <button className="description-edit-button" onClick={() => handleEdit('description', listing.description)}>Edit</button>
             </>
           )}
         </div>
