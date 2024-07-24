@@ -1,0 +1,135 @@
+/* OfferDetailsView.css */
+
+.offer-details-view {
+    padding: 1rem;
+    background-color: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  .back-button {
+    margin-bottom: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .back-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .offer-details-header h1 {
+    margin-bottom: 1rem;
+  }
+  
+  .offer-content {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .offer-summary {
+    flex: 1;
+    margin-right: 1rem;
+  }
+  
+  .offer-summary-item {
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 10px;
+  }
+  
+  .offer-summary-item h2 {
+    margin-bottom: 0.5rem;
+  }
+  
+  .middle-section {
+    flex: 2;
+    margin-right: 1rem;
+  }
+  
+  .presented-by, .message-from-agent, .documents-section {
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+  }
+  
+  .presented-by h2, .message-from-agent h2, .documents-section h2 {
+    margin-bottom: 0.5rem;
+  }
+  
+  .presented-by-info {
+    display: flex;
+  }
+  
+  .agent-avatar {
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+  }
+  
+  .agent-details .term {
+    margin: 0.2rem 0;
+  }
+  
+  .documents-section ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .documents-section ul li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .documents-section ul li a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .documents-section ul li a:hover {
+    text-decoration: underline;
+  }
+  
+  .listing-team-notes {
+    flex: 1;
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 10px;
+  }
+  
+  .listing-team-notes h2 {
+    margin-bottom: 0.5rem;
+  }
+  
+  .listing-team-notes textarea {
+    width: 100%;
+    height: 100px;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none;
+  }
+  
+  .term {
+    margin-bottom: 0.5rem;
+  }
+  
+  .term-label {
+    font-weight: bold;
+    margin-bottom: 0.2rem;
+  }
+  
+  .term-value {
+
+  }
+  

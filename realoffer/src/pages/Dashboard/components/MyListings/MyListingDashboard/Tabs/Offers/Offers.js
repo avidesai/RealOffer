@@ -4,7 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import OfferSortBar from './components/OfferSortBar/OfferSortBar';
 import MakeOfferModal from './components/MakeOfferModal/MakeOfferModal';
-import OfferCard from './components/OfferCard/OfferCard'; // Import OfferCard
+import OfferCard from './components/OfferCard/OfferCard';
+import OfferDetailsView from './components/OfferDetailsView/OfferDetailsView'; // Import OfferDetailsView
 import './Offers.css';
 
 const Offers = ({ listingId }) => {
@@ -15,19 +16,20 @@ const Offers = ({ listingId }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(false);
+  const [selectedOffer, setSelectedOffer] = useState(null); // Add selected offer state
 
   const fetchOffers = useCallback(async () => {
     setLoading(true);
     try {
       const response = await axios.get(`http://localhost:8000/api/propertyListings/${listingId}`);
-      console.log('Fetched Offers:', response.data.offers); // Log fetched offers
+      console.log('Fetched Offers:', response.data.offers);
       setOffers(response.data.offers);
-      setTotalPages(Math.ceil(response.data.offers.length / 10)); // Assuming 10 offers per page
+      setTotalPages(Math.ceil(response.data.offers.length / 10));
     } catch (error) {
       console.error('Error fetching offers:', error);
     } finally {
-      setLoading(false); // Stop loading after fetching
+      setLoading(false);
     }
   }, [listingId]);
 
@@ -57,12 +59,20 @@ const Offers = ({ listingId }) => {
 
   const handleCloseModal = async () => {
     setShowModal(false);
-    await fetchOffers(); // Refresh offers after closing the modal
+    await fetchOffers();
   };
 
   const handleDownloadSummary = () => {
     console.log('Download Summary clicked');
     // Add logic to download summary
+  };
+
+  const handleOfferClick = (offer) => {
+    setSelectedOffer(offer);
+  };
+
+  const handleBackToOffers = () => {
+    setSelectedOffer(null);
   };
 
   const filteredOffers = offers.filter(offer => {
@@ -83,35 +93,41 @@ const Offers = ({ listingId }) => {
 
   return (
     <div className="offers-tab">
-      <OfferSortBar
-        onFilterChange={handleFilterChange}
-        onSortChange={handleSortChange}
-        onSearch={handleSearch}
-        onAddOffer={handleAddOffer}
-        onDownloadSummary={handleDownloadSummary}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
-      <div className="offers-list">
-        {loading && (
-          <div className="spinner-container">
-            <div className="spinner"></div>
+      {selectedOffer ? (
+        <OfferDetailsView offer={selectedOffer} onBack={handleBackToOffers} />
+      ) : (
+        <>
+          <OfferSortBar
+            onFilterChange={handleFilterChange}
+            onSortChange={handleSortChange}
+            onSearch={handleSearch}
+            onAddOffer={handleAddOffer}
+            onDownloadSummary={handleDownloadSummary}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+          <div className="offers-list">
+            {loading && (
+              <div className="spinner-container">
+                <div className="spinner"></div>
+              </div>
+            )}
+            {paginatedOffers.length === 0 ? (
+              <p className="no-offers-message">No offers found.</p>
+            ) : (
+              paginatedOffers.map(offer => (
+                <OfferCard key={offer._id} offer={offer} onClick={() => handleOfferClick(offer)} /> // Pass the onClick handler
+              ))
+            )}
           </div>
-        )}
-        {paginatedOffers.length === 0 ? (
-          <p className="no-offers-message">No offers found.</p>
-        ) : (
-          paginatedOffers.map(offer => (
-            <OfferCard key={offer._id} offer={offer} /> // Use OfferCard to render each offer
-          ))
-        )}
-      </div>
-      {showModal && (
-        <MakeOfferModal
-          onClose={handleCloseModal}
-          listingId={listingId}
-        />
+          {showModal && (
+            <MakeOfferModal
+              onClose={handleCloseModal}
+              listingId={listingId}
+            />
+          )}
+        </>
       )}
     </div>
   );

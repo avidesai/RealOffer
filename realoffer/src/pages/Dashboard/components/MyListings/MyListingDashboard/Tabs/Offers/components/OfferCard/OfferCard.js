@@ -1,5 +1,7 @@
 // OfferCard.js
 
+// OfferCard.js
+
 import React from 'react';
 import './OfferCard.css';
 
@@ -12,9 +14,9 @@ const formatPhoneNumber = (phoneNumber) => {
   return phoneNumber;
 };
 
-const OfferCard = ({ offer }) => {
+const OfferCard = ({ offer, onClick }) => {
   return (
-    <div className="offer-card">
+    <div className="offer-card" onClick={onClick}>
       <div className="offer-card-header">
         <div className="offer-avatar">{offer.presentedBy.name ? offer.presentedBy.name[0] : 'N/A'}</div>
         <div className="offer-agent-info">
@@ -32,7 +34,6 @@ const OfferCard = ({ offer }) => {
           <button className="respond-offer-button">Respond</button>
         </div>
         <div className="offer-details">
-
           <p><strong>Finance Type</strong> <span>{offer.financeType}</span></p>
           <p><strong>Percent Down</strong> <span>{offer.percentDown}%</span></p>
           <p><strong>Down Payment</strong> <span>${offer.downPayment.toLocaleString()}</span></p>
