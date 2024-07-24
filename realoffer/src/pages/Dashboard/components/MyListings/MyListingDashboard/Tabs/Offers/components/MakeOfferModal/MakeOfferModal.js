@@ -14,7 +14,7 @@ const parseNumber = (value) => {
 };
 
 const MakeOfferModal = ({ onClose, listingId }) => {
-  console.log('listingId:', listingId);
+  console.log('listingId:', listingId); // Log the listingId for debugging
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     purchasePrice: '',
@@ -92,7 +92,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         formDataToSend.append(key, formData[key]);
       }
     }
-    formDataToSend.append('propertyListing', listingId);
+    formDataToSend.append('propertyListingId', listingId);
 
     try {
       const response = await axios.post('http://localhost:8000/api/offers', formDataToSend, {
@@ -155,6 +155,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
             handleNextStep={handleNextStep}
             handlePrevStep={handlePrevStep}
             setFormData={setFormData} // Pass setFormData to Documents step
+            listingId={listingId} // Pass listingId to Documents step
           />
         )}
         {step === 5 && (

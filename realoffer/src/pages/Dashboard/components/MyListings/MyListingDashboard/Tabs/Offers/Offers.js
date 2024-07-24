@@ -1,6 +1,6 @@
 // Offers.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import OfferSortBar from './components/OfferSortBar/OfferSortBar';
 import MakeOfferModal from './components/MakeOfferModal/MakeOfferModal';
@@ -15,21 +15,25 @@ const Offers = ({ listingId }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(false); // Add loading state
+
+  const fetchOffers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`http://localhost:8000/api/propertyListings/${listingId}`);
+      console.log('Fetched Offers:', response.data.offers); // Log fetched offers
+      setOffers(response.data.offers);
+      setTotalPages(Math.ceil(response.data.offers.length / 10)); // Assuming 10 offers per page
+    } catch (error) {
+      console.error('Error fetching offers:', error);
+    } finally {
+      setLoading(false); // Stop loading after fetching
+    }
+  }, [listingId]);
 
   useEffect(() => {
-    const fetchOffers = async () => {
-      try {
-        const response = await axios.get(`http://localhost:8000/api/propertyListings/${listingId}`);
-        console.log('Fetched Offers:', response.data.offers); // Log fetched offers
-        setOffers(response.data.offers);
-        setTotalPages(Math.ceil(response.data.offers.length / 10)); // Assuming 10 offers per page
-      } catch (error) {
-        console.error('Error fetching offers:', error);
-      }
-    };
-
     fetchOffers();
-  }, [listingId]);
+  }, [fetchOffers]);
 
   const handleFilterChange = (newFilter) => {
     setFilter(newFilter);
@@ -51,8 +55,9 @@ const Offers = ({ listingId }) => {
     setShowModal(true);
   };
 
-  const handleCloseModal = () => {
+  const handleCloseModal = async () => {
     setShowModal(false);
+    await fetchOffers(); // Refresh offers after closing the modal
   };
 
   const handleDownloadSummary = () => {
@@ -60,7 +65,9 @@ const Offers = ({ listingId }) => {
     // Add logic to download summary
   };
 
-  const filteredOffers = offers; // Remove any filtering logic to ensure all offers are displayed initially
+  const filteredOffers = offers.filter(offer => {
+    return true; // default to show all if no filter matches
+  });
 
   const sortedOffers = filteredOffers.sort((a, b) => {
     if (sort === 'recent') {
@@ -69,13 +76,18 @@ const Offers = ({ listingId }) => {
       return new Date(a.createdAt) - new Date(b.createdAt);
     }
   });
-  
+
   const searchedOffers = sortedOffers.filter(offer => offer.specialTerms?.toLowerCase().includes(searchQuery.toLowerCase()));
-  
-  const paginatedOffers = searchedOffers.slice((currentPage - 1) * 10, currentPage * 10);  
+
+  const paginatedOffers = searchedOffers.slice((currentPage - 1) * 10, currentPage * 10);
 
   return (
     <div className="offers-tab">
+      {loading && (
+        <div className="spinner-container">
+          <div className="spinner"></div>
+        </div>
+      )} {/* Show spinner when loading */}
       <OfferSortBar
         onFilterChange={handleFilterChange}
         onSortChange={handleSortChange}

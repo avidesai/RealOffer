@@ -1,8 +1,10 @@
 /* Offers.css */
+
 .offers-tab {
   padding: 1rem;
   background-color: #f1f1f1;
   border-radius: 10px;
+  position: relative;
 }
 
 .offers-list {
@@ -67,4 +69,26 @@
 .view-button:hover,
 .respond-button:hover {
   background-color: #0056b3;
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.spinner {
+  border: 8px solid rgba(0, 0, 0, 0.1);
+  border-top: 8px solid #3498db;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

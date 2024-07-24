@@ -6,7 +6,7 @@ const PropertyListing = require('../models/PropertyListing');
 const Document = require('../models/Document');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
-const { containerClient } = require('../config/azureStorage');
+const { offerDocumentsContainerClient } = require('../config/azureStorage'); // Changed to use offerDocumentsContainerClient
 const { getPdfPageCount } = require('./DocumentController');
 
 // Configure multer for in-memory storage before uploading to Azure
@@ -40,7 +40,7 @@ exports.createOffer = async (req, res) => {
       const size = file.size;
 
       const blobName = `documents/${uuidv4()}-${file.originalname}`;
-      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+      const blockBlobClient = offerDocumentsContainerClient.getBlockBlobClient(blobName); // Changed to use offerDocumentsContainerClient
 
       const contentType = file.mimetype === 'application/pdf' ? 'application/pdf' : file.mimetype;
       await blockBlobClient.uploadData(file.buffer, {

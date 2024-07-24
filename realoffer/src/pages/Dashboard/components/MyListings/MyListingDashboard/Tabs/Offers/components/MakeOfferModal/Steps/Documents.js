@@ -3,9 +3,8 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../../../../../../../../context/AuthContext';
-import './UploadDocumentsModal/UploadDocumentsModal.css';
 
-const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData }) => {
+const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, listingId }) => {
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState([]);
@@ -77,13 +76,13 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData }) =>
         formData.append('documents', file);
         formData.append('type[]', type);
         formData.append('title[]', title);
-        formData.append('purpose[]', 'offer'); // Ensure the purpose is set to "offer"
+        formData.append('purpose', 'offer'); // Ensure the purpose is set to "offer"
       });
 
       formData.append('uploadedBy', user._id); // Assuming user._id contains the user's ID
-      formData.append('propertyListingId', formData.propertyListing); // Add the property listing ID
+      formData.append('propertyListingId', listingId); // Add the property listing ID
 
-      const response = await axios.post(`http://localhost:8000/api/documents`, formData, {
+      const response = await axios.post('http://localhost:8000/api/documents', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -106,21 +105,21 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData }) =>
         <h2>Documents</h2>
         <p>Upload all supplemental documents for this offer.</p>
       </div>
-      <div className="upload-documents-modal" onDragOver={handleDragOver} onDrop={handleDrop}>
-        <div className="upload-modal-content">
-          <h2 className="modal-title">Add Documents</h2>
+      <div className="offer-upload-documents-modal" onDragOver={handleDragOver} onDrop={handleDrop}>
+        <div className="offer-upload-modal-content">
+          <h2 className="offer-modal-title">Add Documents</h2>
           {errors.length > 0 && (
-            <div className="upload-errors">
+            <div className="offer-upload-errors">
               {errors.map((error, index) => (
-                <p key={index} className="upload-error">{error}</p>
+                <p key={index} className="offer-upload-error">{error}</p>
               ))}
             </div>
           )}
-          <div className="upload-area">
-            <div className="drag-drop">
-              <p className="drag-drop-text">Drag and drop PDF files or images here</p>
-              <p className="or-text">Or</p>
-              <button className="upload-button" onClick={handleUploadClick}>
+          <div className="offer-upload-area">
+            <div className="offer-drag-drop">
+              <p className="offer-drag-drop-text">Drag and drop PDF files or images here</p>
+              <p className="offer-or-text">Or</p>
+              <button className="offer-upload-button" onClick={handleUploadClick}>
                 Upload from your device
               </button>
               <input
@@ -132,48 +131,41 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData }) =>
               />
             </div>
           </div>
-          {uploading && <div className="upload-spinner-container"><div className="upload-spinner"></div></div>}
-          <div className="file-list-container">
-            <div className="file-list">
+          {uploading && <div className="offer-upload-spinner-container"><div className="offer-upload-spinner"></div></div>}
+          <div className="offer-file-list-container">
+            <div className="offer-file-list">
               {files.map((file, index) => (
-                <div key={index} className="file-item">
-                  <div className="file-info">
-                    <p className="file-name">{file.file.name} ({(file.file.size / 1024).toFixed(2)} KB)</p>
+                <div key={index} className="offer-file-item">
+                  <div className="offer-file-info">
+                    <p className="offer-file-name">{file.file.name} ({(file.file.size / 1024).toFixed(2)} KB)</p>
                     <input
                       type="text"
                       value={file.title}
                       onChange={(e) => handleFileTitleChange(index, e.target.value)}
                       placeholder="Document Title"
-                      className="file-title-input"
+                      className="offer-file-title-input"
                     />
                   </div>
-                  <div className="file-options">
+                  <div className="offer-file-options">
                     <select
                       value={file.type}
                       onChange={(e) => handleFileTypeChange(index, e.target.value)}
-                      className="file-type-select"
+                      className="offer-file-type-select"
                     >
                       <option value="">Select Type</option>
-                      <option value="Offer Instructions">Offer Instructions</option>
-                      <option value="Seller Property Questionnaire">Seller Property Questionnaire</option>
-                      <option value="Agent Visual Inspection">Agent Visual Inspection</option>
-                      <option value="Home Inspection Report">Home Inspection Report</option>
-                      <option value="Pest Inspection Report">Pest Inspection Report</option>
-                      <option value="Preliminary Title Report">Preliminary Title Report</option>
-                      <option value="Real Estate Transfer Disclosure Statement">Real Estate Transfer Disclosure Statement</option>
-                      <option value="Natural Hazard Disclosures">Natural Hazard Disclosures</option>
-                      <option value="Lead Based Paint Disclosures">Lead Based Paint Disclosures</option>
-                      <option value="HOA Documents">HOA Documents</option>
+                      <option value="Pre-Approval">Pre-Approval Letter</option>
+                      <option value="ProofOfFunds">Proof of Funds</option>
+                      <option value="PurchaseAgreement">Purchase Agreement</option>
                       <option value="Other">Other</option>
                     </select>
-                    <button className="delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>
+                    <button className="offer-delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-          <div className="modal-footer">
-            <button className="upload-files-button" onClick={handleUpload}>Upload Files</button>
+          <div className="offer-modal-footer">
+            <button className="offer-upload-files-button" onClick={handleUpload}>Upload Files</button>
           </div>
         </div>
       </div>
