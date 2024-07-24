@@ -15,9 +15,9 @@ const formatPhoneNumber = (phoneNumber) => {
 const OfferDetailsView = ({ offer, onBack }) => {
   return (
     <div className="offer-details-view">
-      <button className="back-button" onClick={onBack}>Back to Offers</button>
+      <button className="offer-back-button" onClick={onBack}>&larr; Back to Offers</button>
       <div className="offer-details-header">
-        <h1>Offer Details</h1>
+        <h1>Offer Data</h1>
       </div>
       <div className="offer-content">
         <div className="offer-summary">
@@ -122,7 +122,7 @@ const OfferDetailsView = ({ offer, onBack }) => {
             <h2>Message from Agent</h2>
             <p>{offer.specialTerms}</p>
           </div>
-          <div className="documents-section">
+          <div className="offer-documents-section">
             <h2>Documents</h2>
             <ul>
               {offer.documents.map(doc => (
