@@ -1,7 +1,6 @@
 // /models/Offer.js
 
 const mongoose = require('mongoose');
-const { required } = require('nodemon/lib/config');
 const Schema = mongoose.Schema;
 
 const OfferSchema = new Schema({
@@ -33,7 +32,7 @@ const OfferSchema = new Schema({
     addressLine2: { type: String, required: false },
     brokerageLogo: { type: String, required: false },
   },
-  documents: [{ type: String, required: false }],
+  documents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Document', required: false }],
   buyersAgent: { type: Schema.Types.ObjectId, ref: 'User', required: false },
   propertyListing: { type: Schema.Types.ObjectId, ref: 'PropertyListing', required: true },
   notes: { type: String }

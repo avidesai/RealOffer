@@ -3,8 +3,11 @@
 const mongoose = require('mongoose');
 const Offer = require('../models/Offer');
 const PropertyListing = require('../models/PropertyListing');
+const Document = require('../models/Document');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
+const { containerClient } = require('../config/azureStorage');
+const { getPdfPageCount } = require('./DocumentController');
 
 // Configure multer for in-memory storage before uploading to Azure
 const storage = multer.memoryStorage();
@@ -17,34 +20,62 @@ exports.createOffer = async (req, res) => {
   const files = req.files || []; // Ensure files is an array even if no files are uploaded
 
   try {
-    const documents = files.map(file => {
-      const blobName = `offers/${uuidv4()}-${file.originalname}`;
-      // Upload to Azure or other storage solution
-      const url = `https://your-storage-url/${blobName}`;
-      return {
-        title: file.originalname,
-        url: url,
-      };
-    });
+    const propertyListingId = req.body.propertyListing;
+    if (!mongoose.Types.ObjectId.isValid(propertyListingId)) {
+      return res.status(400).json({ message: 'Invalid propertyListing ID' });
+    }
+
+    const propertyListing = await PropertyListing.findById(propertyListingId);
+    if (!propertyListing) {
+      return res.status(404).json({ message: 'Property listing not found' });
+    }
+
+    const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
+    const types = Array.isArray(req.body.type) ? req.body.type : [req.body.type];
+    const uploadedBy = req.body.uploadedBy;
+
+    const documents = await Promise.all(files.map(async (file, index) => {
+      const title = titles[index];
+      const type = types[index];
+      const size = file.size;
+
+      const blobName = `documents/${uuidv4()}-${file.originalname}`;
+      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+      const contentType = file.mimetype === 'application/pdf' ? 'application/pdf' : file.mimetype;
+      await blockBlobClient.uploadData(file.buffer, {
+        blobHTTPHeaders: { blobContentType: contentType }
+      });
+
+      const pages = file.mimetype === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
+
+      const newDocument = new Document({
+        title,
+        type,
+        size,
+        pages,
+        thumbnailUrl: blockBlobClient.url,
+        uploadedBy,
+        propertyListing: propertyListingId,
+        azureKey: blobName,
+        visibility: 'public',
+        purpose: 'offer',
+      });
+
+      const savedDocument = await newDocument.save();
+      return savedDocument._id;
+    }));
 
     const offerData = {
       ...req.body,
       documents: documents,
     };
 
-    // Ensure propertyListing is set as an ObjectId if it's a valid 24-character hex string
-    if (mongoose.Types.ObjectId.isValid(offerData.propertyListing)) {
-      offerData.propertyListing = new mongoose.Types.ObjectId(offerData.propertyListing);
-    } else {
-      return res.status(400).json({ message: 'Invalid propertyListing ID' });
-    }
-
     const offer = new Offer(offerData);
     await offer.save();
 
-    // Add the offer to the property listing's offers array
     await PropertyListing.findByIdAndUpdate(
-      offerData.propertyListing,
+      propertyListingId,
       { $push: { offers: offer._id } }
     );
 

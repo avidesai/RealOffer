@@ -1,3 +1,5 @@
+// MakeOfferModal.js
+
 import React, { useState, useEffect } from 'react';
 import './MakeOfferModal.css';
 import PurchasePrice from './Steps/PurchasePrice';
@@ -43,6 +45,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       brokerageLogo: '',
     },
     documents: [],
+    propertyListing: listingId, // Add propertyListing to formData
   });
 
   const handleNextStep = () => setStep(step + 1);
@@ -147,9 +150,11 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         )}
         {step === 4 && (
           <Documents
+            formData={formData}
             handleFileChange={handleFileChange}
             handleNextStep={handleNextStep}
             handlePrevStep={handlePrevStep}
+            setFormData={setFormData} // Pass setFormData to Documents step
           />
         )}
         {step === 5 && (

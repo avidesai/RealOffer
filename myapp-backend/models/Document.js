@@ -13,8 +13,9 @@ const documentSchema = new mongoose.Schema({
   uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
   azureKey: { type: String, required: true },
   updatedAt: { type: Date, default: Date.now },
-  visibility: { type: String, default: 'public' }, // New field added here
-  signaturePackagePages: { type: [Number], default: [] } // New field for storing selected pages
+  visibility: { type: String, default: 'public' },
+  signaturePackagePages: { type: [Number], default: [] },
+  purpose: { type: String, default: 'listing' } // Added purpose field
 }, { timestamps: true });
 
 module.exports = mongoose.model('Document', documentSchema);

@@ -25,7 +25,7 @@ const getPdfPageCount = async (buffer) => {
 };
 
 exports.uploadDocument = async (req, res) => {
-  const { uploadedBy, propertyListingId, visibility = 'public' } = req.body;
+  const { uploadedBy, propertyListingId, visibility = 'public', purpose = 'listing' } = req.body;
   const files = req.files;
 
   if (!files || files.length === 0) {
@@ -67,6 +67,7 @@ exports.uploadDocument = async (req, res) => {
         propertyListing: propertyListingId,
         azureKey: blobName,
         visibility, // Include visibility field
+        purpose, // Include purpose field
       });
 
       const savedDocument = await newDocument.save();
@@ -83,7 +84,7 @@ exports.uploadDocument = async (req, res) => {
 };
 
 exports.addDocumentToPropertyListing = async (req, res) => {
-  const { uploadedBy, visibility = 'public' } = req.body;
+  const { uploadedBy, visibility = 'public', purpose = 'listing' } = req.body;
   const files = req.files;
 
   if (!files || files.length === 0) {
@@ -125,6 +126,7 @@ exports.addDocumentToPropertyListing = async (req, res) => {
         uploadedBy,
         azureKey: blobName,
         visibility, // Include visibility field
+        purpose, // Include purpose field
       });
 
       const savedDocument = await newDocument.save();
@@ -141,7 +143,7 @@ exports.addDocumentToPropertyListing = async (req, res) => {
 };
 
 exports.addDocumentToBuyerPackage = async (req, res) => {
-  const { uploadedBy, visibility = 'public' } = req.body;
+  const { uploadedBy, visibility = 'public', purpose = 'offer' } = req.body;
   const files = req.files;
 
   if (!files || files.length === 0) {
@@ -183,6 +185,7 @@ exports.addDocumentToBuyerPackage = async (req, res) => {
         uploadedBy,
         azureKey: blobName,
         visibility, // Include visibility field
+        purpose, // Include purpose field
       });
 
       const savedDocument = await newDocument.save();

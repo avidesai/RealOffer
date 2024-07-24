@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import axios from 'axios';
-import { useAuth } from '../../../../../../../../../context/AuthContext';
+import { useAuth } from '../../../../../../../../../../../context/AuthContext';
 import UploadDocumentsModal from './UploadDocumentsModal';
 
 const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
@@ -77,13 +77,13 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
         formData.append('documents', file);
         formData.append('type[]', type);
         formData.append('title[]', title);
-        formData.append('purpose[]', 'listing'); // Ensure the purpose is set to "listing"
+        formData.append('purpose', 'offer'); // Ensure the purpose is set to "offer"
       });
 
       formData.append('uploadedBy', user._id); // Assuming user._id contains the user's ID
       formData.append('propertyListingId', listingId); // Add the property listing ID
 
-      await axios.post(`http://localhost:8000/api/documents`, formData, {
+      const response = await axios.post('http://localhost:8000/api/documents', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -92,7 +92,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
       setUploading(false);
       onClose();
       if (onUploadSuccess) {
-        onUploadSuccess();
+        onUploadSuccess(response.data);
       }
     } catch (error) {
       setUploading(false);
