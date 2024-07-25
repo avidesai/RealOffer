@@ -13,7 +13,7 @@ const formatPhoneNumber = (phoneNumber) => {
   return phoneNumber;
 };
 
-const OfferDetailsView = ({ offerId, onBack }) => {
+const OfferDetailsView = ({ offerId, onBack, onNotesUpdate }) => {
   const [offer, setOffer] = useState(null);
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(true);
@@ -43,6 +43,7 @@ const OfferDetailsView = ({ offerId, onBack }) => {
       await axios.put(`http://localhost:8000/api/offers/${offer._id}/private-notes`, {
         privateListingTeamNotes: notes,
       });
+      onNotesUpdate(offer._id, notes);
     } catch (error) {
       console.error('Error updating notes:', error);
     }

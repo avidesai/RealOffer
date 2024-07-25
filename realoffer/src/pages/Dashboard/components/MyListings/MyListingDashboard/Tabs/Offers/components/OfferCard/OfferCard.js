@@ -1,6 +1,6 @@
 // OfferCard.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './OfferCard.css';
 import axios from 'axios';
 
@@ -13,8 +13,12 @@ const formatPhoneNumber = (phoneNumber) => {
   return phoneNumber;
 };
 
-const OfferCard = ({ offer, onClick }) => {
+const OfferCard = ({ offer, onClick, onNotesUpdate }) => {
   const [notes, setNotes] = useState(offer.privateListingTeamNotes || '');
+
+  useEffect(() => {
+    setNotes(offer.privateListingTeamNotes || '');
+  }, [offer.privateListingTeamNotes]);
 
   const handleNotesChange = (event) => {
     setNotes(event.target.value);
@@ -25,6 +29,7 @@ const OfferCard = ({ offer, onClick }) => {
       await axios.put(`http://localhost:8000/api/offers/${offer._id}/private-notes`, {
         privateListingTeamNotes: notes,
       });
+      onNotesUpdate(offer._id, notes);
     } catch (error) {
       console.error('Error updating notes:', error);
     }

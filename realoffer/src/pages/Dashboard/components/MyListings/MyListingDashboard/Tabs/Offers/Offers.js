@@ -17,7 +17,7 @@ const Offers = ({ listingId }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [selectedOfferId, setSelectedOfferId] = useState(null);
+  const [selectedOffer, setSelectedOffer] = useState(null);
 
   const fetchOffers = useCallback(async () => {
     setLoading(true);
@@ -67,14 +67,23 @@ const Offers = ({ listingId }) => {
   };
 
   const handleOfferClick = (offerId) => {
-    setSelectedOfferId(offerId);
+    setSelectedOffer(offerId);
   };
 
   const handleBackToOffers = () => {
-    setSelectedOfferId(null);
+    setSelectedOffer(null);
+    fetchOffers();
   };
 
-  const filteredOffers = offers.filter(offer => {
+  const handleNotesUpdate = (offerId, newNotes) => {
+    setOffers((prevOffers) =>
+      prevOffers.map((offer) =>
+        offer._id === offerId ? { ...offer, privateListingTeamNotes: newNotes } : offer
+      )
+    );
+  };
+
+  const filteredOffers = offers.filter((offer) => {
     return true; // default to show all if no filter matches
   });
 
@@ -86,14 +95,16 @@ const Offers = ({ listingId }) => {
     }
   });
 
-  const searchedOffers = sortedOffers.filter(offer => offer.specialTerms?.toLowerCase().includes(searchQuery.toLowerCase()));
+  const searchedOffers = sortedOffers.filter((offer) =>
+    offer.specialTerms?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const paginatedOffers = searchedOffers.slice((currentPage - 1) * 10, currentPage * 10);
 
   return (
     <div className="offers-tab">
-      {selectedOfferId ? (
-        <OfferDetailsView offerId={selectedOfferId} onBack={handleBackToOffers} />
+      {selectedOffer ? (
+        <OfferDetailsView offerId={selectedOffer} onBack={handleBackToOffers} onNotesUpdate={handleNotesUpdate} />
       ) : (
         <>
           <OfferSortBar
@@ -115,17 +126,12 @@ const Offers = ({ listingId }) => {
             {paginatedOffers.length === 0 ? (
               <p className="no-offers-message">No offers found.</p>
             ) : (
-              paginatedOffers.map(offer => (
-                <OfferCard key={offer._id} offer={offer} onClick={handleOfferClick} />
+              paginatedOffers.map((offer) => (
+                <OfferCard key={offer._id} offer={offer} onClick={handleOfferClick} onNotesUpdate={handleNotesUpdate} />
               ))
             )}
           </div>
-          {showModal && (
-            <MakeOfferModal
-              onClose={handleCloseModal}
-              listingId={listingId}
-            />
-          )}
+          {showModal && <MakeOfferModal onClose={handleCloseModal} listingId={listingId} />}
         </>
       )}
     </div>
@@ -133,3 +139,4 @@ const Offers = ({ listingId }) => {
 };
 
 export default Offers;
+
