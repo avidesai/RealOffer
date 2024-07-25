@@ -13,6 +13,17 @@ const formatPhoneNumber = (phoneNumber) => {
   return phoneNumber;
 };
 
+const formatDateTime = (isoString) => {
+  const date = new Date(isoString);
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
 const getStatusStyle = (status) => {
   switch (status) {
     case 'submitted':
@@ -73,9 +84,9 @@ const OfferDetailsView = ({ offerId, onBack }) => {
     <div className="offer-details-view">
       <button className="offer-back-button" onClick={onBack}>&larr; Back to Offers</button>
       <div className="offer-content">
-        <div className="offer-summary">
+        <div className="offer-terms-section">
           <div className="offer-summary-item">
-            <h2 className="section-title">Offer Terms</h2>
+            <h2 className="section-title">Terms</h2>
             <div className="term">
               <p className="offer-purchase-price-value">${offer.purchasePrice.toLocaleString()}</p>
             </div>
@@ -128,8 +139,8 @@ const OfferDetailsView = ({ offerId, onBack }) => {
               <p className="term-value">{offer.buyersAgentCommission}%</p>
             </div>
             <div className="term">
-              <p className="term-label">Submitted On</p>
-              <p className="term-value">{new Date(offer.submittedOn).toLocaleString()}</p>
+              <p className="term-label">Timestamp</p>
+              <p className="term-value">{formatDateTime(offer.submittedOn)}</p>
             </div>
             <div className="term">
               <p className="term-label">Special Terms</p>
@@ -157,8 +168,8 @@ const OfferDetailsView = ({ offerId, onBack }) => {
                 <p className="license-value">{offer.brokerageInfo.licenseNumber}</p>
               </div>
               <div className="status-details">
-                <p className="status-label">Submitted On</p>
-                <p className="status-value">{new Date(offer.submittedOn).toLocaleString()}</p>
+                <p className="status-label">Timestamp</p>
+                <p className="status-value">{formatDateTime(offer.submittedOn)}</p>
                 <p className="status-label">Status</p>
                 <p className="status-value"><span className={`status-box ${statusStyle.className}`}>{statusStyle.text}</span></p>
               </div>

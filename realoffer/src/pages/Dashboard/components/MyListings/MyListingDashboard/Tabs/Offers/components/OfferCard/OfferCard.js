@@ -13,6 +13,17 @@ const formatPhoneNumber = (phoneNumber) => {
   return phoneNumber;
 };
 
+const formatDateTime = (isoString) => {
+  const date = new Date(isoString);
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
 const getStatusStyle = (status) => {
   switch (status) {
     case 'submitted':
@@ -69,6 +80,7 @@ const OfferCard = ({ offer, onClick }) => {
           <button className="view-offer-button" onClick={() => onClick(offer._id)}>View</button>
           <button className="respond-offer-button">Respond</button>
         </div>
+        <div className="divider"></div>
         <div className="offer-details">
           <p><strong>Status</strong> <span className={`status-box ${statusStyle.className}`}>{statusStyle.text}</span></p>
           <p><strong>Deposit</strong> <span>${offer.initialDeposit.toLocaleString()}</span></p>
@@ -82,7 +94,7 @@ const OfferCard = ({ offer, onClick }) => {
           <p><strong>Home Sale Contingency</strong> <span>{offer.homeSaleContingency}</span></p>
           <p><strong>Close of Escrow</strong> <span>{offer.closeOfEscrow} Days</span></p>
           <p><strong>Agent Commission</strong> <span>{offer.buyersAgentCommission}%</span></p>
-          <p><strong>Submitted On</strong> <span>{new Date(offer.submittedOn).toLocaleString()}</span></p>
+          <p><strong>Timestamp</strong> <span>{formatDateTime(offer.submittedOn)}</span></p>
           <p><strong>Special Terms</strong></p>
           <p><span>{offer.specialTerms}</span></p>
         </div>

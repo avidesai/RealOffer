@@ -25,6 +25,7 @@
   justify-content: center;
   text-align: center;
   width: 12rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .offer-back-button:hover {
@@ -38,9 +39,10 @@
   justify-content: space-between;
 }
 
-.offer-summary {
+.offer-terms-section {
   flex: 1.1;
   margin-right: 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .offer-summary-item {
@@ -52,7 +54,7 @@
 
 .section-title {
   background-color: #ffffff;
-  padding: 0.5rem 1rem;
+  padding: 0.65rem 1rem;
   font-size: 1.1rem;
   font-weight: 700;
   color: #333;
@@ -79,6 +81,7 @@
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .presented-by-info, .message-from-agent-content, .offer-documents-content, .listing-team-notes-content {
@@ -102,28 +105,33 @@
   justify-content: center;
   font-size: 1.5rem;
   margin-top: 1rem;
-  margin-left: 0.5rem;
-  margin-right: 1.5rem;
+  margin-left: 1rem;
+  margin-right: 2rem;
 }
 
-.agent-details, .brokerage-details, .status-details {
+.agent-details {
+  flex: 1.5;
+  margin-right: 1rem;
+}
+
+.brokerage-details, .status-details {
   flex: 2;
   margin-right: 1rem;
 }
 
 .brokerage-details {
-  margin-top: -0.4rem;
+  margin-top: -0.5rem;
   margin-right: 2rem;
 }
 
-.agent-details h3, .status-details h3 {
+.agent-details h3 {
   margin: 0 0 0.75rem 0;
   font-size: 1.25rem;
   color: #2b2b2b;
 }
 
 .contact-info-label, .address-label, .license-label, .status-label {
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   color: #6c757d;
   padding-top: 0.5rem;
   margin-bottom: 0.75rem;
@@ -138,6 +146,7 @@
 
 .brokerage-name {
   margin-top: 0.5rem;
+  font-size: 1rem;
 }
 
 .status-details {

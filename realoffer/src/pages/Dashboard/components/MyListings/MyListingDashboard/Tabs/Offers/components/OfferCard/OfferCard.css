@@ -8,7 +8,7 @@
   margin-bottom: 1rem;
   padding: 1.5rem;
   width: 100%;
-  max-width: 300px;
+  max-width: 260px;
   transition: box-shadow 0.3s;
 }
 
@@ -79,7 +79,7 @@
   display: flex;
   justify-content: center;
   margin-top: 1.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .view-offer-button {
@@ -96,7 +96,7 @@
 }
 
 .respond-offer-button {
-  background-color: #32b643;
+  background-color: #007bff;
   color: #ffffff;
   border: none;
   padding: 0.5rem 1rem;
@@ -112,16 +112,16 @@
 }
 
 .respond-offer-button:hover {
-  background-color: #238c31;
+  background-color: #0056b3;
 }
 
 .offer-details {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
 }
 
 .offer-details p {
   margin: 1rem 0;
-  font-size: 0.875rem;
+  font-size: 0.925rem;
   display: flex;
   justify-content: space-between;
   align-items: center;

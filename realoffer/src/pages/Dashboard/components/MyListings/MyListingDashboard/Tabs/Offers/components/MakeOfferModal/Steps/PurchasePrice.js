@@ -125,7 +125,7 @@ const PurchasePrice = ({ formData, handleChange, handleFinanceTypeChange, handle
       )}
       {formData.financeType !== 'CASH' && (
         <div className="calculated-values">
-          <p><strong>Calculated Values</strong></p>
+          <p><strong>Finances</strong></p>
           {loanAmount && <p>Loan Amount: ${loanAmount}</p>}
           {percentDown && <p>Percent Down: {percentDown}%</p>}
           {displayValues.downPayment && <p>Down Payment: ${displayValues.downPayment}</p>}
