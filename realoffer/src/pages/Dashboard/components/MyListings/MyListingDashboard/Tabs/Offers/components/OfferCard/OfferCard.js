@@ -27,7 +27,7 @@ const formatDateTime = (isoString) => {
 const getStatusStyle = (status) => {
   switch (status) {
     case 'submitted':
-      return { text: 'Submitted', className: 'status-submitted' };
+      return { text: 'Pending Review', className: 'status-submitted' };
     case 'under review':
       return { text: 'Under Review', className: 'status-under-review' };
     case 'accepted':
@@ -39,8 +39,9 @@ const getStatusStyle = (status) => {
   }
 };
 
-const OfferCard = ({ offer, onClick }) => {
+const OfferCard = ({ offer, onClick, onUpdate }) => {
   const [notes, setNotes] = useState(offer.privateListingTeamNotes || '');
+  const [status, setStatus] = useState(offer.offerStatus);
 
   useEffect(() => {
     setNotes(offer.privateListingTeamNotes || '');
@@ -60,7 +61,23 @@ const OfferCard = ({ offer, onClick }) => {
     }
   };
 
-  const statusStyle = getStatusStyle(offer.offerStatus);
+  const handleViewClick = async () => {
+    if (status === 'submitted') {
+      try {
+        const response = await axios.put(`http://localhost:8000/api/offers/${offer._id}/status`, {
+          offerStatus: 'under review',
+        });
+        const updatedOffer = response.data;
+        setStatus(updatedOffer.offerStatus);
+        onUpdate(updatedOffer); // Notify parent component of the update
+      } catch (error) {
+        console.error('Error updating offer status:', error);
+      }
+    }
+    onClick(offer._id);
+  };
+
+  const statusStyle = getStatusStyle(status);
 
   const agentAvatarStyle = {
     backgroundColor: offer.presentedBy.agentImageBackgroundColor || '#007bff',
@@ -98,7 +115,7 @@ const OfferCard = ({ offer, onClick }) => {
           <h3>${offer.purchasePrice.toLocaleString()}</h3>
         </div>
         <div className="offer-actions">
-          <button className="view-offer-button" onClick={() => onClick(offer._id)}>View</button>
+          <button className="view-offer-button" onClick={handleViewClick}>View</button>
           <button className="respond-offer-button">Respond</button>
         </div>
         <div className="divider"></div>

@@ -20,7 +20,7 @@ const getStatusStyle = (status) => {
 };
 
 function OfferSortBar({ onFilterChange, onSortChange, onSearch, onAddOffer, onDownloadSummary, currentPage, totalPages, onPageChange }) {
-  const [filter, setFilter] = useState('submitted');
+  const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('priceHighToLow');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -48,8 +48,9 @@ function OfferSortBar({ onFilterChange, onSortChange, onSearch, onAddOffer, onDo
       <div className="offer-sort-bar">
         <div className="filter-sort-section">
           <div className="offer-filter-section">
-            <label htmlFor="filter">Filter</label>
+            <label htmlFor="filter">Status</label>
             <select id="filter" value={filter} onChange={handleFilterChange}>
+              <option value="all">All</option>
               <option value="submitted">{getStatusStyle('submitted').text}</option>
               <option value="under review">{getStatusStyle('under review').text}</option>
               <option value="accepted">{getStatusStyle('accepted').text}</option>

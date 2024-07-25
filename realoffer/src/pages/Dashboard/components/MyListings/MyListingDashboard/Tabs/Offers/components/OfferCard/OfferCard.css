@@ -108,7 +108,7 @@
 }
 
 .respond-offer-button {
-  background-color: #007bff;
+  background-color: #32b643;
   color: #ffffff;
   border: none;
   padding: 0.5rem 1rem;
@@ -124,7 +124,7 @@
 }
 
 .respond-offer-button:hover {
-  background-color: #0056b3;
+  background-color: #238c31;
 }
 
 .offer-details {

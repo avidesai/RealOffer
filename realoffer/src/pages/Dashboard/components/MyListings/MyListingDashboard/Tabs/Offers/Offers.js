@@ -10,7 +10,7 @@ import './Offers.css';
 
 const Offers = ({ listingId }) => {
   const [offers, setOffers] = useState([]);
-  const [filter, setFilter] = useState('submitted');
+  const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('priceHighToLow');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -75,7 +75,16 @@ const Offers = ({ listingId }) => {
     fetchOffers();
   };
 
+  const handleUpdateOffer = (updatedOffer) => {
+    setOffers((prevOffers) =>
+      prevOffers.map((offer) => (offer._id === updatedOffer._id ? updatedOffer : offer))
+    );
+  };
+
   const filteredOffers = offers.filter((offer) => {
+    if (filter === 'all') {
+      return true;
+    }
     return offer.offerStatus === filter;
   });
 
@@ -126,7 +135,7 @@ const Offers = ({ listingId }) => {
               <p className="no-offers-message">No offers found.</p>
             ) : (
               paginatedOffers.map((offer) => (
-                <OfferCard key={offer._id} offer={offer} onClick={handleOfferClick} />
+                <OfferCard key={offer._id} offer={offer} onClick={handleOfferClick} onUpdate={handleUpdateOffer} />
               ))
             )}
           </div>

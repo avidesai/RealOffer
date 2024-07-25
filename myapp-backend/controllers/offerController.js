@@ -157,3 +157,25 @@ exports.updatePrivateNotes = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Update the status of a specific offer
+exports.updateOfferStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { offerStatus } = req.body;
+
+    const offer = await Offer.findByIdAndUpdate(
+      id,
+      { offerStatus },
+      { new: true, runValidators: true }
+    );
+
+    if (!offer) {
+      return res.status(404).json({ message: 'Offer not found' });
+    }
+
+    res.status(200).json(offer);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
