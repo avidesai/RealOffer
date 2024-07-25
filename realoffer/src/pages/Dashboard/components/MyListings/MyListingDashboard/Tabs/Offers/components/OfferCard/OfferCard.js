@@ -72,6 +72,7 @@ const OfferCard = ({ offer, onClick, onNotesUpdate }) => {
       </div>
       <div className="divider"></div>
       <div className="offer-card-footer">
+        <p><strong>Private Notes</strong></p>
         <textarea
           className="team-notes"
           value={notes}
