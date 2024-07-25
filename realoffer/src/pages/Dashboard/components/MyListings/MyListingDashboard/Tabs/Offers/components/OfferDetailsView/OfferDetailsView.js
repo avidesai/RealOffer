@@ -154,7 +154,7 @@ const OfferDetailsView = ({ offerId, onBack }) => {
         </div>
         <div className="middle-section">
           <div className="presented-by">
-            <h2 className="section-title">Presented By</h2>
+            <h2 className="section-title">Agent Information</h2>
             <div className="presented-by-info">
               <div
                 className="agent-avatar"
