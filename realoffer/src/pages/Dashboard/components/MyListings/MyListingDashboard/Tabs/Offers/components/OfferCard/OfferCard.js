@@ -28,7 +28,7 @@ const getStatusStyle = (status) => {
   }
 };
 
-const OfferCard = ({ offer, onClick, onNotesUpdate }) => {
+const OfferCard = ({ offer, onClick }) => {
   const [notes, setNotes] = useState(offer.privateListingTeamNotes || '');
 
   useEffect(() => {
@@ -44,7 +44,6 @@ const OfferCard = ({ offer, onClick, onNotesUpdate }) => {
       await axios.put(`http://localhost:8000/api/offers/${offer._id}/private-notes`, {
         privateListingTeamNotes: notes,
       });
-      onNotesUpdate(offer._id, notes);
     } catch (error) {
       console.error('Error updating notes:', error);
     }

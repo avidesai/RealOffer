@@ -75,14 +75,6 @@ const Offers = ({ listingId }) => {
     fetchOffers();
   };
 
-  const handleNotesUpdate = (offerId, newNotes) => {
-    setOffers((prevOffers) =>
-      prevOffers.map((offer) =>
-        offer._id === offerId ? { ...offer, privateListingTeamNotes: newNotes } : offer
-      )
-    );
-  };
-
   const filteredOffers = offers.filter((offer) => {
     return true; // default to show all if no filter matches
   });
@@ -104,7 +96,7 @@ const Offers = ({ listingId }) => {
   return (
     <div className="offers-tab">
       {selectedOffer ? (
-        <OfferDetailsView offerId={selectedOffer} onBack={handleBackToOffers} onNotesUpdate={handleNotesUpdate} />
+        <OfferDetailsView offerId={selectedOffer} onBack={handleBackToOffers} />
       ) : (
         <>
           <OfferSortBar
@@ -127,7 +119,7 @@ const Offers = ({ listingId }) => {
               <p className="no-offers-message">No offers found.</p>
             ) : (
               paginatedOffers.map((offer) => (
-                <OfferCard key={offer._id} offer={offer} onClick={handleOfferClick} onNotesUpdate={handleNotesUpdate} />
+                <OfferCard key={offer._id} offer={offer} onClick={handleOfferClick} />
               ))
             )}
           </div>
@@ -139,4 +131,3 @@ const Offers = ({ listingId }) => {
 };
 
 export default Offers;
-

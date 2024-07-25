@@ -1,5 +1,7 @@
 /* OfferDetailsView.css */
 
+/* OfferDetailsView.css */
+
 .offer-details-view {
   padding: 0.5rem;
   padding-top: 0.5rem;
@@ -211,4 +213,33 @@
   100% {
     transform: rotate(360deg);
   }
+}
+
+/* Status Styles */
+.status-box {
+  padding: 0.25rem 0.75rem;
+  font-weight: 500;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  display: inline-block;
+}
+
+.status-submitted {
+  background-color: #e7e7e7;
+  color: #333;
+}
+
+.status-under-review {
+  background-color: #6f42c1;
+  color: #ffffff;
+}
+
+.status-accepted {
+  background-color: #28a745;
+  color: #ffffff;
+}
+
+.status-rejected {
+  background-color: #dc3545;
+  color: #ffffff;
 }
