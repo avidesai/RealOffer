@@ -69,6 +69,9 @@ exports.createOffer = async (req, res) => {
     const offerData = {
       ...req.body,
       documents: documents,
+      offerExpiryDate: req.body.offerExpiryDate,
+      sellerRentBack: req.body.sellerRentBack,
+      'buyerDetails.buyerName': req.body.buyerName,
     };
 
     const offer = new Offer(offerData);
@@ -113,7 +116,7 @@ exports.updateOffer = async (req, res) => {
     if (!offer) return res.status(404).json({ message: 'Offer not found' });
     res.status(200).json(offer);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status500().json({ message: error.message });
   }
 };
 
@@ -149,4 +152,3 @@ exports.updatePrivateNotes = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-

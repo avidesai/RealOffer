@@ -24,6 +24,8 @@ const OfferSchema = new Schema({
     licenseNumber: { type: String, required: false },
     email: { type: String, required: false },
     phoneNumber: { type: String, required: false },
+    agentImageUrl: { type: String, required: false },
+    agentImageBackgroundColor: { type: String, required: false },
   },
   brokerageInfo: {
     name: { type: String, required: false },
@@ -40,7 +42,9 @@ const OfferSchema = new Schema({
     buyerName: { type: String, required: false }
   },
   buyersAgentMessage: { type: String, required: false },
-  privateListingTeamNotes: { type: String, required: false }
+  privateListingTeamNotes: { type: String, required: false },
+  offerExpiryDate: { type: Date, required: false },
+  sellerRentBack: { type: Number, required: false },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Offer', OfferSchema);

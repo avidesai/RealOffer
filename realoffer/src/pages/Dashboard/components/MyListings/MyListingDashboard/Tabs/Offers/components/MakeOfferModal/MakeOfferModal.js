@@ -1,10 +1,13 @@
 // MakeOfferModal.js
 
+// MakeOfferModal.js
+
 import React, { useState, useEffect } from 'react';
 import './MakeOfferModal.css';
 import PurchasePrice from './Steps/PurchasePrice';
 import Contingencies from './Steps/Contingencies';
 import AgentInformation from './Steps/AgentInformation';
+import OfferDetails from './Steps/OfferDetails'; // Import the new component
 import Documents from './Steps/Documents';
 import FinalReview from './Steps/FinalReview';
 import axios from 'axios';
@@ -46,6 +49,10 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     },
     documents: [],
     propertyListing: listingId, // Add propertyListing to formData
+    offerExpiryDate: '', // New field
+    sellerRentBack: '',  // New field
+    buyerName: '',       // New field
+    buyersAgentCommission: '', // New field
   });
 
   const handleNextStep = () => setStep(step + 1);
@@ -165,6 +172,14 @@ const MakeOfferModal = ({ onClose, listingId }) => {
           />
         )}
         {step === 4 && (
+          <OfferDetails
+            formData={formData}
+            handleChange={handleChange}
+            handleNextStep={handleNextStep}
+            handlePrevStep={handlePrevStep}
+          />
+        )}
+        {step === 5 && (
           <Documents
             formData={formData}
             handleFileChange={handleFileChange}
@@ -174,7 +189,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
             listingId={listingId} // Pass listingId to Documents step
           />
         )}
-        {step === 5 && (
+        {step === 6 && (
           <FinalReview
             formData={formData}
             handlePrevStep={handlePrevStep}
