@@ -75,7 +75,7 @@ const OfferDetailsView = ({ offerId, onBack }) => {
       <div className="offer-content">
         <div className="offer-summary">
           <div className="offer-summary-item">
-            <h2>Summary of Terms</h2>
+            <h2>Offer Terms</h2>
             <div className="term">
               <p className="term-label">Purchase Price:</p>
               <p className="term-value">${offer.purchasePrice.toLocaleString()}</p>
@@ -143,8 +143,7 @@ const OfferDetailsView = ({ offerId, onBack }) => {
                 <p className="license-value">{offer.presentedBy.licenseNumber}</p>
               </div>
               <div className="brokerage-details">
-                <h3>{offer.brokerageInfo.name}</h3>
-                <p className="address-label">Broker Address</p>
+                <p className='brokerage-name'><strong>{offer.brokerageInfo.name}</strong></p>
                 <p className="address-value">{offer.brokerageInfo.addressLine1}</p>
                 <p className="address-value">{offer.brokerageInfo.addressLine2}</p>
                 <p className="license-label">Broker License</p>
@@ -160,7 +159,7 @@ const OfferDetailsView = ({ offerId, onBack }) => {
           </div>
           <div className="message-from-agent">
             <h2>Agent Message</h2>
-            <p>{offer.specialTerms}</p>
+            <p>{offer.buyersAgentMessage}</p>
           </div>
           <div className="offer-documents-section">
             <h2>Documents</h2>
