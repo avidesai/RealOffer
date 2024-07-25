@@ -10,8 +10,8 @@ import './Offers.css';
 
 const Offers = ({ listingId }) => {
   const [offers, setOffers] = useState([]);
-  const [filter, setFilter] = useState('active');
-  const [sort, setSort] = useState('recent');
+  const [filter, setFilter] = useState('submitted');
+  const [sort, setSort] = useState('priceHighToLow');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -24,7 +24,7 @@ const Offers = ({ listingId }) => {
     try {
       const response = await axios.get(`http://localhost:8000/api/propertyListings/${listingId}`);
       setOffers(response.data.offers);
-      setTotalPages(Math.ceil(response.data.offers.length / 10));
+      setTotalPages(Math.ceil(response.data.offers.length / 4)); // 4 offers per page
     } catch (error) {
       console.error('Error fetching offers:', error);
     } finally {
@@ -76,14 +76,21 @@ const Offers = ({ listingId }) => {
   };
 
   const filteredOffers = offers.filter((offer) => {
-    return true; // default to show all if no filter matches
+    return offer.offerStatus === filter;
   });
 
   const sortedOffers = filteredOffers.sort((a, b) => {
-    if (sort === 'recent') {
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    } else {
-      return new Date(a.createdAt) - new Date(b.createdAt);
+    switch (sort) {
+      case 'priceHighToLow':
+        return b.purchasePrice - a.purchasePrice;
+      case 'recent':
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      case 'oldest':
+        return new Date(a.createdAt) - new Date(b.createdAt);
+      case 'offerExpiryDate':
+        return new Date(a.offerExpiryDate) - new Date(b.offerExpiryDate);
+      default:
+        return 0;
     }
   });
 
@@ -91,7 +98,7 @@ const Offers = ({ listingId }) => {
     offer.specialTerms?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const paginatedOffers = searchedOffers.slice((currentPage - 1) * 10, currentPage * 10);
+  const paginatedOffers = searchedOffers.slice((currentPage - 1) * 4, currentPage * 4); // 4 offers per page
 
   return (
     <div className="offers-tab">

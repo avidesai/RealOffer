@@ -5,6 +5,17 @@ const formatNumber = (value) => {
   return value ? parseFloat(value).toLocaleString() : '0';
 };
 
+const formatDate = (isoString) => {
+  const date = new Date(isoString);
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
 const getContingencyDisplay = (contingency, days) => {
   return days >= 1 ? `${days} Days` : 'Waived';
 };
@@ -13,7 +24,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => (
   <div className="modal-step">
     <div className="offer-modal-header">
       <h2>Final Review</h2>
-      <p>Please confirm the following information is correct.</p>
+      <p>Please confirm the following is correct.</p>
     </div>
     <div className="summary-section">
       <div className="summary-item">
@@ -36,14 +47,14 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => (
       </div>
       <div className="summary-item">
         <h3>Agent Information</h3>
-        <p><span className="description-label">Agent Name:</span> {formData.presentedBy.name}</p>
+        <p><span className="description-label">Name:</span> {formData.presentedBy.name}</p>
         <p><span className="description-label">License Number:</span> {formData.presentedBy.licenseNumber}</p>
         <p><span className="description-label">Email:</span> {formData.presentedBy.email}</p>
         <p><span className="description-label">Phone Number:</span> {formData.presentedBy.phoneNumber}</p>
       </div>
       <div className="summary-item">
         <h3>Brokerage Information</h3>
-        <p><span className="description-label">Brokerage Name:</span> {formData.brokerageInfo.name}</p>
+        <p><span className="description-label">Name:</span> {formData.brokerageInfo.name}</p>
         <p><span className="description-label">License Number:</span> {formData.brokerageInfo.licenseNumber}</p>
         <p><span className="description-label">Address Line 1:</span> {formData.brokerageInfo.addressLine1}</p>
         <p><span className="description-label">Address Line 2:</span> {formData.brokerageInfo.addressLine2}</p>
@@ -51,7 +62,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => (
       <div className="summary-item">
         <h3>Offer Details</h3>
         <p><span className="description-label">Special Terms:</span> {formData.specialTerms}</p>
-        <p><span className="description-label">Offer Expiry Date:</span> {formData.offerExpiryDate}</p>
+        <p><span className="description-label">Offer Expiry Date:</span> {formatDate(formData.offerExpiryDate)}</p>
         <p><span className="description-label">Seller Rent Back:</span> {formData.sellerRentBack} Days</p>
         <p><span className="description-label">Buyer Name:</span> {formData.buyerName}</p>
         <p><span className="description-label">Buyer's Agent Commission:</span> {formData.buyersAgentCommission}%</p>

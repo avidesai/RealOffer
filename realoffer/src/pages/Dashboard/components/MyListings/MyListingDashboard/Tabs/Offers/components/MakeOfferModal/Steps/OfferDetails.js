@@ -10,9 +10,9 @@ const OfferDetails = ({ formData, handleChange, handleNextStep, handlePrevStep }
         <p>Provide additional details for the offer.</p>
       </div>
       <div className="form-group">
-        <label htmlFor="offerExpiryDate">Offer Expiration Date</label>
+        <label htmlFor="offerExpiryDate">Offer Expiration Date and Time</label>
         <input
-          type="date"
+          type="datetime-local"
           name="offerExpiryDate"
           value={formData.offerExpiryDate || ''}
           onChange={handleChange}

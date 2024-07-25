@@ -2,11 +2,26 @@
 
 import React, { useState } from 'react';
 import './OfferSortBar.css';
-import OfferToolBar from '../OfferToolBar/OfferToolBar';  // Import OfferToolBar component
+import OfferToolBar from '../OfferToolBar/OfferToolBar';
+
+const getStatusStyle = (status) => {
+  switch (status) {
+    case 'submitted':
+      return { text: 'Submitted', className: 'status-submitted' };
+    case 'under review':
+      return { text: 'Under Review', className: 'status-under-review' };
+    case 'accepted':
+      return { text: 'Accepted', className: 'status-accepted' };
+    case 'rejected':
+      return { text: 'Rejected', className: 'status-rejected' };
+    default:
+      return { text: 'Submitted', className: 'status-submitted' };
+  }
+};
 
 function OfferSortBar({ onFilterChange, onSortChange, onSearch, onAddOffer, onDownloadSummary, currentPage, totalPages, onPageChange }) {
-  const [filter, setFilter] = useState('active');
-  const [sort, setSort] = useState('recent');
+  const [filter, setFilter] = useState('submitted');
+  const [sort, setSort] = useState('priceHighToLow');
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleFilterChange = (e) => {
@@ -35,15 +50,19 @@ function OfferSortBar({ onFilterChange, onSortChange, onSearch, onAddOffer, onDo
           <div className="offer-filter-section">
             <label htmlFor="filter">Filter</label>
             <select id="filter" value={filter} onChange={handleFilterChange}>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="submitted">{getStatusStyle('submitted').text}</option>
+              <option value="under review">{getStatusStyle('under review').text}</option>
+              <option value="accepted">{getStatusStyle('accepted').text}</option>
+              <option value="rejected">{getStatusStyle('rejected').text}</option>
             </select>
           </div>
           <div className="offer-sort-section">
             <label htmlFor="sort">Sort</label>
             <select id="sort" value={sort} onChange={handleSortChange}>
+              <option value="priceHighToLow">Price (High to Low)</option>
               <option value="recent">Most Recent</option>
               <option value="oldest">Oldest</option>
+              <option value="offerExpiryDate">Offer Expiry Date</option>
             </select>
           </div>
         </div>
