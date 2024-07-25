@@ -75,54 +75,52 @@ const OfferDetailsView = ({ offerId, onBack }) => {
       <div className="offer-content">
         <div className="offer-summary">
           <div className="offer-summary-item">
-            <h2>Offer Terms</h2>
+            <h2 className="section-title">Offer Terms</h2>
             <div className="term">
-              <p className="term-label">Purchase Price:</p>
-              <p className="term-value">${offer.purchasePrice.toLocaleString()}</p>
+              <p className="offer-purchase-price-value">${offer.purchasePrice.toLocaleString()}</p>
             </div>
             <div className="term">
-              <p className="term-label">Finance Type:</p>
+              <p className="term-label">Finance Type</p>
               <p className="term-value">{offer.financeType}</p>
             </div>
-
             <div className="term">
-              <p className="term-label">Percent Down:</p>
+              <p className="term-label">Percent Down</p>
               <p className="term-value">{offer.percentDown}%</p>
             </div>
             <div className="term">
-              <p className="term-label">Down Payment:</p>
+              <p className="term-label">Down Payment</p>
               <p className="term-value">${offer.downPayment.toLocaleString()}</p>
             </div>
             <div className="term">
-              <p className="term-label">Deposit:</p>
+              <p className="term-label">Deposit</p>
               <p className="term-value">${offer.initialDeposit.toLocaleString()}</p>
             </div>
             <div className="term">
-              <p className="term-label">Down Payment Balance:</p>
+              <p className="term-label">Down Payment Balance</p>
               <p className="term-value">${offer.balanceOfDownPayment.toLocaleString()}</p>
             </div>
             <div className="term">
-              <p className="term-label">Loan Amount:</p>
+              <p className="term-label">Loan Amount</p>
               <p className="term-value">${offer.loanAmount.toLocaleString()}</p>
             </div>
             <div className="term">
-              <p className="term-label">Finance Contingency:</p>
+              <p className="term-label">Finance Contingency</p>
               <p className="term-value">{offer.financeContingency}</p>
             </div>
             <div className="term">
-              <p className="term-label">Appraisal Contingency:</p>
+              <p className="term-label">Appraisal Contingency</p>
               <p className="term-value">{offer.appraisalContingency}</p>
             </div>
             <div className="term">
-              <p className="term-label">Inspection Contingency:</p>
+              <p className="term-label">Inspection Contingency</p>
               <p className="term-value">{offer.inspectionContingency}</p>
             </div>
             <div className="term">
-              <p className="term-label">Home Sale Contingency:</p>
+              <p className="term-label">Home Sale Contingency</p>
               <p className="term-value">{offer.homeSaleContingency}</p>
             </div>
             <div className="term">
-              <p className="term-label">Close of Escrow:</p>
+              <p className="term-label">Close of Escrow</p>
               <p className="term-value">{offer.closeOfEscrow} Days</p>
             </div>
             <div className="term">
@@ -130,18 +128,18 @@ const OfferDetailsView = ({ offerId, onBack }) => {
               <p className="term-value">{offer.buyersAgentCommission}%</p>
             </div>
             <div className="term">
-              <p className="term-label">Submitted On:</p>
+              <p className="term-label">Submitted On</p>
               <p className="term-value">{new Date(offer.submittedOn).toLocaleString()}</p>
             </div>
             <div className="term">
-              <p className="term-label">Special Terms:</p>
+              <p className="term-label">Special Terms</p>
               <p className="term-value">{offer.specialTerms}</p>
             </div>
           </div>
         </div>
         <div className="middle-section">
           <div className="presented-by">
-            <h2>Presented By</h2>
+            <h2 className="section-title">Presented By</h2>
             <div className="presented-by-info">
               <div className="agent-avatar">{offer.presentedBy.name[0]}</div>
               <div className="agent-details">
@@ -167,30 +165,36 @@ const OfferDetailsView = ({ offerId, onBack }) => {
             </div>
           </div>
           <div className="message-from-agent">
-            <h2>Agent Message</h2>
-            <p>{offer.buyersAgentMessage}</p>
+            <h2 className="section-title">Agent Message</h2>
+            <div className="message-from-agent-content">
+              <p>{offer.buyersAgentMessage}</p>
+            </div>
           </div>
           <div className="offer-documents-section">
-            <h2>Documents</h2>
-            <ul>
-              {offer.documents.map(doc => (
-                <li key={doc._id}>
-                  <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
-                    {doc.title || 'Untitled'} ({doc.type || 'No type'})
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <h2 className="section-title">Documents</h2>
+            <div className="offer-documents-content">
+              <ul>
+                {offer.documents.map(doc => (
+                  <li key={doc._id}>
+                    <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
+                      {doc.title || 'Untitled'} ({doc.type || 'No type'})
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
         <div className="listing-team-notes">
-          <h2>Private Notes</h2>
-          <textarea
-            value={notes}
-            placeholder="Write a private note for your team..."
-            onChange={handleNotesChange}
-            onBlur={handleNotesBlur}
-          />
+          <h2 className="section-title">Private Notes</h2>
+          <div className="listing-team-notes-content">
+            <textarea
+              value={notes}
+              placeholder="Write a private note for your team..."
+              onChange={handleNotesChange}
+              onBlur={handleNotesBlur}
+            />
+          </div>
         </div>
       </div>
     </div>

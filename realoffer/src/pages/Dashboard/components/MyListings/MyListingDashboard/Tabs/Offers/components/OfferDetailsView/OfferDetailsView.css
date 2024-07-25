@@ -1,7 +1,5 @@
 /* OfferDetailsView.css */
 
-/* OfferDetailsView.css */
-
 .offer-details-view {
   padding: 0.5rem;
   padding-top: 0.5rem;
@@ -35,10 +33,6 @@
   background-color: #ffffff;
 }
 
-.offer-details-header h1 {
-  text-align: center;
-}
-
 .offer-content {
   display: flex;
   justify-content: space-between;
@@ -51,13 +45,27 @@
 
 .offer-summary-item {
   background-color: #fff;
-  padding: 1.5rem;
-  padding-top: 0.5rem;
   border-radius: 10px;
+  overflow: hidden;
 }
 
-.offer-summary-item h2 {
-  margin-bottom: 1.5rem;
+.section-title {
+  background-color: #ffffff;
+  padding: 0.5rem 1rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+  border-bottom: 1px solid #c4c4c4;
+  text-align: center;
+}
+
+.offer-purchase-price-value {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
 .middle-section {
@@ -65,28 +73,21 @@
   margin-right: 1rem;
 }
 
-.presented-by, .message-from-agent, .offer-documents-section {
+.presented-by, .message-from-agent, .offer-documents-section, .listing-team-notes {
   background-color: #fff;
-  padding: 1.2rem;
-  padding-top: 0.5rem;
   border-radius: 10px;
+  overflow: hidden;
   margin-bottom: 1rem;
 }
 
-.presented-by h2, .message-from-agent h2, .offer-documents-section h2 {
-  margin-bottom: 0.5rem;
+.presented-by-info, .message-from-agent-content, .offer-documents-content, .listing-team-notes-content {
+  padding: 1.2rem;
 }
 
 .presented-by-info {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 1rem;
-  padding-top: 1.5rem;
-  margin-top: 1rem;
-  background-color: #fff;
 }
 
 .agent-avatar {
@@ -101,8 +102,6 @@
   font-size: 1.5rem;
   margin-top: 1rem;
   margin-right: 1rem;
-  margin-left: 0.5rem;
-  margin-right: 1.5rem;
 }
 
 .agent-details, .brokerage-details, .status-details {
@@ -135,7 +134,7 @@
   margin-bottom: 0.75rem;
 }
 
-.brokerage-name{
+.brokerage-name {
   margin-top: 0.5rem;
 }
 
@@ -169,22 +168,10 @@
   text-decoration: underline;
 }
 
-.listing-team-notes {
-  flex: 0.7;
-  background-color: #fff;
-  padding: 1.2rem;
-  padding-top: 0.5rem;
-  border-radius: 10px;
-}
-
-.listing-team-notes h2 {
-  margin-bottom: 0.5rem;
-}
-
-.listing-team-notes textarea {
+.listing-team-notes-content textarea {
   width: 95%;
-  height: 250px;
-  margin-top: 1rem;
+  height: 225px;
+  margin-top: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-family: 'Helvetica Neue', sans-serif;
@@ -198,6 +185,14 @@
 .term-label {
   font-weight: bold;
   margin-bottom: 0.2rem;
+  margin-left: 1.5rem;
+  margin-right: 1.5rem;
+}
+
+.term-value {
+  margin-left: 1.5rem;
+  margin-right: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .spinner-container {
