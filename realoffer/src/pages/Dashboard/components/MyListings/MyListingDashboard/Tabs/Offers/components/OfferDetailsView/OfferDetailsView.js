@@ -154,7 +154,7 @@ const OfferDetailsView = ({ offerId, onBack }) => {
         </div>
         <div className="middle-section">
           <div className="presented-by">
-            <h2 className="section-title">Agent Information</h2>
+            <h2 className="section-title">Agent Info</h2>
             <div className="presented-by-info">
               <div
                 className="agent-avatar"
@@ -187,13 +187,13 @@ const OfferDetailsView = ({ offerId, onBack }) => {
               <div className="status-details">
                 <p className="status-label">Timestamp</p>
                 <p className="status-value">{formatDateTime(offer.submittedOn)}</p>
-                <p className="status-label">Status</p>
+                <p className="status-label">Offer Status</p>
                 <p className="status-value"><span className={`status-box ${statusStyle.className}`}>{statusStyle.text}</span></p>
               </div>
             </div>
           </div>
           <div className="message-from-agent">
-            <h2 className="section-title">Agent Message</h2>
+            <h2 className="section-title">Offer Message</h2>
             <div className="message-from-agent-content">
               <p>{offer.buyersAgentMessage}</p>
             </div>
