@@ -1,7 +1,7 @@
 /* OfferDetailsView.css */
 
 .offer-details-view {
-    padding: 1rem;
+    padding: 0.5rem;
     padding-top: 0.5rem;
     background-color: #f1f1f1;
     border-radius: 10px;
@@ -13,14 +13,16 @@
     border: 2px solid #c4c4c4;
     border-radius: 20px;
     padding: 0.5rem 2rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    justify-content: center;  /* Centering the text horizontally */
-    text-align: center;  /* Centering the text inside the button */
+    justify-content: center; /* Centering the text horizontally */
+    text-align: center; /* Centering the text inside the button */
     width: 12rem;
   }
   
@@ -40,13 +42,14 @@
   }
   
   .offer-summary {
-    flex: 1;
+    flex: 1.1;
     margin-right: 1rem;
   }
   
   .offer-summary-item {
     background-color: #fff;
-    padding: 1.2rem;
+    padding: 1.5rem;
+    padding-top: 0.5rem;
     border-radius: 10px;
   }
   
@@ -55,13 +58,14 @@
   }
   
   .middle-section {
-    flex: 2;
+    flex: 3; /* Increased to allow more space for the middle section */
     margin-right: 1rem;
   }
   
   .presented-by, .message-from-agent, .offer-documents-section {
     background-color: #fff;
     padding: 1.2rem;
+    padding-top: 0.5rem;
     border-radius: 10px;
     margin-bottom: 1rem;
   }
@@ -72,19 +76,62 @@
   
   .presented-by-info {
     display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-top: 1rem;
+    background-color: #fff;
   }
   
   .agent-avatar {
     background-color: #007bff;
     color: white;
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
+    margin-top: 1rem;
     margin-right: 1rem;
+    margin-left: 0.5rem;
+    margin-right: 1.5rem;
+  }
+  
+  .agent-details, .brokerage-details, .status-details {
+    flex: 2;
+    margin-right: 1rem;
+  }
+  
+  .agent-details h3, .brokerage-details h3, .status-details h3 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.25rem;
+    color: #2b2b2b;
+  }
+  
+  .contact-info-label, .address-label, .license-label, .status-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    padding-top: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .contact-info-value, .address-value, .license-value, .status-value {
+    font-size: 1rem;
+    color: #2b2b2b;
+    margin-top: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .status-details {
+    flex: 1;
+  }
+  
+  .status-details p {
+    margin: 0.5rem 0;
   }
   
   .agent-details .term {
@@ -110,9 +157,10 @@
   }
   
   .listing-team-notes {
-    flex: 1;
+    flex: 0.7; /* Reduced to allow less width for the listing-team-notes */
     background-color: #fff;
     padding: 1.2rem;
+    padding-top: 0.5rem;
     border-radius: 10px;
   }
   
@@ -121,8 +169,8 @@
   }
   
   .listing-team-notes textarea {
-    width: 95%;
-    height: 100px;
+    width: 95%; /* Adjusted width to 100% for better alignment */
+    height: 250px;
     margin-top: 1rem;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -138,3 +186,4 @@
     font-weight: bold;
     margin-bottom: 0.2rem;
   }
+  

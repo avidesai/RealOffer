@@ -16,28 +16,18 @@ const OfferDetailsView = ({ offer, onBack }) => {
   return (
     <div className="offer-details-view">
       <button className="offer-back-button" onClick={onBack}>&larr; Back to Offers</button>
-      <div className="offer-details-header">
-        <h1>Offer Data</h1>
-      </div>
       <div className="offer-content">
         <div className="offer-summary">
           <div className="offer-summary-item">
             <h2>Summary of Terms</h2>
+            
             <div className="term">
               <p className="term-label">Purchase Price:</p>
               <p className="term-value">${offer.purchasePrice.toLocaleString()}</p>
             </div>
             <div className="term">
-              <p className="term-label">Initial Deposit:</p>
-              <p className="term-value">${offer.initialDeposit.toLocaleString()}</p>
-            </div>
-            <div className="term">
               <p className="term-label">Finance Type:</p>
               <p className="term-value">{offer.financeType}</p>
-            </div>
-            <div className="term">
-              <p className="term-label">Loan Amount:</p>
-              <p className="term-value">${offer.loanAmount.toLocaleString()}</p>
             </div>
             <div className="term">
               <p className="term-label">Percent Down:</p>
@@ -48,8 +38,12 @@ const OfferDetailsView = ({ offer, onBack }) => {
               <p className="term-value">${offer.downPayment.toLocaleString()}</p>
             </div>
             <div className="term">
-              <p className="term-label">Balance of Down Payment:</p>
-              <p className="term-value">${offer.balanceOfDownPayment.toLocaleString()}</p>
+              <p className="term-label">Loan Amount:</p>
+              <p className="term-value">${offer.loanAmount.toLocaleString()}</p>
+            </div>
+            <div className="term">
+              <p className="term-label">Initial Deposit:</p>
+              <p className="term-value">${offer.initialDeposit.toLocaleString()}</p>
             </div>
             <div className="term">
               <p className="term-label">Finance Contingency:</p>
@@ -69,7 +63,7 @@ const OfferDetailsView = ({ offer, onBack }) => {
             </div>
             <div className="term">
               <p className="term-label">Close of Escrow:</p>
-              <p className="term-value">{offer.closeOfEscrow}</p>
+              <p className="term-value">{offer.closeOfEscrow} Days</p>
             </div>
             <div className="term">
               <p className="term-label">Submitted On:</p>
@@ -87,39 +81,30 @@ const OfferDetailsView = ({ offer, onBack }) => {
             <div className="presented-by-info">
               <div className="agent-avatar">{offer.presentedBy.name[0]}</div>
               <div className="agent-details">
-                <div className="term">
-                  <p className="term-label">Name:</p>
-                  <p className="term-value">{offer.presentedBy.name}</p>
-                </div>
-                <div className="term">
-                  <p className="term-label">Email:</p>
-                  <p className="term-value">{offer.presentedBy.email}</p>
-                </div>
-                <div className="term">
-                  <p className="term-label">Phone:</p>
-                  <p className="term-value">{formatPhoneNumber(offer.presentedBy.phoneNumber)}</p>
-                </div>
-                <div className="term">
-                  <p className="term-label">License:</p>
-                  <p className="term-value">{offer.presentedBy.licenseNumber}</p>
-                </div>
-                <div className="term">
-                  <p className="term-label">Brokerage:</p>
-                  <p className="term-value">{offer.brokerageInfo.name}</p>
-                </div>
-                <div className="term">
-                  <p className="term-label">Brokerage License:</p>
-                  <p className="term-value">{offer.brokerageInfo.licenseNumber}</p>
-                </div>
-                <div className="term">
-                  <p className="term-label">Address:</p>
-                  <p className="term-value">{offer.brokerageInfo.addressLine1}, {offer.brokerageInfo.addressLine2}</p>
-                </div>
+                <h3>{offer.presentedBy.name}</h3>
+                <p className="contact-info-value">{offer.presentedBy.email}</p>
+                <p className="contact-info-value">{formatPhoneNumber(offer.presentedBy.phoneNumber)}</p>
+                <p className="license-label">License</p>
+                <p className="license-value">{offer.presentedBy.licenseNumber}</p>
+              </div>
+              <div className="brokerage-details">
+                <h3>{offer.brokerageInfo.name}</h3>
+                <p className="address-label">Address</p>
+                <p className="address-value">{offer.brokerageInfo.addressLine1}</p>
+                <p className="address-value">{offer.brokerageInfo.addressLine2}</p>
+                <p className="license-label">License</p>
+                <p className="license-value">{offer.brokerageInfo.licenseNumber}</p>
+              </div>
+              <div className="status-details">
+                <p className="status-label">Submitted On</p>
+                <p className="status-value">{new Date(offer.submittedOn).toLocaleString()}</p>
+                <p className="status-label">Status</p>
+                <p className="status-value"></p>
               </div>
             </div>
           </div>
           <div className="message-from-agent">
-            <h2>Message from Agent</h2>
+            <h2>Message from Agent / Buyer</h2>
             <p>{offer.specialTerms}</p>
           </div>
           <div className="offer-documents-section">
@@ -136,8 +121,8 @@ const OfferDetailsView = ({ offer, onBack }) => {
           </div>
         </div>
         <div className="listing-team-notes">
-          <h2>Listing Team Notes</h2>
-          <textarea placeholder="Add notes here..."></textarea>
+          <h2>Private Notes</h2>
+          <textarea placeholder="Write a private note for your team..."></textarea>
         </div>
       </div>
     </div>

@@ -43,12 +43,13 @@ const OfferCard = ({ offer, onClick }) => {
           <p><strong>Appraisal Contingency</strong> <span>{offer.appraisalContingency}</span></p>
           <p><strong>Inspection Contingency</strong> <span>{offer.inspectionContingency}</span></p>
           <p><strong>Home Sale Contingency</strong> <span>{offer.homeSaleContingency}</span></p>
-          <p><strong>Close of Escrow</strong> <span>{offer.closeOfEscrow}</span></p>
+          <p><strong>Close of Escrow</strong> <span>{offer.closeOfEscrow} Days</span></p>
           <p><strong>Submitted On</strong> <span>{new Date(offer.submittedOn).toLocaleString()}</span></p>
           <p><strong>Special Terms</strong> <span>{offer.specialTerms}</span></p>
         </div>
       </div>
       <div className="offer-card-footer">
+        <p><strong>Private Notes</strong></p>
         <textarea className="team-notes" placeholder="Write a private note for your team..."></textarea>
       </div>
     </div>
