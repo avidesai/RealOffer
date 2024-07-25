@@ -107,7 +107,6 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
       </div>
       <div className="offer-upload-documents-modal" onDragOver={handleDragOver} onDrop={handleDrop}>
         <div className="offer-upload-modal-content">
-          <h2 className="offer-modal-title">Add Documents</h2>
           {errors.length > 0 && (
             <div className="offer-upload-errors">
               {errors.map((error, index) => (

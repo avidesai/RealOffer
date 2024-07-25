@@ -1,0 +1,50 @@
+  .summary-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .summary-item {
+    border: 1px solid #ddd;
+    padding: 1.5rem;
+    padding-top: 0rem;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  
+  .summary-item h3 {
+    margin-bottom: 1.5rem;
+  }
+  
+  .summary-item p {
+    margin: 1rem 0;
+  }
+  
+  .description-label {
+    font-weight: 500;
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .step-back-button,
+  .next-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .step-back-button {
+    background-color: #ccc;
+  }
+  
+  .next-button {
+    background-color: #007bff;
+    color: #fff;
+  }
+  

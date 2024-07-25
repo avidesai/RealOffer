@@ -66,6 +66,10 @@ const OfferCard = ({ offer, onClick }) => {
     backgroundColor: offer.presentedBy.agentImageBackgroundColor || '#007bff',
   };
 
+  const formatContingency = (contingencyDays) => {
+    return contingencyDays >= 1 ? `${contingencyDays} Days` : 'Waived';
+  };
+
   return (
     <div className="offer-card">
       <div className="offer-card-header">
@@ -105,9 +109,9 @@ const OfferCard = ({ offer, onClick }) => {
           <p><strong>Loan Amount</strong> <span>${offer.loanAmount.toLocaleString()}</span></p>
           <p><strong>Percent Down</strong> <span>{offer.percentDown}%</span></p>
           <p><strong>Down Payment</strong> <span>${offer.downPayment.toLocaleString()}</span></p>
-          <p><strong>Finance Contingency</strong> <span>{offer.financeContingency}</span></p>
-          <p><strong>Appraisal Contingency</strong> <span>{offer.appraisalContingency}</span></p>
-          <p><strong>Inspection Contingency</strong> <span>{offer.inspectionContingency}</span></p>
+          <p><strong>Finance Contingency</strong> <span>{formatContingency(offer.financeContingencyDays)}</span></p>
+          <p><strong>Appraisal Contingency</strong> <span>{formatContingency(offer.appraisalContingencyDays)}</span></p>
+          <p><strong>Inspection Contingency</strong> <span>{formatContingency(offer.inspectionContingencyDays)}</span></p>
           <p><strong>Home Sale Contingency</strong> <span>{offer.homeSaleContingency}</span></p>
           <p><strong>Close of Escrow</strong> <span>{offer.closeOfEscrow} Days</span></p>
           <p><strong>Agent Commission</strong> <span>{offer.buyersAgentCommission}%</span></p>

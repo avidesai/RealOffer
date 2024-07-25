@@ -16,7 +16,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
     return vibrantColors[Math.floor(Math.random() * vibrantColors.length)];
   }, []);
 
-  const fetchUserData = async () => {
+  const fetchUserData = useCallback(async () => {
     try {
       const response = await axios.get(`http://localhost:8000/api/users/${user._id}`);
       const userData = response.data;
@@ -32,7 +32,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
-  };
+  }, [user._id, handleNestedChange]);
 
   useEffect(() => {
     if (isAgent) {
@@ -49,7 +49,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
       handleNestedChange({ target: { name: 'addressLine1', value: '' } }, 'brokerageInfo');
       handleNestedChange({ target: { name: 'addressLine2', value: '' } }, 'brokerageInfo');
     }
-  }, [isAgent, user._id, getRandomColor, handleNestedChange]);
+  }, [isAgent, fetchUserData, getRandomColor, handleNestedChange]);
 
   const handleToggleChange = (e) => {
     setIsAgent(e.target.value === 'agent');

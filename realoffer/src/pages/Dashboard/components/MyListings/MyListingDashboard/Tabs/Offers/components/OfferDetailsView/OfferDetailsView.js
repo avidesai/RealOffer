@@ -84,6 +84,10 @@ const OfferDetailsView = ({ offerId, onBack }) => {
     backgroundColor: offer.presentedBy.agentImageBackgroundColor || '#007bff',
   };
 
+  const formatContingency = (contingencyDays) => {
+    return contingencyDays >= 1 ? `${contingencyDays} Days` : 'Waived';
+  };
+
   return (
     <div className="offer-details-view">
       <button className="offer-back-button" onClick={onBack}>&larr; Back to Offers</button>
@@ -120,15 +124,15 @@ const OfferDetailsView = ({ offerId, onBack }) => {
             </div>
             <div className="term">
               <p className="term-label">Finance Contingency</p>
-              <p className="term-value">{offer.financeContingency}</p>
+              <p className="term-value">{formatContingency(offer.financeContingencyDays)}</p>
             </div>
             <div className="term">
               <p className="term-label">Appraisal Contingency</p>
-              <p className="term-value">{offer.appraisalContingency}</p>
+              <p className="term-value">{formatContingency(offer.appraisalContingencyDays)}</p>
             </div>
             <div className="term">
               <p className="term-label">Inspection Contingency</p>
-              <p className="term-value">{offer.inspectionContingency}</p>
+              <p className="term-value">{formatContingency(offer.inspectionContingencyDays)}</p>
             </div>
             <div className="term">
               <p className="term-label">Home Sale Contingency</p>

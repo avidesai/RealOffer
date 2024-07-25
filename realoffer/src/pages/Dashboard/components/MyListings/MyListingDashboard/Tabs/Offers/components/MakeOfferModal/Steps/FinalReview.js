@@ -1,33 +1,60 @@
 import React from 'react';
+import './FinalReview.css';
+
+const formatNumber = (value) => {
+  return value ? parseFloat(value).toLocaleString() : '0';
+};
+
+const getContingencyDisplay = (contingency, days) => {
+  return days >= 1 ? `${days} Days` : 'Waived';
+};
 
 const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => (
   <div className="modal-step">
-    <div className='offer-modal-header'>
+    <div className="offer-modal-header">
       <h2>Final Review</h2>
-      <p>Please confirm the following is correct.</p>
+      <p>Please confirm the following information is correct.</p>
     </div>
     <div className="summary-section">
       <div className="summary-item">
-        <h3>Summary of Terms</h3>
-        <p>Purchase Price: ${formData.purchasePrice}</p>
-        <p>Initial Deposit: ${formData.initialDeposit}</p>
-        <p>Finance Type: {formData.financeType}</p>
-        <p>Loan Amount: ${formData.loanAmount}</p>
-        <p>Submitted On: {formData.submittedOn}</p>
+        <h3>Purchase Price & Financing</h3>
+        <p><span className="description-label">Purchase Price:</span> ${formatNumber(formData.purchasePrice)}</p>
+        <p><span className="description-label">Initial Deposit:</span> ${formatNumber(formData.initialDeposit)}</p>
+        <p><span className="description-label">Finance Type:</span> {formData.financeType}</p>
+        <p><span className="description-label">Loan Amount:</span> ${formatNumber(formData.loanAmount)}</p>
+        <p><span className="description-label">Percent Down:</span> {formData.percentDown}%</p>
+        <p><span className="description-label">Down Payment:</span> ${formatNumber(formData.downPayment)}</p>
+        <p><span className="description-label">Balance of Down Payment:</span> ${formatNumber(formData.balanceOfDownPayment)}</p>
       </div>
       <div className="summary-item">
-        <h3>Presented By</h3>
-        <p>Name: {formData.presentedBy.name}</p>
-        <p>License Number: {formData.presentedBy.licenseNumber}</p>
-        <p>Email: {formData.presentedBy.email}</p>
-        <p>Phone Number: {formData.presentedBy.phoneNumber}</p>
+        <h3>Contingencies</h3>
+        <p><span className="description-label">Finance Contingency:</span> {getContingencyDisplay(formData.financeContingency, formData.financeContingencyDays)}</p>
+        <p><span className="description-label">Appraisal Contingency:</span> {getContingencyDisplay(formData.appraisalContingency, formData.appraisalContingencyDays)}</p>
+        <p><span className="description-label">Inspection Contingency:</span> {getContingencyDisplay(formData.inspectionContingency, formData.inspectionContingencyDays)}</p>
+        <p><span className="description-label">Home Sale Contingency:</span> {formData.homeSaleContingency}</p>
+        <p><span className="description-label">Close of Escrow:</span> {formData.closeOfEscrow} Days</p>
       </div>
       <div className="summary-item">
-        <h3>Brokerage Info</h3>
-        <p>Name: {formData.brokerageInfo.name}</p>
-        <p>License Number: {formData.brokerageInfo.licenseNumber}</p>
-        <p>Address Line 1: {formData.brokerageInfo.addressLine1}</p>
-        <p>Address Line 2: {formData.brokerageInfo.addressLine2}</p>
+        <h3>Agent Information</h3>
+        <p><span className="description-label">Agent Name:</span> {formData.presentedBy.name}</p>
+        <p><span className="description-label">License Number:</span> {formData.presentedBy.licenseNumber}</p>
+        <p><span className="description-label">Email:</span> {formData.presentedBy.email}</p>
+        <p><span className="description-label">Phone Number:</span> {formData.presentedBy.phoneNumber}</p>
+      </div>
+      <div className="summary-item">
+        <h3>Brokerage Information</h3>
+        <p><span className="description-label">Brokerage Name:</span> {formData.brokerageInfo.name}</p>
+        <p><span className="description-label">License Number:</span> {formData.brokerageInfo.licenseNumber}</p>
+        <p><span className="description-label">Address Line 1:</span> {formData.brokerageInfo.addressLine1}</p>
+        <p><span className="description-label">Address Line 2:</span> {formData.brokerageInfo.addressLine2}</p>
+      </div>
+      <div className="summary-item">
+        <h3>Offer Details</h3>
+        <p><span className="description-label">Special Terms:</span> {formData.specialTerms}</p>
+        <p><span className="description-label">Offer Expiry Date:</span> {formData.offerExpiryDate}</p>
+        <p><span className="description-label">Seller Rent Back:</span> {formData.sellerRentBack} Days</p>
+        <p><span className="description-label">Buyer Name:</span> {formData.buyerName}</p>
+        <p><span className="description-label">Buyer's Agent Commission:</span> {formData.buyersAgentCommission}%</p>
       </div>
       <div className="summary-item">
         <h3>Documents</h3>
