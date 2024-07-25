@@ -1,148 +1,157 @@
 /* OfferCard.css */
 
+/* OfferCard.css */
+
 .offer-card {
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1rem;
-    padding: 1.5rem;
-    width: 100%;
-    max-width: 285px;
-    transition: box-shadow 0.3s, scale 0.3s;
-  }
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 300px;
+  transition: box-shadow 0.3s;
+}
 
-  .offer-card:hover {
-    scale: 1.005;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
-  }
-  
-  .offer-card-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-  
-  .offer-avatar {
-    background-color: #007bff;
-    color: #ffffff;
-    border-radius: 50%;
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    margin-left: 1rem;
-    margin-right: 1.5rem;
-  }
-  
-  .offer-agent-info {
-    flex: 1;
-  }
-  
-  .offer-agent-name {
-    font-weight: bold;
-    margin: 0.4rem;
-  }
-  
-  .offer-agent-email,
-  .offer-agent-phone,
-  .offer-agent-license {
-    margin: 0.4rem;
-    font-size: 0.875rem;
-    color: #666666;
-  }
-  
-  .offer-card-body {
-    margin-bottom: 1rem;
-  }
-  
-  .offer-price {
-    text-align: center;
-  }
-  
-  .offer-price p {
-    margin: 0;
-    padding-bottom: 0.2rem;
-    font-size: 0.875rem;
-    color: #666666;
-  }
-  
-  .offer-price h3 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: #333333;
-  }
-  
-  .offer-actions {
-    display: flex;
-    justify-content:center;
-    margin-top: 1.5rem;
-    margin-bottom: 2rem;
-  }
-  
-  .view-offer-button {
-    background-color: #007bff;
-    color: #ffffff;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.875rem;
-    transition: background-color 0.3s;
-    margin-right: 0.25rem;
-  }
+.offer-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
 
-  .respond-offer-button {
-    background-color: #007bff;
-    color: #ffffff;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.875rem;
-    transition: background-color 0.3s;
-  }
-  
-  .view-offer-button:hover {
-    background-color: #0056b3;
-  }
+.offer-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
 
-  .respond-offer-button:hover {
-    background-color: #0056b3;
-  }
-  
-  .offer-details {
-    margin-top: 1rem;
-  }
-  
-  .offer-details p {
-    margin: 1rem 0;
-    font-size: 0.875rem;
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .offer-card-footer {
-    margin-top: 1rem;
-  }
+.offer-avatar {
+  background-color: #007bff;
+  color: #ffffff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
 
-  .offer-card-footer p{
-    margin: 1rem 0;
-    font-size: 0.875rem;
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .team-notes {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    width: 100%;
-    height: 80px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 0.875rem;
-    outline: none;
-  }
-  
+.offer-agent-info {
+  flex: 1;
+}
+
+.offer-agent-name {
+  font-weight: bold;
+  margin: 0.4rem;
+  font-size: 1rem;
+}
+
+.offer-agent-email,
+.offer-agent-phone,
+.offer-agent-license {
+  margin: 0.4rem;
+  font-size: 0.9rem;
+  color: #666666;
+}
+
+.offer-card-body {
+  margin-bottom: 1rem;
+}
+
+.offer-price {
+  text-align: center;
+}
+
+.offer-price p {
+  margin: 0;
+  padding-bottom: 0.2rem;
+  font-size: 0.875rem;
+  color: #666666;
+}
+
+.offer-price h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333333;
+}
+
+.offer-actions {
+  display: flex;
+  justify-content:center;
+  margin-top: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.view-offer-button {
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.3s;
+  margin-right: 0.25rem;
+  font-weight: 500;
+}
+
+.respond-offer-button {
+  background-color: #32b643;
+  color: #ffffff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.3s;
+  font-weight: 500;
+}
+
+.view-offer-button:hover {
+  background-color: #0056b3;
+}
+
+.respond-offer-button:hover {
+  background-color: #238c31;
+}
+
+.offer-details {
+  margin-top: 1rem;
+}
+
+.offer-details p {
+  margin: 1rem 0;
+  font-size: 0.875rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.divider {
+  width: 100%;
+  height: 0.5px;
+  background-color: #e0e0e0;
+  margin: 1rem auto;
+}
+
+.offer-card-footer {
+  margin-top: 1rem;
+}
+
+.offer-card-footer p {
+  margin: 1rem 0;
+  font-size: 0.875rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.team-notes {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  width: 100%;
+  height: 80px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 0.875rem;
+  outline: none;
+}

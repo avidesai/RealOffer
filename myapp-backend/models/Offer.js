@@ -18,7 +18,7 @@ const OfferSchema = new Schema({
   closeOfEscrow: { type: String, required: false },
   submittedOn: { type: Date, default: Date.now },
   specialTerms: { type: String },
-  offerStatus: { type: String, required: false },
+  offerStatus: { type: String, required: false, default: 'submitted' },
   presentedBy: {
     name: { type: String, required: false },
     licenseNumber: { type: String, required: false },
@@ -35,7 +35,12 @@ const OfferSchema = new Schema({
   documents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Document', required: false }],
   buyersAgent: { type: Schema.Types.ObjectId, ref: 'User', required: false },
   propertyListing: { type: Schema.Types.ObjectId, ref: 'PropertyListing', required: true },
-  notes: { type: String }
+  buyersAgentCommission: { type: Number, required: false },
+  buyerDetails: {
+    buyerName: { type: String, required: false }
+  },
+  buyersAgentMessage: { type: String, required: false },
+  privateListingTeamNotes: { type: String, required: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Offer', OfferSchema);

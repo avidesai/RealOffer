@@ -1,7 +1,5 @@
 // OfferCard.js
 
-// OfferCard.js
-
 import React from 'react';
 import './OfferCard.css';
 
@@ -16,7 +14,7 @@ const formatPhoneNumber = (phoneNumber) => {
 
 const OfferCard = ({ offer, onClick }) => {
   return (
-    <div className="offer-card" onClick={onClick}>
+    <div className="offer-card">
       <div className="offer-card-header">
         <div className="offer-avatar">{offer.presentedBy.name ? offer.presentedBy.name[0] : 'N/A'}</div>
         <div className="offer-agent-info">
@@ -30,10 +28,11 @@ const OfferCard = ({ offer, onClick }) => {
           <h3>${offer.purchasePrice.toLocaleString()}</h3>
         </div>
         <div className="offer-actions">
-          <button className="view-offer-button">View</button>
+          <button className="view-offer-button" onClick={onClick}>Open</button>
           <button className="respond-offer-button">Respond</button>
         </div>
         <div className="offer-details">
+          <p><strong>Status</strong> <span>{offer.offerStatus}</span></p>
           <p><strong>Finance Type</strong> <span>{offer.financeType}</span></p>
           <p><strong>Percent Down</strong> <span>{offer.percentDown}%</span></p>
           <p><strong>Down Payment</strong> <span>${offer.downPayment.toLocaleString()}</span></p>
@@ -44,12 +43,13 @@ const OfferCard = ({ offer, onClick }) => {
           <p><strong>Inspection Contingency</strong> <span>{offer.inspectionContingency}</span></p>
           <p><strong>Home Sale Contingency</strong> <span>{offer.homeSaleContingency}</span></p>
           <p><strong>Close of Escrow</strong> <span>{offer.closeOfEscrow} Days</span></p>
+          <p><strong>Agent Commission</strong> <span>{offer.buyersAgentCommission}%</span></p>
           <p><strong>Submitted On</strong> <span>{new Date(offer.submittedOn).toLocaleString()}</span></p>
           <p><strong>Special Terms</strong> <span>{offer.specialTerms}</span></p>
         </div>
       </div>
+      <div className="divider"></div> {/* Add this line for the divider */}
       <div className="offer-card-footer">
-        <p><strong>Private Notes</strong></p>
         <textarea className="team-notes" placeholder="Write a private note for your team..."></textarea>
       </div>
     </div>
