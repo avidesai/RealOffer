@@ -9,7 +9,7 @@ const parseNumber = (value) => {
   return parseFloat(value.replace(/,/g, '')) || 0;
 };
 
-const PurchasePrice = ({ formData, handleChange, handleNextStep }) => {
+const PurchasePrice = ({ formData, handleChange, handleFinanceTypeChange, handleNextStep }) => {
   const [displayValues, setDisplayValues] = useState({
     purchasePrice: '',
     initialDeposit: '',
@@ -69,18 +69,6 @@ const PurchasePrice = ({ formData, handleChange, handleNextStep }) => {
     }
   };
 
-  const handleFinanceTypeChange = (e) => {
-    const { name, value } = e.target;
-    handleChange(e);
-    if (value === 'CASH') {
-      handleChange({ target: { name: 'loanAmount', value: '0' } });
-      setDisplayValues((prevValues) => ({
-        ...prevValues,
-        loanAmount: '0',
-      }));
-    }
-  };
-
   return (
     <div className="modal-step">
       <div className="offer-modal-header">
@@ -135,7 +123,7 @@ const PurchasePrice = ({ formData, handleChange, handleNextStep }) => {
             />
           </div>
           <div className="calculated-values">
-            <p><strong>Calculated Values</strong></p>
+            <p><strong>Finances</strong></p>
             {percentDown && <p>Percent Down: {percentDown}%</p>}
             {downPayment && <p>Down Payment: ${downPayment}</p>}
             {balanceOfDownPayment && <p>Balance of Down Payment: ${balanceOfDownPayment}</p>}

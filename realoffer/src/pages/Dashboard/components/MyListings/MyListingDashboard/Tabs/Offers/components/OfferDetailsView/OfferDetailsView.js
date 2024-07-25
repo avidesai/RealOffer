@@ -80,8 +80,16 @@ const OfferDetailsView = ({ offerId, onBack }) => {
               <p className="offer-purchase-price-value">${offer.purchasePrice.toLocaleString()}</p>
             </div>
             <div className="term">
+              <p className="term-label">Deposit</p>
+              <p className="term-value">${offer.initialDeposit.toLocaleString()}</p>
+            </div>
+            <div className="term">
               <p className="term-label">Finance Type</p>
               <p className="term-value">{offer.financeType}</p>
+            </div>
+            <div className="term">
+              <p className="term-label">Loan Amount</p>
+              <p className="term-value">${offer.loanAmount.toLocaleString()}</p>
             </div>
             <div className="term">
               <p className="term-label">Percent Down</p>
@@ -92,16 +100,8 @@ const OfferDetailsView = ({ offerId, onBack }) => {
               <p className="term-value">${offer.downPayment.toLocaleString()}</p>
             </div>
             <div className="term">
-              <p className="term-label">Deposit</p>
-              <p className="term-value">${offer.initialDeposit.toLocaleString()}</p>
-            </div>
-            <div className="term">
               <p className="term-label">Down Payment Balance</p>
               <p className="term-value">${offer.balanceOfDownPayment.toLocaleString()}</p>
-            </div>
-            <div className="term">
-              <p className="term-label">Loan Amount</p>
-              <p className="term-value">${offer.loanAmount.toLocaleString()}</p>
             </div>
             <div className="term">
               <p className="term-label">Finance Contingency</p>

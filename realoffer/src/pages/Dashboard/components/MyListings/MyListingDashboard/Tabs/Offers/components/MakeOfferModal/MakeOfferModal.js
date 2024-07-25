@@ -53,28 +53,39 @@ const MakeOfferModal = ({ onClose, listingId }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prevData) => ({
+      ...prevData,
       [name]: value,
+    }));
+  };
+
+  const handleFinanceTypeChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => {
+      const updatedData = { ...prevData, [name]: value };
+      if (value === 'CASH') {
+        updatedData.loanAmount = '0';
+      }
+      return updatedData;
     });
   };
 
   const handleNestedChange = (e, section) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prevData) => ({
+      ...prevData,
       [section]: {
-        ...formData[section],
+        ...prevData[section],
         [name]: value,
       },
-    });
+    }));
   };
 
   const handleFileChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prevData) => ({
+      ...prevData,
       documents: e.target.files,
-    });
+    }));
   };
 
   const handleSubmit = async () => {
@@ -129,6 +140,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
           <PurchasePrice
             formData={formData}
             handleChange={handleChange}
+            handleFinanceTypeChange={handleFinanceTypeChange}
             handleNextStep={handleNextStep}
           />
         )}
