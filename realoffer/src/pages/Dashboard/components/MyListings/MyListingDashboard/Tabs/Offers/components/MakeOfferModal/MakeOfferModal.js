@@ -26,8 +26,11 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     downPayment: '',
     balanceOfDownPayment: '',
     financeContingency: '',
+    financeContingencyDays: '', // Add these
     appraisalContingency: '',
+    appraisalContingencyDays: '', // Add these
     inspectionContingency: '',
+    inspectionContingencyDays: '', // Add these
     homeSaleContingency: 'Waived',
     closeOfEscrow: '',
     submittedOn: new Date().toISOString(), // Set the current date and time in ISO format
@@ -64,6 +67,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       ...prevData,
       [name]: value,
     }));
+    console.log(`Updated ${name}: ${value}`); // Debugging
   };
 
   const handleFinanceTypeChange = (e) => {

@@ -26,14 +26,14 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
           type="number"
           name="financeContingencyDays"
           placeholder="Number of days"
-          value={formData.financeContingency === 'Waived' ? 0 : formData.financeContingencyDays}
+          value={formData.financeContingencyDays || ''}
           onChange={handleChange}
           disabled={formData.financeContingency === 'Waived'}
           className="form-input-left"
         />
         <select
           name="financeContingency"
-          value={formData.financeContingency}
+          value={formData.financeContingency || 'Days'}
           onChange={handleChange}
           className="form-select-right"
         >
@@ -47,14 +47,14 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
           type="number"
           name="appraisalContingencyDays"
           placeholder="Number of days"
-          value={formData.appraisalContingency === 'Waived' ? 0 : formData.appraisalContingencyDays}
+          value={formData.appraisalContingencyDays || ''}
           onChange={handleChange}
           disabled={formData.appraisalContingency === 'Waived'}
           className="form-input-left"
         />
         <select
           name="appraisalContingency"
-          value={formData.appraisalContingency}
+          value={formData.appraisalContingency || 'Days'}
           onChange={handleChange}
           className="form-select-right"
         >
@@ -68,14 +68,14 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
           type="number"
           name="inspectionContingencyDays"
           placeholder="Number of days"
-          value={formData.inspectionContingency === 'Waived' ? 0 : formData.inspectionContingencyDays}
+          value={formData.inspectionContingencyDays || ''}
           onChange={handleChange}
           disabled={formData.inspectionContingency === 'Waived'}
           className="form-input-left"
         />
         <select
           name="inspectionContingency"
-          value={formData.inspectionContingency}
+          value={formData.inspectionContingency || 'Days'}
           onChange={handleChange}
           className="form-select-right"
         >
@@ -100,7 +100,7 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
           type="number"
           name="closeOfEscrow"
           placeholder="Number of days"
-          value={formData.closeOfEscrow}
+          value={formData.closeOfEscrow || ''}
           onChange={handleChange}
         />
       </div>
@@ -119,7 +119,7 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
           name="specialTerms"
           className='special-terms'
           placeholder="Enter special terms here"
-          value={formData.specialTerms}
+          value={formData.specialTerms || ''}
           onChange={handleChange}
         ></textarea>
       </div>

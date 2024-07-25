@@ -20,6 +20,8 @@ exports.createOffer = async (req, res) => {
   const files = req.files || [];
 
   try {
+    console.log('Request Body:', req.body); // Debugging
+
     const propertyListingId = req.body.propertyListing;
     if (!mongoose.Types.ObjectId.isValid(propertyListingId)) {
       return res.status(400).json({ message: 'Invalid propertyListing ID' });
@@ -74,6 +76,8 @@ exports.createOffer = async (req, res) => {
       'buyerDetails.buyerName': req.body.buyerName,
     };
 
+    console.log('Offer Data:', offerData); // Debugging
+
     const offer = new Offer(offerData);
     await offer.save();
 
@@ -87,6 +91,7 @@ exports.createOffer = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Get all offers for a specific listing
 exports.getOffersByListing = async (req, res) => {

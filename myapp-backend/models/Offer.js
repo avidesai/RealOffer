@@ -12,8 +12,11 @@ const OfferSchema = new Schema({
   downPayment: { type: Number, required: true },
   balanceOfDownPayment: { type: Number, required: false },
   financeContingency: { type: String, required: false },
+  financeContingencyDays: { type: Number, required: false }, // Add this
   appraisalContingency: { type: String, required: false },
+  appraisalContingencyDays: { type: Number, required: false }, // Add this
   inspectionContingency: { type: String, required: false },
+  inspectionContingencyDays: { type: Number, required: false }, // Add this
   homeSaleContingency: { type: String, required: false },
   closeOfEscrow: { type: String, required: false },
   submittedOn: { type: Date, default: Date.now },
