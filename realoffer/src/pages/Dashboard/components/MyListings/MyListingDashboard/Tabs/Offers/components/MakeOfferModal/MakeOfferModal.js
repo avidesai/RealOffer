@@ -67,7 +67,6 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         updatedData.downPayment = prevData.purchasePrice;
         updatedData.loanAmount = '0';
         updatedData.percentDown = '100';
-        updatedData.balanceOfDownPayment = '0';
       }
       return updatedData;
     });

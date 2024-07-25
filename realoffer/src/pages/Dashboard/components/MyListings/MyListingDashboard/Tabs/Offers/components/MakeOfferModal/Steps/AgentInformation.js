@@ -1,87 +1,156 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../../../../../../../../../context/AuthContext';
+import axios from 'axios';
+import './AgentInformation.css';
 
-const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handlePrevStep }) => (
-  <div className="modal-step">
-    <div className='offer-modal-header'>
-      <h2>Agent Information</h2>
-      <p>Provide contact and brokerage info for the Buyer Agent.</p>
+const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handlePrevStep }) => {
+  const { user } = useAuth();
+  const [isAgent, setIsAgent] = useState(false);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (isAgent) {
+        try {
+          const response = await axios.get(`http://localhost:8000/api/users/${user._id}`);
+          const userData = response.data;
+          handleNestedChange({ target: { name: 'name', value: `${userData.firstName} ${userData.lastName}` } }, 'presentedBy');
+          handleNestedChange({ target: { name: 'licenseNumber', value: userData.agentLicenseNumber || '' } }, 'presentedBy');
+          handleNestedChange({ target: { name: 'email', value: userData.email } }, 'presentedBy');
+          handleNestedChange({ target: { name: 'phoneNumber', value: userData.phone || '' } }, 'presentedBy');
+          handleNestedChange({ target: { name: 'name', value: userData.agencyName || '' } }, 'brokerageInfo');
+          handleNestedChange({ target: { name: 'licenseNumber', value: userData.brokerageLicenseNumber || '' } }, 'brokerageInfo');
+          handleNestedChange({ target: { name: 'addressLine1', value: userData.agencyAddressLine1 || '' } }, 'brokerageInfo');
+          handleNestedChange({ target: { name: 'addressLine2', value: userData.agencyAddressLine2 || '' } }, 'brokerageInfo');
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      } else {
+        handleNestedChange({ target: { name: 'name', value: '' } }, 'presentedBy');
+        handleNestedChange({ target: { name: 'licenseNumber', value: '' } }, 'presentedBy');
+        handleNestedChange({ target: { name: 'email', value: '' } }, 'presentedBy');
+        handleNestedChange({ target: { name: 'phoneNumber', value: '' } }, 'presentedBy');
+        handleNestedChange({ target: { name: 'name', value: '' } }, 'brokerageInfo');
+        handleNestedChange({ target: { name: 'licenseNumber', value: '' } }, 'brokerageInfo');
+        handleNestedChange({ target: { name: 'addressLine1', value: '' } }, 'brokerageInfo');
+        handleNestedChange({ target: { name: 'addressLine2', value: '' } }, 'brokerageInfo');
+      }
+    };
+
+    fetchUserData();
+  }, [isAgent, user._id]);
+
+  const handleToggleChange = (e) => {
+    setIsAgent(e.target.value === 'agent');
+  };
+
+  return (
+    <div className="modal-step">
+      <div className='offer-modal-header'>
+        <h2>Agent Information</h2>
+        <p>Provide contact and brokerage info for the Buyer Agent.</p>
+      </div>
+      <div className="agent-info-toggle">
+        <label className="agent-info-radio">
+          <input
+            type="radio"
+            name="agentOption"
+            value="enter"
+            checked={!isAgent}
+            onChange={handleToggleChange}
+          />
+          Enter agent / broker information
+        </label>
+        <label className="agent-info-radio">
+          <input
+            type="radio"
+            name="agentOption"
+            value="agent"
+            checked={isAgent}
+            onChange={handleToggleChange}
+          />
+          I am the agent in this transaction
+        </label>
+      </div>
+      <div className="agent-info-form-group">
+        <label className="agent-info-label">Agent Information</label>
+        <input
+          type="text"
+          name="name"
+          placeholder="Agent Name"
+          className="agent-info-input"
+          value={formData.presentedBy.name}
+          onChange={(e) => handleNestedChange(e, 'presentedBy')}
+        />
+        <input
+          type="text"
+          name="licenseNumber"
+          placeholder="License Number"
+          className="agent-info-input"
+          value={formData.presentedBy.licenseNumber}
+          onChange={(e) => handleNestedChange(e, 'presentedBy')}
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          className="agent-info-input"
+          value={formData.presentedBy.email}
+          onChange={(e) => handleNestedChange(e, 'presentedBy')}
+        />
+        <input
+          type="text"
+          name="phoneNumber"
+          placeholder="Phone Number"
+          className="agent-info-input"
+          value={formData.presentedBy.phoneNumber}
+          onChange={(e) => handleNestedChange(e, 'presentedBy')}
+        />
+      </div>
+      <div className="agent-info-form-group">
+        <label className="agent-info-label">Brokerage Information</label>
+        <input
+          type="text"
+          name="name"
+          placeholder="Brokerage Name"
+          className="agent-info-input"
+          value={formData.brokerageInfo.name}
+          onChange={(e) => handleNestedChange(e, 'brokerageInfo')}
+        />
+        <input
+          type="text"
+          name="licenseNumber"
+          placeholder="Brokerage License Number"
+          className="agent-info-input"
+          value={formData.brokerageInfo.licenseNumber}
+          onChange={(e) => handleNestedChange(e, 'brokerageInfo')}
+        />
+        <input
+          type="text"
+          name="addressLine1"
+          placeholder="Address Line 1"
+          className="agent-info-input"
+          value={formData.brokerageInfo.addressLine1}
+          onChange={(e) => handleNestedChange(e, 'brokerageInfo')}
+        />
+        <input
+          type="text"
+          name="addressLine2"
+          placeholder="Address Line 2"
+          className="agent-info-input"
+          value={formData.brokerageInfo.addressLine2}
+          onChange={(e) => handleNestedChange(e, 'brokerageInfo')}
+        />
+      </div>
+      <div className="button-container">
+        <button className="step-back-button" onClick={handlePrevStep}>
+          Back
+        </button>
+        <button className="next-button" onClick={handleNextStep}>
+          Next
+        </button>
+      </div>
     </div>
-    <div className="form-group">
-      <label>Presented By</label>
-      <input
-        type="text"
-        name="name"
-        placeholder="Name"
-        value={formData.presentedBy.name}
-        onChange={(e) => handleNestedChange(e, 'presentedBy')}
-      />
-      <input
-        type="text"
-        name="licenseNumber"
-        placeholder="License Number"
-        value={formData.presentedBy.licenseNumber}
-        onChange={(e) => handleNestedChange(e, 'presentedBy')}
-      />
-      <input
-        type="email"
-        name="email"
-        placeholder="Email"
-        value={formData.presentedBy.email}
-        onChange={(e) => handleNestedChange(e, 'presentedBy')}
-      />
-      <input
-        type="text"
-        name="phoneNumber"
-        placeholder="Phone Number"
-        value={formData.presentedBy.phoneNumber}
-        onChange={(e) => handleNestedChange(e, 'presentedBy')}
-      />
-    </div>
-    <div className="form-group">
-      <label>Brokerage Info</label>
-      <input
-        type="text"
-        name="name"
-        placeholder="Brokerage Name"
-        value={formData.brokerageInfo.name}
-        onChange={(e) => handleNestedChange(e, 'brokerageInfo')}
-      />
-      <input
-        type="text"
-        name="licenseNumber"
-        placeholder="Brokerage License Number"
-        value={formData.brokerageInfo.licenseNumber}
-        onChange={(e) => handleNestedChange(e, 'brokerageInfo')}
-      />
-      <input
-        type="text"
-        name="addressLine1"
-        placeholder="Address Line 1"
-        value={formData.brokerageInfo.addressLine1}
-        onChange={(e) => handleNestedChange(e, 'brokerageInfo')}
-      />
-      <input
-        type="text"
-        name="addressLine2"
-        placeholder="Address Line 2"
-        value={formData.brokerageInfo.addressLine2}
-        onChange={(e) => handleNestedChange(e, 'brokerageInfo')}
-      />
-      <input
-        type="file"
-        name="brokerageLogo"
-        onChange={(e) => handleNestedChange(e, 'brokerageInfo')}
-      />
-    </div>
-    <div className="button-container">
-      <button className="step-back-button" onClick={handlePrevStep}>
-        Back
-      </button>
-      <button className="next-button" onClick={handleNextStep}>
-        Next
-      </button>
-    </div>
-  </div>
-);
+  );
+};
 
 export default AgentInformation;
