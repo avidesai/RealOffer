@@ -117,7 +117,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       }
     }
     formDataToSend.append('propertyListingId', listingId);
-
+  
     try {
       const response = await axios.post('http://localhost:8000/api/offers', formDataToSend, {
         headers: {
@@ -129,7 +129,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     } catch (error) {
       console.error('Error creating offer:', error);
     }
-  };
+  };  
 
   useEffect(() => {
     const downPayment = parseNumber(formData.downPayment);

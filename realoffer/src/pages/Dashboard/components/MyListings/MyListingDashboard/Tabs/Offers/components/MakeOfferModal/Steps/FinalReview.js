@@ -73,8 +73,8 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => (
           <p>No documents included.</p>
         ) : (
           <ul>
-            {Array.from(formData.documents).map((doc, index) => (
-              <li key={index}>{doc.name}</li>
+            {formData.documents.map((doc, index) => (
+              <li key={index}>{doc.title}</li>
             ))}
           </ul>
         )}

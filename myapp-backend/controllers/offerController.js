@@ -92,7 +92,6 @@ exports.createOffer = async (req, res) => {
   }
 };
 
-
 // Get all offers for a specific listing
 exports.getOffersByListing = async (req, res) => {
   try {

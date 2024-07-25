@@ -57,18 +57,18 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
     if (files.length === 0) {
       newErrors.push('Please upload at least one file.');
     }
-
+  
     files.forEach((file, index) => {
       if (!file.type) {
         newErrors.push(`Please select a type for file ${index + 1}.`);
       }
     });
-
+  
     if (newErrors.length > 0) {
       setErrors(newErrors);
       return;
     }
-
+  
     setUploading(true);
     try {
       const formData = new FormData();
@@ -78,26 +78,26 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
         formData.append('title[]', title);
         formData.append('purpose', 'offer'); // Ensure the purpose is set to "offer"
       });
-
+  
       formData.append('uploadedBy', user._id); // Assuming user._id contains the user's ID
       formData.append('propertyListingId', listingId); // Add the property listing ID
-
+  
       const response = await axios.post('http://localhost:8000/api/documents', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-
+  
       setUploading(false);
       setFormData((prevFormData) => ({
         ...prevFormData,
-        documents: [...prevFormData.documents, ...response.data.map(doc => doc._id)]
+        documents: [...prevFormData.documents, ...response.data.map(doc => doc._id)],
       }));
     } catch (error) {
       setUploading(false);
       setErrors(['An error occurred while uploading. Please try again.']);
     }
-  };
+  };  
 
   return (
     <div className="modal-step">

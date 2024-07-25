@@ -48,17 +48,23 @@ const OfferDetailsView = ({ offerId, onBack }) => {
     const fetchOffer = async () => {
       try {
         const response = await axios.get(`http://localhost:8000/api/offers/${offerId}`);
-        setOffer(response.data);
-        setNotes(response.data.privateListingTeamNotes || '');
+        const offerData = response.data;
+  
+        // Fetch documents for the offer
+        const documentsResponse = await axios.get(`http://localhost:8000/api/documents/${offerId}`);
+        offerData.documents = documentsResponse.data;
+  
+        setOffer(offerData);
+        setNotes(offerData.privateListingTeamNotes || '');
       } catch (error) {
         console.error('Error fetching offer:', error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchOffer();
-  }, [offerId]);
+  }, [offerId]);  
 
   const handleNotesChange = (event) => {
     setNotes(event.target.value);
@@ -213,15 +219,19 @@ const OfferDetailsView = ({ offerId, onBack }) => {
           <div className="offer-documents-section">
             <h2 className="section-title">Documents</h2>
             <div className="offer-documents-content">
-              <ul>
-                {offer.documents.map(doc => (
-                  <li key={doc._id}>
-                    <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
-                      {doc.title || 'Untitled'} ({doc.type || 'No type'})
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              {offer.documents.length === 0 ? (
+                <p>No documents included.</p>
+              ) : (
+                <ul>
+                  {offer.documents.map(doc => (
+                    <li key={doc._id}>
+                      <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
+                        {doc.title || 'Untitled'} ({doc.type || 'No type'})
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </div>
