@@ -84,6 +84,7 @@ const OfferDetailsView = ({ offerId, onBack }) => {
               <p className="term-label">Finance Type:</p>
               <p className="term-value">{offer.financeType}</p>
             </div>
+
             <div className="term">
               <p className="term-label">Percent Down:</p>
               <p className="term-value">{offer.percentDown}%</p>
@@ -93,12 +94,16 @@ const OfferDetailsView = ({ offerId, onBack }) => {
               <p className="term-value">${offer.downPayment.toLocaleString()}</p>
             </div>
             <div className="term">
-              <p className="term-label">Loan Amount:</p>
-              <p className="term-value">${offer.loanAmount.toLocaleString()}</p>
+              <p className="term-label">Deposit:</p>
+              <p className="term-value">${offer.initialDeposit.toLocaleString()}</p>
             </div>
             <div className="term">
-              <p className="term-label">Initial Deposit:</p>
-              <p className="term-value">${offer.initialDeposit.toLocaleString()}</p>
+              <p className="term-label">Down Payment Balance:</p>
+              <p className="term-value">${offer.balanceOfDownPayment.toLocaleString()}</p>
+            </div>
+            <div className="term">
+              <p className="term-label">Loan Amount:</p>
+              <p className="term-value">${offer.loanAmount.toLocaleString()}</p>
             </div>
             <div className="term">
               <p className="term-label">Finance Contingency:</p>
@@ -119,6 +124,10 @@ const OfferDetailsView = ({ offerId, onBack }) => {
             <div className="term">
               <p className="term-label">Close of Escrow:</p>
               <p className="term-value">{offer.closeOfEscrow} Days</p>
+            </div>
+            <div className="term">
+              <p className="term-label">Agent Commission</p>
+              <p className="term-value">{offer.buyersAgentCommission}%</p>
             </div>
             <div className="term">
               <p className="term-label">Submitted On:</p>

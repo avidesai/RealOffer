@@ -74,8 +74,8 @@ const OfferCard = ({ offer, onClick }) => {
           <p><strong>Finance Type</strong> <span>{offer.financeType}</span></p>
           <p><strong>Percent Down</strong> <span>{offer.percentDown}%</span></p>
           <p><strong>Down Payment</strong> <span>${offer.downPayment.toLocaleString()}</span></p>
+          <p><strong>Deposit</strong> <span>${offer.initialDeposit.toLocaleString()}</span></p>
           <p><strong>Loan Amount</strong> <span>${offer.loanAmount.toLocaleString()}</span></p>
-          <p><strong>Initial Deposit</strong> <span>${offer.initialDeposit.toLocaleString()}</span></p>
           <p><strong>Finance Contingency</strong> <span>{offer.financeContingency}</span></p>
           <p><strong>Appraisal Contingency</strong> <span>{offer.appraisalContingency}</span></p>
           <p><strong>Inspection Contingency</strong> <span>{offer.inspectionContingency}</span></p>
