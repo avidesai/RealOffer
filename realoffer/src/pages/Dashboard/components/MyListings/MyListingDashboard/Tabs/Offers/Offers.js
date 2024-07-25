@@ -111,8 +111,8 @@ const Offers = ({ listingId }) => {
           />
           <div className="offers-list">
             {loading && (
-              <div className="spinner-container">
-                <div className="spinner"></div>
+              <div className="offers-tab-spinner-overlay">
+                <div className="offers-tab-spinner"></div>
               </div>
             )}
             {paginatedOffers.length === 0 ? (
