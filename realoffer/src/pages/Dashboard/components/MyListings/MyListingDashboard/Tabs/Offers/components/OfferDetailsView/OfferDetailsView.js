@@ -80,6 +80,10 @@ const OfferDetailsView = ({ offerId, onBack }) => {
 
   const statusStyle = getStatusStyle(offer.offerStatus);
 
+  const agentAvatarStyle = {
+    backgroundColor: offer.presentedBy.agentImageBackgroundColor || '#007bff',
+  };
+
   return (
     <div className="offer-details-view">
       <button className="offer-back-button" onClick={onBack}>&larr; Back to Offers</button>
@@ -152,7 +156,20 @@ const OfferDetailsView = ({ offerId, onBack }) => {
           <div className="presented-by">
             <h2 className="section-title">Presented By</h2>
             <div className="presented-by-info">
-              <div className="agent-avatar">{offer.presentedBy.name[0]}</div>
+              <div
+                className="agent-avatar"
+                style={offer.presentedBy.agentImageUrl ? {} : agentAvatarStyle}
+              >
+                {offer.presentedBy.agentImageUrl ? (
+                  <img
+                    src={offer.presentedBy.agentImageUrl}
+                    alt={offer.presentedBy.name}
+                    className="agent-avatar-img"
+                  />
+                ) : (
+                  offer.presentedBy.name ? offer.presentedBy.name[0] : 'N/A'
+                )}
+              </div>
               <div className="agent-details">
                 <h3>{offer.presentedBy.name}</h3>
                 <p className="contact-info-value">{offer.presentedBy.email}</p>

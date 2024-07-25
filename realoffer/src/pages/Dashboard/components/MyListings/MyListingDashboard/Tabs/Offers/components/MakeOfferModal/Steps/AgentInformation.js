@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../../../../../../../../context/AuthContext';
 import axios from 'axios';
 import './AgentInformation.css';
@@ -6,6 +6,15 @@ import './AgentInformation.css';
 const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handlePrevStep }) => {
   const { user } = useAuth();
   const [isAgent, setIsAgent] = useState(false);
+  const vibrantColors = [
+    '#FF6F61', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1', 
+    '#955251', '#B565A7', '#009B77', '#DD4124', '#45B8AC', 
+    '#EFC050', '#5B5EA6'
+  ];
+  
+  const getRandomColor = useCallback(() => {
+    return vibrantColors[Math.floor(Math.random() * vibrantColors.length)];
+  }, [vibrantColors]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -17,6 +26,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
           handleNestedChange({ target: { name: 'licenseNumber', value: userData.agentLicenseNumber || '' } }, 'presentedBy');
           handleNestedChange({ target: { name: 'email', value: userData.email } }, 'presentedBy');
           handleNestedChange({ target: { name: 'phoneNumber', value: userData.phone || '' } }, 'presentedBy');
+          handleNestedChange({ target: { name: 'agentImageUrl', value: userData.profilePhotoUrl } }, 'presentedBy');
           handleNestedChange({ target: { name: 'name', value: userData.agencyName || '' } }, 'brokerageInfo');
           handleNestedChange({ target: { name: 'licenseNumber', value: userData.brokerageLicenseNumber || '' } }, 'brokerageInfo');
           handleNestedChange({ target: { name: 'addressLine1', value: userData.agencyAddressLine1 || '' } }, 'brokerageInfo');
@@ -29,6 +39,8 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
         handleNestedChange({ target: { name: 'licenseNumber', value: '' } }, 'presentedBy');
         handleNestedChange({ target: { name: 'email', value: '' } }, 'presentedBy');
         handleNestedChange({ target: { name: 'phoneNumber', value: '' } }, 'presentedBy');
+        handleNestedChange({ target: { name: 'agentImageUrl', value: '' } }, 'presentedBy');
+        handleNestedChange({ target: { name: 'agentImageBackgroundColor', value: getRandomColor() } }, 'presentedBy');
         handleNestedChange({ target: { name: 'name', value: '' } }, 'brokerageInfo');
         handleNestedChange({ target: { name: 'licenseNumber', value: '' } }, 'brokerageInfo');
         handleNestedChange({ target: { name: 'addressLine1', value: '' } }, 'brokerageInfo');
@@ -37,7 +49,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
     };
 
     fetchUserData();
-  }, [isAgent, user._id]);
+  }, [isAgent, user._id, getRandomColor, handleNestedChange]);
 
   const handleToggleChange = (e) => {
     setIsAgent(e.target.value === 'agent');

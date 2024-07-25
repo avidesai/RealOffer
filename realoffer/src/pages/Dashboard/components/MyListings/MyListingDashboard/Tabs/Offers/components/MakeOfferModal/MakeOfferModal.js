@@ -1,8 +1,6 @@
 // MakeOfferModal.js
 
-// MakeOfferModal.js
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './MakeOfferModal.css';
 import PurchasePrice from './Steps/PurchasePrice';
 import Contingencies from './Steps/Contingencies';
@@ -39,6 +37,8 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       licenseNumber: '',
       email: '',
       phoneNumber: '',
+      agentImageUrl: '',
+      agentImageBackgroundColor: '',
     },
     brokerageInfo: {
       name: '',
@@ -79,7 +79,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     });
   };
 
-  const handleNestedChange = (e, section) => {
+  const handleNestedChange = useCallback((e, section) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -88,7 +88,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         [name]: value,
       },
     }));
-  };
+  }, []);
 
   const handleFileChange = (e) => {
     setFormData((prevData) => ({

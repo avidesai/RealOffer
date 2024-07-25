@@ -62,10 +62,27 @@ const OfferCard = ({ offer, onClick }) => {
 
   const statusStyle = getStatusStyle(offer.offerStatus);
 
+  const agentAvatarStyle = {
+    backgroundColor: offer.presentedBy.agentImageBackgroundColor || '#007bff',
+  };
+
   return (
     <div className="offer-card">
       <div className="offer-card-header">
-        <div className="offer-avatar">{offer.presentedBy.name ? offer.presentedBy.name[0] : 'N/A'}</div>
+        <div
+          className="offer-avatar"
+          style={offer.presentedBy.agentImageUrl ? {} : agentAvatarStyle}
+        >
+          {offer.presentedBy.agentImageUrl ? (
+            <img
+              src={offer.presentedBy.agentImageUrl}
+              alt={offer.presentedBy.name}
+              className="offer-avatar-img"
+            />
+          ) : (
+            offer.presentedBy.name ? offer.presentedBy.name[0] : 'N/A'
+          )}
+        </div>
         <div className="offer-agent-info">
           <p className="offer-agent-name">{offer.presentedBy.name}</p>
           <p className="offer-agent-email">{offer.presentedBy.email}</p>
