@@ -64,7 +64,10 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     setFormData((prevData) => {
       const updatedData = { ...prevData, [name]: value };
       if (value === 'CASH') {
+        updatedData.downPayment = prevData.purchasePrice;
         updatedData.loanAmount = '0';
+        updatedData.percentDown = '100';
+        updatedData.balanceOfDownPayment = '0';
       }
       return updatedData;
     });
@@ -119,16 +122,18 @@ const MakeOfferModal = ({ onClose, listingId }) => {
   };
 
   useEffect(() => {
-    const downPayment = parseNumber(formData.purchasePrice) - parseNumber(formData.loanAmount);
-    const percentDown = ((downPayment / parseNumber(formData.purchasePrice)) * 100).toFixed(2);
+    const downPayment = parseNumber(formData.downPayment);
+    const purchasePrice = parseNumber(formData.purchasePrice);
+    const loanAmount = purchasePrice - downPayment;
+    const percentDown = ((downPayment / purchasePrice) * 100).toFixed(2);
     const balanceOfDownPayment = downPayment - parseNumber(formData.initialDeposit);
     setFormData((prevData) => ({
       ...prevData,
-      downPayment,
+      loanAmount: isNaN(loanAmount) ? '' : loanAmount.toString(),
       percentDown: isNaN(percentDown) ? '' : percentDown,
-      balanceOfDownPayment: isNaN(balanceOfDownPayment) ? '' : balanceOfDownPayment,
+      balanceOfDownPayment: isNaN(balanceOfDownPayment) ? '' : balanceOfDownPayment.toString(),
     }));
-  }, [formData.purchasePrice, formData.loanAmount, formData.initialDeposit]);
+  }, [formData.purchasePrice, formData.downPayment, formData.initialDeposit]);
 
   return (
     <div className="make-offer-modal">

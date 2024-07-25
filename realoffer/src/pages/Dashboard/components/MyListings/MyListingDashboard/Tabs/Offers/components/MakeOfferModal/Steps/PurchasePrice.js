@@ -13,32 +13,32 @@ const PurchasePrice = ({ formData, handleChange, handleFinanceTypeChange, handle
   const [displayValues, setDisplayValues] = useState({
     purchasePrice: '',
     initialDeposit: '',
-    loanAmount: '',
+    downPayment: '',
   });
 
   useEffect(() => {
     setDisplayValues({
       purchasePrice: formatNumber(formData.purchasePrice),
       initialDeposit: formatNumber(formData.initialDeposit),
-      loanAmount: formatNumber(formData.loanAmount),
+      downPayment: formatNumber(formData.downPayment),
     });
   }, [formData]);
 
   const calculatedValues = () => {
     const purchasePrice = parseNumber(formData.purchasePrice);
-    const loanAmount = parseNumber(formData.loanAmount);
+    const downPayment = parseNumber(formData.downPayment);
     const initialDeposit = parseNumber(formData.initialDeposit);
-    const downPayment = purchasePrice - loanAmount;
+    const loanAmount = purchasePrice - downPayment;
     const percentDown = ((downPayment / purchasePrice) * 100).toFixed(2);
     const balanceOfDownPayment = downPayment - initialDeposit;
     return {
+      loanAmount: isNaN(loanAmount) ? '' : formatNumber(loanAmount.toFixed(0)),
       percentDown: isNaN(percentDown) ? '' : percentDown,
-      downPayment: isNaN(downPayment) ? '' : formatNumber(downPayment.toFixed(0)),
       balanceOfDownPayment: isNaN(balanceOfDownPayment) ? '' : formatNumber(balanceOfDownPayment.toFixed(0)),
     };
   };
 
-  const { percentDown, downPayment, balanceOfDownPayment } = calculatedValues();
+  const { loanAmount, percentDown, balanceOfDownPayment } = calculatedValues();
 
   const handleBlur = (e) => {
     const { name, value } = e.target;
@@ -97,6 +97,7 @@ const PurchasePrice = ({ formData, handleChange, handleFinanceTypeChange, handle
           onFocus={handleFocus}
         />
       </div>
+      
       <div className="form-group">
         <label>Finance Type</label>
         <select
@@ -110,25 +111,26 @@ const PurchasePrice = ({ formData, handleChange, handleFinanceTypeChange, handle
         </select>
       </div>
       {formData.financeType !== 'CASH' && (
-        <>
-          <div className="form-group dollar-input">
-            <label>Loan Amount</label>
-            <input
-              type="text"
-              name="loanAmount"
-              value={displayValues.loanAmount}
-              onChange={handleNumberChange}
-              onBlur={handleBlur}
-              onFocus={handleFocus}
-            />
-          </div>
-          <div className="calculated-values">
-            <p><strong>Finances</strong></p>
-            {percentDown && <p>Percent Down: {percentDown}%</p>}
-            {downPayment && <p>Down Payment: ${downPayment}</p>}
-            {balanceOfDownPayment && <p>Balance of Down Payment: ${balanceOfDownPayment}</p>}
-          </div>
-        </>
+        <div className="form-group dollar-input">
+          <label>Down Payment</label>
+          <input
+            type="text"
+            name="downPayment"
+            value={displayValues.downPayment}
+            onChange={handleNumberChange}
+            onBlur={handleBlur}
+            onFocus={handleFocus}
+          />
+        </div>
+      )}
+      {formData.financeType !== 'CASH' && (
+        <div className="calculated-values">
+          <p><strong>Calculated Values</strong></p>
+          {loanAmount && <p>Loan Amount: ${loanAmount}</p>}
+          {percentDown && <p>Percent Down: {percentDown}%</p>}
+          {displayValues.downPayment && <p>Down Payment: ${displayValues.downPayment}</p>}
+          {balanceOfDownPayment && <p>Balance of Down Payment: ${balanceOfDownPayment}</p>}
+        </div>
       )}
       <div className="button-container">
         <button className="step-back-button" disabled>
