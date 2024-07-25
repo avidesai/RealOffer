@@ -16,6 +16,9 @@ router.get('/:id', offerController.getOfferById);
 // Update a specific offer
 router.put('/:id', offerController.updateOffer);
 
+// Update the private listing team notes
+router.put('/:id/private-notes', offerController.updatePrivateNotes);
+
 // Delete a specific offer
 router.delete('/:id', offerController.deleteOffer);
 

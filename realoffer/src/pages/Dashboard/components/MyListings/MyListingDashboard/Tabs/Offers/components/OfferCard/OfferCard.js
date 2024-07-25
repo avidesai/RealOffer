@@ -1,7 +1,8 @@
 // OfferCard.js
 
-import React from 'react';
+import React, { useState } from 'react';
 import './OfferCard.css';
+import axios from 'axios';
 
 const formatPhoneNumber = (phoneNumber) => {
   const cleaned = ('' + phoneNumber).replace(/\D/g, '');
@@ -13,6 +14,22 @@ const formatPhoneNumber = (phoneNumber) => {
 };
 
 const OfferCard = ({ offer, onClick }) => {
+  const [notes, setNotes] = useState(offer.privateListingTeamNotes || '');
+
+  const handleNotesChange = (event) => {
+    setNotes(event.target.value);
+  };
+
+  const handleNotesBlur = async () => {
+    try {
+      await axios.put(`http://localhost:8000/api/offers/${offer._id}/private-notes`, {
+        privateListingTeamNotes: notes,
+      });
+    } catch (error) {
+      console.error('Error updating notes:', error);
+    }
+  };
+
   return (
     <div className="offer-card">
       <div className="offer-card-header">
@@ -28,7 +45,7 @@ const OfferCard = ({ offer, onClick }) => {
           <h3>${offer.purchasePrice.toLocaleString()}</h3>
         </div>
         <div className="offer-actions">
-          <button className="view-offer-button" onClick={onClick}>Open</button>
+          <button className="view-offer-button" onClick={() => onClick(offer._id)}>View</button>
           <button className="respond-offer-button">Respond</button>
         </div>
         <div className="offer-details">
@@ -48,9 +65,15 @@ const OfferCard = ({ offer, onClick }) => {
           <p><strong>Special Terms</strong> <span>{offer.specialTerms}</span></p>
         </div>
       </div>
-      <div className="divider"></div> {/* Add this line for the divider */}
+      <div className="divider"></div>
       <div className="offer-card-footer">
-        <textarea className="team-notes" placeholder="Write a private note for your team..."></textarea>
+        <textarea
+          className="team-notes"
+          value={notes}
+          placeholder="Write a private note for your team..."
+          onChange={handleNotesChange}
+          onBlur={handleNotesBlur}
+        />
       </div>
     </div>
   );

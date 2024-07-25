@@ -5,7 +5,7 @@ import axios from 'axios';
 import OfferSortBar from './components/OfferSortBar/OfferSortBar';
 import MakeOfferModal from './components/MakeOfferModal/MakeOfferModal';
 import OfferCard from './components/OfferCard/OfferCard';
-import OfferDetailsView from './components/OfferDetailsView/OfferDetailsView'; // Import OfferDetailsView
+import OfferDetailsView from './components/OfferDetailsView/OfferDetailsView';
 import './Offers.css';
 
 const Offers = ({ listingId }) => {
@@ -17,13 +17,12 @@ const Offers = ({ listingId }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [selectedOffer, setSelectedOffer] = useState(null); // Add selected offer state
+  const [selectedOfferId, setSelectedOfferId] = useState(null);
 
   const fetchOffers = useCallback(async () => {
     setLoading(true);
     try {
       const response = await axios.get(`http://localhost:8000/api/propertyListings/${listingId}`);
-      console.log('Fetched Offers:', response.data.offers);
       setOffers(response.data.offers);
       setTotalPages(Math.ceil(response.data.offers.length / 10));
     } catch (error) {
@@ -67,12 +66,12 @@ const Offers = ({ listingId }) => {
     // Add logic to download summary
   };
 
-  const handleOfferClick = (offer) => {
-    setSelectedOffer(offer);
+  const handleOfferClick = (offerId) => {
+    setSelectedOfferId(offerId);
   };
 
   const handleBackToOffers = () => {
-    setSelectedOffer(null);
+    setSelectedOfferId(null);
   };
 
   const filteredOffers = offers.filter(offer => {
@@ -93,8 +92,8 @@ const Offers = ({ listingId }) => {
 
   return (
     <div className="offers-tab">
-      {selectedOffer ? (
-        <OfferDetailsView offer={selectedOffer} onBack={handleBackToOffers} />
+      {selectedOfferId ? (
+        <OfferDetailsView offerId={selectedOfferId} onBack={handleBackToOffers} />
       ) : (
         <>
           <OfferSortBar
@@ -117,7 +116,7 @@ const Offers = ({ listingId }) => {
               <p className="no-offers-message">No offers found.</p>
             ) : (
               paginatedOffers.map(offer => (
-                <OfferCard key={offer._id} offer={offer} onClick={() => handleOfferClick(offer)} /> // Pass the onClick handler
+                <OfferCard key={offer._id} offer={offer} onClick={handleOfferClick} />
               ))
             )}
           </div>

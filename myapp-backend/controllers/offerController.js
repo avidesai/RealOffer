@@ -127,3 +127,26 @@ exports.deleteOffer = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Update the private listing team notes
+exports.updatePrivateNotes = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { privateListingTeamNotes } = req.body;
+
+    const offer = await Offer.findByIdAndUpdate(
+      id,
+      { privateListingTeamNotes },
+      { new: true, runValidators: true }
+    );
+
+    if (!offer) {
+      return res.status(404).json({ message: 'Offer not found' });
+    }
+
+    res.status(200).json(offer);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
