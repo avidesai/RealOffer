@@ -122,15 +122,15 @@ const OfferDetailsView = ({ offerId, onBack, onNotesUpdate }) => {
                   <h3>{offer.presentedBy.name}</h3>
                   <p className="contact-info-value">{offer.presentedBy.email}</p>
                   <p className="contact-info-value">{formatPhoneNumber(offer.presentedBy.phoneNumber)}</p>
-                  <p className="license-label">License</p>
+                  <p className="license-label">Agent License</p>
                   <p className="license-value">{offer.presentedBy.licenseNumber}</p>
                 </div>
                 <div className="brokerage-details">
                   <h3>{offer.brokerageInfo.name}</h3>
-                  <p className="address-label">Address</p>
+                  <p className="address-label">Broker Address</p>
                   <p className="address-value">{offer.brokerageInfo.addressLine1}</p>
                   <p className="address-value">{offer.brokerageInfo.addressLine2}</p>
-                  <p className="license-label">License</p>
+                  <p className="license-label">Broker License</p>
                   <p className="license-value">{offer.brokerageInfo.licenseNumber}</p>
                 </div>
                 <div className="status-details">

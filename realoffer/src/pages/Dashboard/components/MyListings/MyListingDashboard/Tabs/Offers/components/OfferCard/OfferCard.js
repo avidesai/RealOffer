@@ -13,6 +13,21 @@ const formatPhoneNumber = (phoneNumber) => {
   return phoneNumber;
 };
 
+const getStatusStyle = (status) => {
+  switch (status) {
+    case 'submitted':
+      return { text: 'Submitted', className: 'status-submitted' };
+    case 'under review':
+      return { text: 'Under Review', className: 'status-under-review' };
+    case 'accepted':
+      return { text: 'Accepted', className: 'status-accepted' };
+    case 'rejected':
+      return { text: 'Rejected', className: 'status-rejected' };
+    default:
+      return { text: 'Submitted', className: 'status-submitted' };
+  }
+};
+
 const OfferCard = ({ offer, onClick, onNotesUpdate }) => {
   const [notes, setNotes] = useState(offer.privateListingTeamNotes || '');
 
@@ -35,6 +50,8 @@ const OfferCard = ({ offer, onClick, onNotesUpdate }) => {
     }
   };
 
+  const statusStyle = getStatusStyle(offer.offerStatus);
+
   return (
     <div className="offer-card">
       <div className="offer-card-header">
@@ -54,7 +71,7 @@ const OfferCard = ({ offer, onClick, onNotesUpdate }) => {
           <button className="respond-offer-button">Respond</button>
         </div>
         <div className="offer-details">
-          <p><strong>Status</strong> <span>{offer.offerStatus}</span></p>
+          <p><strong>Status</strong> <span className={`status-box ${statusStyle.className}`}>{statusStyle.text}</span></p>
           <p><strong>Finance Type</strong> <span>{offer.financeType}</span></p>
           <p><strong>Percent Down</strong> <span>{offer.percentDown}%</span></p>
           <p><strong>Down Payment</strong> <span>${offer.downPayment.toLocaleString()}</span></p>
@@ -67,7 +84,8 @@ const OfferCard = ({ offer, onClick, onNotesUpdate }) => {
           <p><strong>Close of Escrow</strong> <span>{offer.closeOfEscrow} Days</span></p>
           <p><strong>Agent Commission</strong> <span>{offer.buyersAgentCommission}%</span></p>
           <p><strong>Submitted On</strong> <span>{new Date(offer.submittedOn).toLocaleString()}</span></p>
-          <p><strong>Special Terms</strong> <span>{offer.specialTerms}</span></p>
+          <p><strong>Special Terms</strong></p>
+          <p><span>{offer.specialTerms}</span></p>
         </div>
       </div>
       <div className="divider"></div>
