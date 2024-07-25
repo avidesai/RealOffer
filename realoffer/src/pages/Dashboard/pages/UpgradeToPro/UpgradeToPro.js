@@ -43,14 +43,12 @@ const UpgradeToPro = () => {
             <ul>
               <li><strong>Listing Activity:</strong> View detailed buyer activity including views, downloads, and document interactions.</li>
               <li><strong>Listing Messaging:</strong> Communicate seamlessly with buyers and buyer agents directly through the platform.</li>
-              <li><strong>AI Listing Price Suggestion:</strong> Utilize AI to intelligently price listings based on MLS data, disclosure documents, images, and comparable sales.</li>
               <li><strong>One Click Offer:</strong> Automatically generate signature packages for buyers, complete with AI-driven document processing and signature placement.</li>
             </ul>
             <h3>Buyer's Agents</h3>
             <ul>
               <li><strong>Listing Activity:</strong> Monitor listing activity and see how other buyers are engaging with the property.</li>
               <li><strong>Listing Messaging:</strong> Directly message the listing agent to inquire about the property and receive prompt responses.</li>
-              <li><strong>AI Offer Price Suggestion:</strong> Leverage AI to determine the optimal offer price using comprehensive data and comparable sales.</li>
               <li><strong>One Click Offer:</strong> Streamline the offer submission process with auto-populated contracts and signature packets.</li>
             </ul>
           </div>
@@ -114,15 +112,18 @@ const UpgradeToPro = () => {
                 </div>
               </div>
             </div>
-            <div className="promotion-section">
+            <div>
               <h2>Promotion</h2>
-              <input
-                type="text"
-                placeholder="COUPON CODE"
-                value={coupon}
-                onChange={handleCouponChange}
-              />
-              <button className="redeem-button">REDEEM COUPON</button>
+              <div className='promotion-section'>
+                <input
+                  type="text"
+                  placeholder="COUPON CODE"
+                  value={coupon}
+                  onChange={handleCouponChange}
+                />
+                <button className="redeem-button">REDEEM COUPON</button>
+              </div>
+             
             </div>
             <div className="terms-section">
               <label>

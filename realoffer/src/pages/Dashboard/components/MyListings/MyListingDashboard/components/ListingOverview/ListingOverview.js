@@ -63,7 +63,7 @@ function ListingOverview({ listing }) {
               <p className="property-location">{currentListing.homeCharacteristics.city}, {currentListing.homeCharacteristics.state} {currentListing.homeCharacteristics.zip}</p>
               <p className="property-price">${formatPrice(currentListing.homeCharacteristics.price)} | {currentListing.homeCharacteristics.beds} Bed, {currentListing.homeCharacteristics.baths} Bath</p>
               <div className="overview-buttons">
-                <button className="overview-btn-share-package">Share Package</button>
+                <button className="overview-btn-share-package">Share Listing</button>
                 <button className="overview-btn" onClick={() => setShowMoreInfo(true)}>Edit Info</button>
               </div>
             </div>

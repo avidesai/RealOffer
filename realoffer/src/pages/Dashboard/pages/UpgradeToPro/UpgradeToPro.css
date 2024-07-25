@@ -2,30 +2,33 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  font-family: 'Inter', sans-serif;
 }
 
 .upgrade-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
-  font-family: 'Inter', sans-serif;
-  flex: 1; /* Ensure the container takes up available space */
+  padding: 1.5rem;
+  flex: 1;
 }
 
 .upgrade-title {
-  font-size: 2rem;
+  font-size: 1.8rem;
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
 }
 
 .upgrade-description {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  color: #555;
 }
 
 .upgrade-content {
   display: flex;
   justify-content: space-between;
+  gap: 1.5rem;
 }
 
 .benefits-section {
@@ -33,23 +36,31 @@
 }
 
 .benefits-section h2 {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   margin-bottom: 1rem;
+}
+
+.benefits-section h3 {
+  font-size: 1.2rem;
+  margin-top: 2rem;
+  margin-bottom: 1.2rem;
 }
 
 .benefits-section ul {
   list-style: none;
   padding: 0;
+  margin-bottom: 1.2rem;
 }
 
 .benefits-section li {
   margin-bottom: 1rem;
-  font-size: 1rem;
+  font-size: 0.95rem;
   line-height: 1.5;
+  color: #333;
 }
 
 .subscription-section {
-  width: 50%;
+  width: 48%;
 }
 
 .plan-section,
@@ -57,79 +68,93 @@
 .promotion-section,
 .terms-section,
 .enroll-section {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .plan-section h2,
 .payment-section h2,
 .promotion-section h2 {
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
+  font-size: 1.4rem;
+  margin-bottom: 0.8rem;
 }
 
 .plan-section label {
   display: block;
-  margin-bottom: 0.5rem;
-  font-size: 1rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
   cursor: pointer;
+  color: #333;
 }
 
 .discount-tag {
   background-color: #28a745;
   color: white;
-  padding: 0.25rem 0.5rem;
+  padding: 0.25rem 0.4rem;
   border-radius: 5px;
-  margin-left: 0.5rem;
-  font-size: 0.875rem;
+  margin-left: 0.4rem;
+  font-size: 0.8rem;
+}
+
+.payment-section label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+  color: #555;
 }
 
 .payment-section input {
   width: 100%;
-  padding: 0.5rem;
-  margin-bottom: 1rem;
+  padding: 0.6rem;
+  margin-bottom: 0.8rem;
   border: 1px solid #ddd;
   border-radius: 5px;
+  font-size: 0.95rem;
 }
 
 .expiration-cvc {
   display: flex;
   justify-content: space-between;
-}
-
-.expiration-cvc div {
-  width: 48%;
+  gap: 0.8rem;
 }
 
 .billing-address h3 {
-  font-size: 1rem;
-  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  margin-bottom: 0.8rem;
+  color: #333;
 }
 
 .city-state-zip {
   display: flex;
   justify-content: space-between;
+  gap: 2.5rem;
 }
 
 .city-state-zip div {
-  width: 30%;
+  flex: 1;
+}
+
+.promotion-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .promotion-section input {
-  width: 70%;
-  padding: 0.5rem;
+  flex: 1;
+  padding: 0.6rem;
   border: 1px solid #ddd;
   border-radius: 5px;
-  margin-right: 1rem;
+  font-size: 0.95rem;
 }
 
 .redeem-button {
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1rem;
   background-color: #007bff;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 
 .redeem-button:hover {
@@ -138,6 +163,7 @@
 
 .terms-section label {
   font-size: 0.875rem;
+  color: #555;
 }
 
 .terms-section a {
@@ -155,66 +181,23 @@
 
 .enroll-section p {
   margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  color: #555;
 }
 
 .enroll-button {
   width: 100%;
-  padding: 1rem;
+  padding: 0.8rem;
   background-color: #28a745;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 1rem;
 }
 
 .enroll-button:hover {
   background-color: #218838;
-}
-
-/* Footer styles for consistency */
-.footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  background-color: #fff;
-  color: #141414;
-  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.footer-text {
-  display: flex;
-  align-items: center;
-}
-
-.footer-logo {
-  width: 28px;
-  height: 28px;
-  margin-right: 20px;
-}
-
-.footer-text p {
-  margin: 0;
-  font-weight: 500;
-  font-size: 17px;
-  letter-spacing: 0.5px;
-}
-
-.footer-socials {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.footer-socials svg {
-  fill: #fff;
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
-  transition: fill 0.25s ease, transform 0.25s ease;
-}
-
-.footer-socials svg:hover {
-  fill: #007bff;
-  transform: scale(1.1);
 }
