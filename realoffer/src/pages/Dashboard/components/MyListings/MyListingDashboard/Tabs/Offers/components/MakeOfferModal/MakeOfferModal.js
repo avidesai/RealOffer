@@ -94,20 +94,13 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     }));
   }, []);
 
-  const handleFileChange = (e) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      documents: e.target.files,
-    }));
-  };
-
   const handleSubmit = async () => {
     const formDataToSend = new FormData();
     for (const key in formData) {
       if (key === 'documents' && formData[key].length > 0) {
-        for (let i = 0; i < formData[key].length; i++) {
-          formDataToSend.append('documents', formData[key][i]);
-        }
+        formData[key].forEach((doc) => {
+          formDataToSend.append('documents', doc.id);
+        });
       } else if (key === 'presentedBy' || key === 'brokerageInfo') {
         for (const nestedKey in formData[key]) {
           formDataToSend.append(`${key}.${nestedKey}`, formData[key][nestedKey]);
@@ -186,7 +179,6 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         {step === 5 && (
           <Documents
             formData={formData}
-            handleFileChange={handleFileChange}
             handleNextStep={handleNextStep}
             handlePrevStep={handlePrevStep}
             setFormData={setFormData} // Pass setFormData to Documents step

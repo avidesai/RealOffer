@@ -15,7 +15,8 @@ const documentSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
   visibility: { type: String, default: 'public' },
   signaturePackagePages: { type: [Number], default: [] },
-  purpose: { type: String, default: 'listing' } // Added purpose field
+  purpose: { type: String, default: 'listing' },
+  offer: { type: mongoose.Schema.Types.ObjectId, ref: 'Offer', required: false } // Add offer field
 }, { timestamps: true });
 
 module.exports = mongoose.model('Document', documentSchema);

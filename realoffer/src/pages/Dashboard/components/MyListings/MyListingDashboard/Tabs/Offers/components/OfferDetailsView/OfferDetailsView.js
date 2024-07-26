@@ -51,7 +51,7 @@ const OfferDetailsView = ({ offerId, onBack }) => {
         const offerData = response.data;
   
         // Fetch documents for the offer
-        const documentsResponse = await axios.get(`http://localhost:8000/api/documents/${offerId}`);
+        const documentsResponse = await axios.get(`http://localhost:8000/api/documents/offer/${offerId}`);
         offerData.documents = documentsResponse.data;
   
         setOffer(offerData);

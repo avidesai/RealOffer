@@ -16,9 +16,9 @@ const upload = multer({ storage });
 exports.uploadOfferDocuments = upload.array('documents', 10);
 
 // Create a new offer
-exports.createOffer = async (req, res) => {
-  const files = req.files || [];
+// /controllers/offerController.js
 
+exports.createOffer = async (req, res) => {
   try {
     console.log('Request Body:', req.body); // Debugging
 
@@ -32,51 +32,12 @@ exports.createOffer = async (req, res) => {
       return res.status(404).json({ message: 'Property listing not found' });
     }
 
-    const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
-    const types = Array.isArray(req.body.type) ? req.body.type : [req.body.type];
-    const uploadedBy = req.body.uploadedBy;
-
-    const documents = await Promise.all(files.map(async (file, index) => {
-      const title = titles[index];
-      const type = types[index];
-      const size = file.size;
-
-      const blobName = `documents/${uuidv4()}-${file.originalname}`;
-      const blockBlobClient = offerDocumentsContainerClient.getBlockBlobClient(blobName);
-
-      const contentType = file.mimetype === 'application/pdf' ? 'application/pdf' : file.mimetype;
-      await blockBlobClient.uploadData(file.buffer, {
-        blobHTTPHeaders: { blobContentType: contentType }
-      });
-
-      const pages = file.mimetype === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
-
-      const newDocument = new Document({
-        title,
-        type,
-        size,
-        pages,
-        thumbnailUrl: blockBlobClient.url,
-        uploadedBy,
-        propertyListing: propertyListingId,
-        azureKey: blobName,
-        visibility: 'public',
-        purpose: 'offer',
-      });
-
-      const savedDocument = await newDocument.save();
-      return savedDocument._id;
-    }));
-
     const offerData = {
       ...req.body,
-      documents: documents,
       offerExpiryDate: req.body.offerExpiryDate,
       sellerRentBack: req.body.sellerRentBack,
       'buyerDetails.buyerName': req.body.buyerName,
     };
-
-    console.log('Offer Data:', offerData); // Debugging
 
     const offer = new Offer(offerData);
     await offer.save();
@@ -86,11 +47,19 @@ exports.createOffer = async (req, res) => {
       { $push: { offers: offer._id } }
     );
 
+    // Update the documents with the new offer ID
+    const documentIds = req.body.documents;
+    await Document.updateMany(
+      { _id: { $in: documentIds } },
+      { $set: { offer: offer._id } }
+    );
+
     res.status(201).json(offer);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Get all offers for a specific listing
 exports.getOffersByListing = async (req, res) => {

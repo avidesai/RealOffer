@@ -1,6 +1,6 @@
 // /Steps/Documents.js
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../../../../../../../../context/AuthContext';
 
@@ -10,6 +10,10 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
   const [errors, setErrors] = useState([]);
   const fileInputRef = useRef(null);
   const { user } = useAuth();
+
+  useEffect(() => {
+    setFiles(formData.documents || []);
+  }, [formData.documents]);
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -76,9 +80,9 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
         formData.append('documents', file);
         formData.append('type[]', type);
         formData.append('title[]', title);
-        formData.append('purpose', 'offer'); // Ensure the purpose is set to "offer"
       });
   
+      formData.append('purpose', 'offer'); // Ensure the purpose is set to "offer" only once
       formData.append('uploadedBy', user._id); // Assuming user._id contains the user's ID
       formData.append('propertyListingId', listingId); // Add the property listing ID
   
@@ -89,10 +93,18 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
       });
   
       setUploading(false);
+      const uploadedDocuments = response.data.map(doc => ({
+        id: doc._id,
+        title: doc.title,
+        type: doc.type,
+        file: { name: doc.title, size: doc.size }
+      }));
+  
       setFormData((prevFormData) => ({
         ...prevFormData,
-        documents: [...prevFormData.documents, ...response.data.map(doc => doc._id)],
+        documents: [...prevFormData.documents, ...uploadedDocuments],
       }));
+      setFiles((prevFiles) => [...prevFiles, ...uploadedDocuments]);
     } catch (error) {
       setUploading(false);
       setErrors(['An error occurred while uploading. Please try again.']);

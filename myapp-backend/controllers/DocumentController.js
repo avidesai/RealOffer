@@ -25,7 +25,7 @@ const getPdfPageCount = async (buffer) => {
 };
 
 exports.uploadDocument = async (req, res) => {
-  const { uploadedBy, propertyListingId, visibility = 'public', purpose = 'listing' } = req.body;
+  const { uploadedBy, propertyListingId, visibility = 'public', purpose = 'listing', offerId } = req.body;
   const files = req.files;
 
   if (!files || files.length === 0) {
@@ -49,7 +49,6 @@ exports.uploadDocument = async (req, res) => {
       const blobName = `documents/${uuidv4()}-${file.originalname}`;
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
-      // Set content type to application/pdf if the file is a PDF
       const contentType = file.mimetype === 'application/pdf' ? 'application/pdf' : file.mimetype;
       await blockBlobClient.uploadData(file.buffer, {
         blobHTTPHeaders: { blobContentType: contentType }
@@ -68,6 +67,7 @@ exports.uploadDocument = async (req, res) => {
         azureKey: blobName,
         visibility, // Include visibility field
         purpose, // Include purpose field
+        offer: offerId // Set the offer ID if provided
       });
 
       const savedDocument = await newDocument.save();
@@ -342,5 +342,18 @@ exports.createBuyerSignaturePacket = async (req, res) => {
   } catch (error) {
     console.error('Error creating buyer signature packet:', error);
     res.status(500).json({ message: 'Error creating buyer signature packet', error: error.message });
+  }
+};
+
+exports.getDocumentsByOffer = async (req, res) => {
+  try {
+    const documents = await Document.find({ offer: req.params.offerId });
+    const documentsWithSAS = documents.map(doc => ({
+      ...doc._doc,
+      sasToken: generateSASToken(doc.azureKey),
+    }));
+    res.status(200).json(documentsWithSAS);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
