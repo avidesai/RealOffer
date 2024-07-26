@@ -1,24 +1,41 @@
 /* PrivateNotes.css */
 
-.listing-team-notes {
-    background-color: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 1rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .listing-team-notes-content {
-    padding: 1.2rem;
-  }
-  
-  .listing-team-notes-content textarea {
-    width: 95%;
-    height: 225px;
-    margin-top: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-family: 'Helvetica Neue', sans-serif;
-    resize: none;
-  }
-  
+.private-notes-section {
+  background-color: #ffffff;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  padding-top: 0.5rem;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #333333;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.private-notes-content {
+  padding-top: 1rem;
+  padding: 0.5rem;
+}
+
+.private-notes-content textarea {
+  width: 100%;
+  height: 225px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-family: 'Helvetica Neue', sans-serif;
+  padding: 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  resize: none;
+  box-sizing: border-box;
+  color: #2c3e50;
+}
+
+.private-notes-content textarea::placeholder {
+  color: #b0b0b0;
+}

@@ -12,10 +12,7 @@ const Footer = () => {
         <Link to="/"> {/* Wrap the logo with Link component pointing to the homepage */}
           <img src={logo} alt="RealOffer Logo" className="footer-logo" />
         </Link>
-        <p>RealOffer © {new Date().getFullYear()}</p>
-      </div>
-      <div className="footer-socials">
-
+        <p>RealOffer</p>
       </div>
     </footer>
   );

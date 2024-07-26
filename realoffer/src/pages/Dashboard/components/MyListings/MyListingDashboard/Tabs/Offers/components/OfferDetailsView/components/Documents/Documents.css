@@ -1,32 +1,129 @@
 /* Documents.css */
 
-.offer-documents-section {
-    background-color: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 1rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .offer-documents-content {
-    padding: 1.2rem;
-  }
-  
-  .offer-documents-section ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .offer-documents-section ul li {
-    margin-bottom: 0.5rem;
-  }
-  
-  .offer-documents-section ul li a {
-    color: #007bff;
-    text-decoration: none;
-  }
-  
-  .offer-documents-section ul li a:hover {
-    text-decoration: underline;
-  }
-  
+.offer-details-documents-section {
+  background-color: #ffffff;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  padding-top: 0.5rem;
+}
+
+.offer-details-section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #333333;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.offer-details-documents-content {
+  font-size: 1rem;
+  color: #2c3e50;
+  line-height: 1.6;
+}
+
+.offer-details-no-documents {
+  text-align: center;
+  color: #888888;
+  font-style: italic;
+}
+
+.offer-details-documents-list {
+  margin-top: 1rem;
+}
+
+.offer-details-document-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 2.5rem;
+  padding-top: 1.2rem;
+  padding-bottom: 0.6rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  transition: background-color 0.5s ease, box-shadow 0.5s ease;
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  cursor: pointer;
+}
+
+.offer-details-document-item:hover {
+  background-color: #dceeff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.offer-details-document-info {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.offer-details-document-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.offer-details-document-title {
+  font-weight: bold;
+  margin: 0;
+  color: #333;
+  padding-bottom: 0.6rem;
+}
+
+.offer-details-document-type {
+  font-style: italic;
+  margin: 0;
+  padding-bottom: 0;
+  color: #666;
+}
+
+.offer-details-document-meta {
+  color: #888;
+  font-size: 0.9em;
+}
+
+.offer-details-meta-divider {
+  margin: 0 0.25rem;
+}
+
+.offer-details-document-actions {
+  display: flex;
+  gap: 0.6rem;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.offer-details-document-item:hover .offer-details-document-actions {
+  opacity: 1;
+}
+
+.offer-details-document-actions-button {
+  background-color: #ffffff;
+  color: #262626;
+  border: 1px solid #898888;
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.5s ease, box-shadow 0.5s ease;
+  text-decoration: none;
+}
+
+.offer-details-download-action-button {
+  background-color: #007bff;
+  color: white;
+}
+
+.offer-details-document-actions-button:hover {
+  transform: scale(1.025);
+  background-color: #ececec;
+}
+
+.offer-details-download-action-button:hover {
+  transform: scale(1.025);
+  background-color: #0056b3;
+}
