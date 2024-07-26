@@ -145,16 +145,12 @@ const OfferDetailsView = ({ offerId, onBack }) => {
               <p className="term-value">{offer.homeSaleContingency}</p>
             </div>
             <div className="term">
-              <p className="term-label">Close of Escrow</p>
-              <p className="term-value">{offer.closeOfEscrow} Days</p>
-            </div>
-            <div className="term">
               <p className="term-label">Seller Rent Back</p>
               <p className="term-value">{offer.sellerRentBack} Days</p>
             </div>
             <div className="term">
-              <p className="term-label">Agent Commission</p>
-              <p className="term-value">{offer.buyersAgentCommission}%</p>
+              <p className="term-label">Close of Escrow</p>
+              <p className="term-value">{offer.closeOfEscrow} Days</p>
             </div>
             <div className="term">
               <p className="term-label">Offer Made</p>
@@ -163,6 +159,10 @@ const OfferDetailsView = ({ offerId, onBack }) => {
             <div className="term">
               <p className="term-label">Offer Expiry</p>
               <p className="term-value">{formatDateTime(offer.offerExpiryDate)}</p>
+            </div>
+            <div className="term">
+              <p className="term-label">Agent Commission</p>
+              <p className="term-value">{offer.buyersAgentCommission}%</p>
             </div>
             <div className="term">
               <p className="term-label">Special Terms</p>

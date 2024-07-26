@@ -130,11 +130,11 @@ const OfferCard = ({ offer, onClick, onUpdate }) => {
           <p><strong>Appraisal Contingency</strong> <span>{formatContingency(offer.appraisalContingencyDays)}</span></p>
           <p><strong>Inspection Contingency</strong> <span>{formatContingency(offer.inspectionContingencyDays)}</span></p>
           <p><strong>Home Sale Contingency</strong> <span>{offer.homeSaleContingency}</span></p>
-          <p><strong>Close of Escrow</strong> <span>{offer.closeOfEscrow} Days</span></p>
           <p><strong>Seller Rent Back</strong> <span>{offer.sellerRentBack} Days</span></p>
-          <p><strong>Agent Commission</strong> <span>{offer.buyersAgentCommission}%</span></p>
+          <p><strong>Close of Escrow</strong> <span>{offer.closeOfEscrow} Days</span></p>
           <p><strong>Offer Made</strong> <span>{formatDateTime(offer.submittedOn)}</span></p>
           <p><strong>Offer Expiry</strong> <span>{formatDateTime(offer.offerExpiryDate)}</span></p>
+          <p><strong>Agent Commission</strong> <span>{offer.buyersAgentCommission}%</span></p>
           <p><strong>Special Terms</strong></p>
           <p><span>{offer.specialTerms}</span></p>
         </div>

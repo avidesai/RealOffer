@@ -43,6 +43,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => (
         <p><span className="description-label">Appraisal Contingency:</span> {getContingencyDisplay(formData.appraisalContingency, formData.appraisalContingencyDays)}</p>
         <p><span className="description-label">Inspection Contingency:</span> {getContingencyDisplay(formData.inspectionContingency, formData.inspectionContingencyDays)}</p>
         <p><span className="description-label">Home Sale Contingency:</span> {formData.homeSaleContingency}</p>
+        <p><span className="description-label">Seller Rent Back:</span> {formData.sellerRentBack} Days</p>
         <p><span className="description-label">Close of Escrow:</span> {formData.closeOfEscrow} Days</p>
       </div>
       <div className="summary-item">
@@ -61,11 +62,14 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => (
       </div>
       <div className="summary-item">
         <h3>Offer Details</h3>
+        <p><span className="description-label">Offer Made:</span> {formatDate(formData.submittedOn)}</p>
+        <p><span className="description-label">Offer Expiration:</span> {formatDate(formData.offerExpiryDate)}</p>
         <p><span className="description-label">Special Terms:</span> {formData.specialTerms}</p>
-        <p><span className="description-label">Offer Expiry Date:</span> {formatDate(formData.offerExpiryDate)}</p>
-        <p><span className="description-label">Seller Rent Back:</span> {formData.sellerRentBack} Days</p>
-        <p><span className="description-label">Buyer Name:</span> {formData.buyerName}</p>
         <p><span className="description-label">Buyer's Agent Commission:</span> {formData.buyersAgentCommission}%</p>
+        <p><span className="description-label">Buyer's Full Name:</span> {formData.buyerName}</p>
+        <p><span className="description-label">Special Terms:</span> {formData.specialTerms}</p>
+        <p><span className="description-label">Message for Listing Agent:</span></p>
+        <p><span>{formData.buyersAgentMessage}</span></p>
       </div>
       <div className="summary-item">
         <h3>Documents</h3>

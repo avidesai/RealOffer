@@ -1,19 +1,6 @@
 import React from 'react';
 
 const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep }) => {
-  const formatToPacificTime = (isoString) => {
-    const date = new Date(isoString);
-    const options = {
-      timeZone: 'America/Los_Angeles',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    };
-    return new Intl.DateTimeFormat('en-US', options).format(date);
-  };
-
   return (
     <div className="modal-step">
       <div className='offer-modal-header'>
@@ -123,15 +110,6 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
           placeholder="Number of days"
           value={formData.closeOfEscrow || ''}
           onChange={handleChange}
-        />
-      </div>
-      <div className="form-group">
-        <label>Submitted On</label>
-        <input
-          type="text"
-          name="submittedOn"
-          value={formatToPacificTime(formData.submittedOn)}
-          readOnly
         />
       </div>
       <div className="button-container">
