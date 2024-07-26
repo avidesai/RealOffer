@@ -1,12 +1,18 @@
+// PurchasePrice.js
+
 import React, { useState, useEffect } from 'react';
 
-const formatNumber = (value) => {
+const formatCurrency = (value) => {
   if (!value) return '';
-  return new Intl.NumberFormat('en-US').format(value);
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0
+  }).format(value);
 };
 
 const parseNumber = (value) => {
-  return parseFloat(value.replace(/,/g, '')) || 0;
+  return parseFloat(value.replace(/[^0-9.-]+/g, '')) || 0;
 };
 
 const PurchasePrice = ({ formData, handleChange, handleFinanceTypeChange, handleNextStep }) => {
@@ -18,9 +24,9 @@ const PurchasePrice = ({ formData, handleChange, handleFinanceTypeChange, handle
 
   useEffect(() => {
     setDisplayValues({
-      purchasePrice: formatNumber(formData.purchasePrice),
-      initialDeposit: formatNumber(formData.initialDeposit),
-      downPayment: formatNumber(formData.downPayment),
+      purchasePrice: formatCurrency(formData.purchasePrice),
+      initialDeposit: formatCurrency(formData.initialDeposit),
+      downPayment: formatCurrency(formData.downPayment),
     });
   }, [formData]);
 
@@ -32,9 +38,9 @@ const PurchasePrice = ({ formData, handleChange, handleFinanceTypeChange, handle
     const percentDown = ((downPayment / purchasePrice) * 100).toFixed(2);
     const balanceOfDownPayment = downPayment - initialDeposit;
     return {
-      loanAmount: isNaN(loanAmount) ? '' : formatNumber(loanAmount.toFixed(0)),
+      loanAmount: isNaN(loanAmount) ? '' : formatCurrency(loanAmount.toFixed(0)),
       percentDown: isNaN(percentDown) ? '' : percentDown,
-      balanceOfDownPayment: isNaN(balanceOfDownPayment) ? '' : formatNumber(balanceOfDownPayment.toFixed(0)),
+      balanceOfDownPayment: isNaN(balanceOfDownPayment) ? '' : formatCurrency(balanceOfDownPayment.toFixed(0)),
     };
   };
 
@@ -42,11 +48,11 @@ const PurchasePrice = ({ formData, handleChange, handleFinanceTypeChange, handle
 
   const handleBlur = (e) => {
     const { name, value } = e.target;
-    const formattedValue = formatNumber(value);
-    handleChange({ target: { name, value: parseNumber(value).toString() } });
+    const rawValue = parseNumber(value);
+    handleChange({ target: { name, value: rawValue.toString() } });
     setDisplayValues((prevValues) => ({
       ...prevValues,
-      [name]: formattedValue,
+      [name]: formatCurrency(rawValue),
     }));
   };
 
@@ -60,13 +66,17 @@ const PurchasePrice = ({ formData, handleChange, handleFinanceTypeChange, handle
 
   const handleNumberChange = (e) => {
     const { name, value } = e.target;
-    const rawValue = value.replace(/,/g, '');
-    if (!isNaN(rawValue)) {
-      setDisplayValues((prevValues) => ({
-        ...prevValues,
-        [name]: value,
-      }));
-    }
+    const rawValue = value.replace(/[^0-9]/g, '');
+    handleChange({
+      target: {
+        name,
+        value: rawValue,
+      }
+    });
+    setDisplayValues((prevValues) => ({
+      ...prevValues,
+      [name]: formatCurrency(rawValue),
+    }));
   };
 
   return (
@@ -126,10 +136,10 @@ const PurchasePrice = ({ formData, handleChange, handleFinanceTypeChange, handle
       {formData.financeType !== 'CASH' && (
         <div className="calculated-values">
           <p><strong>Finances</strong></p>
-          {loanAmount && <p>Loan Amount: ${loanAmount}</p>}
+          {loanAmount && <p>Loan Amount: {loanAmount}</p>}
           {percentDown && <p>Percent Down: {percentDown}%</p>}
-          {displayValues.downPayment && <p>Down Payment: ${displayValues.downPayment}</p>}
-          {balanceOfDownPayment && <p>Balance of Down Payment: ${balanceOfDownPayment}</p>}
+          {displayValues.downPayment && <p>Down Payment: {displayValues.downPayment}</p>}
+          {balanceOfDownPayment && <p>Balance of Down Payment: {balanceOfDownPayment}</p>}
         </div>
       )}
       <div className="button-container">

@@ -5,7 +5,7 @@ import './MakeOfferModal.css';
 import PurchasePrice from './Steps/PurchasePrice';
 import Contingencies from './Steps/Contingencies';
 import AgentInformation from './Steps/AgentInformation';
-import OfferDetails from './Steps/OfferDetails'; // Import the new component
+import OfferDetails from './Steps/OfferDetails'; 
 import Documents from './Steps/Documents';
 import FinalReview from './Steps/FinalReview';
 import axios from 'axios';
@@ -15,7 +15,6 @@ const parseNumber = (value) => {
 };
 
 const MakeOfferModal = ({ onClose, listingId }) => {
-  console.log('listingId:', listingId); // Log the listingId for debugging
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     purchasePrice: '',
@@ -26,14 +25,14 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     downPayment: '',
     balanceOfDownPayment: '',
     financeContingency: '',
-    financeContingencyDays: '', // Add these
+    financeContingencyDays: '',
     appraisalContingency: '',
-    appraisalContingencyDays: '', // Add these
+    appraisalContingencyDays: '',
     inspectionContingency: '',
-    inspectionContingencyDays: '', // Add these
+    inspectionContingencyDays: '',
     homeSaleContingency: 'Waived',
     closeOfEscrow: '',
-    submittedOn: new Date().toISOString(), // Set the current date and time in ISO format
+    submittedOn: new Date().toISOString(), 
     specialTerms: '',
     presentedBy: {
       name: '',
@@ -51,11 +50,11 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       brokerageLogo: '',
     },
     documents: [],
-    propertyListing: listingId, // Add propertyListing to formData
-    offerExpiryDate: '', // New field
-    sellerRentBack: '',  // New field
-    buyerName: '',       // New field
-    buyersAgentCommission: '', // New field
+    propertyListing: listingId,
+    offerExpiryDate: '',
+    sellerRentBack: '',
+    buyerName: '',
+    buyersAgentCommission: '',
   });
 
   const handleNextStep = () => setStep(step + 1);
@@ -67,7 +66,6 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       ...prevData,
       [name]: value,
     }));
-    console.log(`Updated ${name}: ${value}`); // Debugging
   };
 
   const handleFinanceTypeChange = (e) => {
@@ -181,8 +179,8 @@ const MakeOfferModal = ({ onClose, listingId }) => {
             formData={formData}
             handleNextStep={handleNextStep}
             handlePrevStep={handlePrevStep}
-            setFormData={setFormData} // Pass setFormData to Documents step
-            listingId={listingId} // Pass listingId to Documents step
+            setFormData={setFormData}
+            listingId={listingId}
           />
         )}
         {step === 6 && (

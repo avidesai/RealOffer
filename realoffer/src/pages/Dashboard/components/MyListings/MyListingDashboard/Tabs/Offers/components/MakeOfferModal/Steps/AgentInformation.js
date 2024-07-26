@@ -55,6 +55,28 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
     setIsAgent(e.target.value === 'agent');
   };
 
+  const formatPhoneNumber = (value) => {
+    if (!value) return '';
+    const cleaned = ('' + value).replace(/\D/g, '');
+    const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+    if (match) {
+      return `(${match[1]}) ${match[2]}-${match[3]}`;
+    }
+    return value;
+  };
+
+  const handlePhoneNumberChange = (e) => {
+    const { name, value } = e.target;
+    const rawValue = value.replace(/\D/g, '');
+    handleNestedChange({ target: { name, value: rawValue } }, 'presentedBy');
+  };
+
+  const handlePhoneNumberBlur = (e) => {
+    const { name, value } = e.target;
+    const formattedValue = formatPhoneNumber(value);
+    handleNestedChange({ target: { name, value: formattedValue } }, 'presentedBy');
+  };
+
   return (
     <div className="modal-step">
       <div className='offer-modal-header'>
@@ -90,7 +112,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
           name="name"
           placeholder="Agent Name"
           className="agent-info-input"
-          value={formData.presentedBy.name}
+          value={formData.presentedBy.name || ''}
           onChange={(e) => handleNestedChange(e, 'presentedBy')}
         />
         <input
@@ -98,7 +120,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
           name="licenseNumber"
           placeholder="License Number"
           className="agent-info-input"
-          value={formData.presentedBy.licenseNumber}
+          value={formData.presentedBy.licenseNumber || ''}
           onChange={(e) => handleNestedChange(e, 'presentedBy')}
         />
         <input
@@ -106,7 +128,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
           name="email"
           placeholder="Email"
           className="agent-info-input"
-          value={formData.presentedBy.email}
+          value={formData.presentedBy.email || ''}
           onChange={(e) => handleNestedChange(e, 'presentedBy')}
         />
         <input
@@ -114,8 +136,9 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
           name="phoneNumber"
           placeholder="Phone Number"
           className="agent-info-input"
-          value={formData.presentedBy.phoneNumber}
-          onChange={(e) => handleNestedChange(e, 'presentedBy')}
+          value={formatPhoneNumber(formData.presentedBy.phoneNumber || '')}
+          onChange={handlePhoneNumberChange}
+          onBlur={handlePhoneNumberBlur}
         />
       </div>
       <div className="agent-info-form-group">
@@ -125,7 +148,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
           name="name"
           placeholder="Brokerage Name"
           className="agent-info-input"
-          value={formData.brokerageInfo.name}
+          value={formData.brokerageInfo.name || ''}
           onChange={(e) => handleNestedChange(e, 'brokerageInfo')}
         />
         <input
@@ -133,7 +156,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
           name="licenseNumber"
           placeholder="Brokerage License Number"
           className="agent-info-input"
-          value={formData.brokerageInfo.licenseNumber}
+          value={formData.brokerageInfo.licenseNumber || ''}
           onChange={(e) => handleNestedChange(e, 'brokerageInfo')}
         />
         <input
@@ -141,7 +164,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
           name="addressLine1"
           placeholder="Address Line 1"
           className="agent-info-input"
-          value={formData.brokerageInfo.addressLine1}
+          value={formData.brokerageInfo.addressLine1 || ''}
           onChange={(e) => handleNestedChange(e, 'brokerageInfo')}
         />
         <input
@@ -149,7 +172,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
           name="addressLine2"
           placeholder="Address Line 2"
           className="agent-info-input"
-          value={formData.brokerageInfo.addressLine2}
+          value={formData.brokerageInfo.addressLine2 || ''}
           onChange={(e) => handleNestedChange(e, 'brokerageInfo')}
         />
       </div>
