@@ -77,9 +77,9 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
         formData.append('documents', file);
         formData.append('type[]', type);
         formData.append('title[]', title);
-        formData.append('purpose[]', 'listing'); // Ensure the purpose is set to "listing"
       });
 
+      formData.append('purpose', 'listing'); // Ensure the purpose is set to "listing" only once
       formData.append('uploadedBy', user._id); // Assuming user._id contains the user's ID
       formData.append('propertyListingId', listingId); // Add the property listing ID
 

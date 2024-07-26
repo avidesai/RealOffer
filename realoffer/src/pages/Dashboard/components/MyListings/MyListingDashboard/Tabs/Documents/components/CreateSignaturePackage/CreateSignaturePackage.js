@@ -14,7 +14,8 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
   const fetchDocuments = useCallback(async () => {
     try {
       const response = await axios.get(`http://localhost:8000/api/documents/${listingId}`);
-      setDocuments(response.data);
+      const listingDocuments = response.data.filter(doc => doc.purpose === 'listing'); // Filter documents
+      setDocuments(listingDocuments);
     } catch (error) {
       console.error('Error fetching documents:', error);
     }
@@ -59,7 +60,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
           </div>
         )}
         <div className="csp-header">
-          <h2>Create Buyer Signature Package</h2>
+          <h2>Create Buyer Signature Packet</h2>
           <button className="csp-close-button" onClick={onClose}></button>
         </div>
         <div className="csp-body">
@@ -83,7 +84,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
         </div>
         <div className="csp-footer">
           <button className="csp-create-button" onClick={handleCreateSignaturePackage}>
-            Create Buyer Signature Package
+            Create Buyer Signature Packet
           </button>
         </div>
       </div>
@@ -92,4 +93,3 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
 };
 
 export default CreateSignaturePackage;
-
