@@ -1,0 +1,248 @@
+/* /components/PDFViewer/PDFViewer.css */
+
+.offer-details-pdf-viewer-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    z-index: 1000;
+    overflow: hidden;
+  }
+  
+  .offer-details-pdf-viewer-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    background-color: #fff;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.8);
+  }
+  
+  .offer-details-pdf-title-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+  
+  .offer-details-title-buttons {
+    position: absolute;
+    left: 2rem;
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .offer-details-pdf-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .offer-details-pdf-type {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+    padding-top: 0.4rem;
+  }
+  
+  .offer-details-pdfviewer-close-button {
+    position: absolute;
+    top: 1.2rem;
+    right: 2rem;
+    background: #ffffff;
+    border: 2px solid #d5d5d5;
+    border-radius: 50%;
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #000000;
+    transition: all 0.3s ease;
+  }
+  
+  .offer-details-pdfviewer-close-button:hover {
+    color: #ffffff;
+    background-color: #b12525;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  .offer-details-pdfviewer-close-button:before {
+    content: '×';
+    font-weight: bold;
+    display: inline-block;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  
+  .offer-details-toolbar-download-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  .offer-details-toolbar-download-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .offer-details-pdf-viewer-container {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: rgba(127, 127, 127, 0.2);
+    padding-top: 1.5rem;
+    padding-bottom: 6rem;
+    overflow-y: auto;
+    position: relative;
+  }
+  
+  .offer-details-pdf-pages-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .offer-details-pdf-page {
+    position: relative;
+  }
+  
+  .offer-details-pdf-canvas {
+    border: 1px solid #ddd;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+    margin-top: 20px;
+  }
+  
+  .offer-details-pdf-text-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    opacity: 0.8;
+    font-family: sans-serif;
+  }
+  
+  .offer-details-pdf-text-layer div {
+    position: absolute;
+    white-space: pre;
+    cursor: text;
+    transform-origin: 0 0;
+    pointer-events: auto;
+  }
+  
+  .offer-details-pdf-float-toolbar {
+    position: fixed;
+    bottom: 3rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+    background-color: rgba(20, 20, 20, 0.80);
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: 500;
+  }
+  
+  .offer-details-pdf-viewer-container:hover .offer-details-pdf-float-toolbar {
+    opacity: 1;
+  }
+  
+  .offer-details-pdf-float-toolbar .offer-details-toolbar-button {
+    background-color: #0056b3;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  .offer-details-pdf-float-toolbar .offer-details-toolbar-button-zoom {
+    background-color: #0056b3;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 18px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  .offer-details-pdf-float-toolbar .offer-details-toolbar-button:hover,
+  .offer-details-pdf-float-toolbar .offer-details-toolbar-button-zoom:hover {
+    background-color: #003874;
+    transform: scale(1.05);
+  }
+  
+  .offer-details-pdf-float-toolbar .offer-details-toolbar-button:disabled,
+  .offer-details-pdf-float-toolbar .offer-details-toolbar-button-zoom:disabled {
+    background-color: #a9a9a9;
+    cursor: not-allowed;
+  }
+  
+  .offer-details-pdf-float-toolbar .offer-details-nav-page-info {
+    font-size: 1rem;
+    color: white;
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Spinner styles */
+  .offer-details-pdf-spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+  }
+  
+  .offer-details-pdf-spinner {
+    border: 8px solid rgba(0, 0, 0, 0.1);
+    border-top: 8px solid #007bff;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: pdf-spin 1s linear infinite;
+  }
+  
+  @keyframes pdf-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  

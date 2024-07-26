@@ -1,3 +1,5 @@
+// OfferDetailsView.js
+
 import React, { useState, useEffect } from 'react';
 import './OfferDetailsView.css';
 import axios from 'axios';
