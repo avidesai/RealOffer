@@ -32,8 +32,6 @@ const usersRouter = require('./routes/users');
 const propertyListingsRouter = require('./routes/propertyListings');
 const buyerPackagesRouter = require('./routes/buyerPackages');
 const documentsRouter = require('./routes/documents');
-const transactionsRouter = require('./routes/transactions');
-const listingTemplatesRouter = require('./routes/listingTemplates');
 const viewersRouter = require('./routes/viewers');
 const offersRouter = require('./routes/offers');
 
@@ -42,8 +40,6 @@ app.use('/api/users', usersRouter);
 app.use('/api/propertyListings', propertyListingsRouter);
 app.use('/api/buyerPackages', buyerPackagesRouter);
 app.use('/api/documents', documentsRouter);
-app.use('/api/transactions', transactionsRouter);
-app.use('/api/listingTemplates', listingTemplatesRouter);
 app.use('/api/viewers', viewersRouter);
 app.use('/api/offers', offersRouter);
 
