@@ -19,26 +19,6 @@ const OfferDetails = ({ formData, handleChange, handleNextStep, handlePrevStep }
         />
       </div>
       <div className="form-group">
-        <label htmlFor="sellerRentBack">Seller Rent Back (days)</label>
-        <input
-          type="number"
-          name="sellerRentBack"
-          placeholder="Number of days"
-          value={formData.sellerRentBack || ''}
-          onChange={handleChange}
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="buyerName">Buyer's Name</label>
-        <input
-          type="text"
-          name="buyerName"
-          placeholder="Buyer Name"
-          value={formData.buyerName || ''}
-          onChange={handleChange}
-        />
-      </div>
-      <div className="form-group">
         <label htmlFor="buyersAgentCommission">Buyer's Agent Commission (%)</label>
         <input
           type="number"
@@ -48,6 +28,36 @@ const OfferDetails = ({ formData, handleChange, handleNextStep, handlePrevStep }
           onChange={handleChange}
           step={0.50}
         />
+      </div>
+      <div className="form-group">
+        <label htmlFor="buyerName">Buyer's Full Name</label>
+        <input
+          type="text"
+          name="buyerName"
+          placeholder="Full name of buyer"
+          value={formData.buyerName || ''}
+          onChange={handleChange}
+        />
+      </div>
+      <div className="form-group">
+        <label>Special Terms</label>
+        <textarea
+          name="specialTerms"
+          className='special-terms'
+          placeholder="Enter any special terms here"
+          value={formData.specialTerms || ''}
+          onChange={handleChange}
+        ></textarea>
+      </div>
+      <div className="form-group">
+        <label>Buyer's Agent Message</label>
+        <textarea
+          name="buyersAgentMessage"
+          className='special-terms'
+          placeholder="Write a message for the listing agent here"
+          value={formData.buyersAgentMessage || ''}
+          onChange={handleChange}
+        ></textarea>
       </div>
       <div className="button-container">
         <button className="step-back-button" onClick={handlePrevStep}>

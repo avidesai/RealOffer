@@ -94,6 +94,27 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
           <option value="Required">Required</option>
         </select>
       </div>
+      <label className='contingency'>Seller Rent Back</label>
+      <div className="form-group form-group-horizontal">
+        <input
+          type="number"
+          name="sellerRentBackDays"
+          placeholder="Number of days"
+          value={formData.sellerRentBackDays || ''}
+          onChange={handleChange}
+          disabled={formData.sellerRentBack === 'Waived'}
+          className="form-input-left"
+        />
+        <select
+          name="sellerRentBack"
+          value={formData.sellerRentBack || 'Days'}
+          onChange={handleChange}
+          className="form-select-right"
+        >
+          <option value="Days">Days</option>
+          <option value="Waived">Waived</option>
+        </select>
+      </div>
       <div className="form-group">
         <label>Close of Escrow</label>
         <input
@@ -112,16 +133,6 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
           value={formatToPacificTime(formData.submittedOn)}
           readOnly
         />
-      </div>
-      <div className="form-group">
-        <label>Special Terms</label>
-        <textarea
-          name="specialTerms"
-          className='special-terms'
-          placeholder="Enter special terms here"
-          value={formData.specialTerms || ''}
-          onChange={handleChange}
-        ></textarea>
       </div>
       <div className="button-container">
         <button className="step-back-button" onClick={handlePrevStep}>

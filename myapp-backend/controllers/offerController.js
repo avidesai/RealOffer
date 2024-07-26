@@ -16,8 +16,6 @@ const upload = multer({ storage });
 exports.uploadOfferDocuments = upload.array('documents', 10);
 
 // Create a new offer
-// /controllers/offerController.js
-
 exports.createOffer = async (req, res) => {
   try {
     console.log('Request Body:', req.body); // Debugging
@@ -36,6 +34,7 @@ exports.createOffer = async (req, res) => {
       ...req.body,
       offerExpiryDate: req.body.offerExpiryDate,
       sellerRentBack: req.body.sellerRentBack,
+      sellerRentBackDays: req.body.sellerRentBackDays, // Ensure this is included
       'buyerDetails.buyerName': req.body.buyerName,
     };
 
@@ -59,7 +58,6 @@ exports.createOffer = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 // Get all offers for a specific listing
 exports.getOffersByListing = async (req, res) => {

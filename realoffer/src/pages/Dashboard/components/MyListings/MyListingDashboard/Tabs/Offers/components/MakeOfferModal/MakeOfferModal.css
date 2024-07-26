@@ -85,14 +85,14 @@
 .button-container {
   display: flex;
   justify-content: space-between;
-  margin-top: 3rem;
+  padding-top: 1.5rem;
 }
 
 .step-back-button,
 .next-button {
   color: #ffffff;
-  padding: 0.75rem 1rem;
-  font-size: 1.1rem;
+  padding: 0.8rem 1.2rem;
+  font-size: 1.2rem;
   font-weight: 500;
   border: none;
   border-radius: 8px;
@@ -102,15 +102,17 @@
 
 .step-back-button {
   background-color: #a09f9f;
-  width: 45%;
+  width: 46%;
+  margin-left: 0.55rem;
 }
 
 .next-button {
   background-color: #007bff;
-  width: 45%;
+  width: 46%;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-right: 0.55rem;
 }
 
 .step-back-button:hover {
@@ -193,6 +195,8 @@
 }
 
 .form-select-right {
+  position: relative;
+  top: 5px;
   width: 65%; /* 65% width for the select box */
 }
 

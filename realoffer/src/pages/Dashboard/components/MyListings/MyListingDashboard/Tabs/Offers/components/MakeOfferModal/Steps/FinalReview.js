@@ -85,7 +85,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => (
         Back
       </button>
       <button className="next-button" onClick={handleSubmit}>
-        Add Offer
+        Make Offer
       </button>
     </div>
   </div>

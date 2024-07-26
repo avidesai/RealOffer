@@ -12,11 +12,11 @@ const OfferSchema = new Schema({
   downPayment: { type: Number, required: true },
   balanceOfDownPayment: { type: Number, required: false },
   financeContingency: { type: String, required: false },
-  financeContingencyDays: { type: Number, required: false }, // Add this
+  financeContingencyDays: { type: Number, required: false },
   appraisalContingency: { type: String, required: false },
-  appraisalContingencyDays: { type: Number, required: false }, // Add this
+  appraisalContingencyDays: { type: Number, required: false },
   inspectionContingency: { type: String, required: false },
-  inspectionContingencyDays: { type: Number, required: false }, // Add this
+  inspectionContingencyDays: { type: Number, required: false },
   homeSaleContingency: { type: String, required: false },
   closeOfEscrow: { type: String, required: false },
   submittedOn: { type: Date, default: Date.now },
@@ -47,7 +47,8 @@ const OfferSchema = new Schema({
   buyersAgentMessage: { type: String, required: false },
   privateListingTeamNotes: { type: String, required: false },
   offerExpiryDate: { type: Date, required: false },
-  sellerRentBack: { type: Number, required: false },
+  sellerRentBack: { type: String, required: false }, // Updated to String
+  sellerRentBackDays: { type: Number, required: false }, // Added this
 }, { timestamps: true });
 
 module.exports = mongoose.model('Offer', OfferSchema);

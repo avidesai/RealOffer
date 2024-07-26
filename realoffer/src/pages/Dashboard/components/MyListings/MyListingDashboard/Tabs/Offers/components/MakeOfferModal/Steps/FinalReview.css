@@ -24,27 +24,3 @@
     font-weight: 500;
   }
   
-  .button-container {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-  }
-  
-  .step-back-button,
-  .next-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  .step-back-button {
-    background-color: #ccc;
-  }
-  
-  .next-button {
-    background-color: #007bff;
-    color: #fff;
-  }
-  

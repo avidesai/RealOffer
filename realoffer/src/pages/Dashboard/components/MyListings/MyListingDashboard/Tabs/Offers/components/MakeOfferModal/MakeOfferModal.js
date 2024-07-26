@@ -5,7 +5,7 @@ import './MakeOfferModal.css';
 import PurchasePrice from './Steps/PurchasePrice';
 import Contingencies from './Steps/Contingencies';
 import AgentInformation from './Steps/AgentInformation';
-import OfferDetails from './Steps/OfferDetails'; 
+import OfferDetails from './Steps/OfferDetails';
 import Documents from './Steps/Documents';
 import FinalReview from './Steps/FinalReview';
 import axios from 'axios';
@@ -32,8 +32,13 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     inspectionContingencyDays: '',
     homeSaleContingency: 'Waived',
     closeOfEscrow: '',
-    submittedOn: new Date().toISOString(), 
+    submittedOn: new Date().toISOString(),
     specialTerms: '',
+    buyersAgentMessage: '',
+    sellerRentBack: '',
+    sellerRentBackDays: '',
+    buyerName: '',
+    buyersAgentCommission: '',
     presentedBy: {
       name: '',
       licenseNumber: '',
@@ -52,9 +57,6 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     documents: [],
     propertyListing: listingId,
     offerExpiryDate: '',
-    sellerRentBack: '',
-    buyerName: '',
-    buyersAgentCommission: '',
   });
 
   const handleNextStep = () => setStep(step + 1);
@@ -108,7 +110,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       }
     }
     formDataToSend.append('propertyListingId', listingId);
-  
+
     try {
       const response = await axios.post('http://localhost:8000/api/offers', formDataToSend, {
         headers: {
@@ -120,7 +122,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     } catch (error) {
       console.error('Error creating offer:', error);
     }
-  };  
+  };
 
   useEffect(() => {
     const downPayment = parseNumber(formData.downPayment);
