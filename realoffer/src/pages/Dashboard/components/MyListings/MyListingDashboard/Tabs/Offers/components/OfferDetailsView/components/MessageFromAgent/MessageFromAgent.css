@@ -1,0 +1,14 @@
+/* MessageFromAgent.css */
+
+.message-from-agent {
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .message-from-agent-content {
+    padding: 1.2rem;
+  }
+  

@@ -1,0 +1,24 @@
+/* PrivateNotes.css */
+
+.listing-team-notes {
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .listing-team-notes-content {
+    padding: 1.2rem;
+  }
+  
+  .listing-team-notes-content textarea {
+    width: 95%;
+    height: 225px;
+    margin-top: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: 'Helvetica Neue', sans-serif;
+    resize: none;
+  }
+  
