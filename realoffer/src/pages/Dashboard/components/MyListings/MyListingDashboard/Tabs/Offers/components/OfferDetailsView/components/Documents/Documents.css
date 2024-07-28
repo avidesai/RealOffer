@@ -39,6 +39,7 @@
   align-items: center;
   background-color: #fff;
   padding: 2.5rem;
+  padding-right: 2rem;
   padding-top: 1.2rem;
   padding-bottom: 0.6rem;
   border-radius: 10px;
@@ -70,19 +71,20 @@
   font-weight: bold;
   margin: 0;
   color: #333;
-  padding-bottom: 0.6rem;
+  padding-bottom: 0.3rem;
 }
 
 .offer-details-document-type {
   font-style: italic;
   margin: 0;
-  padding-bottom: 0;
+  padding-bottom: 0.3rem; /* Reduced padding */
   color: #666;
 }
 
 .offer-details-document-meta {
   color: #888;
   font-size: 0.9em;
+  margin-top: 0.1rem;
 }
 
 .offer-details-meta-divider {
@@ -105,7 +107,7 @@
   color: #262626;
   border: 1px solid #898888;
   border-radius: 10px;
-  padding: 10px 20px;
+  padding: 0.5rem 1rem;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
