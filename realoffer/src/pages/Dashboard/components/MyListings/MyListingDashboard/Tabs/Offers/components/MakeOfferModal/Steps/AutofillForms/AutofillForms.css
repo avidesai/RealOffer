@@ -1,0 +1,71 @@
+.auto-fill-forms {
+    padding: 1rem;
+  }
+  
+  .auto-fill-forms h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .auto-fill-forms .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .auto-fill-forms label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .auto-fill-forms select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #dddddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+  
+  .auto-fill-forms .button-container {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 1.5rem;
+  }
+  
+  .auto-fill-forms .step-back-button,
+  .auto-fill-forms .next-button {
+    color: #ffffff;
+    padding: 0.8rem 1.2rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.5s ease;
+  }
+  
+  .auto-fill-forms .step-back-button {
+    background-color: #a09f9f;
+    width: 46%;
+    margin-left: 0.55rem;
+  }
+  
+  .auto-fill-forms .next-button {
+    background-color: #007bff;
+    width: 46%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 0.55rem;
+  }
+  
+  .auto-fill-forms .step-back-button:hover {
+    background-color: #7c7b7b;
+    cursor: pointer;
+  }
+  
+  .auto-fill-forms .next-button:hover {
+    background-color: #0056b3;
+    cursor: pointer;
+  }
+  
