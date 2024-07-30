@@ -1,15 +1,15 @@
-// Offers.js
-
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import OfferSortBar from './components/OfferSortBar/OfferSortBar';
 import MakeOfferModal from './components/MakeOfferModal/MakeOfferModal';
 import OfferCard from './components/OfferCard/OfferCard';
 import OfferDetailsView from './components/OfferDetailsView/OfferDetailsView';
+import RespondToOfferModal from './components/RespondToOfferModal/RespondToOfferModal';
 import './Offers.css';
 
 const Offers = ({ listingId }) => {
   const [offers, setOffers] = useState([]);
+  const [propertyListing, setPropertyListing] = useState(null); // Add this state
   const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('priceHighToLow');
   const [searchQuery, setSearchQuery] = useState('');
@@ -18,12 +18,14 @@ const Offers = ({ listingId }) => {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState(null);
+  const [respondToOffer, setRespondToOffer] = useState(null);
 
   const fetchOffers = useCallback(async () => {
     setLoading(true);
     try {
       const response = await axios.get(`http://localhost:8000/api/propertyListings/${listingId}`);
       setOffers(response.data.offers);
+      setPropertyListing(response.data); // Set the propertyListing state
       setTotalPages(Math.ceil(response.data.offers.length / 4)); // 4 offers per page
     } catch (error) {
       console.error('Error fetching offers:', error);
@@ -81,6 +83,14 @@ const Offers = ({ listingId }) => {
     );
   };
 
+  const handleRespondToOffer = (offer) => {
+    setRespondToOffer(offer);
+  };
+
+  const handleCloseRespondModal = () => {
+    setRespondToOffer(null);
+  };
+
   const filteredOffers = offers.filter((offer) => {
     if (filter === 'all') {
       return true;
@@ -135,11 +145,25 @@ const Offers = ({ listingId }) => {
               <p className="no-offers-message">No offers found.</p>
             ) : (
               paginatedOffers.map((offer) => (
-                <OfferCard key={offer._id} offer={offer} onClick={handleOfferClick} onUpdate={handleUpdateOffer} />
+                <OfferCard
+                  key={offer._id}
+                  offer={offer}
+                  onClick={handleOfferClick}
+                  onUpdate={handleUpdateOffer}
+                  onRespond={handleRespondToOffer}
+                />
               ))
             )}
           </div>
           {showModal && <MakeOfferModal onClose={handleCloseModal} listingId={listingId} />}
+          {respondToOffer && (
+            <RespondToOfferModal
+              isOpen={!!respondToOffer}
+              onClose={handleCloseRespondModal}
+              offer={respondToOffer}
+              propertyListing={propertyListing} // Pass the propertyListing object
+            />
+          )}
         </>
       )}
     </div>

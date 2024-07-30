@@ -39,7 +39,7 @@ const getStatusStyle = (status) => {
   }
 };
 
-const OfferCard = ({ offer, onClick, onUpdate }) => {
+const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
   const [notes, setNotes] = useState(offer.privateListingTeamNotes || '');
   const [status, setStatus] = useState(offer.offerStatus);
 
@@ -75,6 +75,10 @@ const OfferCard = ({ offer, onClick, onUpdate }) => {
       }
     }
     onClick(offer._id);
+  };
+
+  const handleRespondClick = () => {
+    onRespond(offer);
   };
 
   const statusStyle = getStatusStyle(status);
@@ -116,7 +120,7 @@ const OfferCard = ({ offer, onClick, onUpdate }) => {
         </div>
         <div className="offer-actions">
           <button className="view-offer-button" onClick={handleViewClick}>View</button>
-          <button className="respond-offer-button">Respond</button>
+          <button className="respond-offer-button" onClick={handleRespondClick}>Respond</button>
         </div>
         <div className="divider"></div>
         <div className="offer-details">
