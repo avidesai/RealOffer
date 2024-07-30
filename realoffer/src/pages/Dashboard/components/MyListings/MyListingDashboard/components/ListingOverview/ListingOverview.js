@@ -3,13 +3,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import MoreInfo from './components/MoreInfo/MoreInfo';
+import ListingPhotoGallery from './components/ListingPhotoGallery/ListingPhotoGallery';
 import './ListingOverview.css';
 
 function ListingOverview({ listing }) {
   const [agents, setAgents] = useState([]);
-  const [showMoreInfo, setShowMoreInfo] = useState(false); // State to manage modal visibility
-  const [loading, setLoading] = useState(false); // State to manage loading spinner
-  const [currentListing, setCurrentListing] = useState(listing); // State to manage current listing
+  const [showMoreInfo, setShowMoreInfo] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [currentListing, setCurrentListing] = useState(listing);
+  const [showGallery, setShowGallery] = useState(false);
 
   useEffect(() => {
     const fetchAgentDetails = async () => {
@@ -55,7 +57,7 @@ function ListingOverview({ listing }) {
       {!loading && (
         <>
           <div className="overview-header">
-            <div className="overview-image">
+            <div className="overview-image" onClick={() => setShowGallery(true)}>
               <img src={currentListing.imagesUrls[0]} alt="Property" className="property-image" />
             </div>
             <div className="overview-details">
@@ -84,6 +86,12 @@ function ListingOverview({ listing }) {
                 handleRefreshListing();
               }}
               listingId={currentListing._id}
+            />
+          )}
+          {showGallery && (
+            <ListingPhotoGallery
+              images={currentListing.imagesUrls}
+              onClose={() => setShowGallery(false)}
             />
           )}
         </>

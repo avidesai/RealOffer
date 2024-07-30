@@ -1,7 +1,7 @@
 /* ListingOverview.css */
 
 .listing-overview {
-  position: relative; /* Add this line */
+  position: relative;
   padding: 2rem;
   padding-top: 2rem;
   padding-bottom: 0.5rem;
@@ -16,11 +16,11 @@
   display: flex;
   align-items: center;
   margin-bottom: 20px;
-  padding-bottom: 0; /* Removed bottom padding */
 }
 
 .overview-image {
   margin-right: 2rem;
+  cursor: pointer; /* Indicate that the image is clickable */
 }
 
 .property-image {
@@ -86,9 +86,9 @@
 }
 
 .overview-agents {
-  position: absolute; /* Change to absolute positioning */
-  top: 3rem; /* Adjust top position as needed */
-  right: 3rem; /* Adjust right position as needed */
+  position: absolute;
+  top: 3rem;
+  right: 3rem;
   display: flex;
   flex-direction: column;
   text-align: right;
@@ -142,47 +142,45 @@
   100% { transform: rotate(360deg); }
 }
 
-
 @media (max-width: 768px) {
   .overview-image,
   .overview-agents {
-    display: none; /* Hide image and agent-related elements */
+    display: none;
   }
 
   .listing-overview {
-    padding: 1rem; /* Adjust overall padding for smaller screens */
+    padding: 1rem;
   }
 
   .overview-header {
-    justify-content: center; /* Center the header content */
-    padding-top: 1rem; /* Adds padding on top of the text */
-    margin-bottom: 1rem; /* Adjust bottom margin for spacing */
+    justify-content: center;
+    padding-top: 1rem;
+    margin-bottom: 1rem;
   }
 
   .property-address {
-    text-align: center; /* Center the property address */
-    font-size: 20px; /* Adjust font size for smaller screens */
-    margin-bottom: 1rem; /* Adds space below the address, before other text */
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 1rem;
   }
 
   .property-location,
   .property-price {
-    text-align: center; /* Center location and price information */
-    margin: 5px 0; /* Adjust margins for tighter spacing */
+    text-align: center;
+    margin: 5px 0;
   }
 
   .overview-buttons {
     display: flex;
-    justify-content: center; /* Centers buttons */
-    flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
-    gap: 10px; /* Adds gap between buttons */
-    padding-top: 1rem; /* Adds padding above buttons for cleaner separation */
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-top: 1rem;
   }
 
   .overview-btn,
   .overview-btn-share-package {
-    margin: 5px; /* Uniform margin for cleaner look */
-    padding: 8px 12px; /* Adjust padding for smaller screens */
+    margin: 5px;
+    padding: 8px 12px;
   }
 }
-
