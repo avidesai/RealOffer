@@ -19,8 +19,9 @@
 }
 
 .overview-image {
+  position: relative;
   margin-right: 2rem;
-  cursor: pointer; /* Indicate that the image is clickable */
+  cursor: pointer; /* Change cursor to pointer on hover */
 }
 
 .property-image {
@@ -28,6 +29,7 @@
   height: 150px;
   object-fit: cover;
   border-radius: 10px;
+  transition: transform 0.3s ease;
 }
 
 .overview-details {

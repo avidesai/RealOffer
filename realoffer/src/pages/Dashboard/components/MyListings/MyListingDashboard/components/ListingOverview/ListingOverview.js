@@ -67,6 +67,7 @@ function ListingOverview({ listing }) {
               <div className="overview-buttons">
                 <button className="overview-btn-share-package">Share Listing</button>
                 <button className="overview-btn" onClick={() => setShowMoreInfo(true)}>Edit Info</button>
+                <button className="overview-btn" onClick={() => setShowGallery(true)}>View Images</button>
               </div>
             </div>
             <div className="overview-agents">
