@@ -7,7 +7,7 @@ import OfferToolBar from '../OfferToolBar/OfferToolBar';
 const getStatusStyle = (status) => {
   switch (status) {
     case 'submitted':
-      return { text: 'Submitted', className: 'status-submitted' };
+      return { text: 'Pending Review', className: 'status-submitted' };
     case 'under review':
       return { text: 'Under Review', className: 'status-under-review' };
     case 'accepted':
@@ -15,7 +15,7 @@ const getStatusStyle = (status) => {
     case 'rejected':
       return { text: 'Rejected', className: 'status-rejected' };
     default:
-      return { text: 'Submitted', className: 'status-submitted' };
+      return { text: 'Pending Review', className: 'status-submitted' };
   }
 };
 

@@ -34,7 +34,7 @@ const getStatusStyle = (status) => {
     case 'rejected':
       return { text: 'Rejected', className: 'status-rejected' };
     default:
-      return { text: 'Submitted', className: 'status-submitted' };
+      return { text: 'Pending Review', className: 'status-submitted' };
   }
 };
 
