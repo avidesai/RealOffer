@@ -49,6 +49,7 @@
 .special-terms {
   display: block;
   text-align: left;
+  padding-bottom: 1rem;
 }
 
 .special-terms-value {

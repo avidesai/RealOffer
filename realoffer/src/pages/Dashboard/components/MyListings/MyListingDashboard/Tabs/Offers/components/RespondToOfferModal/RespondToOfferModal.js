@@ -14,11 +14,11 @@ function RespondToOfferModal({ isOpen, onClose, offer, propertyListing }) {
       switch (response) {
         case 'acceptOffer':
           setSubject(`Your Offer on ${propertyListing.homeCharacteristics.address} has been Accepted`);
-          setMessage(`Hello ${offer.presentedBy.name},\n\nI'm happy to inform you that your offer on ${propertyListing.homeCharacteristics.address} has been accepted.\n\nCongratulations, I'll be in touch with you soon regarding next steps.`);
+          setMessage(`Hello ${offer.presentedBy.name},\n\nWe are happy to inform you that your offer on ${propertyListing.homeCharacteristics.address} has been accepted.\n\nCongratulations, we will be in touch with you soon regarding next steps.`);
           break;
         case 'rejectOffer':
           setSubject(`Your Offer on ${propertyListing.homeCharacteristics.address} has been Rejected`);
-          setMessage(`Hello ${offer.presentedBy.name},\n\nI regret to inform you that your offer on ${propertyListing.homeCharacteristics.address} has been rejected.\n\nIf you have any questions or need further information, please feel free to reach out.`);
+          setMessage(`Hello ${offer.presentedBy.name},\n\nWe regret to inform you that your offer on ${propertyListing.homeCharacteristics.address} has been rejected.\n\nIf you have any questions or need further information, please feel free to reach out.`);
           break;
         case 'counterOffer':
           setSubject(`Counter Offer for ${propertyListing.homeCharacteristics.address}`);
