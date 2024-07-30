@@ -166,6 +166,11 @@
   color: #ffffff;
 }
 
+.status-countered {
+  background-color: #e78f37;
+  color: #ffffff;
+}
+
 .status-accepted {
   background-color: #28a745;
   color: #ffffff;

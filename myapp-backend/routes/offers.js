@@ -19,7 +19,11 @@ router.put('/:id', offerController.updateOffer);
 // Update the private listing team notes
 router.put('/:id/private-notes', offerController.updatePrivateNotes);
 
+// Update offer status
 router.put('/:id/status', offerController.updateOfferStatus);
+
+// Respond to an offer
+router.post('/:id/respond', offerController.respondToOffer);
 
 // Delete a specific offer
 router.delete('/:id', offerController.deleteOffer);

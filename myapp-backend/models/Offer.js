@@ -3,6 +3,13 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const ResponseSchema = new Schema({
+  responseType: { type: String, required: true },
+  subject: { type: String, required: true },
+  message: { type: String, required: true },
+  respondedAt: { type: Date, default: Date.now }
+});
+
 const OfferSchema = new Schema({
   purchasePrice: { type: Number, required: true },
   initialDeposit: { type: Number, required: true },
@@ -47,8 +54,9 @@ const OfferSchema = new Schema({
   buyersAgentMessage: { type: String, required: false },
   privateListingTeamNotes: { type: String, required: false },
   offerExpiryDate: { type: Date, required: false },
-  sellerRentBack: { type: String, required: false }, // Updated to String
-  sellerRentBackDays: { type: Number, required: false }, // Added this
+  sellerRentBack: { type: String, required: false },
+  sellerRentBackDays: { type: Number, required: false },
+  responses: [ResponseSchema]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Offer', OfferSchema);

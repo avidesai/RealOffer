@@ -1,3 +1,5 @@
+// Offers.js
+
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import OfferSortBar from './components/OfferSortBar/OfferSortBar';
@@ -87,8 +89,12 @@ const Offers = ({ listingId }) => {
     setRespondToOffer(offer);
   };
 
-  const handleCloseRespondModal = () => {
+  const handleCloseRespondModal = async (submitted) => {
     setRespondToOffer(null);
+    if (submitted) {
+      setLoading(true); // Show spinner
+      await fetchOffers();
+    }
   };
 
   const filteredOffers = offers.filter((offer) => {

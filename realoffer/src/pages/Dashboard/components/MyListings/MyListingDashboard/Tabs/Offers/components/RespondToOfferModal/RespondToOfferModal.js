@@ -1,4 +1,7 @@
+// RespondToOfferModal.js
+
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './RespondToOfferModal.css';
 
 function RespondToOfferModal({ isOpen, onClose, offer, propertyListing }) {
@@ -32,9 +35,17 @@ function RespondToOfferModal({ isOpen, onClose, offer, propertyListing }) {
 
   if (!isOpen) return null;
 
-  const handleSubmit = () => {
-    // Handle form submission logic
-    onClose();
+  const handleSubmit = async () => {
+    try {
+      await axios.post(`http://localhost:8000/api/offers/${offer._id}/respond`, {
+        responseType: response,
+        subject,
+        message
+      });
+      onClose(true); // Indicate that the modal was submitted
+    } catch (error) {
+      console.error('Error responding to offer:', error);
+    }
   };
 
   const agentAvatarStyle = {
@@ -46,7 +57,7 @@ function RespondToOfferModal({ isOpen, onClose, offer, propertyListing }) {
       <div className="respond-to-offer-modal-content">
         <div className="respond-to-offer-modal-header">
           <h2>Respond to Offer</h2>
-          <button className="respond-to-offer-modal-close-button" onClick={onClose}></button>
+          <button className="respond-to-offer-modal-close-button" onClick={() => onClose(false)}></button>
         </div>
         <div className="respond-to-offer-modal-body">
           <div className="respond-to-offer-modal-recipient-info">

@@ -29,6 +29,8 @@ const getStatusStyle = (status) => {
       return { text: 'Pending Review', className: 'status-submitted' };
     case 'under review':
       return { text: 'Under Review', className: 'status-under-review' };
+    case 'countered':
+      return { text: 'Countered', className: 'status-countered' };
     case 'accepted':
       return { text: 'Accepted', className: 'status-accepted' };
     case 'rejected':
