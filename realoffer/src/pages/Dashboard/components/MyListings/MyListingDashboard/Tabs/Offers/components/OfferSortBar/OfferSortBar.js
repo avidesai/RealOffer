@@ -12,6 +12,8 @@ const getStatusStyle = (status) => {
       return { text: 'Under Review', className: 'status-under-review' };
     case 'accepted':
       return { text: 'Accepted', className: 'status-accepted' };
+    case 'countered':
+      return { text: 'Countered', className: 'status-countered' };
     case 'rejected':
       return { text: 'Rejected', className: 'status-rejected' };
     default:
@@ -53,17 +55,18 @@ function OfferSortBar({ onFilterChange, onSortChange, onSearch, onAddOffer, onDo
               <option value="all">All</option>
               <option value="submitted">{getStatusStyle('submitted').text}</option>
               <option value="under review">{getStatusStyle('under review').text}</option>
-              <option value="accepted">{getStatusStyle('accepted').text}</option>
               <option value="rejected">{getStatusStyle('rejected').text}</option>
+              <option value="countered">{getStatusStyle('countered').text}</option>
+              <option value="accepted">{getStatusStyle('accepted').text}</option>
             </select>
           </div>
           <div className="offer-sort-section">
             <label htmlFor="sort">Sort</label>
             <select id="sort" value={sort} onChange={handleSortChange}>
               <option value="priceHighToLow">Price (High to Low)</option>
-              <option value="recent">Most Recent</option>
+              <option value="recent">Newest</option>
               <option value="oldest">Oldest</option>
-              <option value="offerExpiryDate">Offer Expiry Date</option>
+              <option value="offerExpiryDate">Expiring Soon</option>
             </select>
           </div>
         </div>
