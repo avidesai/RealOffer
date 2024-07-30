@@ -133,7 +133,7 @@
   background-color: #32b643;
   color: white;
   border: none;
-  padding: 0.4rem 0.8rem;
+  padding: 0.4rem 0.6rem;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.9rem;
@@ -144,7 +144,7 @@
   background-color: #ff4d4d;
   color: white;
   border: none;
-  padding: 0.4rem 0.8rem;
+  padding: 0.4rem 0.6rem;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.9rem;
@@ -174,9 +174,12 @@
 
 .form-control {
   width: 100%;
-  padding: 0.5rem;
-  margin-right: 10px;
-  border: 1px solid #ddd;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  padding-right: 2rem;
+  margin-right: 1rem;
+  margin-bottom: 0.55rem;
+border: 1px solid #ddd;
   border-radius: 4px;
 }
 

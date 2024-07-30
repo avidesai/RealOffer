@@ -115,6 +115,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
       handleFileTypeChange={handleFileTypeChange}
       handleFileTitleChange={handleFileTitleChange}
       handleUpload={handleUpload}
+      accept="application/pdf, image/*"
     />
   );
 };

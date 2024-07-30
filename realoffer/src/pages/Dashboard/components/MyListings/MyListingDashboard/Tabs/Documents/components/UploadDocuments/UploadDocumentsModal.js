@@ -43,6 +43,7 @@ const UploadDocumentsModal = ({
               ref={fileInputRef}
               style={{ display: 'none' }}
               onChange={handleFileSelect}
+              accept="application/pdf, image/*" // Accept both PDF and image files
             />
           </div>
         </div>

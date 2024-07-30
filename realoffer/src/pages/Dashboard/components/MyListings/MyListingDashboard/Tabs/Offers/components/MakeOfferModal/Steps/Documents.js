@@ -139,6 +139,7 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
                 ref={fileInputRef}
                 style={{ display: 'none' }}
                 onChange={handleFileSelect}
+                accept="application/pdf, image/*"
               />
             </div>
           </div>
