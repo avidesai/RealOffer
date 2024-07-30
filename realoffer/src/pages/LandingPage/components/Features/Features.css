@@ -1,5 +1,3 @@
-/* Features.css */
-
 .features-section {
   display: flex;
   flex-direction: column;
@@ -61,32 +59,19 @@
 
 .feature-content {
   display: flex;
+  justify-content: center; /* Center the content horizontally */
   width: 100%;
   max-width: 1200px;
   margin: auto;
   gap: 1rem;
 }
 
-.feature-image {
-  width: 45%;
-  display: flex; /* Ensures image container flexes */
-  justify-content: center; /* Centers image in the div */
-}
-
-.feature-section-image {
-  width: 90%; /* Image takes full width of its container */
-  border-radius: 8px;
-  box-shadow: 0px 10px 20px rgba(0,0,0,0.1); /* Adds shadow for depth */
-}
-
 .feature-details {
   width: 50%;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Centers content horizontally */
-  margin-right: 20px;
+  align-items: center; /* Center the content horizontally */
   margin-bottom: 1rem;
-
 }
 
 .feature-point {
@@ -127,6 +112,7 @@
   box-shadow: 0px 8px 25px rgba(0,0,0,0.2);
   transform: translateY(-2px);
 }
+
 /* Responsive adjustments */
 @media (max-width: 1024px) {
   .features-section {
@@ -143,8 +129,11 @@
     margin-bottom: 2rem;
   }
 
-  .feature-image, .feature-details {
-    width: 100%; /* Full width for smaller screens */
+  .feature-details {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    align-items: center; /* Center the content horizontally */
   }
 
   .features-feature-toggle {
@@ -153,21 +142,6 @@
 
   .features-toggle-btn {
     font-size: 0.9rem;
-  }
-
-  .feature-details {
-    margin-top: 0.5rem;
-    margin-left: auto;
-    margin-right: auto;
-    align-items: center; /* Centers content vertically */
-  }
-
-  .feature-image {
-    margin-bottom: 1rem; /* Spacing after the image */
-  }
-
-  .feature-section-image{
-    width: 45%;
   }
 
   .feature-point {
@@ -210,19 +184,12 @@
     flex-direction: column; /* Stack the image and details vertically */
   }
 
-  .feature-image, .feature-details {
-    width: 100%; /* Full width for smaller screens */
-  }
-
-  .feature-section-image {
-    width: 60%; /* Adjust image width for mobile */
-  }
-
   .feature-details {
+    width: 100%;
     margin-top: 0.5rem; /* Add some space above the details */
     margin-left: auto;
     margin-right: auto;
-    align-items: center; /* Centers content vertically */
+    align-items: center; /* Center the content horizontally */
   }
 
   .feature-point {

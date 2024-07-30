@@ -5,7 +5,7 @@ import './OfferDetailsView.css';
 import axios from 'axios';
 import Terms from './components/Terms/Terms';
 import AgentInfo from './components/AgentInfo/AgentInfo';
-import MessageFromAgent from './components/MessageFromAgent/MessageFromAgent';
+import Messages from './components/Messages/Messages';
 import Documents from './components/Documents/Documents';
 import PrivateNotes from './components/PrivateNotes/PrivateNotes';
 
@@ -61,7 +61,7 @@ const OfferDetailsView = ({ offerId, onBack }) => {
         <Terms offer={offer} />
         <div className="middle-section">
           <AgentInfo offer={offer} />
-          <MessageFromAgent offer={offer} />
+          <Messages offer={offer} />
           <Documents offer={offer} />
         </div>
         <PrivateNotes notes={notes} handleNotesChange={handleNotesChange} handleNotesBlur={handleNotesBlur} />

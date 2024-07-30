@@ -3,8 +3,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom'; // Import Link
 import './Features.css';
-import sellHomeImage from './sell-home.png';
-import buyHomeImage from './buy-home.jpeg';
 import chart from './chart.svg'
 import chat from './chat.svg'
 import dollar from './dollar.svg'
@@ -18,46 +16,44 @@ const Features = () => {
 
   const featureDetails = {
     sell: {
-      title: 'Sell Your Home',
-      image: sellHomeImage,
+      title: 'Seller’s Agent Features (Listing Side)',
       points: [
         {
-          text: 'Price your home intelligently using our RealListing™ algorithm',
-          icon: dollar,
+          text: 'Host disclosure documents for buyers to view and download',
+          icon: clipboard,
         },
         {
-          text: 'Receive, respond, and manage offers on our online dashboard',
-          icon: chat,
-        },
-        {
-          text: 'Get notifications and updates on your home sale in real-time',
+          text: 'Automatically generate listing agreements and other documents for sellers to sign',
           icon: notifications,
         },
         {
-          text: 'Manage, store, and track buyer activity on your listings',
-          icon: chart, // Replace with the appropriate icon
+          text: 'Communicate with buyers and agents through the platform.',
+          icon: chat,
+        },
+        {
+          text: 'Track and analyze buyer activity, including views, downloads, and interactions with documents (Premium).',
+          icon: chart,
         },
       ],
     },
     buy: {
-      title: 'Buy Your Home',
-      image: buyHomeImage,
+      title: 'Buyer’s Agent and Buyer Features (Buyer Side)',
       points: [
         {
-          text: 'Make winning offers on homes with our RealOffer™ algorithm',
-          icon: valuation,
-        },
-        {
-          text: 'Download disclosures and fill out forms easily',
+          text: 'View and download disclosure documents provided by the seller’s agent.',
           icon: clipboard,
         },
         {
-          text: 'Communicate directly with the seller\'s agent',
-          icon: chat, // Replace with the appropriate icon
+          text: 'Directly make offers to the listing agent on the platform, attaching documents and including detailed terms.',
+          icon: offer,
         },
         {
-          text: 'Simplify the home buying process with full transparency',
-          icon: offer,
+          text: 'Communicate with sellers and listing agents through the platform.',
+          icon: chat,
+        },
+        {
+          text: 'Track and analyze interest in the listing by other agents/buyers, including views, downloads, and interactions with disclosure documents (Premium).',
+          icon: chart,
         },
       ],
     },
@@ -81,13 +77,6 @@ const Features = () => {
         </button>
       </div>
       <div className="feature-content">
-        <div className='feature-image'>
-          <img
-            src={featureDetails[activeFeature].image}
-            alt={featureDetails[activeFeature].title}
-            className="feature-section-image"
-          />
-        </div>
         <div className="feature-details">
           {featureDetails[activeFeature].points.map((point, index) => (
             <div key={index} className="feature-point">
