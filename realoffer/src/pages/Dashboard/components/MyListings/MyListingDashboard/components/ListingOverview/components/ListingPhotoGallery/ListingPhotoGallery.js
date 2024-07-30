@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+// ListingPhotoGallery.js
+
+import React, { useState, useEffect, useCallback } from 'react';
 import './ListingPhotoGallery.css';
 
 const ListingPhotoGallery = ({ images, onClose }) => {
@@ -12,9 +14,26 @@ const ListingPhotoGallery = ({ images, onClose }) => {
     setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
   };
 
+  const handleKeyDown = useCallback((event) => {
+    if (event.key === 'ArrowLeft') {
+      handlePrev();
+    } else if (event.key === 'ArrowRight') {
+      handleNext();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (images.length > 0) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [images.length, handleKeyDown]);
+
   return (
-    <div className="photo-gallery-modal">
-      <div className="photo-gallery-content">
+    <div className="photo-gallery-modal" onClick={onClose}>
+      <div className="photo-gallery-content" onClick={(e) => e.stopPropagation()}>
         <div className="photo-gallery-header">
           <button className="photo-gallery-close-button" onClick={onClose}></button>
         </div>

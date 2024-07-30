@@ -32,6 +32,10 @@
   transition: transform 0.3s ease;
 }
 
+.property-image:hover {
+  transform: scale(1.025);
+}
+
 .overview-details {
   flex: 1;
 }

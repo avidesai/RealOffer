@@ -1,151 +1,173 @@
-.photo-gallery-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .photo-gallery-content {
-    position: relative;
-    width: 80%;
-    max-width: 1000px;
-    background-color: #fff;
-    padding: 2rem;
-    padding-top: 0rem;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    animation: fadeIn 0.3s ease-in-out;
-  }
+/* ListingPhotoGallery.css */
 
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: scale(0.9);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-  
-  
-  .photo-gallery-header {
-    display: flex;
-    justify-content: flex-end;
-    padding-top: 1rem;
-    padding-right: 0.5rem;
-    padding-bottom: 1rem;
-    background-color: #fff;
-    border-bottom: 1px solid #e0e0e0;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-  }
-  
-  .photo-gallery-close-button {
-    background: #ffffff;
-    border: 2px solid #d5d5d5;
-    border-radius: 50%;
-    width: 45px;
-    height: 45px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.5em;
-    cursor: pointer;
-    color: #000000;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 3px rgba(0, 0, 0, 0.2);
-  }
-  
-  .photo-gallery-close-button:hover {
-    color: #ffffff;
-    background-color: #b12525;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  }
-  
-  .photo-gallery-close-button:before {
-    content: '×';
-    font-weight: bold;
-    display: inline-block;
-    margin-top: -0.15rem;
-    line-height: 1;
-  }
-  
-  .photo-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-  }
-  
-  .main-photo {
-    width: calc(100% - 100px); /* Leave space for nav buttons */
-    max-height: 60vh;
-    object-fit:contain;
-    border-radius: 10px;
-  }
-  
-  .photo-navigation {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 1rem;
-  }
-  
-  .nav-button {
-    position: absolute;
-    background: rgba(0, 0, 0, 0.5);
-    border: none;
-    font-size: 3rem;
-    color: #fff;
-    cursor: pointer;
-    padding: 0.5rem 1rem;
-    border-radius: 10px;
-    transition: opacity 0.5s;
-    z-index: 1;
-  }
-  
-  .prev {
-    left: 15px;
-  }
-  
-  .next {
-    right: 15px;
-  }
-  
-  .photo-container:hover .nav-button {
-    opacity: 1;
-  }
-  
-  .nav-button {
+.photo-gallery-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeInBackground 0.3s ease-in-out;
+}
+
+@keyframes fadeInBackground {
+  from {
     opacity: 0;
   }
-  
-  .thumbnail-bar {
-    display: flex;
-    justify-content: center;
-    margin-top: 1rem;
-    overflow-x: auto;
+  to {
+    opacity: 1;
   }
-  
-  .thumbnail {
-    width: 100px;
-    height: 75px;
-    object-fit: cover;
-    margin: 0 0.5rem;
-    cursor: pointer;
-    border: 2px solid transparent;
-    border-radius: 5px;
-    transition: border 0.3s;
+}
+
+.photo-gallery-content {
+  position: relative;
+  width: 90%;
+  max-width: 1000px;
+  background-color: #fff;
+  padding: 1.5rem;
+  padding-top: 0rem;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: fadeInContent 0.3s ease-in-out;
+}
+
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
   }
-  
-  .thumbnail.active {
-    border-color: #007bff;
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
-  
+}
+
+.photo-gallery-header {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  padding-right: 0.5rem;
+  padding-bottom: 1rem;
+  background-color: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.photo-gallery-close-button {
+  background: #ffffff;
+  border: 2px solid #d5d5d5;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #000000;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+.photo-gallery-close-button:hover {
+  color: #ffffff;
+  background-color: #b12525;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.photo-gallery-close-button:before {
+  content: '×';
+  font-weight: bold;
+  display: inline-block;
+  margin-top: -0.15rem;
+  line-height: 1;
+}
+
+.photo-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.main-photo {
+  width: calc(100% - 100px); /* Leave space for nav buttons */
+  max-height: 70vh;
+  object-fit: contain;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.photo-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.nav-button {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  font-size: 3.5rem;
+  color: #fff;
+  cursor: pointer;
+  padding-top: 0.5rem;
+  padding-bottom: 1rem;
+  padding-left: 1.2rem;
+  padding-right: 1.2rem;
+  border-radius: 10px;
+  transition: opacity 0.5s, transform 0.3s ease;
+  z-index: 1;
+}
+
+.nav-button:hover {
+  transform: scale(1.1);
+}
+
+.prev {
+  left: 15px;
+}
+
+.next {
+  right: 15px;
+}
+
+.photo-container:hover .nav-button {
+  opacity: 1;
+}
+
+.nav-button {
+  opacity: 0;
+}
+
+.thumbnail-bar {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.thumbnail {
+  width: 100px;
+  height: 75px;
+  object-fit: cover;
+  margin: 0 0.5rem;
+  cursor: pointer;
+  border: 4px solid transparent;
+  border-radius: 5px;
+  transition: border 0.3s, transform 0.3s ease;
+}
+
+.thumbnail:hover {
+  transform: scale(1.05);
+}
+
+.thumbnail.active {
+  border-color: #007bff;
+}

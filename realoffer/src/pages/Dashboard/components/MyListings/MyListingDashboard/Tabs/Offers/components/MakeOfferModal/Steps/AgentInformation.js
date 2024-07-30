@@ -9,9 +9,11 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
 
   const getRandomColor = useCallback(() => {
     const vibrantColors = [
-      '#FF6F61', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1',
-      '#955251', '#B565A7', '#009B77', '#DD4124', '#45B8AC',
-      '#EFC050', '#5B5EA6'
+        '#FF6F61', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1',
+        '#955251', '#B565A7', '#009B77', '#DD4124', '#45B8AC',
+        '#EFC050', '#5B5EA6', '#FF5733', '#C70039', '#900C3F',
+        '#581845', '#1F618D', '#28B463', '#D68910', '#AF7AC5',
+        '#2E86C1', '#F39C12', '#D35400', '#7D3C98', '#148F77'
     ];
     return vibrantColors[Math.floor(Math.random() * vibrantColors.length)];
   }, []);
