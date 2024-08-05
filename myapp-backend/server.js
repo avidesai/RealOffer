@@ -34,6 +34,7 @@ const buyerPackagesRouter = require('./routes/buyerPackages');
 const documentsRouter = require('./routes/documents');
 const viewersRouter = require('./routes/viewers');
 const offersRouter = require('./routes/offers');
+const activitiesRouter = require('./routes/activities'); // Add this line
 
 // Route Usage
 app.use('/api/users', usersRouter);
@@ -42,6 +43,7 @@ app.use('/api/buyerPackages', buyerPackagesRouter);
 app.use('/api/documents', documentsRouter);
 app.use('/api/viewers', viewersRouter);
 app.use('/api/offers', offersRouter);
+app.use('/api/activities', activitiesRouter); // Add this line
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
