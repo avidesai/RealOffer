@@ -45,16 +45,17 @@ exports.uploadDocument = async (req, res) => {
       const title = titles[index];
       const type = types[index];
       const size = file.size;
+      const contentType = file.mimetype;
+      const docType = contentType === 'application/pdf' ? 'pdf' : 'image';
 
       const blobName = `documents/${uuidv4()}-${file.originalname}`;
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
-      const contentType = file.mimetype === 'application/pdf' ? 'application/pdf' : file.mimetype;
       await blockBlobClient.uploadData(file.buffer, {
         blobHTTPHeaders: { blobContentType: contentType }
       });
 
-      const pages = file.mimetype === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
+      const pages = contentType === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
 
       const newDocument = new Document({
         title,
@@ -65,9 +66,10 @@ exports.uploadDocument = async (req, res) => {
         uploadedBy,
         propertyListing: propertyListingId,
         azureKey: blobName,
-        visibility, // Include visibility field
-        purpose, // Include purpose field
-        offer: offerId // Set the offer ID if provided
+        visibility,
+        purpose,
+        offer: offerId,
+        docType // Include the new docType field
       });
 
       const savedDocument = await newDocument.save();
@@ -104,17 +106,17 @@ exports.addDocumentToPropertyListing = async (req, res) => {
       const title = titles[index];
       const type = types[index];
       const size = file.size;
+      const contentType = file.mimetype;
+      const docType = contentType === 'application/pdf' ? 'pdf' : 'image';
 
       const blobName = `documents/${uuidv4()}-${file.originalname}`;
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
-      // Set content type to application/pdf if the file is a PDF
-      const contentType = file.mimetype === 'application/pdf' ? 'application/pdf' : file.mimetype;
       await blockBlobClient.uploadData(file.buffer, {
         blobHTTPHeaders: { blobContentType: contentType }
       });
 
-      const pages = file.mimetype === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
+      const pages = contentType === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
 
       const newDocument = new Document({
         title,
@@ -125,8 +127,9 @@ exports.addDocumentToPropertyListing = async (req, res) => {
         propertyListing: req.params.id,
         uploadedBy,
         azureKey: blobName,
-        visibility, // Include visibility field
-        purpose, // Include purpose field
+        visibility,
+        purpose,
+        docType // Include the new docType field
       });
 
       const savedDocument = await newDocument.save();
@@ -138,7 +141,7 @@ exports.addDocumentToPropertyListing = async (req, res) => {
 
     res.status(201).json(documents);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status500().json({ message: error.message });
   }
 };
 
@@ -163,17 +166,17 @@ exports.addDocumentToBuyerPackage = async (req, res) => {
       const title = titles[index];
       const type = types[index];
       const size = file.size;
+      const contentType = file.mimetype;
+      const docType = contentType === 'application/pdf' ? 'pdf' : 'image';
 
       const blobName = `documents/${uuidv4()}-${file.originalname}`;
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
-      // Set content type to application/pdf if the file is a PDF
-      const contentType = file.mimetype === 'application/pdf' ? 'application/pdf' : file.mimetype;
       await blockBlobClient.uploadData(file.buffer, {
         blobHTTPHeaders: { blobContentType: contentType }
       });
 
-      const pages = file.mimetype === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
+      const pages = contentType === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
 
       const newDocument = new Document({
         title,
@@ -184,8 +187,9 @@ exports.addDocumentToBuyerPackage = async (req, res) => {
         buyerPackage: req.params.id,
         uploadedBy,
         azureKey: blobName,
-        visibility, // Include visibility field
-        purpose, // Include purpose field
+        visibility,
+        purpose,
+        docType // Include the new docType field
       });
 
       const savedDocument = await newDocument.save();
@@ -197,7 +201,7 @@ exports.addDocumentToBuyerPackage = async (req, res) => {
 
     res.status(201).json(documents);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status500().json({ message: error.message });
   }
 };
 

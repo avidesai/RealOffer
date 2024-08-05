@@ -21,7 +21,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
     const droppedFiles = Array.from(e.dataTransfer.files);
     setFiles((prevFiles) => [
       ...prevFiles,
-      ...droppedFiles.map((file) => ({ file, type: '', title: file.name })),
+      ...droppedFiles.map((file) => ({ file, type: '', title: file.name, docType: getDocType(file) })),
     ]);
   };
 
@@ -29,7 +29,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
     const selectedFiles = Array.from(e.target.files);
     setFiles((prevFiles) => [
       ...prevFiles,
-      ...selectedFiles.map((file) => ({ file, type: '', title: file.name })),
+      ...selectedFiles.map((file) => ({ file, type: '', title: file.name, docType: getDocType(file) })),
     ]);
   };
 
@@ -53,6 +53,10 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
     );
   };
 
+  const getDocType = (file) => {
+    return file.type === 'application/pdf' ? 'pdf' : 'image';
+  };
+
   const handleUpload = async () => {
     const newErrors = [];
     if (files.length === 0) {
@@ -73,10 +77,11 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
     setUploading(true);
     try {
       const formData = new FormData();
-      files.forEach(({ file, type, title }) => {
+      files.forEach(({ file, type, title, docType }) => {
         formData.append('documents', file);
         formData.append('type[]', type);
         formData.append('title[]', title);
+        formData.append('docType[]', docType); // Add docType to form data
       });
 
       formData.append('purpose', 'listing'); // Ensure the purpose is set to "listing" only once
