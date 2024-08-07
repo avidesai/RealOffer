@@ -1,5 +1,3 @@
-// MakeOfferModal.js
-
 import React, { useState, useEffect, useCallback } from 'react';
 import './MakeOfferModal.css';
 import PurchasePrice from './Steps/PurchasePrice';
@@ -8,6 +6,7 @@ import AgentInformation from './Steps/AgentInformation';
 import OfferDetails from './Steps/OfferDetails';
 import Documents from './Steps/Documents';
 import FinalReview from './Steps/FinalReview';
+import AutoFillForms from './Steps/AutoFillForms/AutoFillForms';
 import axios from 'axios';
 
 const parseNumber = (value) => {
@@ -57,6 +56,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     documents: [],
     propertyListing: listingId,
     offerExpiryDate: '',
+    uploadedBy: '' // Add this field if it doesn't already exist
   });
 
   const handleNextStep = () => setStep(step + 1);
@@ -186,6 +186,21 @@ const MakeOfferModal = ({ onClose, listingId }) => {
           />
         )}
         {step === 6 && (
+          <AutoFillForms
+            formData={formData}
+            handleNextStep={handleNextStep}
+            handlePrevStep={handlePrevStep}
+            listingId={listingId}
+            onUploadSuccess={(uploadedDocument) => {
+              setFormData((prevData) => ({
+                ...prevData,
+                documents: [...prevData.documents, uploadedDocument],
+              }));
+              handleNextStep();
+            }}
+          />
+        )}
+        {step === 7 && (
           <FinalReview
             formData={formData}
             handlePrevStep={handlePrevStep}

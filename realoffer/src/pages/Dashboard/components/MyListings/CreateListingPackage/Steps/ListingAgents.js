@@ -18,12 +18,13 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
   }, [user, formData.agent1, handleChange]);
 
   return (
-    <div className="create-package-step">
+    <div className="clp-step">
       <h2>Listing Agents</h2>
       <select
         name="agent1"
         value={formData.agent1}
         onChange={handleChange}
+        className="clp-select"
       >
         {user && (
           <option value={user._id}>
@@ -31,10 +32,10 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
           </option>
         )}
       </select>
-      {errors.agent1 && <div className="error">{errors.agent1}</div>}
-      <div className='button-container'>
-        <button className="step-back-button" onClick={handlePrevStep}>Back</button>
-        <button className="next-button" onClick={handleNextStep}>Next</button>
+      {errors.agent1 && <div className="clp-error">{errors.agent1}</div>}
+      <div className='clp-button-container'>
+        <button className="clp-back-button" onClick={handlePrevStep}>Back</button>
+        <button className="clp-next-button" onClick={handleNextStep}>Next</button>
       </div>
     </div>
   );

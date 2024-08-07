@@ -1,4 +1,4 @@
-// CreateListingPackageForm.js
+// /CreateListingPackage/CreateListingPackageForm.js
 
 import React from 'react';
 import './CreateListingPackage.css';
@@ -21,16 +21,16 @@ const CreateListingPackageForm = ({
   loading, // Add loading prop
   onClose
 }) => (
-  <div className="create-package-modal">
+  <div className="clp-modal">
     {loading && (
-      <div className="spinner-overlay">
-        <div className="spinner"></div>
+      <div className="clp-spinner-overlay">
+        <div className="clp-spinner"></div>
       </div>
     )}
-    <div className="create-package-content">
-      <button className="create-listing-package-close-button" onClick={onClose}></button>
-      <h1 className="create-package-title">Create Listing Package</h1>
-      <hr className="create-package-divider" />
+    <div className="clp-content">
+      <button className="clp-close-button" onClick={onClose}></button>
+      <h1 className="clp-title">Create Listing Package</h1>
+      <hr className="clp-divider" />
       {step === 1 && (
         <Role
           formData={formData}

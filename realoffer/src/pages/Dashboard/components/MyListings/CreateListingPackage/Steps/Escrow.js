@@ -3,7 +3,7 @@
 import React from 'react';
 
 const Escrow = ({ formData, handleChange, handleNextStep, handlePrevStep }) => (
-  <div className="create-package-step">
+  <div className="clp-step">
     <h2>Escrow</h2>
     <input
       type="text"
@@ -11,6 +11,7 @@ const Escrow = ({ formData, handleChange, handleNextStep, handlePrevStep }) => (
       placeholder="Company Name"
       value={formData.companyName}
       onChange={handleChange}
+      className="clp-input"
     />
     <input
       type="text"
@@ -18,6 +19,7 @@ const Escrow = ({ formData, handleChange, handleNextStep, handlePrevStep }) => (
       placeholder="Escrow Officer Name"
       value={formData.officerName}
       onChange={handleChange}
+      className="clp-input"
     />
     <input
       type="text"
@@ -25,6 +27,7 @@ const Escrow = ({ formData, handleChange, handleNextStep, handlePrevStep }) => (
       placeholder="Escrow Officer Phone"
       value={formData.officerPhone}
       onChange={handleChange}
+      className="clp-input"
     />
     <input
       type="text"
@@ -32,6 +35,7 @@ const Escrow = ({ formData, handleChange, handleNextStep, handlePrevStep }) => (
       placeholder="Escrow Officer Email"
       value={formData.officerEmail}
       onChange={handleChange}
+      className="clp-input"
     />
     <input
       type="text"
@@ -39,10 +43,11 @@ const Escrow = ({ formData, handleChange, handleNextStep, handlePrevStep }) => (
       placeholder="Escrow Number (Optional)"
       value={formData.officerNumber}
       onChange={handleChange}
+      className="clp-input"
     />
-    <div className='button-container'>
-      <button className="step-back-button" onClick={handlePrevStep}>Back</button>
-      <button className="next-button" onClick={handleNextStep}>Next</button>
+    <div className='clp-button-container'>
+      <button className="clp-back-button" onClick={handlePrevStep}>Back</button>
+      <button className="clp-next-button" onClick={handleNextStep}>Next</button>
     </div>
   </div>
 );

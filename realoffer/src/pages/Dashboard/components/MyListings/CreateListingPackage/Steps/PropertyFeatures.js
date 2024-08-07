@@ -1,4 +1,4 @@
-// PropertyFeatures.js
+// /CreateListingPackage/Steps/PropertyFeatures.js
 
 import React from 'react';
 
@@ -30,13 +30,13 @@ const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, hand
   };
 
   return (
-    <div className="create-package-step">
+    <div className="clp-step">
       <h2>Property Features</h2>
       <select
         name="propertyType"
         value={formData.propertyType}
         onChange={handleChange}
-        className="form-select"
+        className="clp-select"
       >
         <option value="">Select Property Type</option>
         <option value="singleFamily">Single Family Home</option>
@@ -46,72 +46,72 @@ const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, hand
         <option value="land">Land</option>
         <option value="commercial">Commercial</option>
       </select>
-      {errors.propertyType && <div className="error">{errors.propertyType}</div>}
+      {errors.propertyType && <div className="clp-error">{errors.propertyType}</div>}
       <input
         type="text"
         name="askingPrice"
         placeholder="List Price"
         value={formatCurrency(formData.askingPrice)}
         onChange={handleFormattedChange}
-        className="form-input"
+        className="clp-input"
       />
-      {errors.askingPrice && <div className="error">{errors.askingPrice}</div>}
+      {errors.askingPrice && <div className="clp-error">{errors.askingPrice}</div>}
       <input
         type="number"
         name="bedrooms"
         placeholder="Bedrooms"
         value={formData.bedrooms}
         onChange={handleChange}
-        className="form-input"
+        className="clp-input"
       />
-      {errors.bedrooms && <div className="error">{errors.bedrooms}</div>}
+      {errors.bedrooms && <div className="clp-error">{errors.bedrooms}</div>}
       <input
         type="number"
         name="bathrooms"
         placeholder="Bathrooms"
         value={formData.bathrooms}
         onChange={handleChange}
-        className="form-input"
+        className="clp-input"
       />
-      {errors.bathrooms && <div className="error">{errors.bathrooms}</div>}
+      {errors.bathrooms && <div className="clp-error">{errors.bathrooms}</div>}
       <input
         type="number"
         name="yearBuilt"
         placeholder="Year Built"
         value={formData.yearBuilt}
         onChange={handleChange}
-        className="form-text-input"
+        className="clp-input"
       />
-      {errors.yearBuilt && <div className="error">{errors.yearBuilt}</div>}
+      {errors.yearBuilt && <div className="clp-error">{errors.yearBuilt}</div>}
       <input
         type="text"
         name="sqFootage"
         placeholder="Square Footage"
         value={formatNumber(formData.sqFootage)}
         onChange={handleFormattedChange}
-        className="form-input"
+        className="clp-input"
       />
-      {errors.sqFootage && <div className="error">{errors.sqFootage}</div>}
+      {errors.sqFootage && <div className="clp-error">{errors.sqFootage}</div>}
       <input
         type="text"
         name="lotSize"
         placeholder="Lot Size"
         value={formatNumber(formData.lotSize)}
         onChange={handleFormattedChange}
-        className="form-input"
+        className="clp-input"
       />
-      {errors.lotSize && <div className="error">{errors.lotSize}</div>}
+      {errors.lotSize && <div className="clp-error">{errors.lotSize}</div>}
       <textarea
         name="description"
         placeholder="Description"
         value={formData.description}
         onChange={handleChange}
         rows="4"
-        className="form-textarea"
+        className="clp-textarea"
       />
-      <div className='button-container'>
-        <button className="step-back-button" onClick={handlePrevStep}>Back</button>
-        <button className="next-button" onClick={handleNextStep}>Next</button>
+      <div className='clp-button-container'>
+        <button className="clp-back-button" onClick={handlePrevStep}>Back</button>
+        <button className="clp-next-button" onClick={handleNextStep}>Next</button>
       </div>
     </div>
   );

@@ -3,9 +3,9 @@
 import React from 'react';
 
 const Role = ({ formData, errors, handleChange, handleNextStep }) => (
-  <div className="create-package-step">
+  <div className="clp-step">
     <h2>Role</h2>
-    <div className='radio-buttons-container'>
+    <div className='clp-radio-buttons-container'>
       <label>
         <input
           type="radio"
@@ -26,10 +26,10 @@ const Role = ({ formData, errors, handleChange, handleNextStep }) => (
         />
         I represent the Buyer
       </label>
-      {errors.role && <div className="error">{errors.role}</div>}
+      {errors.role && <div className="clp-error">{errors.role}</div>}
     </div>
-    <div className='button-container'>
-      <button className="next-button" onClick={handleNextStep}>Next</button>
+    <div className='clp-button-container'>
+      <button className="clp-next-button" onClick={handleNextStep}>Next</button>
     </div>
   </div>
 );
