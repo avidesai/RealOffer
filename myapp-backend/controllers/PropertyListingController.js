@@ -1,4 +1,4 @@
-// controllers/PropertyListingController.js
+// /controllers/PropertyListingController.js
 
 const PropertyListing = require('../models/PropertyListing');
 const User = require('../models/User');
@@ -37,10 +37,9 @@ exports.getListingById = async (req, res) => {
   }
 };
 
-
 exports.createListing = async (req, res) => {
   const {
-    role, address, city, state, zip, propertyType, askingPrice, bedrooms,
+    role, address, city, state, zip, county, apn, propertyType, askingPrice, bedrooms,
     bathrooms, yearBuilt, sqFootage, lotSize, description, agent1, agent2,
     companyName, officerName, officerPhone, officerEmail, officerNumber
   } = req.body;
@@ -59,7 +58,7 @@ exports.createListing = async (req, res) => {
   const newListing = new PropertyListing({
     role,
     homeCharacteristics: {
-      address, city, state, zip, propertyType, price: askingPrice, beds: bedrooms,
+      address, city, state, zip, county, apn, propertyType, price: askingPrice, beds: bedrooms,
       baths: bathrooms, squareFootage: sqFootage, lotSize, yearBuilt
     },
     description,
@@ -92,7 +91,6 @@ exports.createListing = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
-
 
 exports.updateListing = async (req, res) => {
   try {

@@ -15,6 +15,8 @@ const propertyListingSchema = new mongoose.Schema({
         city: String,
         state: String,
         zip: String,
+        county: String,
+        apn: String,
         beds: {
             type: Number,
             required: true
