@@ -50,6 +50,15 @@ const Address = ({ formData, errors, handleChange, handleNextStep, handlePrevSte
       className="clp-input"
     />
     {errors.county && <div className="clp-error">{errors.county}</div>}
+    <input
+      type="text"
+      name="apn"
+      placeholder="Accessory Parcel Number (APN)"
+      value={formData.apn}
+      onChange={handleChange}
+      className="clp-input"
+    />
+    {errors.apn && <div className="clp-error">{errors.apn}</div>}
     <div className='clp-button-container'>
       <button className="clp-back-button" onClick={handlePrevStep}>Back</button>
       <button className="clp-next-button" onClick={handleNextStep}>Next</button>

@@ -1,23 +1,28 @@
 .auto-fill-forms {
-    padding: 1rem;
+    width: 100%;
   }
   
-  .auto-fill-forms h2 {
-    font-size: 1.5rem;
+  .modal-step {
     margin-bottom: 1rem;
+    font-size: 1.2rem;
   }
   
-  .auto-fill-forms .form-group {
+  .modal-step h2 {
+    font-size: 1.5em;
+    margin-bottom: 1rem;
+    color: #555555;
+  }
+  
+  .form-group {
     margin-bottom: 1.5rem;
   }
   
-  .auto-fill-forms label {
+  .form-group label {
     display: block;
     font-weight: bold;
-    margin-bottom: 0.5rem;
   }
   
-  .auto-fill-forms select {
+  .form-group select {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid #dddddd;
@@ -26,14 +31,14 @@
     box-sizing: border-box;
   }
   
-  .auto-fill-forms .button-container {
+  .button-container {
     display: flex;
     justify-content: space-between;
     padding-top: 1.5rem;
   }
   
-  .auto-fill-forms .step-back-button,
-  .auto-fill-forms .next-button {
+  .step-back-button,
+  .next-button {
     color: #ffffff;
     padding: 0.8rem 1.2rem;
     font-size: 1.2rem;
@@ -44,13 +49,13 @@
     transition: background-color 0.5s ease;
   }
   
-  .auto-fill-forms .step-back-button {
+  .step-back-button {
     background-color: #a09f9f;
     width: 46%;
     margin-left: 0.55rem;
   }
   
-  .auto-fill-forms .next-button {
+  .next-button {
     background-color: #007bff;
     width: 46%;
     display: flex;
@@ -59,12 +64,12 @@
     margin-right: 0.55rem;
   }
   
-  .auto-fill-forms .step-back-button:hover {
+  .step-back-button:hover {
     background-color: #7c7b7b;
     cursor: pointer;
   }
   
-  .auto-fill-forms .next-button:hover {
+  .next-button:hover {
     background-color: #0056b3;
     cursor: pointer;
   }

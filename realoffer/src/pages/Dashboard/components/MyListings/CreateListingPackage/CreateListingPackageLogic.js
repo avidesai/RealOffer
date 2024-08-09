@@ -45,6 +45,7 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
       if (!formData.state) newErrors.state = 'State is required';
       if (!formData.zip) newErrors.zip = 'Zip Code is required';
       if (!formData.county) newErrors.county = 'County is required';
+      if (!formData.apn) newErrors.apn = 'Accessory Parcel Number (APN) is required';
     }
     if (step === 3) {
       if (!formData.propertyType) newErrors.propertyType = 'Property Type is required';

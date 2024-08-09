@@ -65,7 +65,7 @@ const Terms = ({ offer }) => (
     </div>
     <div className="term">
       <p className="label">Seller Rent Back</p>
-      <p className="value">{offer.sellerRentBack} Days</p>
+      <p className="value">{formatContingency(offer.sellerRentBack)}</p>
     </div>
     <div className="term">
       <p className="label">Close of Escrow</p>

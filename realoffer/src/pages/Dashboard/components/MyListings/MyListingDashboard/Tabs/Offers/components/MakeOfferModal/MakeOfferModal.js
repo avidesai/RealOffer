@@ -56,7 +56,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     documents: [],
     propertyListing: listingId,
     offerExpiryDate: '',
-    uploadedBy: '' // Add this field if it doesn't already exist
+    uploadedBy: ''
   });
 
   const handleNextStep = () => setStep(step + 1);
@@ -177,27 +177,20 @@ const MakeOfferModal = ({ onClose, listingId }) => {
           />
         )}
         {step === 5 && (
+          <AutoFillForms
+            formData={formData}
+            handleNextStep={handleNextStep}
+            handlePrevStep={handlePrevStep}
+            listingId={listingId}
+          />
+        )}
+        {step === 6 && (
           <Documents
             formData={formData}
             handleNextStep={handleNextStep}
             handlePrevStep={handlePrevStep}
             setFormData={setFormData}
             listingId={listingId}
-          />
-        )}
-        {step === 6 && (
-          <AutoFillForms
-            formData={formData}
-            handleNextStep={handleNextStep}
-            handlePrevStep={handlePrevStep}
-            listingId={listingId}
-            onUploadSuccess={(uploadedDocument) => {
-              setFormData((prevData) => ({
-                ...prevData,
-                documents: [...prevData.documents, uploadedDocument],
-              }));
-              handleNextStep();
-            }}
           />
         )}
         {step === 7 && (
