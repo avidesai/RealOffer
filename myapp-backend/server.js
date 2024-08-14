@@ -8,7 +8,7 @@ const app = express();
 
 // Optional: Specific CORS configuration
 const corsOptions = {
-  origin: 'http://localhost:3000', // your frontend domain
+  origin: 'real-offer-eight.vercel.app', // your frontend domain
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true, // Enable credentials if needed
   optionsSuccessStatus: 204,
