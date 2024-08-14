@@ -21,7 +21,7 @@ function ForBuyers({ onCreatePackageClick }) {
       if (user?._id) {
         setLoading(true);
         try {
-          const response = await axios.get(`http://localhost:8000/api/users/${user._id}/buyerPackages`);
+          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}/buyerPackages`);
           setBuyerPackages(response.data);
           setError(''); // Reset the error on successful fetch
         } catch (error) {

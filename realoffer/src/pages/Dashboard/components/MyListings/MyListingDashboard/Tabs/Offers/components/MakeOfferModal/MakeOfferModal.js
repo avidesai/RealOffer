@@ -112,7 +112,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     formDataToSend.append('propertyListingId', listingId);
 
     try {
-      const response = await axios.post('http://localhost:8000/api/offers', formDataToSend, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/offers`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

@@ -13,7 +13,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
 
   const fetchDocuments = useCallback(async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/documents/${listingId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`);
       const listingDocuments = response.data.filter(doc => doc.purpose === 'listing'); // Filter documents
       setDocuments(listingDocuments);
     } catch (error) {
@@ -41,7 +41,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
   const handleCreateSignaturePackage = async () => {
     setIsLoading(true);
     try {
-      await axios.post('http://localhost:8000/api/documents/createBuyerSignaturePacket', { listingId });
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents/createBuyerSignaturePacket`, { listingId });
       onClose();
       refreshDocuments();
     } catch (error) {

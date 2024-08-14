@@ -16,7 +16,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
 
   const fetchListing = useCallback(async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/propertyListings/${listingId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`);
       setListing(response.data);
     } catch (error) {
       console.error('Error fetching listing:', error);
@@ -59,7 +59,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     }
 
     try {
-      await axios.put(`http://localhost:8000/api/propertyListings/${listingId}`, updatedField);
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, updatedField);
       setListing(prevState => ({
         ...prevState,
         ...updatedField

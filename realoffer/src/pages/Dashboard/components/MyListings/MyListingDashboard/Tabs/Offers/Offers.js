@@ -25,7 +25,7 @@ const Offers = ({ listingId }) => {
   const fetchOffers = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:8000/api/propertyListings/${listingId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`);
       setOffers(response.data.offers);
       setPropertyListing(response.data); // Set the propertyListing state
       setTotalPages(Math.ceil(response.data.offers.length / 4)); // 4 offers per page

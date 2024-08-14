@@ -20,7 +20,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
 
   const fetchUserData = useCallback(async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/users/${user._id}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}`);
       const userData = response.data;
       handleNestedChange({ target: { name: 'name', value: `${userData.firstName} ${userData.lastName}` } }, 'presentedBy');
       handleNestedChange({ target: { name: 'licenseNumber', value: userData.agentLicenseNumber || '' } }, 'presentedBy');

@@ -12,7 +12,7 @@ function ListingItem({ listing, onStatusChange }) {
     const fetchAgents = async () => {
       const agentDetails = await Promise.all(
         listing.agentIds.map(async (id) => {
-          const response = await axios.get(`http://localhost:8000/api/users/${id}`);
+          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`);
           return response.data;
         })
       );
@@ -26,7 +26,7 @@ function ListingItem({ listing, onStatusChange }) {
     e.stopPropagation();
     try {
       const newStatus = status === 'active' ? 'archived' : 'active';
-      await axios.put(`http://localhost:8000/api/propertyListings/${listing._id}`, { status: newStatus });
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listing._id}`, { status: newStatus });
       setStatus(newStatus);
       onStatusChange(listing._id, newStatus); // Notify parent of status change
     } catch (error) {

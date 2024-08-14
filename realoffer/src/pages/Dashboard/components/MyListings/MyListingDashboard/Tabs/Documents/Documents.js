@@ -21,7 +21,7 @@ const Documents = ({ listingId }) => {
   const fetchDocuments = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:8000/api/documents/${listingId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`);
       const listingDocuments = response.data.filter(doc => doc.purpose === 'listing');
       setDocuments(listingDocuments);
     } catch (error) {
@@ -56,7 +56,7 @@ const Documents = ({ listingId }) => {
   const handleDeleteDocument = async (id) => {
     setLoading(true);
     try {
-      await axios.delete(`http://localhost:8000/api/documents/${id}`);
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${id}`);
       fetchDocuments();
     } catch (error) {
       console.error('Error deleting document:', error);
@@ -68,7 +68,7 @@ const Documents = ({ listingId }) => {
   const handleDeleteSelectedDocuments = async () => {
     setLoading(true);
     try {
-      await Promise.all(selectedDocuments.map((id) => axios.delete(`http://localhost:8000/api/documents/${id}`)));
+      await Promise.all(selectedDocuments.map((id) => axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${id}`)));
       setSelectedDocuments([]);
       fetchDocuments();
     } catch (error) {

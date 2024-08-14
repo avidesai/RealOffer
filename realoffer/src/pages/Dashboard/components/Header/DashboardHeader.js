@@ -44,7 +44,7 @@ function DashboardHeader({ activeTab, setActiveTab }) {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/users/${user._id}`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}`);
         setUserData(response.data);
       } catch (error) {
         console.error('Error fetching user data:', error);

@@ -55,7 +55,7 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
 
   const handleNotesBlur = async () => {
     try {
-      await axios.put(`http://localhost:8000/api/offers/${offer._id}/private-notes`, {
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/private-notes`, {
         privateListingTeamNotes: notes,
       });
     } catch (error) {
@@ -66,7 +66,7 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
   const handleViewClick = async () => {
     if (status === 'submitted') {
       try {
-        const response = await axios.put(`http://localhost:8000/api/offers/${offer._id}/status`, {
+        const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/status`, {
           offerStatus: 'under review',
         });
         const updatedOffer = response.data;

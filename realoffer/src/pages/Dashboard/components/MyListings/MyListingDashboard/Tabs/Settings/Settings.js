@@ -11,7 +11,7 @@ const Settings = ({ listing, onStatusChange }) => {
     setLoading(true);
     try {
       const newStatus = listing.status === 'active' ? 'archived' : 'active';
-      await axios.put(`http://localhost:8000/api/propertyListings/${listing._id}`, { status: newStatus });
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listing._id}`, { status: newStatus });
       console.log(`Package ${newStatus}`);
       onStatusChange(listing._id, newStatus); // Notify parent of status change
     } catch (error) {
@@ -23,7 +23,7 @@ const Settings = ({ listing, onStatusChange }) => {
   const handleDeletePackage = async () => {
     setLoading(true);
     try {
-      await axios.delete(`http://localhost:8000/api/propertyListings/${listing._id}`);
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listing._id}`);
       console.log('Package deleted');
       navigate('/mylistings');
     } catch (error) {

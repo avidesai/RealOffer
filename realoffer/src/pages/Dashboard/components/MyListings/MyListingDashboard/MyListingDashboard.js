@@ -18,7 +18,7 @@ function MyListingDashboard() {
   useEffect(() => {
     const fetchListingDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/propertyListings/${id}`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${id}`);
         setListing(response.data);
         setLoading(false);
       } catch (error) {

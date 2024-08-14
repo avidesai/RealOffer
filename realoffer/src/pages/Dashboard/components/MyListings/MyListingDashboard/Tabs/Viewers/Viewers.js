@@ -11,7 +11,7 @@ const Viewers = ({ listingId }) => {
   useEffect(() => {
     const fetchViewers = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/viewers/${listingId}`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/viewers/${listingId}`);
         setViewers(response.data);
       } catch (error) {
         console.error('Error fetching viewers:', error);

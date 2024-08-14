@@ -17,7 +17,7 @@ const useProfileLogic = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/users/${user._id}`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}`);
         setProfileData(response.data);
         setLoading(false);
         setNoLicense(!response.data.agentLicenseNumber);
@@ -40,7 +40,7 @@ const useProfileLogic = () => {
     debounceTimer.current[id] = setTimeout(async () => {
       setUpdating({ ...updating, [id]: true });
       try {
-        await axios.put(`http://localhost:8000/api/users/${user._id}`, { [id]: value });
+        await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}`, { [id]: value });
       } catch (error) {
         console.error('Error updating user data:', error);
       } finally {
@@ -60,7 +60,7 @@ const useProfileLogic = () => {
     formData.append('field', field);
 
     try {
-      const response = await axios.put(`http://localhost:8000/api/users/${user._id}/upload-photo`, formData, {
+      const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}/upload-photo`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -81,7 +81,7 @@ const useProfileLogic = () => {
     if (isChecked) {
       setProfileData({ ...profileData, agentLicenseNumber: '' });
       setUpdating({ ...updating, agentLicenseNumber: true });
-      axios.put(`http://localhost:8000/api/users/${user._id}`, { agentLicenseNumber: '' })
+      axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}`, { agentLicenseNumber: '' })
         .then(() => setUpdating({ ...updating, agentLicenseNumber: false }))
         .catch(error => {
           console.error('Error updating user data:', error);

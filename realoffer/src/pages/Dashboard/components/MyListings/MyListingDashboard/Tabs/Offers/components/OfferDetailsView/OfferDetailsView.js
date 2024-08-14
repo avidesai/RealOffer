@@ -17,11 +17,11 @@ const OfferDetailsView = ({ offerId, onBack }) => {
   useEffect(() => {
     const fetchOffer = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/offers/${offerId}`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offerId}`);
         const offerData = response.data;
   
         // Fetch documents for the offer
-        const documentsResponse = await axios.get(`http://localhost:8000/api/documents/offer/${offerId}`);
+        const documentsResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/offer/${offerId}`);
         offerData.documents = documentsResponse.data;
   
         setOffer(offerData);
@@ -42,7 +42,7 @@ const OfferDetailsView = ({ offerId, onBack }) => {
 
   const handleNotesBlur = async () => {
     try {
-      await axios.put(`http://localhost:8000/api/offers/${offer._id}/private-notes`, {
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/private-notes`, {
         privateListingTeamNotes: notes,
       });
     } catch (error) {

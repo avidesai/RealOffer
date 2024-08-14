@@ -37,7 +37,7 @@ function RespondToOfferModal({ isOpen, onClose, offer, propertyListing }) {
 
   const handleSubmit = async () => {
     try {
-      await axios.post(`http://localhost:8000/api/offers/${offer._id}/respond`, {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/respond`, {
         responseType: response,
         subject,
         message

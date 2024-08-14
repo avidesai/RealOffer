@@ -11,7 +11,7 @@ function BuyerItem({ listing }) {
     const fetchAgents = async () => {
       const agentDetails = await Promise.all(
         listing.agentIds.map(async (id) => {
-          const response = await axios.get(`http://localhost:8000/api/users/${id}`);
+          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`);
           return response.data;
         })
       );

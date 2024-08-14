@@ -94,7 +94,7 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
     }
 
     try {
-      const response = await axios.post('http://localhost:8000/api/propertyListings', formDataToSend, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

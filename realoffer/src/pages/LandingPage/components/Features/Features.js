@@ -5,8 +5,6 @@ import { Link } from 'react-router-dom'; // Import Link
 import './Features.css';
 import chart from './chart.svg'
 import chat from './chat.svg'
-import dollar from './dollar.svg'
-import valuation from './valuation.svg'
 import clipboard from './clipboard.svg'
 import offer from './offer.svg'
 import notifications from './notifications.svg'

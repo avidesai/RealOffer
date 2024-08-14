@@ -16,7 +16,7 @@ const EditEmailModal = ({ isOpen, onClose }) => {
     }
 
     try {
-      await axios.put(`http://localhost:8000/api/users/${user._id}`, { email: newEmail });
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}`, { email: newEmail });
       onClose();
       window.location.reload(); // Refresh the page to fetch the updated email
     } catch (error) {

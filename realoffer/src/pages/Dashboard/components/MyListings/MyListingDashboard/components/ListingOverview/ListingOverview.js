@@ -18,7 +18,7 @@ function ListingOverview({ listing }) {
       try {
         const agentDetails = await Promise.all(
           currentListing.agentIds.map(async (id) => {
-            const response = await axios.get(`http://localhost:8000/api/users/${id}`);
+            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`);
             return response.data;
           })
         );
@@ -34,7 +34,7 @@ function ListingOverview({ listing }) {
   const handleRefreshListing = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:8000/api/propertyListings/${currentListing._id}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${currentListing._id}`);
       setCurrentListing(response.data);
     } catch (error) {
       console.error('Error refreshing listing:', error);

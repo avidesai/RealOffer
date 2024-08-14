@@ -23,7 +23,7 @@ const Messages = ({ offer }) => {
     const fetchAgentImageUrl = async () => {
       try {
         // Fetch user data to get profile photo URL
-        const response = await axios.get(`http://localhost:8000/api/users/${user._id}`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}`);
         const userData = response.data;
         setAgentImageUrl(userData.profilePhotoUrl);
       } catch (error) {

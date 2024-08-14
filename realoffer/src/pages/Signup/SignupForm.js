@@ -53,7 +53,7 @@ function SignupForm() {
     const { confirmPassword, ...userData } = formData;
 
     try {
-      const response = await axios.post('http://localhost:8000/api/users', userData);
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users`, userData);
       console.log('User created:', response.data);
       await login(formData.email, formData.password);
       navigate('/dashboard');

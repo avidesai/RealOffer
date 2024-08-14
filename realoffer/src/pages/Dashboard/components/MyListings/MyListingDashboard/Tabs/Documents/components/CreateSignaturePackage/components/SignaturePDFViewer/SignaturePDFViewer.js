@@ -30,7 +30,7 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
 
   const handlePageSelect = async (pageIndex) => {
     const isSelected = localSelectedPages.includes(pageIndex);
-    const url = `http://localhost:8000/api/documents/${isSelected ? 'removePage' : 'addPage'}`;
+    const url = `${process.env.REACT_APP_BACKEND_URL}/api/documents/${isSelected ? 'removePage' : 'addPage'}`;
     setLocalSelectedPages((prev) =>
       prev.includes(pageIndex) ? prev.filter((page) => page !== pageIndex) : [...prev, pageIndex]
     );

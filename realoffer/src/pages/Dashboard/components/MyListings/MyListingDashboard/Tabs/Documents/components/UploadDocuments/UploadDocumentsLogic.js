@@ -88,7 +88,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
       formData.append('uploadedBy', user._id); // Assuming user._id contains the user's ID
       formData.append('propertyListingId', listingId); // Add the property listing ID
 
-      await axios.post(`http://localhost:8000/api/documents`, formData, {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

@@ -23,7 +23,7 @@ function MyListings() {
     if (user?._id) {
       setLoading(true);
       try {
-        const response = await axios.get(`http://localhost:8000/api/users/${user._id}/listingPackages`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}/listingPackages`);
         setListings(response.data.listingPackages);
         setError(''); // Reset the error on successful fetch
       } catch (error) {
@@ -91,7 +91,7 @@ function MyListings() {
   const handleStatusChange = async (listingId, newStatus) => {
     setLoading(true);
     try {
-      await axios.put(`http://localhost:8000/api/propertyListings/${listingId}`, { status: newStatus });
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, { status: newStatus });
       await fetchUserDetails(); // Re-fetch listings to update the displayed list
     } catch (error) {
       console.error('Failed to update listing status:', error);

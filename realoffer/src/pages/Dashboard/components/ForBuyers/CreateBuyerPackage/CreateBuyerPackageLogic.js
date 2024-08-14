@@ -91,7 +91,7 @@ const CreateBuyerPackageLogic = ({ onClose, addNewBuyerPackage }) => {
     }
 
     try {
-      const response = await axios.post('http://localhost:8000/api/buyerPackages', formDataToSend, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

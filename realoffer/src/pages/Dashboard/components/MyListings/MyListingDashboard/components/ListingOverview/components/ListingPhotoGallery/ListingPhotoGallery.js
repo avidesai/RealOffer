@@ -6,13 +6,13 @@ import './ListingPhotoGallery.css';
 const ListingPhotoGallery = ({ images, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     setCurrentIndex((prevIndex) => (prevIndex === 0 ? images.length - 1 : prevIndex - 1));
-  };
+  }, [images.length]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
-  };
+  }, [images.length]);
 
   const handleKeyDown = useCallback((event) => {
     if (event.key === 'ArrowLeft') {
@@ -20,7 +20,7 @@ const ListingPhotoGallery = ({ images, onClose }) => {
     } else if (event.key === 'ArrowRight') {
       handleNext();
     }
-  }, []);
+  }, [handlePrev, handleNext]);
 
   useEffect(() => {
     if (images.length > 0) {
@@ -39,7 +39,7 @@ const ListingPhotoGallery = ({ images, onClose }) => {
         </div>
         <div className="photo-container">
           <button className="nav-button prev" onClick={handlePrev}>&#8249;</button>
-          <img src={images[currentIndex]} alt={`Photo ${currentIndex + 1}`} className="main-photo" />
+          <img src={images[currentIndex]} alt={``} className="main-photo" />
           <button className="nav-button next" onClick={handleNext}>&#8250;</button>
         </div>
         <div className="thumbnail-bar">

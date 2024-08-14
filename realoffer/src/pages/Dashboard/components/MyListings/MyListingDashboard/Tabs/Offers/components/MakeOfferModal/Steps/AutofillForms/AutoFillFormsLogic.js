@@ -12,12 +12,12 @@ const useAutoFillFormsLogic = ({ formData, listingId, onUploadSuccess }) => {
   useEffect(() => {
     const fetchListingData = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/propertyListings/${listingId}`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`);
         setListingData(response.data);
 
         const agentId = response.data.agentIds[0];
         if (agentId) {
-          const agentResponse = await axios.get(`http://localhost:8000/api/users/${agentId}`);
+          const agentResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${agentId}`);
           setAgentData(agentResponse.data);
         }
       } catch (error) {
@@ -114,7 +114,7 @@ const useAutoFillFormsLogic = ({ formData, listingId, onUploadSuccess }) => {
         formDataToSend.append('uploadedBy', formData.uploadedBy);
         formDataToSend.append('propertyListingId', listingId);
 
-        const response = await axios.post('http://localhost:8000/api/documents', formDataToSend, {
+        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formDataToSend, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },

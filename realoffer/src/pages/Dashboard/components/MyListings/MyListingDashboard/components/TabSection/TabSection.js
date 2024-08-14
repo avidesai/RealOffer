@@ -21,7 +21,7 @@ const TabSection = ({ listing }) => {
     setLoading(true);
     try {
       // Fetch the updated listing
-      const response = await axios.get(`http://localhost:8000/api/propertyListings/${listingId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`);
       setUpdatedListing(response.data);
     } catch (error) {
       console.error('Error fetching updated listing:', error);
