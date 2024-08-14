@@ -50,53 +50,53 @@ function ListingOverview({ listing }) {
   return (
     <div className="listing-overview">
       {loading && (
-        <div className="listing-overview-spinner-container">
+        <div className="listing-overview-spinner-overlay">
           <div className="listing-overview-spinner"></div>
         </div>
       )}
-      {!loading && (
-        <>
-          <div className="overview-header">
-            <div className="overview-image" onClick={() => setShowGallery(true)}>
-              <img src={currentListing.imagesUrls[0]} alt="Property" className="property-image" />
-            </div>
-            <div className="overview-details">
-              <h1 className="property-address">{currentListing.homeCharacteristics.address}</h1>
-              <p className="property-location">{currentListing.homeCharacteristics.city}, {currentListing.homeCharacteristics.state} {currentListing.homeCharacteristics.zip}</p>
-              <p className="property-price">${formatPrice(currentListing.homeCharacteristics.price)} | {currentListing.homeCharacteristics.beds} Bed, {currentListing.homeCharacteristics.baths} Bath</p>
-              <div className="overview-buttons">
-                <button className="overview-btn-share-package">Share Listing</button>
-                <button className="overview-btn" onClick={() => setShowMoreInfo(true)}>Edit Info</button>
-                <button className="overview-btn" onClick={() => setShowGallery(true)}>View Images</button>
-              </div>
-            </div>
-            <div className="overview-agents">
-              {agents.map(agent => (
-                <div key={agent._id} className="listing-overview-agent-info">
-                  <img src={agent.profilePhotoUrl} alt={agent.firstName} className="listing-overview-agent-image" />
-                  <p>{agent.firstName} {agent.lastName}</p>
-                </div>
-              ))}
+      <div className={`listing-content ${loading ? 'blurred' : ''}`}>
+        <div className="overview-header">
+          <div className="overview-image" onClick={() => setShowGallery(true)}>
+            <img src={currentListing.imagesUrls[0]} alt="Property" className="property-image" />
+          </div>
+          <div className="overview-details">
+            <h1 className="property-address">{currentListing.homeCharacteristics.address}</h1>
+            <p className="property-location">{currentListing.homeCharacteristics.city}, {currentListing.homeCharacteristics.state} {currentListing.homeCharacteristics.zip}</p>
+            <p className="property-price">${formatPrice(currentListing.homeCharacteristics.price)} | {currentListing.homeCharacteristics.beds} Bed, {currentListing.homeCharacteristics.baths} Bath</p>
+            <div className="overview-buttons">
+              <button className="overview-btn-share-package">Share Listing</button>
+              <button className="overview-btn">Manage Showings</button>
+              <button className="overview-btn" onClick={() => setShowMoreInfo(true)}>Edit Info</button>
+              <button className="overview-btn" onClick={() => setShowGallery(true)}>View Images</button>
+
             </div>
           </div>
-          {showMoreInfo && (
-            <MoreInfo
-              isOpen={showMoreInfo}
-              onClose={() => {
-                setShowMoreInfo(false);
-                handleRefreshListing();
-              }}
-              listingId={currentListing._id}
-            />
-          )}
-          {showGallery && (
-            <ListingPhotoGallery
-              images={currentListing.imagesUrls}
-              onClose={() => setShowGallery(false)}
-            />
-          )}
-        </>
-      )}
+          <div className="overview-agents">
+            {agents.map(agent => (
+              <div key={agent._id} className="listing-overview-agent-info">
+                <img src={agent.profilePhotoUrl} alt={agent.firstName} className="listing-overview-agent-image" />
+                <p>{agent.firstName} {agent.lastName}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        {showMoreInfo && (
+          <MoreInfo
+            isOpen={showMoreInfo}
+            onClose={() => {
+              setShowMoreInfo(false);
+              handleRefreshListing();
+            }}
+            listingId={currentListing._id}
+          />
+        )}
+        {showGallery && (
+          <ListingPhotoGallery
+            images={currentListing.imagesUrls}
+            onClose={() => setShowGallery(false)}
+          />
+        )}
+      </div>
     </div>
   );
 }

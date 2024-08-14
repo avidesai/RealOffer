@@ -258,8 +258,8 @@
 }
 
 .offer-modal-title {
-  font-size: 24px;
-  margin-bottom: 30px;
+  font-size: 16px;
+  margin-bottom: 1rem;
   text-align: center;
 }
 
@@ -271,9 +271,9 @@
 }
 
 .offer-drag-drop {
-  width: 85%;
-  padding: 1.5rem;
-  padding-bottom: 2rem;
+  width: 100%;
+  padding: 0.5rem;
+  padding-bottom: 1.5rem;
   border: 2px dashed #c3c3c3;
   border-radius: 10px;
   text-align: center;
@@ -293,8 +293,8 @@
 
 .offer-or-text {
   margin: 10px 0;
-  font-size: 14px;
-  color: #666;
+  font-size: 16px;
+  color: #333;
 }
 
 .offer-upload-button {
@@ -304,6 +304,7 @@
   border: none;
   padding: 8px 12px;
   border-radius: 5px;
+  margin-top: 0.4rem;
   cursor: pointer;
   font-size: 14px;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
@@ -363,80 +364,100 @@
 }
 
 .offer-file-item {
-  width: 85%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #f0f0f0;
-  padding: 1rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  border-radius: 5px;
+  background-color: #f0f0f0;
+  width: 95%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 0rem;
+  border-radius: 8px;
   margin-bottom: 10px;
-  transition: background-color 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .offer-file-item:hover {
-  background-color: #f1f1f1;
+  background-color: #dceeff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
 }
 
 .offer-file-info {
+  flex: 1.2;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  height: 100%; /* Make sure the info takes up the full height of the parent */
+  padding-left: 0.5rem;
+  margin-top: -0.8rem;
 }
 
 .offer-file-name {
-  margin: 0;
-  font-weight: 500;
+  font-weight: 600;
   color: #333;
+  font-size: 16px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 90%;
+  margin-left: 0.5rem;
+  margin-bottom: 0.75rem; /* Add some space between the file name and title input */
 }
 
 .offer-file-title-input {
-  margin-top: 12px;
-  padding: 5px;
+  padding: 6px;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 14px;
-  max-width: 300px;
+  max-width: 100%;
 }
 
 .offer-file-options {
+  flex: 1;
   display: flex;
-  align-items: center;
-}
-
-.offer-file-type-select {
-  margin-top: 20px;
-  margin-right: 15px;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 14px;
-  width: 225px;
-  max-width: 225px;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-top: 1.1rem;
+  padding-right: 0.5rem;
+  height: 100%; /* Make sure the options take up the full height of the parent */
 }
 
 .offer-delete-file-button {
   background-color: #ff4d4d;
   color: white;
   border: none;
-  padding: 5px 10px;
+  padding: 0.35rem 1rem;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  white-space: nowrap;
+  font-weight: 550;
 }
 
 .offer-delete-file-button:hover {
-  background-color: #cc0000;
+  background-color: #e60000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+.offer-file-type-select {
+  width: 75%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  height: 2.3rem;
+}
+
 
 .offer-modal-footer {
   text-align: right;
+  margin-top: 1rem;
+  margin-bottom: 3rem;
 }
 
 .offer-upload-files-button {
-  width: 90%;
+  width: 70%;
   padding: 12px;
   background-color: #28a745;
   color: white;
@@ -447,7 +468,7 @@
   font-weight: 600;
   text-align: center;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  margin-bottom: 3rem;
+
 }
 
 .offer-upload-files-button:hover {

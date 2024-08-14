@@ -115,7 +115,7 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
     <div className="modal-step">
       <div className='offer-modal-header'>
         <h2>Documents</h2>
-        <p>Upload all supplemental documents for this offer.</p>
+        <p>Upload documents for this offer.</p>
       </div>
       <div className="offer-upload-documents-modal" onDragOver={handleDragOver} onDrop={handleDrop}>
         <div className="offer-upload-modal-content">
@@ -159,6 +159,7 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
                     />
                   </div>
                   <div className="offer-file-options">
+                  <button className="offer-delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>
                     <select
                       value={file.type}
                       onChange={(e) => handleFileTypeChange(index, e.target.value)}
@@ -170,7 +171,7 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
                       <option value="Purchase Agreement">Purchase Agreement</option>
                       <option value="Other">Other</option>
                     </select>
-                    <button className="offer-delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>
+                    
                   </div>
                 </div>
               ))}
