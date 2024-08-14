@@ -30,6 +30,24 @@
     font-size: 1rem;
     box-sizing: border-box;
   }
+
+  .include-button {
+    background-color: #007bff;
+    color: #fff;
+    border: 1px solid #898888;
+    border-radius: 10px;
+    padding: 10px 25px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.5s ease, box-shadow 0.5s ease;
+    margin-right: 1rem;
+  }
+  
+  .include-button:hover {
+    transform: scale(1.05);
+    background-color: #0056b3;
+  }
   
   .button-container {
     display: flex;

@@ -12,7 +12,7 @@ const { PDFDocument } = require('pdf-lib');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-exports.uploadDocuments = upload.array('documents', 10);
+exports.uploadDocuments = upload.array('documents', 20);
 
 const getPdfPageCount = async (buffer) => {
   try {

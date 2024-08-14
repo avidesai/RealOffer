@@ -21,7 +21,7 @@
   border-radius: 20px;
   width: 700px;
   max-width: 90%;
-  max-height: 90%; /* Adjust the maximum height */
+  height: 90%; /* Adjust the maximum height */
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow-y: auto; /* Enable vertical scrolling */
