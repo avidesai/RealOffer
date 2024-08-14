@@ -1,6 +1,6 @@
 import React from 'react';
-import useAutoFillFormsLogic from './AutoFillForms/AutoFillFormsLogic';
-import './AutoFillForms/AutoFillForms.css';
+import useAutoFillFormsLogic from './AutoFillFormsLogic';
+import './AutoFillForms.css';
 
 const AutoFillForms = ({ formData, listingId, handlePrevStep, handleNextStep, onUploadSuccess }) => {
   const {
