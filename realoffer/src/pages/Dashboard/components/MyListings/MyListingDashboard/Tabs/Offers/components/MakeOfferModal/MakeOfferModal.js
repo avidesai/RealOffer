@@ -6,7 +6,7 @@ import AgentInformation from './Steps/AgentInformation';
 import OfferDetails from './Steps/OfferDetails';
 import Documents from './Steps/Documents';
 import FinalReview from './Steps/FinalReview';
-import AutoFillForms from './Steps/AutoFillForms/AutoFillForms';
+import AutoFillForms from './Steps/AutoFillForms';
 import axios from 'axios';
 
 const parseNumber = (value) => {
