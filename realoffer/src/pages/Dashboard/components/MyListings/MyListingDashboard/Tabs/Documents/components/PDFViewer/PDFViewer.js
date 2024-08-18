@@ -24,7 +24,8 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
     const adjustPagePosition = () => {
       if (containerRef.current && pageRef.current) {
         const containerWidth = containerRef.current.offsetWidth;
-        const pageWidth = pageRef.current.offsetWidth;
+        const pageWidth = pageRef.current.querySelector('canvas').offsetWidth;
+
         if (pageWidth < containerWidth) {
           pageRef.current.style.marginLeft = `${(containerWidth - pageWidth) / 2}px`;
         } else {
@@ -39,6 +40,23 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
     return () => {
       window.removeEventListener('resize', adjustPagePosition);
     };
+  }, [scale, currentPage]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (pageRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        const pageWidth = pageRef.current.querySelector('canvas').offsetWidth;
+
+        if (pageWidth < containerWidth) {
+          pageRef.current.style.marginLeft = `${(containerWidth - pageWidth) / 2}px`;
+        } else {
+          pageRef.current.style.marginLeft = '0';
+        }
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
   }, [scale, currentPage]);
 
   return (
