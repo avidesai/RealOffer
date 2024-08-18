@@ -1,83 +1,103 @@
-// PDFViewer.js
-
-import React from 'react';
-import usePDFViewer from './PDFViewerLogic';
+import React, { useState, useRef, useEffect } from 'react';
+import { Document, Page } from 'react-pdf';
+import { FiChevronLeft, FiChevronRight, FiZoomIn, FiZoomOut, FiDownload, FiX } from 'react-icons/fi';
+import PDFViewerLogic from './PDFViewerLogic';
 import './PDFViewer.css';
 
-const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
+const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
   const {
-    pdf,
-    scale,
-    isLoading,
+    numPages,
     currentPage,
-    isZooming,
-    pagesRef,
-    containerRef,
-    handleZoomIn,
-    handleZoomOut,
+    scale,
+    onDocumentLoadSuccess,
+    changePage,
+    zoomIn,
+    zoomOut,
     handleDownload,
-    handleScroll,
-    handlePrevPage,
-    handleNextPage,
-  } = usePDFViewer(fileUrl);
+  } = PDFViewerLogic({ fileUrl, docTitle, docType, onClose });
+
+  const [isToolbarVisible, setIsToolbarVisible] = useState(true);
+  const containerRef = useRef(null);
+  const pageRef = useRef(null);
+
+  useEffect(() => {
+    const adjustPagePosition = () => {
+      if (containerRef.current && pageRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        const pageWidth = pageRef.current.offsetWidth;
+        if (pageWidth < containerWidth) {
+          pageRef.current.style.marginLeft = `${(containerWidth - pageWidth) / 2}px`;
+        } else {
+          pageRef.current.style.marginLeft = '0';
+        }
+      }
+    };
+
+    adjustPagePosition();
+    window.addEventListener('resize', adjustPagePosition);
+
+    return () => {
+      window.removeEventListener('resize', adjustPagePosition);
+    };
+  }, [scale, currentPage]);
 
   return (
-    isOpen && (
-      <div className="pdf-viewer-modal">
-        <div className="pdf-viewer-header">
-          <div className="pdf-title-container">
-            <h2 className="pdf-title">{docTitle}</h2>
-            <p className="pdf-type">{docType}</p>
-            <div className="title-buttons">
-              <button className="toolbar-download-button" onClick={handleDownload}>Download</button>
-            </div>
-          </div>
-          <button className="pdfviewer-close-button" onClick={onClose}></button>
+    <div className="pdf-viewer-modal">
+      <div className="pdf-viewer-header">
+        <div className="pdf-title-container">
+          <h2 className="pdf-title">{docTitle}</h2>
+          <p className="pdf-type">{docType}</p>
         </div>
-        <div className="pdf-viewer-container" onScroll={handleScroll} ref={containerRef}>
-          {isLoading && (
+        <button className="pdfviewer-close-button" onClick={onClose}>
+          <FiX />
+        </button>
+      </div>
+      <div className="pdf-viewer-container" ref={containerRef}>
+        <Document
+          file={fileUrl}
+          onLoadSuccess={onDocumentLoadSuccess}
+          loading={
             <div className="pdf-spinner-overlay">
               <div className="pdf-spinner"></div>
             </div>
-          )}
-          <div className="pdf-pages-container">
-            {pdf && Array.from(new Array(pdf.numPages), (el, index) => (
-              <div key={index} className="pdf-page">
-                <canvas ref={(el) => (pagesRef.current[index] = { ...pagesRef.current[index], canvas: el })} className="pdf-canvas" />
-                <div ref={(el) => (pagesRef.current[index] = { ...pagesRef.current[index], textLayer: el })} className="pdf-text-layer" />
-              </div>
-            ))}
-          </div>
-          {pdf && (
-            <div className="pdf-float-toolbar">
-              <button className="toolbar-button" onClick={handlePrevPage} disabled={currentPage <= 1}>
-                Previous Page
-              </button>
-              <span className="nav-page-info">
-                Page {currentPage} of {pdf.numPages}
-              </span>
-              <button className="toolbar-button" onClick={handleNextPage} disabled={currentPage >= pdf.numPages}>
-                Next Page
-              </button>
-              <button
-                className="toolbar-button-zoom"
-                onClick={handleZoomOut}
-                disabled={isZooming || scale <= 0.7}
-              >
-                -
-              </button>
-              <button
-                className="toolbar-button-zoom"
-                onClick={handleZoomIn}
-                disabled={isZooming || scale >= 3.0}
-              >
-                +
-              </button>
-            </div>
-          )}
+          }
+        >
+          <Page
+            pageNumber={currentPage}
+            scale={scale}
+            renderTextLayer={true}
+            renderAnnotationLayer={true}
+            inputRef={pageRef}
+          />
+        </Document>
+      </div>
+      <div 
+        className="pdf-toolbar-container"
+        onMouseEnter={() => setIsToolbarVisible(true)}
+        onMouseLeave={() => setIsToolbarVisible(false)}
+      >
+        <div className={`pdf-toolbar ${isToolbarVisible ? 'visible' : ''}`}>
+          <button onClick={() => changePage(-1)} disabled={currentPage <= 1}>
+            <FiChevronLeft />
+          </button>
+          <span className="page-info">
+            {currentPage} / {numPages}
+          </span>
+          <button onClick={() => changePage(1)} disabled={currentPage >= numPages}>
+            <FiChevronRight />
+          </button>
+          <button onClick={zoomOut}>
+            <FiZoomOut />
+          </button>
+          <button onClick={zoomIn}>
+            <FiZoomIn />
+          </button>
+          <button onClick={handleDownload}>
+            <FiDownload />
+          </button>
         </div>
       </div>
-    )
+    </div>
   );
 };
 

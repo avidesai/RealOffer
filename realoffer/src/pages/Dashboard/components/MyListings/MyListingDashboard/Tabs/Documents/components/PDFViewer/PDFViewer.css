@@ -1,247 +1,162 @@
-/* PDFViewer.css */
-
 .pdf-viewer-modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: rgba(0, 0, 0, 0.9);
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
   z-index: 1000;
-  overflow: hidden;  /* Ensure no overflow */
 }
 
 .pdf-viewer-header {
-  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-left: 2rem;
-  padding-right: 2rem;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  background-color: #fff;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  border-bottom: 1px solid #ddd;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.8); /* Added shadow */
+  padding: 0.5rem 1rem;
+  background-color: #1a1a1a;
+  color: white;
 }
 
 .pdf-title-container {
-  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-}
-
-.title-buttons {
-  position: absolute;
-  left: 2rem;
-  display: flex;
-  gap: 1rem;
 }
 
 .pdf-title {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.2rem;
 }
 
 .pdf-type {
   margin: 0;
   font-size: 0.9rem;
-  color: #666;
-  padding-top: 0.4rem;
+  color: #bbb;
 }
 
 .pdfviewer-close-button {
-  position: absolute;
-  top: 1.2rem;
-  right: 2rem;
-  background: #ffffff;
-  border: 2px solid #d5d5d5;
-  border-radius: 50%;
-  width: 3rem;
-  height: 3rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.5em;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
   cursor: pointer;
-  color: #000000;
-  transition: all 0.3s ease;
+  transition: color 0.3s ease;
 }
 
 .pdfviewer-close-button:hover {
-  color: #ffffff;
-  background-color: #b12525;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.pdfviewer-close-button:before {
-  content: '×';
-  font-weight: bold;
-  display: inline-block;
-  line-height: 1;
-  margin-bottom: 2px;
-}
-
-.toolbar-download-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.toolbar-download-button:hover {
-  background-color: #0056b3;
+  color: #ff4444;
 }
 
 .pdf-viewer-container {
-  width: 100%;
   flex: 1;
+  overflow: auto;
+  background-color: #2c2c2c;
   display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  background-color: rgba(127, 127, 127, 0.2);
-  padding-top: 1.5rem;
-  padding-bottom: 6rem;
-  overflow-y: auto;  /* Ensure the container can scroll */
-  position: relative;  /* Needed for floating toolbar */
+  justify-content: center;
+  align-items: flex-start;
+  padding: 1rem;
 }
 
-.pdf-pages-container {
+.pdf-toolbar-container {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+}
+
+.pdf-toolbar {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  width: 100%;
+  padding: 0.75rem;
+  background-color: rgba(26, 26, 26, 0.8);
+  border-radius: 30px;
+  transition: opacity 0.3s ease;
 }
 
-.pdf-page {
-  position: relative;
+.pdf-toolbar.visible {
+  opacity: 1;
 }
 
-.pdf-canvas {
-  border: 1px solid #ddd;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  max-width: 100%;
-  margin-top: 20px;  /* Added margin for better scrolling */
+.pdf-toolbar:not(.visible) {
+  opacity: 0;
 }
 
-.pdf-text-layer {
+.pdf-toolbar button,
+.pdf-toolbar span {
+  margin: 0 0.5rem;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.pdf-toolbar button:hover {
+  color: #4CAF50;
+}
+
+.pdf-toolbar button:disabled {
+  color: #666;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 1.1rem;
+  color: #bbb;
+  margin: 0 0.75rem;
+}
+
+.pdf-spinner-overlay {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  pointer-events: none;
-  opacity: 0.8;
-  font-family: sans-serif;
-}
-
-.pdf-text-layer div {
-  position: absolute;
-  white-space: pre;
-  cursor: text;
-  transform-origin: 0 0;
-  pointer-events: auto;
-}
-
-.pdf-float-toolbar {
-  position: fixed; /* Changed from absolute to fixed */
-  bottom: 3rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 1rem;
-  opacity: 0;
-  transition: opacity 0.3s;
-  background-color: rgba(20, 20, 20, 0.80);
-  padding: 10px;
-  border-radius: 5px;
-  font-weight: 500;
-}
-
-.pdf-viewer-container:hover .pdf-float-toolbar {
-  opacity: 1;
-}
-
-.pdf-float-toolbar .toolbar-button {
-  background-color: #0056b3;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-.pdf-float-toolbar .toolbar-button-zoom {
-  background-color: #0056b3;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 18px;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-.pdf-float-toolbar .toolbar-button:hover,
-.pdf-float-toolbar .toolbar-button-zoom:hover {
-  background-color: #003874;
-  transform: scale(1.05);
-}
-
-.pdf-float-toolbar .toolbar-button:disabled,
-.pdf-float-toolbar .toolbar-button-zoom:disabled {
-  background-color: #a9a9a9;
-  cursor: not-allowed;
-}
-
-.pdf-float-toolbar .nav-page-info {
-  font-size: 1rem;
-  color: white;
-  display: flex;
-  align-items: center;
-}
-
-/* Spinner styles */
-.pdf-spinner-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.75);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1001; /* Above other elements */
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .pdf-spinner {
-  border: 8px solid rgba(0, 0, 0, 0.1);
-  border-top: 8px solid #007bff;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: pdf-spin 1s linear infinite;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
 }
 
-@keyframes pdf-spin {
+@keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Ensure the PDF page is centered */
+.react-pdf__Page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+}
+
+/* Style the PDF page canvas */
+.react-pdf__Page__canvas {
+  max-width: 100%;
+  height: auto !important;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Ensure full page is visible and centered */
+.react-pdf__Document {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
 }
