@@ -69,6 +69,7 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
           }
         >
           <Page
+            key={`page_${currentPage}`}
             pageNumber={currentPage}
             scale={scale}
             renderTextLayer={true}

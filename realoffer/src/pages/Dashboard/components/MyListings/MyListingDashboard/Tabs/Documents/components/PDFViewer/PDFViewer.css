@@ -4,7 +4,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.85);  /* Semi-transparent background */
+  background-color: rgba(26, 26, 26, 0.95);
   display: flex;
   flex-direction: column;
   z-index: 1000;
@@ -62,7 +62,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 1rem;
-  padding-top: 5rem;  /* Increased top padding to create space below the header */
+  padding-top: 5rem;
   display: flex;
   justify-content: center;
 }
@@ -77,12 +77,41 @@
   max-width: 100%;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   margin-bottom: 1rem;
-  background-color: white;  /* Add white background to PDF pages */
+  background-color: white;
+  position: relative;
 }
 
 .react-pdf__Page__canvas {
   max-width: 100%;
   height: auto !important;
+}
+
+.react-pdf__Page__textContent {
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  overflow: hidden;
+  opacity: 0.2;
+  line-height: 1;
+}
+
+.react-pdf__Page__textContent span {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+}
+
+.react-pdf__Page__annotations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  pointer-events: none;
 }
 
 .pdf-toolbar-container {
