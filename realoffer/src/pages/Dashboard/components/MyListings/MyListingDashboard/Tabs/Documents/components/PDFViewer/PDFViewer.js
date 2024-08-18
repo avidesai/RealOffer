@@ -20,43 +20,31 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
   const containerRef = useRef(null);
   const pageRef = useRef(null);
 
-  useEffect(() => {
-    const adjustPagePosition = () => {
-      if (containerRef.current && pageRef.current) {
-        const containerWidth = containerRef.current.offsetWidth;
-        const pageWidth = pageRef.current.querySelector('canvas').offsetWidth;
-
-        if (pageWidth < containerWidth) {
-          pageRef.current.style.marginLeft = `${(containerWidth - pageWidth) / 2}px`;
+  const adjustPagePosition = () => {
+    if (containerRef.current && pageRef.current) {
+      const containerWidth = containerRef.current.offsetWidth;
+      const canvas = pageRef.current.querySelector('canvas');
+      if (canvas) {
+        const pageWidth = canvas.offsetWidth;
+        if (pageWidth > containerWidth) {
+          pageRef.current.style.transform = `translateX(${(containerWidth - pageWidth) / 2}px)`;
         } else {
-          pageRef.current.style.marginLeft = '0';
+          pageRef.current.style.transform = 'none';
         }
       }
-    };
+    }
+  };
 
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(adjustPagePosition);
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  useEffect(() => {
     adjustPagePosition();
-    window.addEventListener('resize', adjustPagePosition);
-
-    return () => {
-      window.removeEventListener('resize', adjustPagePosition);
-    };
-  }, [scale, currentPage]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (pageRef.current) {
-        const containerWidth = containerRef.current.offsetWidth;
-        const pageWidth = pageRef.current.querySelector('canvas').offsetWidth;
-
-        if (pageWidth < containerWidth) {
-          pageRef.current.style.marginLeft = `${(containerWidth - pageWidth) / 2}px`;
-        } else {
-          pageRef.current.style.marginLeft = '0';
-        }
-      }
-    }, 100);
-
-    return () => clearInterval(interval);
   }, [scale, currentPage]);
 
   return (
@@ -86,10 +74,11 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
             renderTextLayer={true}
             renderAnnotationLayer={true}
             inputRef={pageRef}
+            onRenderSuccess={adjustPagePosition}
           />
         </Document>
       </div>
-      <div 
+      <div
         className="pdf-toolbar-container"
         onMouseEnter={() => setIsToolbarVisible(true)}
         onMouseLeave={() => setIsToolbarVisible(false)}
