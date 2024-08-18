@@ -8,34 +8,43 @@
   display: flex;
   flex-direction: column;
   z-index: 1000;
+  overflow: hidden;
 }
 
 .pdf-viewer-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 0.5rem 1rem;
-  background-color: #1a1a1a;
+  padding: 0.75rem 1rem;
+  background-color: rgba(26, 26, 26, 0.9);
   color: white;
+  z-index: 1002;
 }
 
 .pdf-title-container {
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .pdf-title {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
 }
 
 .pdf-type {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: #bbb;
 }
 
 .pdfviewer-close-button {
+  position: absolute;
+  right: 1rem;
   background: none;
   border: none;
   color: white;
@@ -50,17 +59,16 @@
 
 .pdf-viewer-container {
   flex: 1;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   background-color: #2c2c2c;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
   padding: 1rem;
+  padding-top: 4rem;
 }
 
 .pdf-toolbar-container {
   position: absolute;
-  bottom: 30px;
+  bottom: 50px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1001;
@@ -70,9 +78,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0.75rem;
+  padding: 0.85rem;
   background-color: rgba(26, 26, 26, 0.8);
-  border-radius: 30px;
+  border-radius: 35px;
   transition: opacity 0.3s ease;
 }
 
@@ -86,11 +94,11 @@
 
 .pdf-toolbar button,
 .pdf-toolbar span {
-  margin: 0 0.6rem;
+  margin: 0 0.7rem;
   background: none;
   border: none;
   color: white;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   cursor: pointer;
   transition: color 0.3s ease;
 }
@@ -105,9 +113,9 @@
 }
 
 .page-info {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   color: #bbb;
-  margin: 0 0.75rem;
+  margin: 0 0.85rem;
 }
 
 .pdf-spinner-overlay {
@@ -160,6 +168,5 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  height: 100%;
-  overflow: auto;
+  overflow-x: hidden;
 }
