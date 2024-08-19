@@ -5,6 +5,8 @@ import PDFViewerLogic from './PDFViewerLogic';
 import './PDFViewer.css';
 
 const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
+  console.log('PDFViewer: Component rendering');
+
   const {
     numPages,
     currentPage,
@@ -23,6 +25,7 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const alignTextLayer = useCallback((pageNumber) => {
+    console.log(`PDFViewer: Aligning text layer for page ${pageNumber}`);
     if (pageRefs.current[pageNumber]) {
       const textLayer = pageRefs.current[pageNumber].querySelector('.react-pdf__Page__textContent');
       if (textLayer) {
@@ -36,14 +39,14 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
   }, []);
 
   useEffect(() => {
+    console.log('PDFViewer: Setting up Intersection Observer');
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
+          if (entry.isIntersecting && !isInitialLoad) {
             const pageNumber = parseInt(entry.target.dataset.pageNumber, 10);
-            if (!isInitialLoad) {
-              setCurrentPage(pageNumber);
-            }
+            console.log(`PDFViewer: Page ${pageNumber} is intersecting, updating currentPage`);
+            setCurrentPage(pageNumber);
           }
         });
       },
@@ -56,6 +59,12 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
 
     return () => observer.disconnect();
   }, [numPages, setCurrentPage, isInitialLoad]);
+
+  useEffect(() => {
+    console.log('PDFViewer: fileUrl changed, resetting to initial state');
+    setIsInitialLoad(true);
+    setCurrentPage(1);
+  }, [fileUrl, setCurrentPage]);
 
   const renderPage = (pageNumber) => (
     <div
@@ -75,9 +84,10 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
   );
 
   const handlePageChange = (newPage) => {
+    console.log(`PDFViewer: handlePageChange called with newPage ${newPage}`);
     if (newPage >= 1 && newPage <= numPages) {
       setCurrentPage(newPage);
-      pageRefs.current[newPage].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      pageRefs.current[newPage]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
@@ -94,8 +104,21 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
     }
     toolbarTimeoutRef.current = setTimeout(() => {
       setIsToolbarVisible(false);
-    }, 3000); // 3 seconds delay
+    }, 3000);
   };
+
+  const forceInitialPage = useCallback(() => {
+    console.log('PDFViewer: forceInitialPage called');
+    setCurrentPage(1);
+    setIsInitialLoad(false);
+    if (pageRefs.current[1]) {
+      pageRefs.current[1].scrollIntoView({ behavior: 'auto', block: 'start' });
+    }
+  }, [setCurrentPage]);
+
+  useEffect(() => {
+    console.log(`PDFViewer: currentPage changed to ${currentPage}`);
+  }, [currentPage]);
 
   return (
     <div className="pdf-viewer-modal">
@@ -117,12 +140,9 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
         <Document
           file={fileUrl}
           onLoadSuccess={(info) => {
+            console.log('PDFViewer: Document loaded successfully');
             onDocumentLoadSuccess(info);
-            setCurrentPage(1);
-            setIsInitialLoad(false);
-            if (pageRefs.current[1]) {
-              pageRefs.current[1].scrollIntoView({ behavior: 'auto', block: 'start' });
-            }
+            forceInitialPage();
           }}
           loading={
             <div className="pdf-spinner-overlay">
