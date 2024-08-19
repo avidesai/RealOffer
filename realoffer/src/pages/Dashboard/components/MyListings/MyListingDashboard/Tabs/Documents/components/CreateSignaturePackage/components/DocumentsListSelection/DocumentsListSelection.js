@@ -1,6 +1,4 @@
-// DocumentsListSelection.js
-
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import './DocumentsListSelection.css';
 
 const DocumentsListSelection = ({ documents, onDocumentSelect }) => {
@@ -38,4 +36,4 @@ const DocumentsListSelection = ({ documents, onDocumentSelect }) => {
   );
 };
 
-export default DocumentsListSelection;
+export default memo(DocumentsListSelection);

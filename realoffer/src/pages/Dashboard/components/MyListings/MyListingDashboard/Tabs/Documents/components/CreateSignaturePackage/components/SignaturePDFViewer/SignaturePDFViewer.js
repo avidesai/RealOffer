@@ -71,7 +71,13 @@ const SignaturePDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= numPages) {
       setCurrentPage(newPage);
-      pageRefs.current[newPage]?.scrollIntoView({ behavior: 'auto', block: 'start' });
+      const pageElement = pageRefs.current[newPage];
+      
+      if (pageElement && containerRef.current) {
+        const containerTop = containerRef.current.getBoundingClientRect().top;
+        const pageTop = pageElement.getBoundingClientRect().top;
+        containerRef.current.scrollTop += pageTop - containerTop;
+      }
     }
   };
 
