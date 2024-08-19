@@ -19,7 +19,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 1rem;
+  padding: 0;
   width: 100%; /* Ensure the toolbar spans the full width of the header */
   height: 100%;
 }
@@ -57,7 +57,7 @@
 
 .spv-pdf-viewer-container {
   width: 100%;
-  height: calc(100vh - 50px); /* Ensure the viewer takes up the rest of the viewport height */
+  height: calc(100vh - 275px); /* Adjust to ensure the viewer does not extend behind the footer */
   overflow: auto;
   display: flex;
   justify-content: center;

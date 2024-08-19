@@ -36,7 +36,7 @@
 }
 
 .csp-body {
-  height: 80%;
+  flex: 1;
   display: flex;
   overflow: hidden;
 }
@@ -50,7 +50,7 @@
 
 .csp-pdf-viewer {
   width: 66%;
-  overflow-y: none;
+  overflow-y: hidden;
 }
 
 .csp-footer {
