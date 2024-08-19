@@ -1,83 +1,158 @@
-// /components/PDFViewer/PDFViewer.js
-
-import React from 'react';
-import usePDFViewer from './PDFViewerLogic';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Document, Page } from 'react-pdf';
+import { FiChevronLeft, FiChevronRight, FiZoomIn, FiZoomOut, FiDownload, FiX } from 'react-icons/fi';
+import PDFViewerLogic from './PDFViewerLogic';
 import './PDFViewer.css';
 
-const PDFViewer = ({ isOpen, onClose, fileUrl, docTitle, docType }) => {
+const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
   const {
-    pdf,
-    scale,
-    isLoading,
+    numPages,
     currentPage,
-    isZooming,
-    pagesRef,
-    containerRef,
-    handleZoomIn,
-    handleZoomOut,
+    scale,
+    onDocumentLoadSuccess,
+    zoomIn,
+    zoomOut,
     handleDownload,
-    handleScroll,
-    handlePrevPage,
-    handleNextPage,
-  } = usePDFViewer(fileUrl);
+    setCurrentPage,
+  } = PDFViewerLogic({ fileUrl, docTitle, docType, onClose });
+
+  const [isToolbarVisible, setIsToolbarVisible] = useState(true);
+  const containerRef = useRef(null);
+  const pageRefs = useRef({});
+  const toolbarTimeoutRef = useRef(null);
+
+  const alignTextLayer = useCallback((pageNumber) => {
+    if (pageRefs.current[pageNumber]) {
+      const textLayer = pageRefs.current[pageNumber].querySelector('.react-pdf__Page__textContent');
+      if (textLayer) {
+        textLayer.style.transform = '';
+        textLayer.style.top = '0';
+        textLayer.style.left = '0';
+        textLayer.style.right = '0';
+        textLayer.style.bottom = '0';
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const pageNumber = parseInt(entry.target.dataset.pageNumber, 10);
+            setCurrentPage(pageNumber);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    Object.values(pageRefs.current).forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => observer.disconnect();
+  }, [numPages, setCurrentPage]);
+
+  const renderPage = (pageNumber) => (
+    <div
+      key={`page_${pageNumber}`}
+      ref={(ref) => (pageRefs.current[pageNumber] = ref)}
+      data-page-number={pageNumber}
+      className="pdf-page-container"
+    >
+      <Page
+        pageNumber={pageNumber}
+        scale={scale}
+        renderTextLayer={true}
+        renderAnnotationLayer={true}
+        onRenderSuccess={() => alignTextLayer(pageNumber)}
+      />
+    </div>
+  );
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= numPages) {
+      // Immediately update the current page state
+      setCurrentPage(newPage);
+
+      // Scroll directly to the page without smooth scroll to prevent glitches
+      pageRefs.current[newPage]?.scrollIntoView({ behavior: 'auto', block: 'start' });
+    }
+  };
+
+  const showToolbar = () => {
+    setIsToolbarVisible(true);
+    if (toolbarTimeoutRef.current) {
+      clearTimeout(toolbarTimeoutRef.current);
+    }
+  };
+
+  const hideToolbarWithDelay = () => {
+    if (toolbarTimeoutRef.current) {
+      clearTimeout(toolbarTimeoutRef.current);
+    }
+    toolbarTimeoutRef.current = setTimeout(() => {
+      setIsToolbarVisible(false);
+    }, 3000);
+  };
 
   return (
-    isOpen && (
-      <div className="offer-details-pdf-viewer-modal">
-        <div className="offer-details-pdf-viewer-header">
-          <div className="offer-details-pdf-title-container">
-            <h2 className="offer-details-pdf-title">{docTitle}</h2>
-            <p className="offer-details-pdf-type">{docType}</p>
-            <div className="offer-details-title-buttons">
-              <button className="offer-details-toolbar-download-button" onClick={handleDownload}>Download</button>
-            </div>
-          </div>
-          <button className="offer-details-pdfviewer-close-button" onClick={onClose}></button>
+    <div className="pdf-viewer-modal">
+      <div className="pdf-viewer-header">
+        <div className="pdf-title-container">
+          <h2 className="pdf-title">{docTitle}</h2>
+          <p className="pdf-type">{docType}</p>
         </div>
-        <div className="offer-details-pdf-viewer-container" onScroll={handleScroll} ref={containerRef}>
-          {isLoading && (
-            <div className="offer-details-pdf-spinner-overlay">
-              <div className="offer-details-pdf-spinner"></div>
+        <button className="pdfviewer-close-button" onClick={onClose}>
+          <FiX />
+        </button>
+      </div>
+      <div
+        className="pdf-viewer-container"
+        ref={containerRef}
+        onMouseMove={showToolbar}
+        onMouseLeave={hideToolbarWithDelay}
+      >
+        <Document
+          file={fileUrl}
+          onLoadSuccess={onDocumentLoadSuccess}
+          loading={
+            <div className="pdf-spinner-overlay">
+              <div className="pdf-spinner"></div>
             </div>
-          )}
-          <div className="offer-details-pdf-pages-container">
-            {pdf && Array.from(new Array(pdf.numPages), (el, index) => (
-              <div key={index} className="offer-details-pdf-page">
-                <canvas ref={(el) => (pagesRef.current[index] = { ...pagesRef.current[index], canvas: el })} className="offer-details-pdf-canvas" />
-                <div ref={(el) => (pagesRef.current[index] = { ...pagesRef.current[index], textLayer: el })} className="offer-details-pdf-text-layer" />
-              </div>
-            ))}
-          </div>
-          {pdf && (
-            <div className="offer-details-pdf-float-toolbar">
-              <button className="offer-details-toolbar-button" onClick={handlePrevPage} disabled={currentPage <= 1}>
-                Previous Page
-              </button>
-              <span className="offer-details-nav-page-info">
-                Page {currentPage} of {pdf.numPages}
-              </span>
-              <button className="offer-details-toolbar-button" onClick={handleNextPage} disabled={currentPage >= pdf.numPages}>
-                Next Page
-              </button>
-              <button
-                className="offer-details-toolbar-button-zoom"
-                onClick={handleZoomOut}
-                disabled={isZooming || scale <= 0.7}
-              >
-                -
-              </button>
-              <button
-                className="offer-details-toolbar-button-zoom"
-                onClick={handleZoomIn}
-                disabled={isZooming || scale >= 3.0}
-              >
-                +
-              </button>
-            </div>
-          )}
+          }
+        >
+          {Array.from(new Array(numPages), (el, index) => renderPage(index + 1))}
+        </Document>
+      </div>
+      <div
+        className={`pdf-toolbar-container ${isToolbarVisible ? 'visible' : ''}`}
+        onMouseEnter={showToolbar}
+        onMouseLeave={hideToolbarWithDelay}
+      >
+        <div className="pdf-toolbar">
+          <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage <= 1}>
+            <FiChevronLeft />
+          </button>
+          <span className="page-info">
+            {currentPage} / {numPages}
+          </span>
+          <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage >= numPages}>
+            <FiChevronRight />
+          </button>
+          <button onClick={zoomOut}>
+            <FiZoomOut />
+          </button>
+          <button onClick={zoomIn}>
+            <FiZoomIn />
+          </button>
+          <button onClick={handleDownload}>
+            <FiDownload />
+          </button>
         </div>
       </div>
-    )
+    </div>
   );
 };
 
