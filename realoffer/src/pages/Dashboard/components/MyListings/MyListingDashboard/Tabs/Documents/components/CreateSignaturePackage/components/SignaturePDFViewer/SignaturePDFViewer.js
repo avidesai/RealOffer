@@ -19,7 +19,6 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
   const containerRef = useRef(null);
   const pageRefs = useRef({});
   const [localSelectedPages, setLocalSelectedPages] = useState(signaturePackagePages);
-  const [hoveredPage, setHoveredPage] = useState(null);
 
   useEffect(() => {
     setLocalSelectedPages(signaturePackagePages);
@@ -32,15 +31,7 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
       prev.includes(pageIndex) ? prev.filter((page) => page !== pageIndex) : [...prev, pageIndex]
     );
     const response = await axios.post(url, { documentId, page: pageIndex });
-    onPageSelectionChange(response.data); // Notify parent of the updated document
-  };
-
-  const handleMouseEnter = (pageIndex) => {
-    setHoveredPage(pageIndex);
-  };
-
-  const handleMouseLeave = () => {
-    setHoveredPage(null);
+    onPageSelectionChange(response.data);
   };
 
   const alignTextLayer = useCallback((pageNumber) => {
@@ -81,26 +72,26 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
       key={`page_${pageNumber}`}
       ref={(ref) => (pageRefs.current[pageNumber] = ref)}
       data-page-number={pageNumber}
-      className={`spv-pdf-page-container spv-page ${localSelectedPages.includes(pageNumber) ? 'selected' : ''}`}
+      className={`spv-pdf-page-container ${localSelectedPages.includes(pageNumber) ? 'selected' : ''}`}
       onClick={() => handlePageSelect(pageNumber)}
-      onMouseEnter={() => handleMouseEnter(pageNumber)}
-      onMouseLeave={handleMouseLeave}
     >
-      <Page
-        pageNumber={pageNumber}
-        scale={scale}
-        renderTextLayer={true}
-        renderAnnotationLayer={true}
-        onRenderSuccess={() => alignTextLayer(pageNumber)}
-      />
-      <div className={`spv-overlay ${hoveredPage === pageNumber || localSelectedPages.includes(pageNumber) ? 'active' : ''}`}>
-        <input
-          type="checkbox"
-          className="spv-checkbox"
-          checked={localSelectedPages.includes(pageNumber)}
-          onChange={() => handlePageSelect(pageNumber)}
-          onClick={(e) => e.stopPropagation()} // Prevents click event on the parent div
+      <div className="spv-page-wrapper">
+        <Page
+          pageNumber={pageNumber}
+          scale={scale}
+          renderTextLayer={true}
+          renderAnnotationLayer={true}
+          onRenderSuccess={() => alignTextLayer(pageNumber)}
         />
+        <div className="spv-overlay">
+          <input
+            type="checkbox"
+            className="spv-checkbox"
+            checked={localSelectedPages.includes(pageNumber)}
+            onChange={() => handlePageSelect(pageNumber)}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
       </div>
     </div>
   );

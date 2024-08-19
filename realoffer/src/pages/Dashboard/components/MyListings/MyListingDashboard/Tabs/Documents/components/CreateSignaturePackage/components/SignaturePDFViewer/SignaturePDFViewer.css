@@ -8,52 +8,42 @@
 }
 
 .spv-pdf-header {
-  background-color: #f5f5f5; /* Update to match CreateSignaturePackage style */
-  padding: 0;
+  background-color: #f5f5f5;
+  padding: 0 1rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #ddd;
-  height: 50px; /* Set a fixed height for the header */
-  width: 100%; /* Match the width of the PDF viewer */
-  margin: 0 auto; /* Center the header above the viewer */
-  position: sticky; /* Stick the header at the top when scrolling */
+  height: 50px;
+  width: 100%;
+  position: sticky;
   top: 0;
   z-index: 1001;
   box-sizing: border-box;
 }
 
-.spv-document-title {
-  flex-grow: 1;
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
 .spv-toolbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 0;
-  width: 100%; /* Ensure the toolbar spans the full width of the header */
+  width: 100%;
   height: 100%;
 }
 
-.spv-pdf-toolbar button,
 .spv-toolbar button,
 .spv-toolbar span {
-  margin: 0 0.7rem;
+  margin: 0 0.5rem;
   background: none;
   border: none;
   color: #333;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   cursor: pointer;
-  transition: color 0.3s ease;
+  transition: color 0.2s ease;
 }
 
-.spv-toolbar button:hover {
-  color: #007bff; /* Match the button color with the CreateSignaturePackage style */
+.spv-toolbar button:hover:not(:disabled) {
+  color: #007bff;
 }
 
 .spv-toolbar button:disabled {
@@ -62,60 +52,66 @@
 }
 
 .spv-page-info {
-  font-size: 1.3rem;
+  font-size: 1rem;
   color: #555;
-}
-
-.spv-pdf-viewer {
-  width: 95%; /* Slightly narrower to create space on sides */
-  margin: 0 auto; /* Center viewer horizontally */
-  position: relative;
-}
-
-.spv-pdf-viewer-container {
-  width: 100%;
-  height: calc(100vh - 200px); /* Adjust to ensure the viewer does not extend behind the footer */
-  overflow: auto;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 1rem;
 }
 
 .spv-body {
   flex: 1;
   overflow-y: auto;
-  overflow-x: hidden; /* Prevent horizontal scrolling */
-  padding: 0;
+  overflow-x: hidden;
+  padding: 1rem;
+}
+
+.spv-pdf-viewer-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.spv-container .react-pdf__Document {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.spv-pdf-page-container {
   position: relative;
+  margin-bottom: 1rem;
+  transition: box-shadow 0.3s ease;
 }
 
-.react-pdf__Document {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.spv-page-wrapper {
+  position: relative;
+  display: inline-block;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.react-pdf__Page {
+.spv-pdf-page-container:hover .spv-page-wrapper {
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.spv-pdf-page-container.selected .spv-page-wrapper {
+  box-shadow: 0 0 0 3px #3498db, 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+.spv-container .react-pdf__Page {
   position: relative;
   background-color: white;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  margin-bottom: 1rem;
+  margin: 0;
 }
 
-.react-pdf__Page__canvas {
+.spv-container .react-pdf__Page__canvas {
   display: block;
 }
 
-.react-pdf__Page__textContent {
-  position: absolute !important;
-  left: 0 !important;
-  top: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
+.spv-container .react-pdf__Page__textContent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
   overflow: hidden;
   opacity: 0.2;
   line-height: 1;
@@ -123,21 +119,34 @@
   cursor: text;
 }
 
-.react-pdf__Page__textContent span {
-  color: transparent;
-  position: absolute;
-  white-space: pre;
-  cursor: text;
-  transform-origin: 0% 0%;
-}
-
-.react-pdf__Page__annotations {
+.spv-overlay {
   position: absolute;
   top: 0;
   left: 0;
-  bottom: 0;
   right: 0;
-  pointer-events: none;
+  bottom: 0;
+  background-color: rgba(52, 152, 219, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.spv-pdf-page-container:hover .spv-overlay,
+.spv-pdf-page-container.selected .spv-overlay {
+  opacity: 1;
+}
+
+.spv-checkbox {
+  width: 1.5rem;
+  height: 1.5rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.spv-checkbox:hover {
+  opacity: 1;
 }
 
 .spv-pdf-spinner-overlay {
@@ -149,7 +158,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(255, 255, 255, 0.8);
 }
 
 .spv-pdf-spinner {
@@ -158,71 +167,10 @@
   border-radius: 50%;
   width: 40px;
   height: 40px;
-  animation: spin 1s linear infinite;
+  animation: spv-spin 1s linear infinite;
 }
 
-@keyframes spin {
+@keyframes spv-spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-
-.spv-pages {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-
-.spv-page {
-  position: relative;
-  margin: 10px 0;
-  cursor: pointer;
-}
-
-.spv-page.selected {
-  outline: 3px solid #3498db; /* Highlight selected pages */
-}
-
-.spv-page:hover .spv-overlay {
-  display: flex;
-}
-
-.spv-overlay.active {
-  display: flex;
-}
-
-.spv-canvas {
-  border: 1px solid #ddd;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  max-width: 100%;
-}
-
-.spv-canvas,
-.spv-overlay {
-  /* Ensure overlay height matches the canvas exactly */
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-/* Overlay and checkbox styling */
-.spv-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(52, 152, 219, 0.5); /* Light blue overlay */
-  display: none;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  z-index: 1;
-}
-
-.spv-checkbox {
-  width: 1.5rem; /* Bigger size for checkbox */
-  height: 1.5rem;
-  cursor: pointer;
-  z-index: 2;
 }
