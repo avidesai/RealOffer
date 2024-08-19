@@ -127,6 +127,12 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 1001;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.pdf-toolbar-container.visible {
+  opacity: 1;
 }
 
 .pdf-toolbar {
@@ -136,15 +142,6 @@
   padding: 0.85rem;
   background-color: rgba(26, 26, 26, 0.8);
   border-radius: 35px;
-  transition: opacity 0.3s ease;
-}
-
-.pdf-toolbar.visible {
-  opacity: 1;
-}
-
-.pdf-toolbar:not(.visible) {
-  opacity: 0;
 }
 
 .pdf-toolbar button,

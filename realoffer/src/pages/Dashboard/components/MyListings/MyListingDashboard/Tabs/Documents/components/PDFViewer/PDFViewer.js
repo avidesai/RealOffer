@@ -10,19 +10,21 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
     currentPage,
     scale,
     onDocumentLoadSuccess,
-    changePage,
     zoomIn,
     zoomOut,
     handleDownload,
+    setCurrentPage,
   } = PDFViewerLogic({ fileUrl, docTitle, docType, onClose });
 
   const [isToolbarVisible, setIsToolbarVisible] = useState(true);
   const containerRef = useRef(null);
-  const pageRef = useRef(null);
+  const pageRefs = useRef({});
+  const toolbarTimeoutRef = useRef(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  const alignTextLayer = useCallback(() => {
-    if (pageRef.current) {
-      const textLayer = pageRef.current.querySelector('.react-pdf__Page__textContent');
+  const alignTextLayer = useCallback((pageNumber) => {
+    if (pageRefs.current[pageNumber]) {
+      const textLayer = pageRefs.current[pageNumber].querySelector('.react-pdf__Page__textContent');
       if (textLayer) {
         textLayer.style.transform = '';
         textLayer.style.top = '0';
@@ -34,8 +36,66 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
   }, []);
 
   useEffect(() => {
-    alignTextLayer();
-  }, [scale, currentPage, alignTextLayer]);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const pageNumber = parseInt(entry.target.dataset.pageNumber, 10);
+            if (!isInitialLoad) {
+              setCurrentPage(pageNumber);
+            }
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    Object.values(pageRefs.current).forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => observer.disconnect();
+  }, [numPages, setCurrentPage, isInitialLoad]);
+
+  const renderPage = (pageNumber) => (
+    <div
+      key={`page_${pageNumber}`}
+      ref={(ref) => (pageRefs.current[pageNumber] = ref)}
+      data-page-number={pageNumber}
+      className="pdf-page-container"
+    >
+      <Page
+        pageNumber={pageNumber}
+        scale={scale}
+        renderTextLayer={true}
+        renderAnnotationLayer={true}
+        onRenderSuccess={() => alignTextLayer(pageNumber)}
+      />
+    </div>
+  );
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= numPages) {
+      setCurrentPage(newPage);
+      pageRefs.current[newPage].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const showToolbar = () => {
+    setIsToolbarVisible(true);
+    if (toolbarTimeoutRef.current) {
+      clearTimeout(toolbarTimeoutRef.current);
+    }
+  };
+
+  const hideToolbarWithDelay = () => {
+    if (toolbarTimeoutRef.current) {
+      clearTimeout(toolbarTimeoutRef.current);
+    }
+    toolbarTimeoutRef.current = setTimeout(() => {
+      setIsToolbarVisible(false);
+    }, 3000); // 3 seconds delay
+  };
 
   return (
     <div className="pdf-viewer-modal">
@@ -48,40 +108,44 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
           <FiX />
         </button>
       </div>
-      <div className="pdf-viewer-container" ref={containerRef}>
+      <div 
+        className="pdf-viewer-container" 
+        ref={containerRef}
+        onMouseMove={showToolbar}
+        onMouseLeave={hideToolbarWithDelay}
+      >
         <Document
           file={fileUrl}
-          onLoadSuccess={onDocumentLoadSuccess}
+          onLoadSuccess={(info) => {
+            onDocumentLoadSuccess(info);
+            setCurrentPage(1);
+            setIsInitialLoad(false);
+            if (pageRefs.current[1]) {
+              pageRefs.current[1].scrollIntoView({ behavior: 'auto', block: 'start' });
+            }
+          }}
           loading={
             <div className="pdf-spinner-overlay">
               <div className="pdf-spinner"></div>
             </div>
           }
         >
-          <Page
-            key={`page_${currentPage}`}
-            pageNumber={currentPage}
-            scale={scale}
-            renderTextLayer={true}
-            renderAnnotationLayer={true}
-            inputRef={pageRef}
-            onRenderSuccess={alignTextLayer}
-          />
+          {Array.from(new Array(numPages), (el, index) => renderPage(index + 1))}
         </Document>
       </div>
       <div
-        className="pdf-toolbar-container"
-        onMouseEnter={() => setIsToolbarVisible(true)}
-        onMouseLeave={() => setIsToolbarVisible(false)}
+        className={`pdf-toolbar-container ${isToolbarVisible ? 'visible' : ''}`}
+        onMouseEnter={showToolbar}
+        onMouseLeave={hideToolbarWithDelay}
       >
-        <div className={`pdf-toolbar ${isToolbarVisible ? 'visible' : ''}`}>
-          <button onClick={() => changePage(-1)} disabled={currentPage <= 1}>
+        <div className="pdf-toolbar">
+          <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage <= 1}>
             <FiChevronLeft />
           </button>
           <span className="page-info">
             {currentPage} / {numPages}
           </span>
-          <button onClick={() => changePage(1)} disabled={currentPage >= numPages}>
+          <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage >= numPages}>
             <FiChevronRight />
           </button>
           <button onClick={zoomOut}>

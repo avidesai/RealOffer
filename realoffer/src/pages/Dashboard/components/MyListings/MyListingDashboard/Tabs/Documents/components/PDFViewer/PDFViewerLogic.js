@@ -36,6 +36,7 @@ const PDFViewerLogic = ({ fileUrl, docTitle, docType, onClose }) => {
     currentPage,
     scale,
     setScale,
+    setCurrentPage,  // Expose this function
     onDocumentLoadSuccess,
     changePage,
     zoomIn,
