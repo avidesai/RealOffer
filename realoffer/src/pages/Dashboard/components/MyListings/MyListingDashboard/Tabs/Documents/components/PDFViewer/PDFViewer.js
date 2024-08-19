@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Document, Page } from 'react-pdf';
 import { FiChevronLeft, FiChevronRight, FiZoomIn, FiZoomOut, FiDownload, FiX } from 'react-icons/fi';
 import PDFViewerLogic from './PDFViewerLogic';
@@ -20,32 +20,22 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
   const containerRef = useRef(null);
   const pageRef = useRef(null);
 
-  const adjustPagePosition = () => {
-    if (containerRef.current && pageRef.current) {
-      const containerWidth = containerRef.current.offsetWidth;
-      const canvas = pageRef.current.querySelector('canvas');
-      if (canvas) {
-        const pageWidth = canvas.offsetWidth;
-        if (pageWidth > containerWidth) {
-          pageRef.current.style.transform = `translateX(${(containerWidth - pageWidth) / 2}px)`;
-        } else {
-          pageRef.current.style.transform = 'none';
-        }
+  const alignTextLayer = useCallback(() => {
+    if (pageRef.current) {
+      const textLayer = pageRef.current.querySelector('.react-pdf__Page__textContent');
+      if (textLayer) {
+        textLayer.style.transform = '';
+        textLayer.style.top = '0';
+        textLayer.style.left = '0';
+        textLayer.style.right = '0';
+        textLayer.style.bottom = '0';
       }
     }
-  };
-
-  useEffect(() => {
-    const resizeObserver = new ResizeObserver(adjustPagePosition);
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
-    }
-    return () => resizeObserver.disconnect();
   }, []);
 
   useEffect(() => {
-    adjustPagePosition();
-  }, [scale, currentPage]);
+    alignTextLayer();
+  }, [scale, currentPage, alignTextLayer]);
 
   return (
     <div className="pdf-viewer-modal">
@@ -75,7 +65,7 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
             renderTextLayer={true}
             renderAnnotationLayer={true}
             inputRef={pageRef}
-            onRenderSuccess={adjustPagePosition}
+            onRenderSuccess={alignTextLayer}
           />
         </Document>
       </div>
