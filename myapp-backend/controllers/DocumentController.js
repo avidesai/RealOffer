@@ -240,6 +240,8 @@ exports.deleteDocument = async (req, res) => {
   }
 };
 
+// In DocumentController.js
+
 exports.addPageToSignaturePackage = async (req, res) => {
   const { documentId, page } = req.body;
 
@@ -251,10 +253,16 @@ exports.addPageToSignaturePackage = async (req, res) => {
 
     if (!document.signaturePackagePages.includes(page)) {
       document.signaturePackagePages.push(page);
-      await document.save();
+      // Use findByIdAndUpdate to avoid validation issues
+      const updatedDocument = await Document.findByIdAndUpdate(
+        documentId,
+        { $push: { signaturePackagePages: page } },
+        { new: true, runValidators: false }
+      );
+      res.status(200).json(updatedDocument);
+    } else {
+      res.status(200).json(document);
     }
-
-    res.status(200).json(document);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -269,10 +277,13 @@ exports.removePageFromSignaturePackage = async (req, res) => {
       return res.status(404).json({ message: 'Document not found' });
     }
 
-    document.signaturePackagePages = document.signaturePackagePages.filter(p => p !== page);
-    await document.save();
-
-    res.status(200).json(document);
+    // Use findByIdAndUpdate to avoid validation issues
+    const updatedDocument = await Document.findByIdAndUpdate(
+      documentId,
+      { $pull: { signaturePackagePages: page } },
+      { new: true, runValidators: false }
+    );
+    res.status(200).json(updatedDocument);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
