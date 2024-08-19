@@ -1,3 +1,5 @@
+// PDFViewer.js
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Document, Page } from 'react-pdf';
 import { FiChevronLeft, FiChevronRight, FiZoomIn, FiZoomOut, FiDownload, FiX } from 'react-icons/fi';

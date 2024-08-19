@@ -1,3 +1,5 @@
+// PDFViewerLogic.js
+
 import { useState, useEffect } from 'react';
 import { pdfjs } from 'react-pdf';
 

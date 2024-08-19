@@ -31,7 +31,8 @@
   padding: 0.5rem 2rem;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #ddd;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Add this line */
 }
 
 .csp-body {
@@ -49,8 +50,7 @@
 
 .csp-pdf-viewer {
   width: 66%;
-  padding: 20px;
-  overflow-y: auto;
+  overflow-y: none;
 }
 
 .csp-footer {

@@ -1,101 +1,118 @@
-// SignaturePDFViewer.js
-
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import useSignaturePDFViewer from './SignaturePDFViewerLogic';
+import React, { useRef, useEffect, useCallback } from 'react';
+import { Document, Page } from 'react-pdf';
+import { FiChevronLeft, FiChevronRight, FiZoomIn, FiZoomOut } from 'react-icons/fi';
+import SignaturePDFViewerLogic from './SignaturePDFViewerLogic';
 import './SignaturePDFViewer.css';
 
-const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePackagePages, onPageSelectionChange }) => {
+const SignaturePDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
   const {
-    pdf,
-    scale,
-    isLoading,
+    numPages,
     currentPage,
-    isZooming,
-    pagesRef,
-    containerRef,
-    handleZoomIn,
-    handleZoomOut,
-    handleScroll,
-    handlePrevPage,
-    handleNextPage,
-  } = useSignaturePDFViewer(fileUrl);
+    scale,
+    onDocumentLoadSuccess,
+    zoomIn,
+    zoomOut,
+    setCurrentPage,
+  } = SignaturePDFViewerLogic({ fileUrl, docTitle, docType, onClose });
 
-  const [localSelectedPages, setLocalSelectedPages] = useState(signaturePackagePages);
-  const [hoveredPage, setHoveredPage] = useState(null);
+  const containerRef = useRef(null);
+  const pageRefs = useRef({});
+
+  const alignTextLayer = useCallback((pageNumber) => {
+    if (pageRefs.current[pageNumber]) {
+      const textLayer = pageRefs.current[pageNumber].querySelector('.react-pdf__Page__textContent');
+      if (textLayer) {
+        textLayer.style.transform = '';
+        textLayer.style.top = '0';
+        textLayer.style.left = '0';
+        textLayer.style.right = '0';
+        textLayer.style.bottom = '0';
+      }
+    }
+  }, []);
 
   useEffect(() => {
-    setLocalSelectedPages(signaturePackagePages);
-  }, [signaturePackagePages]);
-
-  const handlePageSelect = async (pageIndex) => {
-    const isSelected = localSelectedPages.includes(pageIndex);
-    const url = `${process.env.REACT_APP_BACKEND_URL}/api/documents/${isSelected ? 'removePage' : 'addPage'}`;
-    setLocalSelectedPages((prev) =>
-      prev.includes(pageIndex) ? prev.filter((page) => page !== pageIndex) : [...prev, pageIndex]
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const pageNumber = parseInt(entry.target.dataset.pageNumber, 10);
+            setCurrentPage(pageNumber);
+          }
+        });
+      },
+      { threshold: 0.5 }
     );
-    const response = await axios.post(url, { documentId, page: pageIndex });
-    onPageSelectionChange(response.data); // Notify parent of the updated document
-  };
 
-  const handleMouseEnter = (pageIndex) => {
-    setHoveredPage(pageIndex);
-  };
+    Object.values(pageRefs.current).forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
 
-  const handleMouseLeave = () => {
-    setHoveredPage(null);
+    return () => observer.disconnect();
+  }, [numPages, setCurrentPage]);
+
+  const renderPage = (pageNumber) => (
+    <div
+      key={`page_${pageNumber}`}
+      ref={(ref) => (pageRefs.current[pageNumber] = ref)}
+      data-page-number={pageNumber}
+      className="spv-pdf-page-container"
+    >
+      <Page
+        pageNumber={pageNumber}
+        scale={scale}
+        renderTextLayer={true}
+        renderAnnotationLayer={true}
+        onRenderSuccess={() => alignTextLayer(pageNumber)}
+      />
+    </div>
+  );
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= numPages) {
+      setCurrentPage(newPage);
+      pageRefs.current[newPage]?.scrollIntoView({ behavior: 'auto', block: 'start' });
+    }
   };
 
   return (
-    <div className="spv-container">
-      <div className="spv-header">
-        <div className="spv-document-title">{documentTitle}</div>
-        <div className="spv-toolbar">
-          <button className="spv-zoom-button" onClick={handleZoomOut} disabled={isZooming || scale <= 0.6}>
-            -
+    <div>
+      <div className="spv-pdf-header">
+        <div className="spv-pdf-toolbar">
+          <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage <= 1}>
+            <FiChevronLeft />
           </button>
-          <button className="spv-zoom-button" onClick={handleZoomIn} disabled={isZooming || scale >= 1.6}>
-            +
+          <span className="spv-page-info">
+            {currentPage} / {numPages}
+          </span>
+          <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage >= numPages}>
+            <FiChevronRight />
+          </button>
+          <button onClick={zoomOut}>
+            <FiZoomOut />
+          </button>
+          <button onClick={zoomIn}>
+            <FiZoomIn />
           </button>
         </div>
       </div>
-      <div className="spv-body" onScroll={handleScroll} ref={containerRef}>
-        {isLoading && <div className="spv-spinner-overlay"><div className="spv-spinner"></div></div>}
-        <div className="spv-pages">
-          {pdf &&
-            Array.from(new Array(pdf.numPages), (el, index) => (
-              <div
-                key={index}
-                className={`spv-page ${localSelectedPages.includes(index + 1) ? 'selected' : ''}`}
-                onClick={() => handlePageSelect(index + 1)}
-                onMouseEnter={() => handleMouseEnter(index + 1)}
-                onMouseLeave={handleMouseLeave}
-              >
-                <canvas ref={(el) => (pagesRef.current[index] = { ...pagesRef.current[index], canvas: el })} className="spv-canvas" />
-                <div ref={(el) => (pagesRef.current[index] = { ...pagesRef.current[index], textLayer: el })} className="spv-text-layer" />
-                <div className={`spv-overlay ${hoveredPage === index + 1 || localSelectedPages.includes(index + 1) ? 'active' : ''}`}>
-                  <input
-                    type="checkbox"
-                    className="spv-checkbox"
-                    checked={localSelectedPages.includes(index + 1)}
-                    onChange={() => handlePageSelect(index + 1)}
-                    onClick={(e) => e.stopPropagation()} // Prevents click event on the parent div
-                  />
-                </div>
+      <div className="spv-pdf-viewer">
+        <div
+          className="spv-pdf-viewer-container"
+          ref={containerRef}
+        >
+          <Document
+            file={fileUrl}
+            onLoadSuccess={onDocumentLoadSuccess}
+            loading={
+              <div className="spv-pdf-spinner-overlay">
+                <div className="spv-pdf-spinner"></div>
               </div>
-            ))}
+            }
+          >
+            {Array.from(new Array(numPages), (el, index) => renderPage(index + 1))}
+          </Document>
         </div>
-      </div>
-      <div className="spv-footer">
-        <button className="spv-nav-button" onClick={handlePrevPage} disabled={currentPage <= 1}>
-          Previous Page
-        </button>
-        <span className="spv-page-info">
-          Page {currentPage} of {pdf ? pdf.numPages : 0}
-        </span>
-        <button className="spv-nav-button" onClick={handleNextPage} disabled={currentPage >= (pdf ? pdf.numPages : 0)}>
-          Next Page
-        </button>
       </div>
     </div>
   );
