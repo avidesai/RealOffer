@@ -1,10 +1,11 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Document, Page } from 'react-pdf';
 import { FiChevronLeft, FiChevronRight, FiZoomIn, FiZoomOut } from 'react-icons/fi';
+import axios from 'axios';
 import SignaturePDFViewerLogic from './SignaturePDFViewerLogic';
 import './SignaturePDFViewer.css';
 
-const SignaturePDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
+const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePackagePages, onPageSelectionChange, onClose }) => {
   const {
     numPages,
     currentPage,
@@ -13,10 +14,34 @@ const SignaturePDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
     zoomIn,
     zoomOut,
     setCurrentPage,
-  } = SignaturePDFViewerLogic({ fileUrl, docTitle, docType, onClose });
+  } = SignaturePDFViewerLogic({ fileUrl, documentTitle, documentId, onClose });
 
   const containerRef = useRef(null);
   const pageRefs = useRef({});
+  const [localSelectedPages, setLocalSelectedPages] = useState(signaturePackagePages);
+  const [hoveredPage, setHoveredPage] = useState(null);
+
+  useEffect(() => {
+    setLocalSelectedPages(signaturePackagePages);
+  }, [signaturePackagePages]);
+
+  const handlePageSelect = async (pageIndex) => {
+    const isSelected = localSelectedPages.includes(pageIndex);
+    const url = `${process.env.REACT_APP_BACKEND_URL}/api/documents/${isSelected ? 'removePage' : 'addPage'}`;
+    setLocalSelectedPages((prev) =>
+      prev.includes(pageIndex) ? prev.filter((page) => page !== pageIndex) : [...prev, pageIndex]
+    );
+    const response = await axios.post(url, { documentId, page: pageIndex });
+    onPageSelectionChange(response.data); // Notify parent of the updated document
+  };
+
+  const handleMouseEnter = (pageIndex) => {
+    setHoveredPage(pageIndex);
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredPage(null);
+  };
 
   const alignTextLayer = useCallback((pageNumber) => {
     if (pageRefs.current[pageNumber]) {
@@ -56,7 +81,10 @@ const SignaturePDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
       key={`page_${pageNumber}`}
       ref={(ref) => (pageRefs.current[pageNumber] = ref)}
       data-page-number={pageNumber}
-      className="spv-pdf-page-container"
+      className={`spv-pdf-page-container spv-page ${localSelectedPages.includes(pageNumber) ? 'selected' : ''}`}
+      onClick={() => handlePageSelect(pageNumber)}
+      onMouseEnter={() => handleMouseEnter(pageNumber)}
+      onMouseLeave={handleMouseLeave}
     >
       <Page
         pageNumber={pageNumber}
@@ -65,6 +93,15 @@ const SignaturePDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
         renderAnnotationLayer={true}
         onRenderSuccess={() => alignTextLayer(pageNumber)}
       />
+      <div className={`spv-overlay ${hoveredPage === pageNumber || localSelectedPages.includes(pageNumber) ? 'active' : ''}`}>
+        <input
+          type="checkbox"
+          className="spv-checkbox"
+          checked={localSelectedPages.includes(pageNumber)}
+          onChange={() => handlePageSelect(pageNumber)}
+          onClick={(e) => e.stopPropagation()} // Prevents click event on the parent div
+        />
+      </div>
     </div>
   );
 
@@ -82,9 +119,9 @@ const SignaturePDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
   };
 
   return (
-    <div>
+    <div className="spv-container">
       <div className="spv-pdf-header">
-        <div className="spv-pdf-toolbar">
+        <div className="spv-toolbar">
           <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage <= 1}>
             <FiChevronLeft />
           </button>
@@ -94,19 +131,16 @@ const SignaturePDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
           <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage >= numPages}>
             <FiChevronRight />
           </button>
-          <button onClick={zoomOut}>
+          <button onClick={zoomOut} className="spv-zoom-button" disabled={scale <= 0.6}>
             <FiZoomOut />
           </button>
-          <button onClick={zoomIn}>
+          <button onClick={zoomIn} className="spv-zoom-button" disabled={scale >= 1.6}>
             <FiZoomIn />
           </button>
         </div>
       </div>
-      <div className="spv-pdf-viewer">
-        <div
-          className="spv-pdf-viewer-container"
-          ref={containerRef}
-        >
+      <div className="spv-body" ref={containerRef}>
+        <div className="spv-pdf-viewer-container">
           <Document
             file={fileUrl}
             onLoadSuccess={onDocumentLoadSuccess}
