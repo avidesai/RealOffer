@@ -15,16 +15,14 @@
 
 .modal-content {
   background: #ffffff;
-  padding-top: 1.5rem;
-  padding-right: 3rem;
-  padding-left: 3rem;
+  padding: 1.5rem 3rem;
   border-radius: 20px;
   width: 700px;
   max-width: 90%;
-  height: 90%; /* Adjust the maximum height */
+  height: 90%;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   position: relative;
-  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-y: auto;
   animation: fadeIn 0.3s ease-in-out;
 }
 
@@ -110,17 +108,16 @@
   border-radius: 8px;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
   transition: background-color 0.5s ease;
+  width: 46%;
 }
 
 .step-back-button {
   background-color: #a09f9f;
-  width: 46%;
   margin-left: 0.55rem;
 }
 
 .next-button {
   background-color: #007bff;
-  width: 46%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -199,17 +196,17 @@
 .form-group-horizontal {
   display: flex;
   align-items: center;
-  gap: 1rem; /* Adjust the gap as needed */
+  gap: 1rem;
 }
 
 .form-input-left {
-  width: 35%; /* 35% width for the input box */
+  width: 35%;
 }
 
 .form-select-right {
   position: relative;
   top: 5px;
-  width: 65%; /* 65% width for the select box */
+  width: 65%;
 }
 
 .summary-section {
@@ -241,259 +238,4 @@
   padding: 0.5rem;
   border-radius: 5px;
   margin-bottom: 0.5rem;
-}
-
-/* Updated UploadDocumentsModal styles */
-
-.offer-upload-documents-modal {
-  width: 100%;
-  height: auto;
-  background: #fff;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.offer-upload-modal-content {
-  width: 100%;
-}
-
-.offer-modal-title {
-  font-size: 16px;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.offer-upload-area {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
-
-.offer-drag-drop {
-  width: 100%;
-  padding: 0.5rem;
-  padding-bottom: 1.5rem;
-  border: 2px dashed #c3c3c3;
-  border-radius: 10px;
-  text-align: center;
-  background-color: #f9f9f9;
-  transition: background-color 0.3s ease;
-  cursor: pointer;
-}
-
-.offer-drag-drop:hover {
-  background-color: #ebebeb;
-}
-
-.offer-drag-drop-text {
-  font-size: 16px;
-  color: #333;
-}
-
-.offer-or-text {
-  margin: 10px 0;
-  font-size: 16px;
-  color: #333;
-}
-
-.offer-upload-button {
-  font-weight: bold;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 5px;
-  margin-top: 0.4rem;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.offer-upload-button:hover {
-  background-color: #0056b3;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.offer-upload-spinner-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.8);
-  z-index: 1000;
-}
-
-.offer-upload-spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-top: 4px solid #007bff;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: offer-spin 1s linear infinite;
-}
-
-@keyframes offer-spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.offer-file-list-container {
-  max-height: 800px;
-  overflow-y: auto;
-  padding-bottom: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.offer-file-list {
-  margin-top: 20px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.offer-file-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #f0f0f0;
-  width: 95%;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-bottom: 0rem;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.offer-file-item:hover {
-  background-color: #dceeff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-}
-
-.offer-file-info {
-  flex: 1.2;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%; /* Make sure the info takes up the full height of the parent */
-  padding-left: 0.5rem;
-  margin-top: -0.8rem;
-}
-
-.offer-file-name {
-  font-weight: 600;
-  color: #333;
-  font-size: 16px;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  max-width: 90%;
-  margin-left: 0.5rem;
-  margin-bottom: 0.75rem; /* Add some space between the file name and title input */
-}
-
-.offer-file-title-input {
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 14px;
-  max-width: 100%;
-}
-
-.offer-file-options {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  margin-top: 1.1rem;
-  padding-right: 0.5rem;
-  height: 100%; /* Make sure the options take up the full height of the parent */
-}
-
-.offer-delete-file-button {
-  background-color: #ff4d4d;
-  color: white;
-  border: none;
-  padding: 0.35rem 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  white-space: nowrap;
-  font-weight: 550;
-}
-
-.offer-delete-file-button:hover {
-  background-color: #e60000;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.offer-file-type-select {
-  width: 75%;
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 14px;
-  height: 2.3rem;
-}
-
-
-.offer-modal-footer {
-  text-align: right;
-  margin-top: 1rem;
-  margin-bottom: 3rem;
-}
-
-.offer-upload-files-button {
-  width: 70%;
-  padding: 12px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  text-align: center;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-
-}
-
-.offer-upload-files-button:hover {
-  background-color: #238c31;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.offer-modal-footer {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
-
-.offer-upload-errors {
-  width: 90%;
-  margin: 0 auto;
-  background-color: #f8d7da;
-  color: #df3243;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 20px;
-  font-weight: 500;
-  text-align: center;
-}
-
-.offer-upload-error {
-  margin: 0;
 }

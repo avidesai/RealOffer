@@ -1,35 +1,7 @@
-/* UploadDocumentsModal.css */
+/* Documents.css */
 
-.upload-documents-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  font-family: 'Inter', sans-serif;
-}
-
-.modal-content {
-  background: #ffffff;
-  padding: 2rem;
-  border-radius: 20px;
-  width: 700px;
-  max-width: 90%;
-  max-height: 90vh;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow-y: auto;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+.modal-step {
+  padding: 1rem;
 }
 
 .offer-modal-header {
@@ -46,30 +18,31 @@
   color: #666;
 }
 
-.offer-close-button {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: transparent;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #666;
-  transition: color 0.3s ease;
+.offer-upload-documents-modal {
+  width: 100%;
+  height: auto;
+  background: #fff;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-.offer-close-button:hover {
-  color: #333;
+.offer-upload-modal-content {
+  width: 100%;
 }
 
 .offer-upload-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
   margin-bottom: 1.5rem;
 }
 
 .offer-drag-drop {
-  border: 2px dashed #ccc;
+  width: 100%;
+  padding: 1.5rem;
+  border: 2px dashed #c3c3c3;
   border-radius: 10px;
-  padding: 2rem;
   text-align: center;
   background-color: #f9f9fa;
   transition: background-color 0.3s ease;
@@ -77,7 +50,7 @@
 }
 
 .offer-drag-drop:hover {
-  background-color: #f0f0f0;
+  background-color: #ebebeb;
 }
 
 .offer-drag-drop-text {
@@ -93,13 +66,15 @@
 }
 
 .offer-upload-button {
+  font-weight: bold;
   background-color: #007bff;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 5px;
-  font-size: 0.9rem;
+  margin-top: 0.5rem;
   cursor: pointer;
+  font-size: 0.9rem;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -111,7 +86,7 @@
 .offer-file-list-container {
   max-height: 400px;
   overflow-y: auto;
-  margin-bottom: 1.5rem;
+  padding: 0 1rem;
 }
 
 .offer-file-list {
@@ -212,18 +187,21 @@
 }
 
 .offer-modal-footer {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
 }
 
 .offer-upload-files-button {
+  width: auto;
+  padding: 0.75rem 1.5rem;
   background-color: #28a745;
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
   border-radius: 5px;
+  cursor: pointer;
   font-size: 1rem;
   font-weight: 600;
-  cursor: pointer;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -233,11 +211,13 @@
 }
 
 .offer-upload-errors {
+  width: 90%;
+  margin: 0 auto 1rem;
   background-color: #f8d7da;
   color: #721c24;
   padding: 0.75rem;
   border-radius: 5px;
-  margin-bottom: 1rem;
+  font-size: 0.9rem;
 }
 
 .offer-upload-error {
@@ -254,7 +234,7 @@
   justify-content: center;
   align-items: center;
   background: rgba(255, 255, 255, 0.8);
-  z-index: 1001;
+  z-index: 1000;
 }
 
 .offer-upload-spinner {

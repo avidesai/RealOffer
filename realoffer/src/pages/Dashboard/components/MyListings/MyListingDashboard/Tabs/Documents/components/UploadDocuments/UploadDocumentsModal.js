@@ -1,5 +1,3 @@
-// UploadDocumentsModal.js
-
 import React from 'react';
 import './UploadDocumentsModal.css';
 
@@ -20,21 +18,24 @@ const UploadDocumentsModal = ({
 }) => {
   return (
     <div className="upload-documents-modal" onDragOver={handleDragOver} onDrop={handleDrop}>
-      <div className="upload-modal-content">
-        <button className="close-button" onClick={onClose}></button>
-        <h2 className="modal-title">Add Documents</h2>
+      <div className="modal-content">
+        <button className="offer-close-button" onClick={onClose}></button>
+        <div className='offer-modal-header'>
+          <h2>Add Documents</h2>
+          <p>Upload disclosure documents for this listing.</p>
+        </div>
         {errors.length > 0 && (
-          <div className="upload-errors">
+          <div className="offer-upload-errors">
             {errors.map((error, index) => (
-              <p key={index} className="upload-error">{error}</p>
+              <p key={index} className="offer-upload-error">{error}</p>
             ))}
           </div>
         )}
-        <div className="upload-area">
-          <div className="drag-drop">
-            <p className="drag-drop-text">Drag and drop PDF files or images here</p>
-            <p className="or-text">Or</p>
-            <button className="upload-button" onClick={handleUploadClick}>
+        <div className="offer-upload-area">
+          <div className="offer-drag-drop">
+            <p className="offer-drag-drop-text">Drag and drop PDF files or images here</p>
+            <p className="offer-or-text">Or</p>
+            <button className="offer-upload-button" onClick={handleUploadClick}>
               Upload from your device
             </button>
             <input
@@ -43,30 +44,35 @@ const UploadDocumentsModal = ({
               ref={fileInputRef}
               style={{ display: 'none' }}
               onChange={handleFileSelect}
-              accept="application/pdf, image/*" // Accept both PDF and image files
+              accept="application/pdf, image/*"
             />
           </div>
         </div>
-        {uploading && <div className="upload-spinner-container"><div className="upload-spinner"></div></div>}
-        <div className="file-list-container">
-          <div className="file-list">
+        {uploading && <div className="offer-upload-spinner-container"><div className="offer-upload-spinner"></div></div>}
+        <div className="offer-file-list-container">
+          <div className="offer-file-list">
             {files.map((file, index) => (
-              <div key={index} className="file-item">
-                <div className="file-info">
-                  <p className="file-name">{file.file.name} ({(file.file.size / 1024).toFixed(2)} KB)</p>
+              <div key={index} className="offer-file-item">
+                <div className="offer-file-quadrant offer-file-name">
+                  {file.file.name}
+                </div>
+                <div className="offer-file-quadrant offer-file-delete">
+                  <button className="offer-delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>
+                </div>
+                <div className="offer-file-quadrant offer-file-title">
                   <input
                     type="text"
                     value={file.title}
                     onChange={(e) => handleFileTitleChange(index, e.target.value)}
                     placeholder="Document Title"
-                    className="file-title-input"
+                    className="offer-file-title-input"
                   />
                 </div>
-                <div className="file-options">
+                <div className="offer-file-quadrant offer-file-type">
                   <select
                     value={file.type}
                     onChange={(e) => handleFileTypeChange(index, e.target.value)}
-                    className="file-type-select"
+                    className="offer-file-type-select"
                   >
                     <option value="">Select Type</option>
                     <option value="Offer Instructions">Offer Instructions</option>
@@ -81,14 +87,13 @@ const UploadDocumentsModal = ({
                     <option value="HOA Documents">HOA Documents</option>
                     <option value="Other">Other</option>
                   </select>
-                  <button className="delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>
                 </div>
               </div>
             ))}
           </div>
         </div>
-        <div className="modal-footer">
-          <button className="upload-files-button" onClick={handleUpload}>Upload Files</button>
+        <div className="offer-modal-footer">
+          <button className="offer-upload-files-button" onClick={handleUpload}>Upload Files</button>
         </div>
       </div>
     </div>

@@ -1,6 +1,5 @@
-// /Steps/Documents.js
-
 import React, { useState, useRef, useEffect } from 'react';
+import './Documents.css';
 import axios from 'axios';
 import { useAuth } from '../../../../../../../../../../context/AuthContext';
 
@@ -82,9 +81,9 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
         formData.append('title[]', title);
       });
   
-      formData.append('purpose', 'offer'); // Ensure the purpose is set to "offer" only once
-      formData.append('uploadedBy', user._id); // Assuming user._id contains the user's ID
-      formData.append('propertyListingId', listingId); // Add the property listing ID
+      formData.append('purpose', 'offer');
+      formData.append('uploadedBy', user._id);
+      formData.append('propertyListingId', listingId);
   
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formData, {
         headers: {
@@ -109,7 +108,7 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
       setUploading(false);
       setErrors(['An error occurred while uploading. Please try again.']);
     }
-  };  
+  };
 
   return (
     <div className="modal-step">
@@ -148,8 +147,13 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
             <div className="offer-file-list">
               {files.map((file, index) => (
                 <div key={index} className="offer-file-item">
-                  <div className="offer-file-info">
-                    <p className="offer-file-name">{file.file.name} ({(file.file.size / 1024).toFixed(2)} KB)</p>
+                  <div className="offer-file-quadrant offer-file-name">
+                    {file.file.name}
+                  </div>
+                  <div className="offer-file-quadrant offer-file-delete">
+                    <button className="offer-delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>
+                  </div>
+                  <div className="offer-file-quadrant offer-file-title">
                     <input
                       type="text"
                       value={file.title}
@@ -158,8 +162,7 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
                       className="offer-file-title-input"
                     />
                   </div>
-                  <div className="offer-file-options">
-                  <button className="offer-delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>
+                  <div className="offer-file-quadrant offer-file-type">
                     <select
                       value={file.type}
                       onChange={(e) => handleFileTypeChange(index, e.target.value)}
@@ -171,7 +174,6 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
                       <option value="Purchase Agreement">Purchase Agreement</option>
                       <option value="Other">Other</option>
                     </select>
-                    
                   </div>
                 </div>
               ))}
