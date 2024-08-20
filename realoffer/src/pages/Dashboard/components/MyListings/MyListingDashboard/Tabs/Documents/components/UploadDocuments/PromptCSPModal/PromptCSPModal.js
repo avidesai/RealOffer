@@ -5,13 +5,13 @@ import axios from 'axios';
 import './PromptCSPModal.css';
 
 const PromptCSPModal = ({ onClose, onCreatePackage, listingId }) => {
-  const [signaturePackageCreated, setSignaturePackageCreated] = useState(false);
+  const [signaturePackage, setSignaturePackage] = useState(null);
 
   useEffect(() => {
     const fetchListingStatus = async () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`);
-        setSignaturePackageCreated(response.data.signaturePackageCreated);
+        setSignaturePackage(response.data.signaturePackage);
       } catch (error) {
         console.error('Error fetching listing status:', error);
       }
@@ -19,12 +19,12 @@ const PromptCSPModal = ({ onClose, onCreatePackage, listingId }) => {
     fetchListingStatus();
   }, [listingId]);
 
-  const title = signaturePackageCreated ? "Update Buyer Signature Packet" : "Create Buyer Signature Packet";
-  const actionText = signaturePackageCreated ? "Update" : "Create";
+  const isSignaturePackageCreated = signaturePackage !== null;
+  const title = isSignaturePackageCreated ? "Update Buyer Signature Packet" : "Create Buyer Signature Packet";
+  const actionText = isSignaturePackageCreated ? "Update" : "Create";
 
   const handlePrimaryButtonClick = () => {
     onCreatePackage();
-    onClose();
   };
 
   return (

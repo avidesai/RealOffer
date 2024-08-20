@@ -29,7 +29,7 @@ exports.getAllListings = async (req, res) => {
 
 exports.getListingById = async (req, res) => {
   try {
-    const listing = await PropertyListing.findById(req.params.id).populate('offers');
+    const listing = await PropertyListing.findById(req.params.id).populate('offers').populate('signaturePackage');
     if (!listing) return res.status(404).json({ message: "Listing not found" });
     res.status(200).json(listing);
   } catch (error) {
@@ -45,7 +45,6 @@ exports.createListing = async (req, res) => {
   } = req.body;
 
   const propertyImages = req.files ? req.files.map(file => file.location) : [];
-
   let agentIds = [agent1, agent2].filter(Boolean); // Filter out any falsy values
 
   // Ensure agentIds is an array of ObjectIds
@@ -77,7 +76,6 @@ exports.createListing = async (req, res) => {
 
   try {
     const savedListing = await newListing.save();
-
     // Add the listing to the agent's listingPackages
     const agent = await User.findById(agent1);
     if (!agent) {
@@ -85,7 +83,6 @@ exports.createListing = async (req, res) => {
     }
     agent.listingPackages.push(savedListing._id);
     await agent.save();
-
     res.status(201).json(savedListing);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -107,6 +104,23 @@ exports.deleteListing = async (req, res) => {
     res.status(200).json({ message: "Listing deleted" });
   } catch (error) {
     res.status(404).json({ message: "Listing not found" });
+  }
+};
+
+exports.updateSignaturePackage = async (req, res) => {
+  const { listingId, signaturePackageId } = req.body;
+  try {
+    const updatedListing = await PropertyListing.findByIdAndUpdate(
+      listingId,
+      { signaturePackage: signaturePackageId },
+      { new: true }
+    ).populate('signaturePackage');
+    if (!updatedListing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+    res.status(200).json(updatedListing);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 };
 

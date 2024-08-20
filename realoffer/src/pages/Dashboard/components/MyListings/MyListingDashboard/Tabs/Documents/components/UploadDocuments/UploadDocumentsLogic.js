@@ -93,7 +93,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
         },
       });
       setUploading(false);
-      setShowCSPPrompt(true); // Show the CSP prompt after successful upload
+      setShowCSPPrompt(true);
     } catch (error) {
       setUploading(false);
       setErrors(['An error occurred while uploading. Please try again.']);

@@ -10,10 +10,7 @@ const propertyListingSchema = new mongoose.Schema({
     type: String,
     default: "Regular"
   },
-  signaturePackageCreated: {
-    type: Boolean,
-    default: false
-  },
+  signaturePackage: { type: mongoose.Schema.Types.ObjectId, ref: 'Document' },
   homeCharacteristics: {
     price: {
       type: Number,
