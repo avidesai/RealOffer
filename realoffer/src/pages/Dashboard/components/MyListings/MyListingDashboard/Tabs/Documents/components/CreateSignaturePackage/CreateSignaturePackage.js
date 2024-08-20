@@ -66,7 +66,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
     }
   };
 
-  const buttonText = signaturePackage ? "Update Signature Packet" : "Create Buyer Signature Packet";
+  const buttonText = signaturePackage ? "Update Buyer Signature Packet" : "Create Buyer Signature Packet";
 
   return (
     isOpen && (

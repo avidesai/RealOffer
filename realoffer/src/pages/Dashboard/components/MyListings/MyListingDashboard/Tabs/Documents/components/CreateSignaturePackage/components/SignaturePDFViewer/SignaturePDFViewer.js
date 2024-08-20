@@ -1,3 +1,5 @@
+// SignaturePDFViewer.js
+
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Document, Page } from 'react-pdf';
 import { FiChevronLeft, FiChevronRight, FiZoomIn, FiZoomOut } from 'react-icons/fi';
@@ -19,6 +21,7 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
   const containerRef = useRef(null);
   const pageRefs = useRef({});
   const [localSelectedPages, setLocalSelectedPages] = useState(signaturePackagePages);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setLocalSelectedPages(signaturePackagePages);
@@ -81,7 +84,13 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
           scale={scale}
           renderTextLayer={true}
           renderAnnotationLayer={true}
-          onRenderSuccess={() => alignTextLayer(pageNumber)}
+          onRenderSuccess={() => {
+            alignTextLayer(pageNumber);
+            if (pageNumber === numPages) {
+              setIsLoading(false);
+            }
+          }}
+          loading={null}
         />
         <div className="spv-overlay">
           <input
@@ -135,14 +144,15 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
           <Document
             file={fileUrl}
             onLoadSuccess={onDocumentLoadSuccess}
-            loading={
-              <div className="spv-pdf-spinner-overlay">
-                <div className="spv-pdf-spinner"></div>
-              </div>
-            }
+            loading={null}
           >
             {Array.from(new Array(numPages), (el, index) => renderPage(index + 1))}
           </Document>
+          {isLoading && (
+            <div className="spv-pdf-spinner-overlay">
+              <div className="spv-pdf-spinner"></div>
+            </div>
+          )}
         </div>
       </div>
     </div>

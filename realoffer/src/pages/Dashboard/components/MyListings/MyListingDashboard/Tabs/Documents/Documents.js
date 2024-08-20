@@ -17,12 +17,22 @@ const Documents = ({ listingId }) => {
   const [currentDocTitle, setCurrentDocTitle] = useState('');
   const [currentDocType, setCurrentDocType] = useState('');
   const [showSignaturePackageModal, setShowSignaturePackageModal] = useState(false);
+  const [hasSignaturePackage, setHasSignaturePackage] = useState(false);
+
+  const fetchListingData = useCallback(async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`);
+      setHasSignaturePackage(!!response.data.signaturePackage);
+    } catch (error) {
+      console.error('Error fetching listing data:', error);
+    }
+  }, [listingId]);
 
   const fetchDocuments = useCallback(async () => {
     setLoading(true);
     try {
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`);
-      const listingDocuments = response.data.filter(doc => doc.purpose === 'listing');
+      const listingDocuments = response.data.filter(doc => doc.purpose === 'listing' || doc.purpose === 'signature_package');
       setDocuments(listingDocuments);
     } catch (error) {
       console.error('Error fetching documents:', error);
@@ -32,8 +42,9 @@ const Documents = ({ listingId }) => {
   }, [listingId]);
 
   useEffect(() => {
+    fetchListingData();
     fetchDocuments();
-  }, [fetchDocuments]);
+  }, [fetchListingData, fetchDocuments]);
 
   const handleUploadClick = () => {
     setShowUploadModal(true);
@@ -58,6 +69,7 @@ const Documents = ({ listingId }) => {
     try {
       await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${id}`);
       fetchDocuments();
+      fetchListingData(); // Refetch listing data in case the signature package was deleted
     } catch (error) {
       console.error('Error deleting document:', error);
     } finally {
@@ -71,6 +83,7 @@ const Documents = ({ listingId }) => {
       await Promise.all(selectedDocuments.map((id) => axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${id}`)));
       setSelectedDocuments([]);
       fetchDocuments();
+      fetchListingData(); // Refetch listing data in case the signature package was deleted
     } catch (error) {
       console.error('Error deleting selected documents:', error);
     } finally {
@@ -101,6 +114,8 @@ const Documents = ({ listingId }) => {
 
   const closeSignaturePackageModal = () => {
     setShowSignaturePackageModal(false);
+    fetchListingData(); // Refetch listing data to update button text if necessary
+    fetchDocuments(); // Refetch documents to show updated signature package
   };
 
   const formatDate = (dateString) => {
@@ -120,7 +135,9 @@ const Documents = ({ listingId }) => {
           </button>
           <button className="docusign-button">DocuSign</button>
         </div>
-        <button className="signature-button" onClick={openSignaturePackageModal}>Create Buyer Signature Packet</button>
+        <button className="signature-button" onClick={openSignaturePackageModal}>
+          {hasSignaturePackage ? "Update Buyer Signature Packet" : "Create Buyer Signature Packet"}
+        </button>
       </div>
       {loading ? (
         <div className="spinner-container">
@@ -134,7 +151,7 @@ const Documents = ({ listingId }) => {
             documents.map((doc) => (
               <div
                 key={doc._id}
-                className={`document-item ${isSelected(doc._id) ? 'selected' : ''}`}
+                className={`document-item ${isSelected(doc._id) ? 'selected' : ''} ${doc.purpose === 'signature_package' ? 'signature-package' : ''}`}
                 onClick={(e) => handleItemClick(e, doc)}
               >
                 <input
@@ -145,7 +162,10 @@ const Documents = ({ listingId }) => {
                 />
                 <div className="document-info">
                   <div className="document-details">
-                    <p className="document-title">{doc.title || 'Untitled'}</p>
+                    <p className="document-title">
+                      {doc.purpose === 'signature_package' && <span className="signature-package-icon">✍🏼 </span>}
+                      {doc.title || 'Untitled'}
+                    </p>
                     <p className="document-type">{doc.type || 'No type'}</p>
                     <p className="document-meta">
                       {doc.pages || 0} {doc.pages === 1 ? 'Page' : 'Pages'} <span className="meta-divider">•</span> {formatDate(doc.updatedAt)}
@@ -156,10 +176,14 @@ const Documents = ({ listingId }) => {
                   <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
                     <button className="download-action-button document-actions-button">Download</button>
                   </a>
-                  <button className="rename-action-button document-actions-button">Rename</button>
-                  <button className="delete-action-button document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
-                    Delete
-                  </button>
+                  {doc.purpose !== 'signature_package' && (
+                    <>
+                      <button className="rename-action-button document-actions-button">Rename</button>
+                      <button className="delete-action-button document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
+                        Delete
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             ))
@@ -188,6 +212,7 @@ const Documents = ({ listingId }) => {
           isOpen={showSignaturePackageModal}
           onClose={closeSignaturePackageModal}
           refreshDocuments={fetchDocuments}
+          hasSignaturePackage={hasSignaturePackage}
         />
       )}
     </div>
