@@ -17,6 +17,7 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
   } = PDFViewerLogic({ fileUrl, docTitle, docType, onClose });
 
   const [isToolbarVisible, setIsToolbarVisible] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef(null);
   const pageRefs = useRef({});
   const toolbarTimeoutRef = useRef(null);
@@ -66,17 +67,20 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
         scale={scale}
         renderTextLayer={true}
         renderAnnotationLayer={true}
-        onRenderSuccess={() => alignTextLayer(pageNumber)}
+        onRenderSuccess={() => {
+          alignTextLayer(pageNumber);
+          if (pageNumber === numPages) {
+            setIsLoading(false);
+          }
+        }}
+        loading={null}
       />
     </div>
   );
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= numPages) {
-      // Immediately update the current page state
       setCurrentPage(newPage);
-
-      // Scroll directly to the page without smooth scroll to prevent glitches
       pageRefs.current[newPage]?.scrollIntoView({ behavior: 'auto', block: 'start' });
     }
   };
@@ -117,14 +121,15 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
         <Document
           file={fileUrl}
           onLoadSuccess={onDocumentLoadSuccess}
-          loading={
-            <div className="pdf-spinner-overlay">
-              <div className="pdf-spinner"></div>
-            </div>
-          }
+          loading={null}
         >
           {Array.from(new Array(numPages), (el, index) => renderPage(index + 1))}
         </Document>
+        {isLoading && (
+          <div className="pdf-spinner-overlay">
+            <div className="pdf-spinner"></div>
+          </div>
+        )}
       </div>
       <div
         className={`pdf-toolbar-container ${isToolbarVisible ? 'visible' : ''}`}

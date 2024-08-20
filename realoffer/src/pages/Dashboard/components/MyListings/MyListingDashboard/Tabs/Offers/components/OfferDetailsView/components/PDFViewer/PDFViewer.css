@@ -64,6 +64,7 @@
   justify-content: center;
   align-items: flex-start;
   padding: 5rem 1rem 1rem;
+  position: relative;
 }
 
 .react-pdf__Document {
@@ -180,6 +181,7 @@
   justify-content: center;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1003;
 }
 
 .pdf-spinner {
@@ -194,4 +196,8 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.pdf-page-container {
+  position: relative;
 }
