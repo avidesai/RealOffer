@@ -13,8 +13,13 @@ import MyListingDashboard from './pages/Dashboard/components/MyListings/MyListin
 import UpgradeToPro from './pages/Dashboard/pages/UpgradeToPro/UpgradeToPro';
 import './App.css'; // Your global styles
 
+import useSpeedInsights from './speed-insights'; // Import the custom hook
+
 function App() {
   const [email, setEmail] = useState('');
+  
+  useSpeedInsights(); // Invoke the hook here
+
   return (
     <EmailContext.Provider value={{ email, setEmail }}>
       <Router>
