@@ -14,7 +14,7 @@ const corsOptions = {
       'http://localhost:3000', // Local development
       'https://real-offer-eight.vercel.app', // Production domain
       'https://real-offer-git-main-avidesais-projects.vercel.app', // Vercel preview domain (main branch)
-      'https://real-offer-f3awpduaj-avidesais-projects.vercel.app', // Another Vercel preview domain
+      'https://real-offer-gpxkm5o5g-avidesais-projects.vercel.app', // Another Vercel preview domain
     ];
 
     if (whitelist.indexOf(origin) !== -1 || !origin) {
