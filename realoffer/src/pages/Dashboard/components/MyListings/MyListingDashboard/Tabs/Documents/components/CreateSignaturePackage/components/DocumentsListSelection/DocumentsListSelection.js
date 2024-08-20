@@ -1,8 +1,15 @@
-import React, { useState, memo } from 'react';
+import React, { useState, memo, useEffect } from 'react';
 import './DocumentsListSelection.css';
 
 const DocumentsListSelection = ({ documents, onDocumentSelect }) => {
   const [selectedDocumentId, setSelectedDocumentId] = useState(null);
+
+  useEffect(() => {
+    if (documents.length > 0 && !selectedDocumentId) {
+      setSelectedDocumentId(documents[0]._id);
+      onDocumentSelect(documents[0]);
+    }
+  }, [documents, selectedDocumentId, onDocumentSelect]);
 
   const handleDocumentClick = (document) => {
     setSelectedDocumentId(document._id);

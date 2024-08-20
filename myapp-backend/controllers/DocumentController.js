@@ -293,8 +293,12 @@ exports.createBuyerSignaturePacket = async (req, res) => {
   const { listingId } = req.body;
 
   try {
-    const documents = await Document.find({ propertyListing: listingId });
+    const propertyListing = await PropertyListing.findById(listingId).populate('signaturePackage');
+    if (!propertyListing) {
+      return res.status(404).json({ message: 'Property listing not found' });
+    }
 
+    const documents = await Document.find({ propertyListing: listingId });
     const selectedDocuments = documents.filter(doc => doc.signaturePackagePages.length > 0);
 
     if (selectedDocuments.length === 0) {
@@ -331,7 +335,7 @@ exports.createBuyerSignaturePacket = async (req, res) => {
         }
       } catch (err) {
         console.error(`Error processing document ${document._id}:`, err.message);
-        continue; // Skip this document and continue with the next one
+        continue;
       }
     }
 
@@ -339,6 +343,17 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     const blobName = `documents/${uuidv4()}-BuyerSignaturePacket.pdf`;
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
     await blockBlobClient.uploadData(pdfBytes);
+
+    // If there's an existing signature package, delete it
+    if (propertyListing.signaturePackage) {
+      const oldDocument = await Document.findById(propertyListing.signaturePackage);
+      if (oldDocument) {
+        const oldBlobName = oldDocument.azureKey;
+        const oldBlockBlobClient = containerClient.getBlockBlobClient(oldBlobName);
+        await oldBlockBlobClient.delete();
+        await Document.deleteOne({ _id: oldDocument._id });
+      }
+    }
 
     const newDocument = new Document({
       title: 'Buyer Signature Packet',
@@ -348,15 +363,19 @@ exports.createBuyerSignaturePacket = async (req, res) => {
       thumbnailUrl: blockBlobClient.url,
       propertyListing: listingId,
       azureKey: blobName,
+      docType: 'pdf',
+      purpose: 'signature_package'
     });
 
-    await newDocument.save();
-    await PropertyListing.findByIdAndUpdate(listingId, { $push: { documents: newDocument._id } });
+    const savedDocument = await newDocument.save();
 
-    res.status(201).json(newDocument);
+    propertyListing.signaturePackage = savedDocument._id;
+    await propertyListing.save();
+
+    res.status(201).json(savedDocument);
   } catch (error) {
-    console.error('Error creating buyer signature packet:', error);
-    res.status(500).json({ message: 'Error creating buyer signature packet', error: error.message });
+    console.error('Error creating/updating buyer signature packet:', error);
+    res.status(500).json({ message: 'Error creating/updating buyer signature packet', error: error.message });
   }
 };
 

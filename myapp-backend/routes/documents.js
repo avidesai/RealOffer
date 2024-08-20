@@ -12,6 +12,6 @@ router.get('/:listingId', DocumentController.getDocumentsByListing);
 router.delete('/:id', DocumentController.deleteDocument);
 router.post('/addPage', DocumentController.addPageToSignaturePackage);
 router.post('/removePage', DocumentController.removePageFromSignaturePackage);
-router.post('/createBuyerSignaturePacket', DocumentController.createBuyerSignaturePacket);
+router.put('/createBuyerSignaturePacket', DocumentController.createBuyerSignaturePacket);
 
 module.exports = router;
