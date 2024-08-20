@@ -120,7 +120,7 @@ const Documents = ({ listingId }) => {
           </button>
           <button className="docusign-button">DocuSign</button>
         </div>
-        <button className="signature-button" onClick={openSignaturePackageModal}>Create Signature Packet</button>
+        <button className="signature-button" onClick={openSignaturePackageModal}>Create Buyer Signature Packet</button>
       </div>
       {loading ? (
         <div className="spinner-container">
