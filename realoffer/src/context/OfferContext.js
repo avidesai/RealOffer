@@ -67,8 +67,17 @@ export const OfferProvider = ({ children }) => {
     });
   }, []);
 
+  const deleteDocument = useCallback((documentId) => {
+    setOfferData(prevData => {
+      const updatedDocuments = prevData.documents.filter(doc => doc.id !== documentId);
+      const updatedData = { ...prevData, documents: updatedDocuments };
+      localStorage.setItem('offerData', JSON.stringify(updatedData));
+      return updatedData;
+    });
+  }, []);
+
   return (
-    <OfferContext.Provider value={{ offerData, updateOfferData }}>
+    <OfferContext.Provider value={{ offerData, updateOfferData, deleteDocument }}>
       {children}
     </OfferContext.Provider>
   );

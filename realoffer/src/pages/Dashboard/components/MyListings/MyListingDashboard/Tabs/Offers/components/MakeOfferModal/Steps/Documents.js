@@ -48,11 +48,17 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
     fileInputRef.current.click();
   };
 
-  const handleDeleteFile = (index) => {
+  const handleDeleteFile = useCallback((index) => {
     const newFiles = files.filter((_, i) => i !== index);
     setFiles(newFiles);
     setFilesUploaded(false);
-  };
+    
+    // Update the OfferContext
+    updateOfferData(prevData => ({
+      ...prevData,
+      documents: newFiles
+    }));
+  }, [files, updateOfferData]);
 
   const handleFileTypeChange = (index, newType) => {
     const newFiles = files.map((file, i) => 
