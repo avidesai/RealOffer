@@ -3,6 +3,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { AuthProvider } from './context/AuthContext';
+import { OfferProvider } from './context/OfferContext';
 import App from './App';
 import './index.css';
 
@@ -11,6 +12,8 @@ const root = createRoot(container);
 
 root.render(
   <AuthProvider>
-    <App />
+    <OfferProvider>
+      <App />
+    </OfferProvider>
   </AuthProvider>
 );

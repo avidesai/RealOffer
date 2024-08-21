@@ -2,8 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import './Documents.css';
 import axios from 'axios';
 import { useAuth } from '../../../../../../../../../../context/AuthContext';
+import { useOffer } from '../../../../../../../../../../context/OfferContext';
 
-const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, listingId }) => {
+const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
+  const { offerData, updateOfferData } = useOffer();
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState([]);
@@ -11,8 +13,8 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
   const { user } = useAuth();
 
   useEffect(() => {
-    setFiles(formData.documents || []);
-  }, [formData.documents]);
+    setFiles(offerData.documents || []);
+  }, [offerData.documents]);
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -21,18 +23,22 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
   const handleDrop = (e) => {
     e.preventDefault();
     const droppedFiles = Array.from(e.dataTransfer.files);
-    setFiles((prevFiles) => [
-      ...prevFiles,
+    const newFiles = [
+      ...files,
       ...droppedFiles.map((file) => ({ file, type: '', title: file.name })),
-    ]);
+    ];
+    setFiles(newFiles);
+    updateOfferData({ documents: newFiles });
   };
 
   const handleFileSelect = (e) => {
     const selectedFiles = Array.from(e.target.files);
-    setFiles((prevFiles) => [
-      ...prevFiles,
+    const newFiles = [
+      ...files,
       ...selectedFiles.map((file) => ({ file, type: '', title: file.name })),
-    ]);
+    ];
+    setFiles(newFiles);
+    updateOfferData({ documents: newFiles });
   };
 
   const handleUploadClick = () => {
@@ -40,19 +46,25 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
   };
 
   const handleDeleteFile = (index) => {
-    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+    const newFiles = files.filter((_, i) => i !== index);
+    setFiles(newFiles);
+    updateOfferData({ documents: newFiles });
   };
 
   const handleFileTypeChange = (index, newType) => {
-    setFiles((prevFiles) =>
-      prevFiles.map((file, i) => (i === index ? { ...file, type: newType } : file))
+    const newFiles = files.map((file, i) => 
+      i === index ? { ...file, type: newType } : file
     );
+    setFiles(newFiles);
+    updateOfferData({ documents: newFiles });
   };
 
   const handleFileTitleChange = (index, newTitle) => {
-    setFiles((prevFiles) =>
-      prevFiles.map((file, i) => (i === index ? { ...file, title: newTitle } : file))
+    const newFiles = files.map((file, i) => 
+      i === index ? { ...file, title: newTitle } : file
     );
+    setFiles(newFiles);
+    updateOfferData({ documents: newFiles });
   };
 
   const handleUpload = async () => {
@@ -99,11 +111,9 @@ const Documents = ({ formData, handleNextStep, handlePrevStep, setFormData, list
         file: { name: doc.title, size: doc.size }
       }));
   
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        documents: [...prevFormData.documents, ...uploadedDocuments],
-      }));
-      setFiles((prevFiles) => [...prevFiles, ...uploadedDocuments]);
+      const newFiles = [...offerData.documents, ...uploadedDocuments];
+      updateOfferData({ documents: newFiles });
+      setFiles(newFiles);
     } catch (error) {
       setUploading(false);
       setErrors(['An error occurred while uploading. Please try again.']);

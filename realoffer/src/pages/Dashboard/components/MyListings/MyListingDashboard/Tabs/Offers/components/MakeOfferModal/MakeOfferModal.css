@@ -15,7 +15,7 @@
 
 .modal-content {
   background: #ffffff;
-  padding: 1.5rem 3rem;
+  padding: 2rem;
   border-radius: 20px;
   width: 700px;
   max-width: 90%;
@@ -38,8 +38,8 @@
 }
 
 .modal-title {
-  font-size: 2em;
-  margin-bottom: 1rem;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
   text-align: center;
   color: #333333;
 }
@@ -48,21 +48,19 @@
   border: none;
   height: 1px;
   background-color: #e0e0e0;
-  margin: 1rem 0;
+  margin: 0;
 }
 
 .offer-modal-header {
-  margin-top: 2rem;
-  margin-bottom: 2.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .modal-step {
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
+  margin-bottom: 2rem;
 }
 
 .modal-step h2 {
-  font-size: 1.5em;
+  font-size: 1.5rem;
   margin-bottom: 1rem;
   color: #555555;
 }
@@ -74,6 +72,7 @@
 .form-group label {
   display: block;
   font-weight: bold;
+  margin-bottom: 0.5rem;
 }
 
 .form-group input,
@@ -89,13 +88,14 @@
 
 .form-group textarea {
   resize: vertical;
+  min-height: 100px;
   max-height: 300px;
 }
 
 .button-container {
   display: flex;
   justify-content: space-between;
-  padding-top: 1.5rem;
+  margin-top: 2rem;
 }
 
 .step-back-button,
@@ -107,31 +107,24 @@
   border: none;
   border-radius: 8px;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.5s ease;
-  width: 46%;
+  transition: background-color 0.3s ease;
+  width: 48%;
 }
 
 .step-back-button {
-  background-color: #a09f9f;
-  margin-left: 0.55rem;
+  background-color: #a0a0a0;
 }
 
 .next-button {
   background-color: #007bff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-right: 0.55rem;
 }
 
 .step-back-button:hover {
-  background-color: #7c7b7b;
-  cursor: pointer;
+  background-color: #808080;
 }
 
 .next-button:hover {
   background-color: #0056b3;
-  cursor: pointer;
 }
 
 .offer-close-button {
@@ -150,32 +143,35 @@
   cursor: pointer;
   color: #000000;
   transition: all 0.3s ease;
-}
+  }
 
-.offer-close-button:hover {
+  .offer-close-button:hover {
   color: #ffffff;
   background-color: #b12525;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
+  }
 
-.offer-close-button:before {
+  .offer-close-button:before {
   content: '×';
   font-weight: bold;
   display: inline-block;
   line-height: 1;
   margin-bottom: 2px;
-}
+  }
 
 .calculated-values {
-  margin-top: 1rem;
-  padding: 1rem;
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
   border: 1px solid #dddddd;
   border-radius: 5px;
   background-color: #f9f9f9;
 }
 
 .calculated-values p {
-  margin: 0.5rem 0;
+  margin: 0.75rem 0;
 }
 
 .calculated-values strong {
@@ -185,7 +181,6 @@
 }
 
 .special-terms {
-  height: 100px;
   font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 
@@ -204,33 +199,35 @@
 }
 
 .form-select-right {
-  position: relative;
-  top: 5px;
   width: 65%;
 }
 
 .summary-section {
   display: flex;
   flex-direction: column;
+  gap: 1.5rem;
 }
 
 .summary-item {
-  margin-bottom: 1rem;
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border-radius: 5px;
 }
 
 .summary-item h3 {
-  font-size: 1.2em;
-  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
   color: #333333;
 }
 
 .summary-item p {
-  margin: 0.25rem 0;
+  margin: 0.5rem 0;
 }
 
 .summary-item ul {
   list-style-type: none;
   padding-left: 0;
+  margin: 0;
 }
 
 .summary-item ul li {
@@ -238,4 +235,9 @@
   padding: 0.5rem;
   border-radius: 5px;
   margin-bottom: 0.5rem;
+}
+
+.description-label {
+  font-weight: bold;
+  margin-right: 0.5rem;
 }

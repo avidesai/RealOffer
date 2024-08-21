@@ -1,6 +1,7 @@
 // PurchasePrice.js
 
 import React, { useState, useEffect } from 'react';
+import { useOffer } from '../../../../../../../../../../context/OfferContext';
 
 const formatCurrency = (value) => {
   if (!value) return '';
@@ -15,7 +16,8 @@ const parseNumber = (value) => {
   return parseFloat(value.replace(/[^0-9.-]+/g, '')) || 0;
 };
 
-const PurchasePrice = ({ formData, handleChange, handleFinanceTypeChange, handleNextStep }) => {
+const PurchasePrice = ({ handleNextStep }) => {
+  const { offerData, updateOfferData } = useOffer();
   const [displayValues, setDisplayValues] = useState({
     purchasePrice: '',
     initialDeposit: '',
@@ -24,16 +26,16 @@ const PurchasePrice = ({ formData, handleChange, handleFinanceTypeChange, handle
 
   useEffect(() => {
     setDisplayValues({
-      purchasePrice: formatCurrency(formData.purchasePrice),
-      initialDeposit: formatCurrency(formData.initialDeposit),
-      downPayment: formatCurrency(formData.downPayment),
+      purchasePrice: formatCurrency(offerData.purchasePrice),
+      initialDeposit: formatCurrency(offerData.initialDeposit),
+      downPayment: formatCurrency(offerData.downPayment),
     });
-  }, [formData]);
+  }, [offerData]);
 
   const calculatedValues = () => {
-    const purchasePrice = parseNumber(formData.purchasePrice);
-    const downPayment = parseNumber(formData.downPayment);
-    const initialDeposit = parseNumber(formData.initialDeposit);
+    const purchasePrice = parseNumber(offerData.purchasePrice);
+    const downPayment = parseNumber(offerData.downPayment);
+    const initialDeposit = parseNumber(offerData.initialDeposit);
     const loanAmount = purchasePrice - downPayment;
     const percentDown = ((downPayment / purchasePrice) * 100).toFixed(2);
     const balanceOfDownPayment = downPayment - initialDeposit;
@@ -49,7 +51,7 @@ const PurchasePrice = ({ formData, handleChange, handleFinanceTypeChange, handle
   const handleBlur = (e) => {
     const { name, value } = e.target;
     const rawValue = parseNumber(value);
-    handleChange({ target: { name, value: rawValue.toString() } });
+    updateOfferData({ [name]: rawValue.toString() });
     setDisplayValues((prevValues) => ({
       ...prevValues,
       [name]: formatCurrency(rawValue),
@@ -60,30 +62,36 @@ const PurchasePrice = ({ formData, handleChange, handleFinanceTypeChange, handle
     const { name } = e.target;
     setDisplayValues((prevValues) => ({
       ...prevValues,
-      [name]: formData[name],
+      [name]: offerData[name],
     }));
   };
 
   const handleNumberChange = (e) => {
     const { name, value } = e.target;
     const rawValue = value.replace(/[^0-9]/g, '');
-    handleChange({
-      target: {
-        name,
-        value: rawValue,
-      }
-    });
+    updateOfferData({ [name]: rawValue });
     setDisplayValues((prevValues) => ({
       ...prevValues,
       [name]: formatCurrency(rawValue),
     }));
   };
 
+  const handleFinanceTypeChange = (e) => {
+    const { name, value } = e.target;
+    const updatedData = { [name]: value };
+    if (value === 'CASH') {
+      updatedData.downPayment = offerData.purchasePrice;
+      updatedData.loanAmount = '0';
+      updatedData.percentDown = '100';
+    }
+    updateOfferData(updatedData);
+  };
+
   return (
     <div className="modal-step">
       <div className="offer-modal-header">
         <h2>Purchase Price</h2>
-        <p>Provide the terms for the Purchase Price.</p>
+        <p>Provide your offer price, terms, and financing.</p>
       </div>
       <div className="form-group dollar-input">
         <label>Purchase Price</label>
@@ -112,7 +120,7 @@ const PurchasePrice = ({ formData, handleChange, handleFinanceTypeChange, handle
         <label>Finance Type</label>
         <select
           name="financeType"
-          value={formData.financeType}
+          value={offerData.financeType}
           onChange={handleFinanceTypeChange}
         >
           <option value="LOAN">Loan</option>
@@ -120,7 +128,7 @@ const PurchasePrice = ({ formData, handleChange, handleFinanceTypeChange, handle
           <option value="FHA/VA">FHA/VA Loan</option>
         </select>
       </div>
-      {formData.financeType !== 'CASH' && (
+      {offerData.financeType !== 'CASH' && (
         <div className="form-group dollar-input">
           <label>Down Payment</label>
           <input
@@ -133,7 +141,7 @@ const PurchasePrice = ({ formData, handleChange, handleFinanceTypeChange, handle
           />
         </div>
       )}
-      {formData.financeType !== 'CASH' && (
+      {offerData.financeType !== 'CASH' && (
         <div className="calculated-values">
           <p><strong>Finances</strong></p>
           {loanAmount && <p>Loan Amount: {loanAmount}</p>}

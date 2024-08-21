@@ -65,9 +65,9 @@ function ListingOverview({ listing }) {
             <p className="property-price">${formatPrice(currentListing.homeCharacteristics.price)} | {currentListing.homeCharacteristics.beds} Bed, {currentListing.homeCharacteristics.baths} Bath</p>
             <div className="overview-buttons">
               <button className="overview-btn-share-package">Share Listing</button>
-              <button className="overview-btn">Manage Showings</button>
               <button className="overview-btn" onClick={() => setShowMoreInfo(true)}>Edit Info</button>
-              <button className="overview-btn" onClick={() => setShowGallery(true)}>View Images</button>
+              <button className="overview-btn" onClick={() => setShowGallery(true)}>Images</button>
+              <button className="overview-btn">Manage Showings</button>
 
             </div>
           </div>

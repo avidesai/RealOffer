@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useOffer } from '../../../../../../../../../context/OfferContext';
 import './MakeOfferModal.css';
 import PurchasePrice from './Steps/PurchasePrice';
 import Contingencies from './Steps/Contingencies';
@@ -14,99 +15,51 @@ const parseNumber = (value) => {
 };
 
 const MakeOfferModal = ({ onClose, listingId }) => {
+  const { offerData, updateOfferData } = useOffer();
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
-    purchasePrice: '',
-    initialDeposit: '',
-    financeType: 'LOAN',
-    loanAmount: '',
-    percentDown: '',
-    downPayment: '',
-    balanceOfDownPayment: '',
-    financeContingency: '',
-    financeContingencyDays: '',
-    appraisalContingency: '',
-    appraisalContingencyDays: '',
-    inspectionContingency: '',
-    inspectionContingencyDays: '',
-    homeSaleContingency: 'Waived',
-    closeOfEscrow: '',
-    submittedOn: new Date().toISOString(),
-    specialTerms: '',
-    buyersAgentMessage: '',
-    sellerRentBack: '',
-    sellerRentBackDays: '',
-    buyerName: '',
-    buyersAgentCommission: '',
-    presentedBy: {
-      name: '',
-      licenseNumber: '',
-      email: '',
-      phoneNumber: '',
-      agentImageUrl: '',
-      agentImageBackgroundColor: '',
-    },
-    brokerageInfo: {
-      name: '',
-      licenseNumber: '',
-      addressLine1: '',
-      addressLine2: '',
-      brokerageLogo: '',
-    },
-    documents: [],
-    propertyListing: listingId,
-    offerExpiryDate: '',
-    uploadedBy: ''
-  });
 
   const handleNextStep = () => setStep(step + 1);
   const handlePrevStep = () => setStep(step - 1);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    updateOfferData({ [name]: value });
   };
 
   const handleFinanceTypeChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => {
-      const updatedData = { ...prevData, [name]: value };
-      if (value === 'CASH') {
-        updatedData.downPayment = prevData.purchasePrice;
-        updatedData.loanAmount = '0';
-        updatedData.percentDown = '100';
-      }
-      return updatedData;
-    });
+    const updatedData = { [name]: value };
+    if (value === 'CASH') {
+      updatedData.downPayment = offerData.purchasePrice;
+      updatedData.loanAmount = '0';
+      updatedData.percentDown = '100';
+    }
+    updateOfferData(updatedData);
   };
 
   const handleNestedChange = useCallback((e, section) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
+    updateOfferData({
       [section]: {
-        ...prevData[section],
+        ...offerData[section],
         [name]: value,
       },
-    }));
-  }, []);
+    });
+  }, [offerData, updateOfferData]);
 
   const handleSubmit = async () => {
     const formDataToSend = new FormData();
-    for (const key in formData) {
-      if (key === 'documents' && formData[key].length > 0) {
-        formData[key].forEach((doc) => {
+    for (const key in offerData) {
+      if (key === 'documents' && offerData[key].length > 0) {
+        offerData[key].forEach((doc) => {
           formDataToSend.append('documents', doc.id);
         });
       } else if (key === 'presentedBy' || key === 'brokerageInfo') {
-        for (const nestedKey in formData[key]) {
-          formDataToSend.append(`${key}.${nestedKey}`, formData[key][nestedKey]);
+        for (const nestedKey in offerData[key]) {
+          formDataToSend.append(`${key}.${nestedKey}`, offerData[key][nestedKey]);
         }
       } else {
-        formDataToSend.append(key, formData[key]);
+        formDataToSend.append(key, offerData[key]);
       }
     }
     formDataToSend.append('propertyListingId', listingId);
@@ -125,18 +78,21 @@ const MakeOfferModal = ({ onClose, listingId }) => {
   };
 
   useEffect(() => {
-    const downPayment = parseNumber(formData.downPayment);
-    const purchasePrice = parseNumber(formData.purchasePrice);
+    const downPayment = parseNumber(offerData.downPayment);
+    const purchasePrice = parseNumber(offerData.purchasePrice);
     const loanAmount = purchasePrice - downPayment;
     const percentDown = ((downPayment / purchasePrice) * 100).toFixed(2);
-    const balanceOfDownPayment = downPayment - parseNumber(formData.initialDeposit);
-    setFormData((prevData) => ({
-      ...prevData,
+    const balanceOfDownPayment = downPayment - parseNumber(offerData.initialDeposit);
+    updateOfferData({
       loanAmount: isNaN(loanAmount) ? '' : loanAmount.toString(),
       percentDown: isNaN(percentDown) ? '' : percentDown,
       balanceOfDownPayment: isNaN(balanceOfDownPayment) ? '' : balanceOfDownPayment.toString(),
-    }));
-  }, [formData.purchasePrice, formData.downPayment, formData.initialDeposit]);
+    });
+  }, [offerData.purchasePrice, offerData.downPayment, offerData.initialDeposit, updateOfferData]);
+
+  useEffect(() => {
+    updateOfferData({ propertyListing: listingId });
+  }, [listingId, updateOfferData]);
 
   return (
     <div className="make-offer-modal">
@@ -146,7 +102,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         <hr className="modal-divider" />
         {step === 1 && (
           <PurchasePrice
-            formData={formData}
+            formData={offerData}
             handleChange={handleChange}
             handleFinanceTypeChange={handleFinanceTypeChange}
             handleNextStep={handleNextStep}
@@ -154,7 +110,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         )}
         {step === 2 && (
           <Contingencies
-            formData={formData}
+            formData={offerData}
             handleChange={handleChange}
             handleNextStep={handleNextStep}
             handlePrevStep={handlePrevStep}
@@ -162,7 +118,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         )}
         {step === 3 && (
           <AgentInformation
-            formData={formData}
+            formData={offerData}
             handleNestedChange={handleNestedChange}
             handleNextStep={handleNextStep}
             handlePrevStep={handlePrevStep}
@@ -170,7 +126,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         )}
         {step === 4 && (
           <OfferDetails
-            formData={formData}
+            formData={offerData}
             handleChange={handleChange}
             handleNextStep={handleNextStep}
             handlePrevStep={handlePrevStep}
@@ -178,7 +134,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         )}
         {step === 5 && (
           <AutoFillForms
-            formData={formData}
+            formData={offerData}
             handleNextStep={handleNextStep}
             handlePrevStep={handlePrevStep}
             listingId={listingId}
@@ -186,16 +142,16 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         )}
         {step === 6 && (
           <Documents
-            formData={formData}
+            formData={offerData}
             handleNextStep={handleNextStep}
             handlePrevStep={handlePrevStep}
-            setFormData={setFormData}
+            updateOfferData={updateOfferData}
             listingId={listingId}
           />
         )}
         {step === 7 && (
           <FinalReview
-            formData={formData}
+            formData={offerData}
             handlePrevStep={handlePrevStep}
             handleSubmit={handleSubmit}
           />

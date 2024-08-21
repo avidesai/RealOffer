@@ -1,8 +1,10 @@
 // Steps/OfferDetails.js
 
 import React from 'react';
+import { useOffer } from '../../../../../../../../../../context/OfferContext';
 
-const OfferDetails = ({ formData, handleChange, handleNextStep, handlePrevStep }) => {
+const OfferDetails = ({ handleNextStep, handlePrevStep }) => {
+  const { offerData, updateOfferData } = useOffer();
 
   const formatToPacificTime = (isoString) => {
     const date = new Date(isoString);
@@ -17,6 +19,11 @@ const OfferDetails = ({ formData, handleChange, handleNextStep, handlePrevStep }
     return new Intl.DateTimeFormat('en-US', options).format(date);
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    updateOfferData({ [name]: value });
+  };
+
   return (
     <div className="modal-step">
       <div className='offer-modal-header'>
@@ -28,7 +35,7 @@ const OfferDetails = ({ formData, handleChange, handleNextStep, handlePrevStep }
         <input
           type="text"
           name="submittedOn"
-          value={formatToPacificTime(formData.submittedOn)}
+          value={formatToPacificTime(offerData.submittedOn)}
           readOnly
         />
       </div>
@@ -37,7 +44,7 @@ const OfferDetails = ({ formData, handleChange, handleNextStep, handlePrevStep }
         <input
           type="datetime-local"
           name="offerExpiryDate"
-          value={formData.offerExpiryDate || ''}
+          value={offerData.offerExpiryDate || ''}
           onChange={handleChange}
         />
       </div>
@@ -47,7 +54,7 @@ const OfferDetails = ({ formData, handleChange, handleNextStep, handlePrevStep }
           type="number"
           name="buyersAgentCommission"
           placeholder="Commission percentage"
-          value={formData.buyersAgentCommission || ''}
+          value={offerData.buyersAgentCommission || ''}
           onChange={handleChange}
           step={0.50}
         />
@@ -58,7 +65,7 @@ const OfferDetails = ({ formData, handleChange, handleNextStep, handlePrevStep }
           type="text"
           name="buyerName"
           placeholder="Full name of buyer"
-          value={formData.buyerName || ''}
+          value={offerData.buyerName || ''}
           onChange={handleChange}
         />
       </div>
@@ -68,7 +75,7 @@ const OfferDetails = ({ formData, handleChange, handleNextStep, handlePrevStep }
           name="specialTerms"
           className='special-terms'
           placeholder="Enter any special terms here"
-          value={formData.specialTerms || ''}
+          value={offerData.specialTerms || ''}
           onChange={handleChange}
         ></textarea>
       </div>
@@ -78,7 +85,7 @@ const OfferDetails = ({ formData, handleChange, handleNextStep, handlePrevStep }
           name="buyersAgentMessage"
           className='special-terms'
           placeholder="Write a message for the listing agent here"
-          value={formData.buyersAgentMessage || ''}
+          value={offerData.buyersAgentMessage || ''}
           onChange={handleChange}
         ></textarea>
       </div>
