@@ -11,6 +11,7 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
   const [files, setFiles] = useState(offerData.documents || []);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState([]);
+  const [filesUploaded, setFilesUploaded] = useState(true);
   const fileInputRef = useRef(null);
   const { user } = useAuth();
 
@@ -27,47 +28,47 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
     const droppedFiles = Array.from(e.dataTransfer.files);
     const newFiles = [
       ...files,
-      ...droppedFiles.map((file) => ({ file, type: '', title: file.name, id: null })),
+      ...droppedFiles.map((file) => ({ file, type: '', title: file.name })),
     ];
     setFiles(newFiles);
-    updateOfferData({ documents: newFiles });
+    setFilesUploaded(false);
   };
 
   const handleFileSelect = (e) => {
     const selectedFiles = Array.from(e.target.files);
     const newFiles = [
       ...files,
-      ...selectedFiles.map((file) => ({ file, type: '', title: file.name, id: null })),
+      ...selectedFiles.map((file) => ({ file, type: '', title: file.name })),
     ];
     setFiles(newFiles);
-    updateOfferData({ documents: newFiles });
+    setFilesUploaded(false);
   };
 
   const handleUploadClick = () => {
     fileInputRef.current.click();
   };
 
-  const handleDeleteFile = useCallback((index) => {
+  const handleDeleteFile = (index) => {
     const newFiles = files.filter((_, i) => i !== index);
     setFiles(newFiles);
-    updateOfferData({ documents: newFiles });
-  }, [files, updateOfferData]);
+    setFilesUploaded(false);
+  };
 
-  const handleFileTypeChange = useCallback((index, newType) => {
+  const handleFileTypeChange = (index, newType) => {
     const newFiles = files.map((file, i) => 
       i === index ? { ...file, type: newType } : file
     );
     setFiles(newFiles);
-    updateOfferData({ documents: newFiles });
-  }, [files, updateOfferData]);
+    setFilesUploaded(false);
+  };
 
-  const handleFileTitleChange = useCallback((index, newTitle) => {
+  const handleFileTitleChange = (index, newTitle) => {
     const newFiles = files.map((file, i) => 
       i === index ? { ...file, title: newTitle } : file
     );
     setFiles(newFiles);
-    updateOfferData({ documents: newFiles });
-  }, [files, updateOfferData]);
+    setFilesUploaded(false);
+  };
 
   const handleUpload = async () => {
     const newErrors = [];
@@ -118,11 +119,21 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
       const newFiles = [...files.filter(file => file.id), ...uploadedDocuments];
       updateOfferData({ documents: newFiles });
       setFiles(newFiles);
+      setFilesUploaded(true);
+      setErrors([]);
     } catch (error) {
       setUploading(false);
       setErrors(['An error occurred while uploading. Please try again.']);
     }
   };
+
+  const handleNextStepWrapper = useCallback(() => {
+    if (!filesUploaded && files.some(file => !file.id)) {
+      setErrors(['Please click "Add Files To Offer" before proceeding.']);
+    } else {
+      handleNextStep();
+    }
+  }, [filesUploaded, files, handleNextStep]);
 
   return (
     <div className="modal-step">
@@ -202,7 +213,7 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
         <button className="step-back-button" onClick={handlePrevStep}>
           Back
         </button>
-        <button className="next-button" onClick={handleNextStep}>
+        <button className="next-button" onClick={handleNextStepWrapper}>
           Next
         </button>
       </div>

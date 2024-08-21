@@ -4,33 +4,37 @@ import { useState, useEffect, useCallback } from 'react';
 import { PDFDocument } from 'pdf-lib';
 import download from 'downloadjs';
 import axios from 'axios';
+import { useOffer } from '../../../../../../../../../../context/OfferContext';
 import { useAuth } from '../../../../../../../../../../context/AuthContext';
 
 const useAutoFillFormsLogic = ({ formData, listingId }) => {
+  const { updateOfferData } = useOffer();
+  const { user } = useAuth();
   const [selectedForm, setSelectedForm] = useState('');
   const [loading, setLoading] = useState(false);
   const [listingData, setListingData] = useState({});
   const [agentData, setAgentData] = useState({});
-  const { user } = useAuth();
+  const [error, setError] = useState(null);
+
+  const fetchListingData = useCallback(async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`);
+      setListingData(response.data);
+
+      const agentId = response.data.agentIds[0];
+      if (agentId) {
+        const agentResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${agentId}`);
+        setAgentData(agentResponse.data);
+      }
+    } catch (error) {
+      console.error('Error fetching listing or agent data:', error);
+      setError('Failed to fetch listing data. Please try again.');
+    }
+  }, [listingId]);
 
   useEffect(() => {
-    const fetchListingData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`);
-        setListingData(response.data);
-
-        const agentId = response.data.agentIds[0];
-        if (agentId) {
-          const agentResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${agentId}`);
-          setAgentData(agentResponse.data);
-        }
-      } catch (error) {
-        console.error('Error fetching listing or agent data:', error);
-      }
-    };
-
     fetchListingData();
-  }, [listingId]);
+  }, [fetchListingData]);
 
   const handleFormSelect = useCallback((e) => {
     setSelectedForm(e.target.value);
@@ -85,9 +89,9 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
 
       const pdfBytes = await pdfDoc.save();
       return pdfBytes;
-
     } catch (error) {
       console.error('Error filling PDF:', error);
+      setError('Failed to fill PDF. Please try again.');
       throw error;
     } finally {
       setLoading(false);
@@ -101,6 +105,7 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
         download(pdfBytes, 'FilledPurchaseContract.pdf', 'application/pdf');
       } catch (error) {
         console.error('Error downloading PDF:', error);
+        setError('Failed to download PDF. Please try again.');
       }
     }
   }, [selectedForm, fillPDF]);
@@ -108,7 +113,6 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
   const handleIncludeAndUpload = useCallback(async () => {
     if (selectedForm === 'CAR_Purchase_Contract') {
       try {
-        setLoading(true);
         const pdfBytes = await fillPDF();
 
         const formDataToSend = new FormData();
@@ -116,7 +120,7 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
         formDataToSend.append('type[]', 'Purchase Agreement');
         formDataToSend.append('title[]', 'Filled Purchase Contract');
         formDataToSend.append('purpose', 'offer');
-        formDataToSend.append('uploadedBy', user._id);
+        formDataToSend.append('uploadedBy', user._id); // Use the current user's ID
         formDataToSend.append('propertyListingId', listingId);
 
         const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formDataToSend, {
@@ -125,29 +129,30 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
           },
         });
 
-        console.log('Document uploaded:', response.data);
-        
-        // Format the uploaded document to match the format in Documents.js
         const uploadedDocument = {
-          id: response.data._id,
-          title: response.data.title,
-          type: response.data.type,
-          file: { name: response.data.title, size: response.data.size }
+          id: response.data[0]._id,
+          title: 'Filled Purchase Contract',
+          type: 'Purchase Agreement',
+          file: { name: 'FilledPurchaseContract.pdf', size: pdfBytes.length }
         };
 
-        return uploadedDocument;
+        updateOfferData(prevData => ({
+          ...prevData,
+          documents: [...(prevData.documents || []), uploadedDocument]
+        }));
+
+        setError(null); // Clear any previous errors
       } catch (error) {
         console.error('Error including and uploading PDF:', error);
-        throw error;
-      } finally {
-        setLoading(false);
+        setError(error.response?.data?.message || 'Failed to include and upload PDF. Please try again.');
       }
     }
-  }, [selectedForm, fillPDF, user._id, listingId]);
+  }, [selectedForm, fillPDF, user._id, listingId, updateOfferData]);
 
   return {
     selectedForm,
     loading,
+    error,
     handleFormSelect,
     handleDownload,
     handleIncludeAndUpload,

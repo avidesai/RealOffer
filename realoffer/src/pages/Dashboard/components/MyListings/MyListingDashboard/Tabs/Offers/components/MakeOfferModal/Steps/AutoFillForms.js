@@ -1,36 +1,18 @@
 // AutoFillForms.js
 
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import useAutoFillFormsLogic from './AutoFillFormsLogic';
 import './AutoFillForms.css';
 
-const AutoFillForms = ({ formData, listingId, handlePrevStep, handleNextStep, updateOfferData }) => {
+const AutoFillForms = ({ formData, listingId, handlePrevStep, handleNextStep }) => {
   const {
     selectedForm,
     loading,
+    error,
     handleFormSelect,
     handleDownload,
     handleIncludeAndUpload,
   } = useAutoFillFormsLogic({ formData, listingId });
-
-  const [error, setError] = useState(null);
-
-  const handleIncludeAndUploadWrapper = useCallback(async () => {
-    try {
-      setError(null);
-      const uploadedDocument = await handleIncludeAndUpload();
-      if (uploadedDocument) {
-        // Update the offer data with the new document
-        updateOfferData(prevData => ({
-          ...prevData,
-          documents: [...prevData.documents, uploadedDocument]
-        }));
-      }
-    } catch (error) {
-      console.error('Error in handleIncludeAndUploadWrapper:', error);
-      setError('An error occurred while uploading the document. Please try again.');
-    }
-  }, [handleIncludeAndUpload, updateOfferData]);
 
   return (
     <div className="modal-step">
@@ -49,12 +31,13 @@ const AutoFillForms = ({ formData, listingId, handlePrevStep, handleNextStep, up
         >
           <option value="">Select a form</option>
           <option value="CAR_Purchase_Contract">CAR Purchase Contract</option>
+          {/* Add more options here if needed */}
         </select>
       </div>
       <div className="form-group">
         <button
           className="include-button"
-          onClick={handleIncludeAndUploadWrapper}
+          onClick={handleIncludeAndUpload}
           disabled={loading || !selectedForm}
         >
           {loading ? 'Including...' : 'Include Filled Contract'}
