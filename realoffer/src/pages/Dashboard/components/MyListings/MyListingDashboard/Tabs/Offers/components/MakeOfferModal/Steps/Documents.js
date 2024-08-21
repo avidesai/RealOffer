@@ -27,7 +27,7 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
     const droppedFiles = Array.from(e.dataTransfer.files);
     const newFiles = [
       ...files,
-      ...droppedFiles.map((file) => ({ file, type: '', title: file.name })),
+      ...droppedFiles.map((file) => ({ file, type: '', title: file.name, id: null })),
     ];
     setFiles(newFiles);
     updateOfferData({ documents: newFiles });
@@ -37,7 +37,7 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
     const selectedFiles = Array.from(e.target.files);
     const newFiles = [
       ...files,
-      ...selectedFiles.map((file) => ({ file, type: '', title: file.name })),
+      ...selectedFiles.map((file) => ({ file, type: '', title: file.name, id: null })),
     ];
     setFiles(newFiles);
     updateOfferData({ documents: newFiles });

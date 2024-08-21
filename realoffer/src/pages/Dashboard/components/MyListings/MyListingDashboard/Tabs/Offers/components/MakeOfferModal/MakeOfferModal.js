@@ -139,6 +139,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       formData={offerData}
       handleNextStep={handleNextStep}
       handlePrevStep={handlePrevStep}
+      updateOfferData={updateOfferData}
       listingId={listingId}
     />,
     documents: <Documents

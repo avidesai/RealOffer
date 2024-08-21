@@ -1,10 +1,10 @@
 // AutoFillForms.js
 
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import useAutoFillFormsLogic from './AutoFillFormsLogic';
 import './AutoFillForms.css';
 
-const AutoFillForms = ({ formData, listingId, handlePrevStep, handleNextStep }) => {
+const AutoFillForms = ({ formData, listingId, handlePrevStep, handleNextStep, updateOfferData }) => {
   const {
     selectedForm,
     loading,
@@ -13,12 +13,32 @@ const AutoFillForms = ({ formData, listingId, handlePrevStep, handleNextStep }) 
     handleIncludeAndUpload,
   } = useAutoFillFormsLogic({ formData, listingId });
 
+  const [error, setError] = useState(null);
+
+  const handleIncludeAndUploadWrapper = useCallback(async () => {
+    try {
+      setError(null);
+      const uploadedDocument = await handleIncludeAndUpload();
+      if (uploadedDocument) {
+        // Update the offer data with the new document
+        updateOfferData(prevData => ({
+          ...prevData,
+          documents: [...prevData.documents, uploadedDocument]
+        }));
+      }
+    } catch (error) {
+      console.error('Error in handleIncludeAndUploadWrapper:', error);
+      setError('An error occurred while uploading the document. Please try again.');
+    }
+  }, [handleIncludeAndUpload, updateOfferData]);
+
   return (
     <div className="modal-step">
       <div className='offer-modal-header'>
         <h2>Generate Purchase Contract</h2>
         <p>Automatically fill out a purchase contract for your offer.</p>
       </div>
+      {error && <div className="error-message">{error}</div>}
       <div className="form-group">
         <label htmlFor="form-select">Choose Form:</label>
         <select
@@ -29,13 +49,12 @@ const AutoFillForms = ({ formData, listingId, handlePrevStep, handleNextStep }) 
         >
           <option value="">Select a form</option>
           <option value="CAR_Purchase_Contract">CAR Purchase Contract</option>
-          {/* Add more options here if needed */}
         </select>
       </div>
       <div className="form-group">
         <button
           className="include-button"
-          onClick={handleIncludeAndUpload}
+          onClick={handleIncludeAndUploadWrapper}
           disabled={loading || !selectedForm}
         >
           {loading ? 'Including...' : 'Include Filled Contract'}

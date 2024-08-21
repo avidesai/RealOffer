@@ -4,12 +4,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { PDFDocument } from 'pdf-lib';
 import download from 'downloadjs';
 import axios from 'axios';
+import { useAuth } from '../../../../../../../../../../context/AuthContext';
 
 const useAutoFillFormsLogic = ({ formData, listingId }) => {
   const [selectedForm, setSelectedForm] = useState('');
   const [loading, setLoading] = useState(false);
   const [listingData, setListingData] = useState({});
   const [agentData, setAgentData] = useState({});
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchListingData = async () => {
@@ -106,6 +108,7 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
   const handleIncludeAndUpload = useCallback(async () => {
     if (selectedForm === 'CAR_Purchase_Contract') {
       try {
+        setLoading(true);
         const pdfBytes = await fillPDF();
 
         const formDataToSend = new FormData();
@@ -113,7 +116,7 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
         formDataToSend.append('type[]', 'Purchase Agreement');
         formDataToSend.append('title[]', 'Filled Purchase Contract');
         formDataToSend.append('purpose', 'offer');
-        formDataToSend.append('uploadedBy', formData.uploadedBy);
+        formDataToSend.append('uploadedBy', user._id);
         formDataToSend.append('propertyListingId', listingId);
 
         const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formDataToSend, {
@@ -123,11 +126,24 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
         });
 
         console.log('Document uploaded:', response.data);
+        
+        // Format the uploaded document to match the format in Documents.js
+        const uploadedDocument = {
+          id: response.data._id,
+          title: response.data.title,
+          type: response.data.type,
+          file: { name: response.data.title, size: response.data.size }
+        };
+
+        return uploadedDocument;
       } catch (error) {
         console.error('Error including and uploading PDF:', error);
+        throw error;
+      } finally {
+        setLoading(false);
       }
     }
-  }, [selectedForm, fillPDF, formData.uploadedBy, listingId]);
+  }, [selectedForm, fillPDF, user._id, listingId]);
 
   return {
     selectedForm,
