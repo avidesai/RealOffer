@@ -1,8 +1,12 @@
 // Contingencies.js
 
-import React from 'react';
+import React, { useCallback } from 'react';
 
 const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep }) => {
+  const handleInputChange = useCallback((e) => {
+    handleChange(e);
+  }, [handleChange]);
+
   return (
     <div className="modal-step">
       <div className='offer-modal-header'>
@@ -16,14 +20,14 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
           name="financeContingencyDays"
           placeholder="Number of days"
           value={formData.financeContingencyDays || ''}
-          onChange={handleChange}
+          onChange={handleInputChange}
           disabled={formData.financeContingency === 'Waived'}
           className="form-input-left"
         />
         <select
           name="financeContingency"
           value={formData.financeContingency || 'Days'}
-          onChange={handleChange}
+          onChange={handleInputChange}
           className="form-select-right"
         >
           <option value="Days">Days</option>
@@ -37,14 +41,14 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
           name="appraisalContingencyDays"
           placeholder="Number of days"
           value={formData.appraisalContingencyDays || ''}
-          onChange={handleChange}
+          onChange={handleInputChange}
           disabled={formData.appraisalContingency === 'Waived'}
           className="form-input-left"
         />
         <select
           name="appraisalContingency"
           value={formData.appraisalContingency || 'Days'}
-          onChange={handleChange}
+          onChange={handleInputChange}
           className="form-select-right"
         >
           <option value="Days">Days</option>
@@ -58,14 +62,14 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
           name="inspectionContingencyDays"
           placeholder="Number of days"
           value={formData.inspectionContingencyDays || ''}
-          onChange={handleChange}
+          onChange={handleInputChange}
           disabled={formData.inspectionContingency === 'Waived'}
           className="form-input-left"
         />
         <select
           name="inspectionContingency"
           value={formData.inspectionContingency || 'Days'}
-          onChange={handleChange}
+          onChange={handleInputChange}
           className="form-select-right"
         >
           <option value="Days">Days</option>
@@ -77,7 +81,7 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
         <select
           name="homeSaleContingency"
           value={formData.homeSaleContingency}
-          onChange={handleChange}
+          onChange={handleInputChange}
         >
           <option value="Waived">Waived</option>
           <option value="Required">Required</option>
@@ -90,14 +94,14 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
           name="sellerRentBackDays"
           placeholder="Number of days"
           value={formData.sellerRentBackDays || ''}
-          onChange={handleChange}
+          onChange={handleInputChange}
           disabled={formData.sellerRentBack === 'Waived'}
           className="form-input-left"
         />
         <select
           name="sellerRentBack"
           value={formData.sellerRentBack || 'Days'}
-          onChange={handleChange}
+          onChange={handleInputChange}
           className="form-select-right"
         >
           <option value="Days">Days</option>
@@ -111,7 +115,7 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
           name="closeOfEscrow"
           placeholder="Number of days"
           value={formData.closeOfEscrow || ''}
-          onChange={handleChange}
+          onChange={handleInputChange}
         />
       </div>
       <div className="button-container">

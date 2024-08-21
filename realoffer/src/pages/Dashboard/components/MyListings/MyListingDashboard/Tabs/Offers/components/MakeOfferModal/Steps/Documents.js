@@ -1,6 +1,6 @@
 // Documents.js
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import './Documents.css';
 import axios from 'axios';
 import { useAuth } from '../../../../../../../../../../context/AuthContext';
@@ -47,27 +47,27 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
     fileInputRef.current.click();
   };
 
-  const handleDeleteFile = (index) => {
+  const handleDeleteFile = useCallback((index) => {
     const newFiles = files.filter((_, i) => i !== index);
     setFiles(newFiles);
     updateOfferData({ documents: newFiles });
-  };
+  }, [files, updateOfferData]);
 
-  const handleFileTypeChange = (index, newType) => {
+  const handleFileTypeChange = useCallback((index, newType) => {
     const newFiles = files.map((file, i) => 
       i === index ? { ...file, type: newType } : file
     );
     setFiles(newFiles);
     updateOfferData({ documents: newFiles });
-  };
+  }, [files, updateOfferData]);
 
-  const handleFileTitleChange = (index, newTitle) => {
+  const handleFileTitleChange = useCallback((index, newTitle) => {
     const newFiles = files.map((file, i) => 
       i === index ? { ...file, title: newTitle } : file
     );
     setFiles(newFiles);
     updateOfferData({ documents: newFiles });
-  };
+  }, [files, updateOfferData]);
 
   const handleUpload = async () => {
     const newErrors = [];

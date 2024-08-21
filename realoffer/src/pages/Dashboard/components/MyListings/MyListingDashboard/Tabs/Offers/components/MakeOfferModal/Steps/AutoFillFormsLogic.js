@@ -1,6 +1,6 @@
 // AutoFillFormsLogic.js
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { PDFDocument } from 'pdf-lib';
 import download from 'downloadjs';
 import axios from 'axios';
@@ -30,11 +30,11 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
     fetchListingData();
   }, [listingId]);
 
-  const handleFormSelect = (e) => {
+  const handleFormSelect = useCallback((e) => {
     setSelectedForm(e.target.value);
-  };
+  }, []);
 
-  const fillPDF = async () => {
+  const fillPDF = useCallback(async () => {
     setLoading(true);
     try {
       const url = '/CAR_RPA.pdf';
@@ -90,9 +90,9 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [formData, listingData, agentData]);
 
-  const handleDownload = async () => {
+  const handleDownload = useCallback(async () => {
     if (selectedForm === 'CAR_Purchase_Contract') {
       try {
         const pdfBytes = await fillPDF();
@@ -101,9 +101,9 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
         console.error('Error downloading PDF:', error);
       }
     }
-  };
+  }, [selectedForm, fillPDF]);
 
-  const handleIncludeAndUpload = async () => {
+  const handleIncludeAndUpload = useCallback(async () => {
     if (selectedForm === 'CAR_Purchase_Contract') {
       try {
         const pdfBytes = await fillPDF();
@@ -127,7 +127,7 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
         console.error('Error including and uploading PDF:', error);
       }
     }
-  };
+  }, [selectedForm, fillPDF, formData.uploadedBy, listingId]);
 
   return {
     selectedForm,
