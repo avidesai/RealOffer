@@ -102,7 +102,7 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
     if (selectedForm === 'CAR_Purchase_Contract') {
       try {
         const pdfBytes = await fillPDF();
-        download(pdfBytes, 'FilledPurchaseContract.pdf', 'application/pdf');
+        download(pdfBytes, 'ResidentialPurchaseAgreement.pdf', 'application/pdf');
       } catch (error) {
         console.error('Error downloading PDF:', error);
         setError('Failed to download PDF. Please try again.');
@@ -116,9 +116,9 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
         const pdfBytes = await fillPDF();
 
         const formDataToSend = new FormData();
-        formDataToSend.append('documents', new Blob([pdfBytes], { type: 'application/pdf' }), 'FilledPurchaseContract.pdf');
+        formDataToSend.append('documents', new Blob([pdfBytes], { type: 'application/pdf' }), 'ResidentialPurchaseAgreement.pdf');
         formDataToSend.append('type[]', 'Purchase Agreement');
-        formDataToSend.append('title[]', 'Filled Purchase Contract');
+        formDataToSend.append('title[]', 'Buyer Purchase Agreement');
         formDataToSend.append('purpose', 'offer');
         formDataToSend.append('uploadedBy', user._id); // Use the current user's ID
         formDataToSend.append('propertyListingId', listingId);
@@ -131,9 +131,9 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
 
         const uploadedDocument = {
           id: response.data[0]._id,
-          title: 'Filled Purchase Contract',
+          title: 'Buyer Purchase Agreement',
           type: 'Purchase Agreement',
-          file: { name: 'FilledPurchaseContract.pdf', size: pdfBytes.length }
+          file: { name: 'ResidentialPurchaseAgreement.pdf', size: pdfBytes.length }
         };
 
         updateOfferData(prevData => ({
