@@ -3,7 +3,7 @@ import { PDFDocument } from 'pdf-lib';
 import download from 'downloadjs';
 import axios from 'axios';
 
-const useAutoFillFormsLogic = ({ formData, listingId, onUploadSuccess }) => {
+const useAutoFillFormsLogic = ({ formData, listingId }) => {
   const [selectedForm, setSelectedForm] = useState('');
   const [loading, setLoading] = useState(false);
   const [listingData, setListingData] = useState({});
@@ -120,9 +120,7 @@ const useAutoFillFormsLogic = ({ formData, listingId, onUploadSuccess }) => {
           },
         });
 
-        if (onUploadSuccess) {
-          onUploadSuccess(response.data);
-        }
+        console.log('Document uploaded:', response.data);
       } catch (error) {
         console.error('Error including and uploading PDF:', error);
       }

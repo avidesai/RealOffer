@@ -2,14 +2,14 @@ import React from 'react';
 import useAutoFillFormsLogic from './AutoFillFormsLogic';
 import './AutoFillForms.css';
 
-const AutoFillForms = ({ formData, listingId, handlePrevStep, handleNextStep, onUploadSuccess }) => {
+const AutoFillForms = ({ formData, listingId, handlePrevStep, handleNextStep }) => {
   const {
     selectedForm,
     loading,
     handleFormSelect,
     handleDownload,
     handleIncludeAndUpload,
-  } = useAutoFillFormsLogic({ formData, listingId, onUploadSuccess });
+  } = useAutoFillFormsLogic({ formData, listingId });
 
   return (
     <div className="modal-step">
@@ -31,10 +31,18 @@ const AutoFillForms = ({ formData, listingId, handlePrevStep, handleNextStep, on
         </select>
       </div>
       <div className="form-group">
-        <button className="include-button" onClick={handleIncludeAndUpload} disabled={loading || !selectedForm}>
+        <button
+          className="include-button"
+          onClick={handleIncludeAndUpload}
+          disabled={loading || !selectedForm}
+        >
           {loading ? 'Including...' : 'Include Filled Contract'}
         </button>
-        <button className="download-button" onClick={handleDownload} disabled={loading || !selectedForm}>
+        <button
+          className="download-button"
+          onClick={handleDownload}
+          disabled={loading || !selectedForm}
+        >
           {loading ? 'Generating...' : 'Download Filled Contract'}
         </button>
       </div>

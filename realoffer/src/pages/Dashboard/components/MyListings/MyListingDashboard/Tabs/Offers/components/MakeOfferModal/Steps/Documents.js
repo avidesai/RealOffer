@@ -6,7 +6,7 @@ import { useOffer } from '../../../../../../../../../../context/OfferContext';
 
 const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
   const { offerData, updateOfferData } = useOffer();
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState(offerData.documents || []);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState([]);
   const fileInputRef = useRef(null);
@@ -88,9 +88,11 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
     try {
       const formData = new FormData();
       files.forEach(({ file, type, title }) => {
-        formData.append('documents', file);
-        formData.append('type[]', type);
-        formData.append('title[]', title);
+        if (file instanceof File) {
+          formData.append('documents', file);
+          formData.append('type[]', type);
+          formData.append('title[]', title);
+        }
       });
   
       formData.append('purpose', 'offer');
@@ -111,7 +113,7 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
         file: { name: doc.title, size: doc.size }
       }));
   
-      const newFiles = [...offerData.documents, ...uploadedDocuments];
+      const newFiles = [...files.filter(file => file.id), ...uploadedDocuments];
       updateOfferData({ documents: newFiles });
       setFiles(newFiles);
     } catch (error) {
@@ -158,7 +160,7 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
               {files.map((file, index) => (
                 <div key={index} className="offer-file-item">
                   <div className="offer-file-quadrant offer-file-name">
-                    {file.file.name}
+                    {file.file ? file.file.name : file.title}
                   </div>
                   <div className="offer-file-quadrant offer-file-delete">
                     <button className="offer-delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>
@@ -190,7 +192,7 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
             </div>
           </div>
           <div className="offer-modal-footer">
-            <button className="offer-upload-files-button" onClick={handleUpload}>Upload Files</button>
+            <button className="offer-upload-files-button" onClick={handleUpload}>Add Files To Offer</button>
           </div>
         </div>
       </div>
