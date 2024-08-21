@@ -6,37 +6,53 @@ const OfferContext = createContext();
 
 export const useOffer = () => useContext(OfferContext);
 
+const initialOfferState = {
+  purchasePrice: '',
+  initialDeposit: '',
+  financeType: 'LOAN',
+  loanAmount: '',
+  percentDown: '',
+  downPayment: '',
+  balanceOfDownPayment: '',
+  financeContingency: '',
+  financeContingencyDays: '',
+  appraisalContingency: '',
+  appraisalContingencyDays: '',
+  inspectionContingency: '',
+  inspectionContingencyDays: '',
+  homeSaleContingency: 'Waived',
+  closeOfEscrow: '',
+  submittedOn: new Date().toISOString(),
+  specialTerms: '',
+  buyersAgentMessage: '',
+  sellerRentBack: '',
+  sellerRentBackDays: '',
+  buyerName: '',
+  buyersAgentCommission: '',
+  documents: [],
+  propertyListing: '',
+  offerExpiryDate: '',
+  uploadedBy: '',
+  presentedBy: {
+    name: '',
+    licenseNumber: '',
+    email: '',
+    phoneNumber: '',
+    agentImageUrl: '',
+    agentImageBackgroundColor: '',
+  },
+  brokerageInfo: {
+    name: '',
+    licenseNumber: '',
+    addressLine1: '',
+    addressLine2: '',
+  }
+};
+
 export const OfferProvider = ({ children }) => {
   const [offerData, setOfferData] = useState(() => {
     const savedData = localStorage.getItem('offerData');
-    return savedData ? JSON.parse(savedData) : {
-      purchasePrice: '',
-      initialDeposit: '',
-      financeType: 'LOAN',
-      loanAmount: '',
-      percentDown: '',
-      downPayment: '',
-      balanceOfDownPayment: '',
-      financeContingency: '',
-      financeContingencyDays: '',
-      appraisalContingency: '',
-      appraisalContingencyDays: '',
-      inspectionContingency: '',
-      inspectionContingencyDays: '',
-      homeSaleContingency: 'Waived',
-      closeOfEscrow: '',
-      submittedOn: new Date().toISOString(),
-      specialTerms: '',
-      buyersAgentMessage: '',
-      sellerRentBack: '',
-      sellerRentBackDays: '',
-      buyerName: '',
-      buyersAgentCommission: '',
-      documents: [],
-      propertyListing: '',
-      offerExpiryDate: '',
-      uploadedBy: ''
-    };
+    return savedData ? { ...initialOfferState, ...JSON.parse(savedData) } : initialOfferState;
   });
 
   useEffect(() => {
@@ -45,7 +61,7 @@ export const OfferProvider = ({ children }) => {
 
   const updateOfferData = useCallback((newData) => {
     setOfferData(prevData => {
-      const updatedData = { ...prevData, ...newData };
+      const updatedData = typeof newData === 'function' ? newData(prevData) : { ...prevData, ...newData };
       localStorage.setItem('offerData', JSON.stringify(updatedData));
       return updatedData;
     });

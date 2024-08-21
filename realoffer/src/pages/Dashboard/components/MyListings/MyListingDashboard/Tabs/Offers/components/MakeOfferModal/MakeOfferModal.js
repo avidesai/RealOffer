@@ -1,6 +1,6 @@
 // MakeOfferModal.js
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOffer } from '../../../../../../../../../context/OfferContext';
 import './MakeOfferModal.css';
 import PurchasePrice from './Steps/PurchasePrice';
@@ -20,36 +20,39 @@ const MakeOfferModal = ({ onClose, listingId }) => {
   const { offerData, updateOfferData } = useOffer();
   const [step, setStep] = useState(1);
 
-  const handleNextStep = () => setStep(step + 1);
-  const handlePrevStep = () => setStep(step - 1);
+  const handleNextStep = useCallback(() => setStep(prevStep => prevStep + 1), []);
+  const handlePrevStep = useCallback(() => setStep(prevStep => prevStep - 1), []);
 
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    updateOfferData({ [name]: value });
-  };
+    updateOfferData(prevData => ({ ...prevData, [name]: value }));
+  }, [updateOfferData]);
 
-  const handleFinanceTypeChange = (e) => {
+  const handleFinanceTypeChange = useCallback((e) => {
     const { name, value } = e.target;
-    const updatedData = { [name]: value };
-    if (value === 'CASH') {
-      updatedData.downPayment = offerData.purchasePrice;
-      updatedData.loanAmount = '0';
-      updatedData.percentDown = '100';
-    }
-    updateOfferData(updatedData);
-  };
+    updateOfferData(prevData => {
+      const updatedData = { [name]: value };
+      if (value === 'CASH') {
+        updatedData.downPayment = prevData.purchasePrice;
+        updatedData.loanAmount = '0';
+        updatedData.percentDown = '100';
+      }
+      return { ...prevData, ...updatedData };
+    });
+  }, [updateOfferData]);
 
   const handleNestedChange = useCallback((e, section) => {
     const { name, value } = e.target;
-    updateOfferData({
+    updateOfferData(prevData => ({
+      ...prevData,
       [section]: {
-        ...offerData[section],
+        ...prevData[section],
         [name]: value,
       },
-    });
-  }, [offerData, updateOfferData]);
+    }));
+  }, [updateOfferData]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     const formDataToSend = new FormData();
     for (const key in offerData) {
       if (key === 'documents' && offerData[key].length > 0) {
@@ -77,24 +80,80 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     } catch (error) {
       console.error('Error creating offer:', error);
     }
-  };
+  }, [offerData, listingId, onClose]);
 
   useEffect(() => {
     const downPayment = parseNumber(offerData.downPayment);
     const purchasePrice = parseNumber(offerData.purchasePrice);
+    const initialDeposit = parseNumber(offerData.initialDeposit);
+    
     const loanAmount = purchasePrice - downPayment;
-    const percentDown = ((downPayment / purchasePrice) * 100).toFixed(2);
-    const balanceOfDownPayment = downPayment - parseNumber(offerData.initialDeposit);
-    updateOfferData({
+    const percentDown = purchasePrice > 0 ? ((downPayment / purchasePrice) * 100).toFixed(2) : '0';
+    const balanceOfDownPayment = downPayment - initialDeposit;
+    
+    const newValues = {
       loanAmount: isNaN(loanAmount) ? '' : loanAmount.toString(),
       percentDown: isNaN(percentDown) ? '' : percentDown,
       balanceOfDownPayment: isNaN(balanceOfDownPayment) ? '' : balanceOfDownPayment.toString(),
-    });
-  }, [offerData.purchasePrice, offerData.downPayment, offerData.initialDeposit, updateOfferData]);
+    };
+
+    if (JSON.stringify(newValues) !== JSON.stringify({
+      loanAmount: offerData.loanAmount,
+      percentDown: offerData.percentDown,
+      balanceOfDownPayment: offerData.balanceOfDownPayment,
+    })) {
+      updateOfferData(newValues);
+    }
+  }, [offerData.purchasePrice, offerData.downPayment, offerData.initialDeposit, updateOfferData, offerData.loanAmount, offerData.percentDown, offerData.balanceOfDownPayment]);
 
   useEffect(() => {
-    updateOfferData({ propertyListing: listingId });
+    updateOfferData(prevData => ({ ...prevData, propertyListing: listingId }));
   }, [listingId, updateOfferData]);
+
+  const memoizedComponents = useMemo(() => ({
+    purchasePrice: <PurchasePrice
+      formData={offerData}
+      handleChange={handleChange}
+      handleFinanceTypeChange={handleFinanceTypeChange}
+      handleNextStep={handleNextStep}
+    />,
+    contingencies: <Contingencies
+      formData={offerData}
+      handleChange={handleChange}
+      handleNextStep={handleNextStep}
+      handlePrevStep={handlePrevStep}
+    />,
+    agentInformation: <AgentInformation
+      formData={offerData}
+      handleNestedChange={handleNestedChange}
+      handleNextStep={handleNextStep}
+      handlePrevStep={handlePrevStep}
+    />,
+    offerDetails: <OfferDetails
+      formData={offerData}
+      handleChange={handleChange}
+      handleNextStep={handleNextStep}
+      handlePrevStep={handlePrevStep}
+    />,
+    autoFillForms: <AutoFillForms
+      formData={offerData}
+      handleNextStep={handleNextStep}
+      handlePrevStep={handlePrevStep}
+      listingId={listingId}
+    />,
+    documents: <Documents
+      formData={offerData}
+      handleNextStep={handleNextStep}
+      handlePrevStep={handlePrevStep}
+      updateOfferData={updateOfferData}
+      listingId={listingId}
+    />,
+    finalReview: <FinalReview
+      formData={offerData}
+      handlePrevStep={handlePrevStep}
+      handleSubmit={handleSubmit}
+    />
+  }), [offerData, handleChange, handleFinanceTypeChange, handleNextStep, handlePrevStep, handleNestedChange, updateOfferData, listingId, handleSubmit]);
 
   return (
     <div className="make-offer-modal">
@@ -102,65 +161,16 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         <button className="offer-close-button" onClick={onClose}></button>
         <h1 className="modal-title">Create Offer</h1>
         <hr className="modal-divider" />
-        {step === 1 && (
-          <PurchasePrice
-            formData={offerData}
-            handleChange={handleChange}
-            handleFinanceTypeChange={handleFinanceTypeChange}
-            handleNextStep={handleNextStep}
-          />
-        )}
-        {step === 2 && (
-          <Contingencies
-            formData={offerData}
-            handleChange={handleChange}
-            handleNextStep={handleNextStep}
-            handlePrevStep={handlePrevStep}
-          />
-        )}
-        {step === 3 && (
-          <AgentInformation
-            formData={offerData}
-            handleNestedChange={handleNestedChange}
-            handleNextStep={handleNextStep}
-            handlePrevStep={handlePrevStep}
-          />
-        )}
-        {step === 4 && (
-          <OfferDetails
-            formData={offerData}
-            handleChange={handleChange}
-            handleNextStep={handleNextStep}
-            handlePrevStep={handlePrevStep}
-          />
-        )}
-        {step === 5 && (
-          <AutoFillForms
-            formData={offerData}
-            handleNextStep={handleNextStep}
-            handlePrevStep={handlePrevStep}
-            listingId={listingId}
-          />
-        )}
-        {step === 6 && (
-          <Documents
-            formData={offerData}
-            handleNextStep={handleNextStep}
-            handlePrevStep={handlePrevStep}
-            updateOfferData={updateOfferData}
-            listingId={listingId}
-          />
-        )}
-        {step === 7 && (
-          <FinalReview
-            formData={offerData}
-            handlePrevStep={handlePrevStep}
-            handleSubmit={handleSubmit}
-          />
-        )}
+        {step === 1 && memoizedComponents.purchasePrice}
+        {step === 2 && memoizedComponents.contingencies}
+        {step === 3 && memoizedComponents.agentInformation}
+        {step === 4 && memoizedComponents.offerDetails}
+        {step === 5 && memoizedComponents.autoFillForms}
+        {step === 6 && memoizedComponents.documents}
+        {step === 7 && memoizedComponents.finalReview}
       </div>
     </div>
   );
 };
 
-export default MakeOfferModal;
+export default React.memo(MakeOfferModal);
