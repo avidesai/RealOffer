@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+// OfferContext.js
+
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const OfferContext = createContext();
 
@@ -41,13 +43,13 @@ export const OfferProvider = ({ children }) => {
     localStorage.setItem('offerData', JSON.stringify(offerData));
   }, [offerData]);
 
-  const updateOfferData = (newData) => {
+  const updateOfferData = useCallback((newData) => {
     setOfferData(prevData => {
       const updatedData = { ...prevData, ...newData };
       localStorage.setItem('offerData', JSON.stringify(updatedData));
       return updatedData;
     });
-  };
+  }, []);
 
   return (
     <OfferContext.Provider value={{ offerData, updateOfferData }}>

@@ -1,3 +1,5 @@
+// MakeOfferModal.js
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useOffer } from '../../../../../../../../../context/OfferContext';
 import './MakeOfferModal.css';

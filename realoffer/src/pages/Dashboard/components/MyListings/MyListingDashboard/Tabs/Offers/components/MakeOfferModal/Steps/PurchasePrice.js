@@ -1,6 +1,6 @@
 // PurchasePrice.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useOffer } from '../../../../../../../../../../context/OfferContext';
 
 const formatCurrency = (value) => {
@@ -32,7 +32,7 @@ const PurchasePrice = ({ handleNextStep }) => {
     });
   }, [offerData]);
 
-  const calculatedValues = () => {
+  const calculatedValues = useMemo(() => {
     const purchasePrice = parseNumber(offerData.purchasePrice);
     const downPayment = parseNumber(offerData.downPayment);
     const initialDeposit = parseNumber(offerData.initialDeposit);
@@ -44,9 +44,9 @@ const PurchasePrice = ({ handleNextStep }) => {
       percentDown: isNaN(percentDown) ? '' : percentDown,
       balanceOfDownPayment: isNaN(balanceOfDownPayment) ? '' : formatCurrency(balanceOfDownPayment.toFixed(0)),
     };
-  };
+  }, [offerData.purchasePrice, offerData.downPayment, offerData.initialDeposit]);
 
-  const { loanAmount, percentDown, balanceOfDownPayment } = calculatedValues();
+  const { loanAmount, percentDown, balanceOfDownPayment } = calculatedValues;
 
   const handleBlur = (e) => {
     const { name, value } = e.target;
