@@ -1,70 +1,98 @@
 .messages-tab {
-    padding: 2rem;
+    padding: 1rem;
     background-color: #f1f1f1;
     border-radius: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-}
+  }
   
-.messages-upgrade-prompt {
+  .messages-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .messages-stat {
+    text-align: center;
+  }
+  
+  .stat-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+  }
+  
+  .stat-label {
+    font-size: 1rem;
+    color: #666;
+  }
+  
+  .messages-list {
+    margin-top: 0.5rem;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 1rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-top: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .message-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .message-item:hover {
+    background-color: #f9f9f9;
+  }
+  
+  .message-item.unread {
+    font-weight: bold;
+    background-color: #f0f7ff;
+  }
+  
+  .message-item:last-child {
+    border-bottom: none;
+  }
+  
+  .message-info {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: #ffffff;
-    padding: 2rem;
-    padding-bottom: 4rem;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    text-align: center;
     width: 100%;
-}
-
-.messages-header {
-    font-size: 2rem;
-    color: #333;
-    margin-bottom: 2rem;
-}
-
-.messages-icon {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 2rem;
-    color: #4078fb;
-}
-
-.messages-benefits {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 2rem;
-    color: #333;
-    text-align: left;
-}
-
-.messages-benefits li {
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
-    line-height: 1.5;
-}
-
-.upgrade-button {
-    padding: 0.8rem 1.5rem;
-    background-image: linear-gradient(to right, #9b2ae2, #4078fb);
-    color: #fff;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
+  }
+  
+  .message-sender {
     font-size: 1rem;
-    font-weight: 600;
-    transition: background-color 0.3s;
-    text-transform: uppercase;
-    transition: transform 0.3s ease;
-}
-
-.upgrade-button:hover {
-    background-image: linear-gradient(to right, #8423c1, #3460c8);
-    transform: scale(1.05);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-}
+    color: #333;
+    margin-bottom: 0.25rem;
+  }
+  
+  .message-subject {
+    font-size: 0.95rem;
+    color: #444;
+    margin-bottom: 0.25rem;
+  }
+  
+  .message-preview {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+  }
+  
+  .message-date {
+    font-size: 0.85rem;
+    color: #888;
+    align-self: flex-end;
+  }
+  
+  .no-messages-message {
+    margin-top: 2rem;
+    margin-left: 1rem;
+    color: #666;
+    font-size: 16px;
+  }
