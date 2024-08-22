@@ -1,25 +1,138 @@
-/* Signup.css */
-.signup-page-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* Ensures full viewport height */
-    background-color: #f9f9f9; /* Light background color for the page */
+/* SignupForm.css */
+.signup-form {
+  width: 90%;
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.signup-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #333333;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  font-family: 'Helvetica Neue', sans-serif;
+}
+
+.form-label {
+  display: block;
+  font-size: 1rem;
+  color: #333333;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  font-family: 'Helvetica Neue', sans-serif;
+}
+
+.form-control {
+  width: 100%;
+  height: 40px; /* Increased height for all inputs */
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  line-height: 1.5;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: 'Helvetica Neue', sans-serif;
+  box-sizing: border-box; /* Ensure padding doesn't affect overall width */
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.form-control.is-invalid {
+  border-color: #dc3545;
+}
+
+select.form-control {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23333333' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
+
+.invalid-feedback {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.btn-primary {
+  width: 100%;
+  height: 48px;
+  padding: 0.75rem;
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1rem; /* Add space above the button */
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.btn-primary:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6c757d;
+  font-size: 1.25rem;
+}
+
+.alert {
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+}
+
+.alert-success {
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .signup-form {
+    width: 100%;
+    max-width: none;
+    margin: 1rem auto;
+    padding: 1.5rem;
   }
-  
-  .signup-content-wrapper {
-    flex-grow: 1; /* Allows the content wrapper to grow and fill available space */
-    display: flex;
-    justify-content: center; /* Center the SignupForm horizontally */
-    align-items: center; /* Center the SignupForm vertically */
-    padding: 2rem; /* Adds padding around the form for better spacing */
-  }
-  
-  /* Ensure the footer is styled correctly via Footer.css and does not need specific styling here */
-  
-  /* Responsive behavior to ensure usability on mobile devices */
-  @media (max-width: 768px) {
-    .signup-content-wrapper {
-      padding: 1rem; /* Reduces padding on smaller screens for better spacing */
-    }
-  }
-  
+}

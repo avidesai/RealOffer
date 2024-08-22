@@ -83,7 +83,7 @@ function SignupForm() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="firstName">First Name</label>
+            <label htmlFor="firstName" className="form-label">First Name</label>
             <input
               type="text"
               id="firstName"
@@ -95,7 +95,7 @@ function SignupForm() {
             {errors.firstName && <div className="invalid-feedback">{errors.firstName}</div>}
           </div>
           <div>
-            <label htmlFor="lastName">Last Name</label>
+            <label htmlFor="lastName" className="form-label">Last Name</label>
             <input
               type="text"
               id="lastName"
@@ -108,7 +108,7 @@ function SignupForm() {
           </div>
         </div>
         <div>
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email" className="form-label">Email</label>
           <input
             type="email"
             id="email"
@@ -120,7 +120,7 @@ function SignupForm() {
           {errors.email && <div className="invalid-feedback">{errors.email}</div>}
         </div>
         <div>
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password" className="form-label">Password</label>
           <div className="input-group">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -141,7 +141,7 @@ function SignupForm() {
           {errors.password && <div className="invalid-feedback">{errors.password}</div>}
         </div>
         <div>
-          <label htmlFor="confirmPassword">Confirm Password</label>
+          <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
           <input
             type="password"
             id="confirmPassword"
@@ -153,7 +153,7 @@ function SignupForm() {
           {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
         </div>
         <div>
-          <label htmlFor="role">Role</label>
+          <label htmlFor="role" className="form-label">Role</label>
           <select
             name="role"
             id="role"
