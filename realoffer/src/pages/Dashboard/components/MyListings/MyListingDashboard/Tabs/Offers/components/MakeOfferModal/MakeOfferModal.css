@@ -37,11 +37,38 @@
   }
 }
 
+.modal-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-bottom: 1rem;
+}
+
 .modal-title {
   font-size: 2rem;
-  margin-bottom: 1.5rem;
-  text-align: center;
   color: #333333;
+  margin: 0;
+  text-align: center;
+}
+
+.reset-offer-button {
+  position: absolute;
+  left: 0;
+  background-color: #ffffff;
+  color: #262626;
+  border: 1px solid #898888;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background-color 0.5s ease, box-shadow 0.5s ease;
+}
+
+.reset-offer-button:hover {
+  transform: scale(1.05);
+  background-color: #ececec;
 }
 
 .modal-divider {
@@ -143,6 +170,7 @@
   cursor: pointer;
   color: #000000;
   transition: all 0.3s ease;
+  z-index: 1005;
   }
 
   .offer-close-button:hover {

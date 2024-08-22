@@ -110,6 +110,52 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     updateOfferData(prevData => ({ ...prevData, propertyListing: listingId }));
   }, [listingId, updateOfferData]);
 
+  const handleResetOffer = useCallback(() => {
+    updateOfferData({
+      purchasePrice: '',
+      initialDeposit: '',
+      financeType: 'LOAN',
+      loanAmount: '',
+      percentDown: '',
+      downPayment: '',
+      balanceOfDownPayment: '',
+      financeContingency: '',
+      financeContingencyDays: '',
+      appraisalContingency: '',
+      appraisalContingencyDays: '',
+      inspectionContingency: '',
+      inspectionContingencyDays: '',
+      homeSaleContingency: 'Waived',
+      closeOfEscrow: '',
+      submittedOn: new Date().toISOString(),
+      specialTerms: '',
+      buyersAgentMessage: '',
+      sellerRentBack: '',
+      sellerRentBackDays: '',
+      buyerName: '',
+      buyersAgentCommission: '',
+      documents: [],
+      propertyListing: listingId,
+      offerExpiryDate: '',
+      uploadedBy: '',
+      presentedBy: {
+        name: '',
+        licenseNumber: '',
+        email: '',
+        phoneNumber: '',
+        agentImageUrl: '',
+        agentImageBackgroundColor: '',
+      },
+      brokerageInfo: {
+        name: '',
+        licenseNumber: '',
+        addressLine1: '',
+        addressLine2: '',
+      }
+    });
+    setStep(1);
+  }, [updateOfferData, listingId]);
+
   const memoizedComponents = useMemo(() => ({
     purchasePrice: <PurchasePrice
       formData={offerData}
@@ -160,7 +206,15 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     <div className="make-offer-modal">
       <div className="modal-content">
         <button className="offer-close-button" onClick={onClose}></button>
-        <h1 className="modal-title">Create Offer</h1>
+        <div className="modal-header">
+          <button
+            className="reset-offer-button"
+            onClick={handleResetOffer}
+          >
+            Reset Offer
+          </button>
+          <h1 className="modal-title">Create Offer</h1>
+        </div>
         <hr className="modal-divider" />
         {step === 1 && memoizedComponents.purchasePrice}
         {step === 2 && memoizedComponents.contingencies}
