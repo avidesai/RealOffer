@@ -13,8 +13,8 @@ const Messages = ({ listingId }) => {
 
   const calculateMetrics = useCallback((messagesData) => {
     const newMetrics = {
-      sent: messagesData.filter(message => message.type === 'sent').length,
-      received: messagesData.filter(message => message.type === 'received').length,
+      sent: messagesData.filter(message => message.type === 'message').length,
+      received: messagesData.filter(message => message.type === 'reply').length,
       unread: messagesData.filter(message => !message.read).length,
     };
     setMetrics(newMetrics);

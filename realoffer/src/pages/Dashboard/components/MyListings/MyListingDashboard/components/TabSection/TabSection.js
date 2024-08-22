@@ -78,7 +78,7 @@ const TabSection = ({ listing }) => {
         {activeTab === 'docs' && <Documents listingId={updatedListing._id} />}
         {activeTab === 'viewers' && <Viewers listingId={updatedListing._id} />}
         {activeTab === 'activity' && <Activity listingId={updatedListing._id} />}
-        {activeTab === 'messages' && <Messages />}
+        {activeTab === 'messages' && <Messages listingId={updatedListing._id} />}
         {activeTab === 'offers' && <Offers listingId={updatedListing._id} />}
         {activeTab === 'settings' && <Settings listing={updatedListing} onStatusChange={handleStatusChange} />}
       </div>
