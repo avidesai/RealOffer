@@ -3,7 +3,6 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
-import { Alert } from 'react-bootstrap';
 import './SignupForm.css';
 
 function SignupForm() {
@@ -73,109 +72,109 @@ function SignupForm() {
   };
 
   return (
-    <div className="signup-form">
-      <h1 className="signup-title">Create Account</h1>
+    <div className="sup-form">
+      <h1 className="sup-title">Create Account</h1>
       {successMessage && (
-        <Alert variant="success" className="mb-4">
+        <div className="sup-alert sup-alert-success">
           {successMessage}
-        </Alert>
+        </div>
       )}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="firstName" className="form-label">First Name</label>
+      <form onSubmit={handleSubmit} className="sup-form-inner">
+        <div className="sup-form-row">
+          <div className="sup-form-group">
+            <label htmlFor="firstName" className="sup-label">First Name</label>
             <input
               type="text"
               id="firstName"
               name="firstName"
               value={formData.firstName}
               onChange={handleChange}
-              className={`form-control ${errors.firstName ? 'is-invalid' : ''}`}
+              className={`sup-input ${errors.firstName ? 'sup-input-invalid' : ''}`}
             />
-            {errors.firstName && <div className="invalid-feedback">{errors.firstName}</div>}
+            {errors.firstName && <div className="sup-error">{errors.firstName}</div>}
           </div>
-          <div>
-            <label htmlFor="lastName" className="form-label">Last Name</label>
+          <div className="sup-form-group">
+            <label htmlFor="lastName" className="sup-label">Last Name</label>
             <input
               type="text"
               id="lastName"
               name="lastName"
               value={formData.lastName}
               onChange={handleChange}
-              className={`form-control ${errors.lastName ? 'is-invalid' : ''}`}
+              className={`sup-input ${errors.lastName ? 'sup-input-invalid' : ''}`}
             />
-            {errors.lastName && <div className="invalid-feedback">{errors.lastName}</div>}
+            {errors.lastName && <div className="sup-error">{errors.lastName}</div>}
           </div>
         </div>
-        <div>
-          <label htmlFor="email" className="form-label">Email</label>
+        <div className="sup-form-group">
+          <label htmlFor="email" className="sup-label">Email</label>
           <input
             type="email"
             id="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+            className={`sup-input ${errors.email ? 'sup-input-invalid' : ''}`}
           />
-          {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+          {errors.email && <div className="sup-error">{errors.email}</div>}
         </div>
-        <div>
-          <label htmlFor="password" className="form-label">Password</label>
-          <div className="input-group">
+        <div className="sup-form-group">
+          <label htmlFor="password" className="sup-label">Password</label>
+          <div className="sup-password-field">
             <input
               type={showPassword ? 'text' : 'password'}
               id="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+              className={`sup-input ${errors.password ? 'sup-input-invalid' : ''}`}
             />
             <button
               type="button"
               onClick={togglePasswordVisibility}
-              className="btn btn-outline-secondary"
+              className="sup-password-toggle"
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
           </div>
-          {errors.password && <div className="invalid-feedback">{errors.password}</div>}
+          {errors.password && <div className="sup-error">{errors.password}</div>}
         </div>
-        <div>
-          <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
+        <div className="sup-form-group">
+          <label htmlFor="confirmPassword" className="sup-label">Confirm Password</label>
           <input
             type="password"
             id="confirmPassword"
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
-            className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
+            className={`sup-input ${errors.confirmPassword ? 'sup-input-invalid' : ''}`}
           />
-          {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
+          {errors.confirmPassword && <div className="sup-error">{errors.confirmPassword}</div>}
         </div>
-        <div>
-          <label htmlFor="role" className="form-label">Role</label>
+        <div className="sup-form-group">
+          <label htmlFor="role" className="sup-label">Role</label>
           <select
             name="role"
             id="role"
             value={formData.role}
             onChange={handleChange}
-            className={`form-control ${errors.role ? 'is-invalid' : ''}`}
+            className={`sup-select ${errors.role ? 'sup-input-invalid' : ''}`}
           >
             <option value="">Select a role</option>
             <option value="agent">Agent</option>
             <option value="buyer">Buyer</option>
             <option value="seller">Seller</option>
           </select>
-          {errors.role && <div className="invalid-feedback">{errors.role}</div>}
+          {errors.role && <div className="sup-error">{errors.role}</div>}
         </div>
-        <button type="submit" className="btn btn-primary w-100" disabled={isLoading}>
+        <button type="submit" className="sup-button" disabled={isLoading}>
           {isLoading ? 'Signing Up...' : 'Sign Up'}
         </button>
       </form>
       {errors.form && (
-        <Alert variant="danger" className="mt-4">
+        <div className="sup-alert sup-alert-danger">
           {errors.form}
-        </Alert>
+        </div>
       )}
     </div>
   );
