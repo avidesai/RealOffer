@@ -1,69 +1,119 @@
+// LoginForm.js
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import './LoginForm.css';
 
 function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevData => ({
+      ...prevData,
+      [name]: value
+    }));
+    setErrors(prevErrors => ({
+      ...prevErrors,
+      [name]: ''
+    }));
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.email.trim()) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
+    if (!formData.password) newErrors.password = 'Password is required';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage('');
+    if (!validateForm()) return;
+
     setIsLoading(true);
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      await login(formData.email, formData.password);
+      setSuccessMessage('Login successful! Redirecting to dashboard...');
+      setTimeout(() => navigate('/dashboard'), 2000);
     } catch (error) {
-      console.error('Error logging in:', error.response?.data?.message || 'Server error');
-      setErrorMessage(error.response?.data?.message || 'Login failed, please try again.');
+      setErrors({ form: error.response?.data?.message || 'Login failed. Please try again.' });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="login-form-container">
-      <form className="login-form" onSubmit={handleSubmit}>
-        <h1 className="login-title">Login</h1>
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-        <div className="input-group">
-          <label htmlFor="email">Email</label>
+    <div className="log-form">
+      <h1 className="log-title">Login</h1>
+      {successMessage && (
+        <div className="log-alert log-alert-success">
+          {successMessage}
+        </div>
+      )}
+      <form onSubmit={handleSubmit} className="log-form-inner">
+        <div className="log-form-group">
+          <label htmlFor="email" className="log-label">Email</label>
           <input
             type="email"
             id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={isLoading}
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            className={`log-input ${errors.email ? 'log-input-invalid' : ''}`}
           />
+          {errors.email && <div className="log-error">{errors.email}</div>}
         </div>
-        <div className="input-group">
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={isLoading}
-          />
+        <div className="log-form-group">
+          <label htmlFor="password" className="log-label">Password</label>
+          <div className="log-password-field">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className={`log-input ${errors.password ? 'log-input-invalid' : ''}`}
+            />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="log-password-toggle"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
+          {errors.password && <div className="log-error">{errors.password}</div>}
         </div>
-        <button type="submit" className="login-button" disabled={isLoading}>
-          LOGIN
+        <button type="submit" className="log-button" disabled={isLoading}>
+          {isLoading ? 'Logging in...' : 'Login'}
         </button>
-        <div className="login-footer">
-          <p>Need an account? <Link to="/signup">Sign Up</Link></p>
-          <p><Link to="/reset-password">Reset Password</Link></p>
-        </div>
       </form>
-      {isLoading && (
-        <div className="loading-overlay">
-          <div className="spinner"></div>
+      {errors.form && (
+        <div className="log-alert log-alert-danger">
+          {errors.form}
         </div>
       )}
+      <div className="log-footer">
+        <p>Need an account? <Link to="/signup">Sign Up</Link></p>
+        <p><Link to="/reset-password">Reset Password</Link></p>
+      </div>
     </div>
   );
 }
