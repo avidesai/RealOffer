@@ -52,64 +52,6 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     }));
   }, [updateOfferData]);
 
-  const handleSubmit = useCallback(async () => {
-    const formDataToSend = new FormData();
-    for (const key in offerData) {
-      if (key === 'documents' && offerData[key].length > 0) {
-        offerData[key].forEach((doc) => {
-          formDataToSend.append('documents', doc.id);
-        });
-      } else if (key === 'presentedBy' || key === 'brokerageInfo') {
-        for (const nestedKey in offerData[key]) {
-          formDataToSend.append(`${key}.${nestedKey}`, offerData[key][nestedKey]);
-        }
-      } else {
-        formDataToSend.append(key, offerData[key]);
-      }
-    }
-    formDataToSend.append('propertyListingId', listingId);
-
-    try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/offers`, formDataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      console.log('Offer created:', response.data);
-      onClose();
-    } catch (error) {
-      console.error('Error creating offer:', error);
-    }
-  }, [offerData, listingId, onClose]);
-
-  useEffect(() => {
-    const downPayment = parseNumber(offerData.downPayment);
-    const purchasePrice = parseNumber(offerData.purchasePrice);
-    const initialDeposit = parseNumber(offerData.initialDeposit);
-    
-    const loanAmount = purchasePrice - downPayment;
-    const percentDown = purchasePrice > 0 ? ((downPayment / purchasePrice) * 100).toFixed(2) : '0';
-    const balanceOfDownPayment = downPayment - initialDeposit;
-    
-    const newValues = {
-      loanAmount: isNaN(loanAmount) ? '' : loanAmount.toString(),
-      percentDown: isNaN(percentDown) ? '' : percentDown,
-      balanceOfDownPayment: isNaN(balanceOfDownPayment) ? '' : balanceOfDownPayment.toString(),
-    };
-
-    if (JSON.stringify(newValues) !== JSON.stringify({
-      loanAmount: offerData.loanAmount,
-      percentDown: offerData.percentDown,
-      balanceOfDownPayment: offerData.balanceOfDownPayment,
-    })) {
-      updateOfferData(newValues);
-    }
-  }, [offerData.purchasePrice, offerData.downPayment, offerData.initialDeposit, updateOfferData, offerData.loanAmount, offerData.percentDown, offerData.balanceOfDownPayment]);
-
-  useEffect(() => {
-    updateOfferData(prevData => ({ ...prevData, propertyListing: listingId }));
-  }, [listingId, updateOfferData]);
-
   const handleResetOffer = useCallback(() => {
     updateOfferData({
       purchasePrice: '',
@@ -155,6 +97,68 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     });
     setStep(1);
   }, [updateOfferData, listingId]);
+
+  const handleSubmit = useCallback(async () => {
+    const formDataToSend = new FormData();
+    for (const key in offerData) {
+      if (key === 'documents' && offerData[key].length > 0) {
+        offerData[key].forEach((doc) => {
+          formDataToSend.append('documents', doc.id);
+        });
+      } else if (key === 'presentedBy' || key === 'brokerageInfo') {
+        for (const nestedKey in offerData[key]) {
+          formDataToSend.append(`${key}.${nestedKey}`, offerData[key][nestedKey]);
+        }
+      } else {
+        formDataToSend.append(key, offerData[key]);
+      }
+    }
+    formDataToSend.append('propertyListingId', listingId);
+
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/offers`, formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log('Offer created:', response.data);
+      
+      // Reset the offer context to default after successful submission
+      handleResetOffer();
+      
+      onClose();
+    } catch (error) {
+      console.error('Error creating offer:', error);
+    }
+  }, [offerData, listingId, onClose, handleResetOffer]);
+
+  useEffect(() => {
+    const downPayment = parseNumber(offerData.downPayment);
+    const purchasePrice = parseNumber(offerData.purchasePrice);
+    const initialDeposit = parseNumber(offerData.initialDeposit);
+    
+    const loanAmount = purchasePrice - downPayment;
+    const percentDown = purchasePrice > 0 ? ((downPayment / purchasePrice) * 100).toFixed(2) : '0';
+    const balanceOfDownPayment = downPayment - initialDeposit;
+    
+    const newValues = {
+      loanAmount: isNaN(loanAmount) ? '' : loanAmount.toString(),
+      percentDown: isNaN(percentDown) ? '' : percentDown,
+      balanceOfDownPayment: isNaN(balanceOfDownPayment) ? '' : balanceOfDownPayment.toString(),
+    };
+
+    if (JSON.stringify(newValues) !== JSON.stringify({
+      loanAmount: offerData.loanAmount,
+      percentDown: offerData.percentDown,
+      balanceOfDownPayment: offerData.balanceOfDownPayment,
+    })) {
+      updateOfferData(newValues);
+    }
+  }, [offerData.purchasePrice, offerData.downPayment, offerData.initialDeposit, updateOfferData, offerData.loanAmount, offerData.percentDown, offerData.balanceOfDownPayment]);
+
+  useEffect(() => {
+    updateOfferData(prevData => ({ ...prevData, propertyListing: listingId }));
+  }, [listingId, updateOfferData]);
 
   const memoizedComponents = useMemo(() => ({
     purchasePrice: <PurchasePrice
