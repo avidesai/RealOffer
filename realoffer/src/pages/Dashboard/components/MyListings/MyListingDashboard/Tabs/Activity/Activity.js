@@ -1,32 +1,41 @@
-import React, { useState, useEffect } from 'react';
+// Activity.js
+
+import React, { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
 import ActivitySortBar from './components/ActivitySortBar/ActivitySortBar';
 import './Activity.css';
 
-const Activity = () => {
+const Activity = ({ listingId }) => {
   const [activities, setActivities] = useState([]);
   const [filteredActivities, setFilteredActivities] = useState([]);
   const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('most-recent');
   const [searchQuery, setSearchQuery] = useState('');
+  const [metrics, setMetrics] = useState({ views: 0, downloads: 0, offers: 0 });
+
+  const calculateMetrics = useCallback((activitiesData) => {
+    const newMetrics = {
+      views: activitiesData.filter(activity => activity.type === 'view').length,
+      downloads: activitiesData.filter(activity => activity.type === 'download').length,
+      offers: activitiesData.filter(activity => activity.type === 'offer').length,
+    };
+    setMetrics(newMetrics);
+  }, []);
+
+  const fetchActivities = useCallback(async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/activities?listingId=${listingId}`);
+      const activitiesData = response.data;
+      setActivities(activitiesData);
+      calculateMetrics(activitiesData);
+    } catch (error) {
+      console.error('Error fetching activities:', error);
+    }
+  }, [calculateMetrics, listingId]);
 
   useEffect(() => {
-    // Mock data
-    const mockData = [
-      { user: 'Garret Jones', action: 'left the package', timestamp: 'August 04, 2024 at 12:12 PM', documentModified: '', user2: '' },
-      { user: 'NgocAnh Nguyen', action: 'viewed the package', timestamp: 'August 02, 2024 at 6:40 PM', documentModified: '', user2: '' },
-      { user: 'Ken Nachtweih', action: 'viewed', timestamp: 'August 02, 2024 at 4:06 PM', documentModified: 'Offer Instructions.pdf', user2: '' },
-      { user: 'Ken Nachtweih', action: 'viewed', timestamp: 'August 02, 2024 at 4:06 PM', documentModified: 'Coversheet.pdf', user2: '' },
-      { user: 'Ken Nachtweih', action: 'viewed', timestamp: 'August 02, 2024 at 4:06 PM', documentModified: 'To Be Signed w/ Offer (disclosures, cover pages, etc.).pdf', user2: '' },
-      { user: 'Ken Nachtweih', action: 'viewed the package', timestamp: 'August 02, 2024 at 4:05 PM', documentModified: '', user2: '' },
-      { user: 'Ken Nachtweih', action: 'requested access for the package', timestamp: 'August 02, 2024 at 4:04 PM', documentModified: '', user2: '' },
-      { user: 'Kristina Carter', action: 'viewed the package', timestamp: 'August 02, 2024 at 1:30 PM', documentModified: '', user2: '' },
-      { user: 'Kristina Carter', action: 'viewed', timestamp: 'August 02, 2024 at 12:56 PM', documentModified: 'To Be Signed w/ Offer (disclosures, cover pages, etc.).pdf', user2: '' },
-      { user: 'Kristina Carter', action: 'viewed the package', timestamp: 'August 02, 2024 at 12:56 PM', documentModified: '', user2: '' },
-      { user: 'Kristina Carter', action: 'viewed', timestamp: 'August 02, 2024 at 12:36 PM', documentModified: 'Offer Instructions.pdf', user2: '' }
-    ];
-
-    setActivities(mockData);
-  }, []);
+    fetchActivities();
+  }, [fetchActivities]);
 
   useEffect(() => {
     let filtered = [...activities];
@@ -36,17 +45,32 @@ const Activity = () => {
     }
 
     if (searchQuery) {
-      filtered = filtered.filter(activity => activity.user.toLowerCase().includes(searchQuery.toLowerCase()));
+      filtered = filtered.filter(activity => 
+        activity.user.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
     }
 
-    if (sort === 'most-recent') {
-      filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    } else {
-      filtered.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-    }
+    filtered.sort((a, b) => 
+      sort === 'most-recent' 
+        ? new Date(b.timestamp) - new Date(a.timestamp)
+        : new Date(a.timestamp) - new Date(b.timestamp)
+    );
 
     setFilteredActivities(filtered);
   }, [filter, sort, searchQuery, activities]);
+
+  const getActionText = useCallback((activity) => {
+    switch (activity.type) {
+      case 'view':
+        return 'viewed the listing';
+      case 'download':
+        return `downloaded ${activity.documentModified ? activity.documentModified.title : ''}`;
+      case 'offer':
+        return 'made an offer';
+      default:
+        return activity.action;
+    }
+  }, []);
 
   return (
     <div className="activity-tab">
@@ -57,19 +81,15 @@ const Activity = () => {
       />
       <div className="activity-stats">
         <div className="activity-stat">
-          <span className="stat-number">131</span>
-          <span className="stat-label">Interested Parties</span>
-        </div>
-        <div className="activity-stat">
-          <span className="stat-number">457</span>
+          <span className="stat-number">{metrics.views}</span>
           <span className="stat-label">Views</span>
         </div>
         <div className="activity-stat">
-          <span className="stat-number">34</span>
+          <span className="stat-number">{metrics.downloads}</span>
           <span className="stat-label">Downloads</span>
         </div>
         <div className="activity-stat">
-          <span className="stat-number">14</span>
+          <span className="stat-number">{metrics.offers}</span>
           <span className="stat-label">Offers</span>
         </div>
       </div>
@@ -81,9 +101,9 @@ const Activity = () => {
             <div key={index} className="activity-item">
               <div className="activity-info">
                 <p className="activity-user">
-                  <strong>{activity.user}</strong> {activity.action} <span className="activity-document">{activity.documentModified}</span>
+                  <strong>{activity.user.name}</strong> {getActionText(activity)}
                 </p>
-                <p className="activity-date">{activity.timestamp}</p>
+                <p className="activity-date">{new Date(activity.timestamp).toLocaleString()}</p>
               </div>
             </div>
           ))

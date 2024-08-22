@@ -3,12 +3,15 @@ const Activity = require('../models/Activity');
 
 exports.getActivities = async (req, res) => {
   try {
-    const activities = await Activity.find()
-      .populate('user', 'name') // Populate user field with name
-      .populate('user2', 'name') // Populate user2 field with name
-      .populate('documentModified', 'title') // Populate documentModified field with title
-      .populate('propertyListing', 'title') // Populate propertyListing field with title
-      .populate('buyerPackage', 'title'); // Populate buyerPackage field with title
+    const { listingId } = req.query;
+    const query = listingId ? { propertyListing: listingId } : {};
+
+    const activities = await Activity.find(query)
+      .populate('user', 'name')
+      .populate('documentModified', 'title')
+      .populate('propertyListing', 'title')
+      .populate('buyerPackage', 'title');
+
     res.status(200).json(activities);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -16,14 +19,13 @@ exports.getActivities = async (req, res) => {
 };
 
 exports.createActivity = async (req, res) => {
-  const { user, action, timestamp, documentModified, user2, propertyListing, buyerPackage } = req.body;
-
+  const { user, action, type, timestamp, documentModified, propertyListing, buyerPackage } = req.body;
   const newActivity = new Activity({
     user,
     action,
+    type,
     timestamp,
     documentModified,
-    user2,
     propertyListing,
     buyerPackage,
   });
