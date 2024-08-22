@@ -15,6 +15,33 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
   const fileInputRef = useRef(null);
   const { user } = useAuth();
 
+  const fetchSignaturePackage = useCallback(async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`);
+      const signaturePackage = response.data.find(doc => doc.purpose === 'signature_package');
+      if (signaturePackage) {
+        setFiles(prevFiles => {
+          const signaturePackageExists = prevFiles.some(file => file.id === signaturePackage._id);
+          if (!signaturePackageExists) {
+            return [...prevFiles, {
+              id: signaturePackage._id,
+              title: signaturePackage.title,
+              type: 'Signature Package',
+              file: { name: signaturePackage.title, size: signaturePackage.size }
+            }];
+          }
+          return prevFiles;
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching signature package:', error);
+    }
+  }, [listingId]);
+
+  useEffect(() => {
+    fetchSignaturePackage();
+  }, [fetchSignaturePackage]);
+
   useEffect(() => {
     setFiles(offerData.documents || []);
   }, [offerData.documents]);
@@ -198,11 +225,13 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
                       value={file.type}
                       onChange={(e) => handleFileTypeChange(index, e.target.value)}
                       className="offer-file-type-select"
+                      disabled={file.type === 'Signature Package'}
                     >
                       <option value="">Select Type</option>
                       <option value="Pre-Approval Letter">Pre-Approval Letter</option>
                       <option value="Proof of Funds">Proof of Funds</option>
                       <option value="Purchase Agreement">Purchase Agreement</option>
+                      <option value="Signature Package">Signature Package</option>
                       <option value="Other">Other</option>
                     </select>
                   </div>
