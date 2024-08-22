@@ -113,7 +113,7 @@ const Offers = ({ listingId }) => {
       case 'oldest':
         return new Date(a.createdAt) - new Date(b.createdAt);
       case 'offerExpiryDate':
-        return new Date(a.offerExpiryDate) - new Date(b.offerExpiryDate);
+        return new Date(b.offerExpiryDate) - new Date(a.offerExpiryDate);
       default:
         return 0;
     }
