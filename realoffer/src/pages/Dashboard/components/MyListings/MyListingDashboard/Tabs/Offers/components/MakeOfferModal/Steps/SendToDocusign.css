@@ -1,0 +1,93 @@
+/* SendToDocusign.css */
+
+.docusign-step {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .offer-modal-header {
+    margin-bottom: 20px;
+  }
+  
+  .offer-modal-header h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .offer-modal-header p {
+    font-size: 16px;
+    color: #666;
+  }
+  
+  .error-message {
+    color: #ff0000;
+    margin-bottom: 15px;
+  }
+  
+  .sign-documents-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .sign-documents-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .sign-documents-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  .docusign-iframe {
+    width: 100%;
+    height: 500px;
+    border: none;
+    margin-bottom: 20px;
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .step-back-button,
+  .next-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .step-back-button {
+    background-color: #f0f0f0;
+    color: #333;
+  }
+  
+  .step-back-button:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .next-button {
+    background-color: #28a745;
+    color: #fff;
+  }
+  
+  .next-button:hover {
+    background-color: #218838;
+  }
+  
+  .next-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
