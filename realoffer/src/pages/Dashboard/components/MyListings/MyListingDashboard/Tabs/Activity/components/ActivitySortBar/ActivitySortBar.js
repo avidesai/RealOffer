@@ -31,7 +31,7 @@ function ActivitySortBar({ onFilterChange, onSortChange, onSearch }) {
         <div className="activity-filter-section">
           <label htmlFor="filter">Filter</label>
           <select id="filter" value={filter} onChange={handleFilterChange}>
-            <option value="all">All Events</option>
+            <option value="all">All</option>
             <option value="view">View</option>
             <option value="download">Download</option>
             <option value="offer">Offer</option>
