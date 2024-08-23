@@ -200,10 +200,10 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       listingId={listingId}
     />,
     finalReview: <FinalReview
-      formData={offerData}
-      handlePrevStep={handlePrevStep}
-      handleSubmit={handleSubmit}
-    />
+    formData={offerData}
+    handlePrevStep={handlePrevStep}
+    handleSubmit={handleSubmit}
+  />
   }), [offerData, handleChange, handleFinanceTypeChange, handleNextStep, handlePrevStep, handleNestedChange, updateOfferData, listingId, handleSubmit]);
 
   return (
