@@ -23,26 +23,23 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/login`, { email, password });
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/users/login`, 
+        { email, password },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
       if (response.data) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
         setUser(response.data.user);
       }
+      return response.data;
     } catch (error) {
       console.error('Error logging in:', error);
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        console.error('Response data:', error.response.data);
-        console.error('Response status:', error.response.status);
-      } else if (error.request) {
-        // The request was made but no response was received
-        console.error('No response received:', error.request);
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        console.error('Error setting up request:', error.message);
-      }
-      throw error; // Re-throw the error so it can be caught in LoginForm
+      throw error;
     }
   };
 

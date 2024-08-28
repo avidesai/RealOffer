@@ -11,6 +11,7 @@ function LoginForm() {
     password: ''
   });
   const [errors, setErrors] = useState({});
+  const [networkError, setNetworkError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
@@ -27,6 +28,7 @@ function LoginForm() {
       ...prevErrors,
       [name]: ''
     }));
+    setNetworkError('');
   };
 
   const togglePasswordVisibility = () => {
@@ -38,7 +40,6 @@ function LoginForm() {
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
     if (!formData.password) newErrors.password = 'Password is required';
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -46,14 +47,24 @@ function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-
     setIsLoading(true);
+    setNetworkError('');
     try {
       await login(formData.email, formData.password);
       setSuccessMessage('Login successful! Redirecting to dashboard...');
       setTimeout(() => navigate('/dashboard'), 2000);
     } catch (error) {
-      setErrors({ form: error.response?.data?.message || 'Login failed. Please try again.' });
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        setErrors({ form: error.response.data.message || 'Login failed. Please try again.' });
+      } else if (error.request) {
+        // The request was made but no response was received
+        setNetworkError('Unable to connect to the server. Please check your internet connection and try again.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setNetworkError('An unexpected error occurred. Please try again later.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -108,6 +119,11 @@ function LoginForm() {
       {errors.form && (
         <div className="log-alert log-alert-danger">
           {errors.form}
+        </div>
+      )}
+      {networkError && (
+        <div className="log-alert log-alert-danger">
+          {networkError}
         </div>
       )}
       <div className="log-footer">

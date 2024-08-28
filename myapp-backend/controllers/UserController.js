@@ -169,7 +169,7 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
-exports.loginUser = async (req, res) => {
+exports.loginUser = async (req, res, next) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email: email.toLowerCase() });
@@ -199,7 +199,7 @@ exports.loginUser = async (req, res) => {
       { expiresIn: '1h' },
       (err, token) => {
         if (err) throw err;
-        res.json({ token });
+        res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
       }
     );
 
@@ -207,7 +207,7 @@ exports.loginUser = async (req, res) => {
     await user.save();
   } catch (error) {
     console.error('Error logging in user:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    next(error);
   }
 };
 

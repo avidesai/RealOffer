@@ -11,9 +11,9 @@ const corsOptions = {
   origin: function (origin, callback) {
     const whitelist = [
       'http://localhost:3000',
+      'https://realoffer.io',
       'https://real-offer-eight.vercel.app',
-      'https://real-offer-git-main-avidesais-projects.vercel.app',
-      'https://real-offer-gpxkm5o5g-avidesais-projects.vercel.app',
+      'https://real-offer-ja4izgjou-avidesais-projects.vercel.app',
     ];
     if (whitelist.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
@@ -21,13 +21,15 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   optionsSuccessStatus: 204,
 };
 
 app.use(cors(corsOptions));
 app.use(express.json());
+app.options('*', cors(corsOptions));
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, {
@@ -67,9 +69,8 @@ app.use('/api/docusign', docusignRouter); // Add this line
 // Error Handling Middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send('Something broke!');
+  res.status(500).json({ message: 'Something went wrong!', error: err.message });
 });
-
 // Server Configuration
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
