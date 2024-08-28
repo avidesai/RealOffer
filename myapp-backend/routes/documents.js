@@ -1,5 +1,4 @@
 // /routes/documents.js
-
 const express = require('express');
 const router = express.Router();
 const DocumentController = require('../controllers/DocumentController');
@@ -13,5 +12,6 @@ router.delete('/:id', DocumentController.deleteDocument);
 router.post('/addPage', DocumentController.addPageToSignaturePackage);
 router.post('/removePage', DocumentController.removePageFromSignaturePackage);
 router.put('/createBuyerSignaturePacket', DocumentController.createBuyerSignaturePacket);
+router.put('/updateSignedStatus', DocumentController.updateDocumentSignedStatus); // Add this line
 
 module.exports = router;

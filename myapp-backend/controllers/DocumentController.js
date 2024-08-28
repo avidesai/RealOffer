@@ -3,7 +3,7 @@
 const Document = require('../models/Document');
 const PropertyListing = require('../models/PropertyListing');
 const BuyerPackage = require('../models/BuyerPackage');
-const { containerClient, generateSASToken } = require('../config/azureStorage');
+const { containerClient, signedDocsContainerClient, generateSASToken } = require('../config/azureStorage');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const { PDFDocument } = require('pdf-lib');
@@ -69,7 +69,8 @@ exports.uploadDocument = async (req, res) => {
         visibility,
         purpose,
         offer: offerId,
-        docType // Include the new docType field
+        docType,
+        signed: false // Add this line
       });
 
       const savedDocument = await newDocument.save();
@@ -210,9 +211,27 @@ exports.getDocumentsByListing = async (req, res) => {
     const documents = await Document.find({ propertyListing: req.params.listingId });
     const documentsWithSAS = documents.map(doc => ({
       ...doc._doc,
-      sasToken: generateSASToken(doc.azureKey),
+      sasToken: generateSASToken(doc.azureKey, doc.signed),
     }));
     res.status(200).json(documentsWithSAS);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.updateDocumentSignedStatus = async (req, res) => {
+  const { documentId, signed } = req.body;
+
+  try {
+    const document = await Document.findById(documentId);
+    if (!document) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+
+    document.signed = signed;
+    const updatedDocument = await document.save();
+
+    res.status(200).json(updatedDocument);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -384,7 +403,7 @@ exports.getDocumentsByOffer = async (req, res) => {
     const documents = await Document.find({ offer: req.params.offerId });
     const documentsWithSAS = documents.map(doc => ({
       ...doc._doc,
-      sasToken: generateSASToken(doc.azureKey),
+      sasToken: generateSASToken(doc.azureKey, doc.signed),
     }));
     res.status(200).json(documentsWithSAS);
   } catch (error) {

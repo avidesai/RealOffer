@@ -1,7 +1,5 @@
 // /models/Document.js
-
 const mongoose = require('mongoose');
-
 const documentSchema = new mongoose.Schema({
   title: { type: String, required: true },
   type: { type: String, required: true },
@@ -16,8 +14,9 @@ const documentSchema = new mongoose.Schema({
   visibility: { type: String, default: 'public' },
   signaturePackagePages: { type: [Number], default: [] },
   purpose: { type: String, default: 'listing' },
-  offer: { type: mongoose.Schema.Types.ObjectId, ref: 'Offer', required: false }, // Add offer field
-  docType: { type: String, required: true } // Add docType field
+  offer: { type: mongoose.Schema.Types.ObjectId, ref: 'Offer', required: false },
+  docType: { type: String, required: true },
+  signed: { type: Boolean, default: false } // Add this line
 }, { timestamps: true });
 
 module.exports = mongoose.model('Document', documentSchema);
