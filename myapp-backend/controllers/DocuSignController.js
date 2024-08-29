@@ -3,21 +3,17 @@
 const docusign = require('docusign-esign');
 const { Offer } = require('../models/Offer');
 const { Document } = require('../models/Document');
-
-// You'll need to implement these functions
-const { getAccessToken, fetchDocumentContent, saveSignedDocument } = require('../utils/docusignHelpers');
+const { dsConfig, apiClient, getJWTToken } = require('../config/docusign');
+const { fetchDocumentContent, saveSignedDocument } = require('../utils/docusignHelpers');
 
 exports.createSigningSession = async (req, res) => {
   const { offerId } = req.body;
 
   try {
-    // Initialize DocuSign API client
-    const dsApiClient = new docusign.ApiClient();
-    dsApiClient.setBasePath('https://demo.docusign.net/restapi');
-    const accessToken = await getAccessToken();
-    dsApiClient.addDefaultHeader('Authorization', 'Bearer ' + accessToken);
+    const accessToken = await getJWTToken();
+    apiClient.addDefaultHeader('Authorization', 'Bearer ' + accessToken);
 
-    const envelopesApi = new docusign.EnvelopesApi(dsApiClient);
+    const envelopesApi = new docusign.EnvelopesApi(apiClient);
 
     // Fetch offer details and documents
     const offer = await Offer.findById(offerId).populate('documents');
@@ -54,7 +50,7 @@ exports.createSigningSession = async (req, res) => {
     envDef.autoPlace = [autoPlace];
 
     // Create envelope
-    const envelope = await envelopesApi.createEnvelope(process.env.DOCUSIGN_ACCOUNT_ID, { envelopeDefinition: envDef });
+    const envelope = await envelopesApi.createEnvelope(dsConfig.accountId, { envelopeDefinition: envDef });
 
     // Create recipient view (embedded signing)
     const viewRequest = new docusign.RecipientViewRequest();
@@ -64,7 +60,7 @@ exports.createSigningSession = async (req, res) => {
     viewRequest.userName = req.user.name;
     viewRequest.clientUserId = req.user.id.toString();
 
-    const signingUrl = await envelopesApi.createRecipientView(process.env.DOCUSIGN_ACCOUNT_ID, envelope.envelopeId, { recipientViewRequest: viewRequest });
+    const signingUrl = await envelopesApi.createRecipientView(dsConfig.accountId, envelope.envelopeId, { recipientViewRequest: viewRequest });
 
     // Save envelope ID to offer
     offer.docusignEnvelopeId = envelope.envelopeId;
@@ -87,19 +83,17 @@ exports.handleDocuSignWebhook = async (req, res) => {
         return res.status(404).json({ message: 'Offer not found' });
       }
 
-      const dsApiClient = new docusign.ApiClient();
-      dsApiClient.setBasePath('https://demo.docusign.net/restapi');
-      const accessToken = await getAccessToken();
-      dsApiClient.addDefaultHeader('Authorization', 'Bearer ' + accessToken);
+      const accessToken = await getJWTToken();
+      apiClient.addDefaultHeader('Authorization', 'Bearer ' + accessToken);
 
-      const envelopesApi = new docusign.EnvelopesApi(dsApiClient);
+      const envelopesApi = new docusign.EnvelopesApi(apiClient);
 
       // Fetch signed documents
-      const documents = await envelopesApi.listDocuments(process.env.DOCUSIGN_ACCOUNT_ID, envelopeId);
+      const documents = await envelopesApi.listDocuments(dsConfig.accountId, envelopeId);
 
       // Update documents in your database with signed versions
       for (const doc of documents.envelopeDocuments) {
-        const signedDocContent = await envelopesApi.getDocument(process.env.DOCUSIGN_ACCOUNT_ID, envelopeId, doc.documentId);
+        const signedDocContent = await envelopesApi.getDocument(dsConfig.accountId, envelopeId, doc.documentId);
         await saveSignedDocument(offer._id, doc.documentId, signedDocContent);
       }
 
