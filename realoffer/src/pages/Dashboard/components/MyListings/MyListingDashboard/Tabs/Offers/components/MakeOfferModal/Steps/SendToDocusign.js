@@ -1,5 +1,5 @@
 // SendToDocusign.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useOffer } from '../../../../../../../../../../context/OfferContext';
 import axios from 'axios';
 import './SendToDocusign.css';
@@ -9,44 +9,62 @@ const SendToDocusign = ({ handlePrevStep, handleNextStep }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [signingUrl, setSigningUrl] = useState('');
+  const [signingStatus, setSigningStatus] = useState('');
 
-  const handleSignDocuments = async () => {
+  const handleSignDocuments = useCallback(async () => {
     setIsLoading(true);
     setError('');
     try {
-      const response = await axios.post('/api/docusign/create-signing-session', {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/create-signing-session`, {
         offerId: offerData._id,
+      }, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
       });
       setSigningUrl(response.data.signingUrl);
+      setSigningStatus('initiated');
     } catch (error) {
       console.error('Error creating DocuSign signing session:', error);
       setError('Failed to create signing session. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [offerData._id]);
+
+  const checkSigningStatus = useCallback(async () => {
+    if (signingStatus !== 'initiated') return;
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/status/${offerData._id}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      if (response.data.status === 'completed') {
+        setSigningStatus('completed');
+        // Update documents with signed versions
+        const updatedDocuments = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/offer/${offerData._id}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        updateOfferData({ documents: updatedDocuments.data });
+      }
+    } catch (error) {
+      console.error('Error checking signing status:', error);
+    }
+  }, [signingStatus, offerData._id, updateOfferData]);
 
   useEffect(() => {
-    const checkSigningStatus = async () => {
-      if (!signingUrl) return;
-
-      try {
-        const response = await axios.get(`/api/docusign/status/${offerData._id}`);
-        if (response.data.status === 'completed') {
-          // Update documents with signed versions
-          const updatedDocuments = await axios.get(`/api/documents/offer/${offerData._id}`);
-          updateOfferData({ documents: updatedDocuments.data });
-          handleNextStep();
-        }
-      } catch (error) {
-        console.error('Error checking signing status:', error);
-      }
-    };
-
     const intervalId = setInterval(checkSigningStatus, 5000); // Check every 5 seconds
-
     return () => clearInterval(intervalId);
-  }, [signingUrl, offerData._id, updateOfferData, handleNextStep]);
+  }, [checkSigningStatus]);
+
+  useEffect(() => {
+    if (signingStatus === 'completed') {
+      handleNextStep();
+    }
+  }, [signingStatus, handleNextStep]);
 
   return (
     <div className="modal-step docusign-step">
@@ -73,7 +91,7 @@ const SendToDocusign = ({ handlePrevStep, handleNextStep }) => {
       )}
       <div className="button-container">
         <button className="step-back-button" onClick={handlePrevStep}>Back</button>
-        <button className="next-button" onClick={handleNextStep} disabled={!signingUrl}>
+        <button className="next-button" onClick={handleNextStep} disabled={signingStatus !== 'completed'}>
           Next
         </button>
       </div>

@@ -10,6 +10,7 @@ import OfferDetails from './Steps/OfferDetails';
 import Documents from './Steps/Documents';
 import FinalReview from './Steps/FinalReview';
 import AutoFillForms from './Steps/AutoFillForms';
+import SendToDocusign from './Steps/SendToDocusign'; // Import SendToDocusign
 import axios from 'axios';
 
 const parseNumber = (value) => {
@@ -199,11 +200,15 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       updateOfferData={updateOfferData}
       listingId={listingId}
     />,
+    sendToDocusign: <SendToDocusign // Added SendToDocusign step
+      handlePrevStep={handlePrevStep}
+      handleNextStep={handleNextStep}
+    />,
     finalReview: <FinalReview
-    formData={offerData}
-    handlePrevStep={handlePrevStep}
-    handleSubmit={handleSubmit}
-  />
+      formData={offerData}
+      handlePrevStep={handlePrevStep}
+      handleSubmit={handleSubmit}
+    />
   }), [offerData, handleChange, handleFinanceTypeChange, handleNextStep, handlePrevStep, handleNestedChange, updateOfferData, listingId, handleSubmit]);
 
   return (
@@ -226,7 +231,8 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         {step === 4 && memoizedComponents.offerDetails}
         {step === 5 && memoizedComponents.autoFillForms}
         {step === 6 && memoizedComponents.documents}
-        {step === 7 && memoizedComponents.finalReview}
+        {step === 7 && memoizedComponents.sendToDocusign} {/* Added SendToDocusign step */}
+        {step === 8 && memoizedComponents.finalReview} {/* Adjusted final review to step 8 */}
       </div>
     </div>
   );

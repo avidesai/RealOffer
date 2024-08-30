@@ -64,6 +64,7 @@ exports.createSigningSession = async (req, res) => {
 
     // Save envelope ID to offer
     offer.docusignEnvelopeId = envelope.envelopeId;
+    offer.docusignStatus = 'sent';
     await offer.save();
 
     res.json({ signingUrl: signingUrl.url });
@@ -119,7 +120,7 @@ exports.getSigningStatus = async (req, res) => {
       return res.status(404).json({ message: 'Offer not found' });
     }
 
-    res.json({ status: offer.status });
+    res.json({ status: offer.docusignStatus });
   } catch (error) {
     console.error('Error getting signing status:', error);
     res.status(500).json({ message: 'Failed to get signing status' });
