@@ -1,6 +1,7 @@
 // MoreInfo.js
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '../../../../../../../../../context/AuthContext';  // Import useAuth hook
 import axios from 'axios';
 import Modal from 'react-modal';
 import './MoreInfo.css';
@@ -8,6 +9,7 @@ import './MoreInfo.css';
 Modal.setAppElement('#root'); // Set the root element for accessibility
 
 const MoreInfo = ({ isOpen, onClose, listingId }) => {
+  const { token } = useAuth();  // Get the token from AuthContext
   const [listing, setListing] = useState(null);
   const [isEditing, setIsEditing] = useState(null);
   const [newValue, setNewValue] = useState('');
@@ -16,12 +18,16 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
 
   const fetchListing = useCallback(async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       setListing(response.data);
     } catch (error) {
       console.error('Error fetching listing:', error);
     }
-  }, [listingId]);
+  }, [listingId, token]);
 
   useEffect(() => {
     if (isOpen) {
@@ -59,7 +65,11 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     }
 
     try {
-      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, updatedField);
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, updatedField, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       setListing(prevState => ({
         ...prevState,
         ...updatedField

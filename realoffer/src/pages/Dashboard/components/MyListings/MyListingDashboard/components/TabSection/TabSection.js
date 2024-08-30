@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../../../../../../context/AuthContext';  // Import useAuth hook
 import Documents from '../../Tabs/Documents/Documents';
 import Viewers from '../../Tabs/Viewers/Viewers';
 import Activity from '../../Tabs/Activity/Activity';
@@ -9,6 +10,7 @@ import axios from 'axios';
 import './TabSection.css';
 
 const TabSection = ({ listing }) => {
+  const { token } = useAuth();  // Get the token from AuthContext
   const [activeTab, setActiveTab] = useState('docs');
   const [loading, setLoading] = useState(false);
   const [updatedListing, setUpdatedListing] = useState(listing);
@@ -20,8 +22,12 @@ const TabSection = ({ listing }) => {
   const handleStatusChange = async (listingId, newStatus) => {
     setLoading(true);
     try {
-      // Fetch the updated listing
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`);
+      // Fetch the updated listing with authentication
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       setUpdatedListing(response.data);
     } catch (error) {
       console.error('Error fetching updated listing:', error);

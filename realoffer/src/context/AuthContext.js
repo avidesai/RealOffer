@@ -1,7 +1,7 @@
 // /context/AuthContext.js
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import api from './api';  // Import the custom api instance
 
 const AuthContext = createContext();
 
@@ -26,29 +26,24 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/login`, { email, password });
+      const response = await api.post('/api/users/login', { email, password });
       console.log('Login response:', response.data); // Debug log
-
       if (response.data && response.data.user && response.data.token) {
         const userData = response.data.user;
         if (!userData._id && !userData.id) {
           console.error('User data is missing _id or id:', userData);
           throw new Error('Invalid user data received');
         }
-
         // If the backend sends 'id' instead of '_id', create '_id' for consistency
         if (!userData._id && userData.id) {
           userData._id = userData.id;
         }
-
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('token', response.data.token);
         setUser(userData);
         setToken(response.data.token);
-
         console.log('Stored user:', userData); // Debug log
         console.log('Stored token:', response.data.token); // Debug log
-
         return userData; // Return user data for additional handling in components
       } else {
         console.error('Invalid login response:', response.data);

@@ -1,12 +1,14 @@
 // ListingOverview.js
 
 import React, { useEffect, useState } from 'react';
+import { useAuth } from '../../../../../../../context/AuthContext';  // Import useAuth hook
 import axios from 'axios';
 import MoreInfo from './components/MoreInfo/MoreInfo';
 import ListingPhotoGallery from './components/ListingPhotoGallery/ListingPhotoGallery';
 import './ListingOverview.css';
 
 function ListingOverview({ listing }) {
+  const { token } = useAuth();  // Get the token from AuthContext
   const [agents, setAgents] = useState([]);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -18,7 +20,11 @@ function ListingOverview({ listing }) {
       try {
         const agentDetails = await Promise.all(
           currentListing.agentIds.map(async (id) => {
-            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`);
+            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`, {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
             return response.data;
           })
         );
@@ -27,14 +33,17 @@ function ListingOverview({ listing }) {
         console.error('Error fetching agent details:', error);
       }
     };
-
     fetchAgentDetails();
-  }, [currentListing.agentIds]);
+  }, [currentListing.agentIds, token]);
 
   const handleRefreshListing = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${currentListing._id}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${currentListing._id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       setCurrentListing(response.data);
     } catch (error) {
       console.error('Error refreshing listing:', error);
@@ -68,7 +77,6 @@ function ListingOverview({ listing }) {
               <button className="overview-btn" onClick={() => setShowMoreInfo(true)}>Edit Info</button>
               <button className="overview-btn" onClick={() => setShowGallery(true)}>Images</button>
               <button className="overview-btn">Manage Showings</button>
-
             </div>
           </div>
           <div className="overview-agents">
