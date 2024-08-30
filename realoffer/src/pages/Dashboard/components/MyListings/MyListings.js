@@ -22,7 +22,7 @@ function MyListings() {
   const [sort, setSort] = useState('recent');
 
   const fetchUserDetails = useCallback(async () => {
-    if (user?._id && token) {
+    if ((user?._id || user?.id) && token) {
       setLoading(true);
       try {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings`, {
@@ -30,13 +30,17 @@ function MyListings() {
             'Authorization': `Bearer ${token}`
           }
         });
+        console.log('Fetched listings:', response.data); // Debug log
         setListings(response.data);
         setError('');
       } catch (error) {
         console.error('Failed to fetch user listings:', error);
-        setError('No listings found.');
+        setError('No listings found or error fetching listings.');
       }
       setLoading(false);
+    } else {
+      console.error('User ID or token is missing');
+      setError('Authentication error. Please log in again.');
     }
   }, [user, token]);
 
@@ -108,6 +112,7 @@ function MyListings() {
       await fetchUserDetails();
     } catch (error) {
       console.error('Failed to update listing status:', error);
+      setError('Failed to update listing status. Please try again.');
     }
     setLoading(false);
   };

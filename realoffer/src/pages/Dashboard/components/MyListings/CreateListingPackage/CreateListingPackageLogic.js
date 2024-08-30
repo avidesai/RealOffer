@@ -7,7 +7,7 @@ import { useAuth } from '../../../../../context/AuthContext';
 import './CreateListingPackage.css';
 
 const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     role: 'seller',
@@ -15,7 +15,8 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
     city: '',
     state: '',
     zip: '',
-    county : '',
+    county: '',
+    apn: '',
     propertyType: '',
     askingPrice: '',
     bedrooms: '',
@@ -24,7 +25,7 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
     sqFootage: '',
     lotSize: '',
     description: '',
-    agent1: user ? user._id : '',
+    agent1: user ? (user._id || user.id) : '',
     agent2: '',
     companyName: '',
     officerName: '',
@@ -81,6 +82,7 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setErrors({});
 
     const formDataToSend = new FormData();
     for (const key in formData) {
@@ -94,15 +96,36 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
     }
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings`, formDataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      addNewListing(response.data); // Add new listing to MyListings
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings`,
+        formDataToSend,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`
+          },
+        }
+      );
+      console.log('Listing created successfully:', response.data);
+      addNewListing(response.data);
       onClose();
     } catch (error) {
       console.error('Error creating listing:', error);
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        setErrors({ submit: error.response.data.message || 'Server error. Please try again.' });
+      } else if (error.request) {
+        // The request was made but no response was received
+        setErrors({ submit: 'No response from server. Please check your internet connection and try again.' });
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setErrors({ submit: 'An unexpected error occurred. Please try again.' });
+      }
     } finally {
       setLoading(false);
     }
@@ -120,7 +143,7 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
         handleFileChange={handleFileChange}
         handleSubmit={handleSubmit}
         onClose={onClose}
-        loading={loading} // Pass loading state
+        loading={loading}
       />
     </>
   );

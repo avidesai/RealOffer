@@ -14,28 +14,36 @@ function MyListingDashboard() {
   const { id } = useParams();
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const { token } = useAuth();
 
   useEffect(() => {
     const fetchListingDetails = async () => {
+      if (!token) {
+        console.error('No authentication token available');
+        setError('Authentication error. Please log in again.');
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${id}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
+        console.log('Fetched listing details:', response.data); // Debug log
         setListing(response.data);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching listing details:', error);
+        setError('Failed to fetch listing details. Please try again.');
         setLoading(false);
       }
     };
 
-    if (token) {
-      fetchListingDetails();
-    }
+    fetchListingDetails();
   }, [id, token]);
 
   const handleBackClick = () => {
@@ -46,6 +54,24 @@ function MyListingDashboard() {
     return (
       <div className="spinner-container">
         <div className="spinner"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-container">
+        <p>{error}</p>
+        <button onClick={handleBackClick}>Back to Dashboard</button>
+      </div>
+    );
+  }
+
+  if (!listing) {
+    return (
+      <div className="not-found-container">
+        <p>Listing not found.</p>
+        <button onClick={handleBackClick}>Back to Dashboard</button>
       </div>
     );
   }

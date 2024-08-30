@@ -31,9 +31,14 @@ export const AuthProvider = ({ children }) => {
 
       if (response.data && response.data.user && response.data.token) {
         const userData = response.data.user;
-        if (!userData._id) {
-          console.error('User data is missing _id:', userData);
+        if (!userData._id && !userData.id) {
+          console.error('User data is missing _id or id:', userData);
           throw new Error('Invalid user data received');
+        }
+
+        // If the backend sends 'id' instead of '_id', create '_id' for consistency
+        if (!userData._id && userData.id) {
+          userData._id = userData.id;
         }
 
         localStorage.setItem('user', JSON.stringify(userData));
