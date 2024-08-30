@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../../../../context/AuthContext';
 import MyListingDashboardHeader from './Header/MyListingDashboardHeader';
 import ListingOverview from './components/ListingOverview/ListingOverview';
 import TabSection from './components/TabSection/TabSection';
@@ -14,11 +15,16 @@ function MyListingDashboard() {
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { token } = useAuth();
 
   useEffect(() => {
     const fetchListingDetails = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${id}`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         setListing(response.data);
         setLoading(false);
       } catch (error) {
@@ -27,8 +33,10 @@ function MyListingDashboard() {
       }
     };
 
-    fetchListingDetails();
-  }, [id]);
+    if (token) {
+      fetchListingDetails();
+    }
+  }, [id, token]);
 
   const handleBackClick = () => {
     navigate('/dashboard');

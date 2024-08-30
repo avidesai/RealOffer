@@ -3,6 +3,10 @@
 const express = require('express');
 const router = express.Router();
 const PropertyListingController = require('../controllers/PropertyListingController');
+const authMiddleware = require('../middleware/auth');
+
+// Apply authMiddleware to all routes
+router.use(authMiddleware);
 
 router.get('/', PropertyListingController.getAllListings);
 router.get('/:id', PropertyListingController.getListingById);

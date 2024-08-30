@@ -1,3 +1,5 @@
+// MyListings.js
+
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../../context/AuthContext';
@@ -8,7 +10,7 @@ import CreateListingPackageLogic from './CreateListingPackage/CreateListingPacka
 import './MyListings.css';
 
 function MyListings() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const LISTINGS_PER_PAGE = 5;
   const [currentPage, setCurrentPage] = useState(1);
   const [listings, setListings] = useState([]);
@@ -20,19 +22,23 @@ function MyListings() {
   const [sort, setSort] = useState('recent');
 
   const fetchUserDetails = useCallback(async () => {
-    if (user?._id) {
+    if (user?._id && token) {
       setLoading(true);
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}/listingPackages`);
-        setListings(response.data.listingPackages);
-        setError(''); // Reset the error on successful fetch
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        setListings(response.data);
+        setError('');
       } catch (error) {
-        console.error('Failed to fetch user details:', error);
+        console.error('Failed to fetch user listings:', error);
         setError('No listings found.');
       }
       setLoading(false);
     }
-  }, [user]);
+  }, [user, token]);
 
   useEffect(() => {
     fetchUserDetails();
@@ -91,8 +97,15 @@ function MyListings() {
   const handleStatusChange = async (listingId, newStatus) => {
     setLoading(true);
     try {
-      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, { status: newStatus });
-      await fetchUserDetails(); // Re-fetch listings to update the displayed list
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, 
+        { status: newStatus },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      await fetchUserDetails();
     } catch (error) {
       console.error('Failed to update listing status:', error);
     }

@@ -20,7 +20,7 @@ const uploadPhotos = multer({
 
 exports.getAllListings = async (req, res) => {
   try {
-    const listings = await PropertyListing.find();
+    const listings = await PropertyListing.find({ createdBy: req.user.id });
     res.status(200).json(listings);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -29,7 +29,9 @@ exports.getAllListings = async (req, res) => {
 
 exports.getListingById = async (req, res) => {
   try {
-    const listing = await PropertyListing.findById(req.params.id).populate('offers').populate('signaturePackage');
+    const listing = await PropertyListing.findOne({ _id: req.params.id, createdBy: req.user.id })
+      .populate('offers')
+      .populate('signaturePackage');
     if (!listing) return res.status(404).json({ message: "Listing not found" });
     res.status(200).json(listing);
   } catch (error) {
@@ -45,13 +47,14 @@ exports.createListing = async (req, res) => {
   } = req.body;
 
   const propertyImages = req.files ? req.files.map(file => file.location) : [];
-  let agentIds = [agent1, agent2].filter(Boolean); // Filter out any falsy values
+  let agentIds = [req.user.id]; // Always include the current user as an agent
 
-  // Ensure agentIds is an array of ObjectIds
-  try {
-    agentIds = agentIds.map(id => new mongoose.Types.ObjectId(id));
-  } catch (error) {
-    return res.status(400).json({ message: 'Invalid agent ID format' });
+  if (agent2) {
+    try {
+      agentIds.push(new mongoose.Types.ObjectId(agent2));
+    } catch (error) {
+      return res.status(400).json({ message: 'Invalid agent ID format' });
+    }
   }
 
   const newListing = new PropertyListing({
@@ -63,7 +66,7 @@ exports.createListing = async (req, res) => {
     description,
     agentIds: agentIds,
     imagesUrls: propertyImages,
-    status: "active", // Set status to active upon creation
+    status: "active",
     escrowInfo: {
       escrowNumber: officerNumber,
       company: {
@@ -71,18 +74,15 @@ exports.createListing = async (req, res) => {
         phone: officerPhone,
         email: officerEmail
       }
-    }
+    },
+    createdBy: req.user.id
   });
 
   try {
     const savedListing = await newListing.save();
-    // Add the listing to the agent's listingPackages
-    const agent = await User.findById(agent1);
-    if (!agent) {
-      return res.status(404).json({ message: 'Agent not found' });
-    }
-    agent.listingPackages.push(savedListing._id);
-    await agent.save();
+    const user = await User.findById(req.user.id);
+    user.listingPackages.push(savedListing._id);
+    await user.save();
     res.status(201).json(savedListing);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -91,7 +91,14 @@ exports.createListing = async (req, res) => {
 
 exports.updateListing = async (req, res) => {
   try {
-    const updatedListing = await PropertyListing.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedListing = await PropertyListing.findOneAndUpdate(
+      { _id: req.params.id, createdBy: req.user.id },
+      req.body,
+      { new: true }
+    );
+    if (!updatedListing) {
+      return res.status(404).json({ message: "Listing not found or you don't have permission to update it" });
+    }
     res.status(200).json(updatedListing);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -100,23 +107,26 @@ exports.updateListing = async (req, res) => {
 
 exports.deleteListing = async (req, res) => {
   try {
-    await PropertyListing.findByIdAndDelete(req.params.id);
+    const deletedListing = await PropertyListing.findOneAndDelete({ _id: req.params.id, createdBy: req.user.id });
+    if (!deletedListing) {
+      return res.status(404).json({ message: "Listing not found or you don't have permission to delete it" });
+    }
     res.status(200).json({ message: "Listing deleted" });
   } catch (error) {
-    res.status(404).json({ message: "Listing not found" });
+    res.status(500).json({ message: error.message });
   }
 };
 
 exports.updateSignaturePackage = async (req, res) => {
   const { listingId, signaturePackageId } = req.body;
   try {
-    const updatedListing = await PropertyListing.findByIdAndUpdate(
-      listingId,
+    const updatedListing = await PropertyListing.findOneAndUpdate(
+      { _id: listingId, createdBy: req.user.id },
       { signaturePackage: signaturePackageId },
       { new: true }
     ).populate('signaturePackage');
     if (!updatedListing) {
-      return res.status(404).json({ message: "Listing not found" });
+      return res.status(404).json({ message: "Listing not found or you don't have permission to update it" });
     }
     res.status(200).json(updatedListing);
   } catch (error) {

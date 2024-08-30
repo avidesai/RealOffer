@@ -27,11 +27,16 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/login`, { email, password });
-      if (response.data) {
+      console.log('Login response:', response.data);  // Debug log
+      if (response.data && response.data.user) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
         localStorage.setItem('token', response.data.token);
         setUser(response.data.user);
         setToken(response.data.token);
+        console.log('Stored user:', response.data.user);  // Debug log
+        console.log('Stored token:', response.data.token);  // Debug log
+      } else {
+        console.error('Invalid login response:', response.data);
       }
     } catch (error) {
       console.error('Error logging in:', error);
