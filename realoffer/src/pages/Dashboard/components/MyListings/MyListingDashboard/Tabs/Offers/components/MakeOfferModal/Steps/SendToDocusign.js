@@ -15,13 +15,20 @@ const SendToDocusign = ({ handlePrevStep, handleNextStep }) => {
     setIsLoading(true);
     setError('');
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/create-signing-session`, {
-        offerId: offerData._id,
-      }, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/docusign/create-signing-session`,
+        { offerId: offerData._id },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
       setSigningUrl(response.data.signingUrl);
       setSigningStatus('initiated');
     } catch (error) {
