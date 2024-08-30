@@ -2,6 +2,7 @@
 
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const { uploadFile } = require('../config/aws');
 
@@ -146,7 +147,25 @@ exports.loginUser = async (req, res) => {
     try {
         const user = await User.findOne({ email });
         if (user && await bcrypt.compare(password, user.password)) {
-            res.status(200).json({ message: 'Login successful', user });
+            const payload = {
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    role: user.role
+                }
+            };
+            const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+            res.status(200).json({ 
+                message: 'Login successful', 
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    role: user.role
+                },
+                token 
+            });
         } else {
             res.status(401).json({ message: 'Invalid credentials' });
         }
