@@ -27,16 +27,27 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/login`, { email, password });
-      console.log('Login response:', response.data);  // Debug log
-      if (response.data && response.data.user) {
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+      console.log('Login response:', response.data); // Debug log
+
+      if (response.data && response.data.user && response.data.token) {
+        const userData = response.data.user;
+        if (!userData._id) {
+          console.error('User data is missing _id:', userData);
+          throw new Error('Invalid user data received');
+        }
+
+        localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('token', response.data.token);
-        setUser(response.data.user);
+        setUser(userData);
         setToken(response.data.token);
-        console.log('Stored user:', response.data.user);  // Debug log
-        console.log('Stored token:', response.data.token);  // Debug log
+
+        console.log('Stored user:', userData); // Debug log
+        console.log('Stored token:', response.data.token); // Debug log
+
+        return userData; // Return user data for additional handling in components
       } else {
         console.error('Invalid login response:', response.data);
+        throw new Error('Invalid login response from server');
       }
     } catch (error) {
       console.error('Error logging in:', error);
@@ -65,3 +76,5 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+export default AuthProvider;

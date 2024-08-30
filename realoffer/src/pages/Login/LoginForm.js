@@ -51,10 +51,16 @@ function LoginForm() {
     setIsLoading(true);
     setNetworkError('');
     try {
-      await login(formData.email, formData.password);
-      setSuccessMessage('Login successful! Redirecting to dashboard...');
-      setTimeout(() => navigate('/dashboard'), 2000);
+      const userData = await login(formData.email, formData.password);
+      console.log('Login response:', userData); // For debugging
+      if (userData && userData._id) {
+        setSuccessMessage('Login successful! Redirecting to dashboard...');
+        setTimeout(() => navigate('/dashboard'), 2000);
+      } else {
+        throw new Error('User data is incomplete');
+      }
     } catch (error) {
+      console.error('Login error:', error); // For debugging
       if (error.response) {
         setErrors({ form: error.response.data.message || 'Login failed. Please try again.' });
       } else if (error.request) {
