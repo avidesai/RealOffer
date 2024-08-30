@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../../../../context/AuthContext';
+import { useAuth } from '../../../../../context/AuthContext';
 import MyListingDashboardHeader from './Header/MyListingDashboardHeader';
 import ListingOverview from './components/ListingOverview/ListingOverview';
 import TabSection from './components/TabSection/TabSection';
