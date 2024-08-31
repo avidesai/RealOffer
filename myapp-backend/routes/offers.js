@@ -32,4 +32,7 @@ router.post('/:id/respond', offerController.respondToOffer);
 // Delete a specific offer
 router.delete('/:id', offerController.deleteOffer);
 
+// Update DocuSign status
+router.put('/:id/docusign-status', offerController.updateDocusignStatus);
+
 module.exports = router;

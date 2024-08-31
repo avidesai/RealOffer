@@ -20,6 +20,9 @@ const SendToDocusign = ({ handlePrevStep, handleNextStep }) => {
       if (!token) {
         throw new Error('No authentication token found');
       }
+      if (!offerData._id) {
+        throw new Error('Offer ID is missing');
+      }
       const response = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/api/docusign/create-signing-session`,
         { offerId: offerData._id },
@@ -43,7 +46,6 @@ const SendToDocusign = ({ handlePrevStep, handleNextStep }) => {
   const checkSigningStatus = useCallback(async () => {
     if (signingStatus !== 'initiated') return;
     try {
-      const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No authentication token found');
       }
@@ -57,7 +59,6 @@ const SendToDocusign = ({ handlePrevStep, handleNextStep }) => {
       );
       if (response.data.status === 'completed') {
         setSigningStatus('completed');
-        // Update documents with signed versions
         const updatedDocuments = await axios.get(
           `${process.env.REACT_APP_BACKEND_URL}/api/documents/offer/${offerData._id}`,
           {
@@ -66,13 +67,13 @@ const SendToDocusign = ({ handlePrevStep, handleNextStep }) => {
             },
           }
         );
-        updateOfferData({ documents: updatedDocuments.data });
+        updateOfferData({ documents: updatedDocuments.data, docusignStatus: 'completed' });
       }
     } catch (error) {
       console.error('Error checking signing status:', error);
       setError('Failed to check signing status. Please try again.');
     }
-  }, [signingStatus, offerData._id, updateOfferData]);
+  }, [signingStatus, offerData._id, token, updateOfferData]);
 
   useEffect(() => {
     let intervalId;
@@ -112,7 +113,7 @@ const SendToDocusign = ({ handlePrevStep, handleNextStep }) => {
         <button
           className="sign-documents-button"
           onClick={handleSignDocuments}
-          disabled={isLoading}
+          disabled={isLoading || !offerData._id}
         >
           {isLoading ? 'Preparing...' : 'Sign Documents'}
         </button>
