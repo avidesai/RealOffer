@@ -1,7 +1,7 @@
 // /context/AuthContext.js
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from './api';  // Import the custom api instance
+import api from './api';
 
 const AuthContext = createContext();
 
@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }) => {
     if (storedUser && storedToken) {
       setUser(storedUser);
       setToken(storedToken);
+      api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
     }
     setLoading(false);
   }, []);
@@ -27,26 +28,17 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await api.post('/api/users/login', { email, password });
-      console.log('Login response:', response.data); // Debug log
+      console.log('Login response:', response.data);
       if (response.data && response.data.user && response.data.token) {
         const userData = response.data.user;
-        if (!userData._id && !userData.id) {
-          console.error('User data is missing _id or id:', userData);
-          throw new Error('Invalid user data received');
-        }
-        // If the backend sends 'id' instead of '_id', create '_id' for consistency
-        if (!userData._id && userData.id) {
-          userData._id = userData.id;
-        }
+        userData._id = userData._id || userData.id;
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('token', response.data.token);
         setUser(userData);
         setToken(response.data.token);
-        console.log('Stored user:', userData); // Debug log
-        console.log('Stored token:', response.data.token); // Debug log
-        return userData; // Return user data for additional handling in components
+        api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+        return userData;
       } else {
-        console.error('Invalid login response:', response.data);
         throw new Error('Invalid login response from server');
       }
     } catch (error) {
@@ -60,6 +52,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     setUser(null);
     setToken(null);
+    delete api.defaults.headers.common['Authorization'];
   };
 
   const value = {
