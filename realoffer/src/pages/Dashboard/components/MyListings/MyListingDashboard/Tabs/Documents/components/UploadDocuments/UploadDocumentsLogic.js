@@ -14,7 +14,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
   const [showCSPPrompt, setShowCSPPrompt] = useState(false);
   const [showCreateSignaturePackage, setShowCreateSignaturePackage] = useState(false);
   const fileInputRef = useRef(null);
-  const { user } = useAuth();
+  const { user, token } = useAuth();
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -85,11 +85,12 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
         formData.append('docType[]', docType);
       });
       formData.append('purpose', 'listing');
-      formData.append('uploadedBy', user._id);
+      formData.append('uploadedBy', user.id);
       formData.append('propertyListingId', listingId);
       await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
         },
       });
       setUploading(false);

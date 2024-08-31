@@ -5,10 +5,12 @@ import { Document, Page } from 'react-pdf';
 import { FiChevronLeft, FiChevronRight, FiZoomIn, FiZoomOut } from 'react-icons/fi';
 import { MdSelectAll } from 'react-icons/md';
 import axios from 'axios';
+import { useAuth } from '../../../../../../../../../../../context/AuthContext';
 import SignaturePDFViewerLogic from './SignaturePDFViewerLogic';
 import './SignaturePDFViewer.css';
 
 const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePackagePages, onPageSelectionChange, onClose }) => {
+  const { token } = useAuth();
   const {
     numPages,
     currentPage,
@@ -30,12 +32,17 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
 
   const handlePageSelect = async (pageIndex, isSelected) => {
     const url = `${process.env.REACT_APP_BACKEND_URL}/api/documents/${isSelected ? 'removePage' : 'addPage'}`;
-    const response = await axios.post(url, { documentId, page: pageIndex });
+    const response = await axios.post(url, { documentId, page: pageIndex }, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
     setLocalSelectedPages((prev) =>
       isSelected ? prev.filter((page) => page !== pageIndex) : [...prev, pageIndex]
     );
     onPageSelectionChange(response.data);
   };
+
 
   const handleSelectAllPages = async () => {
     const allPages = Array.from({ length: numPages }, (_, i) => i + 1);

@@ -2,22 +2,28 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useAuth } from '../../../../../../../../../../context/AuthContext';
 import './PromptCSPModal.css';
 
 const PromptCSPModal = ({ onClose, onCreatePackage, listingId }) => {
   const [signaturePackage, setSignaturePackage] = useState(null);
+  const { token } = useAuth();
 
   useEffect(() => {
     const fetchListingStatus = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         setSignaturePackage(response.data.signaturePackage);
       } catch (error) {
         console.error('Error fetching listing status:', error);
       }
     };
     fetchListingStatus();
-  }, [listingId]);
+  }, [listingId, token]);
 
   const isSignaturePackageCreated = signaturePackage !== null;
   const title = isSignaturePackageCreated ? "Update Buyer Signature Packet" : "Create Buyer Signature Packet";

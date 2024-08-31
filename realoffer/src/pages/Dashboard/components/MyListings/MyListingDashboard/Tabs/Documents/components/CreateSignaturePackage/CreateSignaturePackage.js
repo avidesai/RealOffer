@@ -2,11 +2,13 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
+import { useAuth } from '../../../../../../../../../context/AuthContext';
 import DocumentsListSelection from './components/DocumentsListSelection/DocumentsListSelection';
 import SignaturePDFViewer from './components/SignaturePDFViewer/SignaturePDFViewer';
 import './CreateSignaturePackage.css';
 
 const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }) => {
+  const { token } = useAuth();
   const [documents, setDocuments] = useState([]);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -14,16 +16,25 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
 
   const fetchListingData = useCallback(async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       setSignaturePackage(response.data.signaturePackage);
     } catch (error) {
       console.error('Error fetching listing data:', error);
     }
-  }, [listingId]);
+  }, [listingId, token]);
+
 
   const fetchDocuments = useCallback(async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       const listingDocuments = response.data.filter(doc => doc.purpose === 'listing');
       setDocuments(listingDocuments);
       if (listingDocuments.length > 0) {
@@ -32,7 +43,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
     } catch (error) {
       console.error('Error fetching documents:', error);
     }
-  }, [listingId]);
+  }, [listingId, token]);
 
   useEffect(() => {
     if (isOpen) {
@@ -55,7 +66,14 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
   const handleCreateSignaturePackage = async () => {
     setIsLoading(true);
     try {
-      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/documents/createBuyerSignaturePacket`, { listingId });
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/documents/createBuyerSignaturePacket`, 
+        { listingId },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
       onClose();
       refreshDocuments();
     } catch (error) {
