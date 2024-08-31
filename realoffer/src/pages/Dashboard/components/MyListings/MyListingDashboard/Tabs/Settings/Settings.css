@@ -1,3 +1,5 @@
+/* /Tabs/Settings/Settings.css */
+
 .settings-container {
   padding: 2rem;
   background-color: #f1f1f1;
@@ -6,7 +8,7 @@
   justify-content: center;
   align-items: center;
   height: 100%;
-  flex-wrap: wrap; /* Allow wrapping of sections */
+  position: relative; /* Ensure that the overlay covers the entire container */
 }
 
 .settings-section {
@@ -28,7 +30,7 @@
 
 .archive-button,
 .settings-delete-button {
-    border-radius: 10px;
+  border-radius: 10px;
   display: inline-block;
   padding: 10px 20px;
   font-size: 1rem;
@@ -39,13 +41,13 @@
 }
 
 .archive-button {
-    background-color: #dfdfdf; /* Neutral grey */
-    color: #000;
-    border: none;
+  background-color: #dfdfdf; /* Neutral grey */
+  color: #000;
+  border: none;
 }
 
 .archive-button:hover {
-    background-color: #868686; /* Neutral grey */
+  background-color: #868686; /* Neutral grey */
   color: #fff;
 }
 
@@ -58,4 +60,31 @@
 .danger-zone .settings-delete-button:hover {
   background-color: #c0392b;
 }
-  
+
+/* Spinner overlay styles */
+.spinner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.1); /* Shaded background similar to Documents.css */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure it covers everything else */
+}
+
+.spinner {
+  border: 8px solid rgba(0, 0, 0, 0.1);
+  border-top: 8px solid #3498db;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

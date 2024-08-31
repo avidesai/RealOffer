@@ -1,5 +1,4 @@
 // App.js
-
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage/LandingPage';
@@ -11,6 +10,7 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import Profile from './pages/Dashboard/pages/Profile/Profile';
 import MyListingDashboard from './pages/Dashboard/components/MyListings/MyListingDashboard/MyListingDashboard';
 import UpgradeToPro from './pages/Dashboard/pages/UpgradeToPro/UpgradeToPro';
+import PrivateRoute from './PrivateRoute'; // Import PrivateRoute component
 import './App.css'; // Your global styles
 
 function App() {
@@ -24,10 +24,11 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path='/features' element={<FeaturesPage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/mylisting/:id" element={<MyListingDashboard />} /> {/* New Route */}
-          <Route path="/upgrade" element={<UpgradeToPro />} />
+          {/* Protected Routes */}
+          <Route path="/dashboard" element={<PrivateRoute element={Dashboard} />} />
+          <Route path="/profile" element={<PrivateRoute element={Profile} />} />
+          <Route path="/mylisting/:id" element={<PrivateRoute element={MyListingDashboard} />} />
+          <Route path="/upgrade" element={<PrivateRoute element={UpgradeToPro} />} />
         </Routes>
       </Router>
     </EmailContext.Provider>

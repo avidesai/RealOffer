@@ -1,4 +1,5 @@
 /* DashboardHeader.css */
+
 .dashboard-header {
   display: flex;
   justify-content: space-between;
@@ -145,23 +146,6 @@
 }
 
 .dropdown-item:hover {
-  background-color: #f6f6f6;
-}
-
-/* Style for the logout button */
-.dropdown-item.logout-button {
-  width: 100%;
-  text-align: left;
-  background: none;
-  border: none;
-  font: inherit;
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  color: #333;
-  transition: background-color 0.3s;
-}
-
-.dropdown-item.logout-button:hover {
   background-color: #f6f6f6;
 }
 

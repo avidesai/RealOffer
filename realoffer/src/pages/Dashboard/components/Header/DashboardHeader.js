@@ -111,7 +111,16 @@ function DashboardHeader({ activeTab, setActiveTab }) {
             <Link to="/profile" className="dropdown-item">Profile</Link>
             <Link to="/settings" className="dropdown-item">Settings</Link>
             <Link to="/help" className="dropdown-item">Help Center</Link>
-            <button onClick={handleLogout} className="dropdown-item">Logout</button>
+            <Link
+              to="/login"
+              onClick={(e) => {
+                e.preventDefault();
+                handleLogout();
+              }}
+              className="dropdown-item"
+            >
+              Logout
+            </Link>
           </div>
         )}
       </div>
