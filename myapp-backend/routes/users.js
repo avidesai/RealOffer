@@ -3,18 +3,14 @@
 const express = require('express');
 const router = express.Router();
 const UserController = require('../controllers/UserController');
-const authMiddleware = require('../middleware/auth');
 
-// Public routes
-router.post('/', UserController.createUser);
-router.post('/login', UserController.loginUser);
-
-// Protected routes
-router.use(authMiddleware);
+// Define all user-related routes here including login
 router.get('/', UserController.getAllUsers);
 router.get('/:id', UserController.getUserById);
 router.get('/:id/listingPackages', UserController.getUserWithListingPackages);
 router.get('/:id/buyerPackages', UserController.getUserBuyerPackages);
+router.post('/', UserController.createUser);
+router.post('/login', UserController.loginUser);
 router.put('/:id', UserController.updateUser);
 router.put('/:id/upload-photo', UserController.uploadPhoto);
 router.delete('/:id', UserController.deleteUser);

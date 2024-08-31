@@ -1,4 +1,4 @@
-/* General styles for the header */
+/* DashboardHeader.css */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
@@ -73,10 +73,9 @@
   cursor: pointer;
   font-size: 0.8rem;
   font-weight: 600;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.3s ease;
   text-transform: uppercase;
   margin-right: 2rem;
-  transition: transform 0.3s ease;
 }
 
 .header-upgrade-btn:hover {
@@ -149,6 +148,33 @@
   background-color: #f6f6f6;
 }
 
+/* Style for the logout button */
+.dropdown-item.logout-button {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  color: #333;
+  transition: background-color 0.3s;
+}
+
+.dropdown-item.logout-button:hover {
+  background-color: #f6f6f6;
+}
+
+/* Error message styles */
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
 @media (max-width: 768px) {
   .dashboard-header {
     padding: 0.75rem 1.5rem;
@@ -173,9 +199,9 @@
   .header-actions {
     display: flex;
     align-items: center;
-    justify-content: flex-end; /* Align actions to the right */
-    flex: 1; /* Allow the container to grow, pushing actions to the edge */
-    padding-right: 0; /* Ensure there's no padding pushing content away from the edge */
+    justify-content: flex-end;
+    flex: 1;
+    padding-right: 0;
   }
 
   .header-upgrade-btn {
@@ -183,6 +209,6 @@
   }
 
   .dropdown-menu {
-    right: 0; /* Adjust to align dropdown right edge with the avatar */
+    right: 0;
   }
 }
