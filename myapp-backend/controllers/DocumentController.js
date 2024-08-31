@@ -25,7 +25,7 @@ const getPdfPageCount = async (buffer) => {
 };
 
 exports.uploadDocument = async (req, res) => {
-  const { uploadedBy, propertyListingId, visibility = 'public', purpose = 'listing', offerId } = req.body;
+  const { propertyListingId, visibility = 'public', purpose = 'listing', offerId } = req.body;
   const files = req.files;
 
   if (!files || files.length === 0) {
@@ -36,6 +36,11 @@ exports.uploadDocument = async (req, res) => {
     const propertyListing = await PropertyListing.findById(propertyListingId);
     if (!propertyListing) {
       return res.status(404).json({ message: 'Property listing not found' });
+    }
+
+    // Check if the authenticated user is authorized to upload documents to this listing
+    if (propertyListing.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to upload documents to this listing' });
     }
 
     const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
@@ -63,14 +68,14 @@ exports.uploadDocument = async (req, res) => {
         size,
         pages,
         thumbnailUrl: blockBlobClient.url,
-        uploadedBy,
+        uploadedBy: req.user.id,
         propertyListing: propertyListingId,
         azureKey: blobName,
         visibility,
         purpose,
         offer: offerId,
         docType,
-        signed: false // Add this line
+        signed: false
       });
 
       const savedDocument = await newDocument.save();
@@ -87,7 +92,7 @@ exports.uploadDocument = async (req, res) => {
 };
 
 exports.addDocumentToPropertyListing = async (req, res) => {
-  const { uploadedBy, visibility = 'public', purpose = 'listing' } = req.body;
+  const { visibility = 'public', purpose = 'listing' } = req.body;
   const files = req.files;
 
   if (!files || files.length === 0) {
@@ -98,6 +103,11 @@ exports.addDocumentToPropertyListing = async (req, res) => {
     const propertyListing = await PropertyListing.findById(req.params.id);
     if (!propertyListing) {
       return res.status(404).json({ message: 'Property listing not found' });
+    }
+
+    // Check if the authenticated user is authorized to add documents to this listing
+    if (propertyListing.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to add documents to this listing' });
     }
 
     const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
@@ -126,11 +136,11 @@ exports.addDocumentToPropertyListing = async (req, res) => {
         pages,
         thumbnailUrl: blockBlobClient.url,
         propertyListing: req.params.id,
-        uploadedBy,
+        uploadedBy: req.user.id,
         azureKey: blobName,
         visibility,
         purpose,
-        docType // Include the new docType field
+        docType
       });
 
       const savedDocument = await newDocument.save();
@@ -142,12 +152,12 @@ exports.addDocumentToPropertyListing = async (req, res) => {
 
     res.status(201).json(documents);
   } catch (error) {
-    res.status500().json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
 exports.addDocumentToBuyerPackage = async (req, res) => {
-  const { uploadedBy, visibility = 'public', purpose = 'offer' } = req.body;
+  const { visibility = 'public', purpose = 'offer' } = req.body;
   const files = req.files;
 
   if (!files || files.length === 0) {
@@ -158,6 +168,11 @@ exports.addDocumentToBuyerPackage = async (req, res) => {
     const buyerPackage = await BuyerPackage.findById(req.params.id);
     if (!buyerPackage) {
       return res.status(404).json({ message: 'Buyer package not found' });
+    }
+
+    // Check if the authenticated user is authorized to add documents to this buyer package
+    if (buyerPackage.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to add documents to this buyer package' });
     }
 
     const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
@@ -186,11 +201,11 @@ exports.addDocumentToBuyerPackage = async (req, res) => {
         pages,
         thumbnailUrl: blockBlobClient.url,
         buyerPackage: req.params.id,
-        uploadedBy,
+        uploadedBy: req.user.id,
         azureKey: blobName,
         visibility,
         purpose,
-        docType // Include the new docType field
+        docType
       });
 
       const savedDocument = await newDocument.save();
@@ -202,12 +217,22 @@ exports.addDocumentToBuyerPackage = async (req, res) => {
 
     res.status(201).json(documents);
   } catch (error) {
-    res.status500().json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
 exports.getDocumentsByListing = async (req, res) => {
   try {
+    const propertyListing = await PropertyListing.findById(req.params.listingId);
+    if (!propertyListing) {
+      return res.status(404).json({ message: 'Property listing not found' });
+    }
+
+    // Check if the authenticated user is authorized to view these documents
+    if (propertyListing.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to view these documents' });
+    }
+
     const documents = await Document.find({ propertyListing: req.params.listingId });
     const documentsWithSAS = documents.map(doc => ({
       ...doc._doc,
@@ -228,6 +253,12 @@ exports.updateDocumentSignedStatus = async (req, res) => {
       return res.status(404).json({ message: 'Document not found' });
     }
 
+    // Check if the authenticated user is authorized to update this document
+    const propertyListing = await PropertyListing.findById(document.propertyListing);
+    if (!propertyListing || propertyListing.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to update this document' });
+    }
+
     document.signed = signed;
     const updatedDocument = await document.save();
 
@@ -242,6 +273,11 @@ exports.deleteDocument = async (req, res) => {
     const document = await Document.findById(req.params.id);
     if (!document) {
       return res.status(404).json({ message: 'Document not found' });
+    }
+
+    const propertyListing = await PropertyListing.findById(document.propertyListing);
+    if (!propertyListing || propertyListing.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to delete this document' });
     }
 
     const blobName = document.azureKey;
@@ -259,8 +295,6 @@ exports.deleteDocument = async (req, res) => {
   }
 };
 
-// In DocumentController.js
-
 exports.addPageToSignaturePackage = async (req, res) => {
   const { documentId, page } = req.body;
 
@@ -270,9 +304,13 @@ exports.addPageToSignaturePackage = async (req, res) => {
       return res.status(404).json({ message: 'Document not found' });
     }
 
+    // Check if the authenticated user is authorized to modify this document
+    const propertyListing = await PropertyListing.findById(document.propertyListing);
+    if (!propertyListing || propertyListing.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to modify this document' });
+    }
+
     if (!document.signaturePackagePages.includes(page)) {
-      document.signaturePackagePages.push(page);
-      // Use findByIdAndUpdate to avoid validation issues
       const updatedDocument = await Document.findByIdAndUpdate(
         documentId,
         { $push: { signaturePackagePages: page } },
@@ -296,7 +334,12 @@ exports.removePageFromSignaturePackage = async (req, res) => {
       return res.status(404).json({ message: 'Document not found' });
     }
 
-    // Use findByIdAndUpdate to avoid validation issues
+    // Check if the authenticated user is authorized to modify this document
+    const propertyListing = await PropertyListing.findById(document.propertyListing);
+    if (!propertyListing || propertyListing.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to modify this document' });
+    }
+
     const updatedDocument = await Document.findByIdAndUpdate(
       documentId,
       { $pull: { signaturePackagePages: page } },
@@ -315,6 +358,11 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     const propertyListing = await PropertyListing.findById(listingId).populate('signaturePackage');
     if (!propertyListing) {
       return res.status(404).json({ message: 'Property listing not found' });
+    }
+
+    // Check if the authenticated user is authorized to create a signature packet for this listing
+    if (propertyListing.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to create a signature packet for this listing' });
     }
 
     const documents = await Document.find({ propertyListing: listingId });
@@ -381,6 +429,7 @@ exports.createBuyerSignaturePacket = async (req, res) => {
       pages: mergedPdf.getPageCount(),
       thumbnailUrl: blockBlobClient.url,
       propertyListing: listingId,
+      uploadedBy: req.user.id,
       azureKey: blobName,
       docType: 'pdf',
       purpose: 'signature_package'
@@ -400,6 +449,16 @@ exports.createBuyerSignaturePacket = async (req, res) => {
 
 exports.getDocumentsByOffer = async (req, res) => {
   try {
+    const offer = await Offer.findById(req.params.offerId).populate('propertyListing');
+    if (!offer) {
+      return res.status(404).json({ message: 'Offer not found' });
+    }
+
+    // Check if the authenticated user is authorized to view these documents
+    if (offer.propertyListing.createdBy.toString() !== req.user.id && offer.buyersAgent.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to view these documents' });
+    }
+
     const documents = await Document.find({ offer: req.params.offerId });
     const documentsWithSAS = documents.map(doc => ({
       ...doc._doc,
@@ -410,3 +469,5 @@ exports.getDocumentsByOffer = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+module.exports = exports;

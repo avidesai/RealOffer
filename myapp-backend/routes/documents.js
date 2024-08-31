@@ -2,6 +2,10 @@
 const express = require('express');
 const router = express.Router();
 const DocumentController = require('../controllers/DocumentController');
+const authMiddleware = require('../middleware/auth');
+
+// Apply auth middleware to all routes
+router.use(authMiddleware);
 
 router.post('/', DocumentController.uploadDocuments, DocumentController.uploadDocument);
 router.post('/propertyListing/:id', DocumentController.uploadDocuments, DocumentController.addDocumentToPropertyListing);
@@ -12,6 +16,6 @@ router.delete('/:id', DocumentController.deleteDocument);
 router.post('/addPage', DocumentController.addPageToSignaturePackage);
 router.post('/removePage', DocumentController.removePageFromSignaturePackage);
 router.put('/createBuyerSignaturePacket', DocumentController.createBuyerSignaturePacket);
-router.put('/updateSignedStatus', DocumentController.updateDocumentSignedStatus); // Add this line
+router.put('/updateSignedStatus', DocumentController.updateDocumentSignedStatus);
 
 module.exports = router;
