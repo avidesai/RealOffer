@@ -4,10 +4,14 @@ const { BlobServiceClient } = require('@azure/storage-blob');
 const { Document } = require('../models/Document');
 const { containerClient, generateSASToken } = require('../config/azureStorage');
 
-// Function to create a container client for signed documents
 const getSignedDocsContainerClient = () => {
-  const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_SIGNED_DOCS_CONNECTION_STRING);
-  return blobServiceClient.getContainerClient(process.env.AZURE_SIGNED_DOCS_CONTAINER_NAME);
+  try {
+    const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_SIGNED_DOCS_CONNECTION_STRING);
+    return blobServiceClient.getContainerClient(process.env.AZURE_SIGNED_DOCS_CONTAINER_NAME);
+  } catch (error) {
+    console.error('Error getting signed docs container client:', error);
+    throw error;
+  }
 };
 
 exports.fetchDocumentContent = async (document) => {
@@ -32,12 +36,10 @@ exports.saveSignedDocument = async (offerId, documentId, signedContent) => {
     if (!originalDocument) {
       throw new Error('Original document not found');
     }
-
     const signedBlobName = `signed-${offerId}-${originalDocument.azureKey.split('/').pop()}`;
     const signedDocsContainerClient = getSignedDocsContainerClient();
     const blockBlobClient = signedDocsContainerClient.getBlockBlobClient(signedBlobName);
     await blockBlobClient.upload(signedContent, signedContent.length);
-
     const updatedDocument = await Document.findByIdAndUpdate(
       documentId,
       {
@@ -48,11 +50,9 @@ exports.saveSignedDocument = async (offerId, documentId, signedContent) => {
       },
       { new: true }
     );
-
     if (!updatedDocument) {
       throw new Error('Failed to update document in database');
     }
-
     console.log(`Signed document saved for offer ${offerId}, document ${documentId}`);
     return updatedDocument;
   } catch (error) {
@@ -62,17 +62,19 @@ exports.saveSignedDocument = async (offerId, documentId, signedContent) => {
 };
 
 exports.generateSignedDocsSASToken = (blobName) => {
-  const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_SIGNED_DOCS_CONNECTION_STRING);
-  const containerClient = blobServiceClient.getContainerClient(process.env.AZURE_SIGNED_DOCS_CONTAINER_NAME);
-  const blobClient = containerClient.getBlobClient(blobName);
-
-  const expiresOn = new Date(new Date().valueOf() + 3600 * 1000); // 1 hour from now
-  const permissions = "r"; // Read permission
-
-  const sasToken = blobClient.generateSasUrl({
-    permissions: permissions,
-    expiresOn: expiresOn,
-  });
-
-  return sasToken;
+  try {
+    const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_SIGNED_DOCS_CONNECTION_STRING);
+    const containerClient = blobServiceClient.getContainerClient(process.env.AZURE_SIGNED_DOCS_CONTAINER_NAME);
+    const blobClient = containerClient.getBlobClient(blobName);
+    const expiresOn = new Date(new Date().valueOf() + 3600 * 1000); // 1 hour from now
+    const permissions = "r"; // Read permission
+    const sasToken = blobClient.generateSasUrl({
+      permissions: permissions,
+      expiresOn: expiresOn,
+    });
+    return sasToken;
+  } catch (error) {
+    console.error('Error generating SAS token:', error);
+    throw error;
+  }
 };

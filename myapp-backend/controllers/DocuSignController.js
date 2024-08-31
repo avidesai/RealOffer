@@ -10,13 +10,20 @@ exports.createSigningSession = async (req, res) => {
   const { offerId } = req.body;
 
   try {
+    const offer = await Offer.findById(offerId).populate('documents');
+    if (!offer) {
+      return res.status(404).json({ message: 'Offer not found' });
+    }
+
+    // Check if the user is authorized to create a signing session for this offer
+    if (offer.buyersAgent.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to create signing session for this offer' });
+    }
+
     const accessToken = await getJWTToken();
     apiClient.addDefaultHeader('Authorization', 'Bearer ' + accessToken);
 
     const envelopesApi = new docusign.EnvelopesApi(apiClient);
-
-    // Fetch offer details and documents
-    const offer = await Offer.findById(offerId).populate('documents');
 
     // Prepare documents for DocuSign
     const documents = await Promise.all(offer.documents.map(async (doc, index) => ({
@@ -70,12 +77,17 @@ exports.createSigningSession = async (req, res) => {
     res.json({ signingUrl: signingUrl.url });
   } catch (error) {
     console.error('Error creating DocuSign signing session:', error);
-    res.status(500).json({ message: 'Failed to create signing session' });
+    res.status(500).json({ message: 'Failed to create signing session', error: error.message });
   }
 };
 
 exports.handleDocuSignWebhook = async (req, res) => {
   const { envelopeStatus, envelopeId } = req.body;
+
+  // Verify the webhook request (you'll need to implement this function)
+  if (!verifyWebhookRequest(req)) {
+    return res.status(401).json({ message: 'Unauthorized webhook request' });
+  }
 
   if (envelopeStatus === 'completed') {
     try {
@@ -99,12 +111,13 @@ exports.handleDocuSignWebhook = async (req, res) => {
       }
 
       offer.status = 'signed';
+      offer.docusignStatus = 'completed';
       await offer.save();
 
       res.status(200).end();
     } catch (error) {
       console.error('Error processing DocuSign webhook:', error);
-      res.status(500).json({ message: 'Error processing webhook' });
+      res.status(500).json({ message: 'Error processing webhook', error: error.message });
     }
   } else {
     res.status(200).end();
@@ -120,9 +133,21 @@ exports.getSigningStatus = async (req, res) => {
       return res.status(404).json({ message: 'Offer not found' });
     }
 
+    // Check if the user is authorized to get the signing status for this offer
+    if (offer.buyersAgent.toString() !== req.user.id && offer.propertyListing.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to get signing status for this offer' });
+    }
+
     res.json({ status: offer.docusignStatus });
   } catch (error) {
     console.error('Error getting signing status:', error);
-    res.status(500).json({ message: 'Failed to get signing status' });
+    res.status(500).json({ message: 'Failed to get signing status', error: error.message });
   }
 };
+
+// Implement this function to verify the webhook request from DocuSign
+function verifyWebhookRequest(req) {
+  // Implement DocuSign webhook verification logic here
+  // Return true if the request is verified, false otherwise
+  return true; // Placeholder
+}
