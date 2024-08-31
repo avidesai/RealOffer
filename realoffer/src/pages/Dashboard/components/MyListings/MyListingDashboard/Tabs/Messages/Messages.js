@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import MessageSortBar from './components/MessageSortBar/MessageSortBar';
+import { useAuth } from '../../../../../../../context/AuthContext'; // Import useAuth hook
 import './Messages.css';
 
 const Messages = ({ listingId }) => {
+  const { token } = useAuth(); // Get the token from AuthContext
   const [messages, setMessages] = useState([]);
   const [filteredMessages, setFilteredMessages] = useState([]);
   const [filter, setFilter] = useState('all');
@@ -22,14 +24,18 @@ const Messages = ({ listingId }) => {
 
   const fetchMessages = useCallback(async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/messages?listingId=${listingId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/messages?listingId=${listingId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}` // Include the token in the header
+        }
+      });
       const messagesData = response.data;
       setMessages(messagesData);
       calculateMetrics(messagesData);
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
-  }, [calculateMetrics, listingId]);
+  }, [calculateMetrics, listingId, token]); // Add token to dependency array
 
   useEffect(() => {
     fetchMessages();

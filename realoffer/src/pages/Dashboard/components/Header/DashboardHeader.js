@@ -109,8 +109,6 @@ function DashboardHeader({ activeTab, setActiveTab }) {
         {isDropdownOpen && (
           <div className="dropdown-menu" ref={dropdownRef}>
             <Link to="/profile" className="dropdown-item">Profile</Link>
-            <Link to="/settings" className="dropdown-item">Settings</Link>
-            <Link to="/help" className="dropdown-item">Help Center</Link>
             <Link
               to="/login"
               onClick={(e) => {

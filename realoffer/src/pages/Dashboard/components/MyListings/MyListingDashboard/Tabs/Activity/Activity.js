@@ -3,9 +3,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import ActivitySortBar from './components/ActivitySortBar/ActivitySortBar';
+import { useAuth } from '../../../../../../../context/AuthContext'; // Import useAuth hook
 import './Activity.css';
 
 const Activity = ({ listingId }) => {
+  const { token } = useAuth(); // Get the token from AuthContext
   const [activities, setActivities] = useState([]);
   const [filteredActivities, setFilteredActivities] = useState([]);
   const [filter, setFilter] = useState('all');
@@ -24,14 +26,18 @@ const Activity = ({ listingId }) => {
 
   const fetchActivities = useCallback(async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/activities?listingId=${listingId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/activities?listingId=${listingId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}` // Include the token in the header
+        }
+      });
       const activitiesData = response.data;
       setActivities(activitiesData);
       calculateMetrics(activitiesData);
     } catch (error) {
       console.error('Error fetching activities:', error);
     }
-  }, [calculateMetrics, listingId]);
+  }, [calculateMetrics, listingId, token]); // Add token to dependency array
 
   useEffect(() => {
     fetchActivities();

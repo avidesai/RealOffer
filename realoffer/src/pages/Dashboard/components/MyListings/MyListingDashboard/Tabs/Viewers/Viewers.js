@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ViewerSortBar from './components/ViewerSortBar/ViewerSortBar';
+import { useAuth } from '../../../../../../../context/AuthContext'; // Import useAuth hook
 import './Viewers.css';
 
 const Viewers = ({ listingId }) => {
+  const { token } = useAuth(); // Get the token from AuthContext
   const [viewers, setViewers] = useState([]);
   const [filter, setFilter] = useState('active');
   const [sort, setSort] = useState('name-asc');
@@ -11,7 +13,11 @@ const Viewers = ({ listingId }) => {
   useEffect(() => {
     const fetchViewers = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/viewers/${listingId}`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/viewers/${listingId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}` // Include the token in the header
+          }
+        });
         setViewers(response.data);
       } catch (error) {
         console.error('Error fetching viewers:', error);
@@ -19,7 +25,7 @@ const Viewers = ({ listingId }) => {
     };
 
     fetchViewers();
-  }, [listingId]);
+  }, [listingId, token]); // Add token to dependency array
 
   const handleFilterChange = (newFilter) => {
     setFilter(newFilter);
