@@ -2,12 +2,14 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
+import { useAuth } from '../../../../../../../context/AuthContext'; // Adjust the import path as needed
 import './Documents.css';
 import UploadDocumentsLogic from './components/UploadDocuments/UploadDocumentsLogic';
 import PDFViewer from './components/PDFViewer/PDFViewer';
 import CreateSignaturePackage from './components/CreateSignaturePackage/CreateSignaturePackage';
 
 const Documents = ({ listingId }) => {
+  const { token } = useAuth(); // Get the authentication token
   const [documents, setDocuments] = useState([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
@@ -21,17 +23,25 @@ const Documents = ({ listingId }) => {
 
   const fetchListingData = useCallback(async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}` // Include the token in the request headers
+        }
+      });
       setHasSignaturePackage(!!response.data.signaturePackage);
     } catch (error) {
       console.error('Error fetching listing data:', error);
     }
-  }, [listingId]);
+  }, [listingId, token]);
 
   const fetchDocuments = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}` // Include the token in the request headers
+        }
+      });
       const listingDocuments = response.data.filter(doc => doc.purpose === 'listing' || doc.purpose === 'signature_package');
       setDocuments(listingDocuments);
     } catch (error) {
@@ -39,12 +49,14 @@ const Documents = ({ listingId }) => {
     } finally {
       setLoading(false);
     }
-  }, [listingId]);
+  }, [listingId, token]);
 
   useEffect(() => {
-    fetchListingData();
-    fetchDocuments();
-  }, [fetchListingData, fetchDocuments]);
+    if (token) { // Only fetch data if the token is available
+      fetchListingData();
+      fetchDocuments();
+    }
+  }, [fetchListingData, fetchDocuments, token]);
 
   const handleUploadClick = () => {
     setShowUploadModal(true);
@@ -67,9 +79,13 @@ const Documents = ({ listingId }) => {
   const handleDeleteDocument = async (id) => {
     setLoading(true);
     try {
-      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${id}`);
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}` // Include the token in the request headers
+        }
+      });
       fetchDocuments();
-      fetchListingData(); // Refetch listing data in case the signature package was deleted
+      fetchListingData();
     } catch (error) {
       console.error('Error deleting document:', error);
     } finally {
@@ -80,10 +96,16 @@ const Documents = ({ listingId }) => {
   const handleDeleteSelectedDocuments = async () => {
     setLoading(true);
     try {
-      await Promise.all(selectedDocuments.map((id) => axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${id}`)));
+      await Promise.all(selectedDocuments.map((id) => 
+        axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}` // Include the token in the request headers
+          }
+        })
+      ));
       setSelectedDocuments([]);
       fetchDocuments();
-      fetchListingData(); // Refetch listing data in case the signature package was deleted
+      fetchListingData();
     } catch (error) {
       console.error('Error deleting selected documents:', error);
     } finally {

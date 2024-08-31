@@ -6,7 +6,7 @@ import axios from 'axios';
 import './AgentInformation.css';
 
 const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handlePrevStep }) => {
-  const { user } = useAuth();
+  const { user, token } = useAuth(); // Get the token from AuthContext
   const [isAgent, setIsAgent] = useState(false);
 
   const getRandomColor = useCallback(() => {
@@ -22,7 +22,11 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
 
   const fetchUserData = useCallback(async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}` // Add the token to the request headers
+        }
+      });
       const userData = response.data;
       handleNestedChange({ target: { name: 'name', value: `${userData.firstName} ${userData.lastName}` } }, 'presentedBy');
       handleNestedChange({ target: { name: 'licenseNumber', value: userData.agentLicenseNumber || '' } }, 'presentedBy');
@@ -36,7 +40,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
-  }, [user._id, handleNestedChange]);
+  }, [user._id, handleNestedChange, token]);
 
   useEffect(() => {
     if (isAgent) {

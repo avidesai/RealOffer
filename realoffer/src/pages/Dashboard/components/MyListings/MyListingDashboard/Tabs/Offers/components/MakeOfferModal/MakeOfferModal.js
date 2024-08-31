@@ -1,6 +1,7 @@
 // MakeOfferModal.js
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuth } from '../../../../../../../../../context/AuthContext'; // Import useAuth hook
 import { useOffer } from '../../../../../../../../../context/OfferContext';
 import './MakeOfferModal.css';
 import PurchasePrice from './Steps/PurchasePrice';
@@ -10,7 +11,7 @@ import OfferDetails from './Steps/OfferDetails';
 import Documents from './Steps/Documents';
 import FinalReview from './Steps/FinalReview';
 import AutoFillForms from './Steps/AutoFillForms';
-import SendToDocusign from './Steps/SendToDocusign'; // Import SendToDocusign
+import SendToDocusign from './Steps/SendToDocusign';
 import axios from 'axios';
 
 const parseNumber = (value) => {
@@ -18,6 +19,7 @@ const parseNumber = (value) => {
 };
 
 const MakeOfferModal = ({ onClose, listingId }) => {
+  const { token } = useAuth(); // Get the token from AuthContext
   const { offerData, updateOfferData } = useOffer();
   const [step, setStep] = useState(1);
 
@@ -120,6 +122,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/offers`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}` // Add the token to the request headers
         },
       });
       console.log('Offer created:', response.data);
@@ -131,7 +134,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     } catch (error) {
       console.error('Error creating offer:', error);
     }
-  }, [offerData, listingId, onClose, handleResetOffer]);
+  }, [offerData, listingId, onClose, handleResetOffer, token]);
 
   useEffect(() => {
     const downPayment = parseNumber(offerData.downPayment);
@@ -231,8 +234,8 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         {step === 4 && memoizedComponents.offerDetails}
         {step === 5 && memoizedComponents.autoFillForms}
         {step === 6 && memoizedComponents.documents}
-        {step === 7 && memoizedComponents.sendToDocusign} {/* Added SendToDocusign step */}
-        {step === 8 && memoizedComponents.finalReview} {/* Adjusted final review to step 8 */}
+        {step === 7 && memoizedComponents.sendToDocusign}
+        {step === 8 && memoizedComponents.finalReview}
       </div>
     </div>
   );

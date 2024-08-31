@@ -10,7 +10,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState([]);
   const fileInputRef = useRef(null);
-  const { user } = useAuth();
+  const { user, token } = useAuth(); // Get the token from AuthContext
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -58,18 +58,15 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
     if (files.length === 0) {
       newErrors.push('Please upload at least one file.');
     }
-
     files.forEach((file, index) => {
       if (!file.type) {
         newErrors.push(`Please select a type for file ${index + 1}.`);
       }
     });
-
     if (newErrors.length > 0) {
       setErrors(newErrors);
       return;
     }
-
     setUploading(true);
     try {
       const formData = new FormData();
@@ -79,16 +76,14 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
         formData.append('title[]', title);
         formData.append('purpose', 'offer'); // Ensure the purpose is set to "offer"
       });
-
       formData.append('uploadedBy', user._id); // Assuming user._id contains the user's ID
       formData.append('propertyListingId', listingId); // Add the property listing ID
-
-      const response = await axios.post('${process.env.REACT_APP_BACKEND_URL}/api/documents', formData, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}` // Add the token to the request headers
         },
       });
-
       setUploading(false);
       onClose();
       if (onUploadSuccess) {

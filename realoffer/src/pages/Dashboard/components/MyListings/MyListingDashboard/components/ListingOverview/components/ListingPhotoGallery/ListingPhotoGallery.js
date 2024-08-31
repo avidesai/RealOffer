@@ -51,7 +51,7 @@ const ListingPhotoGallery = ({ images, onClose }) => {
         </div>
         <div className="photo-container">
           <button className="nav-button prev" onClick={handlePrev}>&#8249;</button>
-          <img src={images[currentIndex]} alt={`Image ${currentIndex + 1}`} className="main-photo" />
+          <img src={images[currentIndex]} alt={`${currentIndex + 1}`} className="main-photo" />
           <button className="nav-button next" onClick={handleNext}>&#8250;</button>
         </div>
         <div className="thumbnail-bar-container">
