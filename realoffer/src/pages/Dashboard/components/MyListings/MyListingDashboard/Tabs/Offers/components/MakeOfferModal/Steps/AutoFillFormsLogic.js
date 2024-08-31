@@ -9,7 +9,7 @@ import { useAuth } from '../../../../../../../../../../context/AuthContext';
 
 const useAutoFillFormsLogic = ({ formData, listingId }) => {
   const { updateOfferData } = useOffer();
-  const { user } = useAuth();
+  const { user, token } = useAuth(); // Get the token from AuthContext
   const [selectedForm, setSelectedForm] = useState('');
   const [loading, setLoading] = useState(false);
   const [listingData, setListingData] = useState({});
@@ -18,23 +18,33 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
 
   const fetchListingData = useCallback(async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}` // Include the token in the request headers
+        }
+      });
       setListingData(response.data);
 
       const agentId = response.data.agentIds[0];
       if (agentId) {
-        const agentResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${agentId}`);
+        const agentResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${agentId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}` // Include the token in the request headers
+          }
+        });
         setAgentData(agentResponse.data);
       }
     } catch (error) {
       console.error('Error fetching listing or agent data:', error);
       setError('Failed to fetch listing data. Please try again.');
     }
-  }, [listingId]);
+  }, [listingId, token]);
 
   useEffect(() => {
-    fetchListingData();
-  }, [fetchListingData]);
+    if (token) { // Only fetch data if the token is available
+      fetchListingData();
+    }
+  }, [fetchListingData, token]);
 
   const handleFormSelect = useCallback((e) => {
     setSelectedForm(e.target.value);
@@ -120,12 +130,13 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
         formDataToSend.append('type[]', 'Purchase Agreement');
         formDataToSend.append('title[]', 'Buyer Purchase Agreement');
         formDataToSend.append('purpose', 'offer');
-        formDataToSend.append('uploadedBy', user._id); // Use the current user's ID
+        formDataToSend.append('uploadedBy', user._id);
         formDataToSend.append('propertyListingId', listingId);
 
         const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formDataToSend, {
           headers: {
             'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}` // Include the token in the request headers
           },
         });
 
@@ -141,13 +152,13 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
           documents: [...(prevData.documents || []), uploadedDocument]
         }));
 
-        setError(null); // Clear any previous errors
+        setError(null);
       } catch (error) {
         console.error('Error including and uploading PDF:', error);
         setError(error.response?.data?.message || 'Failed to include and upload PDF. Please try again.');
       }
     }
-  }, [selectedForm, fillPDF, user._id, listingId, updateOfferData]);
+  }, [selectedForm, fillPDF, user._id, listingId, updateOfferData, token]);
 
   return {
     selectedForm,

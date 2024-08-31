@@ -18,7 +18,8 @@ exports.uploadOfferDocuments = upload.array('documents', 10);
 // Create a new offer
 exports.createOffer = async (req, res) => {
   try {
-    console.log('Request Body:', req.body); // Debugging
+    console.log('Request Body:', req.body);
+    console.log('Authenticated User:', req.user);
 
     const propertyListingId = req.body.propertyListing;
     if (!mongoose.Types.ObjectId.isValid(propertyListingId)) {
@@ -32,9 +33,10 @@ exports.createOffer = async (req, res) => {
 
     const offerData = {
       ...req.body,
+      buyersAgent: req.user.id, // Set the authenticated user as the buyer's agent
       offerExpiryDate: req.body.offerExpiryDate,
       sellerRentBack: req.body.sellerRentBack,
-      sellerRentBackDays: req.body.sellerRentBackDays, // Ensure this is included
+      sellerRentBackDays: req.body.sellerRentBackDays,
       'buyerDetails.buyerName': req.body.buyerName,
     };
 
@@ -46,7 +48,6 @@ exports.createOffer = async (req, res) => {
       { $push: { offers: offer._id } }
     );
 
-    // Update the documents with the new offer ID
     const documentIds = req.body.documents;
     await Document.updateMany(
       { _id: { $in: documentIds } },
@@ -59,10 +60,15 @@ exports.createOffer = async (req, res) => {
   }
 };
 
-// Get all offers for a specific listing
 exports.getOffersByListing = async (req, res) => {
   try {
-    const offers = await Offer.find({ propertyListing: req.params.listingId }).populate('buyersAgent').populate('propertyListing');
+    const offers = await Offer.find({ 
+      propertyListing: req.params.listingId,
+      $or: [
+        { buyersAgent: req.user.id },
+        { 'propertyListing.createdBy': req.user.id }
+      ]
+    }).populate('buyersAgent').populate('propertyListing');
     res.status(200).json(offers);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -72,8 +78,14 @@ exports.getOffersByListing = async (req, res) => {
 // Get a specific offer
 exports.getOfferById = async (req, res) => {
   try {
-    const offer = await Offer.findById(req.params.id).populate('buyersAgent').populate('propertyListing');
-    if (!offer) return res.status(404).json({ message: 'Offer not found' });
+    const offer = await Offer.findOne({
+      _id: req.params.id,
+      $or: [
+        { buyersAgent: req.user.id },
+        { 'propertyListing.createdBy': req.user.id }
+      ]
+    }).populate('buyersAgent').populate('propertyListing');
+    if (!offer) return res.status(404).json({ message: 'Offer not found or you do not have permission to view it' });
     res.status(200).json(offer);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -130,14 +142,17 @@ exports.updateOfferStatus = async (req, res) => {
     const { id } = req.params;
     const { offerStatus } = req.body;
 
-    const offer = await Offer.findByIdAndUpdate(
-      id,
+    const offer = await Offer.findOneAndUpdate(
+      { 
+        _id: id, 
+        'propertyListing.createdBy': req.user.id // Ensure only the listing creator can update status
+      },
       { offerStatus },
       { new: true, runValidators: true }
     );
 
     if (!offer) {
-      return res.status(404).json({ message: 'Offer not found' });
+      return res.status(404).json({ message: 'Offer not found or you do not have permission to update it' });
     }
 
     res.status(200).json(offer);

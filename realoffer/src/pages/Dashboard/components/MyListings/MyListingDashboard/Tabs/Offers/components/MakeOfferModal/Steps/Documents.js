@@ -13,11 +13,15 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
   const [errors, setErrors] = useState([]);
   const [filesUploaded, setFilesUploaded] = useState(true);
   const fileInputRef = useRef(null);
-  const { user } = useAuth();
+  const { user, token } = useAuth(); // Get the token from AuthContext
 
   const fetchSignaturePackage = useCallback(async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}` // Include the token in the request headers
+        }
+      });
       const signaturePackage = response.data.find(doc => doc.purpose === 'signature_package');
       if (signaturePackage) {
         setFiles(prevFiles => {
@@ -41,7 +45,13 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
     } catch (error) {
       console.error('Error fetching signature package:', error);
     }
-  }, [listingId, updateOfferData]);
+  }, [listingId, updateOfferData, token]);
+
+  useEffect(() => {
+    if (token) { // Only fetch data if the token is available
+      fetchSignaturePackage();
+    }
+  }, [fetchSignaturePackage, token]);
 
   useEffect(() => {
     fetchSignaturePackage();
@@ -149,6 +159,7 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}` // Include the token in the request headers
         },
       });
 
