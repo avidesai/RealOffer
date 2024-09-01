@@ -8,7 +8,7 @@ import { useOffer } from '../../../../../../../../../../context/OfferContext';
 import { useAuth } from '../../../../../../../../../../context/AuthContext';
 
 const useAutoFillFormsLogic = ({ formData, listingId }) => {
-  const { updateOfferData } = useOffer();
+  const { replaceDocument } = useOffer();
   const { user, token } = useAuth(); // Get the token from AuthContext
   const [selectedForm, setSelectedForm] = useState('');
   const [loading, setLoading] = useState(false);
@@ -147,10 +147,7 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
           file: { name: 'ResidentialPurchaseAgreement.pdf', size: pdfBytes.length }
         };
 
-        updateOfferData(prevData => ({
-          ...prevData,
-          documents: [...(prevData.documents || []), uploadedDocument]
-        }));
+        replaceDocument(uploadedDocument);
 
         setError(null);
       } catch (error) {
@@ -158,7 +155,7 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
         setError(error.response?.data?.message || 'Failed to include and upload PDF. Please try again.');
       }
     }
-  }, [selectedForm, fillPDF, user._id, listingId, updateOfferData, token]);
+  }, [selectedForm, fillPDF, user._id, listingId, replaceDocument, token]);
 
   return {
     selectedForm,

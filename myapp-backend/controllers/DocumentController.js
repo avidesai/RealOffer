@@ -3,7 +3,7 @@
 const Document = require('../models/Document');
 const PropertyListing = require('../models/PropertyListing');
 const BuyerPackage = require('../models/BuyerPackage');
-const { containerClient, signedDocsContainerClient, generateSASToken } = require('../config/azureStorage');
+const { containerClient, generateSASToken } = require('../config/azureStorage');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const { PDFDocument } = require('pdf-lib');

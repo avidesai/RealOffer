@@ -7,7 +7,7 @@ import { useAuth } from '../../../../../../../../../../context/AuthContext';
 import { useOffer } from '../../../../../../../../../../context/OfferContext';
 
 const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
-  const { offerData, updateOfferData } = useOffer();
+  const { offerData, updateOfferData, replaceDocument } = useOffer();
   const [files, setFiles] = useState(offerData.documents || []);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState([]);
@@ -24,49 +24,24 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
       });
       const signaturePackage = response.data.find(doc => doc.purpose === 'signature_package');
       if (signaturePackage) {
-        setFiles(prevFiles => {
-          const signaturePackageExists = prevFiles.some(file => file.id === signaturePackage._id);
-          if (!signaturePackageExists) {
-            const newFile = {
-              id: signaturePackage._id,
-              title: signaturePackage.title,
-              type: 'Signature Package',
-              file: { name: signaturePackage.title, size: signaturePackage.size }
-            };
-            updateOfferData(prevData => ({
-              ...prevData,
-              documents: [...prevData.documents, newFile]
-            }));
-            return [...prevFiles, newFile];
-          }
-          return prevFiles;
-        });
+        const newFile = {
+          id: signaturePackage._id,
+          title: signaturePackage.title,
+          type: 'Signature Package',
+          file: { name: signaturePackage.title, size: signaturePackage.size }
+        };
+        replaceDocument(newFile);
       }
     } catch (error) {
       console.error('Error fetching signature package:', error);
     }
-  }, [listingId, updateOfferData, token]);
+  }, [listingId, replaceDocument, token]);
 
   useEffect(() => {
     if (token) { // Only fetch data if the token is available
       fetchSignaturePackage();
     }
   }, [fetchSignaturePackage, token]);
-
-  useEffect(() => {
-    fetchSignaturePackage();
-  }, [fetchSignaturePackage]);
-
-  useEffect(() => {
-    setFiles(prevFiles => {
-      const updatedFiles = [...offerData.documents];
-      const signaturePackage = prevFiles.find(file => file.type === 'Signature Package');
-      if (signaturePackage && !updatedFiles.some(file => file.id === signaturePackage.id)) {
-        updatedFiles.push(signaturePackage);
-      }
-      return updatedFiles;
-    });
-  }, [offerData.documents]);
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -101,7 +76,7 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
     const newFiles = files.filter((_, i) => i !== index);
     setFiles(newFiles);
     setFilesUploaded(false);
-    
+
     updateOfferData(prevData => ({
       ...prevData,
       documents: newFiles
