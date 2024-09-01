@@ -9,15 +9,19 @@ const app = express();
 // CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
+    console.log('Incoming origin:', origin); // Log the origin
+
     const whitelist = [
       'http://localhost:3000',
-      'https://realoffer.io/',
+      'https://realoffer.io', // Ensure no trailing slash
       'https://real-offer-eight.vercel.app',
       'https://real-offer-ja4izgjou-avidesais-projects.vercel.app',
     ];
+
     if (whitelist.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else {
+      console.error('Not allowed by CORS:', origin); // Log the disallowed origin
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -26,6 +30,7 @@ const corsOptions = {
   credentials: true,
   optionsSuccessStatus: 204,
 };
+
 
 app.use(cors(corsOptions));
 app.use(express.json());
