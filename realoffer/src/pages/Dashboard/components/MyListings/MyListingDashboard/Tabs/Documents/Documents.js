@@ -145,6 +145,29 @@ const Documents = ({ listingId }) => {
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
+  const handleDocuSign = async () => {
+    if (selectedDocuments.length === 0) {
+      alert('Please select at least one document to send via DocuSign.');
+      return;
+    }
+  
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents/createSigningSession`, {
+        documentIds: selectedDocuments
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+  
+      const { signingUrl } = response.data;
+      window.open(signingUrl, '_blank');
+    } catch (error) {
+      console.error('Error initiating DocuSign session:', error);
+      alert('Failed to initiate DocuSign session. Please try again.');
+    }
+  };  
+
   return (
     <div className="documents-tab">
       <div className="documents-header">
@@ -155,7 +178,9 @@ const Documents = ({ listingId }) => {
           <button className="delete-button" onClick={handleDeleteSelectedDocuments}>
             Delete
           </button>
-          <button className="docusign-button">DocuSign</button>
+          <button className="docusign-button" onClick={handleDocuSign}>
+            DocuSign
+          </button>
         </div>
         <button className="signature-button" onClick={openSignaturePackageModal}>
           {hasSignaturePackage ? "Update Buyer Signature Packet" : "Create Buyer Signature Packet"}

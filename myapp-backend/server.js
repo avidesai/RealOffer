@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const session = require('express-session'); // Import express-session
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const app = express();
 
@@ -31,10 +32,19 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 
-
 app.use(cors(corsOptions));
 app.use(express.json());
 app.options('*', cors(corsOptions));
+
+// Session middleware configuration
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'mysecret', // Use a secret from .env file
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, // Set to true if using HTTPS
+  })
+);
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, {
@@ -76,6 +86,7 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!', error: err.message });
 });
+
 // Server Configuration
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
