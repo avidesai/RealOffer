@@ -13,13 +13,17 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
+  const [docusignConnected, setDocusignConnected] = useState(false);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     const storedToken = localStorage.getItem('token');
+    const docusignStatus = localStorage.getItem('docusignConnected') === 'true';
+    
     if (storedUser && storedToken) {
       setUser(storedUser);
       setToken(storedToken);
+      setDocusignConnected(docusignStatus);
       api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
     }
     setLoading(false);
@@ -28,7 +32,6 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await api.post('/api/users/login', { email, password });
-      console.log('Login response:', response.data);
       if (response.data && response.data.user && response.data.token) {
         const userData = response.data.user;
         userData._id = userData._id || userData.id;
@@ -50,9 +53,28 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    localStorage.removeItem('docusignConnected');
     setUser(null);
     setToken(null);
+    setDocusignConnected(false);
     delete api.defaults.headers.common['Authorization'];
+  };
+
+  const checkDocusignConnection = async () => {
+    try {
+      const response = await api.get('/api/docusign/status');
+      if (response.data.connected) {
+        setDocusignConnected(true);
+        localStorage.setItem('docusignConnected', 'true');
+      } else {
+        setDocusignConnected(false);
+        localStorage.removeItem('docusignConnected');
+      }
+    } catch (error) {
+      console.error('Error checking DocuSign connection:', error);
+      setDocusignConnected(false);
+      localStorage.removeItem('docusignConnected');
+    }
   };
 
   const value = {
@@ -60,7 +82,9 @@ export const AuthProvider = ({ children }) => {
     token,
     login,
     logout,
-    loading
+    loading,
+    docusignConnected,
+    checkDocusignConnection,
   };
 
   return (

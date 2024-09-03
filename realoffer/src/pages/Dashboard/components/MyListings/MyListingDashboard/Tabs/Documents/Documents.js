@@ -2,14 +2,15 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
-import { useAuth } from '../../../../../../../context/AuthContext'; // Adjust the import path as needed
+import { useAuth } from '../../../../../../../context/AuthContext'; 
 import './Documents.css';
 import UploadDocumentsLogic from './components/UploadDocuments/UploadDocumentsLogic';
 import PDFViewer from './components/PDFViewer/PDFViewer';
 import CreateSignaturePackage from './components/CreateSignaturePackage/CreateSignaturePackage';
+import DocuSignLoginModal from './components/DocuSignLoginModal/DocuSignLoginModal';
 
 const Documents = ({ listingId }) => {
-  const { token } = useAuth(); // Get the authentication token
+  const { token, docusignConnected, checkDocusignConnection } = useAuth();
   const [documents, setDocuments] = useState([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
@@ -20,12 +21,13 @@ const Documents = ({ listingId }) => {
   const [currentDocType, setCurrentDocType] = useState('');
   const [showSignaturePackageModal, setShowSignaturePackageModal] = useState(false);
   const [hasSignaturePackage, setHasSignaturePackage] = useState(false);
+  const [showDocuSignLoginModal, setShowDocuSignLoginModal] = useState(false);
 
   const fetchListingData = useCallback(async () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
         headers: {
-          'Authorization': `Bearer ${token}` // Include the token in the request headers
+          'Authorization': `Bearer ${token}`
         }
       });
       setHasSignaturePackage(!!response.data.signaturePackage);
@@ -39,7 +41,7 @@ const Documents = ({ listingId }) => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`, {
         headers: {
-          'Authorization': `Bearer ${token}` // Include the token in the request headers
+          'Authorization': `Bearer ${token}`
         }
       });
       const listingDocuments = response.data.filter(doc => doc.purpose === 'listing' || doc.purpose === 'signature_package');
@@ -52,11 +54,12 @@ const Documents = ({ listingId }) => {
   }, [listingId, token]);
 
   useEffect(() => {
-    if (token) { // Only fetch data if the token is available
+    if (token) {
       fetchListingData();
       fetchDocuments();
+      checkDocusignConnection(); // Check DocuSign connection status on load
     }
-  }, [fetchListingData, fetchDocuments, token]);
+  }, [fetchListingData, fetchDocuments, token, checkDocusignConnection]);
 
   const handleUploadClick = () => {
     setShowUploadModal(true);
@@ -81,7 +84,7 @@ const Documents = ({ listingId }) => {
     try {
       await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${id}`, {
         headers: {
-          'Authorization': `Bearer ${token}` // Include the token in the request headers
+          'Authorization': `Bearer ${token}`
         }
       });
       fetchDocuments();
@@ -99,7 +102,7 @@ const Documents = ({ listingId }) => {
       await Promise.all(selectedDocuments.map((id) => 
         axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${id}`, {
           headers: {
-            'Authorization': `Bearer ${token}` // Include the token in the request headers
+            'Authorization': `Bearer ${token}`
           }
         })
       ));
@@ -136,8 +139,8 @@ const Documents = ({ listingId }) => {
 
   const closeSignaturePackageModal = () => {
     setShowSignaturePackageModal(false);
-    fetchListingData(); // Refetch listing data to update button text if necessary
-    fetchDocuments(); // Refetch documents to show updated signature package
+    fetchListingData();
+    fetchDocuments();
   };
 
   const formatDate = (dateString) => {
@@ -145,12 +148,21 @@ const Documents = ({ listingId }) => {
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
-  const handleDocuSign = async () => {
+  const handleDocuSign = () => {
+    if (!docusignConnected) {
+      setShowDocuSignLoginModal(true);
+    } else {
+      // Continue with sending documents to DocuSign
+      sendToDocuSign();
+    }
+  };
+
+  const sendToDocuSign = async () => {
     if (selectedDocuments.length === 0) {
       alert('Please select at least one document to send via DocuSign.');
       return;
     }
-  
+
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents/createSigningSession`, {
         documentIds: selectedDocuments
@@ -159,14 +171,18 @@ const Documents = ({ listingId }) => {
           'Authorization': `Bearer ${token}`
         }
       });
-  
+
       const { signingUrl } = response.data;
       window.open(signingUrl, '_blank');
     } catch (error) {
       console.error('Error initiating DocuSign session:', error);
       alert('Failed to initiate DocuSign session. Please try again.');
     }
-  };  
+  };
+
+  const handleDocuSignLogin = () => {
+    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/api/docusign/login`;
+  };
 
   return (
     <div className="documents-tab">
@@ -262,6 +278,11 @@ const Documents = ({ listingId }) => {
           hasSignaturePackage={hasSignaturePackage}
         />
       )}
+      <DocuSignLoginModal
+        isOpen={showDocuSignLoginModal}
+        onClose={() => setShowDocuSignLoginModal(false)}
+        onLogin={handleDocuSignLogin}
+      />
     </div>
   );
 };

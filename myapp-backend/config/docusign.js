@@ -1,7 +1,6 @@
 // config/docusign.js
 
 const docusign = require('docusign-esign');
-const path = require('path');
 
 const dsConfig = {
   clientId: process.env.DOCUSIGN_CLIENT_ID,
@@ -15,9 +14,10 @@ const apiClient = new docusign.ApiClient();
 apiClient.setBasePath(dsConfig.basePath);
 
 const getOAuthLoginUrl = () => {
+  const scopes = ['signature']; // Ensure 'signature' scope is correctly specified
   return apiClient.getAuthorizationUri({
     response_type: 'code',
-    scope: 'signature',
+    scope: scopes.join(' '), // Join scopes to form a space-separated string
     client_id: dsConfig.clientId,
     redirect_uri: dsConfig.redirectUri,
   });
@@ -38,8 +38,6 @@ const getAccessTokenFromCode = async (code) => {
 };
 
 module.exports = {
-  dsConfig,
-  apiClient,
   getOAuthLoginUrl,
   getAccessTokenFromCode,
 };
