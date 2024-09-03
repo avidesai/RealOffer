@@ -1,38 +1,38 @@
 // config/docusign.js
 
 const docusign = require('docusign-esign');
-const fs = require('fs');
 const path = require('path');
 
 const dsConfig = {
   clientId: process.env.DOCUSIGN_CLIENT_ID,
   clientSecret: process.env.DOCUSIGN_CLIENT_SECRET,
   redirectUri: process.env.DOCUSIGN_REDIRECT_URI,
-  userId: process.env.DOCUSIGN_USER_ID,
   accountId: process.env.DOCUSIGN_ACCOUNT_ID,
   basePath: process.env.DOCUSIGN_BASE_PATH,
-  privateKeyLocation: path.resolve(__dirname, './docusign_private.key')
 };
 
 const apiClient = new docusign.ApiClient();
 apiClient.setBasePath(dsConfig.basePath);
 
-const getJWTToken = async () => {
-  const privateKey = fs.readFileSync(dsConfig.privateKeyLocation);
-  const jwtLifeSec = 10 * 60; // 10 minutes
-  const scopes = 'signature impersonation';
-  
+const getOAuthLoginUrl = () => {
+  return apiClient.getAuthorizationUri({
+    response_type: 'code',
+    scope: 'signature',
+    client_id: dsConfig.clientId,
+    redirect_uri: dsConfig.redirectUri,
+  });
+};
+
+const getAccessTokenFromCode = async (code) => {
   try {
-    const results = await apiClient.requestJWTUserToken(
+    const results = await apiClient.generateAccessToken(
       dsConfig.clientId,
-      dsConfig.userId,
-      scopes,
-      privateKey,
-      jwtLifeSec
+      dsConfig.clientSecret,
+      code
     );
     return results.body.access_token;
   } catch (error) {
-    console.error('Error getting JWT token:', error);
+    console.error('Error getting access token:', error);
     throw error;
   }
 };
@@ -40,5 +40,6 @@ const getJWTToken = async () => {
 module.exports = {
   dsConfig,
   apiClient,
-  getJWTToken
+  getOAuthLoginUrl,
+  getAccessTokenFromCode,
 };
