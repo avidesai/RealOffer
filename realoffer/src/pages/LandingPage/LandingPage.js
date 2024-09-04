@@ -1,10 +1,13 @@
+// LandingPage.js
+
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Home, FileText, Calendar, BarChart2, MessageCircle, DollarSign, Users, Database, FileSignature, PenTool } from 'lucide-react';
+import { ChevronRight, Home, FileText, Calendar, BarChart2, MessageCircle, DollarSign, Users, Inbox, FileSignature, PenTool, Zap } from 'lucide-react';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import { Link } from 'react-router-dom';
 import CountUp from 'react-countup';
 import VisibilitySensor from 'react-visibility-sensor';
+import logo from './images/logo.png';
 import './LandingPage.css';
 
 const Feature = ({ icon: Icon, title, description }) => (
@@ -56,10 +59,14 @@ const LandingPage = () => {
           ></div>
           <div className="hero-overlay"></div>
           <div className="hero-content">
+            <div className="hero-logo">
+              <img src={logo} alt="RealOffer logo" className="hero-logo-image" />
+              <span className="hero-logo-text">RealOffer</span>
+            </div>
             <h2 className="hero-title">Streamline Your Real Estate Transactions</h2>
             <p className="hero-subtitle">Powerful tools for listing agents and buyer's agents</p>
             <Link to="/signup" className="cta-button">
-              Get Started <ChevronRight className="cta-icon" />
+              Get Started For Free <ChevronRight className="cta-icon" />
             </Link>
           </div>
         </section>
@@ -73,7 +80,7 @@ const LandingPage = () => {
               description="Store and share essential disclosure documents with just a few clicks."
             />
             <Feature
-              icon={Calendar}
+              icon={Zap}
               title="Automated Offer Preparation"
               description="Generate offer documents and submit offers in minutes with our intuitive platform."
             />
@@ -103,7 +110,7 @@ const LandingPage = () => {
               description="Communicate seamlessly with buyers, sellers, and agents through our secure platform."
             />
             <Feature
-              icon={Home}
+              icon={Calendar}
               title="Schedule Showings"
               description="Manage property showings with online scheduling and reminders."
             />
@@ -113,7 +120,7 @@ const LandingPage = () => {
         <section className="stats">
           <div className="stats-container">
             <Stat
-              icon={Database}
+              icon={Inbox}
               value={2232}
               description="Offers Received"
             />
@@ -134,7 +141,7 @@ const LandingPage = () => {
           <h2 className="cta-title">Ready to Transform Your Real Estate Business?</h2>
           <p className="cta-subtitle">Join thousands of successful agents using RealOffer</p>
           <Link to="/signup" className="cta-button">
-              Sign Up For Free
+            Sign Up For Free
           </Link>
         </section>
       </main>
