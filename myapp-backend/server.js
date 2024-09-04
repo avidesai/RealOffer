@@ -17,9 +17,10 @@ const corsOptions = {
       'https://real-offer-ja4izgjou-avidesais-projects.vercel.app',
     ];
 
-    if (!origin || whitelist.indexOf(origin) !== -1) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else {
+      console.error(`Blocked by CORS: ${origin}`); // Log blocked origin for debugging
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -29,7 +30,7 @@ const corsOptions = {
   optionsSuccessStatus: 204, // For legacy browser support
 };
 
-// Apply CORS middleware
+// Apply CORS middleware globally
 app.use(cors(corsOptions));
 
 // Preflight response handling for all routes
@@ -76,7 +77,7 @@ const viewersRouter = require('./routes/viewers');
 const offersRouter = require('./routes/offers');
 const activitiesRouter = require('./routes/activities');
 const messagesRouter = require('./routes/messages');
-const docusignRouter = require('./routes/docusign'); // Add this line
+const docusignRouter = require('./routes/docusign');
 
 // Route Usage
 app.use('/api/users', usersRouter);
@@ -87,7 +88,7 @@ app.use('/api/viewers', viewersRouter);
 app.use('/api/offers', offersRouter);
 app.use('/api/activities', activitiesRouter);
 app.use('/api/messages', messagesRouter);
-app.use('/api/docusign', docusignRouter); // Add this line
+app.use('/api/docusign', docusignRouter);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
