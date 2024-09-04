@@ -10,7 +10,7 @@ router.use(authMiddleware);
 
 router.get('/', PropertyListingController.getAllListings);
 router.get('/:id', PropertyListingController.getListingById);
-router.post('/', PropertyListingController.uploadPhotos.array('propertyImages', 10), PropertyListingController.createListing);
+router.post('/', PropertyListingController.uploadPhotos.array('propertyImages', 50), PropertyListingController.createListing);
 router.put('/:id', PropertyListingController.updateListing);
 router.delete('/:id', PropertyListingController.deleteListing);
 router.post('/updateSignaturePackage', PropertyListingController.updateSignaturePackage);
