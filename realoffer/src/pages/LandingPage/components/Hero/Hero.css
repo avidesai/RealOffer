@@ -1,87 +1,114 @@
-/* src/components/LandingPage/components/Hero/Hero.css */
+/* Hero.css */
+
 .hero {
-    position: relative;
-    height: 65vh; /* Adjusted for a more proportionate height */
-    background: url('../../images/hero.jpg') no-repeat center center/cover;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    text-align: left;
-    color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6rem 10%;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.hero-content {
+  flex: 1;
+  max-width: 600px;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  color: #34495e;
+}
+
+.hero-cta-container {
+  display: flex;
+  gap: 1rem;
+}
+
+.hero-cta, .hero-secondary-cta {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.hero-cta {
+  background-color: #3498db;
+  color: white;
+}
+
+.hero-cta:hover {
+  background-color: #2980b9;
+}
+
+.hero-secondary-cta {
+  background-color: transparent;
+  color: #3498db;
+  border: 2px solid #3498db;
+}
+
+.hero-secondary-cta:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+.hero-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-image-placeholder {
+  width: 100%;
+  max-width: 500px;
+  height: 300px;
+  background-color: #e0e0e0;
+  border-radius: 10px;
+}
+
+@media (max-width: 1024px) {
+  .hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 4rem 5%;
   }
-  
-  .hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.6); /* Slightly darker overlay for improved text contrast */
-    z-index: 0;
-  }
-  
+
   .hero-content {
-    position: relative;
-    z-index: 1;
-    width: 40%; /* Limit width to improve readability */
-    padding-left: 10%;
+    margin-bottom: 2rem;
   }
-  
+
+  .hero-cta-container {
+    justify-content: center;
+  }
+
+  .hero-image-placeholder {
+    max-width: 80%;
+  }
+}
+
+@media (max-width: 768px) {
   .hero-title {
-    font-size: 4rem; /* Larger font size for impact */
-    margin-bottom: 0.5rem;
-    margin-top: 0rem;
-    line-height: 1.1;
-    font-weight: 700; /* Bold font weight for the title */
+    font-size: 2.5rem;
   }
-  
+
   .hero-subtitle {
-    font-size: 1.5rem;
-    margin-bottom: 3rem;
-    font-weight: 300; /* Lighter font weight for subtitle */
+    font-size: 1.25rem;
   }
-  
-  .hero-cta {
-    padding: 1rem 1.5rem;
-    background-color: rgb(27, 92, 243);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 19px;
-    font-weight: 600;
-    box-shadow: 0px 8px 15px rgba(0,0,0,0.1);
-    transition: all 0.3s ease; /* Add a transition */
-    text-decoration: none;
+
+  .hero-cta-container {
+    flex-direction: column;
   }
-  
-  .hero-cta:hover,
-  .hero-cta:focus { /* Focus added for accessibility */
-    background-color: rgb(0, 83, 172); /* Change the hover color to a darker shade */
-    box-shadow: 0px 8px 25px rgba(0,0,0,0.2);
-    transform: translateY(-2px);
+
+  .hero-cta, .hero-secondary-cta {
+    width: 100%;
   }
-  
-  @media (max-width: 768px) {
-    .hero {
-      padding-left: 5%; /* Reduced padding on smaller screens */
-      height: 100vh; /* Flexibility for content */
-      padding-top: 20vh; /* Space from the top */
-      padding-bottom: 20vh; /* Space from the bottom */
-    }
-    .hero-content {
-      width: 80%; /* More width for smaller screens */
-      padding-left: 5%;
-    }
-    .hero-title {
-      font-size: 2.5rem; /* Smaller font size for mobile */
-    }
-    .hero-subtitle {
-      font-size: 1.2rem;
-    }
-    .hero-cta {
-      padding: 0.7rem 1.0rem; /* Slightly smaller button on mobile */
-    }
-  }
-  
+}
