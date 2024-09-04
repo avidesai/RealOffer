@@ -8,7 +8,7 @@ const Address = ({ formData, errors, handleChange, handleNextStep, handlePrevSte
     <input
       type="text"
       name="address"
-      placeholder="Street Address"
+      placeholder="Street Name and Number"
       value={formData.address}
       onChange={handleChange}
       className="clp-input"
@@ -35,7 +35,7 @@ const Address = ({ formData, errors, handleChange, handleNextStep, handlePrevSte
     <input
       type="text"
       name="zip"
-      placeholder="Zip"
+      placeholder="Zip Code"
       value={formData.zip}
       onChange={handleChange}
       className="clp-input"
@@ -53,12 +53,11 @@ const Address = ({ formData, errors, handleChange, handleNextStep, handlePrevSte
     <input
       type="text"
       name="apn"
-      placeholder="Accessory Parcel Number (APN)"
+      placeholder="Accessory Parcel Number (APN) (Optional)"
       value={formData.apn}
       onChange={handleChange}
       className="clp-input"
     />
-    {errors.apn && <div className="clp-error">{errors.apn}</div>}
     <div className='clp-button-container'>
       <button className="clp-back-button" onClick={handlePrevStep}>Back</button>
       <button className="clp-next-button" onClick={handleNextStep}>Next</button>

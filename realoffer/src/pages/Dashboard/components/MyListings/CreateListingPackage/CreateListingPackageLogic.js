@@ -41,12 +41,11 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
     const newErrors = {};
     if (step === 1 && !formData.role) newErrors.role = 'Role is required';
     if (step === 2) {
-      if (!formData.address) newErrors.address = 'Address is required';
+      if (!formData.address) newErrors.address = 'Street Name and Number is required';
       if (!formData.city) newErrors.city = 'City is required';
       if (!formData.state) newErrors.state = 'State is required';
       if (!formData.zip) newErrors.zip = 'Zip Code is required';
       if (!formData.county) newErrors.county = 'County is required';
-      if (!formData.apn) newErrors.apn = 'Accessory Parcel Number (APN) is required';
     }
     if (step === 3) {
       if (!formData.propertyType) newErrors.propertyType = 'Property Type is required';
