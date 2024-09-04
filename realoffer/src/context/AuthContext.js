@@ -30,6 +30,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await api.post('/api/users/login', { email, password });
+  
       if (response.data && response.data.user && response.data.token) {
         const userData = response.data.user;
         userData._id = userData._id || userData.id;
@@ -43,10 +44,22 @@ export const AuthProvider = ({ children }) => {
         throw new Error('Invalid login response from server');
       }
     } catch (error) {
-      console.error('Error logging in:', error);
-      throw error;
+      if (error.response) {
+        // Server returned a response
+        console.error('Error response from server:', error.response);
+        throw new Error(error.response.data.message || 'Login failed. Please try again.');
+      } else if (error.request) {
+        // Request was made but no response was received
+        console.error('No response received:', error.request);
+        throw new Error('No response from the server. Check your network.');
+      } else {
+        // Something else went wrong
+        console.error('Login error:', error.message);
+        throw new Error('An unexpected error occurred. Please try again.');
+      }
     }
   };
+  
 
   const logout = () => {
     localStorage.removeItem('user');

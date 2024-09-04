@@ -17,7 +17,8 @@ const corsOptions = {
       'https://real-offer-ja4izgjou-avidesais-projects.vercel.app',
     ];
 
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
+    // Allow if origin is in the whitelist or it's undefined (e.g., local requests like curl)
+    if (!origin || whitelist.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       console.error(`Blocked by CORS: ${origin}`); // Log blocked origin for debugging
@@ -46,7 +47,7 @@ app.use(
     resave: false,
     saveUninitialized: true,
     cookie: {
-      secure: process.env.NODE_ENV === 'production', // Secure cookies in production (HTTPS only)
+      secure: process.env.NODE_ENV === 'production', // Secure cookies in production
       httpOnly: true, // Prevent client-side JavaScript from accessing the cookie
       sameSite: 'none', // Necessary for cross-site requests
       maxAge: 24 * 60 * 60 * 1000, // 1-day expiration for session cookies
