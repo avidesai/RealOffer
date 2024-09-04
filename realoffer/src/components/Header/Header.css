@@ -11,8 +11,16 @@
 }
 
 .header-logo {
-    height: 60px;
+    height: 55px;
     cursor: pointer;
+    transition: transform 0.3s;
+    padding-right: 1.5rem;
+    padding-left: 1rem;
+    transition: transform 0.3s;
+}
+
+.header-logo:hover {
+  transform: scale(1.05);
 }
 
 .header-group {

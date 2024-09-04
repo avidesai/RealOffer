@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Home, FileText, Calendar, BarChart2, MessageCircle, DollarSign, Users, Database, CheckCircle, PenTool } from 'lucide-react';
+import { ChevronRight, Home, FileText, Calendar, BarChart2, MessageCircle, DollarSign, Users, Database, FileSignature, PenTool } from 'lucide-react';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
+import { Link } from 'react-router-dom';
 import CountUp from 'react-countup';
 import VisibilitySensor from 'react-visibility-sensor';
 import './LandingPage.css';
@@ -57,9 +58,9 @@ const LandingPage = () => {
           <div className="hero-content">
             <h2 className="hero-title">Streamline Your Real Estate Transactions</h2>
             <p className="hero-subtitle">Powerful tools for listing agents and buyer's agents</p>
-            <button className="cta-button">
+            <Link to="/signup" className="cta-button">
               Get Started <ChevronRight className="cta-icon" />
-            </button>
+            </Link>
           </div>
         </section>
 
@@ -74,7 +75,7 @@ const LandingPage = () => {
             <Feature
               icon={Calendar}
               title="Automated Offer Preparation"
-              description="Generate professional offer documents in minutes with our intuitive platform."
+              description="Generate offer documents and submit offers in minutes with our intuitive platform."
             />
             <Feature
               icon={BarChart2}
@@ -87,9 +88,14 @@ const LandingPage = () => {
               description="Compare offers and simplify negotiations with a centralized dashboard for all offers."
             />
             <Feature
+              icon={FileSignature}
+              title="Create Signature Packets"
+              description="Auto split and merge disclosure pages to create packets for buyers to sign during offers."
+            />
+            <Feature
               icon={PenTool}
               title="Integrated Document Signing"
-              description="Send disclosures and offer documents for signing with DocuSign integration."
+              description="Send disclosures and offer documents to parties for signing with DocuSign integration."
             />
             <Feature
               icon={MessageCircle}
@@ -107,19 +113,19 @@ const LandingPage = () => {
         <section className="stats">
           <div className="stats-container">
             <Stat
-              icon={Users}
-              value={2522}
-              description="Active Users"
-            />
-            <Stat
               icon={Database}
-              value={12532}
-              description="Properties Listed"
+              value={2232}
+              description="Offers Received"
             />
             <Stat
-              icon={CheckCircle}
-              value={671}
+              icon={Home}
+              value={423}
               description="Homes Sold"
+            />
+            <Stat
+              icon={Users}
+              value={3495}
+              description="Active Agents"
             />
           </div>
         </section>
@@ -127,7 +133,9 @@ const LandingPage = () => {
         <section className="cta">
           <h2 className="cta-title">Ready to Transform Your Real Estate Business?</h2>
           <p className="cta-subtitle">Join thousands of successful agents using RealOffer</p>
-          <button className="cta-button">Sign Up Now</button>
+          <Link to="/signup" className="cta-button">
+              Sign Up For Free
+          </Link>
         </section>
       </main>
       <Footer />
