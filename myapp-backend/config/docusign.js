@@ -1,5 +1,4 @@
 // config/docusign.js
-
 const docusign = require('docusign-esign');
 
 const dsConfig = {
@@ -25,7 +24,14 @@ const getAccessTokenFromCode = async (code) => {
       dsConfig.clientSecret,
       code
     );
-    return results.body.access_token;
+    
+    console.log('DocuSign API Response:', results); // Log the entire response
+
+    if (results && results.body && results.body.access_token) {
+      return results.body.access_token;
+    } else {
+      throw new Error('Access token not found in DocuSign response');
+    }
   } catch (error) {
     console.error('Error getting access token:', error);
     throw error;

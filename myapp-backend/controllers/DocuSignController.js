@@ -16,6 +16,11 @@ exports.docusignCallback = async (req, res) => {
 
   try {
     const accessToken = await getAccessTokenFromCode(code);
+    
+    if (!accessToken) {
+      throw new Error('Failed to retrieve access token');
+    }
+
     req.session.docusignAccessToken = accessToken;
     req.session.isDocuSignAuthenticated = true;
     
@@ -23,7 +28,11 @@ exports.docusignCallback = async (req, res) => {
     res.redirect(`${process.env.FRONTEND_URL}/mylisting/${req.session.listingId}?docusignConnected=true`);
   } catch (error) {
     console.error('Error during DocuSign authentication:', error);
-    res.status(500).json({ message: 'Error during DocuSign authentication', error: error.message });
+    res.status(500).json({ 
+      message: 'Error during DocuSign authentication', 
+      error: error.message,
+      stack: error.stack // Include stack trace for debugging
+    });
   }
 };
 
