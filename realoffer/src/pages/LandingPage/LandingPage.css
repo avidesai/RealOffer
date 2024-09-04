@@ -43,12 +43,12 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 120%;
   background-image: url('./images/hero.jpg');
   background-size: cover;
   background-position: center;
-  background-attachment: fixed;
   z-index: -1;
+  will-change: transform;
 }
 
 .hero-overlay {
@@ -110,7 +110,7 @@
 .hero-subtitle {
   font-size: 1.5rem;
   color: #f0f0f0;
-  margin-bottom: 4rem;
+  margin-bottom: 3.5rem;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 1);
 }
 
@@ -143,7 +143,7 @@
 
 .feature-icon {
   font-size: 3rem;
-  color: #3498db;
+  color: #1b5cf3;
   margin-top: 1.5rem;
   margin-bottom: 0.25rem;
 }
@@ -181,7 +181,7 @@
 
 .stat-icon {
   font-size: 3rem;
-  color: #3498db;
+  color: #1b5cf3;
   margin-bottom: 1rem;
 }
 
@@ -222,7 +222,7 @@
   font-size: 1.1rem;
   font-weight: bold;
   color: #ffffff;
-  background-color: #3498db;
+  background-color: #1b5cf3;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -232,7 +232,7 @@
 }
 
 .cta-button:hover {
-  background-color: #2980b9;
+  background-color: #1544b2;
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -269,6 +269,11 @@
   .hero {
     height: 80vh;
     align-items: center; /* Center align on mobile for better responsiveness */
+  }
+
+  .hero-image {
+    height: 100%; /* Reset height for mobile to prevent overflow issues */
+    transform: none !important; /* Disable parallax on mobile for better performance */
   }
 
   .hero-content {
