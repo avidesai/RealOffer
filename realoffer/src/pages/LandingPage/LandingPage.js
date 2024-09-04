@@ -64,7 +64,7 @@ const LandingPage = () => {
               <span className="hero-logo-text">RealOffer</span>
             </div>
             <h2 className="hero-title">Streamline Your Real Estate Transactions</h2>
-            <p className="hero-subtitle">Powerful tools for listing agents and buyer's agents</p>
+            <p className="hero-subtitle">Manage listings and make offers with ease on our platform</p>
             <Link to="/signup" className="cta-button">
               Get Started For Free <ChevronRight className="cta-icon" />
             </Link>
