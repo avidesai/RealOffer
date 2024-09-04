@@ -13,6 +13,7 @@ const corsOptions = {
     const whitelist = [
       'http://localhost:3000',
       'https://realoffer.io',
+      'https://www.realoffer.io',
       'https://real-offer-eight.vercel.app',
       'https://real-offer-ja4izgjou-avidesais-projects.vercel.app',
     ];
