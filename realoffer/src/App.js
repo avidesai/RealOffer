@@ -14,6 +14,23 @@ import UpgradeToPro from './pages/Dashboard/pages/UpgradeToPro/UpgradeToPro';
 import { useAuth } from './context/AuthContext'; // Import useAuth hook
 import './App.css'; // Your global styles
 
+// Helper function to load Google Places API
+const loadGooglePlacesScript = (callback) => {
+  const existingScript = document.getElementById('google-places-script');
+  if (!existingScript) {
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_API_KEY}&libraries=places&callback=initMap`;
+    script.id = 'google-places-script';
+    script.async = true; // Load asynchronously
+    script.defer = true; // Defer execution
+    document.body.appendChild(script);
+    script.onload = () => {
+      if (callback) callback();
+    };
+  } else if (callback) callback();
+};
+
+
 function PrivateRoute({ element: Component, ...rest }) {
   const { user, loading, checkDocusignConnection, docusignConnected } = useAuth();
 
@@ -36,6 +53,10 @@ function PrivateRoute({ element: Component, ...rest }) {
 
 function App() {
   const [email, setEmail] = useState('');
+
+  useEffect(() => {
+    loadGooglePlacesScript(); // Load Google Places API when the app starts
+  }, []);
 
   return (
     <EmailContext.Provider value={{ email, setEmail }}>
