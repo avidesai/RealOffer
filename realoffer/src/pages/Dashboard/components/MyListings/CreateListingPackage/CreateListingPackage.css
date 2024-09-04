@@ -17,11 +17,11 @@
 
 .clp-content {
   background: #ffffff;
-  padding-right: 6rem;
-  padding-left: 5rem;
+  padding-right: 4rem;
+  padding-left: 4rem;
   padding-bottom: 1rem;
   border-radius: 20px;
-  width: 700px;
+  min-width: 550px;
   height: 85%; /* Fixed height */
   max-width: 40%;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);

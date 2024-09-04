@@ -1,8 +1,8 @@
 // AddressAutocomplete.js
-
 import React from 'react';
 import usePlacesAutocomplete, { getGeocode } from 'use-places-autocomplete';
 import useOnclickOutside from 'react-cool-onclickoutside';
+import './AddressAutocomplete.css'; // Import the new CSS
 
 const AddressAutocomplete = ({ setAddressData }) => {
   const {
@@ -75,18 +75,22 @@ const AddressAutocomplete = ({ setAddressData }) => {
   };
 
   return (
-    <div ref={ref}>
+    <div className="address-autocomplete-container" ref={ref}>
       <input
         value={value}
         onChange={handleInput}
         disabled={!ready}
-        placeholder="Enter a street address"
-        className="clp-input"
+        placeholder="Enter a street address to autofill the form..."
+        className="address-autocomplete-input"
       />
       {status === 'OK' && (
-        <ul>
+        <ul className="address-autocomplete-suggestions">
           {data.map(({ place_id, description }) => (
-            <li key={place_id} onClick={handleSelect({ description })}>
+            <li
+              key={place_id}
+              onClick={handleSelect({ description })}
+              className="address-autocomplete-suggestion"
+            >
               {description}
             </li>
           ))}

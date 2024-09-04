@@ -1,0 +1,94 @@
+/* AddressAutocomplete Styles */
+
+.address-autocomplete-container {
+    position: relative;
+    width: 100%;
+  }
+  
+  .address-autocomplete-input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #dddddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    box-sizing: border-box;
+    background-color: #fff;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .address-autocomplete-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  }
+  
+  .address-autocomplete-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 200px;
+    background-color: #fff;
+    border: 1px solid #dddddd;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow-y: auto;
+    transition: max-height 0.3s ease;
+  }
+  
+  .address-autocomplete-suggestion {
+    padding: 10px;
+    font-size: 1rem;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    cursor: pointer;
+    background-color: #fff;
+    transition: background-color 0.3s ease;
+  }
+  
+  .address-autocomplete-suggestion:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .address-autocomplete-suggestion:active {
+    background-color: #e9ecef;
+  }
+  
+  .address-autocomplete-no-results {
+    padding: 10px;
+    font-size: 1rem;
+    color: #999999;
+    text-align: center;
+  }
+  
+  /* Add subtle animation for fade in */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .address-autocomplete-suggestions {
+    animation: fadeIn 0.3s ease;
+  }
+  
+  /* Mobile responsive adjustments */
+  @media (max-width: 768px) {
+    .address-autocomplete-input {
+      padding: 10px;
+      font-size: 0.9rem;
+    }
+  
+    .address-autocomplete-suggestion {
+      padding: 8px;
+      font-size: 0.9rem;
+    }
+  }
+  

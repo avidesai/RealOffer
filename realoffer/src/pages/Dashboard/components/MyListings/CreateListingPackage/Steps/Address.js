@@ -1,6 +1,6 @@
 // /CreateListingPackage/Steps/Address.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AddressAutocomplete from '../AddressAutocomplete';
 
 const Address = ({ formData, errors, handleChange, handleNextStep, handlePrevStep }) => {
@@ -12,14 +12,33 @@ const Address = ({ formData, errors, handleChange, handleNextStep, handlePrevSte
     county: '',
   });
 
+  const isInitialMount = useRef(true); // To prevent initial useEffect from causing an update
+
+  // Update formData only if addressData has been changed after mount
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    } else {
+      if (addressData.street && formData.address !== addressData.street) {
+        handleChange({ target: { name: 'address', value: addressData.street } });
+      }
+      if (addressData.city && formData.city !== addressData.city) {
+        handleChange({ target: { name: 'city', value: addressData.city } });
+      }
+      if (addressData.state && formData.state !== addressData.state) {
+        handleChange({ target: { name: 'state', value: addressData.state } });
+      }
+      if (addressData.zip && formData.zip !== addressData.zip) {
+        handleChange({ target: { name: 'zip', value: addressData.zip } });
+      }
+      if (addressData.county && formData.county !== addressData.county) {
+        handleChange({ target: { name: 'county', value: addressData.county } });
+      }
+    }
+  }, [addressData, formData, handleChange]);
+
   const handleAddressDataUpdate = (data) => {
-    setAddressData(data);
-    // Update formData fields automatically
-    handleChange({ target: { name: 'address', value: data.street } });
-    handleChange({ target: { name: 'city', value: data.city } });
-    handleChange({ target: { name: 'state', value: data.state } });
-    handleChange({ target: { name: 'zip', value: data.zip } });
-    handleChange({ target: { name: 'county', value: data.county } });
+    setAddressData(data); // This will trigger the useEffect to update formData
   };
 
   return (
@@ -33,12 +52,13 @@ const Address = ({ formData, errors, handleChange, handleNextStep, handlePrevSte
       <input
         type="text"
         name="address"
-        placeholder="Street Address"
+        placeholder="Street Name and Number"
         value={addressData.street || formData.address}
         onChange={handleChange}
         className="clp-input"
       />
       {errors.address && <div className="clp-error">{errors.address}</div>}
+
       <input
         type="text"
         name="city"
@@ -48,6 +68,7 @@ const Address = ({ formData, errors, handleChange, handleNextStep, handlePrevSte
         className="clp-input"
       />
       {errors.city && <div className="clp-error">{errors.city}</div>}
+
       <input
         type="text"
         name="state"
@@ -57,6 +78,7 @@ const Address = ({ formData, errors, handleChange, handleNextStep, handlePrevSte
         className="clp-input"
       />
       {errors.state && <div className="clp-error">{errors.state}</div>}
+
       <input
         type="text"
         name="zip"
@@ -66,6 +88,7 @@ const Address = ({ formData, errors, handleChange, handleNextStep, handlePrevSte
         className="clp-input"
       />
       {errors.zip && <div className="clp-error">{errors.zip}</div>}
+
       <input
         type="text"
         name="county"
@@ -75,6 +98,17 @@ const Address = ({ formData, errors, handleChange, handleNextStep, handlePrevSte
         className="clp-input"
       />
       {errors.county && <div className="clp-error">{errors.county}</div>}
+
+      {/* APN Field */}
+      <input
+        type="text"
+        name="apn"
+        placeholder="Accessory Parcel Number (APN) (Optional)"
+        value={formData.apn}
+        onChange={handleChange}
+        className="clp-input"
+      />
+      {errors.apn && <div className="clp-error">{errors.apn}</div>}
 
       <div className='clp-button-container'>
         <button className="clp-back-button" onClick={handlePrevStep}>Back</button>
