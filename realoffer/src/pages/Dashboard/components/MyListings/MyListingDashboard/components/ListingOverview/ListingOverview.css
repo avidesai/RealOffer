@@ -52,6 +52,12 @@
   color: #555;
 }
 
+.space {
+  display: inline-block;
+  margin: 0 6px; /* Adjust the value to increase or decrease space */
+}
+
+
 .overview-buttons {
   margin-top: 10px;
 }

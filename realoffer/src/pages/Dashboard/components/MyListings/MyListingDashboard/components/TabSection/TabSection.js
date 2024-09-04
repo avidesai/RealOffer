@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../../../../../../context/AuthContext';  // Import useAuth hook
 import Documents from '../../Tabs/Documents/Documents';
-import Viewers from '../../Tabs/Viewers/Viewers';
 import Activity from '../../Tabs/Activity/Activity';
 import Messages from '../../Tabs/Messages/Messages';
 import Settings from '../../Tabs/Settings/Settings';
@@ -50,12 +49,6 @@ const TabSection = ({ listing }) => {
           Documents
         </button>
         <button
-          className={`tab-button ${activeTab === 'viewers' ? 'active' : ''}`}
-          onClick={() => handleTabClick('viewers')}
-        >
-          Viewers
-        </button>
-        <button
           className={`tab-button ${activeTab === 'activity' ? 'active' : ''}`}
           onClick={() => handleTabClick('activity')}
         >
@@ -82,7 +75,6 @@ const TabSection = ({ listing }) => {
       </div>
       <div className="tab-content">
         {activeTab === 'docs' && <Documents listingId={updatedListing._id} />}
-        {activeTab === 'viewers' && <Viewers listingId={updatedListing._id} />}
         {activeTab === 'activity' && <Activity listingId={updatedListing._id} />}
         {activeTab === 'messages' && <Messages listingId={updatedListing._id} />}
         {activeTab === 'offers' && <Offers listingId={updatedListing._id} />}

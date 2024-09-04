@@ -71,12 +71,12 @@ function ListingOverview({ listing }) {
           <div className="overview-details">
             <h1 className="property-address">{currentListing.homeCharacteristics.address}</h1>
             <p className="property-location">{currentListing.homeCharacteristics.city}, {currentListing.homeCharacteristics.state} {currentListing.homeCharacteristics.zip}</p>
-            <p className="property-price">${formatPrice(currentListing.homeCharacteristics.price)} | {currentListing.homeCharacteristics.beds} Bed, {currentListing.homeCharacteristics.baths} Bath</p>
+            <p className="property-price">${formatPrice(currentListing.homeCharacteristics.price)}<span className='space'>•</span>{currentListing.homeCharacteristics.beds} Bed, {currentListing.homeCharacteristics.baths} Bath</p>
             <div className="overview-buttons">
-              <button className="overview-btn-share-package">Share Listing</button>
-              <button className="overview-btn" onClick={() => setShowMoreInfo(true)}>Edit Info</button>
+              <button className="overview-btn-share-package">Share</button>
               <button className="overview-btn" onClick={() => setShowGallery(true)}>Images</button>
-              <button className="overview-btn">Manage Showings</button>
+              <button className="overview-btn" onClick={() => setShowMoreInfo(true)}>More Info</button>
+              <button className="overview-btn">Showings</button>
             </div>
           </div>
           <div className="overview-agents">
