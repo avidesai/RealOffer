@@ -1,5 +1,4 @@
 // /context/AuthContext.js
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from './api';
 
@@ -19,7 +18,6 @@ export const AuthProvider = ({ children }) => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     const storedToken = localStorage.getItem('token');
     const docusignStatus = localStorage.getItem('docusignConnected') === 'true';
-    
     if (storedUser && storedToken) {
       setUser(storedUser);
       setToken(storedToken);
@@ -85,6 +83,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     docusignConnected,
     checkDocusignConnection,
+    setDocusignConnected, // Add this line to expose the setter function
   };
 
   return (

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
-import { useAuth } from '../../../../../../../context/AuthContext'; 
+import { useAuth } from '../../../../../../../context/AuthContext';
 import './Documents.css';
 import UploadDocumentsLogic from './components/UploadDocuments/UploadDocumentsLogic';
 import PDFViewer from './components/PDFViewer/PDFViewer';
@@ -152,7 +152,6 @@ const Documents = ({ listingId }) => {
     if (!docusignConnected) {
       setShowDocuSignLoginModal(true);
     } else {
-      // Continue with sending documents to DocuSign
       sendToDocuSign();
     }
   };
