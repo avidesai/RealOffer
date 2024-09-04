@@ -4,7 +4,7 @@ const { getOAuthLoginUrl, getAccessTokenFromCode } = require('../config/docusign
 
 exports.loginToDocuSign = (req, res) => {
   const oauthUrl = getOAuthLoginUrl();
-  console.log('OAuth URL:', oauthUrl); // Add this line for debugging
+  console.log('OAuth URL:', oauthUrl); // For debugging
   res.redirect(oauthUrl);
 };
 

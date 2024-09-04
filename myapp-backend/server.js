@@ -1,28 +1,24 @@
 // server.js
 require('dotenv').config();
 const express = require('express');
+const session = require('express-session');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const session = require('express-session'); // Import express-session
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const app = express();
 
 // CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
-    console.log('Incoming origin:', origin); // Log the origin
-
     const whitelist = [
       'http://localhost:3000',
-      'https://realoffer.io', // Ensure no trailing slash
+      'https://realoffer.io',
       'https://real-offer-eight.vercel.app',
       'https://real-offer-ja4izgjou-avidesais-projects.vercel.app',
     ];
-
     if (whitelist.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else {
-      console.error('Not allowed by CORS:', origin); // Log the disallowed origin
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -39,10 +35,13 @@ app.options('*', cors(corsOptions));
 // Session middleware configuration
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || 'mysecret', // Use a secret from .env file
+    secret: process.env.SESSION_SECRET || 'mysecret',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }, // Set to true if using HTTPS
+    cookie: { 
+      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+      sameSite: 'none' // Set SameSite attribute to 'none'
+    }
   })
 );
 

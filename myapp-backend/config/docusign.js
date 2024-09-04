@@ -14,13 +14,8 @@ const apiClient = new docusign.ApiClient();
 apiClient.setBasePath(dsConfig.basePath);
 
 const getOAuthLoginUrl = () => {
-  const scopes = ['signature']; // Make sure this line exists and includes 'signature'
-  return apiClient.getAuthorizationUri({
-    response_type: 'code',
-    scope: scopes.join(' '), // Join scopes to form a space-separated string
-    client_id: dsConfig.clientId,
-    redirect_uri: dsConfig.redirectUri,
-  });
+  const scopes = ['signature'];
+  return apiClient.getAuthorizationUri(dsConfig.clientId, scopes, dsConfig.redirectUri, 'code');
 };
 
 const getAccessTokenFromCode = async (code) => {
