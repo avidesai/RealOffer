@@ -15,21 +15,21 @@
 }
 
 .landing-main > section {
-  padding: 5rem 10%;
+  padding: 3rem 8%;
 }
 
 .lp-section-title {
   font-size: 2rem;
   text-align: center;
   margin-bottom: 4rem;
-  margin-top: 0;
+  margin-top: 0.5rem;
   color: #2c3e50;
 }
 
 /* Hero Section */
 .hero {
   position: relative;
-  height: 70vh;
+  height: 80vh;
   width: 100%;
   overflow: hidden;
   display: flex;
@@ -241,23 +241,9 @@
   margin-left: 0.5rem;
 }
 
-@media (max-width: 1024px) {
-  .hero-content {
-    max-width: 100%;
-    text-align: center;
-    padding: 0 5%;
-  }
-
-  .stats-container {
-    flex-direction: column;
-  }
-
-  .stat {
-    margin-bottom: 2rem;
-  }
-
-  .stat:last-child {
-    margin-bottom: 0;
+@media (min-width: 1200px) {
+  .features-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
@@ -278,6 +264,7 @@
 
   .hero-content {
     padding: 5% 5%; /* Adjusted padding for mobile */
+    text-align: center;
   }
 
   .hero-logo {
@@ -320,7 +307,19 @@
     font-size: 2.5rem;
   }
 
+  .stats-container {
+    flex-direction: column;
+  }
+
   .stat-description {
     font-size: 1rem;
+  }
+
+  .stat {
+    margin-bottom: 2rem;
+  }
+
+  .stat:last-child {
+    margin-bottom: 0;
   }
 }
