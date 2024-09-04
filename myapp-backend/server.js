@@ -16,7 +16,8 @@ const corsOptions = {
       'https://real-offer-eight.vercel.app',
       'https://real-offer-ja4izgjou-avidesais-projects.vercel.app',
     ];
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
+
+    if (!origin || whitelist.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -24,13 +25,18 @@ const corsOptions = {
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-  optionsSuccessStatus: 204,
+  credentials: true, // Allow credentials (cookies, headers) to be sent
+  optionsSuccessStatus: 204, // For legacy browser support
 };
 
+// Apply CORS middleware
 app.use(cors(corsOptions));
-app.use(express.json());
+
+// Preflight response handling for all routes
 app.options('*', cors(corsOptions));
+
+// JSON body parsing middleware
+app.use(express.json());
 
 // Session middleware configuration
 app.use(
@@ -38,20 +44,23 @@ app.use(
     secret: process.env.SESSION_SECRET || 'mysecret',
     resave: false,
     saveUninitialized: true,
-    cookie: { 
-      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-      sameSite: 'none' // Set SameSite attribute to 'none'
-    }
+    cookie: {
+      secure: process.env.NODE_ENV === 'production', // Secure cookies in production (HTTPS only)
+      httpOnly: true, // Prevent client-side JavaScript from accessing the cookie
+      sameSite: 'none', // Necessary for cross-site requests
+      maxAge: 24 * 60 * 60 * 1000, // 1-day expiration for session cookies
+    },
   })
 );
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-  .then(() => console.log('MongoDB connected. We\'re live.'))
-  .catch(err => console.log('MongoDB connection error:', err));
+// MongoDB connection
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB connected. We're live."))
+  .catch((err) => console.log('MongoDB connection error:', err));
 
 // Root route
 app.get('/', (req, res) => {
