@@ -7,7 +7,7 @@ import { useAuth } from '../../../../../context/AuthContext';
 import './CreateListingPackage.css';
 
 const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
-  const { user, token } = useAuth();
+  const { user, token, logout } = useAuth(); // Added logout to handle 401 errors
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     role: 'seller',
@@ -105,7 +105,7 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
         {
           headers: {
             'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
           },
         }
       );
@@ -113,18 +113,15 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
       addNewListing(response.data);
       onClose();
     } catch (error) {
-      console.error('Error creating listing:', error);
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        setErrors({ submit: error.response.data.message || 'Server error. Please try again.' });
+      if (error.response && error.response.status === 401) {
+        console.error('Authentication failed, token may be expired. Logging out.');
+        logout(); // Logout the user if token is invalid
       } else if (error.request) {
-        // The request was made but no response was received
         setErrors({ submit: 'No response from server. Please check your internet connection and try again.' });
       } else {
-        // Something happened in setting up the request that triggered an Error
         setErrors({ submit: 'An unexpected error occurred. Please try again.' });
       }
+      console.error('Error creating listing:', error);
     } finally {
       setLoading(false);
     }

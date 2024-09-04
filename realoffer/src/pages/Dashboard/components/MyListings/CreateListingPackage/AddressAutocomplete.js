@@ -1,4 +1,5 @@
 // AddressAutocomplete.js
+
 import React from 'react';
 import usePlacesAutocomplete, { getGeocode } from 'use-places-autocomplete';
 import useOnclickOutside from 'react-cool-onclickoutside';
@@ -12,7 +13,7 @@ const AddressAutocomplete = ({ setAddressData }) => {
     clearSuggestions,
   } = usePlacesAutocomplete({
     requestOptions: {
-      /* Define search area or bias */
+      /* Define search area or bias if needed */
     },
     debounce: 300,
   });

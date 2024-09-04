@@ -1,7 +1,7 @@
 // /CreateListingPackage/Steps/Address.js
 
 import React, { useState } from 'react';
-import AddressAutocomplete from '../AddressAutocomplete'; // Import the component
+import AddressAutocomplete from '../AddressAutocomplete';
 
 const Address = ({ formData, errors, handleChange, handleNextStep, handlePrevStep }) => {
   const [addressData, setAddressData] = useState({

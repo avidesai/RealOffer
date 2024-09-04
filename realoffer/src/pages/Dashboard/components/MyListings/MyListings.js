@@ -10,7 +10,7 @@ import CreateListingPackageLogic from './CreateListingPackage/CreateListingPacka
 import './MyListings.css';
 
 function MyListings() {
-  const { user, token } = useAuth();
+  const { user, token, logout } = useAuth(); // Added logout to handle 401 errors
   const LISTINGS_PER_PAGE = 5;
   const [currentPage, setCurrentPage] = useState(1);
   const [listings, setListings] = useState([]);
@@ -27,22 +27,29 @@ function MyListings() {
       try {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings`, {
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
+            'Authorization': `Bearer ${token}`,
+          },
         });
         console.log('Fetched listings:', response.data); // Debug log
         setListings(response.data);
         setError('');
       } catch (error) {
-        console.error('Failed to fetch user listings:', error);
-        setError('No listings found or error fetching listings.');
+        if (error.response && error.response.status === 401) {
+          // If token is invalid, log out the user and redirect to login
+          console.error('Failed to fetch user listings. Unauthorized:', error);
+          setError('Unauthorized. Logging out.');
+          logout(); // Logout the user if token is invalid
+        } else {
+          console.error('Failed to fetch user listings:', error);
+          setError('No listings found or error fetching listings.');
+        }
       }
       setLoading(false);
     } else {
       console.error('User ID or token is missing');
       setError('Authentication error. Please log in again.');
     }
-  }, [user, token]);
+  }, [user, token, logout]);
 
   useEffect(() => {
     fetchUserDetails();
@@ -105,8 +112,8 @@ function MyListings() {
         { status: newStatus },
         {
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
+            'Authorization': `Bearer ${token}`,
+          },
         }
       );
       await fetchUserDetails();

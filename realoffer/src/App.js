@@ -14,22 +14,21 @@ import UpgradeToPro from './pages/Dashboard/pages/UpgradeToPro/UpgradeToPro';
 import { useAuth } from './context/AuthContext'; // Import useAuth hook
 import './App.css'; // Your global styles
 
-// Helper function to load Google Places API
+// Helper function to load Google Places API asynchronously with async and defer
 const loadGooglePlacesScript = (callback) => {
   const existingScript = document.getElementById('google-places-script');
   if (!existingScript) {
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_API_KEY}&libraries=places&callback=initMap`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_API_KEY}&libraries=places`;
     script.id = 'google-places-script';
-    script.async = true; // Load asynchronously
-    script.defer = true; // Defer execution
+    script.async = true; // Load script asynchronously
+    script.defer = true; // Defer script loading
     document.body.appendChild(script);
     script.onload = () => {
       if (callback) callback();
     };
   } else if (callback) callback();
 };
-
 
 function PrivateRoute({ element: Component, ...rest }) {
   const { user, loading, checkDocusignConnection, docusignConnected } = useAuth();
