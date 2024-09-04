@@ -68,6 +68,25 @@
     background-color: rgb(0, 83, 172);
 }
 
+.header-logout-button {
+    padding: 0.6rem 1.2rem;
+    margin-left: 20px;
+    background-color: rgb(27, 92, 243);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    outline: none;
+    font-size: 1rem;
+}
+
+.header-logout-button:hover {
+    background-color: rgb(0, 83, 172);
+}
+
 /* Responsive design adjustments for small screens */
 @media (max-width: 768px) {
     .header {

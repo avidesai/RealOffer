@@ -86,7 +86,7 @@ function MyListingDashboardHeader({ onBackClick }) {
         {isDropdownOpen && (
           <div className="dropdown-menu" ref={dropdownRef}>
             <Link to="/profile" className="dropdown-item">Profile</Link>
-            <Link to="/" onClick={handleLogout} className="dropdown-item">Logout</Link>
+            <Link to="/" onClick={handleLogout} className="dropdown-item">Log Out</Link>
           </div>
         )}
       </div>

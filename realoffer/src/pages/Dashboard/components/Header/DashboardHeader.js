@@ -117,7 +117,7 @@ function DashboardHeader({ activeTab, setActiveTab }) {
               }}
               className="dropdown-item"
             >
-              Logout
+              Log Out
             </Link>
           </div>
         )}
