@@ -1,5 +1,6 @@
 // /context/AuthContext.js
-import React, { createContext, useContext, useState, useEffect } from 'react';
+
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from './api';
 
 const AuthContext = createContext();
@@ -30,7 +31,6 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await api.post('/api/users/login', { email, password });
-  
       if (response.data && response.data.user && response.data.token) {
         const userData = response.data.user;
         userData._id = userData._id || userData.id;
@@ -45,23 +45,19 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       if (error.response) {
-        // Server returned a response
         console.error('Error response from server:', error.response);
         throw new Error(error.response.data.message || 'Login failed. Please try again.');
       } else if (error.request) {
-        // Request was made but no response was received
         console.error('No response received:', error.request);
         throw new Error('No response from the server. Check your network.');
       } else {
-        // Something else went wrong
         console.error('Login error:', error.message);
         throw new Error('An unexpected error occurred. Please try again.');
       }
     }
   };
-  
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     localStorage.removeItem('docusignConnected');
@@ -69,9 +65,9 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setDocusignConnected(false);
     delete api.defaults.headers.common['Authorization'];
-  };
+  }, []);
 
-  const checkDocusignConnection = async () => {
+  const checkDocusignConnection = useCallback(async () => {
     try {
       const response = await api.get('/api/docusign/status');
       if (response.data.connected) {
@@ -86,7 +82,18 @@ export const AuthProvider = ({ children }) => {
       setDocusignConnected(false);
       localStorage.removeItem('docusignConnected');
     }
-  };
+  }, []);
+
+  // New function to handle DocuSign connection
+  const connectDocuSign = useCallback(async (listingId) => {
+    try {
+      const response = await api.get(`/api/docusign/login?listingId=${listingId}`);
+      window.location.href = response.data.url;
+    } catch (error) {
+      console.error('Error initiating DocuSign connection:', error);
+      throw new Error('Failed to connect to DocuSign. Please try again.');
+    }
+  }, []);
 
   const value = {
     user,
@@ -96,7 +103,8 @@ export const AuthProvider = ({ children }) => {
     loading,
     docusignConnected,
     checkDocusignConnection,
-    setDocusignConnected, // Add this line to expose the setter function
+    setDocusignConnected,
+    connectDocuSign, // Add this new function to the context
   };
 
   return (
