@@ -1,4 +1,5 @@
 // config/docusign.js
+
 const docusign = require('docusign-esign');
 
 const dsConfig = {
@@ -13,12 +14,12 @@ const apiClient = new docusign.ApiClient();
 apiClient.setBasePath(dsConfig.basePath);
 
 const getOAuthLoginUrl = () => {
-  const scopes = ['signature', 'impersonation']; // Include impersonation scope
+  const scopes = 'signature impersonation';
   return apiClient.getAuthorizationUri({
-    response_type: 'code',
-    scope: scopes.join('+'),  // Ensure both scopes are passed correctly
-    client_id: dsConfig.clientId,
-    redirect_uri: dsConfig.redirectUri,  // Correctly pass redirect URI
+    responseType: 'code',
+    scope: scopes,
+    clientId: dsConfig.clientId,
+    redirectUri: dsConfig.redirectUri,
   });
 };
 
@@ -29,9 +30,7 @@ const getAccessTokenFromCode = async (code) => {
       dsConfig.clientSecret,
       code
     );
-    
-    console.log('DocuSign API Response:', results); // Log the entire response
-
+    console.log('DocuSign API Response:', results);
     if (results && results.body && results.body.access_token) {
       return results.body.access_token;
     } else {
