@@ -13,15 +13,14 @@ const apiClient = new docusign.ApiClient();
 apiClient.setBasePath(dsConfig.basePath);
 
 const getOAuthLoginUrl = () => {
-  const scopes = ['signature'];
+  const scopes = ['signature', 'impersonation']; // Include impersonation scope
   return apiClient.getAuthorizationUri({
     response_type: 'code',
-    scope: scopes.join(' '),
+    scope: scopes.join(' '),  // Ensure both scopes are passed correctly
     client_id: dsConfig.clientId,
-    redirect_uri: dsConfig.redirectUri, // Make sure this is correctly passed
+    redirect_uri: dsConfig.redirectUri,  // Correctly pass redirect URI
   });
 };
-
 
 const getAccessTokenFromCode = async (code) => {
   try {

@@ -42,6 +42,10 @@ exports.docusignCallback = async (req, res) => {
     // Redirect back to the listing page
     res.redirect(`${process.env.FRONTEND_URL}/mylisting/${listingId}?docusignConnected=true`);
   } catch (error) {
+    // Add better error handling for consent_required
+    if (error?.response?.body?.error === 'consent_required') {
+      console.error('User consent required for impersonation scope.');
+    }
     console.error('Error during DocuSign authentication:', error);
     res.status(500).json({
       message: 'Error during DocuSign authentication',
