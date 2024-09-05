@@ -1,38 +1,39 @@
 // config/docusign.js
 
 const docusign = require('docusign-esign');
+const crypto = require('crypto');
 
 const dsConfig = {
   clientId: process.env.DOCUSIGN_CLIENT_ID,
-  clientSecret: process.env.DOCUSIGN_CLIENT_SECRET,
   redirectUri: process.env.DOCUSIGN_REDIRECT_URI,
-  accountId: process.env.DOCUSIGN_ACCOUNT_ID,
   basePath: process.env.DOCUSIGN_BASE_PATH,
 };
 
 const apiClient = new docusign.ApiClient();
 apiClient.setBasePath(dsConfig.basePath);
 
-const getOAuthLoginUrl = () => {
-  const scopes = 'signature impersonation';
-  return apiClient.getAuthorizationUri({
-    responseType: 'code',
-    scope: scopes,
-    clientId: dsConfig.clientId,
-    redirectUri: dsConfig.redirectUri,
-  });
+const generateCodeVerifier = () => {
+  return crypto.randomBytes(32).toString('hex');
 };
 
-const getAccessTokenFromCode = async (code) => {
+const generateCodeChallenge = (verifier) => {
+  return crypto.createHash('sha256').update(verifier).digest('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+};
+
+const getOAuthLoginUrl = (codeChallenge) => {
+  const scopes = 'signature';
+  const authUrl = dsConfig.basePath.replace('/restapi', '');
+  return `${authUrl}/oauth/auth?response_type=code&scope=${scopes}&client_id=${dsConfig.clientId}&redirect_uri=${dsConfig.redirectUri}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+};
+
+const getAccessTokenFromCode = async (code, codeVerifier) => {
   try {
-    const results = await apiClient.generateAccessToken(
-      dsConfig.clientId,
-      dsConfig.clientSecret,
-      code
-    );
-    console.log('DocuSign API Response:', results);
-    if (results && results.body && results.body.access_token) {
-      return results.body.access_token;
+    const results = await apiClient.generateAccessToken(dsConfig.clientId, code, dsConfig.redirectUri, codeVerifier);
+    if (results && results.accessToken) {
+      return results.accessToken;
     } else {
       throw new Error('Access token not found in DocuSign response');
     }
@@ -45,4 +46,6 @@ const getAccessTokenFromCode = async (code) => {
 module.exports = {
   getOAuthLoginUrl,
   getAccessTokenFromCode,
+  generateCodeVerifier,
+  generateCodeChallenge,
 };

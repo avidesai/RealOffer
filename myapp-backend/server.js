@@ -1,7 +1,9 @@
 // server.js
+
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
@@ -17,7 +19,6 @@ const corsOptions = {
       'https://real-offer-eight.vercel.app',
       'https://real-offer-ja4izgjou-avidesais-projects.vercel.app',
     ];
-
     // Allow if origin is in the whitelist or it's undefined (e.g., local requests like curl)
     if (!origin || whitelist.indexOf(origin) !== -1) {
       callback(null, true);
@@ -44,15 +45,16 @@ app.use(express.json());
 // Session middleware configuration
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || 'mysecret',
+    secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
     cookie: {
-      secure: process.env.NODE_ENV === 'production', // Secure cookies in production
-      httpOnly: true, // Prevent client-side JavaScript from accessing the cookie
-      sameSite: 'none', // Necessary for cross-site requests
-      maxAge: 24 * 60 * 60 * 1000, // 1-day expiration for session cookies
-    },
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      sameSite: 'none',
+      maxAge: 24 * 60 * 60 * 1000 // 1 day
+    }
   })
 );
 
@@ -94,7 +96,12 @@ app.use('/api/docusign', docusignRouter);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('Error details:', {
+    message: err.message,
+    stack: err.stack,
+    path: req.path,
+    method: req.method,
+  });
   res.status(500).json({ message: 'Something went wrong!', error: err.message });
 });
 

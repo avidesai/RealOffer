@@ -1,56 +1,46 @@
 // controllers/DocuSignController.js
 
-const { getOAuthLoginUrl, getAccessTokenFromCode } = require('../config/docusign');
+const { getOAuthLoginUrl, getAccessTokenFromCode, generateCodeVerifier, generateCodeChallenge } = require('../config/docusign');
 
 exports.loginToDocuSign = (req, res) => {
   const { listingId } = req.query;
   if (!listingId) {
     return res.status(400).json({ message: 'Listing ID is required' });
   }
-
-  // Save the listingId in the session
+  const codeVerifier = generateCodeVerifier();
+  const codeChallenge = generateCodeChallenge(codeVerifier);
+  
   req.session.listingId = listingId;
-
-  const oauthUrl = getOAuthLoginUrl();
+  req.session.codeVerifier = codeVerifier;
+  
+  const oauthUrl = getOAuthLoginUrl(codeChallenge);
   res.redirect(oauthUrl);
 };
 
 exports.docusignCallback = async (req, res) => {
+  console.log('DocuSign callback:', req.query);
   const { code } = req.query;
-  if (!code) {
-    return res.status(400).json({ message: 'Authorization code is missing' });
+  const { codeVerifier, listingId } = req.session;
+  
+  if (!code || !codeVerifier) {
+    return res.status(400).json({ message: 'Authorization code or code verifier is missing' });
   }
-
+  
   try {
-    const accessToken = await getAccessTokenFromCode(code);
-    if (!accessToken) {
-      throw new Error('Failed to retrieve access token');
-    }
-
+    const accessToken = await getAccessTokenFromCode(code, codeVerifier);
     req.session.docusignAccessToken = accessToken;
     req.session.isDocuSignAuthenticated = true;
-
-    // Retrieve the listingId from the session and redirect the user
-    const listingId = req.session.listingId;
-    if (!listingId) {
-      throw new Error('Listing ID not found in session');
-    }
-
-    // Clear the listingId from the session
-    req.session.listingId = null;
-
-    // Redirect back to the listing page
+    
+    // Clear the codeVerifier and listingId from the session
+    delete req.session.codeVerifier;
+    delete req.session.listingId;
+    
     res.redirect(`${process.env.FRONTEND_URL}/mylisting/${listingId}?docusignConnected=true`);
   } catch (error) {
-    // Add better error handling for consent_required
-    if (error?.response?.body?.error === 'consent_required') {
-      console.error('User consent required for impersonation scope.');
-    }
     console.error('Error during DocuSign authentication:', error);
     res.status(500).json({
       message: 'Error during DocuSign authentication',
       error: error.message,
-      stack: error.stack
     });
   }
 };

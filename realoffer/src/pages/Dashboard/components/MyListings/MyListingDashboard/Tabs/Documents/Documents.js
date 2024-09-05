@@ -181,7 +181,7 @@ const Documents = ({ listingId }) => {
 
   const handleDocuSignLogin = () => {
     window.location.href = `${process.env.REACT_APP_BACKEND_URL}/api/docusign/login?listingId=${listingId}`;
-  };  
+  };
 
   return (
     <div className="documents-tab">
