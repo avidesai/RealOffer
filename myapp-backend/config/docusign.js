@@ -14,8 +14,14 @@ apiClient.setBasePath(dsConfig.basePath);
 
 const getOAuthLoginUrl = () => {
   const scopes = ['signature'];
-  return apiClient.getAuthorizationUri(dsConfig.clientId, scopes, dsConfig.redirectUri, 'code');
+  return apiClient.getAuthorizationUri({
+    response_type: 'code',
+    scope: scopes.join(' '),
+    client_id: dsConfig.clientId,
+    redirect_uri: dsConfig.redirectUri, // Make sure this is correctly passed
+  });
 };
+
 
 const getAccessTokenFromCode = async (code) => {
   try {
