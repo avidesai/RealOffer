@@ -16,7 +16,7 @@ const getOAuthLoginUrl = () => {
   const scopes = ['signature', 'impersonation']; // Include impersonation scope
   return apiClient.getAuthorizationUri({
     response_type: 'code',
-    scope: scopes.join(' '),  // Ensure both scopes are passed correctly
+    scope: scopes.join('+'),  // Ensure both scopes are passed correctly
     client_id: dsConfig.clientId,
     redirect_uri: dsConfig.redirectUri,  // Correctly pass redirect URI
   });
