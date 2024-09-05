@@ -13,16 +13,25 @@ exports.loginToDocuSign = (req, res) => {
   req.session.listingId = listingId;
   req.session.codeVerifier = codeVerifier;
   
-  const oauthUrl = getOAuthLoginUrl(codeChallenge);
-  res.json({ url: oauthUrl });
+  req.session.save((err) => {
+    if (err) {
+      console.error('Session save error:', err);
+      return res.status(500).json({ message: 'Error saving session' });
+    }
+    const oauthUrl = getOAuthLoginUrl(codeChallenge);
+    res.json({ url: oauthUrl });
+  });
 };
 
 exports.docusignCallback = async (req, res) => {
   console.log('DocuSign callback received:', req.query);
+  console.log('Session data:', req.session);
+  
   const { code } = req.query;
   const { codeVerifier, listingId } = req.session;
 
   if (!code || !codeVerifier) {
+    console.error('Missing code or codeVerifier', { code, codeVerifier, sessionData: req.session });
     return res.status(400).json({ message: 'Authorization code or code verifier is missing' });
   }
 
@@ -35,8 +44,14 @@ exports.docusignCallback = async (req, res) => {
     delete req.session.codeVerifier;
     delete req.session.listingId;
 
-    // Redirect to the frontend
-    res.redirect(`${process.env.FRONTEND_URL}/mylisting/${listingId}?docusignConnected=true`);
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ message: 'Error saving session' });
+      }
+      // Redirect to the frontend
+      res.redirect(`${process.env.FRONTEND_URL}/mylisting/${listingId}?docusignConnected=true`);
+    });
   } catch (error) {
     console.error('Error during DocuSign authentication:', error);
     res.redirect(`${process.env.FRONTEND_URL}/mylisting/${listingId}?docusignError=true`);
