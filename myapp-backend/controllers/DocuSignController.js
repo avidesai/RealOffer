@@ -14,7 +14,7 @@ exports.loginToDocuSign = (req, res) => {
   req.session.codeVerifier = codeVerifier;
   
   const oauthUrl = getOAuthLoginUrl(codeChallenge);
-  res.redirect(oauthUrl);
+  res.json({ url: oauthUrl });
 };
 
 exports.docusignCallback = async (req, res) => {

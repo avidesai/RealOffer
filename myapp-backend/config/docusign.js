@@ -25,8 +25,7 @@ const generateCodeChallenge = (verifier) => {
 
 const getOAuthLoginUrl = (codeChallenge) => {
   const scopes = 'signature';
-  const authUrl = dsConfig.basePath.replace('/restapi', '');
-  return `${authUrl}/oauth/auth?response_type=code&scope=${scopes}&client_id=${dsConfig.clientId}&redirect_uri=${dsConfig.redirectUri}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+  return `${dsConfig.basePath}/oauth/auth?response_type=code&scope=${scopes}&client_id=${dsConfig.clientId}&redirect_uri=${dsConfig.redirectUri}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
 };
 
 const getAccessTokenFromCode = async (code, codeVerifier) => {

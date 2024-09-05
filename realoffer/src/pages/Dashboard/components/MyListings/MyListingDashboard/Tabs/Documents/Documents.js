@@ -179,8 +179,14 @@ const Documents = ({ listingId }) => {
     }
   };
 
-  const handleDocuSignLogin = () => {
-    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/api/docusign/login?listingId=${listingId}`;
+  const handleDocuSignLogin = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/login?listingId=${listingId}`);
+      window.location.href = response.data.url;
+    } catch (error) {
+      console.error('Error initiating DocuSign login:', error);
+      alert('Failed to connect to DocuSign. Please try again.');
+    }
   };
 
   return (
