@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../../../../../context/AuthContext';
+import { useLocation } from 'react-router-dom';
 import './Documents.css';
 import UploadDocumentsLogic from './components/UploadDocuments/UploadDocumentsLogic';
 import PDFViewer from './components/PDFViewer/PDFViewer';
@@ -10,7 +11,7 @@ import CreateSignaturePackage from './components/CreateSignaturePackage/CreateSi
 import DocuSignLoginModal from './components/DocuSignLoginModal/DocuSignLoginModal';
 
 const Documents = ({ listingId }) => {
-  const { token, docusignConnected, checkDocusignConnection } = useAuth();
+  const { token, docusignConnected, checkDocusignConnection, setDocusignConnected } = useAuth();
   const [documents, setDocuments] = useState([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
@@ -22,6 +23,8 @@ const Documents = ({ listingId }) => {
   const [showSignaturePackageModal, setShowSignaturePackageModal] = useState(false);
   const [hasSignaturePackage, setHasSignaturePackage] = useState(false);
   const [showDocuSignLoginModal, setShowDocuSignLoginModal] = useState(false);
+
+  const location = useLocation();
 
   const fetchListingData = useCallback(async () => {
     try {
@@ -57,9 +60,28 @@ const Documents = ({ listingId }) => {
     if (token) {
       fetchListingData();
       fetchDocuments();
-      checkDocusignConnection(); // Check DocuSign connection status on load
+      checkDocusignConnection();
     }
   }, [fetchListingData, fetchDocuments, token, checkDocusignConnection]);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const docusignConnected = searchParams.get('docusignConnected');
+    const docusignError = searchParams.get('docusignError');
+
+    if (docusignConnected === 'true') {
+      setDocusignConnected(true);
+      checkDocusignConnection();
+      // You might want to show a success message to the user
+      alert('Successfully connected to DocuSign!');
+    }
+
+    if (docusignError === 'true') {
+      // Handle the error, maybe show an error message to the user
+      console.error('DocuSign connection failed');
+      alert('Failed to connect to DocuSign. Please try again.');
+    }
+  }, [location.search, setDocusignConnected, checkDocusignConnection]);
 
   const handleUploadClick = () => {
     setShowUploadModal(true);
