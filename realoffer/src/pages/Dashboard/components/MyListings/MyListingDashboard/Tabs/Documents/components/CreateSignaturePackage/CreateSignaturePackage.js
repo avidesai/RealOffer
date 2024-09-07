@@ -77,14 +77,14 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
       onClose();
       refreshDocuments();
     } catch (error) {
-      console.error('Error creating/updating buyer signature package:', error);
+      console.error('Error creating/updating disclosure signature packet:', error);
       // You might want to show an error message to the user here
     } finally {
       setIsLoading(false);
     }
   };
 
-  const buttonText = signaturePackage ? "Update Buyer Signature Packet" : "Create Buyer Signature Packet";
+  const buttonText = signaturePackage ? "Update Disclosure Signature Packet" : "Create Disclosure Signature Packet";
 
   return (
     isOpen && (

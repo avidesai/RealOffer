@@ -407,7 +407,7 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     }
 
     const pdfBytes = await mergedPdf.save();
-    const blobName = `documents/${uuidv4()}-BuyerSignaturePacket.pdf`;
+    const blobName = `documents/${uuidv4()}-DisclosureSignaturePacket.pdf`;
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
     await blockBlobClient.uploadData(pdfBytes);
 
@@ -423,8 +423,8 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     }
 
     const newDocument = new Document({
-      title: 'Buyer Signature Packet',
-      type: 'Signature Packet',
+      title: 'To Be Signed by Buyer (For Offer)',
+      type: 'Disclosure Signature Packet',
       size: pdfBytes.byteLength,
       pages: mergedPdf.getPageCount(),
       thumbnailUrl: blockBlobClient.url,
@@ -442,8 +442,8 @@ exports.createBuyerSignaturePacket = async (req, res) => {
 
     res.status(201).json(savedDocument);
   } catch (error) {
-    console.error('Error creating/updating buyer signature packet:', error);
-    res.status(500).json({ message: 'Error creating/updating buyer signature packet', error: error.message });
+    console.error('Error creating/updating disclosure signature packet:', error);
+    res.status(500).json({ message: 'Error creating/updating disclosure signature packet', error: error.message });
   }
 };
 
