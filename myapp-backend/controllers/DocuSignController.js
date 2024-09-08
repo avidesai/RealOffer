@@ -13,11 +13,14 @@ exports.loginToDocuSign = (req, res) => {
   req.session.listingId = listingId;
   req.session.codeVerifier = codeVerifier;
   
+  console.log('Session before save:', req.session);
+
   req.session.save((err) => {
     if (err) {
       console.error('Session save error:', err);
       return res.status(500).json({ message: 'Error saving session' });
     }
+    console.log('Session after save:', req.session);
     const oauthUrl = getOAuthLoginUrl(codeChallenge);
     res.json({ url: oauthUrl });
   });
@@ -25,14 +28,18 @@ exports.loginToDocuSign = (req, res) => {
 
 exports.docusignCallback = async (req, res) => {
   console.log('DocuSign callback received:', req.query);
-  console.log('Session data:', req.session);
+  console.log('Session data in callback:', req.session);
   
   const { code } = req.query;
   const { codeVerifier, listingId } = req.session;
 
-  if (!code || !codeVerifier) {
-    console.error('Missing code or codeVerifier', { code, codeVerifier, sessionData: req.session });
-    return res.status(400).json({ message: 'Authorization code or code verifier is missing' });
+  if (!code) {
+    return res.status(400).json({ message: 'Authorization code is missing' });
+  }
+
+  if (!codeVerifier) {
+    console.error('Code verifier is missing from session', { sessionData: req.session });
+    return res.status(400).json({ message: 'Code verifier is missing' });
   }
 
   try {
@@ -40,9 +47,8 @@ exports.docusignCallback = async (req, res) => {
     req.session.docusignAccessToken = accessToken;
     req.session.isDocuSignAuthenticated = true;
 
-    // Clear the codeVerifier and listingId from the session
+    // Clear the codeVerifier from the session
     delete req.session.codeVerifier;
-    delete req.session.listingId;
 
     req.session.save((err) => {
       if (err) {

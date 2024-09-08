@@ -10,6 +10,8 @@ import PDFViewer from './components/PDFViewer/PDFViewer';
 import CreateSignaturePackage from './components/CreateSignaturePackage/CreateSignaturePackage';
 import DocuSignLoginModal from './components/DocuSignLoginModal/DocuSignLoginModal';
 
+axios.defaults.withCredentials = true;
+
 const Documents = ({ listingId }) => {
   const { token, docusignConnected, checkDocusignConnection, setDocusignConnected } = useAuth();
   const [documents, setDocuments] = useState([]);
@@ -72,12 +74,10 @@ const Documents = ({ listingId }) => {
     if (docusignConnected === 'true') {
       setDocusignConnected(true);
       checkDocusignConnection();
-      // You might want to show a success message to the user
       alert('Successfully connected to DocuSign!');
     }
 
     if (docusignError === 'true') {
-      // Handle the error, maybe show an error message to the user
       console.error('DocuSign connection failed');
       alert('Failed to connect to DocuSign. Please try again.');
     }
@@ -190,7 +190,8 @@ const Documents = ({ listingId }) => {
       }, {
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        withCredentials: true
       });
 
       const { signingUrl } = response.data;
@@ -203,7 +204,9 @@ const Documents = ({ listingId }) => {
 
   const handleDocuSignLogin = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/login?listingId=${listingId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/login?listingId=${listingId}`, {
+        withCredentials: true
+      });
       window.location.href = response.data.url;
     } catch (error) {
       console.error('Error initiating DocuSign login:', error);
@@ -226,7 +229,7 @@ const Documents = ({ listingId }) => {
           </button>
         </div>
         <button className="signature-button" onClick={openSignaturePackageModal}>
-          {hasSignaturePackage ? "Update Buyer Signature Packet" : "Create Buyer Signature Packet"}
+          {hasSignaturePackage ? "Update Disclosure Signature Packet" : "Create Disclosure Signature Packet"}
         </button>
       </div>
       {loading ? (

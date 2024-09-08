@@ -11,26 +11,10 @@ const app = express();
 
 // CORS configuration
 const corsOptions = {
-  origin: function (origin, callback) {
-    const whitelist = [
-      'http://localhost:3000',
-      'https://realoffer.io',
-      'https://www.realoffer.io',
-      'https://real-offer-eight.vercel.app',
-      'https://real-offer-ja4izgjou-avidesais-projects.vercel.app',
-    ];
-    // Allow if origin is in the whitelist or it's undefined (e.g., local requests like curl)
-    if (!origin || whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.error(`Blocked by CORS: ${origin}`); // Log blocked origin for debugging
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: ['http://localhost:3000', 'https://www.realoffer.io', 'https://realoffer.io', 'https://real-offer-eight.vercel.app', 'https://real-offer-ja4izgjou-avidesais-projects.vercel.app'],
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true, // Allow credentials (cookies, headers) to be sent
-  optionsSuccessStatus: 204, // For legacy browser support
 };
 
 // Apply CORS middleware globally
@@ -46,9 +30,9 @@ app.use(express.json());
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true, // Change this to true
-    store: MongoStore.create({ 
+    resave: true,
+    saveUninitialized: true,
+    store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI,
       ttl: 24 * 60 * 60 // 1 day
     }),
