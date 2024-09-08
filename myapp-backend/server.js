@@ -26,12 +26,16 @@ app.options('*', cors(corsOptions));
 // JSON body parsing middleware
 app.use(express.json());
 
-// Session middleware configuration
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+
+app.set('trust proxy', 1); // trust first proxy
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI,
       ttl: 24 * 60 * 60 // 1 day

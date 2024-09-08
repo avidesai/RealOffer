@@ -31,7 +31,7 @@ exports.docusignCallback = async (req, res) => {
   console.log('Session data in callback:', req.session);
   
   const { code } = req.query;
-  const { codeVerifier, listingId } = req.session;
+  const { codeVerifier, listingId } = req.session || {};
 
   if (!code) {
     return res.status(400).json({ message: 'Authorization code is missing' });
