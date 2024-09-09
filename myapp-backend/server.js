@@ -57,9 +57,13 @@ app.use(
   })
 );
 
-// Middleware to log cookies
+// Middleware to log cookies and session details
 app.use((req, res, next) => {
   console.log('Cookies:', req.cookies); // Log the cookies sent with each request
+  res.on('finish', () => {
+    console.log('Session ID:', req.sessionID); // Log session ID for each request
+    console.log('Response Headers:', res.getHeaders()); // Log headers including cookies
+  });
   next();
 });
 
@@ -75,6 +79,16 @@ mongoose
 // Root route
 app.get('/', (req, res) => {
   res.send('Hello World');
+});
+
+// Test route for debugging session persistence
+app.get('/test-session', (req, res) => {
+  if (!req.session.testValue) {
+    req.session.testValue = 'Session is working!';
+  } else {
+    console.log('Session:', req.session);
+  }
+  res.json({ sessionValue: req.session.testValue });
 });
 
 // Route Imports
