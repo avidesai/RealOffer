@@ -11,7 +11,13 @@ const app = express();
 
 // CORS configuration
 const corsOptions = {
-  origin: ['http://localhost:3000', 'https://www.realoffer.io', 'https://realoffer.io', 'https://real-offer-eight.vercel.app', 'https://real-offer-ja4izgjou-avidesais-projects.vercel.app'],
+  origin: [
+    'http://localhost:3000', 
+    'https://www.realoffer.io', 
+    'https://realoffer.io', 
+    'https://real-offer-eight.vercel.app', 
+    'https://real-offer-ja4izgjou-avidesais-projects.vercel.app'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -28,6 +34,7 @@ app.use(express.json());
 
 app.set('trust proxy', 1); // trust first proxy
 
+// Session configuration
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -35,14 +42,14 @@ app.use(
     saveUninitialized: false,
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI,
-      ttl: 24 * 60 * 60 // 1 day
+      ttl: 24 * 60 * 60, // 1 day
     }),
     cookie: {
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production', // ensure secure cookies in production
       httpOnly: true,
       sameSite: 'none',
-      maxAge: 24 * 60 * 60 * 1000 // 1 day
-    }
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    },
   })
 );
 
