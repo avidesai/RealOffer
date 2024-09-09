@@ -3,6 +3,8 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
@@ -36,13 +38,16 @@ app.use(cookieParser());
 
 app.set('trust proxy', 1); // trust first proxy
 
-// Session configuration with MemoryStore for testing
+// Session configuration
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    store: new session.MemoryStore(), // Use in-memory session store for temporary testing
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+      ttl: 24 * 60 * 60, // 1 day
+    }),
     cookie: {
       secure: process.env.NODE_ENV === 'production', // This ensures secure cookies in production
       httpOnly: true,
@@ -61,6 +66,15 @@ app.use((req, res, next) => {
   });
   next();
 });
+
+// MongoDB connection
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB connected. We're live."))
+  .catch((err) => console.log('MongoDB connection error:', err));
 
 // Root route
 app.get('/', (req, res) => {
