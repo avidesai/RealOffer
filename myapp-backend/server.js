@@ -26,9 +26,6 @@ app.options('*', cors(corsOptions));
 // JSON body parsing middleware
 app.use(express.json());
 
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
-
 app.set('trust proxy', 1); // trust first proxy
 
 app.use(
