@@ -5,6 +5,7 @@ const express = require('express');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const app = express();
@@ -32,6 +33,9 @@ app.options('*', cors(corsOptions));
 // JSON body parsing middleware
 app.use(express.json());
 
+// Add cookie-parser middleware
+app.use(cookieParser());
+
 app.set('trust proxy', 1); // trust first proxy
 
 // Session configuration
@@ -49,7 +53,7 @@ app.use(
       httpOnly: true,
       sameSite: 'none',
       maxAge: 24 * 60 * 60 * 1000 // 1 day
-    },    
+    }
   })
 );
 

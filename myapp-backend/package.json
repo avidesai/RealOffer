@@ -17,6 +17,8 @@
     "@stripe/stripe-js": "^4.1.0",
     "aws-sdk": "^2.1659.0",
     "bcryptjs": "^2.4.3",
+    "connect-mongo": "^4.6.0",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "docusign-esign": "^8.0.1",
     "dotenv": "^16.4.5",
@@ -32,7 +34,6 @@
     "pdf-lib": "^1.17.1",
     "sanitize-html": "^2.13.0",
     "stripe": "^16.4.0",
-    "uuid": "^10.0.0",
-    "connect-mongo": "^4.6.0"
+    "uuid": "^10.0.0"
   }
 }
