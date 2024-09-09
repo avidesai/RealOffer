@@ -45,13 +45,19 @@ app.use(
       ttl: 24 * 60 * 60, // 1 day
     }),
     cookie: {
-      secure: process.env.NODE_ENV === 'production', // ensure secure cookies in production
+      secure: process.env.NODE_ENV === 'production', // This ensures secure cookies in production
       httpOnly: true,
       sameSite: 'none',
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    },
+      maxAge: 24 * 60 * 60 * 1000 // 1 day
+    },    
   })
 );
+
+// Middleware to log cookies
+app.use((req, res, next) => {
+  console.log('Cookies:', req.cookies); // Log the cookies sent with each request
+  next();
+});
 
 // MongoDB connection
 mongoose
