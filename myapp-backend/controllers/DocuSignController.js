@@ -56,12 +56,12 @@ exports.docusignCallback = async (req, res) => {
 
   if (!code) {
     console.error('Authorization code is missing in the callback query parameters.');
-    return res.status(400).json({ message: 'Authorization code is missing' });
+    return res.redirect(`${process.env.FRONTEND_URL}/mylisting/${listingId}?docusignError=true`);
   }
 
   if (!codeVerifier) {
     console.error('Code verifier is missing from cookies', { cookies: req.cookies });
-    return res.status(400).json({ message: 'Code verifier is missing' });
+    return res.redirect(`${process.env.FRONTEND_URL}/mylisting/${listingId}?docusignError=true`);
   }
 
   try {
@@ -74,7 +74,7 @@ exports.docusignCallback = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: 'None',
-      domain: '.realoffer.io', // Added domain attribute
+      domain: '.realoffer.io',
     });
 
     console.log('DocuSign Access Token obtained and stored in session.');
@@ -83,7 +83,7 @@ exports.docusignCallback = async (req, res) => {
     req.session.save((err) => {
       if (err) {
         console.error('Session save error:', err);
-        return res.status(500).json({ message: 'Error saving session' });
+        return res.redirect(`${process.env.FRONTEND_URL}/mylisting/${listingId}?docusignError=true`);
       }
       console.log('Session after saving:', req.session);
 
