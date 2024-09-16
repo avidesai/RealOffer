@@ -5,7 +5,7 @@ const crypto = require('crypto');
 
 const dsConfig = {
   clientId: process.env.DOCUSIGN_CLIENT_ID,
-  redirectUri: process.env.DOCUSIGN_REDIRECT_URI, // Ensure this is updated
+  redirectUri: process.env.DOCUSIGN_REDIRECT_URI,
   basePath: process.env.DOCUSIGN_BASE_PATH,
 };
 
@@ -35,19 +35,14 @@ const getOAuthLoginUrl = (codeChallenge, state) => {
 const getAccessTokenFromCode = async (code, codeVerifier) => {
   try {
     console.log('Attempting to get access token from DocuSign...');
-    const { OAuthToken } = docusign.ApiClient.OAuth;
     const results = await apiClient.generateAccessToken(
-      OAuthToken.GrantType.AUTHORIZATION_CODE,
-      {
-        code: code,
-        client_id: dsConfig.clientId,
-        code_verifier: codeVerifier,
-        redirect_uri: dsConfig.redirectUri
-      }
+      dsConfig.clientId,
+      code,
+      codeVerifier
     );
-    if (results && results.access_token) {
+    if (results && results.accessToken) {
       console.log('Access token successfully obtained from DocuSign.');
-      return results.access_token;
+      return results.accessToken;
     } else {
       throw new Error('Access token not found in DocuSign response');
     }
