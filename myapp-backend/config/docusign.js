@@ -35,25 +35,30 @@ const getOAuthLoginUrl = (codeChallenge, state) => {
   return url;
 };
 
-const getAccessTokenFromCode = async (code, codeVerifier) => {
-  try {
+const getAccessTokenFromCode = (code, codeVerifier) => {
+  return new Promise((resolve, reject) => {
     console.log('Attempting to get access token from DocuSign...');
-    const results = await apiClient.generateAccessToken(
+    apiClient.generateAccessToken(
       dsConfig.clientId,
       code,
       dsConfig.redirectUri,
-      codeVerifier
+      codeVerifier,
+      (error, results) => {
+        if (error) {
+          console.error('Error getting access token from DocuSign:', error);
+          return reject(error);
+        }
+        if (results && results.accessToken) {
+          console.log('Access token successfully obtained from DocuSign.');
+          resolve(results.accessToken);
+        } else {
+          const errMsg = 'Access token not found in DocuSign response';
+          console.error(errMsg);
+          reject(new Error(errMsg));
+        }
+      }
     );
-    if (results && results.accessToken) {
-      console.log('Access token successfully obtained from DocuSign.');
-      return results.accessToken;
-    } else {
-      throw new Error('Access token not found in DocuSign response');
-    }
-  } catch (error) {
-    console.error('Error getting access token from DocuSign:', error);
-    throw error;
-  }
+  });
 };
 
 module.exports = {
