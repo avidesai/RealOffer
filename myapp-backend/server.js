@@ -3,7 +3,8 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
-const MongoStore = require('connect-mongo');
+const RedisStore = require('connect-redis').default; // Updated to use connect-redis
+const { createClient } = require('redis'); // Import createClient from redis
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
@@ -13,11 +14,11 @@ const app = express();
 // CORS configuration
 const corsOptions = {
   origin: [
-    'http://localhost:3000', 
-    'https://www.realoffer.io', 
-    'https://realoffer.io', 
-    'https://real-offer-eight.vercel.app', 
-    'https://real-offer-ja4izgjou-avidesais-projects.vercel.app'
+    'http://localhost:3000',
+    'https://www.realoffer.io',
+    'https://realoffer.io',
+    'https://real-offer-eight.vercel.app',
+    'https://real-offer-ja4izgjou-avidesais-projects.vercel.app',
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -38,22 +39,37 @@ app.use(cookieParser());
 
 app.set('trust proxy', 1); // trust first proxy
 
+// Create a Redis client
+let redisClient = createClient({
+  url: process.env.REDIS_URL, // Ensure this is set in your .env file
+});
+
+// Handle Redis client errors
+redisClient.on('error', (err) => console.log('Redis Client Error', err));
+
+// Connect to Redis
+redisClient.connect().catch(console.error);
+
+// Create a Redis store
+let redisStore = new RedisStore({
+  client: redisClient,
+  prefix: 'myapp:', // Optional, customize as needed
+});
+
 // Session configuration
 app.use(
   session({
+    store: redisStore, // Use Redis store instead of Mongo store
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: process.env.MONGO_URI,
-      ttl: 24 * 60 * 60, // 1 day
-    }),
+    proxy: true, // If your app is behind a proxy/load balancer
     cookie: {
-      secure: process.env.NODE_ENV === 'production', // This ensures secure cookies in production
+      secure: process.env.NODE_ENV === 'production', // Set to true if using HTTPS
       httpOnly: true,
-      sameSite: 'none',
-      maxAge: 24 * 60 * 60 * 1000 // 1 day
-    }
+      sameSite: 'none', // Adjust as per your requirements
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    },
   })
 );
 
