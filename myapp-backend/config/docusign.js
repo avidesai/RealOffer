@@ -13,17 +13,14 @@ const apiClient = new docusign.ApiClient();
 apiClient.setBasePath(dsConfig.basePath);
 
 const generateCodeVerifier = () => {
-  return crypto.randomBytes(32).toString('hex');
+  return crypto.randomBytes(64).toString('base64url');
 };
 
 const generateCodeChallenge = (verifier) => {
   return crypto
     .createHash('sha256')
     .update(verifier)
-    .digest('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
+    .digest('base64url');
 };
 
 const getOAuthLoginUrl = (codeChallenge, state) => {
@@ -35,30 +32,24 @@ const getOAuthLoginUrl = (codeChallenge, state) => {
   return url;
 };
 
-const getAccessTokenFromCode = (code, codeVerifier) => {
-  return new Promise((resolve, reject) => {
+const getAccessTokenFromCode = async (code, codeVerifier) => {
+  try {
     console.log('Attempting to get access token from DocuSign...');
-    apiClient.generateAccessToken(
+    const results = await apiClient.generateAccessTokenPKCE(
       dsConfig.clientId,
       code,
-      dsConfig.redirectUri,
-      codeVerifier,
-      (error, results) => {
-        if (error) {
-          console.error('Error getting access token from DocuSign:', error);
-          return reject(error);
-        }
-        if (results && results.accessToken) {
-          console.log('Access token successfully obtained from DocuSign.');
-          resolve(results.accessToken);
-        } else {
-          const errMsg = 'Access token not found in DocuSign response';
-          console.error(errMsg);
-          reject(new Error(errMsg));
-        }
-      }
+      codeVerifier
     );
-  });
+    if (results && results.accessToken) {
+      console.log('Access token successfully obtained from DocuSign.');
+      return results.accessToken;
+    } else {
+      throw new Error('Access token not found in DocuSign response');
+    }
+  } catch (error) {
+    console.error('Error getting access token from DocuSign:', error);
+    throw error;
+  }
 };
 
 module.exports = {
