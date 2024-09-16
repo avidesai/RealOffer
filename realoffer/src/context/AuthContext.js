@@ -88,7 +88,8 @@ export const AuthProvider = ({ children }) => {
   const connectDocuSign = useCallback(async (listingId) => {
     try {
       const response = await api.get(`/api/docusign/login?listingId=${listingId}`);
-      window.location.href = response.data.url;
+      // Redirect the user to the DocuSign login URL
+      window.location.href = response.request.responseURL;
     } catch (error) {
       console.error('Error initiating DocuSign connection:', error);
       throw new Error('Failed to connect to DocuSign. Please try again.');

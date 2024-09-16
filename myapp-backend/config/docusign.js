@@ -5,7 +5,7 @@ const crypto = require('crypto');
 
 const dsConfig = {
   clientId: process.env.DOCUSIGN_CLIENT_ID,
-  redirectUri: process.env.DOCUSIGN_REDIRECT_URI,
+  redirectUri: process.env.DOCUSIGN_REDIRECT_URI, // Ensure this is updated
   basePath: process.env.DOCUSIGN_BASE_PATH,
 };
 

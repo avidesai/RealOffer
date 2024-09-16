@@ -23,6 +23,7 @@ exports.loginToDocuSign = (req, res) => {
     httpOnly: true,
     secure: true,
     sameSite: 'None',
+    domain: '.realoffer.io', // Added domain attribute
     maxAge: 15 * 60 * 1000, // 15 minutes
   });
 
@@ -74,6 +75,7 @@ exports.docusignCallback = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: 'None',
+      domain: '.realoffer.io', // Added domain attribute
     });
 
     console.log('DocuSign Access Token obtained and stored in session.');

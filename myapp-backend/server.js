@@ -12,15 +12,21 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const app = express();
 
 // CORS configuration
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://www.realoffer.io',
+  'https://realoffer.io',
+];
+
 const corsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'https://www.realoffer.io',
-    'https://realoffer.io',
-    'https://real-offer-eight.vercel.app',
-    'https://real-offer-ja4izgjou-avidesais-projects.vercel.app',
-  ],
-  credentials: true,
+  origin: function (origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, // Allow credentials (cookies, authorization headers, TLS client certificates)
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
@@ -37,7 +43,7 @@ app.use(express.json());
 // Add cookie-parser middleware
 app.use(cookieParser());
 
-app.set('trust proxy', 1); // trust first proxy
+app.set('trust proxy', 1); // Trust first proxy (necessary when behind a proxy like Render)
 
 // Create a Redis client
 let redisClient = createClient({
@@ -59,15 +65,16 @@ let redisStore = new RedisStore({
 // Session configuration
 app.use(
   session({
-    store: redisStore, // Use Redis store instead of Mongo store
+    store: redisStore, // Use Redis store
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    proxy: true, // Important if behind a proxy like Render
+    proxy: true, // Necessary when using secure cookies behind a proxy
     cookie: {
-      secure: true, // Must be true if SameSite=None
+      domain: '.realoffer.io', // Allows cookies to be valid for all subdomains
+      secure: true, // Ensures cookies are only sent over HTTPS
       httpOnly: true,
-      sameSite: 'None', // 'None' allows cookies to be sent in cross-site requests
+      sameSite: 'None', // Allows cookies to be sent in cross-site requests
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     },
   })
