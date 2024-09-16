@@ -3,7 +3,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://realoffer.onrender.com', // Ensure the correct base URL is set here
+  baseURL: process.env.REACT_APP_BACKEND_URL, // Use the environment variable here
   withCredentials: true, // Include credentials in cross-site requests
 });
 
