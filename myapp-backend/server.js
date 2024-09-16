@@ -59,7 +59,7 @@ let redisStore = new RedisStore({
 // Session configuration
 app.use(
   session({
-    store: redisStore, // or your session store
+    store: redisStore, // Use Redis store instead of Mongo store
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
@@ -67,7 +67,7 @@ app.use(
     cookie: {
       secure: true, // Must be true if SameSite=None
       httpOnly: true,
-      sameSite: 'none', // 'none' allows cookies to be sent in cross-site requests
+      sameSite: 'None', // 'None' allows cookies to be sent in cross-site requests
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     },
   })
@@ -75,10 +75,16 @@ app.use(
 
 // Middleware to log cookies and session details
 app.use((req, res, next) => {
+  console.log('--- Request Start ---');
+  console.log('Request URL:', req.originalUrl);
+  console.log('Request Method:', req.method);
   console.log('Cookies:', req.cookies); // Log the cookies sent with each request
+  console.log('Session ID:', req.sessionID); // Log session ID for each request
+  console.log('Session Data:', req.session); // Log session data
   res.on('finish', () => {
-    console.log('Session ID:', req.sessionID); // Log session ID for each request
+    console.log('Response Status Code:', res.statusCode);
     console.log('Response Headers:', res.getHeaders()); // Log headers including cookies
+    console.log('--- Request End ---\n');
   });
   next();
 });

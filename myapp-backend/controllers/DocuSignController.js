@@ -1,48 +1,65 @@
 // controllers/DocuSignController.js
 
-const { getOAuthLoginUrl, getAccessTokenFromCode, generateCodeVerifier, generateCodeChallenge } = require('../config/docusign');
+const {
+  getOAuthLoginUrl,
+  getAccessTokenFromCode,
+  generateCodeVerifier,
+  generateCodeChallenge,
+} = require('../config/docusign');
 
-// Ensure session is saved before redirecting to DocuSign
+// Initiate DocuSign login
 exports.loginToDocuSign = (req, res) => {
   const { listingId } = req.query;
   if (!listingId) {
+    console.error('Listing ID is missing in request query.');
     return res.status(400).json({ message: 'Listing ID is required' });
   }
 
   const codeVerifier = generateCodeVerifier();
   const codeChallenge = generateCodeChallenge(codeVerifier);
 
-  req.session.listingId = listingId;
-  req.session.codeVerifier = codeVerifier;
-
-  console.log('Session before save:', req.session); // Log the session before saving
-
-  req.session.save((err) => {
-    if (err) {
-      console.error('Session save error:', err);
-      return res.status(500).json({ message: 'Error saving session' });
-    }
-    console.log('Session after save:', req.session); // Log the session after saving to verify
-
-    const oauthUrl = getOAuthLoginUrl(codeChallenge);
-    res.json({ url: oauthUrl });
+  // Store codeVerifier in an HTTP-only, secure cookie
+  res.cookie('codeVerifier', codeVerifier, {
+    httpOnly: true,
+    secure: true, // Ensure this is true in production
+    sameSite: 'None',
+    maxAge: 15 * 60 * 1000, // 15 minutes
   });
+
+  // Include listingId in the state parameter
+  const state = listingId;
+
+  console.log('--- DocuSign Login Start ---');
+  console.log('Code Verifier generated and stored in cookie:', codeVerifier);
+  console.log('Listing ID included in state parameter:', state);
+
+  const oauthUrl = getOAuthLoginUrl(codeChallenge, state);
+  console.log('Redirecting user to DocuSign OAuth URL:', oauthUrl);
+
+  res.json({ url: oauthUrl });
 };
 
-// Debugging session on DocuSign callback
+// Handle DocuSign OAuth callback
 exports.docusignCallback = async (req, res) => {
-  console.log('DocuSign callback received:', req.query); // Log the callback query params
-  console.log('Session data in callback:', req.session); // Log the session data on callback
+  console.log('--- DocuSign Callback Start ---');
+  console.log('DocuSign callback received:', req.query);
+  console.log('Cookies received in callback:', req.cookies);
 
-  const { code } = req.query;
-  const { codeVerifier, listingId } = req.session || {};
+  const { code, state } = req.query;
+  const codeVerifier = req.cookies.codeVerifier;
+  const listingId = state; // Retrieve listingId from the state parameter
+
+  console.log('Authorization code from query:', code);
+  console.log('State (listingId) from query:', listingId);
+  console.log('Code Verifier from cookie:', codeVerifier);
 
   if (!code) {
+    console.error('Authorization code is missing in the callback query parameters.');
     return res.status(400).json({ message: 'Authorization code is missing' });
   }
 
   if (!codeVerifier) {
-    console.error('Code verifier is missing from session', { sessionData: req.session });
+    console.error('Code verifier is missing from cookies', { cookies: req.cookies });
     return res.status(400).json({ message: 'Code verifier is missing' });
   }
 
@@ -51,24 +68,40 @@ exports.docusignCallback = async (req, res) => {
     req.session.docusignAccessToken = accessToken;
     req.session.isDocuSignAuthenticated = true;
 
-    // Clear the codeVerifier from the session
-    delete req.session.codeVerifier;
+    // Clear the codeVerifier from the cookies
+    res.clearCookie('codeVerifier', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'None',
+    });
+
+    console.log('DocuSign Access Token obtained and stored in session.');
+    console.log('Session Data after storing access token:', req.session);
 
     req.session.save((err) => {
       if (err) {
         console.error('Session save error:', err);
         return res.status(500).json({ message: 'Error saving session' });
       }
+      console.log('Session after saving:', req.session);
+
       // Redirect to the frontend
-      res.redirect(`${process.env.FRONTEND_URL}/mylisting/${listingId}?docusignConnected=true`);
+      const redirectUrl = `${process.env.FRONTEND_URL}/mylisting/${listingId}?docusignConnected=true`;
+      console.log('Redirecting user to:', redirectUrl);
+      res.redirect(redirectUrl);
     });
   } catch (error) {
     console.error('Error during DocuSign authentication:', error);
-    res.redirect(`${process.env.FRONTEND_URL}/mylisting/${listingId}?docusignError=true`);
+    const redirectUrl = `${process.env.FRONTEND_URL}/mylisting/${listingId}?docusignError=true`;
+    console.log('Redirecting user to error page:', redirectUrl);
+    res.redirect(redirectUrl);
   }
 };
 
+// Check DocuSign connection status
 exports.checkDocuSignStatus = (req, res) => {
+  console.log('--- Check DocuSign Status ---');
+  console.log('Session Data:', req.session);
   const isConnected = req.session.isDocuSignAuthenticated || false;
   res.json({ connected: isConnected });
 };
