@@ -21,7 +21,7 @@ exports.loginToDocuSign = (req, res) => {
   // Store codeVerifier in an HTTP-only, secure cookie
   res.cookie('codeVerifier', codeVerifier, {
     httpOnly: true,
-    secure: true, // Ensure this is true in production
+    secure: true,
     sameSite: 'None',
     maxAge: 15 * 60 * 1000, // 15 minutes
   });
@@ -36,7 +36,8 @@ exports.loginToDocuSign = (req, res) => {
   const oauthUrl = getOAuthLoginUrl(codeChallenge, state);
   console.log('Redirecting user to DocuSign OAuth URL:', oauthUrl);
 
-  res.json({ url: oauthUrl });
+  // Redirect the user to DocuSign
+  res.redirect(oauthUrl);
 };
 
 // Handle DocuSign OAuth callback
