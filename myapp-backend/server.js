@@ -59,15 +59,15 @@ let redisStore = new RedisStore({
 // Session configuration
 app.use(
   session({
-    store: redisStore, // Use Redis store instead of Mongo store
+    store: redisStore, // or your session store
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    proxy: true, // If your app is behind a proxy/load balancer
+    proxy: true, // Important if behind a proxy like Render
     cookie: {
-      secure: process.env.NODE_ENV === 'production', // Set to true if using HTTPS
+      secure: true, // Must be true if SameSite=None
       httpOnly: true,
-      sameSite: 'none', // Adjust as per your requirements
+      sameSite: 'none', // 'none' allows cookies to be sent in cross-site requests
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     },
   })
