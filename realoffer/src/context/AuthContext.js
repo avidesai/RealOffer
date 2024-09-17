@@ -15,18 +15,34 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [docusignConnected, setDocusignConnected] = useState(false);
 
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user'));
+  const checkAuthStatus = useCallback(async () => {
     const storedToken = localStorage.getItem('token');
-    const docusignStatus = localStorage.getItem('docusignConnected') === 'true';
-    if (storedUser && storedToken) {
-      setUser(storedUser);
-      setToken(storedToken);
-      setDocusignConnected(docusignStatus);
-      api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+    if (storedToken) {
+      try {
+        const response = await api.get('/api/users/me', {
+          headers: { Authorization: `Bearer ${storedToken}` }
+        });
+        if (response.data && response.data.user) {
+          setUser(response.data.user);
+          setToken(storedToken);
+          api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+          setDocusignConnected(localStorage.getItem('docusignConnected') === 'true');
+        } else {
+          throw new Error('Invalid user data');
+        }
+      } catch (error) {
+        console.error('Error verifying token:', error);
+        logout();
+      }
+    } else {
+      logout();
     }
     setLoading(false);
   }, []);
+
+  useEffect(() => {
+    checkAuthStatus();
+  }, [checkAuthStatus]);
 
   const login = async (email, password) => {
     try {
@@ -84,11 +100,9 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // New function to handle DocuSign connection
   const connectDocuSign = useCallback(async (listingId) => {
     try {
       const response = await api.get(`/api/docusign/login?listingId=${listingId}`);
-      // Redirect the user to the DocuSign login URL
       window.location.href = response.request.responseURL;
     } catch (error) {
       console.error('Error initiating DocuSign connection:', error);
@@ -105,7 +119,8 @@ export const AuthProvider = ({ children }) => {
     docusignConnected,
     checkDocusignConnection,
     setDocusignConnected,
-    connectDocuSign, // Add this new function to the context
+    connectDocuSign,
+    checkAuthStatus,
   };
 
   return (
