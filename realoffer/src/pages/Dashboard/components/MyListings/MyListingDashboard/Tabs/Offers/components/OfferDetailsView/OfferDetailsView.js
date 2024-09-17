@@ -11,44 +11,43 @@ import Documents from './components/Documents/Documents';
 import PrivateNotes from './components/PrivateNotes/PrivateNotes';
 
 const OfferDetailsView = ({ offerId, onBack }) => {
-  const { token } = useAuth(); // Get the token from AuthContext
-  const [offer, setOffer] = useState(null); // Initialize offer as null
+  const { token } = useAuth();
+  const [offer, setOffer] = useState(null);
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchOffer = async () => {
+      console.log('Fetching offer details for ID:', offerId); // Debugging log
       try {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offerId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-  
+
         if (!response.data) {
           throw new Error('Offer not found');
         }
-  
+
         const offerData = response.data;
         setOffer(offerData);
-  
-        // Fetch documents for the offer only if offer is valid
+
         const documentsResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/offer/${offerId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         offerData.documents = documentsResponse.data;
-  
+
       } catch (error) {
-        console.error('Error fetching offer:', error.message);
+        console.error('Error fetching offer:', error.response?.data || error.message);
         setError('Error fetching offer details');
       } finally {
         setLoading(false);
       }
     };
-  
-    fetchOffer();
-  }, [offerId, token]);  
 
-  // Handle notes change and save
+    fetchOffer();
+  }, [offerId, token]);
+
   const handleNotesChange = (event) => {
     setNotes(event.target.value);
   };
@@ -65,7 +64,6 @@ const OfferDetailsView = ({ offerId, onBack }) => {
     }
   };
 
-  // Handle loading and error state
   if (loading) {
     return <div className="spinner-container"><div className="spinner"></div></div>;
   }

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import './OfferCard.css';
 import axios from 'axios';
-import { useAuth } from '../../../../../../../../../context/AuthContext'; // Adjust the path as needed
+import { useAuth } from '../../../../../../../../../context/AuthContext';
 
 const formatPhoneNumber = (phoneNumber) => {
   const cleaned = ('' + phoneNumber).replace(/\D/g, '');
@@ -43,7 +43,7 @@ const getStatusStyle = (status) => {
 };
 
 const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
-  const { token } = useAuth(); // Get the token from AuthContext
+  const { token } = useAuth();
   const [notes, setNotes] = useState(offer.privateListingTeamNotes || '');
   const [status, setStatus] = useState(offer.offerStatus);
 
@@ -68,7 +68,7 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
   };
 
   const handleViewClick = async () => {
-    console.log("Viewing Offer ID:", offer._id); // Check the offerId here
+    console.log("Viewing Offer ID:", offer._id); 
     if (status === 'submitted') {
       try {
         const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/status`, {
@@ -78,7 +78,7 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
         });
         const updatedOffer = response.data;
         setStatus(updatedOffer.offerStatus);
-        onUpdate(updatedOffer); // Notify parent component of the update
+        onUpdate(updatedOffer);
       } catch (error) {
         console.error('Error updating offer status:', error);
       }
@@ -92,20 +92,12 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
 
   const statusStyle = getStatusStyle(status);
 
-  const agentAvatarStyle = {
-    backgroundColor: offer.presentedBy.agentImageBackgroundColor || '#007bff',
-  };
-
-  const formatContingency = (contingencyDays) => {
-    return contingencyDays >= 1 ? `${contingencyDays} Days` : 'Waived';
-  };
-
   return (
     <div className="offer-card">
       <div className="offer-card-header">
         <div
           className="offer-avatar"
-          style={offer.presentedBy.agentImageUrl ? {} : agentAvatarStyle}
+          style={offer.presentedBy.agentImageUrl ? {} : { backgroundColor: offer.presentedBy.agentImageBackgroundColor || '#007bff' }}
         >
           {offer.presentedBy.agentImageUrl ? (
             <img
@@ -139,11 +131,11 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
           <p><strong>Loan Amount</strong> <span>${offer.loanAmount.toLocaleString()}</span></p>
           <p><strong>Percent Down</strong> <span>{offer.percentDown}%</span></p>
           <p><strong>Down Payment</strong> <span>${offer.downPayment.toLocaleString()}</span></p>
-          <p><strong>Finance Contingency</strong> <span>{formatContingency(offer.financeContingencyDays)}</span></p>
-          <p><strong>Appraisal Contingency</strong> <span>{formatContingency(offer.appraisalContingencyDays)}</span></p>
-          <p><strong>Inspection Contingency</strong> <span>{formatContingency(offer.inspectionContingencyDays)}</span></p>
+          <p><strong>Finance Contingency</strong> <span>{offer.financeContingencyDays} Days</span></p>
+          <p><strong>Appraisal Contingency</strong> <span>{offer.appraisalContingencyDays} Days</span></p>
+          <p><strong>Inspection Contingency</strong> <span>{offer.inspectionContingencyDays} Days</span></p>
           <p><strong>Home Sale Contingency</strong> <span>{offer.homeSaleContingency}</span></p>
-          <p><strong>Seller Rent Back</strong> <span>{formatContingency(offer.sellerRentBack)}</span></p>
+          <p><strong>Seller Rent Back</strong> <span>{offer.sellerRentBack} Days</span></p>
           <p><strong>Close of Escrow</strong> <span>{offer.closeOfEscrow} Days</span></p>
           <p><strong>Offer Made</strong> <span>{formatDateTime(offer.submittedOn)}</span></p>
           <p><strong>Offer Expiry</strong> <span>{formatDateTime(offer.offerExpiryDate)}</span></p>

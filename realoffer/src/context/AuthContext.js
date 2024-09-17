@@ -43,16 +43,8 @@ export const AuthProvider = ({ children }) => {
         throw new Error('Invalid login response from server');
       }
     } catch (error) {
-      if (error.response) {
-        console.error('Error response from server:', error.response);
-        throw new Error(error.response.data.message || 'Login failed. Please try again.');
-      } else if (error.request) {
-        console.error('No response received:', error.request);
-        throw new Error('No response from the server. Check your network.');
-      } else {
-        console.error('Login error:', error.message);
-        throw new Error('An unexpected error occurred. Please try again.');
-      }
+      console.error('Login error:', error.response?.data || error.message);
+      throw new Error(error.response?.data?.message || 'Login failed. Please try again.');
     }
   };
 
