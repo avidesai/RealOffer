@@ -84,12 +84,18 @@ exports.getOfferById = async (req, res) => {
         { 'propertyListing.createdBy': req.user.id }
       ]
     }).populate('buyersAgent').populate('propertyListing');
-    if (!offer) return res.status(404).json({ message: 'Offer not found or you do not have permission to view it' });
+    
+    if (!offer) {
+      return res.status(404).json({ message: 'Offer not found' });
+    }
+
     res.status(200).json(offer);
   } catch (error) {
+    console.error('Error fetching offer by ID:', error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 exports.updateOffer = async (req, res) => {
   try {

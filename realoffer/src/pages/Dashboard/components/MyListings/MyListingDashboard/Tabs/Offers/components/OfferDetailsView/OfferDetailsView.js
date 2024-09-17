@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import './OfferDetailsView.css';
 import axios from 'axios';
-import { useAuth } from '../../../../../../../../../context/AuthContext'; // Adjust the path as needed
+import { useAuth } from '../../../../../../../../../context/AuthContext';
 import Terms from './components/Terms/Terms';
 import AgentInfo from './components/AgentInfo/AgentInfo';
 import Messages from './components/Messages/Messages';
@@ -12,9 +12,10 @@ import PrivateNotes from './components/PrivateNotes/PrivateNotes';
 
 const OfferDetailsView = ({ offerId, onBack }) => {
   const { token } = useAuth(); // Get the token from AuthContext
-  const [offer, setOffer] = useState(null);
+  const [offer, setOffer] = useState(null); // Initialize offer as null
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchOffer = async () => {
@@ -22,17 +23,19 @@ const OfferDetailsView = ({ offerId, onBack }) => {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offerId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        console.log('API response:', response.data); // Add this line
         const offerData = response.data;
-        // Fetch documents for the offer
+
+        // Fetch documents related to the offer
         const documentsResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/offer/${offerId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         offerData.documents = documentsResponse.data;
-        setOffer(offerData);
+
+        setOffer(offerData);  // Successfully set offer data
         setNotes(offerData.privateListingTeamNotes || '');
       } catch (error) {
         console.error('Error fetching offer:', error);
+        setError('Error fetching offer details.');
       } finally {
         setLoading(false);
       }
@@ -40,6 +43,7 @@ const OfferDetailsView = ({ offerId, onBack }) => {
     fetchOffer();
   }, [offerId, token]);
 
+  // Handle notes change and save
   const handleNotesChange = (event) => {
     setNotes(event.target.value);
   };
@@ -56,8 +60,17 @@ const OfferDetailsView = ({ offerId, onBack }) => {
     }
   };
 
+  // Handle loading and error state
   if (loading) {
     return <div className="spinner-container"><div className="spinner"></div></div>;
+  }
+
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
+
+  if (!offer) {
+    return <div className="error-message">Offer not found.</div>;
   }
 
   return (
