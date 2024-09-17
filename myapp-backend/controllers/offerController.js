@@ -18,8 +18,7 @@ exports.uploadOfferDocuments = upload.array('documents', 10);
 // Create a new offer
 exports.createOffer = async (req, res) => {
   try {
-    console.log('Request Body:', req.body);
-    console.log('Authenticated User:', req.user);
+    console.log('Request Body:', req.body); // Debugging
 
     const propertyListingId = req.body.propertyListing;
     if (!mongoose.Types.ObjectId.isValid(propertyListingId)) {
@@ -33,10 +32,9 @@ exports.createOffer = async (req, res) => {
 
     const offerData = {
       ...req.body,
-      buyersAgent: req.user.id,
       offerExpiryDate: req.body.offerExpiryDate,
       sellerRentBack: req.body.sellerRentBack,
-      sellerRentBackDays: req.body.sellerRentBackDays,
+      sellerRentBackDays: req.body.sellerRentBackDays, // Ensure this is included
       'buyerDetails.buyerName': req.body.buyerName,
     };
 
@@ -48,6 +46,7 @@ exports.createOffer = async (req, res) => {
       { $push: { offers: offer._id } }
     );
 
+    // Update the documents with the new offer ID
     const documentIds = req.body.documents;
     await Document.updateMany(
       { _id: { $in: documentIds } },
@@ -60,82 +59,63 @@ exports.createOffer = async (req, res) => {
   }
 };
 
+// Get all offers for a specific listing
 exports.getOffersByListing = async (req, res) => {
   try {
-    const offers = await Offer.find({ 
-      propertyListing: req.params.listingId,
-      $or: [
-        { buyersAgent: req.user.id },
-        { 'propertyListing.createdBy': req.user.id }
-      ]
-    }).populate('buyersAgent').populate('propertyListing');
+    const offers = await Offer.find({ propertyListing: req.params.listingId }).populate('buyersAgent').populate('propertyListing');
     res.status(200).json(offers);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+// Get a specific offer
 exports.getOfferById = async (req, res) => {
   try {
-    const offer = await Offer.findOne({
-      _id: req.params.id,
-      $or: [
-        { buyersAgent: req.user.id },
-        { 'propertyListing.createdBy': req.user.id }
-      ]
-    }).populate('buyersAgent').populate('propertyListing');
-
-    if (!offer) {
-      console.log(`Offer not found for id: ${req.params.id}`);
-      return res.status(404).json({ message: 'Offer not found' });
-    }
-
-    res.status(200).json(offer);
-  } catch (error) {
-    console.error('Error fetching offer by ID:', error);
-    res.status(500).json({ message: 'Error fetching offer', error: error.message });
-  }
-};
-
-
-
-exports.updateOffer = async (req, res) => {
-  try {
-    const offer = await Offer.findOneAndUpdate(
-      { _id: req.params.id, buyersAgent: req.user.id },
-      req.body,
-      { new: true, runValidators: true }
-    );
-    if (!offer) return res.status(404).json({ message: 'Offer not found or you do not have permission to update it' });
+    const offer = await Offer.findById(req.params.id).populate('buyersAgent').populate('propertyListing');
+    if (!offer) return res.status(404).json({ message: 'Offer not found' });
     res.status(200).json(offer);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+// Update a specific offer
+exports.updateOffer = async (req, res) => {
+  try {
+    const offer = await Offer.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!offer) return res.status(404).json({ message: 'Offer not found' });
+    res.status(200).json(offer);
+  } catch (error) {
+    res.status500().json({ message: error.message });
+  }
+};
+
+// Delete a specific offer
 exports.deleteOffer = async (req, res) => {
   try {
-    const offer = await Offer.findOneAndDelete({ _id: req.params.id, buyersAgent: req.user.id });
-    if (!offer) return res.status(404).json({ message: 'Offer not found or you do not have permission to delete it' });
+    const offer = await Offer.findByIdAndDelete(req.params.id);
+    if (!offer) return res.status(404).json({ message: 'Offer not found' });
     res.status(200).json({ message: 'Offer deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+// Update the private listing team notes
 exports.updatePrivateNotes = async (req, res) => {
   try {
     const { id } = req.params;
     const { privateListingTeamNotes } = req.body;
 
-    const offer = await Offer.findOneAndUpdate(
-      { _id: id, 'propertyListing.createdBy': req.user.id },
+    const offer = await Offer.findByIdAndUpdate(
+      id,
       { privateListingTeamNotes },
       { new: true, runValidators: true }
     );
 
     if (!offer) {
-      return res.status(404).json({ message: 'Offer not found or you do not have permission to update it' });
+      return res.status(404).json({ message: 'Offer not found' });
     }
 
     res.status(200).json(offer);
@@ -144,29 +124,24 @@ exports.updatePrivateNotes = async (req, res) => {
   }
 };
 
+// Update the status of a specific offer
 exports.updateOfferStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { offerStatus } = req.body;
 
-    console.log('Updating offer status:', id, offerStatus, req.user.id); // Add this log
-
-    const offer = await Offer.findOneAndUpdate(
-      { 
-        _id: id, 
-        'propertyListing.createdBy': req.user.id
-      },
+    const offer = await Offer.findByIdAndUpdate(
+      id,
       { offerStatus },
       { new: true, runValidators: true }
     );
 
     if (!offer) {
-      return res.status(404).json({ message: 'Offer not found or you do not have permission to update it' });
+      return res.status(404).json({ message: 'Offer not found' });
     }
 
     res.status(200).json(offer);
   } catch (error) {
-    console.error('Error in updateOfferStatus:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -176,8 +151,8 @@ exports.respondToOffer = async (req, res) => {
     const { id } = req.params;
     const { responseType, subject, message } = req.body;
 
-    const offer = await Offer.findOne({ _id: id, 'propertyListing.createdBy': req.user.id });
-    if (!offer) return res.status(404).json({ message: 'Offer not found or you do not have permission to respond to it' });
+    const offer = await Offer.findById(id);
+    if (!offer) return res.status(404).json({ message: 'Offer not found' });
 
     const response = {
       responseType,
