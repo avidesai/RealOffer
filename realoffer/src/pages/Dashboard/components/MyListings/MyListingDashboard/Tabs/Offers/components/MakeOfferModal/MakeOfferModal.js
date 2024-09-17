@@ -1,7 +1,7 @@
 // MakeOfferModal.js
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useAuth } from '../../../../../../../../../context/AuthContext'; // Import useAuth hook
+import { useAuth } from '../../../../../../../../../context/AuthContext';
 import { useOffer } from '../../../../../../../../../context/OfferContext';
 import './MakeOfferModal.css';
 import PurchasePrice from './Steps/PurchasePrice';
@@ -11,7 +11,6 @@ import OfferDetails from './Steps/OfferDetails';
 import Documents from './Steps/Documents';
 import FinalReview from './Steps/FinalReview';
 import AutoFillForms from './Steps/AutoFillForms';
-import SendToDocusign from './Steps/SendToDocusign';
 import axios from 'axios';
 
 const parseNumber = (value) => {
@@ -19,7 +18,7 @@ const parseNumber = (value) => {
 };
 
 const MakeOfferModal = ({ onClose, listingId }) => {
-  const { token } = useAuth(); // Get the token from AuthContext
+  const { token } = useAuth();
   const { offerData, updateOfferData } = useOffer();
   const [step, setStep] = useState(1);
 
@@ -122,12 +121,11 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/offers`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}` // Add the token to the request headers
+          'Authorization': `Bearer ${token}`
         },
       });
       console.log('Offer created:', response.data);
       
-      // Reset the offer context to default after successful submission
       handleResetOffer();
       
       onClose();
@@ -203,10 +201,6 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       updateOfferData={updateOfferData}
       listingId={listingId}
     />,
-    sendToDocusign: <SendToDocusign // Added SendToDocusign step
-      handlePrevStep={handlePrevStep}
-      handleNextStep={handleNextStep}
-    />,
     finalReview: <FinalReview
       formData={offerData}
       handlePrevStep={handlePrevStep}
@@ -234,8 +228,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         {step === 4 && memoizedComponents.offerDetails}
         {step === 5 && memoizedComponents.autoFillForms}
         {step === 6 && memoizedComponents.documents}
-        {step === 7 && memoizedComponents.sendToDocusign}
-        {step === 8 && memoizedComponents.finalReview}
+        {step === 7 && memoizedComponents.finalReview}
       </div>
     </div>
   );

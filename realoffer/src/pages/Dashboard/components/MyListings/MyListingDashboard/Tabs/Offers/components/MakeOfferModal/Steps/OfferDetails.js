@@ -8,15 +8,18 @@ const OfferDetails = ({ handleNextStep, handlePrevStep }) => {
 
   const formatToPacificTime = (isoString) => {
     const date = new Date(isoString);
-    const options = {
+    const pacificTime = new Intl.DateTimeFormat('en-US', {
       timeZone: 'America/Los_Angeles',
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-    };
-    return new Intl.DateTimeFormat('en-US', options).format(date);
+      second: '2-digit',
+      hour12: true,
+    }).format(date);
+    
+    return pacificTime;
   };
 
   const handleChange = (e) => {

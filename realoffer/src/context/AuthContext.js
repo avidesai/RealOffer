@@ -15,6 +15,16 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [docusignConnected, setDocusignConnected] = useState(false);
 
+  const logout = useCallback(() => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('docusignConnected');
+    setUser(null);
+    setToken(null);
+    setDocusignConnected(false);
+    delete api.defaults.headers.common['Authorization'];
+  }, []);
+
   const checkAuthStatus = useCallback(async () => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
@@ -38,7 +48,7 @@ export const AuthProvider = ({ children }) => {
       logout();
     }
     setLoading(false);
-  }, []);
+  }, [logout]);
 
   useEffect(() => {
     checkAuthStatus();
@@ -72,16 +82,6 @@ export const AuthProvider = ({ children }) => {
       }
     }
   };
-
-  const logout = useCallback(() => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    localStorage.removeItem('docusignConnected');
-    setUser(null);
-    setToken(null);
-    setDocusignConnected(false);
-    delete api.defaults.headers.common['Authorization'];
-  }, []);
 
   const checkDocusignConnection = useCallback(async () => {
     try {
