@@ -4,7 +4,7 @@ import axios from 'axios';
 import './Messages.css';
 
 const Messages = ({ offer }) => {
-  const { user } = useAuth();
+  const { user, token } = useAuth(); // Get both user and token from useAuth
   const [agentImageUrl, setAgentImageUrl] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -22,8 +22,10 @@ const Messages = ({ offer }) => {
   useEffect(() => {
     const fetchAgentImageUrl = async () => {
       try {
-        // Fetch user data to get profile photo URL
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}`);
+        // Fetch user data to get profile photo URL, including the token in the request
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         const userData = response.data;
         setAgentImageUrl(userData.profilePhotoUrl);
       } catch (error) {
@@ -32,9 +34,8 @@ const Messages = ({ offer }) => {
         setLoading(false);
       }
     };
-
     fetchAgentImageUrl();
-  }, [user._id]);
+  }, [user._id, token]); // Include token in the dependency array
 
   const lastResponse = offer.responses && offer.responses.length > 0 ? offer.responses[offer.responses.length - 1] : null;
 

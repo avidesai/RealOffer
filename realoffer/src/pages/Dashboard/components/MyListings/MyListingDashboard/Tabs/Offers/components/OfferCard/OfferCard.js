@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import './OfferCard.css';
 import axios from 'axios';
+import { useAuth } from '../../../../../../../../../context/AuthContext'; // Adjust the path as needed
 
 const formatPhoneNumber = (phoneNumber) => {
   const cleaned = ('' + phoneNumber).replace(/\D/g, '');
@@ -42,6 +43,7 @@ const getStatusStyle = (status) => {
 };
 
 const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
+  const { token } = useAuth(); // Get the token from AuthContext
   const [notes, setNotes] = useState(offer.privateListingTeamNotes || '');
   const [status, setStatus] = useState(offer.offerStatus);
 
@@ -57,6 +59,8 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
     try {
       await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/private-notes`, {
         privateListingTeamNotes: notes,
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       });
     } catch (error) {
       console.error('Error updating notes:', error);
@@ -68,6 +72,8 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
       try {
         const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/status`, {
           offerStatus: 'under review',
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
         });
         const updatedOffer = response.data;
         setStatus(updatedOffer.offerStatus);
