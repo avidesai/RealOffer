@@ -4,15 +4,15 @@ import React from 'react';
 import Header from '../../components/Header/Header';
 import SignupForm from './SignupForm';
 import Footer from '../../components/Footer/Footer';
-import './Signup.css'; 
+import './Signup.css';
 
 function Signup() {
   return (
     <div className="signup-page-container">
       <Header />
-      <div className="signup-content-wrapper">
+      <main className="signup-content-wrapper">
         <SignupForm />
-      </div>
+      </main>
       <Footer />
     </div>
   );
