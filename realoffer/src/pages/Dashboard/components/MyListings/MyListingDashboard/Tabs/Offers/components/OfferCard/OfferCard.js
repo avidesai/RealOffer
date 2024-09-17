@@ -68,6 +68,7 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
   };
 
   const handleViewClick = async () => {
+    console.log("Viewing Offer ID:", offer._id); // Check the offerId here
     if (status === 'submitted') {
       try {
         const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/status`, {

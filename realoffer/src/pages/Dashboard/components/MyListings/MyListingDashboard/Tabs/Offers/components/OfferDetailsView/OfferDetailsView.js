@@ -23,25 +23,30 @@ const OfferDetailsView = ({ offerId, onBack }) => {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offerId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
+  
+        if (!response.data) {
+          throw new Error('Offer not found');
+        }
+  
         const offerData = response.data;
-
-        // Fetch documents related to the offer
+        setOffer(offerData);
+  
+        // Fetch documents for the offer only if offer is valid
         const documentsResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/offer/${offerId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         offerData.documents = documentsResponse.data;
-
-        setOffer(offerData);  // Successfully set offer data
-        setNotes(offerData.privateListingTeamNotes || '');
+  
       } catch (error) {
-        console.error('Error fetching offer:', error);
-        setError('Error fetching offer details.');
+        console.error('Error fetching offer:', error.message);
+        setError('Error fetching offer details');
       } finally {
         setLoading(false);
       }
     };
+  
     fetchOffer();
-  }, [offerId, token]);
+  }, [offerId, token]);  
 
   // Handle notes change and save
   const handleNotesChange = (event) => {
