@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import './OfferCard.css';
 import axios from 'axios';
+import { useAuth } from '../../../../../../../../../context/AuthContext'; // Import the useAuth hook
 
 const formatPhoneNumber = (phoneNumber) => {
   const cleaned = ('' + phoneNumber).replace(/\D/g, '');
@@ -42,6 +43,7 @@ const getStatusStyle = (status) => {
 };
 
 const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
+  const { token } = useAuth(); // Get the token from AuthContext
   const [notes, setNotes] = useState(offer.privateListingTeamNotes || '');
   const [status, setStatus] = useState(offer.offerStatus);
 
@@ -55,9 +57,15 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
 
   const handleNotesBlur = async () => {
     try {
-      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/private-notes`, {
-        privateListingTeamNotes: notes,
-      });
+      await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/private-notes`,
+        { privateListingTeamNotes: notes },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Add the token to the Authorization header
+          },
+        }
+      );
     } catch (error) {
       console.error('Error updating notes:', error);
     }
@@ -66,9 +74,15 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
   const handleViewClick = async () => {
     if (status === 'submitted') {
       try {
-        const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/status`, {
-          offerStatus: 'under review',
-        });
+        const response = await axios.put(
+          `${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/status`,
+          { offerStatus: 'under review' },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // Add the token to the Authorization header
+            },
+          }
+        );
         const updatedOffer = response.data;
         setStatus(updatedOffer.offerStatus);
         onUpdate(updatedOffer); // Notify parent component of the update
@@ -121,33 +135,73 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
           <h3>${offer.purchasePrice.toLocaleString()}</h3>
         </div>
         <div className="offer-actions">
-          <button className="view-offer-button" onClick={handleViewClick}>View</button>
-          <button className="respond-offer-button" onClick={handleRespondClick}>Respond</button>
+          <button className="view-offer-button" onClick={handleViewClick}>
+            View
+          </button>
+          <button className="respond-offer-button" onClick={handleRespondClick}>
+            Respond
+          </button>
         </div>
         <div className="divider"></div>
         <div className="offer-details">
-          <p><strong>Status</strong> <span className={`status-box ${statusStyle.className}`}>{statusStyle.text}</span></p>
-          <p><strong>Deposit</strong> <span>${offer.initialDeposit.toLocaleString()}</span></p>
-          <p><strong>Finance Type</strong> <span>{offer.financeType}</span></p>
-          <p><strong>Loan Amount</strong> <span>${offer.loanAmount.toLocaleString()}</span></p>
-          <p><strong>Percent Down</strong> <span>{offer.percentDown}%</span></p>
-          <p><strong>Down Payment</strong> <span>${offer.downPayment.toLocaleString()}</span></p>
-          <p><strong>Finance Contingency</strong> <span>{formatContingency(offer.financeContingencyDays)}</span></p>
-          <p><strong>Appraisal Contingency</strong> <span>{formatContingency(offer.appraisalContingencyDays)}</span></p>
-          <p><strong>Inspection Contingency</strong> <span>{formatContingency(offer.inspectionContingencyDays)}</span></p>
-          <p><strong>Home Sale Contingency</strong> <span>{offer.homeSaleContingency}</span></p>
-          <p><strong>Seller Rent Back</strong> <span>{formatContingency(offer.sellerRentBack)}</span></p>
-          <p><strong>Close of Escrow</strong> <span>{offer.closeOfEscrow} Days</span></p>
-          <p><strong>Offer Made</strong> <span>{formatDateTime(offer.submittedOn)}</span></p>
-          <p><strong>Offer Expiry</strong> <span>{formatDateTime(offer.offerExpiryDate)}</span></p>
-          <p><strong>Agent Commission</strong> <span>{offer.buyersAgentCommission}%</span></p>
-          <p><strong>Special Terms</strong></p>
-          <p><span>{offer.specialTerms}</span></p>
+          <p>
+            <strong>Status</strong> <span className={`status-box ${statusStyle.className}`}>{statusStyle.text}</span>
+          </p>
+          <p>
+            <strong>Deposit</strong> <span>${offer.initialDeposit.toLocaleString()}</span>
+          </p>
+          <p>
+            <strong>Finance Type</strong> <span>{offer.financeType}</span>
+          </p>
+          <p>
+            <strong>Loan Amount</strong> <span>${offer.loanAmount.toLocaleString()}</span>
+          </p>
+          <p>
+            <strong>Percent Down</strong> <span>{offer.percentDown}%</span>
+          </p>
+          <p>
+            <strong>Down Payment</strong> <span>${offer.downPayment.toLocaleString()}</span>
+          </p>
+          <p>
+            <strong>Finance Contingency</strong> <span>{formatContingency(offer.financeContingencyDays)}</span>
+          </p>
+          <p>
+            <strong>Appraisal Contingency</strong> <span>{formatContingency(offer.appraisalContingencyDays)}</span>
+          </p>
+          <p>
+            <strong>Inspection Contingency</strong> <span>{formatContingency(offer.inspectionContingencyDays)}</span>
+          </p>
+          <p>
+            <strong>Home Sale Contingency</strong> <span>{offer.homeSaleContingency}</span>
+          </p>
+          <p>
+            <strong>Seller Rent Back</strong> <span>{formatContingency(offer.sellerRentBack)}</span>
+          </p>
+          <p>
+            <strong>Close of Escrow</strong> <span>{offer.closeOfEscrow} Days</span>
+          </p>
+          <p>
+            <strong>Offer Made</strong> <span>{formatDateTime(offer.submittedOn)}</span>
+          </p>
+          <p>
+            <strong>Offer Expiry</strong> <span>{formatDateTime(offer.offerExpiryDate)}</span>
+          </p>
+          <p>
+            <strong>Agent Commission</strong> <span>{offer.buyersAgentCommission}%</span>
+          </p>
+          <p>
+            <strong>Special Terms</strong>
+          </p>
+          <p>
+            <span>{offer.specialTerms}</span>
+          </p>
         </div>
       </div>
       <div className="divider"></div>
       <div className="offer-card-footer">
-        <p><strong>Private Notes</strong></p>
+        <p>
+          <strong>Private Notes</strong>
+        </p>
         <textarea
           className="team-notes"
           value={notes}

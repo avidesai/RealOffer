@@ -7,11 +7,13 @@ import MakeOfferModal from './components/MakeOfferModal/MakeOfferModal';
 import OfferCard from './components/OfferCard/OfferCard';
 import OfferDetailsView from './components/OfferDetailsView/OfferDetailsView';
 import RespondToOfferModal from './components/RespondToOfferModal/RespondToOfferModal';
+import { useAuth } from '../../../../../../../context/AuthContext'; // Import useAuth hook
 import './Offers.css';
 
 const Offers = ({ listingId }) => {
+  const { token } = useAuth(); // Get the token from AuthContext
   const [offers, setOffers] = useState([]);
-  const [propertyListing, setPropertyListing] = useState(null); // Add this state
+  const [propertyListing, setPropertyListing] = useState(null);
   const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('priceHighToLow');
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,16 +27,20 @@ const Offers = ({ listingId }) => {
   const fetchOffers = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}` // Add the token to the Authorization header
+        }
+      });
       setOffers(response.data.offers);
-      setPropertyListing(response.data); // Set the propertyListing state
+      setPropertyListing(response.data);
       setTotalPages(Math.ceil(response.data.offers.length / 4)); // 4 offers per page
     } catch (error) {
       console.error('Error fetching offers:', error);
     } finally {
       setLoading(false);
     }
-  }, [listingId]);
+  }, [listingId, token]); // Add token as a dependency
 
   useEffect(() => {
     fetchOffers();
@@ -167,7 +173,7 @@ const Offers = ({ listingId }) => {
               isOpen={!!respondToOffer}
               onClose={handleCloseRespondModal}
               offer={respondToOffer}
-              propertyListing={propertyListing} // Pass the propertyListing object
+              propertyListing={propertyListing}
             />
           )}
         </>
