@@ -1,18 +1,14 @@
 // src/components/Header/Header.js
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Header.css';
 import logo from '../../assets/images/logo.svg';
 import { useAuth } from '../../context/AuthContext';
 
 function Header() {
-  const { user, logout, checkAuthStatus } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    checkAuthStatus();
-  }, [checkAuthStatus]);
 
   const handleLoginClick = (e) => {
     if (user) {
@@ -38,9 +34,11 @@ function Header() {
         </nav>
         <div className="header-divider"></div>
         <div className="header-actions">
+          {/* Log In link redirects to /dashboard if the user is logged in */}
           <Link to="/login" className="header-link" onClick={handleLoginClick}>
             {user ? 'Dashboard' : 'Log In'}
           </Link>
+          {/* If the user is logged in, show Logout, otherwise show Sign Up */}
           {user ? (
             <button className="header-logout-button" onClick={handleLogoutClick}>
               Log Out

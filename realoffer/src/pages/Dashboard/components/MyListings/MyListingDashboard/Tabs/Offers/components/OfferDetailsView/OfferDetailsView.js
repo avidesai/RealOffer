@@ -22,6 +22,7 @@ const OfferDetailsView = ({ offerId, onBack }) => {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offerId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
+        console.log('API response:', response.data); // Add this line
         const offerData = response.data;
         // Fetch documents for the offer
         const documentsResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/offer/${offerId}`, {

@@ -1,5 +1,3 @@
-// /context/AuthContext.js
-
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from './api';
 
@@ -15,47 +13,19 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [docusignConnected, setDocusignConnected] = useState(false);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    localStorage.removeItem('docusignConnected');
-    setUser(null);
-    setToken(null);
-    setDocusignConnected(false);
-    delete api.defaults.headers.common['Authorization'];
-  }, []);
-
-  const checkAuthStatus = useCallback(async () => {
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
     const storedToken = localStorage.getItem('token');
-    if (storedToken) {
-      try {
-        const response = await api.get('/api/users/me', {
-          headers: { Authorization: `Bearer ${storedToken}` }
-        });
-        if (response.data && response.data.user) {
-          setUser(response.data.user);
-          setToken(storedToken);
-          api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-          setDocusignConnected(localStorage.getItem('docusignConnected') === 'true');
-        } else {
-          console.warn('Invalid user data received');
-          logout();
-        }
-      } catch (error) {
-        console.error('Error verifying token:', error);
-        if (error.response && error.response.status === 401) {
-          logout();
-        }
-      }
-    } else {
-      logout();
+    const docusignStatus = localStorage.getItem('docusignConnected') === 'true';
+
+    if (storedUser && storedToken) {
+      setUser(storedUser);
+      setToken(storedToken);
+      setDocusignConnected(docusignStatus);
+      api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
     }
     setLoading(false);
-  }, [logout]);
-
-  useEffect(() => {
-    checkAuthStatus();
-  }, [checkAuthStatus]);
+  }, []);
 
   const login = async (email, password) => {
     try {
@@ -85,6 +55,16 @@ export const AuthProvider = ({ children }) => {
       }
     }
   };
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('docusignConnected');
+    setUser(null);
+    setToken(null);
+    setDocusignConnected(false);
+    delete api.defaults.headers.common['Authorization'];
+  }, []);
 
   const checkDocusignConnection = useCallback(async () => {
     try {
@@ -123,12 +103,11 @@ export const AuthProvider = ({ children }) => {
     checkDocusignConnection,
     setDocusignConnected,
     connectDocuSign,
-    checkAuthStatus,
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

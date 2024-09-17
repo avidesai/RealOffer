@@ -56,7 +56,6 @@ const OfferSchema = new Schema({
   offerExpiryDate: { type: Date, required: false },
   sellerRentBack: { type: String, required: false },
   sellerRentBackDays: { type: Number, required: false },
-  docusignStatus: { type: String, enum: ['pending', 'sent', 'completed'], default: 'pending' },
   responses: [ResponseSchema]
 }, { timestamps: true });
 

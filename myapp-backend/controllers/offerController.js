@@ -38,7 +38,6 @@ exports.createOffer = async (req, res) => {
       sellerRentBack: req.body.sellerRentBack,
       sellerRentBackDays: req.body.sellerRentBackDays,
       'buyerDetails.buyerName': req.body.buyerName,
-      docusignStatus: 'pending',
     };
 
     const offer = new Offer(offerData);
@@ -142,6 +141,8 @@ exports.updateOfferStatus = async (req, res) => {
     const { id } = req.params;
     const { offerStatus } = req.body;
 
+    console.log('Updating offer status:', id, offerStatus, req.user.id); // Add this log
+
     const offer = await Offer.findOneAndUpdate(
       { 
         _id: id, 
@@ -157,6 +158,7 @@ exports.updateOfferStatus = async (req, res) => {
 
     res.status(200).json(offer);
   } catch (error) {
+    console.error('Error in updateOfferStatus:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -186,27 +188,6 @@ exports.respondToOffer = async (req, res) => {
     }
 
     await offer.save();
-    res.status(200).json(offer);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-exports.updateDocusignStatus = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { docusignStatus } = req.body;
-
-    const offer = await Offer.findOneAndUpdate(
-      { _id: id, buyersAgent: req.user.id },
-      { docusignStatus },
-      { new: true, runValidators: true }
-    );
-
-    if (!offer) {
-      return res.status(404).json({ message: 'Offer not found or you do not have permission to update it' });
-    }
-
     res.status(200).json(offer);
   } catch (error) {
     res.status(500).json({ message: error.message });
