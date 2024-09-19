@@ -7,42 +7,43 @@ import { useAuth } from '../../../../../../../../../context/AuthContext'; // Imp
 import Terms from './components/Terms/Terms';
 import AgentInfo from './components/AgentInfo/AgentInfo';
 import Messages from './components/Messages/Messages';
-import Documents from './components/Documents/Documents';
 import PrivateNotes from './components/PrivateNotes/PrivateNotes';
+import Documents from './components/Documents/Documents'; // Import Documents component
 
 const OfferView = ({ offerId, onBack }) => {
   const { token } = useAuth(); // Get the token from AuthContext
   const [offer, setOffer] = useState(null);
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(true);
+  const [documents, setDocuments] = useState([]); // New state for documents
+
   useEffect(() => {
-    
     const fetchOfferDetails = async () => {
       setLoading(true);
       try {
+        // Fetch Offer Details
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offerId}`, {
           headers: {
             Authorization: `Bearer ${token}`, // Include token for authorization
           },
         });
         const offerData = response.data;
-  
-        // Fetch documents for the offer
+        setOffer(offerData);
+
+        // Fetch Offer Documents
         const documentsResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/offer/${offerId}`, {
           headers: {
             Authorization: `Bearer ${token}`, // Include token for authorization
           },
         });
-        offerData.documents = documentsResponse.data;
-  
-        setOffer(offerData);
+        setDocuments(documentsResponse.data); // Store documents
       } catch (error) {
-        console.error('Error fetching offer details:', error);
+        console.error('Error fetching offer details or documents:', error);
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchOfferDetails();
   }, [offerId, token]);
 
@@ -88,7 +89,8 @@ const OfferView = ({ offerId, onBack }) => {
         <div className="middle-section">
           <AgentInfo offer={offer} />
           <Messages offer={offer} />
-          <Documents offer={offer} />
+          {/* Pass documents as a prop to the Documents component */}
+          <Documents offerDocuments={documents} />
         </div>
         <PrivateNotes notes={notes} handleNotesChange={handleNotesChange} handleNotesBlur={handleNotesBlur} />
       </div>
