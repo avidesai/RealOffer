@@ -1,5 +1,7 @@
 // OfferView.js
 
+// OfferView.js
+
 import React, { useState, useEffect } from 'react';
 import './OfferView.css';
 import axios from 'axios';
@@ -36,7 +38,9 @@ const OfferView = ({ offerId, onBack }) => {
             Authorization: `Bearer ${token}`, // Include token for authorization
           },
         });
+        
         setDocuments(documentsResponse.data); // Store documents
+        console.log('Fetched documents:', documentsResponse.data); // Add logging to check the documents data
       } catch (error) {
         console.error('Error fetching offer details or documents:', error);
       } finally {

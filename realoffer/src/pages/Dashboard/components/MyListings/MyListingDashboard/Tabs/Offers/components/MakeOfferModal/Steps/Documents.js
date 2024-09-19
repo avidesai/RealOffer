@@ -102,63 +102,71 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
   const handleUpload = async () => {
     const newErrors = [];
     const filesToUpload = files.filter(file => file.file instanceof File);
-
+  
+    // Check for file and type errors
     if (filesToUpload.length === 0) {
       newErrors.push('Please upload at least one new file.');
     }
-
+  
     filesToUpload.forEach((file, index) => {
       if (!file.type) {
         newErrors.push(`Please select a type for file ${index + 1}.`);
       }
     });
-
+  
     if (newErrors.length > 0) {
       setErrors(newErrors);
       return;
     }
-
+  
     setUploading(true);
     try {
       const formData = new FormData();
+      
+      // Append files and their metadata to formData
       filesToUpload.forEach(({ file, type, title }) => {
-        formData.append('documents', file);
-        formData.append('type[]', type);
-        formData.append('title[]', title);
+        formData.append('documents', file); // Append the file
+        formData.append('type[]', type); // Append the type of the file
+        formData.append('title[]', title); // Append the title of the file
       });
-
-      formData.append('purpose', 'offer');
-      formData.append('uploadedBy', user._id);
-      formData.append('propertyListingId', listingId);
-
+  
+      formData.append('purpose', 'offer'); // Append the purpose of the file
+      formData.append('uploadedBy', user._id); // Append the user ID (uploadedBy)
+      formData.append('propertyListingId', listingId); // Append the listing ID
+  
+      // Send the request to the server
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}` // Include the token in the request headers
+          'Authorization': `Bearer ${token}`, // Add the token to the request headers
         },
       });
-
-      setUploading(false);
+  
+      // Update state with uploaded documents
       const uploadedDocuments = response.data.map(doc => ({
         id: doc._id,
         title: doc.title,
         type: doc.type,
         file: { name: doc.title, size: doc.size }
       }));
-
+  
+      // Merge new files with already uploaded files (if any)
       const newFiles = [...files.filter(file => file.id || file.type === 'Signature Package'), ...uploadedDocuments];
       updateOfferData(prevData => ({
         ...prevData,
-        documents: newFiles
+        documents: newFiles // Update offerData with the new files
       }));
+  
       setFiles(newFiles);
       setFilesUploaded(true);
-      setErrors([]);
+      setErrors([]); // Clear errors after successful upload
     } catch (error) {
       setUploading(false);
-      setErrors(['An error occurred while uploading. Please try again.']);
+      setErrors(['An error occurred while uploading. Please try again.']); // Handle errors
+    } finally {
+      setUploading(false); // Stop the loading spinner
     }
-  };
+  };  
 
   const handleNextStepWrapper = useCallback(() => {
     if (!filesUploaded && files.some(file => !file.id && file.type !== 'Signature Package')) {

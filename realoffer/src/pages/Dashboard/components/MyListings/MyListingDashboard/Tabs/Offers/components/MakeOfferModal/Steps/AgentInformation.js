@@ -75,12 +75,6 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
 
   const handlePhoneNumberChange = (e) => {
     const { name, value } = e.target;
-    const rawValue = value.replace(/\D/g, '');
-    handleNestedChange({ target: { name, value: rawValue } }, 'presentedBy');
-  };
-
-  const handlePhoneNumberBlur = (e) => {
-    const { name, value } = e.target;
     const formattedValue = formatPhoneNumber(value);
     handleNestedChange({ target: { name, value: formattedValue } }, 'presentedBy');
   };
@@ -144,9 +138,8 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
           name="phoneNumber"
           placeholder="Phone Number"
           className="agent-info-input"
-          value={formatPhoneNumber(formData.presentedBy.phoneNumber || '')}
+          value={formData.presentedBy.phoneNumber || ''}
           onChange={handlePhoneNumberChange}
-          onBlur={handlePhoneNumberBlur}
         />
       </div>
       <div className="agent-info-form-group">
