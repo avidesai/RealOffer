@@ -454,20 +454,28 @@ exports.getDocumentsByOffer = async (req, res) => {
       return res.status(404).json({ message: 'Offer not found' });
     }
 
-    // Check if the authenticated user is authorized to view these documents
+    // Ensure that the user is authorized to view the documents
     if (offer.propertyListing.createdBy.toString() !== req.user.id && offer.buyersAgent.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to view these documents' });
     }
 
+    // Find documents linked to the offer
     const documents = await Document.find({ offer: req.params.offerId });
+
+    if (!documents || documents.length === 0) {
+      return res.status(404).json({ message: 'No documents found for this offer' });
+    }
+
     const documentsWithSAS = documents.map(doc => ({
       ...doc._doc,
       sasToken: generateSASToken(doc.azureKey, doc.signed),
     }));
+
     res.status(200).json(documentsWithSAS);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 module.exports = exports;

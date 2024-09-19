@@ -5,7 +5,7 @@ import axios from 'axios';
 import OfferSortBar from './components/OfferSortBar/OfferSortBar';
 import MakeOfferModal from './components/MakeOfferModal/MakeOfferModal';
 import OfferCard from './components/OfferCard/OfferCard';
-import OfferDetailsView from './components/OfferDetailsView/OfferDetailsView';
+import OfferView from './components/OfferView/OfferView'; // Import the new OfferView component
 import RespondToOfferModal from './components/RespondToOfferModal/RespondToOfferModal';
 import { useAuth } from '../../../../../../../context/AuthContext'; // Import useAuth hook
 import './Offers.css';
@@ -29,8 +29,8 @@ const Offers = ({ listingId }) => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
         headers: {
-          'Authorization': `Bearer ${token}` // Add the token to the Authorization header
-        }
+          Authorization: `Bearer ${token}`, // Add the token to the Authorization header
+        },
       });
       setOffers(response.data.offers);
       setPropertyListing(response.data);
@@ -71,13 +71,8 @@ const Offers = ({ listingId }) => {
     await fetchOffers();
   };
 
-  const handleDownloadSummary = () => {
-    console.log('Download Summary clicked');
-    // Add logic to download summary
-  };
-
   const handleOfferClick = (offerId) => {
-    setSelectedOffer(offerId);
+    setSelectedOffer(offerId); // Open OfferView for the selected offer
   };
 
   const handleBackToOffers = () => {
@@ -134,7 +129,7 @@ const Offers = ({ listingId }) => {
   return (
     <div className="offers-tab">
       {selectedOffer ? (
-        <OfferDetailsView offerId={selectedOffer} onBack={handleBackToOffers} />
+        <OfferView offerId={selectedOffer} onBack={handleBackToOffers} /> // Replace OfferDetailsView with OfferView
       ) : (
         <>
           <OfferSortBar
@@ -142,7 +137,7 @@ const Offers = ({ listingId }) => {
             onSortChange={handleSortChange}
             onSearch={handleSearch}
             onAddOffer={handleAddOffer}
-            onDownloadSummary={handleDownloadSummary}
+            onDownloadSummary={() => console.log('Download Summary clicked')}
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={handlePageChange}

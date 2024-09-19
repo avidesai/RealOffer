@@ -1,0 +1,70 @@
+/* OfferView.css */
+
+.offer-details-view {
+    padding: 1rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border-radius: 10px;
+    position: relative;
+    margin: 0 auto;
+  }
+  
+  .offer-back-button {
+    background-color: #ffffff;
+    color: #444444;
+    border: 2px solid #c4c4c4;
+    border-radius: 20px;
+    padding: 0.75rem 2.5rem;
+    margin-bottom: 1.5rem;
+    margin-left: 1rem;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 14rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .offer-back-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .offer-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+  
+  .middle-section {
+    flex: 2.5;
+  }
+  
+  .spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .spinner {
+    border: 8px solid rgba(0, 0, 0, 0.1);
+    border-top: 8px solid #3498db;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  

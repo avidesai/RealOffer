@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import './OfferCard.css';
 import axios from 'axios';
 import { useAuth } from '../../../../../../../../../context/AuthContext'; // Import the useAuth hook
+import { useDebounce } from './useDebounce'; // Import the custom debounce hook
 
 const formatPhoneNumber = (phoneNumber) => {
   const cleaned = ('' + phoneNumber).replace(/\D/g, '');
@@ -47,28 +48,37 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
   const [notes, setNotes] = useState(offer.privateListingTeamNotes || '');
   const [status, setStatus] = useState(offer.offerStatus);
 
+  // Debounced notes value
+  const debouncedNotes = useDebounce(notes, 500); // 500ms debounce delay
+
   useEffect(() => {
     setNotes(offer.privateListingTeamNotes || '');
   }, [offer.privateListingTeamNotes]);
 
-  const handleNotesChange = (event) => {
-    setNotes(event.target.value);
-  };
-
-  const handleNotesBlur = async () => {
-    try {
-      await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/private-notes`,
-        { privateListingTeamNotes: notes },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // Add the token to the Authorization header
-          },
+  // Effect to make the API call when debouncedNotes changes
+  useEffect(() => {
+    if (debouncedNotes !== offer.privateListingTeamNotes) {
+      const updateNotes = async () => {
+        try {
+          await axios.put(
+            `${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/private-notes`,
+            { privateListingTeamNotes: debouncedNotes },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`, // Add the token to the Authorization header
+              },
+            }
+          );
+        } catch (error) {
+          console.error('Error updating notes:', error);
         }
-      );
-    } catch (error) {
-      console.error('Error updating notes:', error);
+      };
+      updateNotes();
     }
+  }, [debouncedNotes, offer.privateListingTeamNotes, offer._id, token]);
+
+  const handleNotesChange = (event) => {
+    setNotes(event.target.value); // Update notes in local state
   };
 
   const handleViewClick = async () => {
@@ -206,8 +216,7 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
           className="team-notes"
           value={notes}
           placeholder="Write a private note for your team..."
-          onChange={handleNotesChange}
-          onBlur={handleNotesBlur}
+          onChange={handleNotesChange} // Local state updates immediately
         />
       </div>
     </div>
