@@ -26,30 +26,24 @@ const OfferView = ({ offerId, onBack }) => {
         // Fetch Offer Details
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offerId}`, {
           headers: {
-            Authorization: `Bearer ${token}`, // Include token for authorization
+            Authorization: `Bearer ${token}`,
           },
         });
         const offerData = response.data;
         setOffer(offerData);
-
-        // Fetch Offer Documents
-        const documentsResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/offer/${offerId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`, // Include token for authorization
-          },
-        });
-        
-        setDocuments(documentsResponse.data); // Store documents
-        console.log('Fetched documents:', documentsResponse.data); // Add logging to check the documents data
+  
+        // The documents are already part of the offerData, no need for a separate API call
+        setDocuments(offerData.documents || []);
       } catch (error) {
-        console.error('Error fetching offer details or documents:', error);
+        console.error('Error fetching offer details:', error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchOfferDetails();
   }, [offerId, token]);
+  
 
   const handleNotesChange = (event) => {
     setNotes(event.target.value);

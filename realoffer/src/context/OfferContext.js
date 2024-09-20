@@ -78,13 +78,13 @@ export const OfferProvider = ({ children }) => {
 
   const replaceDocument = useCallback((newDocument) => {
     setOfferData(prevData => {
-      const updatedDocuments = prevData.documents.filter(doc => doc.type !== newDocument.type);
+      const updatedDocuments = prevData.documents.filter(doc => doc.type !== newDocument.type || doc.id === newDocument.id);
       updatedDocuments.push(newDocument);
       const updatedData = { ...prevData, documents: updatedDocuments };
       localStorage.setItem('offerData', JSON.stringify(updatedData));
       return updatedData;
     });
-  }, []);
+  }, []);  
 
   return (
     <OfferContext.Provider value={{ offerData, updateOfferData, deleteDocument, replaceDocument }}>
