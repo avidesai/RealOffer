@@ -13,6 +13,7 @@ router.use((req, res, next) => {
   });
   
 
+router.delete('/deleteAll', DocumentController.deleteAllDocuments);
 router.post('/', DocumentController.uploadDocuments, DocumentController.uploadDocument);
 router.post('/propertyListing/:id', DocumentController.uploadDocuments, DocumentController.addDocumentToPropertyListing);
 router.post('/buyerPackage/:id', DocumentController.uploadDocuments, DocumentController.addDocumentToBuyerPackage);
@@ -23,6 +24,6 @@ router.post('/addPage', DocumentController.addPageToSignaturePackage);
 router.post('/removePage', DocumentController.removePageFromSignaturePackage);
 router.put('/createBuyerSignaturePacket', DocumentController.createBuyerSignaturePacket);
 router.put('/updateSignedStatus', DocumentController.updateDocumentSignedStatus);
-router.delete('/deleteAll', DocumentController.deleteAllDocuments);
+
 
 module.exports = router;

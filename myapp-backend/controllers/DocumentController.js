@@ -479,19 +479,24 @@ exports.getDocumentsByOffer = async (req, res) => {
 
 // Add this new function at the end of the file
 exports.deleteAllDocuments = async (req, res) => {
+  console.log('deleteAllDocuments function called');
   try {
-    // This is a dangerous operation, so we'll add a basic check
     const secretKey = req.query.secretKey;
+    console.log('Received secretKey:', secretKey);
+    console.log('Expected secretKey:', process.env.DELETE_ALL_SECRET);
+    
     if (secretKey !== process.env.DELETE_ALL_SECRET) {
+      console.log('Unauthorized: Secret key mismatch');
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
+    console.log('Authorization successful, proceeding with deletion');
     const result = await Document.deleteMany({});
     console.log(`Deleted ${result.deletedCount} documents`);
     res.json({ message: `Deleted ${result.deletedCount} documents` });
   } catch (error) {
-    console.error('Error deleting documents:', error);
-    res.status(500).json({ message: 'Error deleting documents', error: error.message });
+    console.error('Error in deleteAllDocuments:', error);
+    res.status(500).json({ message: 'Error deleting documents', error: error.toString() });
   }
 };
 
