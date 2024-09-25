@@ -1,7 +1,5 @@
 // OfferView.js
 
-// OfferView.js
-
 import React, { useState, useEffect } from 'react';
 import './OfferView.css';
 import axios from 'axios';
@@ -17,7 +15,7 @@ const OfferView = ({ offerId, onBack }) => {
   const [offer, setOffer] = useState(null);
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(true);
-  const [documents, setDocuments] = useState([]); // New state for documents
+  const [documents, setDocuments] = useState([]); // State for documents
 
   useEffect(() => {
     const fetchOfferDetails = async () => {
@@ -31,8 +29,6 @@ const OfferView = ({ offerId, onBack }) => {
         });
         const offerData = response.data;
         setOffer(offerData);
-  
-        // The documents are already part of the offerData, no need for a separate API call
         setDocuments(offerData.documents || []);
       } catch (error) {
         console.error('Error fetching offer details:', error);
@@ -40,10 +36,9 @@ const OfferView = ({ offerId, onBack }) => {
         setLoading(false);
       }
     };
-  
+
     fetchOfferDetails();
   }, [offerId, token]);
-  
 
   const handleNotesChange = (event) => {
     setNotes(event.target.value);
@@ -56,7 +51,7 @@ const OfferView = ({ offerId, onBack }) => {
         { privateListingTeamNotes: notes },
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Add the token to the Authorization header
+            Authorization: `Bearer ${token}`,
           },
         }
       );

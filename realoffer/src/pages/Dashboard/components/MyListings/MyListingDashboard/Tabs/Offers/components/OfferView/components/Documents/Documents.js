@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import './Documents.css';
-import PDFViewer from '../PDFViewer/PDFViewer';
+import PDFViewer from '../PDFViewer/PDFViewer'; // Ensure you have a PDFViewer component
 
 const formatDate = (dateString) => {
   const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
@@ -31,7 +31,7 @@ const Documents = ({ offerDocuments }) => {
           <p className="offer-details-no-documents">No documents included.</p>
         ) : (
           <div className="offer-details-documents-list">
-            {offerDocuments.map(doc => (
+            {offerDocuments.map((doc) => (
               <div key={doc._id} className="offer-details-document-item" onClick={() => handleViewDocument(doc)}>
                 <div className="offer-details-document-info">
                   <div className="offer-details-document-details">
@@ -43,7 +43,9 @@ const Documents = ({ offerDocuments }) => {
                   </div>
                 </div>
                 <div className="offer-details-document-actions">
-                  <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer" className="offer-details-download-action-button offer-details-document-actions-button">Download</a>
+                  <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer" className="offer-details-download-action-button offer-details-document-actions-button">
+                    Download
+                  </a>
                 </div>
               </div>
             ))}
