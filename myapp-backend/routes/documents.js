@@ -4,8 +4,14 @@ const router = express.Router();
 const DocumentController = require('../controllers/DocumentController');
 const authMiddleware = require('../middleware/auth');
 
-// Apply auth middleware to all routes
-router.use(authMiddleware);
+// Apply auth middleware to all routes except deleteAll
+router.use((req, res, next) => {
+    if (req.path === '/deleteAll' && req.method === 'DELETE') {
+      return next();
+    }
+    authMiddleware(req, res, next);
+  });
+  
 
 router.post('/', DocumentController.uploadDocuments, DocumentController.uploadDocument);
 router.post('/propertyListing/:id', DocumentController.uploadDocuments, DocumentController.addDocumentToPropertyListing);
