@@ -136,6 +136,38 @@ const MakeOfferModal = ({ onClose, listingId }) => {
   }, [step, handleNextStep, updateOfferData, fetchUpdatedDocuments]);
 
   const handleSubmit = useCallback(async () => {
+    // Upload the documents before creating the offer
+    const documentIds = [];
+  
+    // Filter out any duplicates before upload (only one Signature Package and Purchase Agreement allowed)
+    const filteredDocuments = offerData.documents.filter(
+      (document, index, self) =>
+        (document.type !== 'Signature Package' && document.type !== 'Purchase Agreement') ||
+        index === self.findIndex(d => d.type === document.type)
+    );
+  
+    for (const document of filteredDocuments) {
+      const documentFormData = new FormData();
+      documentFormData.append('documents', document.file);
+      documentFormData.append('type', document.type);
+      documentFormData.append('title', document.title);
+      documentFormData.append('purpose', 'offer');
+      documentFormData.append('uploadedBy', user._id);
+      documentFormData.append('propertyListingId', listingId);
+  
+      try {
+        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, documentFormData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        documentIds.push(response.data[0]._id);  // Collect the document IDs
+      } catch (error) {
+        console.error('Error uploading document:', error);
+        return;  // Handle error properly
+      }
+    }
+  
     const formDataToSend = new FormData();
     for (const key in offerData) {
       if (key !== 'documents' && (key === 'presentedBy' || key === 'brokerageInfo')) {
@@ -146,8 +178,10 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         formDataToSend.append(key, offerData[key]);
       }
     }
-    formDataToSend.append('propertyListingId', listingId);
-
+  
+    // Add the collected document IDs to the offer
+    formDataToSend.append('documents', JSON.stringify(documentIds));
+  
     try {
       // First, create the offer
       const offerResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/offers`, formDataToSend, {
@@ -156,33 +190,13 @@ const MakeOfferModal = ({ onClose, listingId }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      const createdOfferId = offerResponse.data._id;
-
-      // After the offer is created, upload the documents
-      for (const document of offerData.documents) {
-        const documentFormData = new FormData();
-        documentFormData.append('documents', document.file);
-        documentFormData.append('type', document.type);
-        documentFormData.append('title', document.title);
-        documentFormData.append('purpose', 'offer');
-        documentFormData.append('uploadedBy', user._id); // Access user._id from AuthContext
-        documentFormData.append('propertyListingId', listingId);
-        documentFormData.append('offerId', createdOfferId);
-
-        await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, documentFormData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-      }
-
-      handleResetOffer(); // Reset the form after submission
-      onClose(); // Close the modal
+      
+      handleResetOffer();  // Reset the form after submission
+      onClose();  // Close the modal
     } catch (error) {
       console.error('Error creating offer:', error);
     }
-  }, [offerData, listingId, onClose, handleResetOffer, token, user._id]); // Removed user._id from dependency array
+  }, [offerData, listingId, onClose, handleResetOffer, token, user._id]);  
 
   useEffect(() => {
     const downPayment = parseNumber(offerData.downPayment);

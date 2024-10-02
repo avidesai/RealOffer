@@ -11,7 +11,6 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
   const [files, setFiles] = useState(offerData.documents || []);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState([]);
-  const [filesUploaded, setFilesUploaded] = useState(true);
   const fileInputRef = useRef(null);
   const { user, token } = useAuth(); // Get the token from AuthContext
 
@@ -51,7 +50,6 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
       ...droppedFiles.map((file) => ({ file, type: '', title: file.name })),
     ];
     setFiles(newFiles);
-    setFilesUploaded(false);
   };
 
   const handleFileSelect = (e) => {
@@ -61,7 +59,6 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
       ...selectedFiles.map((file) => ({ file, type: '', title: file.name })),
     ];
     setFiles(newFiles);
-    setFilesUploaded(false);
   };
 
   const handleUploadClick = () => {
@@ -71,7 +68,6 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
   const handleDeleteFile = useCallback((index) => {
     const newFiles = files.filter((_, i) => i !== index);
     setFiles(newFiles);
-    setFilesUploaded(false);
 
     updateOfferData(prevData => ({
       ...prevData,
@@ -84,7 +80,6 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
       i === index ? { ...file, type: newType } : file
     );
     setFiles(newFiles);
-    setFilesUploaded(false);
   };
 
   const handleFileTitleChange = (index, newTitle) => {
@@ -92,85 +87,70 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
       i === index ? { ...file, title: newTitle } : file
     );
     setFiles(newFiles);
-    setFilesUploaded(false);
   };
 
-  const handleUpload = async () => {
-    const newErrors = [];
+  const handleUploadAndNext = async () => {
     const filesToUpload = files.filter(file => file.file instanceof File);
   
-    // Check for file and type errors
-    if (filesToUpload.length === 0) {
-      newErrors.push('Please upload at least one new file.');
-    }
+    // Check if there is already a Signature Package or Purchase Agreement in the documents
+    const hasSignaturePackage = files.some(file => file.type === 'Signature Package');
+    const hasPurchaseAgreement = files.some(file => file.type === 'Purchase Agreement');
   
-    filesToUpload.forEach((file, index) => {
-      if (!file.type) {
-        newErrors.push(`Please select a type for file ${index + 1}.`);
+    if (filesToUpload.length > 0) {
+      setUploading(true);
+      try {
+        const formData = new FormData();
+  
+        filesToUpload.forEach(({ file, type, title }) => {
+          // Only add the file if it's not a duplicate of Signature Package or Purchase Agreement
+          if (
+            (type === 'Signature Package' && !hasSignaturePackage) || 
+            (type === 'Purchase Agreement' && !hasPurchaseAgreement) ||
+            (type !== 'Signature Package' && type !== 'Purchase Agreement')
+          ) {
+            formData.append('documents', file);
+            formData.append('type[]', type);
+            formData.append('title[]', title);
+          }
+        });
+  
+        formData.append('purpose', 'offer');
+        formData.append('uploadedBy', user._id);
+        formData.append('propertyListingId', listingId);
+  
+        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+  
+        const uploadedDocuments = response.data.map(doc => ({
+          id: doc._id,
+          title: doc.title,
+          type: doc.type,
+          file: { name: doc.title, size: doc.size }
+        }));
+  
+        const updatedFiles = [...files.filter(file => file.id || file.type === 'Signature Package' || file.type === 'Purchase Agreement'), ...uploadedDocuments];
+        updateOfferData(prevData => ({
+          ...prevData,
+          documents: updatedFiles
+        }));
+  
+        setFiles(updatedFiles);
+        setErrors([]);
+        setUploading(false);
+        handleNextStep();
+      } catch (error) {
+        setUploading(false);
+        setErrors(['An error occurred while uploading. Please try again.']);
       }
-    });
-  
-    if (newErrors.length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-  
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      
-      // Append files and their metadata to formData
-      filesToUpload.forEach(({ file, type, title }) => {
-        formData.append('documents', file); // Append the file
-        formData.append('type[]', type); // Append the type of the file
-        formData.append('title[]', title); // Append the title of the file
-      });
-  
-      formData.append('purpose', 'offer'); // Append the purpose of the file
-      formData.append('uploadedBy', user._id); // Append the user ID (uploadedBy)
-      formData.append('propertyListingId', listingId); // Append the listing ID
-  
-      // Send the request to the server
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}`, // Add the token to the request headers
-        },
-      });
-  
-      // Update state with uploaded documents
-      const uploadedDocuments = response.data.map(doc => ({
-        id: doc._id,
-        title: doc.title,
-        type: doc.type,
-        file: { name: doc.title, size: doc.size }
-      }));
-  
-      // Merge new files with already uploaded files (if any)
-      const newFiles = [...files.filter(file => file.id || file.type === 'Signature Package'), ...uploadedDocuments];
-      updateOfferData(prevData => ({
-        ...prevData,
-        documents: newFiles // Update offerData with the new files
-      }));
-  
-      setFiles(newFiles);
-      setFilesUploaded(true);
-      setErrors([]); // Clear errors after successful upload
-    } catch (error) {
-      setUploading(false);
-      setErrors(['An error occurred while uploading. Please try again.']); // Handle errors
-    } finally {
-      setUploading(false); // Stop the loading spinner
-    }
-  };  
-
-  const handleNextStepWrapper = useCallback(() => {
-    if (!filesUploaded && files.some(file => !file.id && file.type !== 'Signature Package')) {
-      setErrors(['Please click "Add Files To Offer" before proceeding.']);
     } else {
       handleNextStep();
     }
-  }, [filesUploaded, files, handleNextStep]);
+  };
+  
 
   return (
     <div className="modal-step">
@@ -243,16 +223,13 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
               ))}
             </div>
           </div>
-          <div className="offer-modal-footer">
-            <button className="offer-upload-files-button" onClick={handleUpload}>Add Files To Offer</button>
-          </div>
         </div>
       </div>
       <div className="button-container">
         <button className="step-back-button" onClick={handlePrevStep}>
           Back
         </button>
-        <button className="next-button" onClick={handleNextStepWrapper}>
+        <button className="next-button" onClick={handleUploadAndNext}>
           Next
         </button>
       </div>

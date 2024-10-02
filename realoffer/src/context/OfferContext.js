@@ -78,9 +78,15 @@ export const OfferProvider = ({ children }) => {
 
   const replaceDocument = useCallback((newDocument) => {
     setOfferData(prevData => {
-      const updatedDocuments = prevData.documents.filter(doc => doc.type !== newDocument.type || doc.id === newDocument.id);
-      updatedDocuments.push(newDocument);
-      const updatedData = { ...prevData, documents: updatedDocuments };
+      // Filter out existing Signature Package or Purchase Agreement if they exist
+      const filteredDocuments = prevData.documents.filter(
+        doc => (doc.type !== 'Signature Package' && doc.type !== 'Purchase Agreement') || doc.id === newDocument.id
+      );
+  
+      // Add the new document
+      filteredDocuments.push(newDocument);
+  
+      const updatedData = { ...prevData, documents: filteredDocuments };
       localStorage.setItem('offerData', JSON.stringify(updatedData));
       return updatedData;
     });

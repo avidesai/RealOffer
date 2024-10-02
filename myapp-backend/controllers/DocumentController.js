@@ -73,12 +73,18 @@ exports.uploadDocument = async (req, res) => {
         azureKey: blobName,
         visibility,
         purpose,
-        offer: offerId,
+        offer: offerId,  // Associate document with offer if provided
         docType,
         signed: false
       });
 
       const savedDocument = await newDocument.save();
+
+      // If an offerId is provided, associate this document with the offer
+      if (offerId) {
+        await Offer.findByIdAndUpdate(offerId, { $push: { documents: savedDocument._id } });
+      }
+
       propertyListing.documents.push(savedDocument._id);
       return savedDocument;
     }));
