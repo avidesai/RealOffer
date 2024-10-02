@@ -123,46 +123,32 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
   const handleIncludeAndUpload = useCallback(async () => {
     if (selectedForm === 'CAR_Purchase_Contract') {
       try {
-        // Fill the PDF with the provided data
         const pdfBytes = await fillPDF();
-  
-        // Create a new FormData object to send the PDF
         const formDataToSend = new FormData();
         formDataToSend.append('documents', new Blob([pdfBytes], { type: 'application/pdf' }), 'ResidentialPurchaseAgreement.pdf');
-        formDataToSend.append('type', 'Purchase Agreement'); // Append type (not as an array, but single value)
-        formDataToSend.append('title', 'Buyer Purchase Agreement'); // Append title
-        formDataToSend.append('purpose', 'offer'); // Set the purpose to 'offer'
-        formDataToSend.append('uploadedBy', user._id); // Attach user ID (uploadedBy)
-        formDataToSend.append('propertyListingId', listingId); // Attach the property listing ID
+        formDataToSend.append('type', 'Purchase Agreement');
+        formDataToSend.append('title', 'Buyer Purchase Agreement');
+        formDataToSend.append('purpose', 'offer');
+        formDataToSend.append('uploadedBy', user._id);
+        formDataToSend.append('propertyListingId', listingId);
   
-        // Send the request to upload the document
         const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formDataToSend, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}` // Include the token in the request headers
-          },
+          headers: { 'Authorization': `Bearer ${token}` },
         });
   
-        // Add the uploaded document to the offer data
         const uploadedDocument = {
-          id: response.data[0]._id, // The document ID from the response
-          title: 'Buyer Purchase Agreement', // The title of the document
-          type: 'Purchase Agreement', // The type of document
-          file: { name: 'ResidentialPurchaseAgreement.pdf', size: pdfBytes.length }, // File details
+          id: response.data[0]._id,
+          title: 'Buyer Purchase Agreement',
+          type: 'Purchase Agreement',
+          file: { name: 'ResidentialPurchaseAgreement.pdf', size: pdfBytes.length }
         };
   
-        // Replace the document in the offer's state
-        replaceDocument(uploadedDocument);
-  
-        // Clear any error state
-        setError(null);
+        replaceDocument(uploadedDocument); // Add the uploaded document to offer
       } catch (error) {
-        // Handle any errors that occur during the upload process
-        console.error('Error including and uploading PDF:', error);
-        setError(error.response?.data?.message || 'Failed to include and upload PDF. Please try again.');
+        setError('Failed to include and upload PDF. Please try again.');
       }
     }
-  }, [selectedForm, fillPDF, user._id, listingId, replaceDocument, token]);
+  }, [selectedForm, fillPDF, user._id, listingId, replaceDocument, token]);  
   
   return {
     selectedForm,

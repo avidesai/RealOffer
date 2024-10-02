@@ -1,4 +1,4 @@
-// Documents.js
+// /OfferView/components/Documents/Documents.js
 
 import React, { useState } from 'react';
 import './Documents.css';

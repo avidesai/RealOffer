@@ -1,7 +1,7 @@
 // MakeOfferModal.js
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useAuth } from '../../../../../../../../../context/AuthContext';
+import { useAuth } from '../../../../../../../../../context/AuthContext'; // Import AuthContext to get user
 import { useOffer } from '../../../../../../../../../context/OfferContext';
 import './MakeOfferModal.css';
 import PurchasePrice from './Steps/PurchasePrice';
@@ -18,7 +18,7 @@ const parseNumber = (value) => {
 };
 
 const MakeOfferModal = ({ onClose, listingId }) => {
-  const { token } = useAuth();
+  const { token, user } = useAuth(); // Include 'user' to get user details
   const { offerData, updateOfferData } = useOffer();
   const [step, setStep] = useState(1);
 
@@ -109,7 +109,11 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     setStep(1);
   }, [updateOfferData, listingId]);
 
-  const fetchUpdatedDocuments = async () => {
+  const fetchUpdatedDocuments = useCallback(async () => {
+    if (!offerData._id) {
+      return offerData.documents; // Return locally stored documents if offer is not created yet
+    }
+  
     try {
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/offer/${offerData._id}`, {
         headers: {
@@ -121,52 +125,64 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       console.error('Error fetching updated documents:', error);
       return [];
     }
-  };
-
+  }, [offerData._id, offerData.documents, token]);
+  
   const handleNextStepWrapper = useCallback(async () => {
     if (step === 5) { // Assuming step 5 is AutoFillForms step
       const updatedDocuments = await fetchUpdatedDocuments();
       updateOfferData({ documents: updatedDocuments });
     }
     handleNextStep();
-  }, [step, handleNextStep, updateOfferData]);
+  }, [step, handleNextStep, updateOfferData, fetchUpdatedDocuments]);
 
-  const handleSubmit = useCallback(
-    async () => {
-      const formDataToSend = new FormData();
-      for (const key in offerData) {
-        if (key === 'documents' && offerData[key].length > 0) {
-          offerData[key].forEach((doc) => {
-            formDataToSend.append('documents', doc.id);
-          });
-        } else if (key === 'presentedBy' || key === 'brokerageInfo') {
-          for (const nestedKey in offerData[key]) {
-            formDataToSend.append(`${key}.${nestedKey}`, offerData[key][nestedKey]);
-          }
-        } else {
-          formDataToSend.append(key, offerData[key]);
+  const handleSubmit = useCallback(async () => {
+    const formDataToSend = new FormData();
+    for (const key in offerData) {
+      if (key !== 'documents' && (key === 'presentedBy' || key === 'brokerageInfo')) {
+        for (const nestedKey in offerData[key]) {
+          formDataToSend.append(`${key}.${nestedKey}`, offerData[key][nestedKey]);
         }
+      } else if (key !== 'documents') {
+        formDataToSend.append(key, offerData[key]);
       }
-      formDataToSend.append('propertyListingId', listingId);
+    }
+    formDataToSend.append('propertyListingId', listingId);
 
-      try {
-        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/offers`, formDataToSend, {
+    try {
+      // First, create the offer
+      const offerResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/offers`, formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const createdOfferId = offerResponse.data._id;
+
+      // After the offer is created, upload the documents
+      for (const document of offerData.documents) {
+        const documentFormData = new FormData();
+        documentFormData.append('documents', document.file);
+        documentFormData.append('type', document.type);
+        documentFormData.append('title', document.title);
+        documentFormData.append('purpose', 'offer');
+        documentFormData.append('uploadedBy', user._id); // Access user._id from AuthContext
+        documentFormData.append('propertyListingId', listingId);
+        documentFormData.append('offerId', createdOfferId);
+
+        await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, documentFormData, {
           headers: {
-            'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log('Offer created:', response.data);
-
-        handleResetOffer();
-
-        onClose();
-      } catch (error) {
-        console.error('Error creating offer:', error);
       }
-    },
-    [offerData, listingId, onClose, handleResetOffer, token]
-  );
+
+      handleResetOffer(); // Reset the form after submission
+      onClose(); // Close the modal
+    } catch (error) {
+      console.error('Error creating offer:', error);
+    }
+  }, [offerData, listingId, onClose, handleResetOffer, token, user._id]); // Removed user._id from dependency array
 
   useEffect(() => {
     const downPayment = parseNumber(offerData.downPayment);

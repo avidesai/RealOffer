@@ -18,9 +18,7 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
   const fetchSignaturePackage = useCallback(async () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}` // Include the token in the request headers
-        }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       const signaturePackage = response.data.find(doc => doc.purpose === 'signature_package');
       if (signaturePackage) {
@@ -30,18 +28,16 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
           type: 'Signature Package',
           file: { name: signaturePackage.title, size: signaturePackage.size }
         };
-        replaceDocument(newFile);
+        replaceDocument(newFile); // Add this to the offer documents
       }
     } catch (error) {
       console.error('Error fetching signature package:', error);
     }
   }, [listingId, replaceDocument, token]);
-
+  
   useEffect(() => {
-    if (token) { // Only fetch data if the token is available
-      fetchSignaturePackage();
-    }
-  }, [fetchSignaturePackage, token]);
+    fetchSignaturePackage(); // Call it on component load
+  }, [fetchSignaturePackage]);  
 
   const handleDragOver = (e) => {
     e.preventDefault();

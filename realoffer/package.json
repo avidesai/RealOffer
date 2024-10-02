@@ -37,6 +37,8 @@
     "react-router-dom": "^6.22.3",
     "react-scripts": "5.0.1",
     "react-visibility-sensor": "^5.1.1",
+    "react-window": "^1.8.10",
+    "react-window-infinite-loader": "^1.0.9",
     "redux": "^5.0.1",
     "use-places-autocomplete": "^4.0.1",
     "web-vitals": "^2.1.4",
