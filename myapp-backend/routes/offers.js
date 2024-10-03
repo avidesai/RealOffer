@@ -3,6 +3,10 @@
 const express = require('express');
 const router = express.Router();
 const offerController = require('../controllers/offerController');
+const authMiddleware = require('../middleware/auth');
+
+// Apply authMiddleware to all routes
+router.use(authMiddleware);
 
 // Create a new offer with file uploads
 router.post('/', offerController.uploadOfferDocuments, offerController.createOffer);

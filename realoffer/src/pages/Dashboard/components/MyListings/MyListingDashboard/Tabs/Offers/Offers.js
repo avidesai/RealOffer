@@ -2,16 +2,16 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { useAuth } from '../../../../../../../context/AuthContext';
 import OfferSortBar from './components/OfferSortBar/OfferSortBar';
 import MakeOfferModal from './components/MakeOfferModal/MakeOfferModal';
 import OfferCard from './components/OfferCard/OfferCard';
-import OfferView from './components/OfferView/OfferView'; // Import the new OfferView component
+import OfferDetailsView from './components/OfferView/OfferDetailsView';
 import RespondToOfferModal from './components/RespondToOfferModal/RespondToOfferModal';
-import { useAuth } from '../../../../../../../context/AuthContext'; // Import useAuth hook
 import './Offers.css';
 
 const Offers = ({ listingId }) => {
-  const { token } = useAuth(); // Get the token from AuthContext
+  const { token } = useAuth();
   const [offers, setOffers] = useState([]);
   const [propertyListing, setPropertyListing] = useState(null);
   const [filter, setFilter] = useState('all');
@@ -28,19 +28,17 @@ const Offers = ({ listingId }) => {
     setLoading(true);
     try {
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`, // Add the token to the Authorization header
-        },
+        headers: { Authorization: `Bearer ${token}` }
       });
       setOffers(response.data.offers);
       setPropertyListing(response.data);
-      setTotalPages(Math.ceil(response.data.offers.length / 4)); // 4 offers per page
+      setTotalPages(Math.ceil(response.data.offers.length / 4));
     } catch (error) {
       console.error('Error fetching offers:', error);
     } finally {
       setLoading(false);
     }
-  }, [listingId, token]); // Add token as a dependency
+  }, [listingId, token]);
 
   useEffect(() => {
     fetchOffers();
@@ -71,8 +69,13 @@ const Offers = ({ listingId }) => {
     await fetchOffers();
   };
 
+  const handleDownloadSummary = () => {
+    console.log('Download Summary clicked');
+    // Add logic to download summary
+  };
+
   const handleOfferClick = (offerId) => {
-    setSelectedOffer(offerId); // Open OfferView for the selected offer
+    setSelectedOffer(offerId);
   };
 
   const handleBackToOffers = () => {
@@ -93,7 +96,7 @@ const Offers = ({ listingId }) => {
   const handleCloseRespondModal = async (submitted) => {
     setRespondToOffer(null);
     if (submitted) {
-      setLoading(true); // Show spinner
+      setLoading(true);
       await fetchOffers();
     }
   };
@@ -124,12 +127,12 @@ const Offers = ({ listingId }) => {
     offer.specialTerms?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const paginatedOffers = searchedOffers.slice((currentPage - 1) * 4, currentPage * 4); // 4 offers per page
+  const paginatedOffers = searchedOffers.slice((currentPage - 1) * 4, currentPage * 4);
 
   return (
     <div className="offers-tab">
       {selectedOffer ? (
-        <OfferView offerId={selectedOffer} onBack={handleBackToOffers} /> // Replace OfferDetailsView with OfferView
+        <OfferDetailsView offerId={selectedOffer} onBack={handleBackToOffers} />
       ) : (
         <>
           <OfferSortBar
@@ -137,7 +140,7 @@ const Offers = ({ listingId }) => {
             onSortChange={handleSortChange}
             onSearch={handleSearch}
             onAddOffer={handleAddOffer}
-            onDownloadSummary={() => console.log('Download Summary clicked')}
+            onDownloadSummary={handleDownloadSummary}
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={handlePageChange}
