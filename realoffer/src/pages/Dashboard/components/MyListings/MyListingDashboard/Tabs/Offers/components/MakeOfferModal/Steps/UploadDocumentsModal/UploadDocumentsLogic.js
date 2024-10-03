@@ -1,16 +1,16 @@
 // UploadDocumentsLogic.js
 
 import { useState, useRef } from 'react';
-import axios from 'axios';
 import { useAuth } from '../../../../../../../../../../../context/AuthContext';
 import UploadDocumentsModal from './UploadDocumentsModal';
+import api from '../../../../../../../../../../../context/api';
 
 const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState([]);
   const fileInputRef = useRef(null);
-  const { user, token } = useAuth(); // Get the token from AuthContext
+  const { user } = useAuth();
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -67,6 +67,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
       setErrors(newErrors);
       return;
     }
+
     setUploading(true);
     try {
       const formData = new FormData();
@@ -78,12 +79,13 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
       });
       formData.append('uploadedBy', user._id); // Assuming user._id contains the user's ID
       formData.append('propertyListingId', listingId); // Add the property listing ID
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formData, {
+
+      const response = await api.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}` // Add the token to the request headers
         },
       });
+
       setUploading(false);
       onClose();
       if (onUploadSuccess) {
