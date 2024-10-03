@@ -1,5 +1,3 @@
-// SignaturePDFViewer.js
-
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Document, Page } from 'react-pdf';
 import { FiChevronLeft, FiChevronRight, FiZoomIn, FiZoomOut } from 'react-icons/fi';
@@ -8,6 +6,7 @@ import axios from 'axios';
 import { useAuth } from '../../../../../../../../../../../context/AuthContext';
 import SignaturePDFViewerLogic from './SignaturePDFViewerLogic';
 import './SignaturePDFViewer.css';
+import { throttle } from 'lodash';
 
 const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePackagePages, onPageSelectionChange, onClose }) => {
   const { token } = useAuth();
@@ -25,6 +24,7 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
   const pageRefs = useRef({});
   const [localSelectedPages, setLocalSelectedPages] = useState(signaturePackagePages);
   const [isLoading, setIsLoading] = useState(true);
+  const [renderedPages, setRenderedPages] = useState([1]); // Start by rendering the first page
 
   useEffect(() => {
     setLocalSelectedPages(signaturePackagePages);
@@ -43,7 +43,6 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
     onPageSelectionChange(response.data);
   };
 
-
   const handleSelectAllPages = async () => {
     const allPages = Array.from({ length: numPages }, (_, i) => i + 1);
     const currentlySelectedPages = new Set(localSelectedPages);
@@ -55,6 +54,43 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
 
     setLocalSelectedPages(allPages); // Update the local state with all pages selected
   };
+
+  const handleScroll = useCallback(
+    throttle(() => {
+      const container = containerRef.current;
+      if (container) {
+        const { scrollTop, clientHeight, scrollHeight } = container;
+        const totalPages = Math.ceil(numPages);
+        const threshold = 200;
+
+        // Load next batch of pages when close to bottom
+        if (scrollTop + clientHeight + threshold >= scrollHeight && renderedPages.length < totalPages) {
+          setRenderedPages((prev) => {
+            const nextPages = Array.from({ length: 5 }, (_, i) => prev.length + i + 1);
+            return [...prev, ...nextPages].slice(0, totalPages);
+          });
+        }
+
+        // Unmount pages that are too far from the current viewport
+        const startPage = Math.max(1, Math.floor(scrollTop / clientHeight) - 5);
+        const endPage = Math.min(numPages, Math.ceil((scrollTop + clientHeight) / clientHeight) + 5);
+        setRenderedPages(Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i));
+      }
+    }, 300), // 300ms throttle for scroll
+    [numPages, renderedPages]
+  );
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+    }
+    return () => {
+      if (container) {
+        container.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [handleScroll]);
 
   const alignTextLayer = useCallback((pageNumber) => {
     if (pageRefs.current[pageNumber]) {
@@ -68,26 +104,6 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
       }
     }
   }, []);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const pageNumber = parseInt(entry.target.dataset.pageNumber, 10);
-            setCurrentPage(pageNumber);
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-
-    Object.values(pageRefs.current).forEach((ref) => {
-      if (ref) observer.observe(ref);
-    });
-
-    return () => observer.disconnect();
-  }, [numPages, setCurrentPage]);
 
   const renderPage = (pageNumber) => (
     <div
@@ -105,8 +121,8 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
           renderAnnotationLayer={true}
           onRenderSuccess={() => {
             alignTextLayer(pageNumber);
-            if (pageNumber === numPages) {
-              setIsLoading(false);
+            if (pageNumber === 1) {
+              setIsLoading(false); // Hide spinner once the first page is rendered
             }
           }}
           loading={null}
@@ -168,7 +184,7 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
             onLoadSuccess={onDocumentLoadSuccess}
             loading={null}
           >
-            {Array.from(new Array(numPages), (el, index) => renderPage(index + 1))}
+            {renderedPages.map(pageNumber => renderPage(pageNumber))}
           </Document>
           {isLoading && (
             <div className="spv-pdf-spinner-overlay">
