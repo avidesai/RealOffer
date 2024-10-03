@@ -1,7 +1,7 @@
 // MakeOfferModal.js
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useAuth } from '../../../../../../../../../context/AuthContext'; // Import the useAuth hook
+import { useAuth } from '../../../../../../../../../context/AuthContext';
 import { useOffer } from '../../../../../../../../../context/OfferContext';
 import './MakeOfferModal.css';
 import PurchasePrice from './Steps/PurchasePrice';
@@ -19,8 +19,9 @@ const parseNumber = (value) => {
 
 const MakeOfferModal = ({ onClose, listingId }) => {
   const { offerData, updateOfferData } = useOffer();
-  const { token } = useAuth(); // Add this line to get the auth token
+  const { token } = useAuth();
   const [step, setStep] = useState(1);
+  const [createdOfferId, setCreatedOfferId] = useState(null);
 
   const handleNextStep = useCallback(() => setStep(prevStep => prevStep + 1), []);
   const handlePrevStep = useCallback(() => setStep(prevStep => prevStep - 1), []);
@@ -98,21 +99,20 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       }
     });
     setStep(1);
+    setCreatedOfferId(null);
   }, [updateOfferData, listingId]);
 
   const handleSubmit = useCallback(async () => {
     const formDataToSend = new FormData();
     for (const key in offerData) {
-      if (key === 'documents' && offerData[key].length > 0) {
-        offerData[key].forEach((doc) => {
-          formDataToSend.append('documents', doc.id);
-        });
-      } else if (key === 'presentedBy' || key === 'brokerageInfo') {
-        for (const nestedKey in offerData[key]) {
-          formDataToSend.append(`${key}.${nestedKey}`, offerData[key][nestedKey]);
+      if (key !== 'documents') {
+        if (key === 'presentedBy' || key === 'brokerageInfo') {
+          for (const nestedKey in offerData[key]) {
+            formDataToSend.append(`${key}.${nestedKey}`, offerData[key][nestedKey]);
+          }
+        } else {
+          formDataToSend.append(key, offerData[key]);
         }
-      } else {
-        formDataToSend.append(key, offerData[key]);
       }
     }
     formDataToSend.append('propertyListingId', listingId);
@@ -121,19 +121,29 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/offers`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}` // Add this line to include the auth token
+          'Authorization': `Bearer ${token}`
         },
       });
       console.log('Offer created:', response.data);
       
-      // Reset the offer context to default after successful submission
+      setCreatedOfferId(response.data._id);
+
+      if (offerData.documents && offerData.documents.length > 0) {
+        const documentUpdatePromises = offerData.documents.map(doc => 
+          axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${doc.id}`, 
+            { offer: response.data._id },
+            { headers: { 'Authorization': `Bearer ${token}` } }
+          )
+        );
+        await Promise.all(documentUpdatePromises);
+      }
+
       handleResetOffer();
-      
       onClose();
     } catch (error) {
       console.error('Error creating offer:', error);
     }
-  }, [offerData, listingId, onClose, handleResetOffer, token]); // Add token to the dependency array
+  }, [offerData, listingId, onClose, handleResetOffer, token]);
 
   useEffect(() => {
     const downPayment = parseNumber(offerData.downPayment);
@@ -201,13 +211,14 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       handlePrevStep={handlePrevStep}
       updateOfferData={updateOfferData}
       listingId={listingId}
+      createdOfferId={createdOfferId}
     />,
     finalReview: <FinalReview
-    formData={offerData}
-    handlePrevStep={handlePrevStep}
-    handleSubmit={handleSubmit}
-  />
-  }), [offerData, handleChange, handleFinanceTypeChange, handleNextStep, handlePrevStep, handleNestedChange, updateOfferData, listingId, handleSubmit]);
+      formData={offerData}
+      handlePrevStep={handlePrevStep}
+      handleSubmit={handleSubmit}
+    />
+  }), [offerData, handleChange, handleFinanceTypeChange, handleNextStep, handlePrevStep, handleNestedChange, updateOfferData, listingId, handleSubmit, createdOfferId]);
 
   return (
     <div className="make-offer-modal">
