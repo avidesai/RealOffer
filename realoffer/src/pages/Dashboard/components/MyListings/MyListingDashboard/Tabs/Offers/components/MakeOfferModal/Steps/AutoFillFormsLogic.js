@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { PDFDocument } from 'pdf-lib';
 import download from 'downloadjs';
-import axios from 'axios';
+import api from '../../../../../../../../../../context/api';
 import { useOffer } from '../../../../../../../../../../context/OfferContext';
 import { useAuth } from '../../../../../../../../../../context/AuthContext';
 
@@ -18,12 +18,12 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
 
   const fetchListingData = useCallback(async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`);
+      const response = await api.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`);
       setListingData(response.data);
 
       const agentId = response.data.agentIds[0];
       if (agentId) {
-        const agentResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${agentId}`);
+        const agentResponse = await api.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${agentId}`);
         setAgentData(agentResponse.data);
       }
     } catch (error) {
@@ -123,7 +123,7 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
         formDataToSend.append('uploadedBy', user._id); // Use the current user's ID
         formDataToSend.append('propertyListingId', listingId);
 
-        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formDataToSend, {
+        const response = await api.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formDataToSend, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
