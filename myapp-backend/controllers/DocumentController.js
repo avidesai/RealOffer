@@ -493,3 +493,24 @@ exports.deleteAllDocuments = async (req, res) => {
   }
 };
 module.exports = exports;
+
+exports.updateDocument = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const document = await Document.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true
+    });
+
+    if (!document) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+
+    res.status(200).json(document);
+  } catch (error) {
+    console.error('Error updating document:', error);
+    res.status(500).json({ message: error.message });
+  }
+};

@@ -24,5 +24,6 @@ router.post('/addPage', DocumentController.addPageToSignaturePackage);
 router.post('/removePage', DocumentController.removePageFromSignaturePackage);
 router.put('/createBuyerSignaturePacket', DocumentController.createBuyerSignaturePacket);
 router.put('/updateSignedStatus', DocumentController.updateDocumentSignedStatus);
+router.put('/:id', DocumentController.updateDocument);
 
 module.exports = router;

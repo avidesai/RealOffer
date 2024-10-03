@@ -114,7 +114,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       }
     }
     formDataToSend.append('propertyListingId', listingId);
-
+  
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/offers`, formDataToSend, {
         headers: {
@@ -125,21 +125,25 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       console.log('Offer created:', response.data);
       
       const createdOfferId = response.data._id;
-
+  
       if (offerData.documents && offerData.documents.length > 0) {
         const documentUpdatePromises = offerData.documents.map(doc => 
           axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${doc.id}`, 
             { offer: createdOfferId },
             { headers: { 'Authorization': `Bearer ${token}` } }
-          )
+          ).catch(error => {
+            console.error(`Error updating document ${doc.id}:`, error);
+            return null;
+          })
         );
         await Promise.all(documentUpdatePromises);
       }
-
+  
       handleResetOffer();
       onClose();
     } catch (error) {
       console.error('Error creating offer:', error);
+      // You might want to show an error message to the user here
     }
   }, [offerData, listingId, onClose, handleResetOffer, token]);
 
