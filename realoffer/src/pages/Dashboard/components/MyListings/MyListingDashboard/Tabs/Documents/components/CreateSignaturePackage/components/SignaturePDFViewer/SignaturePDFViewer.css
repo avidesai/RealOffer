@@ -63,7 +63,6 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 1rem;
-  scroll-behavior: smooth; /* Adds smooth scrolling */
 }
 
 .spv-pdf-viewer-container {
@@ -83,7 +82,6 @@
   position: relative;
   margin-bottom: 1rem;
   transition: box-shadow 0.3s ease;
-  will-change: transform; /* Optimize for scroll and render performance */
 }
 
 .spv-page-wrapper {

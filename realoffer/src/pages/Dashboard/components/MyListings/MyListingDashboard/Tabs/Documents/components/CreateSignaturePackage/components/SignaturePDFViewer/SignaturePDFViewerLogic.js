@@ -1,15 +1,13 @@
 import { useState, useEffect } from 'react';
 import { pdfjs } from 'react-pdf';
-import pdfWorker from 'pdfjs-dist/build/pdf.worker.entry';
 
 const SignaturePDFViewerLogic = ({ fileUrl, docTitle, docType, onClose }) => {
   const [numPages, setNumPages] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [scale, setScale] = useState(0.6);
+  const [scale, setScale] = useState(0.6); // Set initial scale
 
   useEffect(() => {
-    // Set the worker path to the correct version
-    pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
+    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
   }, []);
 
   useEffect(() => {

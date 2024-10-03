@@ -1,3 +1,5 @@
+// SignaturePDFViewer.js
+
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Document, Page } from 'react-pdf';
 import { FiChevronLeft, FiChevronRight, FiZoomIn, FiZoomOut } from 'react-icons/fi';
@@ -25,9 +27,8 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log("File URL: ", fileUrl);  // Check if the fileUrl is correct
     setLocalSelectedPages(signaturePackagePages);
-  }, [signaturePackagePages, fileUrl]);
+  }, [signaturePackagePages]);
 
   const handlePageSelect = async (pageIndex, isSelected) => {
     const url = `${process.env.REACT_APP_BACKEND_URL}/api/documents/${isSelected ? 'removePage' : 'addPage'}`;
@@ -41,6 +42,7 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
     );
     onPageSelectionChange(response.data);
   };
+
 
   const handleSelectAllPages = async () => {
     const allPages = Array.from({ length: numPages }, (_, i) => i + 1);
@@ -87,44 +89,40 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
     return () => observer.disconnect();
   }, [numPages, setCurrentPage]);
 
-  const renderPage = (pageNumber) => {
-    if (!pageRefs.current[pageNumber]?.getBoundingClientRect().top) return null;
-
-    return (
-      <div
-        key={`page_${pageNumber}`}
-        ref={(ref) => (pageRefs.current[pageNumber] = ref)}
-        data-page-number={pageNumber}
-        className={`spv-pdf-page-container ${localSelectedPages.includes(pageNumber) ? 'selected' : ''}`}
-        onClick={() => handlePageSelect(pageNumber, localSelectedPages.includes(pageNumber))}
-      >
-        <div className="spv-page-wrapper">
-          <Page
-            pageNumber={pageNumber}
-            scale={scale}
-            renderTextLayer={false}
-            renderAnnotationLayer={false}
-            onRenderSuccess={() => {
-              alignTextLayer(pageNumber);
-              if (pageNumber === numPages) {
-                setIsLoading(false);
-              }
-            }}
-            loading={null}
+  const renderPage = (pageNumber) => (
+    <div
+      key={`page_${pageNumber}`}
+      ref={(ref) => (pageRefs.current[pageNumber] = ref)}
+      data-page-number={pageNumber}
+      className={`spv-pdf-page-container ${localSelectedPages.includes(pageNumber) ? 'selected' : ''}`}
+      onClick={() => handlePageSelect(pageNumber, localSelectedPages.includes(pageNumber))}
+    >
+      <div className="spv-page-wrapper">
+        <Page
+          pageNumber={pageNumber}
+          scale={scale}
+          renderTextLayer={true}
+          renderAnnotationLayer={true}
+          onRenderSuccess={() => {
+            alignTextLayer(pageNumber);
+            if (pageNumber === numPages) {
+              setIsLoading(false);
+            }
+          }}
+          loading={null}
+        />
+        <div className="spv-overlay">
+          <input
+            type="checkbox"
+            className="spv-checkbox"
+            checked={localSelectedPages.includes(pageNumber)}
+            onChange={() => handlePageSelect(pageNumber, localSelectedPages.includes(pageNumber))}
+            onClick={(e) => e.stopPropagation()}
           />
-          <div className="spv-overlay">
-            <input
-              type="checkbox"
-              className="spv-checkbox"
-              checked={localSelectedPages.includes(pageNumber)}
-              onChange={() => handlePageSelect(pageNumber, localSelectedPages.includes(pageNumber))}
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= numPages) {
@@ -168,10 +166,6 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
           <Document
             file={fileUrl}
             onLoadSuccess={onDocumentLoadSuccess}
-            onLoadError={(error) => {
-              console.error("Error loading PDF: ", error);
-              setIsLoading(false); // Stop the spinner if there's an error
-            }}
             loading={null}
           >
             {Array.from(new Array(numPages), (el, index) => renderPage(index + 1))}
