@@ -6,18 +6,20 @@ import api from '../../../../../../../../../../context/api';
 import { useAuth } from '../../../../../../../../../../context/AuthContext';
 import { useOffer } from '../../../../../../../../../../context/OfferContext';
 
-const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
+const Documents = ({ handleNextStep, handlePrevStep, listingId, createdOfferId }) => {
   const { offerData, updateOfferData } = useOffer();
   const [files, setFiles] = useState(offerData.documents || []);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState([]);
   const [filesUploaded, setFilesUploaded] = useState(true);
   const fileInputRef = useRef(null);
-  const { user } = useAuth();
+  const { user, token } = useAuth();
 
   const fetchSignaturePackage = useCallback(async () => {
     try {
-      const response = await api.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`);
+      const response = await api.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       const signaturePackage = response.data.find(doc => doc.purpose === 'signature_package');
       if (signaturePackage) {
         setFiles(prevFiles => {
@@ -41,7 +43,7 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
     } catch (error) {
       console.error('Error fetching signature package:', error);
     }
-  }, [listingId, updateOfferData]);
+  }, [listingId, updateOfferData, token]);
 
   useEffect(() => {
     fetchSignaturePackage();
@@ -145,10 +147,14 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
       formData.append('purpose', 'offer');
       formData.append('uploadedBy', user._id);
       formData.append('propertyListingId', listingId);
+      if (createdOfferId) {
+        formData.append('offerId', createdOfferId);
+      }
 
       const response = await api.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
         },
       });
 
