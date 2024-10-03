@@ -3,6 +3,7 @@
 const Document = require('../models/Document');
 const PropertyListing = require('../models/PropertyListing');
 const BuyerPackage = require('../models/BuyerPackage');
+const Offer = require('../models/Offer');
 const { containerClient, generateSASToken } = require('../config/azureStorage');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
@@ -38,10 +39,10 @@ exports.uploadDocument = async (req, res) => {
       return res.status(404).json({ message: 'Property listing not found' });
     }
 
-    // Check if the authenticated user is authorized to upload documents to this listing
     if (propertyListing.createdBy.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to upload documents to this listing' });
     }
+
     const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
     const types = Array.isArray(req.body.type) ? req.body.type : [req.body.type];
 
@@ -72,16 +73,17 @@ exports.uploadDocument = async (req, res) => {
         azureKey: blobName,
         visibility,
         purpose,
-        offer: offerId,  // Associate document with offer if provided
+        offer: offerId,
         docType,
         signed: false
       });
 
       const savedDocument = await newDocument.save();
-      // If an offerId is provided, associate this document with the offer
+      
       if (offerId) {
         await Offer.findByIdAndUpdate(offerId, { $push: { documents: savedDocument._id } });
       }
+      
       propertyListing.documents.push(savedDocument._id);
       return savedDocument;
     }));
@@ -447,24 +449,28 @@ exports.getDocumentsByOffer = async (req, res) => {
     if (!offer) {
       return res.status(404).json({ message: 'Offer not found' });
     }
-    // Ensure that the user is authorized to view the documents
+    
     if (offer.propertyListing.createdBy.toString() !== req.user.id && offer.buyersAgent.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to view these documents' });
     }
-    // Find documents linked to the offer
+    
     const documents = await Document.find({ offer: req.params.offerId });
     if (!documents || documents.length === 0) {
       return res.status(404).json({ message: 'No documents found for this offer' });
     }
+    
     const documentsWithSAS = documents.map(doc => ({
       ...doc._doc,
       sasToken: generateSASToken(doc.azureKey, doc.signed),
     }));
+    
     res.status(200).json(documentsWithSAS);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
+
 // Add this new function at the end of the file
 exports.deleteAllDocuments = async (req, res) => {
   console.log('deleteAllDocuments function called');

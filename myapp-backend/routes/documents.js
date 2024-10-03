@@ -1,4 +1,5 @@
 // /routes/documents.js
+
 const express = require('express');
 const router = express.Router();
 const DocumentController = require('../controllers/DocumentController');
@@ -6,12 +7,11 @@ const authMiddleware = require('../middleware/auth');
 
 // Apply auth middleware to all routes except deleteAll
 router.use((req, res, next) => {
-    if (req.path === '/deleteAll' && req.method === 'DELETE') {
-      return next();
-    }
-    authMiddleware(req, res, next);
-  });
-  
+  if (req.path === '/deleteAll' && req.method === 'DELETE') {
+    return next();
+  }
+  authMiddleware(req, res, next);
+});
 
 router.delete('/deleteAll', DocumentController.deleteAllDocuments);
 router.post('/', DocumentController.uploadDocuments, DocumentController.uploadDocument);
@@ -24,6 +24,5 @@ router.post('/addPage', DocumentController.addPageToSignaturePackage);
 router.post('/removePage', DocumentController.removePageFromSignaturePackage);
 router.put('/createBuyerSignaturePacket', DocumentController.createBuyerSignaturePacket);
 router.put('/updateSignedStatus', DocumentController.updateDocumentSignedStatus);
-
 
 module.exports = router;

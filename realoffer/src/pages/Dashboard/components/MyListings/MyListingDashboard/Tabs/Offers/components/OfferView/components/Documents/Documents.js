@@ -10,7 +10,7 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('en-US', options);
 };
 
-const Documents = ({ offer }) => {
+const Documents = ({ documents }) => {
   const { token } = useAuth();
   const [showPDFViewer, setShowPDFViewer] = useState(false);
   const [currentFileUrl, setCurrentFileUrl] = useState('');
@@ -29,11 +29,11 @@ const Documents = ({ offer }) => {
     <div className="offer-details-documents-section">
       <h2 className="offer-details-section-title">Documents</h2>
       <div className="offer-details-documents-content">
-        {offer.documents.length === 0 ? (
+        {documents.length === 0 ? (
           <p className="offer-details-no-documents">No documents included.</p>
         ) : (
           <div className="offer-details-documents-list">
-            {offer.documents.map(doc => (
+            {documents.map(doc => (
               <div key={doc._id} className="offer-details-document-item" onClick={() => handleViewDocument(doc)}>
                 <div className="offer-details-document-info">
                   <div className="offer-details-document-details">

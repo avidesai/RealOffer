@@ -13,30 +13,39 @@ import PrivateNotes from './components/PrivateNotes/PrivateNotes';
 const OfferDetailsView = ({ offerId, onBack }) => {
   const { token } = useAuth();
   const [offer, setOffer] = useState(null);
+  const [documents, setDocuments] = useState([]);
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchOffer = async () => {
+    const fetchOfferAndDocuments = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offerId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const offerData = response.data;
-        // Fetch documents for the offer
-        const documentsResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/offer/${offerId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        offerData.documents = documentsResponse.data;
+        setLoading(true);
+        setError(null);
+
+        const [offerResponse, documentsResponse] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offerId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }),
+          axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/offer/${offerId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+        ]);
+
+        const offerData = offerResponse.data;
         setOffer(offerData);
         setNotes(offerData.privateListingTeamNotes || '');
+        setDocuments(documentsResponse.data);
       } catch (error) {
-        console.error('Error fetching offer:', error);
+        console.error('Error fetching offer and documents:', error);
+        setError('Failed to load offer details. Please try again later.');
       } finally {
         setLoading(false);
       }
     };
-    fetchOffer();
+
+    fetchOfferAndDocuments();
   }, [offerId, token]);
 
   const handleNotesChange = (event) => {
@@ -52,11 +61,20 @@ const OfferDetailsView = ({ offerId, onBack }) => {
       });
     } catch (error) {
       console.error('Error updating notes:', error);
+      // Optionally, show an error message to the user
     }
   };
 
   if (loading) {
     return <div className="spinner-container"><div className="spinner"></div></div>;
+  }
+
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
+
+  if (!offer) {
+    return <div className="error-message">No offer data available.</div>;
   }
 
   return (
@@ -67,7 +85,7 @@ const OfferDetailsView = ({ offerId, onBack }) => {
         <div className="middle-section">
           <AgentInfo offer={offer} />
           <Messages offer={offer} />
-          <Documents offer={offer} />
+          <Documents documents={documents} />
         </div>
         <PrivateNotes notes={notes} handleNotesChange={handleNotesChange} handleNotesBlur={handleNotesBlur} />
       </div>

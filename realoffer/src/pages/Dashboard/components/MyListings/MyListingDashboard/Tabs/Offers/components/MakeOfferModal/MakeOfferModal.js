@@ -1,6 +1,7 @@
 // MakeOfferModal.js
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuth } from '../../../../../../../../../context/AuthContext'; // Import the useAuth hook
 import { useOffer } from '../../../../../../../../../context/OfferContext';
 import './MakeOfferModal.css';
 import PurchasePrice from './Steps/PurchasePrice';
@@ -18,6 +19,7 @@ const parseNumber = (value) => {
 
 const MakeOfferModal = ({ onClose, listingId }) => {
   const { offerData, updateOfferData } = useOffer();
+  const { token } = useAuth(); // Add this line to get the auth token
   const [step, setStep] = useState(1);
 
   const handleNextStep = useCallback(() => setStep(prevStep => prevStep + 1), []);
@@ -119,6 +121,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/offers`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}` // Add this line to include the auth token
         },
       });
       console.log('Offer created:', response.data);
@@ -130,7 +133,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     } catch (error) {
       console.error('Error creating offer:', error);
     }
-  }, [offerData, listingId, onClose, handleResetOffer]);
+  }, [offerData, listingId, onClose, handleResetOffer, token]); // Add token to the dependency array
 
   useEffect(() => {
     const downPayment = parseNumber(offerData.downPayment);
