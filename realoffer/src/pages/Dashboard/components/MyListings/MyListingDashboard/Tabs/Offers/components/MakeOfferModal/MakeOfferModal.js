@@ -21,7 +21,6 @@ const MakeOfferModal = ({ onClose, listingId }) => {
   const { offerData, updateOfferData } = useOffer();
   const { token } = useAuth();
   const [step, setStep] = useState(1);
-  const [createdOfferId, setCreatedOfferId] = useState(null);
 
   const handleNextStep = useCallback(() => setStep(prevStep => prevStep + 1), []);
   const handlePrevStep = useCallback(() => setStep(prevStep => prevStep - 1), []);
@@ -99,7 +98,6 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       }
     });
     setStep(1);
-    setCreatedOfferId(null);
   }, [updateOfferData, listingId]);
 
   const handleSubmit = useCallback(async () => {
@@ -126,12 +124,12 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       });
       console.log('Offer created:', response.data);
       
-      setCreatedOfferId(response.data._id);
+      const createdOfferId = response.data._id;
 
       if (offerData.documents && offerData.documents.length > 0) {
         const documentUpdatePromises = offerData.documents.map(doc => 
           axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${doc.id}`, 
-            { offer: response.data._id },
+            { offer: createdOfferId },
             { headers: { 'Authorization': `Bearer ${token}` } }
           )
         );
@@ -211,14 +209,13 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       handlePrevStep={handlePrevStep}
       updateOfferData={updateOfferData}
       listingId={listingId}
-      createdOfferId={createdOfferId}
     />,
     finalReview: <FinalReview
       formData={offerData}
       handlePrevStep={handlePrevStep}
       handleSubmit={handleSubmit}
     />
-  }), [offerData, handleChange, handleFinanceTypeChange, handleNextStep, handlePrevStep, handleNestedChange, updateOfferData, listingId, handleSubmit, createdOfferId]);
+  }), [offerData, handleChange, handleFinanceTypeChange, handleNextStep, handlePrevStep, handleNestedChange, updateOfferData, listingId, handleSubmit]);
 
   return (
     <div className="make-offer-modal">

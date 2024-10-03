@@ -6,7 +6,7 @@ import api from '../../../../../../../../../../context/api';
 import { useAuth } from '../../../../../../../../../../context/AuthContext';
 import { useOffer } from '../../../../../../../../../../context/OfferContext';
 
-const Documents = ({ handleNextStep, handlePrevStep, listingId, createdOfferId }) => {
+const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
   const { offerData, updateOfferData } = useOffer();
   const [files, setFiles] = useState(offerData.documents || []);
   const [uploading, setUploading] = useState(false);
@@ -147,9 +147,6 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId, createdOfferId }
       formData.append('purpose', 'offer');
       formData.append('uploadedBy', user._id);
       formData.append('propertyListingId', listingId);
-      if (createdOfferId) {
-        formData.append('offerId', createdOfferId);
-      }
 
       const response = await api.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formData, {
         headers: {
