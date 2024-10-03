@@ -109,44 +109,10 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     setStep(1);
   }, [updateOfferData, listingId]);
 
-  const fetchUpdatedDocuments = useCallback(async () => {
-    if (!offerData._id) {
-      return offerData.documents; // Return locally stored documents if offer is not created yet
-    }
-  
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/offer/${offerData._id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching updated documents:', error);
-      return [];
-    }
-  }, [offerData._id, offerData.documents, token]);
-  
-  const handleNextStepWrapper = useCallback(async () => {
-    if (step === 5) { // Assuming step 5 is AutoFillForms step
-      const updatedDocuments = await fetchUpdatedDocuments();
-      updateOfferData({ documents: updatedDocuments });
-    }
-    handleNextStep();
-  }, [step, handleNextStep, updateOfferData, fetchUpdatedDocuments]);
-
   const handleSubmit = useCallback(async () => {
-    // Upload the documents before creating the offer
     const documentIds = [];
-  
-    // Filter out any duplicates before upload (only one Signature Package and Purchase Agreement allowed)
-    const filteredDocuments = offerData.documents.filter(
-      (document, index, self) =>
-        (document.type !== 'Signature Package' && document.type !== 'Purchase Agreement') ||
-        index === self.findIndex(d => d.type === document.type)
-    );
-  
-    for (const document of filteredDocuments) {
+
+    for (const document of offerData.documents) {
       const documentFormData = new FormData();
       documentFormData.append('documents', document.file);
       documentFormData.append('type', document.type);
@@ -154,20 +120,20 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       documentFormData.append('purpose', 'offer');
       documentFormData.append('uploadedBy', user._id);
       documentFormData.append('propertyListingId', listingId);
-  
+
       try {
         const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, documentFormData, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        documentIds.push(response.data[0]._id);  // Collect the document IDs
+        documentIds.push(response.data[0]._id);
       } catch (error) {
         console.error('Error uploading document:', error);
-        return;  // Handle error properly
+        return;
       }
     }
-  
+
     const formDataToSend = new FormData();
     for (const key in offerData) {
       if (key !== 'documents' && (key === 'presentedBy' || key === 'brokerageInfo')) {
@@ -178,25 +144,23 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         formDataToSend.append(key, offerData[key]);
       }
     }
-  
-    // Add the collected document IDs to the offer
+
     formDataToSend.append('documents', JSON.stringify(documentIds));
-  
+
     try {
-      // First, create the offer
-      const offerResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/offers`, formDataToSend, {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/offers`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
         },
       });
-      
-      handleResetOffer();  // Reset the form after submission
-      onClose();  // Close the modal
+
+      handleResetOffer();
+      onClose();
     } catch (error) {
       console.error('Error creating offer:', error);
     }
-  }, [offerData, listingId, onClose, handleResetOffer, token, user._id]);  
+  }, [offerData, listingId, onClose, handleResetOffer, token, user._id]);
 
   useEffect(() => {
     const downPayment = parseNumber(offerData.downPayment);
@@ -236,14 +200,14 @@ const MakeOfferModal = ({ onClose, listingId }) => {
           formData={offerData}
           handleChange={handleChange}
           handleFinanceTypeChange={handleFinanceTypeChange}
-          handleNextStep={handleNextStepWrapper}
+          handleNextStep={handleNextStep} // Pass handleNextStep
         />
       ),
       contingencies: (
         <Contingencies
           formData={offerData}
           handleChange={handleChange}
-          handleNextStep={handleNextStepWrapper}
+          handleNextStep={handleNextStep} // Pass handleNextStep
           handlePrevStep={handlePrevStep}
         />
       ),
@@ -251,7 +215,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         <AgentInformation
           formData={offerData}
           handleNestedChange={handleNestedChange}
-          handleNextStep={handleNextStepWrapper}
+          handleNextStep={handleNextStep} // Pass handleNextStep
           handlePrevStep={handlePrevStep}
         />
       ),
@@ -259,14 +223,14 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         <OfferDetails
           formData={offerData}
           handleChange={handleChange}
-          handleNextStep={handleNextStepWrapper}
+          handleNextStep={handleNextStep} // Pass handleNextStep
           handlePrevStep={handlePrevStep}
         />
       ),
       autoFillForms: (
         <AutoFillForms
           formData={offerData}
-          handleNextStep={handleNextStepWrapper}
+          handleNextStep={handleNextStep} // Pass handleNextStep
           handlePrevStep={handlePrevStep}
           updateOfferData={updateOfferData}
           listingId={listingId}
@@ -275,7 +239,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       documents: (
         <Documents
           formData={offerData}
-          handleNextStep={handleNextStepWrapper}
+          handleNextStep={handleNextStep} // Pass handleNextStep
           handlePrevStep={handlePrevStep}
           updateOfferData={updateOfferData}
           listingId={listingId}
@@ -289,7 +253,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         />
       ),
     }),
-    [offerData, handleChange, handleFinanceTypeChange, handleNextStepWrapper, handlePrevStep, handleNestedChange, updateOfferData, listingId, handleSubmit]
+    [offerData, handleChange, handleFinanceTypeChange, handleNextStep, handlePrevStep, handleNestedChange, updateOfferData, listingId, handleSubmit]
   );
 
   return (

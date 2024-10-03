@@ -2,15 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { PDFDocument } from 'pdf-lib';
-import download from 'downloadjs';
 import axios from 'axios';
 import { useOffer } from '../../../../../../../../../../context/OfferContext';
 import { useAuth } from '../../../../../../../../../../context/AuthContext';
 
 const useAutoFillFormsLogic = ({ formData, listingId }) => {
   const { replaceDocument } = useOffer();
-  const { user, token } = useAuth(); // Get the token from AuthContext
-  const [selectedForm, setSelectedForm] = useState('');
+  const { user, token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [listingData, setListingData] = useState({});
   const [agentData, setAgentData] = useState({});
@@ -20,8 +18,8 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
         headers: {
-          'Authorization': `Bearer ${token}` // Include the token in the request headers
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
       setListingData(response.data);
 
@@ -29,8 +27,8 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
       if (agentId) {
         const agentResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${agentId}`, {
           headers: {
-            'Authorization': `Bearer ${token}` // Include the token in the request headers
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
         setAgentData(agentResponse.data);
       }
@@ -41,14 +39,10 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
   }, [listingId, token]);
 
   useEffect(() => {
-    if (token) { // Only fetch data if the token is available
+    if (token) {
       fetchListingData();
     }
   }, [fetchListingData, token]);
-
-  const handleFormSelect = useCallback((e) => {
-    setSelectedForm(e.target.value);
-  }, []);
 
   const fillPDF = useCallback(async () => {
     setLoading(true);
@@ -108,54 +102,39 @@ const useAutoFillFormsLogic = ({ formData, listingId }) => {
     }
   }, [formData, listingData, agentData]);
 
-  const handleDownload = useCallback(async () => {
-    if (selectedForm === 'CAR_Purchase_Contract') {
-      try {
-        const pdfBytes = await fillPDF();
-        download(pdfBytes, 'ResidentialPurchaseAgreement.pdf', 'application/pdf');
-      } catch (error) {
-        console.error('Error downloading PDF:', error);
-        setError('Failed to download PDF. Please try again.');
-      }
-    }
-  }, [selectedForm, fillPDF]);
-
   const handleIncludeAndUpload = useCallback(async () => {
-    if (selectedForm === 'CAR_Purchase_Contract') {
-      try {
-        const pdfBytes = await fillPDF();
-        const formDataToSend = new FormData();
-        formDataToSend.append('documents', new Blob([pdfBytes], { type: 'application/pdf' }), 'ResidentialPurchaseAgreement.pdf');
-        formDataToSend.append('type', 'Purchase Agreement');
-        formDataToSend.append('title', 'Buyer Purchase Agreement');
-        formDataToSend.append('purpose', 'offer');
-        formDataToSend.append('uploadedBy', user._id);
-        formDataToSend.append('propertyListingId', listingId);
-  
-        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formDataToSend, {
-          headers: { 'Authorization': `Bearer ${token}` },
-        });
-  
-        const uploadedDocument = {
-          id: response.data[0]._id,
-          title: 'Buyer Purchase Agreement',
-          type: 'Purchase Agreement',
-          file: { name: 'ResidentialPurchaseAgreement.pdf', size: pdfBytes.length }
-        };
-  
-        replaceDocument(uploadedDocument); // Add the uploaded document to offer
-      } catch (error) {
-        setError('Failed to include and upload PDF. Please try again.');
-      }
+    try {
+      const pdfBytes = await fillPDF();
+      const formDataToSend = new FormData();
+      formDataToSend.append('documents', new Blob([pdfBytes], { type: 'application/pdf' }), 'ResidentialPurchaseAgreement.pdf');
+      formDataToSend.append('type', 'Purchase Agreement');
+      formDataToSend.append('title', 'Buyer Purchase Agreement');
+      formDataToSend.append('purpose', 'offer');
+      formDataToSend.append('uploadedBy', user._id);
+      formDataToSend.append('propertyListingId', listingId);
+
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formDataToSend, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const uploadedDocument = {
+        id: response.data[0]._id,
+        title: 'Buyer Purchase Agreement',
+        type: 'Purchase Agreement',
+        file: { name: 'ResidentialPurchaseAgreement.pdf', size: pdfBytes.length },
+      };
+
+      replaceDocument(uploadedDocument);
+    } catch (error) {
+      setError('Failed to include and upload PDF. Please try again.');
     }
-  }, [selectedForm, fillPDF, user._id, listingId, replaceDocument, token]);  
-  
+  }, [fillPDF, user._id, listingId, replaceDocument, token]);
+
   return {
-    selectedForm,
     loading,
     error,
-    handleFormSelect,
-    handleDownload,
     handleIncludeAndUpload,
   };
 };

@@ -78,7 +78,6 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
           <p><span className="description-label">Special Terms:</span> {formData.specialTerms}</p>
           <p><span className="description-label">Buyer's Agent Commission:</span> {formData.buyersAgentCommission}%</p>
           <p><span className="description-label">Buyer's Full Name:</span> {formData.buyerName}</p>
-          <p><span className="description-label">Special Terms:</span> {formData.specialTerms}</p>
           <p><span className="description-label">Message for Listing Agent:</span></p>
           <p><span>{formData.buyersAgentMessage}</span></p>
         </div>
