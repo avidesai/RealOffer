@@ -37,7 +37,11 @@ const getAccessTokenFromCode = async (code, codeVerifier) => {
     console.log('Attempting to get access token from DocuSign...');
     const results = await apiClient.generateAccessToken(dsConfig.clientId, {
       code: code,
-      code_verifier: codeVerifier,
+      client_id: dsConfig.clientId,
+      client_secret: process.env.DOCUSIGN_CLIENT_SECRET, // Make sure this is set in your .env file
+      redirect_uri: dsConfig.redirectUri,
+      grant_type: 'authorization_code',
+      code_verifier: codeVerifier
     });
     if (results && results.access_token) {
       console.log('Access token successfully obtained from DocuSign.');
