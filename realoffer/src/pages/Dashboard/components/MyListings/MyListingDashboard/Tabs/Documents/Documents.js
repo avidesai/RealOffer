@@ -1,5 +1,7 @@
 // /Tabs/Documents.js
 
+// /Tabs/Documents.js
+
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../../../../../context/AuthContext';
@@ -70,6 +72,7 @@ const Documents = ({ listingId }) => {
     const searchParams = new URLSearchParams(location.search);
     const docusignConnected = searchParams.get('docusignConnected');
     const docusignError = searchParams.get('docusignError');
+    const errorMessage = searchParams.get('errorMessage');
 
     if (docusignConnected === 'true') {
       setDocusignConnected(true);
@@ -79,7 +82,7 @@ const Documents = ({ listingId }) => {
 
     if (docusignError === 'true') {
       console.error('DocuSign connection failed');
-      alert('Failed to connect to DocuSign. Please try again.');
+      alert(`Failed to connect to DocuSign. ${errorMessage || 'Please try again.'}`);
     }
   }, [location.search, setDocusignConnected, checkDocusignConnection]);
 
@@ -172,10 +175,14 @@ const Documents = ({ listingId }) => {
 
   const handleDocuSign = () => {
     if (!docusignConnected) {
-      setShowDocuSignLoginModal(true);
+      handleDocuSignLogin();
     } else {
       sendToDocuSign();
     }
+  };
+
+  const handleDocuSignLogin = () => {
+    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/api/docusign/login?listingId=${listingId}`;
   };
 
   const sendToDocuSign = async () => {
@@ -185,6 +192,7 @@ const Documents = ({ listingId }) => {
     }
 
     try {
+      setLoading(true);
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents/createSigningSession`, {
         documentIds: selectedDocuments
       }, {
@@ -199,11 +207,9 @@ const Documents = ({ listingId }) => {
     } catch (error) {
       console.error('Error initiating DocuSign session:', error);
       alert('Failed to initiate DocuSign session. Please try again.');
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const handleDocuSignLogin = () => {
-    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/api/docusign/login?listingId=${listingId}`;
   };
 
   return (
@@ -217,7 +223,7 @@ const Documents = ({ listingId }) => {
             Delete
           </button>
           <button className="docusign-button" onClick={handleDocuSign}>
-            DocuSign
+            {docusignConnected ? "DocuSign" : "Login To DocuSign"}
           </button>
         </div>
         <button className="signature-button" onClick={openSignaturePackageModal}>

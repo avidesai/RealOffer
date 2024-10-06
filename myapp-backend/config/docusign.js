@@ -35,11 +35,9 @@ const getOAuthLoginUrl = (codeChallenge, state) => {
 const getAccessTokenFromCode = async (code, codeVerifier) => {
   try {
     console.log('Attempting to get access token from DocuSign...');
-    const { OAuthToken } = docusign.ApiClient;
-    const results = await apiClient.generateAccessToken(OAuthToken.GrantType.AUTHORIZATION_CODE, {
+    const results = await apiClient.generateAccessToken(docusign.ApiClient.OAuth.GrantType.AUTHORIZATION_CODE, {
       code: code,
       client_id: dsConfig.clientId,
-      client_secret: process.env.DOCUSIGN_CLIENT_SECRET, // Make sure this is set in your .env file
       redirect_uri: dsConfig.redirectUri,
       code_verifier: codeVerifier
     });
