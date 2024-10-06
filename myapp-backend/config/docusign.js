@@ -10,7 +10,6 @@ const dsConfig = {
 
 const apiClient = new docusign.ApiClient();
 apiClient.setOAuthBasePath(dsConfig.basePath);
-apiClient.setDebug(true); // Enable debug logging
 
 console.log('DOCUSIGN_CLIENT_SECRET:', process.env.DOCUSIGN_CLIENT_SECRET);
 
