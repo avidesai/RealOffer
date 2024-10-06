@@ -11,7 +11,6 @@ const dsConfig = {
 
 const apiClient = new docusign.ApiClient();
 apiClient.setOAuthBasePath(dsConfig.basePath); // Change this line
-apiClient.setDebug(true);
 
 const generateCodeVerifier = () => {
   return crypto.randomBytes(64).toString('base64url');
