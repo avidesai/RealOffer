@@ -10,7 +10,7 @@ const dsConfig = {
 };
 
 const apiClient = new docusign.ApiClient();
-apiClient.setBasePath(dsConfig.basePath);
+apiClient.setOAuthBasePath(dsConfig.basePath); // Change this line
 
 const generateCodeVerifier = () => {
   return crypto.randomBytes(64).toString('base64url');
@@ -35,12 +35,9 @@ const getOAuthLoginUrl = (codeChallenge, state) => {
 const getAccessTokenFromCode = async (code, codeVerifier) => {
   try {
     console.log('Attempting to get access token from DocuSign...');
-    const results = await apiClient.generateAccessToken({
+    const results = await apiClient.generateAccessToken(dsConfig.clientId, {
       code: code,
-      client_id: dsConfig.clientId,
-      redirect_uri: dsConfig.redirectUri,
       code_verifier: codeVerifier,
-      grant_type: "authorization_code"  // Add this line
     });
     if (results && results.access_token) {
       console.log('Access token successfully obtained from DocuSign.');
