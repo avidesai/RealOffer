@@ -35,11 +35,12 @@ const getOAuthLoginUrl = (codeChallenge, state) => {
 const getAccessTokenFromCode = async (code, codeVerifier) => {
   try {
     console.log('Attempting to get access token from DocuSign...');
-    const results = await apiClient.generateAccessToken(docusign.ApiClient.OAuth.GrantType.AUTHORIZATION_CODE, {
+    const results = await apiClient.generateAccessToken({
       code: code,
       client_id: dsConfig.clientId,
       redirect_uri: dsConfig.redirectUri,
-      code_verifier: codeVerifier
+      code_verifier: codeVerifier,
+      grant_type: "authorization_code"  // Add this line
     });
     if (results && results.access_token) {
       console.log('Access token successfully obtained from DocuSign.');
