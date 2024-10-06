@@ -17,7 +17,6 @@ export const AuthProvider = ({ children }) => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     const storedToken = localStorage.getItem('token');
     const docusignStatus = localStorage.getItem('docusignConnected') === 'true';
-
     if (storedUser && storedToken) {
       setUser(storedUser);
       setToken(storedToken);
@@ -75,13 +74,13 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const connectDocuSign = useCallback(async (listingId) => {
+  const initiateDocuSignLogin = useCallback(async (listingId) => {
     try {
       const response = await api.get(`/api/docusign/login?listingId=${listingId}`);
-      window.location.href = response.request.responseURL;
+      window.location.href = response.data.url || response.request.responseURL;
     } catch (error) {
-      console.error('Error initiating DocuSign connection:', error);
-      throw new Error('Failed to connect to DocuSign. Please try again.');
+      console.error('Error initiating DocuSign login:', error);
+      throw new Error('Failed to initiate DocuSign login. Please try again.');
     }
   }, []);
 
@@ -94,7 +93,7 @@ export const AuthProvider = ({ children }) => {
     docusignConnected,
     checkDocusignConnection,
     setDocusignConnected,
-    connectDocuSign,
+    initiateDocuSignLogin,
   };
 
   return (

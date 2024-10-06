@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useAuth } from '../../../../../../../../../../../context/AuthContext';
 import SignaturePDFViewerLogic from './SignaturePDFViewerLogic';
 import './SignaturePDFViewer.css';
+import { throttle } from 'lodash';
 
 const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePackagePages, onPageSelectionChange, onClose }) => {
   const { token } = useAuth();
@@ -23,11 +24,11 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
   const pageRefs = useRef({});
   const [localSelectedPages, setLocalSelectedPages] = useState(signaturePackagePages);
   const [isLoading, setIsLoading] = useState(true);
+  const [renderedPages, setRenderedPages] = useState([1]); // Start by rendering the first page
 
   useEffect(() => {
-    console.log("File URL: ", fileUrl);  // Check if the fileUrl is correct
     setLocalSelectedPages(signaturePackagePages);
-  }, [signaturePackagePages, fileUrl]);
+  }, [signaturePackagePages]);
 
   const handlePageSelect = async (pageIndex, isSelected) => {
     const url = `${process.env.REACT_APP_BACKEND_URL}/api/documents/${isSelected ? 'removePage' : 'addPage'}`;
@@ -54,6 +55,43 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
     setLocalSelectedPages(allPages); // Update the local state with all pages selected
   };
 
+  const handleScroll = useCallback(
+    throttle(() => {
+      const container = containerRef.current;
+      if (container) {
+        const { scrollTop, clientHeight, scrollHeight } = container;
+        const totalPages = Math.ceil(numPages);
+        const threshold = 200;
+
+        // Load next batch of pages when close to bottom
+        if (scrollTop + clientHeight + threshold >= scrollHeight && renderedPages.length < totalPages) {
+          setRenderedPages((prev) => {
+            const nextPages = Array.from({ length: 5 }, (_, i) => prev.length + i + 1);
+            return [...prev, ...nextPages].slice(0, totalPages);
+          });
+        }
+
+        // Unmount pages that are too far from the current viewport
+        const startPage = Math.max(1, Math.floor(scrollTop / clientHeight) - 5);
+        const endPage = Math.min(numPages, Math.ceil((scrollTop + clientHeight) / clientHeight) + 5);
+        setRenderedPages(Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i));
+      }
+    }, 300), // 300ms throttle for scroll
+    [numPages, renderedPages]
+  );
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+    }
+    return () => {
+      if (container) {
+        container.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [handleScroll]);
+
   const alignTextLayer = useCallback((pageNumber) => {
     if (pageRefs.current[pageNumber]) {
       const textLayer = pageRefs.current[pageNumber].querySelector('.react-pdf__Page__textContent');
@@ -67,64 +105,40 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
     }
   }, []);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const pageNumber = parseInt(entry.target.dataset.pageNumber, 10);
-            setCurrentPage(pageNumber);
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-
-    Object.values(pageRefs.current).forEach((ref) => {
-      if (ref) observer.observe(ref);
-    });
-
-    return () => observer.disconnect();
-  }, [numPages, setCurrentPage]);
-
-  const renderPage = (pageNumber) => {
-    if (!pageRefs.current[pageNumber]?.getBoundingClientRect().top) return null;
-
-    return (
-      <div
-        key={`page_${pageNumber}`}
-        ref={(ref) => (pageRefs.current[pageNumber] = ref)}
-        data-page-number={pageNumber}
-        className={`spv-pdf-page-container ${localSelectedPages.includes(pageNumber) ? 'selected' : ''}`}
-        onClick={() => handlePageSelect(pageNumber, localSelectedPages.includes(pageNumber))}
-      >
-        <div className="spv-page-wrapper">
-          <Page
-            pageNumber={pageNumber}
-            scale={scale}
-            renderTextLayer={false}
-            renderAnnotationLayer={false}
-            onRenderSuccess={() => {
-              alignTextLayer(pageNumber);
-              if (pageNumber === numPages) {
-                setIsLoading(false);
-              }
-            }}
-            loading={null}
+  const renderPage = (pageNumber) => (
+    <div
+      key={`page_${pageNumber}`}
+      ref={(ref) => (pageRefs.current[pageNumber] = ref)}
+      data-page-number={pageNumber}
+      className={`spv-pdf-page-container ${localSelectedPages.includes(pageNumber) ? 'selected' : ''}`}
+      onClick={() => handlePageSelect(pageNumber, localSelectedPages.includes(pageNumber))}
+    >
+      <div className="spv-page-wrapper">
+        <Page
+          pageNumber={pageNumber}
+          scale={scale}
+          renderTextLayer={true}
+          renderAnnotationLayer={true}
+          onRenderSuccess={() => {
+            alignTextLayer(pageNumber);
+            if (pageNumber === 1) {
+              setIsLoading(false); // Hide spinner once the first page is rendered
+            }
+          }}
+          loading={null}
+        />
+        <div className="spv-overlay">
+          <input
+            type="checkbox"
+            className="spv-checkbox"
+            checked={localSelectedPages.includes(pageNumber)}
+            onChange={() => handlePageSelect(pageNumber, localSelectedPages.includes(pageNumber))}
+            onClick={(e) => e.stopPropagation()}
           />
-          <div className="spv-overlay">
-            <input
-              type="checkbox"
-              className="spv-checkbox"
-              checked={localSelectedPages.includes(pageNumber)}
-              onChange={() => handlePageSelect(pageNumber, localSelectedPages.includes(pageNumber))}
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= numPages) {
@@ -168,13 +182,9 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
           <Document
             file={fileUrl}
             onLoadSuccess={onDocumentLoadSuccess}
-            onLoadError={(error) => {
-              console.error("Error loading PDF: ", error);
-              setIsLoading(false); // Stop the spinner if there's an error
-            }}
             loading={null}
           >
-            {Array.from(new Array(numPages), (el, index) => renderPage(index + 1))}
+            {renderedPages.map(pageNumber => renderPage(pageNumber))}
           </Document>
           {isLoading && (
             <div className="spv-pdf-spinner-overlay">
