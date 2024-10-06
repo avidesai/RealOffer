@@ -1,5 +1,4 @@
 // config/docusign.js
-
 const docusign = require('docusign-esign');
 const crypto = require('crypto');
 
@@ -10,7 +9,10 @@ const dsConfig = {
 };
 
 const apiClient = new docusign.ApiClient();
-apiClient.setOAuthBasePath(dsConfig.basePath); // Change this line
+apiClient.setOAuthBasePath(dsConfig.basePath);
+apiClient.setDebug(true); // Enable debug logging
+
+console.log('DOCUSIGN_CLIENT_SECRET:', process.env.DOCUSIGN_CLIENT_SECRET);
 
 const generateCodeVerifier = () => {
   return crypto.randomBytes(64).toString('base64url');
@@ -35,10 +37,8 @@ const getOAuthLoginUrl = (codeChallenge, state) => {
 const getAccessTokenFromCode = async (code, codeVerifier) => {
   try {
     console.log('Attempting to get access token from DocuSign...');
-    const results = await apiClient.generateAccessToken({
+    const results = await apiClient.generateAccessToken(dsConfig.clientId, {
       code: code,
-      client_id: dsConfig.clientId,
-      client_secret: process.env.DOCUSIGN_CLIENT_SECRET,
       redirect_uri: dsConfig.redirectUri,
       grant_type: 'authorization_code',
       code_verifier: codeVerifier
