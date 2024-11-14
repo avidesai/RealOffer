@@ -5,7 +5,9 @@ const router = express.Router();
 const PropertyListingController = require('../controllers/PropertyListingController');
 const authMiddleware = require('../middleware/auth');
 
-// Apply authMiddleware to all routes
+// Apply authMiddleware to all routes except for public listings
+router.get('/public/:token', PropertyListingController.getPublicListing);
+
 router.use(authMiddleware);
 
 router.get('/', PropertyListingController.getAllListings);

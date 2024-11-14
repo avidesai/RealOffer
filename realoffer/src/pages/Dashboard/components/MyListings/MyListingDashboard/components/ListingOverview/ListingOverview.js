@@ -1,19 +1,23 @@
 // ListingOverview.js
 
+// ListingOverview.js
+
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../../../../../../../context/AuthContext';  // Import useAuth hook
+import { useAuth } from '../../../../../../../context/AuthContext';
 import axios from 'axios';
 import MoreInfo from './components/MoreInfo/MoreInfo';
 import ListingPhotoGallery from './components/ListingPhotoGallery/ListingPhotoGallery';
+import ShareUrl from './components/ShareUrl/ShareUrl'; // Import ShareUrl component
 import './ListingOverview.css';
 
 function ListingOverview({ listing }) {
-  const { token } = useAuth();  // Get the token from AuthContext
+  const { token } = useAuth();
   const [agents, setAgents] = useState([]);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentListing, setCurrentListing] = useState(listing);
   const [showGallery, setShowGallery] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false); // State for ShareUrl modal
 
   useEffect(() => {
     const fetchAgentDetails = async () => {
@@ -73,7 +77,7 @@ function ListingOverview({ listing }) {
             <p className="property-location">{currentListing.homeCharacteristics.city}, {currentListing.homeCharacteristics.state} {currentListing.homeCharacteristics.zip}</p>
             <p className="property-price">${formatPrice(currentListing.homeCharacteristics.price)}<span className='space'>•</span>{currentListing.homeCharacteristics.beds} Bed, {currentListing.homeCharacteristics.baths} Bath</p>
             <div className="overview-buttons">
-              <button className="overview-btn-share-package">Share</button>
+              <button className="overview-btn-share-package" onClick={() => setShowShareModal(true)}>Share</button>
               <button className="overview-btn" onClick={() => setShowGallery(true)}>Images</button>
               <button className="overview-btn" onClick={() => setShowMoreInfo(true)}>More Info</button>
             </div>
@@ -101,6 +105,13 @@ function ListingOverview({ listing }) {
           <ListingPhotoGallery
             images={currentListing.imagesUrls}
             onClose={() => setShowGallery(false)}
+          />
+        )}
+        {showShareModal && (
+          <ShareUrl
+            isOpen={showShareModal}
+            onClose={() => setShowShareModal(false)}
+            url={currentListing.publicUrl} // Pass the public URL
           />
         )}
       </div>
