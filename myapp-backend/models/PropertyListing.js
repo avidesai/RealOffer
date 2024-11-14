@@ -60,7 +60,8 @@ const propertyListingSchema = new mongoose.Schema({
   viewers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Viewer' }],
   activities: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Activity' }],
   messages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  publicUrl: { type: String, unique: true } // Add this field for public-facing URLs
 }, { timestamps: true });
 
 module.exports = mongoose.model('PropertyListing', propertyListingSchema);

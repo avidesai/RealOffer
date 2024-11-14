@@ -6,6 +6,7 @@ const multer = require('multer');
 const { s3Client } = require('../config/aws');
 const multerS3 = require('multer-s3');
 const mongoose = require('mongoose');
+const crypto = require('crypto'); // For generating unique public URLs
 
 // Configure multer-s3 for photos
 const uploadPhotos = multer({
@@ -57,6 +58,10 @@ exports.createListing = async (req, res) => {
     }
   }
 
+  // Generate a unique public URL
+  const publicUrlToken = crypto.randomBytes(16).toString('hex');
+  const publicUrl = `${process.env.FRONTEND_URL}/listings/public/${publicUrlToken}`;
+
   const newListing = new PropertyListing({
     role,
     homeCharacteristics: {
@@ -75,7 +80,8 @@ exports.createListing = async (req, res) => {
         email: officerEmail
       }
     },
-    createdBy: req.user.id
+    createdBy: req.user.id,
+    publicUrl: publicUrl // Add the public URL to the listing
   });
 
   try {
@@ -86,6 +92,20 @@ exports.createListing = async (req, res) => {
     res.status(201).json(savedListing);
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+};
+
+exports.getPublicListing = async (req, res) => {
+  const { token } = req.params;
+
+  try {
+    const listing = await PropertyListing.findOne({ publicUrl: `${process.env.FRONTEND_URL}/listings/public/${token}` });
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found or no longer public." });
+    }
+    res.status(200).json(listing);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
