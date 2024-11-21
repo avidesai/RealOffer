@@ -107,6 +107,7 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
             'Content-Type': 'multipart/form-data',
             'Authorization': `Bearer ${token}`,
           },
+          withCredentials: true,
         }
       );
       console.log('Listing created successfully:', response.data);

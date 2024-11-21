@@ -1,0 +1,98 @@
+.public-listing-main {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .public-listing-container {
+    max-width: 900px;
+    width: 100%;
+  }
+  
+  .listing-address {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .listing-location {
+    font-size: 1.25rem;
+    color: #555;
+    margin-bottom: 1.5rem;
+  }
+  
+  .listing-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .listing-details p {
+    flex: 1 1 45%;
+    margin: 0;
+    font-size: 1rem;
+  }
+  
+  .listing-image {
+    margin-bottom: 1.5rem;
+  }
+  
+  .property-image {
+    width: 100%;
+    border-radius: 8px;
+    max-height: 400px;
+    object-fit: cover;
+  }
+  
+  .signup-section {
+    background: #f8f8f8;
+    padding: 1.5rem;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 100%;
+  }
+  
+  .signup-section h2 {
+    margin-bottom: 1rem;
+  }
+  
+  .signup-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .signup-form label {
+    margin-bottom: 0.75rem;
+  }
+  
+  .signup-form input,
+  .signup-form select {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .request-info-button {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .request-info-button:hover {
+    background-color: #218838;
+  }
+  
+  .loading-spinner,
+  .error-message {
+    text-align: center;
+    margin-top: 2rem;
+  }
+  
