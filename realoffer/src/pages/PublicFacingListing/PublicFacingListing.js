@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import Header from '../Header/Header';
-import Footer from '../Footer/Footer';
+import Header from '../../components/Header/Header';
+import Footer from '../../components/Footer/Footer';
 import './PublicFacingListing.css';
 
 const PublicFacingListing = () => {
@@ -22,7 +22,7 @@ const PublicFacingListing = () => {
       } finally {
         setLoading(false);
       }
-    };
+    };    
 
     fetchListing();
   }, [token]);
