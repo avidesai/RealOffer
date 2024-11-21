@@ -1,6 +1,7 @@
 // /models/PropertyListing.js
 
 const mongoose = require('mongoose');
+const propertyImages = req.files.map((file) => file.location);
 
 const propertyListingSchema = new mongoose.Schema({
   title: String,
@@ -44,7 +45,7 @@ const propertyListingSchema = new mongoose.Schema({
       required: true
     }
   },
-  imagesUrls: [String],
+  imagesUrls: propertyImages,
   status: String,
   escrowInfo: {
     escrowNumber: String,

@@ -75,37 +75,44 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
   };
 
   const handleFileChange = (e) => {
-    setFormData({ ...formData, propertyImages: e.target.files });
-  };
+    const files = Array.from(e.target.files); // Convert FileList to an array
+    setFormData((prevData) => ({
+      ...prevData,
+      propertyImages: files, // Preserve order
+    }));
+  };  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrors({});
-
+  
     const formDataToSend = new FormData();
+  
+    // Append files in the order they appear in `propertyImages`
+    formData.propertyImages.forEach((file, index) => {
+      formDataToSend.append(`propertyImages[${index}]`, file); // Use indexed keys
+    });
+  
+    // Append other fields
     for (const key in formData) {
-      if (key === 'propertyImages') {
-        for (let i = 0; i < formData[key].length; i++) {
-          formDataToSend.append('propertyImages', formData[key][i]);
-        }
-      } else {
+      if (key !== 'propertyImages') {
         formDataToSend.append(key, formData[key]);
       }
     }
-
+  
     try {
       if (!token) {
         throw new Error('No authentication token available');
       }
-
+  
       const response = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings`,
         formDataToSend,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
           withCredentials: true,
         }
@@ -116,9 +123,12 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
     } catch (error) {
       if (error.response && error.response.status === 401) {
         console.error('Authentication failed, token may be expired. Logging out.');
-        logout(); // Logout the user if token is invalid
+        logout();
       } else if (error.request) {
-        setErrors({ submit: 'No response from server. Please check your internet connection and try again.' });
+        setErrors({
+          submit:
+            'No response from server. Please check your internet connection and try again.',
+        });
       } else {
         setErrors({ submit: 'An unexpected error occurred. Please try again.' });
       }
@@ -127,6 +137,7 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
       setLoading(false);
     }
   };
+  
 
   return (
     <>

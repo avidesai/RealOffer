@@ -14,9 +14,10 @@ const uploadPhotos = multer({
     s3: s3Client,
     bucket: process.env.AWS_BUCKET_NAME_PHOTOS,
     key: function (req, file, cb) {
-      cb(null, `${Date.now()}-${file.originalname}`);
-    }
-  })
+      const index = req.body[`propertyImages[${file.fieldname}]`] || Date.now(); // Use indexed order
+      cb(null, `${index}-${file.originalname}`); // Include index in the filename
+    },
+  }),
 });
 
 exports.getAllListings = async (req, res) => {
