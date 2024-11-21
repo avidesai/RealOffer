@@ -6,20 +6,20 @@
   background-color: #f8f9fa;
 }
 
-.public-listing-content {
+.pfl-content {
   flex: 1;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 1rem 2rem;
-  width: 100%;
+  padding: 1rem 4rem;
+  width: 90%;
 }
 
 /* Property Header */
-.property-header {
+.pfl-property-header {
   margin-bottom: 2rem;
 }
 
-.property-title {
+.pfl-property-title {
   font-size: 2.5rem;
   font-weight: 800;
   color: #1a1a1a;
@@ -27,30 +27,30 @@
   line-height: 1.2;
 }
 
-.property-location {
+.pfl-property-location {
   display: block;
   font-size: 1.25rem;
   color: #4b5563;
   font-weight: 400;
-  margin-top: 0.5rem;
+  margin-top: 1rem;
 }
 
 /* Content Grid */
-.content-grid {
+.pfl-content-grid {
   display: grid;
   grid-template-columns: 2.2fr 1fr;
   gap: 2rem;
 }
 
 /* Main Content */
-.main-content {
+.pfl-main-content {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
 /* Property Details */
-.property-details {
+.pfl-property-details {
   background: white;
   border-radius: 12px;
   padding: 1.5rem 2rem;
@@ -58,24 +58,24 @@
   transition: box-shadow 0.3s ease;
 }
 
-.property-details:hover {
+.pfl-property-details:hover {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.details-grid {
+.pfl-details-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 1.5rem;
   align-items: start;
 }
 
-.detail-item {
+.pfl-detail-item {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
 }
 
-.detail-label {
+.pfl-detail-label {
   font-size: 0.85rem;
   color: #6b7280;
   font-weight: 500;
@@ -83,38 +83,45 @@
   letter-spacing: 0.5px;
 }
 
-.detail-value {
+.pfl-detail-value {
   font-size: 1.1rem;
   color: #111827;
   font-weight: 600;
 }
 
 /* Gallery Section */
-.gallery-section {
+.pfl-gallery-section {
   position: relative;
 }
 
-.gallery-container {
+.pfl-gallery-container {
   position: relative;
   border-radius: 12px;
   overflow: hidden;
   background: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
+  margin-bottom: 2rem;
 }
 
-.gallery-container:hover {
+.pfl-gallery-container:hover {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.main-image {
+.pfl-main-image {
   width: 100%;
   height: 450px;
   object-fit: cover;
+  transition: opacity 0.3s ease-in-out;
+  opacity: 1;
+}
+
+.pfl-main-image.loading {
+  opacity: 0.7;
 }
 
 /* Image Count */
-.image-count {
+.pfl-image-count {
   position: absolute;
   bottom: 1.25rem;
   left: 1.25rem;
@@ -128,7 +135,7 @@
 }
 
 /* Price Overlay */
-.price-overlay {
+.pfl-price-overlay {
   position: absolute;
   top: 1.25rem;
   left: 1.25rem;
@@ -139,45 +146,47 @@
   backdrop-filter: blur(4px);
 }
 
-.price-amount {
-  font-size: 1.35rem;
+.pfl-price-amount {
+  font-size: 1.25rem;
   font-weight: 700;
 }
 
-.gallery-controls {
+/* Updated Gallery Controls */
+.pfl-gallery-controls {
   position: absolute;
   bottom: 1.25rem;
   right: 1.25rem;
   display: flex;
   gap: 0.5rem;
+  backdrop-filter: blur(4px);
 }
 
-.gallery-button {
-  background: rgba(255, 255, 255, 0.9);
+.pfl-gallery-button {
+  background: rgba(0, 0, 0, 0.85);
   border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.2rem;
-  color: #1a1a1a;
+  color: white;
   transition: all 0.2s ease;
 }
 
-.gallery-button:hover {
-  background: white;
+.pfl-gallery-button:hover {
+  background: rgba(0, 0, 0, 0.95);
   transform: scale(1.05);
 }
 
-.gallery-button:active {
+.pfl-gallery-button:active {
   transform: scale(0.95);
 }
 
 /* Contact Form */
-.contact-form {
+.pfl-contact-form {
   background: white;
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -186,47 +195,47 @@
   transition: box-shadow 0.3s ease;
 }
 
-.contact-form:hover {
+.pfl-contact-form:hover {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.form-container {
+.pfl-form-container {
   padding: 1.75rem;
 }
 
-.form-container h2 {
+.pfl-form-container h2 {
   font-size: 1.5rem;
   font-weight: 700;
   color: #111827;
   margin-bottom: 0.75rem;
 }
 
-.form-container p {
+.pfl-form-container p {
   color: #4b5563;
   margin-bottom: 1.5rem;
   line-height: 1.5;
 }
 
-.inquiry-form {
+.pfl-inquiry-form {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
 }
 
-.form-group {
+.pfl-form-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.form-group label {
+.pfl-form-group label {
   font-size: 0.9rem;
   font-weight: 500;
   color: #374151;
 }
 
-.form-group input,
-.form-group select {
+.pfl-form-group input,
+.pfl-form-group select {
   padding: 0.75rem;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
@@ -236,45 +245,46 @@
   background-color: white;
 }
 
-.form-group input:hover,
-.form-group select:hover {
+.pfl-form-group input:hover,
+.pfl-form-group select:hover {
   border-color: #d1d5db;
 }
 
-.form-group input:focus,
-.form-group select:focus {
+.pfl-form-group input:focus,
+.pfl-form-group select:focus {
   border-color: #2563eb;
   outline: none;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-.form-group input::placeholder {
+.pfl-form-group input::placeholder {
   color: #9ca3af;
 }
 
-.request-button {
+.pfl-request-button {
   background: #2563eb;
   color: white;
   border: none;
-  padding: 1rem;
+  padding: 0.75rem;
   border-radius: 8px;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  margin-top: 1rem;
 }
 
-.request-button:hover {
+.pfl-request-button:hover {
   background: #1d4ed8;
   transform: translateY(-1px);
 }
 
-.request-button:active {
+.pfl-request-button:active {
   transform: translateY(0);
 }
 
 /* Loading State */
-.loading-container {
+.pfl-loading-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -283,7 +293,7 @@
   gap: 1rem;
 }
 
-.loading-spinner {
+.pfl-loading-spinner {
   width: 50px;
   height: 50px;
   border: 3px solid #f3f3f3;
@@ -292,7 +302,7 @@
   animation: spin 1s linear infinite;
 }
 
-.loading-container p {
+.pfl-loading-container p {
   color: #4b5563;
   font-size: 1.1rem;
 }
@@ -303,14 +313,14 @@
 }
 
 /* Error Message */
-.error-container {
+.pfl-error-container {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 50vh;
 }
 
-.error-message {
+.pfl-error-message {
   text-align: center;
   padding: 2rem;
   background: white;
@@ -318,82 +328,90 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.error-message h2 {
+.pfl-error-message h2 {
   color: #dc2626;
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
 }
 
-.error-message p {
+.pfl-error-message p {
   color: #4b5563;
 }
 
 /* Responsive Design */
 @media (max-width: 1200px) {
-  .details-grid {
+  .pfl-content {
+    padding: 1rem 3rem;
+  }
+
+  .pfl-details-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (max-width: 1024px) {
-  .content-grid {
+  .pfl-content {
+    padding: 1rem 2rem;
+  }
+
+  .pfl-content-grid {
     grid-template-columns: 1fr;
   }
 
-  .contact-form {
+  .pfl-contact-form {
     min-width: unset;
   }
 
-  .main-image {
+  .pfl-main-image {
     height: 400px;
   }
 
-  .property-details {
+  .pfl-property-details {
     padding: 1.25rem;
   }
 }
 
 @media (max-width: 768px) {
-  .public-listing-content {
+  .pfl-content {
     padding: 1rem;
   }
 
-  .property-title {
+  .pfl-property-title {
     font-size: 2rem;
   }
 
-  .details-grid {
+  .pfl-details-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
 
-  .main-image {
+  .pfl-main-image {
     height: 300px;
   }
 
-  .price-overlay {
+  .pfl-price-overlay {
     padding: 0.75rem;
   }
 
-  .price-amount {
+  .pfl-price-amount {
     font-size: 1.25rem;
   }
 
-  .form-container {
+  .pfl-form-container {
     padding: 1.25rem;
   }
 }
 
 @media (max-width: 480px) {
-  .details-grid {
+  .pfl-details-grid {
     grid-template-columns: repeat(1, 1fr);
   }
 
-  .property-title {
+  .pfl-property-title {
     font-size: 1.75rem;
   }
 
-  .property-location {
+  .pfl-property-location {
     font-size: 1.1rem;
   }
 }

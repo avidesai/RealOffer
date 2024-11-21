@@ -33,6 +33,7 @@ const PublicFacingListing = () => {
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isImageLoading, setIsImageLoading] = useState(false);
   const [formData, setFormData] = useState({
     role: '',
     name: '',
@@ -69,10 +70,24 @@ const PublicFacingListing = () => {
     console.log('Form submitted:', formData);
   };
 
+  const nextImage = () => {
+    if (listing.imagesUrls && listing.imagesUrls.length > 1) {
+      setIsImageLoading(true);
+      setCurrentImageIndex((prev) => (prev + 1) % listing.imagesUrls.length);
+    }
+  };
+
+  const previousImage = () => {
+    if (listing.imagesUrls && listing.imagesUrls.length > 1) {
+      setIsImageLoading(true);
+      setCurrentImageIndex((prev) => (prev === 0 ? listing.imagesUrls.length - 1 : prev - 1));
+    }
+  };
+
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
+      <div className="pfl-loading-container">
+        <div className="pfl-loading-spinner"></div>
         <p>Loading property details...</p>
       </div>
     );
@@ -80,8 +95,8 @@ const PublicFacingListing = () => {
 
   if (!listing) {
     return (
-      <div className="error-container">
-        <div className="error-message">
+      <div className="pfl-error-container">
+        <div className="pfl-error-message">
           <h2>Property Not Found</h2>
           <p>This listing is no longer available or has expired.</p>
         </div>
@@ -89,89 +104,78 @@ const PublicFacingListing = () => {
     );
   }
 
-  const nextImage = () => {
-    if (listing.imagesUrls && listing.imagesUrls.length > 1) {
-      setCurrentImageIndex((prev) => (prev + 1) % listing.imagesUrls.length);
-    }
-  };
-
-  const previousImage = () => {
-    if (listing.imagesUrls && listing.imagesUrls.length > 1) {
-      setCurrentImageIndex((prev) => (prev === 0 ? listing.imagesUrls.length - 1 : prev - 1));
-    }
-  };
-
   return (
     <div className="public-listing-container">
       <Header />
-      <main className="public-listing-content">
-        <div className="property-header">
-          <h1 className="property-title">
+      <main className="pfl-content">
+        <div className="pfl-property-header">
+          <h1 className="pfl-property-title">
             {listing.homeCharacteristics.address}
-            <span className="property-location">
+            <span className="pfl-property-location">
               {listing.homeCharacteristics.city}, {listing.homeCharacteristics.state} {listing.homeCharacteristics.zip}
             </span>
           </h1>
         </div>
 
-        <div className="content-grid">
-          <div className="main-content">
-            <div className="property-details">
-              <div className="details-grid">
-                <div className="detail-item">
-                  <span className="detail-label">Bedrooms</span>
-                  <span className="detail-value">{listing.homeCharacteristics.beds}</span>
+        <div className="pfl-content-grid">
+          <div className="pfl-main-content">
+            <div className="pfl-property-details">
+              <div className="pfl-details-grid">
+                <div className="pfl-detail-item">
+                  <span className="pfl-detail-label">Bedrooms</span>
+                  <span className="pfl-detail-value">{listing.homeCharacteristics.beds}</span>
                 </div>
-                <div className="detail-item">
-                  <span className="detail-label">Bathrooms</span>
-                  <span className="detail-value">{listing.homeCharacteristics.baths}</span>
+                <div className="pfl-detail-item">
+                  <span className="pfl-detail-label">Bathrooms</span>
+                  <span className="pfl-detail-value">{listing.homeCharacteristics.baths}</span>
                 </div>
-                <div className="detail-item">
-                  <span className="detail-label">Square Feet</span>
-                  <span className="detail-value">{formatNumber(listing.homeCharacteristics.squareFootage)}</span>
+                <div className="pfl-detail-item">
+                  <span className="pfl-detail-label">Square Feet</span>
+                  <span className="pfl-detail-value">{formatNumber(listing.homeCharacteristics.squareFootage)}</span>
                 </div>
-                <div className="detail-item">
-                  <span className="detail-label">Lot Size</span>
-                  <span className="detail-value">{formatNumber(listing.homeCharacteristics.lotSize)}</span>
+                <div className="pfl-detail-item">
+                  <span className="pfl-detail-label">Lot Size</span>
+                  <span className="pfl-detail-value">{formatNumber(listing.homeCharacteristics.lotSize)}</span>
                 </div>
-                <div className="detail-item">
-                  <span className="detail-label">Year Built</span>
-                  <span className="detail-value">{listing.homeCharacteristics.yearBuilt || '-'}</span>
+                <div className="pfl-detail-item">
+                  <span className="pfl-detail-label">Year Built</span>
+                  <span className="pfl-detail-value">{listing.homeCharacteristics.yearBuilt || '-'}</span>
                 </div>
-                <div className="detail-item">
-                  <span className="detail-label">Property Type</span>
-                  <span className="detail-value">{getPropertyTypeText(listing.homeCharacteristics.propertyType)}</span>
+                <div className="pfl-detail-item">
+                  <span className="pfl-detail-label">Type</span>
+                  <span className="pfl-detail-value">{getPropertyTypeText(listing.homeCharacteristics.propertyType)}</span>
                 </div>
               </div>
             </div>
 
-            <div className="gallery-section">
-              <div className="gallery-container">
+            <div className="pfl-gallery-section">
+              <div className="pfl-gallery-container">
                 {listing.imagesUrls && listing.imagesUrls.length > 0 && (
                   <>
                     <img 
                       src={listing.imagesUrls[currentImageIndex]} 
                       alt="Property" 
-                      className="main-image" 
+                      className={`pfl-main-image ${isImageLoading ? 'loading' : ''}`}
+                      onLoad={() => setIsImageLoading(false)}
                     />
-                    <div className="image-count">
+                    <div className="pfl-image-count">
                       {currentImageIndex + 1} / {listing.imagesUrls.length}
                     </div>
-                    <div className="price-overlay">
-                      <span className="price-amount">{formatPrice(listing.homeCharacteristics.price)}</span>
+                    <div className="pfl-price-overlay">
+                      <span className="pfl-price-amount">{formatPrice(listing.homeCharacteristics.price)}</span>
                     </div>
                     {listing.imagesUrls.length > 1 && (
-                      <div className="gallery-controls">
+                      <div className="pfl-gallery-controls">
                         <button 
                           onClick={previousImage} 
-                          className="gallery-button prev"
+                          className="pfl-gallery-button prev"
                           aria-label="Previous image"
                         >
                           ←
                         </button>
                         <button 
                           onClick={nextImage} 
-                          className="gallery-button next"
+                          className="pfl-gallery-button next"
                           aria-label="Next image"
                         >
                           →
@@ -184,13 +188,13 @@ const PublicFacingListing = () => {
             </div>
           </div>
 
-          <div className="contact-form">
-            <div className="form-container">
-              <h2>Request Property Information</h2>
-              <p>Get access to disclosures, make offers, and more.</p>
+          <div className="pfl-contact-form">
+            <div className="pfl-form-container">
+              <h2>Request Access</h2>
+              <p>View disclosures, make offers, and more.</p>
               
-              <form className="inquiry-form" onSubmit={handleSubmit}>
-                <div className="form-group">
+              <form className="pfl-inquiry-form" onSubmit={handleSubmit}>
+                <div className="pfl-form-group">
                   <label htmlFor="role">Role</label>
                   <select 
                     id="role" 
@@ -205,7 +209,7 @@ const PublicFacingListing = () => {
                   </select>
                 </div>
 
-                <div className="form-group">
+                <div className="pfl-form-group">
                   <label htmlFor="name">Name</label>
                   <input 
                     type="text" 
@@ -218,7 +222,7 @@ const PublicFacingListing = () => {
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="pfl-form-group">
                   <label htmlFor="email">Email</label>
                   <input 
                     type="email" 
@@ -231,7 +235,7 @@ const PublicFacingListing = () => {
                   />
                 </div>
 
-                <button type="submit" className="request-button">
+                <button type="submit" className="pfl-request-button">
                   Request Information
                 </button>
               </form>
