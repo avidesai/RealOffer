@@ -1,98 +1,139 @@
-.public-listing-main {
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+/* Main Container */
+.public-listing-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Use the full viewport height */
+  background-color: #f9f9f9;
+}
+
+/* Content Area */
+.public-listing-content {
+  flex: 1; /* Pushes the footer to the bottom */
+  padding: 2rem 1rem;
+}
+
+/* Two-Column Grid */
+.public-listing-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  padding: 2rem;
+}
+
+/* Left Section */
+.left-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.listing-address {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.listing-location {
+  font-size: 1.2rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+.listing-image {
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.property-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  max-height: 450px;
+}
+
+.listing-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.listing-details p {
+  font-size: 1.1rem;
+  color: #333;
+  margin: 0;
+}
+
+/* Right Section */
+.signup-section {
+  background: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.signup-section h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.signup-section p {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.signup-form label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.signup-form input,
+.signup-form select {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.request-info-button {
+  padding: 0.8rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.request-info-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .public-listing-grid {
+    grid-template-columns: 1fr;
   }
-  
-  .public-listing-container {
-    max-width: 900px;
-    width: 100%;
-  }
-  
-  .listing-address {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-  }
-  
-  .listing-location {
-    font-size: 1.25rem;
-    color: #555;
-    margin-bottom: 1.5rem;
-  }
-  
-  .listing-details {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .listing-details p {
-    flex: 1 1 45%;
-    margin: 0;
-    font-size: 1rem;
-  }
-  
-  .listing-image {
-    margin-bottom: 1.5rem;
-  }
-  
-  .property-image {
-    width: 100%;
-    border-radius: 8px;
-    max-height: 400px;
-    object-fit: cover;
-  }
-  
-  .signup-section {
-    background: #f8f8f8;
-    padding: 1.5rem;
-    border-radius: 8px;
-    max-width: 600px;
-    width: 100%;
-  }
-  
-  .signup-section h2 {
-    margin-bottom: 1rem;
-  }
-  
-  .signup-form {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .signup-form label {
-    margin-bottom: 0.75rem;
-  }
-  
-  .signup-form input,
-  .signup-form select {
-    width: 100%;
-    padding: 0.5rem;
-    margin-top: 0.25rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .request-info-button {
-    margin-top: 1rem;
-    padding: 0.75rem;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-  }
-  
-  .request-info-button:hover {
-    background-color: #218838;
-  }
-  
-  .loading-spinner,
-  .error-message {
-    text-align: center;
-    margin-top: 2rem;
-  }
-  
+}

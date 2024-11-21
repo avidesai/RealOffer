@@ -7,8 +7,21 @@ import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import './PublicFacingListing.css';
 
+// Helper function to map property type values to readable text
+const getPropertyTypeText = (value) => {
+  const propertyTypes = {
+    singleFamily: 'Single Family Home',
+    condo: 'Condominium',
+    townhouse: 'Townhouse',
+    multiFamily: 'Multi-Family Home',
+    land: 'Land',
+    commercial: 'Commercial',
+  };
+  return propertyTypes[value] || 'Unknown Property Type';
+};
+
 const PublicFacingListing = () => {
-  const { token } = useParams(); // Assuming the URL uses a parameter like '/listings/public/:token'
+  const { token } = useParams();
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -22,13 +35,13 @@ const PublicFacingListing = () => {
       } finally {
         setLoading(false);
       }
-    };    
+    };
 
     fetchListing();
   }, [token]);
 
   if (loading) {
-    return <div className="loading-spinner">Loading...</div>;
+    return <div className="loading-spinner"></div>;
   }
 
   if (!listing) {
@@ -36,28 +49,33 @@ const PublicFacingListing = () => {
   }
 
   return (
-    <>
+    <div className="public-listing-container">
       <Header />
-      <main className="public-listing-main">
-        <div className="public-listing-container">
-          <h1 className="listing-address">{listing.homeCharacteristics.address}</h1>
-          <p className="listing-location">
-            {listing.homeCharacteristics.city}, {listing.homeCharacteristics.state} {listing.homeCharacteristics.zip}
-          </p>
-          <div className="listing-details">
-            <p><strong>Asking Price</strong>: ${listing.homeCharacteristics.price?.toLocaleString() || '-'}</p>
-            <p><strong>Bedrooms</strong>: {listing.homeCharacteristics.beds}</p>
-            <p><strong>Bathrooms</strong>: {listing.homeCharacteristics.baths}</p>
-            <p><strong>Sq. Ft.</strong>: {listing.homeCharacteristics.squareFootage || '-'}</p>
-            <p><strong>Lot Size</strong>: {listing.homeCharacteristics.lotSize || '-'}</p>
-            <p><strong>Property Type</strong>: {listing.homeCharacteristics.propertyType}</p>
-            <p><strong>Year Built</strong>: {listing.homeCharacteristics.yearBuilt}</p>
-          </div>
-          {listing.imagesUrls && listing.imagesUrls.length > 0 && (
-            <div className="listing-image">
-              <img src={listing.imagesUrls[0]} alt="Property" className="property-image" />
+      <div className="public-listing-content">
+        <div className="public-listing-grid">
+          {/* Left Section */}
+          <div className="left-section">
+            <h1 className="listing-address">{listing.homeCharacteristics.address}</h1>
+            <p className="listing-location">
+              {listing.homeCharacteristics.city}, {listing.homeCharacteristics.state} {listing.homeCharacteristics.zip}
+            </p>
+            {listing.imagesUrls && listing.imagesUrls.length > 0 && (
+              <div className="listing-image">
+                <img src={listing.imagesUrls[0]} alt="Property" className="property-image" />
+              </div>
+            )}
+            <div className="listing-details">
+              <p><strong>Asking Price:</strong> ${listing.homeCharacteristics.price?.toLocaleString() || '-'}</p>
+              <p><strong>Bedrooms:</strong> {listing.homeCharacteristics.beds}</p>
+              <p><strong>Bathrooms:</strong> {listing.homeCharacteristics.baths}</p>
+              <p><strong>Sq. Ft.:</strong> {listing.homeCharacteristics.squareFootage || '-'}</p>
+              <p><strong>Lot Size:</strong> {listing.homeCharacteristics.lotSize || '-'}</p>
+              <p><strong>Property Type:</strong> {getPropertyTypeText(listing.homeCharacteristics.propertyType)}</p>
+              <p><strong>Year Built:</strong> {listing.homeCharacteristics.yearBuilt}</p>
             </div>
-          )}
+          </div>
+
+          {/* Right Section */}
           <div className="signup-section">
             <h2>Request Property Information</h2>
             <p>Request access to the property information package, review disclosures and submit offers.</p>
@@ -83,9 +101,9 @@ const PublicFacingListing = () => {
             </form>
           </div>
         </div>
-      </main>
+      </div>
       <Footer />
-    </>
+    </div>
   );
 };
 
