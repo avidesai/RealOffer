@@ -1,7 +1,11 @@
+// PublicFacingListing.js
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
+import PFLoginForm from './PFLoginForm/PFLoginForm';
+import PFSignupForm from './PFSignupForm/PFSignupForm';
 import './PublicFacingListing.css';
 
 const getPropertyTypeText = (value) => {
@@ -34,10 +38,11 @@ const PublicFacingListing = () => {
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageLoading, setIsImageLoading] = useState(false);
+  const [formState, setFormState] = useState('contact'); // 'contact', 'login', 'signup'
   const [formData, setFormData] = useState({
     role: '',
     name: '',
-    email: ''
+    email: '',
   });
 
   useEffect(() => {
@@ -58,16 +63,25 @@ const PublicFacingListing = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    // Add form submission logic here
-    console.log('Form submitted:', formData);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/check-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email }),
+      });
+      const { exists } = await response.json();
+      setFormState(exists ? 'login' : 'signup');
+    } catch (error) {
+      console.error('Error checking email:', error);
+    }
   };
 
   const nextImage = () => {
@@ -82,6 +96,66 @@ const PublicFacingListing = () => {
       setIsImageLoading(true);
       setCurrentImageIndex((prev) => (prev === 0 ? listing.imagesUrls.length - 1 : prev - 1));
     }
+  };
+
+  const renderForm = () => {
+    if (formState === 'login') {
+      return <PFLoginForm email={formData.email} onLoginSuccess={() => setFormState('success')} />;
+    }
+    if (formState === 'signup') {
+      return (
+        <PFSignupForm
+          email={formData.email}
+          role={formData.role}
+          onSignupSuccess={() => setFormState('success')}
+        />
+      );
+    }
+    return (
+      <form className="pfl-inquiry-form" onSubmit={handleFormSubmit}>
+        <div className="pfl-form-group">
+          <label htmlFor="role">Role</label>
+          <select
+            id="role"
+            name="role"
+            value={formData.role}
+            onChange={handleInputChange}
+            required
+          >
+            <option value="">I am a...</option>
+            <option value="buyer">Buyer</option>
+            <option value="agent">Agent</option>
+          </select>
+        </div>
+        <div className="pfl-form-group">
+          <label htmlFor="name">Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="Enter your name"
+            value={formData.name}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        <div className="pfl-form-group">
+          <label htmlFor="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter your email"
+            value={formData.email}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        <button type="submit" className="pfl-request-button">
+          Request Information
+        </button>
+      </form>
+    );
   };
 
   if (loading) {
@@ -112,11 +186,11 @@ const PublicFacingListing = () => {
           <h1 className="pfl-property-title">
             {listing.homeCharacteristics.address}
             <span className="pfl-property-location">
-              {listing.homeCharacteristics.city}, {listing.homeCharacteristics.state} {listing.homeCharacteristics.zip}
+              {listing.homeCharacteristics.city}, {listing.homeCharacteristics.state}{' '}
+              {listing.homeCharacteristics.zip}
             </span>
           </h1>
         </div>
-
         <div className="pfl-content-grid">
           <div className="pfl-main-content">
             <div className="pfl-property-details">
@@ -147,14 +221,13 @@ const PublicFacingListing = () => {
                 </div>
               </div>
             </div>
-
             <div className="pfl-gallery-section">
               <div className="pfl-gallery-container">
                 {listing.imagesUrls && listing.imagesUrls.length > 0 && (
                   <>
-                    <img 
-                      src={listing.imagesUrls[currentImageIndex]} 
-                      alt="Property" 
+                    <img
+                      src={listing.imagesUrls[currentImageIndex]}
+                      alt="Property"
                       className={`pfl-main-image ${isImageLoading ? 'loading' : ''}`}
                       onLoad={() => setIsImageLoading(false)}
                     />
@@ -166,15 +239,15 @@ const PublicFacingListing = () => {
                     </div>
                     {listing.imagesUrls.length > 1 && (
                       <div className="pfl-gallery-controls">
-                        <button 
-                          onClick={previousImage} 
+                        <button
+                          onClick={previousImage}
                           className="pfl-gallery-button prev"
                           aria-label="Previous image"
                         >
                           ←
                         </button>
-                        <button 
-                          onClick={nextImage} 
+                        <button
+                          onClick={nextImage}
                           className="pfl-gallery-button next"
                           aria-label="Next image"
                         >
@@ -187,60 +260,7 @@ const PublicFacingListing = () => {
               </div>
             </div>
           </div>
-
-          <div className="pfl-contact-form">
-            <div className="pfl-form-container">
-              <h2>Request Access</h2>
-              <p>View disclosures, make offers, and more.</p>
-              
-              <form className="pfl-inquiry-form" onSubmit={handleSubmit}>
-                <div className="pfl-form-group">
-                  <label htmlFor="role">Role</label>
-                  <select 
-                    id="role" 
-                    name="role"
-                    value={formData.role}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="">I am a...</option>
-                    <option value="buyer">Buyer</option>
-                    <option value="agent">Agent</option>
-                  </select>
-                </div>
-
-                <div className="pfl-form-group">
-                  <label htmlFor="name">Name</label>
-                  <input 
-                    type="text" 
-                    id="name" 
-                    name="name" 
-                    placeholder="Enter your name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-
-                <div className="pfl-form-group">
-                  <label htmlFor="email">Email</label>
-                  <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    placeholder="Enter your email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-
-                <button type="submit" className="pfl-request-button">
-                  Request Information
-                </button>
-              </form>
-            </div>
-          </div>
+          <div className="pfl-contact-form">{renderForm()}</div>
         </div>
       </main>
       <Footer />
