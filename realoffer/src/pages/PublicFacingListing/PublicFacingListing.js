@@ -113,8 +113,8 @@ const PublicFacingListing = () => {
     }
     return (
       <div className="pfl-form-container">
-        <h2>Request Property Information</h2>
-        <p>Get access to disclosures, make offers, and more.</p>
+        <h2>View Listing Information</h2>
+        <p>View disclosures, make offers, and more.</p>
         <form className="pfl-inquiry-form" onSubmit={handleFormSubmit}>
           <div className="pfl-form-group">
             <label htmlFor="role">Role</label>
@@ -155,7 +155,7 @@ const PublicFacingListing = () => {
             />
           </div>
           <button type="submit" className="pfl-request-button">
-            Request Information
+            Open Listing
           </button>
         </form>
       </div>
