@@ -1,3 +1,5 @@
+// PFLoginForm.js
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PFLoginForm.css';
@@ -32,11 +34,11 @@ const PFLoginForm = ({ email, onLoginSuccess }) => {
   };
 
   return (
-    <div className="pfl-login-form-container">
+    <div className="pf-login-form-container">
       <h2>Login</h2>
-      {error && <p className="pfl-login-error">{error}</p>}
+      {error && <p className="pf-login-error">{error}</p>}
       <form onSubmit={handleSubmit}>
-        <div className="pfl-form-group">
+        <div className="pf-login-form-group">
           <label htmlFor="password">Password</label>
           <input
             type="password"

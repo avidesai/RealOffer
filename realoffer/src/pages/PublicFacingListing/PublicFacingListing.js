@@ -13,7 +13,7 @@ const getPropertyTypeText = (value) => {
     singleFamily: 'Single Family',
     condo: 'Condominium',
     townhouse: 'Townhouse',
-    multiFamily: 'Multi-Family',
+    multiFamily: 'Multi Family',
     land: 'Land',
     commercial: 'Commercial',
   };

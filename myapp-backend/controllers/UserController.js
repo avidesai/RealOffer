@@ -174,3 +174,20 @@ exports.loginUser = async (req, res) => {
       res.status(500).json({ message: 'Server error', error: error.message });
     }
   };
+
+  // In UserController.js
+exports.checkEmailExists = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      return res.status(200).json({ exists: true });
+    }
+    res.status(200).json({ exists: false });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// In routes/users.js
+router.post('/check-email', UserController.checkEmailExists);

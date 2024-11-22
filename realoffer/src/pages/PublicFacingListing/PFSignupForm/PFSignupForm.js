@@ -1,3 +1,5 @@
+// PFSignupForm.js
+
 import React, { useState } from 'react';
 import './PFSignupForm.css';
 
@@ -38,11 +40,11 @@ const PFSignupForm = ({ email, role, onSignupSuccess }) => {
   };
 
   return (
-    <div className="pfl-signup-form-container">
+    <div className="pf-signup-form-container">
       <h2>Sign Up</h2>
-      {error && <p className="pfl-signup-error">{error}</p>}
+      {error && <p className="pf-signup-error">{error}</p>}
       <form onSubmit={handleSubmit}>
-        <div className="pfl-form-group">
+        <div className="pf-signup-form-group">
           <label htmlFor="firstName">First Name</label>
           <input
             type="text"
@@ -53,7 +55,7 @@ const PFSignupForm = ({ email, role, onSignupSuccess }) => {
             required
           />
         </div>
-        <div className="pfl-form-group">
+        <div className="pf-signup-form-group">
           <label htmlFor="lastName">Last Name</label>
           <input
             type="text"
@@ -64,7 +66,7 @@ const PFSignupForm = ({ email, role, onSignupSuccess }) => {
             required
           />
         </div>
-        <div className="pfl-form-group">
+        <div className="pf-signup-form-group">
           <label htmlFor="password">Password</label>
           <input
             type="password"

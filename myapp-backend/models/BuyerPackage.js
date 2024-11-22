@@ -1,55 +1,15 @@
-// /models/BuyerPackage.js
+// BuyerPackage.js
 
 const mongoose = require('mongoose');
 
 const buyerPackageSchema = new mongoose.Schema({
-  title: String,
-  description: String,
-  newPackage: Boolean,
-  homeCharacteristics: {
-    price: {
-      type: Number,
-      required: true
-    },
-    address: String,
-    city: String,
-    state: String,
-    zip: String,
-    beds: {
-      type: Number,
-      required: true
-    },
-    baths: {
-      type: Number,
-      required: true
-    },
-    squareFootage: {
-      type: Number,
-      required: true
-    },
-    lotSize: {
-      type: Number,
-      required: true
-    },
-    propertyType: String,
-    yearBuilt: {
-      type: Number,
-      required: true
-    }
-  },
-  imagesUrls: [String],
-  status: String,
-  escrowInfo: {
-    escrowNumber: String,
-    company: {
-      name: String,
-      phone: String,
-      email: String
-    }
-  },
-  agentIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  propertyListingId: { type: mongoose.Schema.Types.ObjectId, ref: 'PropertyListing', required: true },
+  buyerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Buyer or Buyer Agent
   documents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Document' }],
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
+  activity: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Activity' }],
+  messages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
+  offers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Offer' }],
+  createdAt: { type: Date, default: Date.now },
 }, { timestamps: true });
 
 module.exports = mongoose.model('BuyerPackage', buyerPackageSchema);
