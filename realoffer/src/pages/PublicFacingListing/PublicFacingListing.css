@@ -151,7 +151,7 @@
   font-weight: 700;
 }
 
-/* Updated Gallery Controls */
+/* Gallery Controls */
 .pfl-gallery-controls {
   position: absolute;
   bottom: 1.25rem;
@@ -265,13 +265,13 @@
   background: #2563eb;
   color: white;
   border: none;
-  padding: 0.75rem;
+  padding: 1rem;
   border-radius: 8px;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-top: 1rem;
+  width: 100%;
 }
 
 .pfl-request-button:hover {

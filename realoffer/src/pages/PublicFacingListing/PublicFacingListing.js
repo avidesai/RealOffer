@@ -38,7 +38,7 @@ const PublicFacingListing = () => {
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageLoading, setIsImageLoading] = useState(false);
-  const [formState, setFormState] = useState('contact'); // 'contact', 'login', 'signup'
+  const [formState, setFormState] = useState('contact');
   const [formData, setFormData] = useState({
     role: '',
     name: '',
@@ -112,49 +112,53 @@ const PublicFacingListing = () => {
       );
     }
     return (
-      <form className="pfl-inquiry-form" onSubmit={handleFormSubmit}>
-        <div className="pfl-form-group">
-          <label htmlFor="role">Role</label>
-          <select
-            id="role"
-            name="role"
-            value={formData.role}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="">I am a...</option>
-            <option value="buyer">Buyer</option>
-            <option value="agent">Agent</option>
-          </select>
-        </div>
-        <div className="pfl-form-group">
-          <label htmlFor="name">Name</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            placeholder="Enter your name"
-            value={formData.name}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div className="pfl-form-group">
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            placeholder="Enter your email"
-            value={formData.email}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <button type="submit" className="pfl-request-button">
-          Request Information
-        </button>
-      </form>
+      <div className="pfl-form-container">
+        <h2>Request Property Information</h2>
+        <p>Get access to disclosures, make offers, and more.</p>
+        <form className="pfl-inquiry-form" onSubmit={handleFormSubmit}>
+          <div className="pfl-form-group">
+            <label htmlFor="role">Role</label>
+            <select
+              id="role"
+              name="role"
+              value={formData.role}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="">I am a...</option>
+              <option value="buyer">Buyer</option>
+              <option value="agent">Agent</option>
+            </select>
+          </div>
+          <div className="pfl-form-group">
+            <label htmlFor="name">Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="Enter your name"
+              value={formData.name}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="pfl-form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <button type="submit" className="pfl-request-button">
+            Request Information
+          </button>
+        </form>
+      </div>
     );
   };
 
