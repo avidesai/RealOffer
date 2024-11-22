@@ -1,5 +1,4 @@
-/* PublicFacingListing.css */
-
+/* Main Container */
 .public-listing-container {
   display: flex;
   flex-direction: column;
@@ -11,7 +10,7 @@
   flex: 1;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 1rem 2rem;
+  padding: .5rem 4rem;
   width: 90%;
 }
 
@@ -21,7 +20,7 @@
 }
 
 .pfl-property-title {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 800;
   color: #1a1a1a;
   margin-bottom: 0.5rem;

@@ -14,12 +14,13 @@ const uploadPhotos = multer({
     s3: s3Client,
     bucket: process.env.AWS_BUCKET_NAME_PHOTOS,
     key: function (req, file, cb) {
-      const index = req.body[`propertyImages[${file.fieldname}]`] || Date.now(); // Use indexed order
-      cb(null, `${index}-${file.originalname}`); // Include index in the filename
+      const uniqueFilename = `${Date.now()}-${file.originalname}`;
+      cb(null, uniqueFilename);
     },
   }),
 });
 
+// Get all property listings for the logged-in user
 exports.getAllListings = async (req, res) => {
   try {
     const listings = await PropertyListing.find({ createdBy: req.user.id });
@@ -29,6 +30,7 @@ exports.getAllListings = async (req, res) => {
   }
 };
 
+// Get a single listing by ID for the logged-in user
 exports.getListingById = async (req, res) => {
   try {
     const listing = await PropertyListing.findOne({ _id: req.params.id, createdBy: req.user.id })
@@ -41,15 +43,34 @@ exports.getListingById = async (req, res) => {
   }
 };
 
+// Create a new property listing
 exports.createListing = async (req, res) => {
   const {
-    role, address, city, state, zip, county, apn, propertyType, askingPrice, bedrooms,
-    bathrooms, yearBuilt, sqFootage, lotSize, description, agent1, agent2,
-    companyName, officerName, officerPhone, officerEmail, officerNumber
+    role,
+    address,
+    city,
+    state,
+    zip,
+    county,
+    apn,
+    propertyType,
+    askingPrice,
+    bedrooms,
+    bathrooms,
+    yearBuilt,
+    sqFootage,
+    lotSize,
+    description,
+    agent2,
+    companyName,
+    officerName,
+    officerPhone,
+    officerEmail,
+    officerNumber,
   } = req.body;
 
-  const propertyImages = req.files ? req.files.map(file => file.location) : [];
-  let agentIds = [req.user.id]; // Always include the current user as an agent
+  const propertyImages = req.files ? req.files.map((file) => file.location) : [];
+  const agentIds = [req.user.id];
 
   if (agent2) {
     try {
@@ -59,30 +80,40 @@ exports.createListing = async (req, res) => {
     }
   }
 
-  // Generate a unique public URL
   const publicUrlToken = crypto.randomBytes(16).toString('hex');
   const publicUrl = `${process.env.FRONTEND_URL}/listings/public/${publicUrlToken}`;
 
   const newListing = new PropertyListing({
     role,
     homeCharacteristics: {
-      address, city, state, zip, county, apn, propertyType, price: askingPrice, beds: bedrooms,
-      baths: bathrooms, squareFootage: sqFootage, lotSize, yearBuilt
+      address,
+      city,
+      state,
+      zip,
+      county,
+      apn,
+      propertyType,
+      price: askingPrice,
+      beds: bedrooms,
+      baths: bathrooms,
+      squareFootage: sqFootage,
+      lotSize,
+      yearBuilt,
     },
     description,
-    agentIds: agentIds,
+    agentIds,
     imagesUrls: propertyImages,
-    status: "active",
+    status: 'active',
     escrowInfo: {
       escrowNumber: officerNumber,
       company: {
         name: companyName,
         phone: officerPhone,
-        email: officerEmail
-      }
+        email: officerEmail,
+      },
     },
     createdBy: req.user.id,
-    publicUrl: publicUrl // Add the public URL to the listing
+    publicUrl,
   });
 
   try {
@@ -96,6 +127,7 @@ exports.createListing = async (req, res) => {
   }
 };
 
+// Get a public listing by its unique token
 exports.getPublicListing = async (req, res) => {
   const { token } = req.params;
 
@@ -110,6 +142,7 @@ exports.getPublicListing = async (req, res) => {
   }
 };
 
+// Update an existing property listing
 exports.updateListing = async (req, res) => {
   try {
     const updatedListing = await PropertyListing.findOneAndUpdate(
@@ -126,6 +159,7 @@ exports.updateListing = async (req, res) => {
   }
 };
 
+// Delete an existing property listing
 exports.deleteListing = async (req, res) => {
   try {
     const deletedListing = await PropertyListing.findOneAndDelete({ _id: req.params.id, createdBy: req.user.id });
@@ -138,6 +172,7 @@ exports.deleteListing = async (req, res) => {
   }
 };
 
+// Update the signature package for a listing
 exports.updateSignaturePackage = async (req, res) => {
   const { listingId, signaturePackageId } = req.body;
   try {
