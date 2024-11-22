@@ -188,6 +188,3 @@ exports.checkEmailExists = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-// In routes/users.js
-router.post('/check-email', UserController.checkEmailExists);
