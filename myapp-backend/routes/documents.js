@@ -13,17 +13,26 @@ router.use((req, res, next) => {
   authMiddleware(req, res, next);
 });
 
+// Document management routes
 router.delete('/deleteAll', DocumentController.deleteAllDocuments);
 router.post('/', DocumentController.uploadDocuments, DocumentController.uploadDocument);
+
+// Signature package page management routes - SPECIFIC ROUTES FIRST
+router.post('/addPage', DocumentController.addPage);
+router.post('/removePage', DocumentController.removePage);
+router.post('/setAllPages', DocumentController.setAllPages);
+router.post('/clearPages', DocumentController.clearPages);
+router.get('/single/:id', DocumentController.getSingleDocument);
+
+// Signature package creation route
+router.put('/createBuyerSignaturePacket', DocumentController.createBuyerSignaturePacket);
+router.put('/updateSignedStatus', DocumentController.updateDocumentSignedStatus);
+
+// Document routes with path parameters - GENERIC ROUTES LAST
 router.post('/propertyListing/:id', DocumentController.uploadDocuments, DocumentController.addDocumentToPropertyListing);
 router.post('/buyerPackage/:id', DocumentController.uploadDocuments, DocumentController.addDocumentToBuyerPackage);
 router.get('/offer/:offerId', DocumentController.getDocumentsByOffer);
 router.get('/:listingId', DocumentController.getDocumentsByListing);
 router.delete('/:id', DocumentController.deleteDocument);
-router.post('/addPage', DocumentController.addPageToSignaturePackage);
-router.post('/removePage', DocumentController.removePageFromSignaturePackage);
-router.put('/createBuyerSignaturePacket', DocumentController.createBuyerSignaturePacket);
-router.put('/updateSignedStatus', DocumentController.updateDocumentSignedStatus);
-router.put('/:id', DocumentController.updateDocument);
 
 module.exports = router;

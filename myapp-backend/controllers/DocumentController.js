@@ -349,7 +349,7 @@ exports.removePageFromSignaturePackage = async (req, res) => {
 };
 
 exports.createBuyerSignaturePacket = async (req, res) => {
-  const { listingId } = req.body;
+  const { listingId, documentOrder } = req.body;
 
   try {
     const propertyListing = await PropertyListing.findById(listingId).populate('signaturePackage');
@@ -361,14 +361,38 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     if (propertyListing.createdBy.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to create a signature packet for this listing' });
     }
+    
+    // Get all documents for this listing
     const documents = await Document.find({ propertyListing: listingId });
-    const selectedDocuments = documents.filter(doc => doc.signaturePackagePages.length > 0);
+    
+    // Filter documents that have pages selected for the signature package
+    let selectedDocuments = documents.filter(doc => doc.signaturePackagePages.length > 0);
 
     if (selectedDocuments.length === 0) {
       return res.status(400).json({ message: 'No pages selected for the signature package.' });
     }
+    
+    // If documentOrder is provided, sort the documents according to the order
+    if (documentOrder && Array.isArray(documentOrder) && documentOrder.length > 0) {
+      // Create a map for quick lookup of document order
+      const orderMap = new Map(documentOrder.map((id, index) => [id, index]));
+      
+      // Sort the selected documents based on the order
+      selectedDocuments.sort((a, b) => {
+        const orderA = orderMap.has(a._id.toString()) ? orderMap.get(a._id.toString()) : Number.MAX_SAFE_INTEGER;
+        const orderB = orderMap.has(b._id.toString()) ? orderMap.get(b._id.toString()) : Number.MAX_SAFE_INTEGER;
+        return orderA - orderB;
+      });
+      
+      // Store the document order in the property listing for persistence
+      propertyListing.documentOrder = documentOrder;
+      await propertyListing.save();
+    }
 
     const mergedPdf = await PDFDocument.create();
+    
+    // Track any errors during document processing
+    const processingErrors = [];
 
     for (const document of selectedDocuments) {
       try {
@@ -379,27 +403,68 @@ exports.createBuyerSignaturePacket = async (req, res) => {
         const response = await fetch(documentUrlWithSAS);
 
         if (!response.ok) {
-          console.error(`Failed to fetch document ${document._id}: ${response.statusText}`);
+          const errorMsg = `Failed to fetch document ${document.title}: ${response.statusText}`;
+          console.error(errorMsg);
+          processingErrors.push(errorMsg);
           continue;
         }
+        
         const contentType = response.headers.get('content-type');
 
         if (!contentType || (!contentType.includes('pdf') && contentType !== 'application/octet-stream')) {
-          console.error(`Document ${document._id} is not a PDF`);
+          const errorMsg = `Document ${document.title} is not a PDF`;
+          console.error(errorMsg);
+          processingErrors.push(errorMsg);
           continue;
         }
 
         const existingPdfBytes = await response.arrayBuffer();
-        const existingPdf = await PDFDocument.load(existingPdfBytes);
+        
+        try {
+          const existingPdf = await PDFDocument.load(existingPdfBytes, { 
+            ignoreEncryption: true,
+            throwOnInvalidObject: false
+          });
 
-        for (const pageNumber of document.signaturePackagePages) {
-          const [copiedPage] = await mergedPdf.copyPages(existingPdf, [pageNumber - 1]);
-          mergedPdf.addPage(copiedPage);
+          // Sort the page numbers in ascending order
+          const sortedPageNumbers = [...document.signaturePackagePages].sort((a, b) => a - b);
+          
+          for (const pageNumber of sortedPageNumbers) {
+            if (pageNumber > 0 && pageNumber <= existingPdf.getPageCount()) {
+              try {
+                const [copiedPage] = await mergedPdf.copyPages(existingPdf, [pageNumber - 1]);
+                mergedPdf.addPage(copiedPage);
+              } catch (pageError) {
+                const errorMsg = `Error copying page ${pageNumber} from document ${document.title}: ${pageError.message}`;
+                console.error(errorMsg);
+                processingErrors.push(errorMsg);
+              }
+            } else {
+              const errorMsg = `Invalid page number ${pageNumber} for document ${document.title}`;
+              console.error(errorMsg);
+              processingErrors.push(errorMsg);
+            }
+          }
+        } catch (pdfError) {
+          const errorMsg = `Error loading PDF for document ${document.title}: ${pdfError.message}`;
+          console.error(errorMsg);
+          processingErrors.push(errorMsg);
+          continue;
         }
       } catch (err) {
-        console.error(`Error processing document ${document._id}:`, err.message);
+        const errorMsg = `Error processing document ${document.title}: ${err.message}`;
+        console.error(errorMsg);
+        processingErrors.push(errorMsg);
         continue;
       }
+    }
+    
+    // If no pages were successfully added to the merged PDF
+    if (mergedPdf.getPageCount() === 0) {
+      return res.status(400).json({ 
+        message: 'Failed to create signature package. No pages could be processed.',
+        errors: processingErrors
+      });
     }
 
     const pdfBytes = await mergedPdf.save();
@@ -436,7 +501,18 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     propertyListing.signaturePackage = savedDocument._id;
     await propertyListing.save();
 
-    res.status(201).json(savedDocument);
+    // Return the saved document along with any processing errors
+    const response = {
+      document: savedDocument,
+      pageCount: mergedPdf.getPageCount(),
+      documentOrder: propertyListing.documentOrder
+    };
+    
+    if (processingErrors.length > 0) {
+      response.warnings = processingErrors;
+    }
+
+    res.status(201).json(response);
   } catch (error) {
     console.error('Error creating/updating disclosure signature packet:', error);
     res.status(500).json({ message: 'Error creating/updating disclosure signature packet', error: error.message });
@@ -512,5 +588,108 @@ exports.updateDocument = async (req, res) => {
   } catch (error) {
     console.error('Error updating document:', error);
     res.status(500).json({ message: error.message });
+  }
+};
+
+exports.addPage = async (req, res) => {
+  try {
+    const { documentId, page } = req.body;
+    const document = await Document.findById(documentId);
+    
+    if (!document) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+    
+    if (!document.signaturePackagePages.includes(page)) {
+      document.signaturePackagePages.push(page);
+      await document.save();
+    }
+    
+    res.json(document);
+  } catch (error) {
+    console.error('Error adding page to signature package:', error);
+    res.status(500).json({ message: 'Error adding page to signature package', error: error.message });
+  }
+};
+
+exports.removePage = async (req, res) => {
+  try {
+    const { documentId, page } = req.body;
+    const document = await Document.findById(documentId);
+    
+    if (!document) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+    
+    document.signaturePackagePages = document.signaturePackagePages.filter(p => p !== page);
+    await document.save();
+    
+    res.json(document);
+  } catch (error) {
+    console.error('Error removing page from signature package:', error);
+    res.status(500).json({ message: 'Error removing page from signature package', error: error.message });
+  }
+};
+
+exports.setAllPages = async (req, res) => {
+  try {
+    const { documentId, totalPages } = req.body;
+    
+    if (!totalPages || typeof totalPages !== 'number' || totalPages <= 0) {
+      return res.status(400).json({ message: 'Invalid totalPages parameter' });
+    }
+    
+    const document = await Document.findById(documentId);
+    
+    if (!document) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+    
+    // Create an array of all page numbers from 1 to totalPages
+    document.signaturePackagePages = Array.from({ length: totalPages }, (_, i) => i + 1);
+    await document.save();
+    
+    res.json(document);
+  } catch (error) {
+    console.error('Error setting all pages for signature package:', error);
+    res.status(500).json({ message: 'Error setting all pages for signature package', error: error.message });
+  }
+};
+
+exports.clearPages = async (req, res) => {
+  try {
+    const { documentId } = req.body;
+    const document = await Document.findById(documentId);
+    
+    if (!document) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+    
+    document.signaturePackagePages = [];
+    await document.save();
+    
+    res.json(document);
+  } catch (error) {
+    console.error('Error clearing pages from signature package:', error);
+    res.status(500).json({ message: 'Error clearing pages from signature package', error: error.message });
+  }
+};
+
+exports.getSingleDocument = async (req, res) => {
+  try {
+    const document = await Document.findById(req.params.id);
+    
+    if (!document) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+    
+    // Generate SAS token for the document
+    const sasToken = generateSASToken(document.azureKey);
+    document.sasToken = sasToken;
+    
+    res.json(document);
+  } catch (error) {
+    console.error('Error fetching document:', error);
+    res.status(500).json({ message: 'Error fetching document', error: error.message });
   }
 };

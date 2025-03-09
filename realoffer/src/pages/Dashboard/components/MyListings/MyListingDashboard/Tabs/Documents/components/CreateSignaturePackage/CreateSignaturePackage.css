@@ -14,140 +14,210 @@
   z-index: 1000;
   padding: 20px;
   box-sizing: border-box;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .csp-header, .csp-body, .csp-footer {
   width: 100%;
-  max-width: 1400px; /* Increase max-width */
-  background-color: #fff;
+  max-width: 1200px;
+  background-color: white;
   box-sizing: border-box;
-  position: relative;
 }
 
 .csp-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 2rem;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  border-bottom: 1px solid #ddd;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Add this line */
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #eaeaea;
+  border-radius: 8px 8px 0 0;
+}
+
+.csp-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+  font-weight: 600;
 }
 
 .csp-body {
-  flex: 1;
   display: flex;
+  height: 70vh;
+  border-bottom: 1px solid #eaeaea;
   overflow: hidden;
 }
 
 .csp-documents-list {
-  width: 33%;
-  border-right: 1px solid #ddd;
-  overflow-y: auto;
-  padding-bottom: 1rem;
+  width: 35%;
+  border-right: 1px solid #eaeaea;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .csp-pdf-viewer {
-  width: 66%;
-  overflow-y: hidden;
+  width: 65%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
 }
 
 .csp-footer {
   display: flex;
   justify-content: flex-end;
-  padding: 15px 20px;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+  align-items: center;
+  padding: 1rem 2rem;
+  border-radius: 0 0 8px 8px;
+}
+
+.csp-error-message {
+  width: 100%;
+  max-width: 1200px;
+  background-color: #fff2f0;
+  border: 1px solid #ffccc7;
+  color: #ff4d4f;
+  padding: 10px 20px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.csp-error-message::before {
+  content: "⚠️";
+  margin-right: 8px;
+  font-size: 16px;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: scale(0.9);
   }
   to {
     opacity: 1;
-    transform: scale(1);
   }
 }
 
 .csp-close-button {
-  position: absolute;
-  top: 1.2rem; /* Adjust as necessary */
-  right: 2rem; /* Adjust as necessary */
-  background: #ffffff;
-  border: 2px solid #d5d5d5;
-  border-radius: 50%;
-  width: 45px;
-  height: 45px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.5em;
+  position: relative;
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: none;
   cursor: pointer;
-  color: #000000;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 3px rgba(0, 0, 0, 0.2);
+  opacity: 0.6;
+  transition: opacity 0.2s;
 }
 
 .csp-close-button:hover {
-  color: #ffffff;
-  background-color: #b12525;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  opacity: 1;
+}
+
+.csp-close-button:before, .csp-close-button:after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 2px;
+  background-color: #333;
+  top: 50%;
+  left: 50%;
 }
 
 .csp-close-button:before {
-  content: '×';
-  font-weight: bold;
-  display: inline-block;
-  margin-top: -0.15rem;
-  line-height: 1;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.csp-close-button:after {
+  transform: translate(-50%, -50%) rotate(-45deg);
 }
 
 .csp-create-button {
-  background-color: #007bff;
+  background-color: #1890ff;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
+  padding: 0.7rem 1.5rem;
+  border-radius: 4px;
   cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.3s ease;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.045);
 }
 
-.csp-create-button:hover {
-  background-color: #0056b3;
+.csp-create-button:hover:not(:disabled) {
+  background-color: #40a9ff;
+}
+
+.csp-create-button:disabled {
+  background-color: #d9d9d9;
+  cursor: not-allowed;
 }
 
 .csp-spinner-overlay {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.7);
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1100;
+  border-radius: 8px;
 }
 
 .csp-spinner {
-  border: 8px solid rgba(0, 0, 0, 0.1);
-  border-top: 8px solid #3498db;
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #1890ff;
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .csp-body {
+    flex-direction: column;
+    height: auto;
+    max-height: 70vh;
   }
-  100% {
-    transform: rotate(360deg);
+  
+  .csp-documents-list, .csp-pdf-viewer {
+    width: 100%;
+    height: 50%;
+  }
+  
+  .csp-documents-list {
+    border-right: none;
+    border-bottom: 1px solid #eaeaea;
+  }
+}
+
+@media (max-width: 768px) {
+  .csp-header, .csp-body, .csp-footer, .csp-error-message {
+    max-width: 95%;
+  }
+  
+  .csp-header h2 {
+    font-size: 1.2rem;
+  }
+  
+  .csp-header, .csp-footer {
+    padding: 0.8rem 1.2rem;
+  }
+  
+  .csp-create-button {
+    width: 100%;
+    padding: 0.6rem 1rem;
   }
 }

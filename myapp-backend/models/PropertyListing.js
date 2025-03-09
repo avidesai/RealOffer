@@ -45,6 +45,7 @@ const propertyListingSchema = new mongoose.Schema(
     messages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     publicUrl: { type: String, unique: true },
+    documentOrder: { type: [String], default: [] },
   },
   { timestamps: true }
 );

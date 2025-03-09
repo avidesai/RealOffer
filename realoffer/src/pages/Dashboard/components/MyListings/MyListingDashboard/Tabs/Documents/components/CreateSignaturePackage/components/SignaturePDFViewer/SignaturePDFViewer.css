@@ -7,6 +7,9 @@
   height: 100%;
   background-color: #f8f9fa;
   position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .spv-pdf-header {
@@ -19,121 +22,155 @@
   border-bottom: 1px solid #ddd;
   height: 50px;
   width: 100%;
-  position: sticky;
-  top: 0;
-  z-index: 1001;
-  box-sizing: border-box;
+  z-index: 10;
+  position: relative;
+}
+
+.spv-pdf-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 30%;
+  color: #333;
+  font-weight: 600;
+  padding-right: 10px;
+  flex-shrink: 1;
 }
 
 .spv-toolbar {
   display: flex;
-  justify-content: center;
   align-items: center;
-  width: 100%;
-  height: 100%;
+  gap: 8px;
+  flex-wrap: nowrap;
+  flex-grow: 1;
+  justify-content: flex-end;
+  position: relative;
 }
 
-.spv-toolbar button,
-.spv-toolbar span {
-  margin: 0 0.5rem;
+.spv-toolbar button {
   background: none;
-  border: none;
-  color: #333;
-  font-size: 1.2rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: all 0.2s;
+  color: #333;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  min-width: max-content;
+  overflow: visible;
 }
 
 .spv-toolbar button:hover:not(:disabled) {
-  color: #007bff;
+  background-color: #e6f7ff;
+  border-color: #1890ff;
+  color: #1890ff;
 }
 
 .spv-toolbar button:disabled {
-  color: #999;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .spv-page-info {
-  font-size: 1rem;
-  color: #555;
+  margin: 0 4px;
+  font-size: 0.9rem;
+  color: #666;
+  min-width: 40px;
+  text-align: center;
+  flex-shrink: 0;
 }
 
 .spv-body {
   flex: 1;
   overflow-y: auto;
-  overflow-x: hidden;
-  padding: 1rem;
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc #f5f5f5;
 }
 
-.spv-pdf-viewer-container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  position: relative;
+.spv-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.spv-body::-webkit-scrollbar-track {
+  background: #f5f5f5;
+}
+
+.spv-body::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.spv-body::-webkit-scrollbar-thumb:hover {
+  background-color: #aaa;
 }
 
 .spv-container .react-pdf__Document {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 1rem;
 }
 
 .spv-pdf-page-container {
-  position: relative;
   margin-bottom: 1rem;
-  transition: box-shadow 0.3s ease;
+  position: relative;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  transition: transform 0.2s, box-shadow 0.2s;
+  max-width: 100%;
+  cursor: pointer;
+}
+
+.spv-pdf-page-container:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
 .spv-page-wrapper {
   position: relative;
-  display: inline-block;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .spv-pdf-page-container:hover .spv-page-wrapper {
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
+  border-color: #1890ff;
 }
 
 .spv-pdf-page-container.selected .spv-page-wrapper {
-  box-shadow: 0 0 0 3px #3498db, 0 0 15px rgba(0, 0, 0, 0.2);
+  border: 2px solid #1890ff;
 }
 
 .spv-container .react-pdf__Page {
-  position: relative;
-  background-color: white;
   margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  max-width: 100%;
 }
 
 .spv-container .react-pdf__Page__canvas {
   display: block;
-}
-
-.spv-container .react-pdf__Page__textContent {
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-  opacity: 0.2;
-  line-height: 1;
-  user-select: text;
-  cursor: text;
+  user-select: none;
+  max-width: 100%;
+  height: auto !important;
 }
 
 .spv-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(52, 152, 219, 0.2);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  top: 10px;
+  right: 10px;
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s;
+  z-index: 5;
 }
 
 .spv-pdf-page-container:hover .spv-overlay,
@@ -142,36 +179,91 @@
 }
 
 .spv-checkbox {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 24px;
+  height: 24px;
+  border: 2px solid #1890ff;
+  border-radius: 4px;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: background-color 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.spv-checkbox:hover {
-  opacity: 1;
+.spv-checkbox span {
+  color: white;
+  font-weight: bold;
+}
+
+.spv-pdf-page-container.selected .spv-checkbox {
+  background-color: #1890ff;
 }
 
 .spv-pdf-spinner-overlay {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.8);
-  z-index: 1002;
+  z-index: 10;
 }
 
 .spv-pdf-spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
   width: 40px;
   height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #1890ff;
+  border-radius: 50%;
   animation: spv-spin 1s linear infinite;
+}
+
+.spv-error-message {
+  background-color: #fff2f0;
+  border: 1px solid #ffccc7;
+  color: #ff4d4f;
+  padding: 8px 12px;
+  margin: 0;
+  font-size: 14px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.spv-error-message::before {
+  content: "⚠️";
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.spv-page-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 200px;
+  color: #666;
+  font-size: 14px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+.spv-page-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  border: 1px dashed #ddd;
+  color: #999;
+  font-size: 14px;
+  width: 100%;
+  min-height: 200px;
+  border-radius: 4px;
 }
 
 @keyframes spv-spin {
@@ -180,14 +272,83 @@
 }
 
 .spv-select-all-button {
-  margin-left: auto;
   display: flex;
   align-items: center;
-  font-size: 1.2rem;
+  gap: 5px;
+  padding: 0.3rem 0.7rem;
+  background-color: #f5f5f5;
+  border: 1px solid #d9d9d9;
+  white-space: nowrap;
+  min-width: max-content;
+  border-radius: 4px;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: all 0.2s;
+  color: #333;
+  font-size: 0.9rem;
+  margin-left: 12px;
+  overflow: visible;
 }
 
-.spv-select-all-button:hover {
-  color: #007bff;
+.spv-select-all-button:hover:not(:disabled) {
+  background-color: #e6f7ff;
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.spv-select-all-button span {
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.spv-select-all-button svg {
+  font-size: 1.2rem;
+}
+
+/* Page selection indicator */
+.spv-page-selected-indicator {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background-color: #52c41a;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.spv-pdf-page-container.selected .spv-page-selected-indicator {
+  opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .spv-pdf-header {
+    flex-direction: column;
+    height: auto;
+    padding: 0.8rem 1rem;
+    align-items: flex-start;
+  }
+  
+  .spv-pdf-header h3 {
+    margin-bottom: 0.8rem;
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .spv-toolbar {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  
+  .spv-select-all-button {
+    margin-left: 0;
+    margin-top: 0.5rem;
+    width: 100%;
+    justify-content: center;
+  }
 }

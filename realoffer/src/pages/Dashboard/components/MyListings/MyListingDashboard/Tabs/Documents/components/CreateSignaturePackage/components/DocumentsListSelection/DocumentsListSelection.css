@@ -2,82 +2,192 @@
 
 .dls-documents-list {
   width: 100%;
-  overflow-y: auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  position: relative;
 }
 
 .dls-documents-list h3 {
   margin: 0;
-  padding-top: 2rem;
-  padding-left: 3rem; /* Ensure padding aligns with list */
-  padding-bottom: 1rem;
-  font-size: 1.3rem;
+  padding-top: 1.5rem;
+  padding-left: 1.5rem;
+  padding-bottom: 0.5rem;
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: 600;
+  flex-shrink: 0;
 }
 
 .dls-documents-list p {
   margin: 0;
-  padding-left: 3rem; /* Align with h3 */
+  padding-left: 1.5rem;
   padding-right: 1.5rem;
   padding-bottom: 1rem;
-  font-size: 1rem;
-  color: #555;
-  line-height: 1.5; /* Improve readability */
+  font-size: 0.9rem;
+  color: #666;
+  border-bottom: 1px solid #eaeaea;
+  flex-shrink: 0;
+}
+
+.dls-documents-list-container {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  flex-grow: 1;
 }
 
 .dls-document-item {
-  padding: 1rem;
-  padding-left: 1.5rem; /* Align padding with header */
-  cursor: pointer;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start; /* Align items to the start */
-  border-bottom: 1px solid #ddd;
-  color: black;
-  font-weight: 500;
-  transition: background-color 0.3s;
+  align-items: center;
+  padding: 1rem 1rem 1rem 1.5rem;
+  border-bottom: 1px solid #eaeaea;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  background-color: #fff;
+  overflow: hidden;
 }
 
 .dls-document-item:hover {
-  background-color: #f1f1f1;
+  background-color: #f5f5f5;
 }
 
 .dls-document-item.selected {
-  background-color: #007bff; /* Highlight color */
-  color: white; /* Text color for highlighted item */
+  background-color: #e6f7ff;
+  border-left: 4px solid #1890ff;
 }
 
 .dls-document-item.selected .dls-document-type {
-  color: white; /* Text color for highlighted document type and pages */
+  color: #1890ff;
 }
 
 .dls-document-info {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0; /* Prevent flex items from overflowing */
+  overflow: hidden;
 }
 
 .dls-document-title {
-  font-size: 1.1rem;
-  margin-bottom: 0.7rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #333;
 }
 
 .dls-document-type {
-  font-size: 0.9rem;
-  color: #888;
-  margin-bottom: 0.9rem;
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.3rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dls-document-pages {
-  font-size: 0.9rem;
-  color: #888;
-  width: 125px;
-  text-align: center;
-  background-color: #f1f1f1; /* Default background color */
-  padding: 0.25rem 0.8rem; /* Add some padding */
-  border-radius: 1rem; /* Make it rounded */
-  display: inline-block; /* Ensure it's inline-block */
-  transition: background-color 0.3s;
+  font-size: 0.8rem;
+  color: #999;
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background-color: #f5f5f5;
+  display: inline-block;
+  margin-top: 3px;
+  width: fit-content;
+  max-width: 100%;
 }
 
 .dls-document-pages.morethanzero {
-  background-color: #32b643;
-  color: white; /* Text color when pages are selected */
+  color: white;
+  font-weight: 600;
+  background-color: #52c41a;
+  font-style: normal;
+}
+
+/* Styles for drag and drop */
+.dls-document-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.dls-drag-handle {
+  cursor: grab;
+  color: #999;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dls-drag-handle:active {
+  cursor: grabbing;
+}
+
+.dls-drag-icon {
+  font-size: 1.2rem;
+}
+
+.dls-arrow-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.dls-arrow-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  padding: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.dls-arrow-button:hover:not(:disabled) {
+  color: #1890ff;
+}
+
+.dls-arrow-button:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Animation for drag and drop */
+.dls-document-item.dragging {
+  background-color: #f0f8ff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dls-documents-list h3,
+  .dls-documents-list p {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .dls-document-item {
+    padding: 0.8rem 0.8rem 0.8rem 1rem;
+  }
+  
+  .dls-document-controls {
+    gap: 5px;
+  }
 }
