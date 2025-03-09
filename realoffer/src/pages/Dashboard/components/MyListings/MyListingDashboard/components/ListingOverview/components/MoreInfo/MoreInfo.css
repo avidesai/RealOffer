@@ -155,16 +155,20 @@
 .edit-button:hover {
   background-color: #0056b3;
   cursor: pointer;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .submit-button:hover {
   background-color: #238c31;
   cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .cancel-button:hover {
   background-color: #cc0000;
   cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .edit-container {
@@ -201,48 +205,19 @@ border: 1px solid #ddd;
   100% { transform: rotate(360deg); }
 }
 
-.description-edit-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.description-edit-container .form-control {
-  width: 100%;
-  height: 250px;
-  margin-top: 0rem;
-  margin-bottom: 1rem;
-  margin-left: 1rem;
-  font-size: 1rem;
-  font-family: 'Helvetica Neue', sans-serif;
-  resize: none;
-}
-
-.description-edit-button{
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 0.5rem 0.8rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  margin-top: 1.5rem;
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
-}
-
-.description-edit-button:hover {
-  background-color: #0056b3;
-}
-
 .listing-description {
   white-space: pre-wrap;
   font-size: 1rem;
-  line-height: 1.5;
-  margin-bottom: 1rem;
-  margin-top: 0.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.5rem;
+  background-color: white;
+  border-radius: 6px;
+  border-left: 4px solid #3498db;
+  color: #333;
+  min-height: 150px;
+  width: calc(100% - 3rem);
+  box-sizing: border-box;
 }
 
 .edit-buttons {
@@ -257,6 +232,50 @@ border: 1px solid #ddd;
 
 .property-description-title {
   font-size: 1.25rem;
-  font-weight: bold;
+  font-weight: 600;
   margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.description-edit-container {
+  display: flex;
+  flex-direction: column;
+  width: calc(100% - 3rem);
+  margin: 0 1.5rem;
+}
+
+.description-edit-container .form-control {
+  width: 100%;
+  min-height: 150px;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  line-height: 1.6;
+  padding: 1rem 1.5rem;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  border-left: 4px solid #3498db;
+  box-sizing: border-box;
+}
+
+.description-edit-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-left: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.description-edit-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
 }
