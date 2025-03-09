@@ -1,12 +1,14 @@
 // PDFViewerLogic.js
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { pdfjs } from 'react-pdf';
 
 const PDFViewerLogic = ({ fileUrl, docTitle, docType, onClose }) => {
   const [numPages, setNumPages] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [scale, setScale] = useState(1.5);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -14,53 +16,74 @@ const PDFViewerLogic = ({ fileUrl, docTitle, docType, onClose }) => {
 
   useEffect(() => {
     setCurrentPage(1);
+    setIsLoading(true);
+    setError(null);
   }, [fileUrl]);
 
-  const onDocumentLoadSuccess = ({ numPages }) => {
+  const onDocumentLoadSuccess = useCallback(({ numPages }) => {
     setNumPages(numPages);
     setCurrentPage(1);
-  };
+    setIsLoading(false);
+  }, []);
 
-  const changePage = (offset) => {
-    setCurrentPage((prevPage) => {
-      const newPage = prevPage + offset;
-      return newPage > 0 && newPage <= numPages ? newPage : prevPage;
+  const onDocumentLoadError = useCallback((error) => {
+    console.error('Error loading PDF:', error);
+    setError('Failed to load the document. Please try again.');
+    setIsLoading(false);
+  }, []);
+
+  const changePage = useCallback((offset) => {
+    setCurrentPage(prevPageNumber => {
+      const newPage = prevPageNumber + offset;
+      return newPage >= 1 && newPage <= numPages ? newPage : prevPageNumber;
     });
-  };
+  }, [numPages]);
 
-  const zoomIn = () => setScale((prevScale) => {
-    const newScale = Math.min(prevScale + 0.1, 3);
-    return newScale;
-  });
+  const goToPage = useCallback((pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= numPages) {
+      setCurrentPage(pageNumber);
+    }
+  }, [numPages]);
 
-  const zoomOut = () => setScale((prevScale) => {
-    const newScale = Math.max(prevScale - 0.1, 0.5);
-    return newScale;
-  });
+  const zoomIn = useCallback(() => {
+    setScale(prevScale => {
+      const newScale = prevScale + 0.2;
+      return newScale <= 3 ? newScale : prevScale;
+    });
+  }, []);
 
-  const handleDownload = () => {
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.download = docTitle || 'document.pdf';
-    link.click();
-  };
+  const zoomOut = useCallback(() => {
+    setScale(prevScale => {
+      const newScale = prevScale - 0.2;
+      return newScale >= 0.5 ? newScale : prevScale;
+    });
+  }, []);
 
-  useEffect(() => {
-  }, [currentPage]);
+  const handleDownload = useCallback(() => {
+    if (fileUrl) {
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.download = docTitle || 'document.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }, [fileUrl, docTitle]);
 
   return {
     numPages,
     currentPage,
     scale,
-    setScale,
-    setCurrentPage: (page) => {
-      setCurrentPage(page);
-    },
+    isLoading,
+    error,
     onDocumentLoadSuccess,
+    onDocumentLoadError,
     changePage,
+    goToPage,
     zoomIn,
     zoomOut,
     handleDownload,
+    setCurrentPage,
     docTitle,
     docType,
     onClose,
