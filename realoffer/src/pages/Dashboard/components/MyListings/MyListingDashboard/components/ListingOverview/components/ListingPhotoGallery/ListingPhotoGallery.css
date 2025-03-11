@@ -123,9 +123,47 @@
   opacity: 0;
 }
 
-.thumbnail-bar-container {
-  margin-top: 0.5rem;
-  overflow: hidden;
+.thumbnail-wrapper {
+  position: relative;
+  flex: 0 0 auto;
+  margin: 0 0.25rem;
+  cursor: grab;
+  transition: transform 0.3s ease;
+}
+
+.thumbnail-wrapper.dragging {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.thumbnail {
+  width: 100px;
+  height: 75px;
+  object-fit: cover;
+  border: 4px solid transparent;
+  border-radius: 5px;
+  transition: border 0.3s;
+}
+
+.thumbnail:hover {
+  transform: scale(1.05);
+}
+
+.thumbnail.active {
+  border-color: #007bff;
+}
+
+.thumbnail-order {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  pointer-events: none;
 }
 
 .thumbnail-bar {
@@ -133,6 +171,9 @@
   overflow-x: auto;
   scroll-behavior: smooth;
   padding: 0.5rem 0;
+  gap: 0.5rem;
+  min-height: 95px; /* Ensure space for dragging */
+  align-items: flex-start;
 }
 
 .thumbnail-bar::-webkit-scrollbar {
@@ -153,22 +194,20 @@
   background: #555;
 }
 
-.thumbnail {
-  flex: 0 0 auto;
-  width: 100px;
-  height: 75px;
-  object-fit: cover;
-  margin: 0 0.25rem;
-  cursor: pointer;
-  border: 4px solid transparent;
-  border-radius: 5px;
-  transition: border 0.3s, transform 0.3s ease;
+.photo-gallery-updating {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  animation: fadeInOut 1.5s ease-in-out infinite;
 }
 
-.thumbnail:hover {
-  transform: scale(1.05);
-}
-
-.thumbnail.active {
-  border-color: #007bff;
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
 }

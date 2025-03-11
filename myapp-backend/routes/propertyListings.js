@@ -19,6 +19,7 @@ router.post(
   PropertyListingController.createListing
 );
 router.put('/:id', PropertyListingController.updateListing);
+router.put('/:id/photos', PropertyListingController.updatePhotoOrder);
 router.delete('/:id', PropertyListingController.deleteListing);
 router.post('/updateSignaturePackage', PropertyListingController.updateSignaturePackage);
 

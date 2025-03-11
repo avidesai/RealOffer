@@ -75,10 +75,10 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
   };
 
   const handleFileChange = (e) => {
-    const files = Array.from(e.target.files); // Convert FileList to an array
+    const files = e.target.files ? Array.from(e.target.files) : e.target.files;
     setFormData((prevData) => ({
       ...prevData,
-      propertyImages: files, // Preserve order
+      propertyImages: files || [], // Handle both file selection and reordering
     }));
   };  
 

@@ -54,6 +54,12 @@ function ListingOverview({ listing }) {
     }
   };
 
+  const handleGalleryClose = async () => {
+    setShowGallery(false);
+    // Refresh the listing to get the updated photo order
+    await handleRefreshListing();
+  };
+
   const formatPrice = (price) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
@@ -102,7 +108,8 @@ function ListingOverview({ listing }) {
         {showGallery && (
           <ListingPhotoGallery
             images={currentListing.imagesUrls}
-            onClose={() => setShowGallery(false)}
+            onClose={handleGalleryClose}
+            listingId={currentListing._id}
           />
         )}
         {showShareModal && (

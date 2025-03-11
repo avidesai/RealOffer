@@ -286,3 +286,78 @@
   border-color: #0056b3;
   box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.2);
 }
+
+/* Photo Preview Styles */
+.photo-preview-container {
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 2px dashed #dee2e6;
+}
+
+.photo-preview-list {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 1rem;
+  min-height: 150px;
+  align-items: flex-start;
+}
+
+.photo-preview-item {
+  position: relative;
+  flex: 0 0 auto;
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: grab;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.photo-preview-item:hover {
+  transform: scale(1.05);
+}
+
+.photo-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-preview-order {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.photo-preview-item.dragging {
+  opacity: 0.5;
+}
+
+/* Scrollbar styles for the preview list */
+.photo-preview-list::-webkit-scrollbar {
+  height: 8px;
+}
+
+.photo-preview-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.photo-preview-list::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.photo-preview-list::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

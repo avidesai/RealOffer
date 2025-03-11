@@ -190,5 +190,30 @@ exports.updateSignaturePackage = async (req, res) => {
   }
 };
 
+// Update photo order for a listing
+exports.updatePhotoOrder = async (req, res) => {
+  try {
+    const listing = await PropertyListing.findOne({
+      _id: req.params.id,
+      createdBy: req.user.id
+    });
+
+    if (!listing) {
+      return res.status(404).json({
+        message: "Listing not found or you don't have permission to update it"
+      });
+    }
+
+    // Update the image URLs array with the new order
+    listing.imagesUrls = req.body.imageUrls;
+    await listing.save();
+
+    res.status(200).json(listing);
+  } catch (error) {
+    console.error('Error updating photo order:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Export multer upload configuration
 exports.uploadPhotos = uploadPhotos;
