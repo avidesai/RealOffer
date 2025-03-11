@@ -1,7 +1,7 @@
 // /src/pages/Dashboard/components/MyListings/MyListingDashboard/Tabs/Documents/components/PDFViewer/PDFViewerLogic.js
 
 import { useState, useEffect, useCallback } from 'react';
-import { pdfjs } from 'react-pdf';
+import './pdfWorker'; // Import the worker initialization
 
 const PDFViewerLogic = ({ fileUrl, docTitle, docType, onClose }) => {
   const [numPages, setNumPages] = useState(null);
@@ -9,10 +9,6 @@ const PDFViewerLogic = ({ fileUrl, docTitle, docType, onClose }) => {
   const [scale, setScale] = useState(1.5);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  useEffect(() => {
-    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-  }, []);
 
   useEffect(() => {
     setCurrentPage(1);

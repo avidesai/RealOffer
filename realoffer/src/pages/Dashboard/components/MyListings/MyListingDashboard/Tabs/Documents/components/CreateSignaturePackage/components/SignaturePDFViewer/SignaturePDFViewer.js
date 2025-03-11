@@ -1,16 +1,14 @@
 // /src/pages/Dashboard/components/MyListings/MyListingDashboard/Tabs/Documents/components/CreateSignaturePackage/components/SignaturePDFViewer/SignaturePDFViewer.js
 
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
-import { Document, Page, pdfjs } from 'react-pdf';
+import { Document, Page } from 'react-pdf';
 import { FiChevronLeft, FiChevronRight, FiZoomIn, FiZoomOut } from 'react-icons/fi';
 import { MdCheckBox, MdCheckBoxOutlineBlank } from 'react-icons/md';
 import axios from 'axios';
 import { useAuth } from '../../../../../../../../../../../context/AuthContext';
+import './pdfWorker'; // Import the worker initialization
 import './SignaturePDFViewer.css';
 import { throttle } from 'lodash';
-
-// Initialize PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePackagePages = [], onPageSelectionChange, onClose }) => {
   const { token } = useAuth();
