@@ -1,7 +1,6 @@
 // /src/pages/Dashboard/components/MyListings/MyListingDashboard/Tabs/Documents/components/CreateSignaturePackage/components/SignaturePDFViewer/SignaturePDFViewerLogic.js
 
 import { useState, useEffect } from 'react';
-import './pdfWorker'; // Import the worker initialization
 
 const SignaturePDFViewerLogic = ({ fileUrl, docTitle, docType, onClose }) => {
   const [numPages, setNumPages] = useState(null);

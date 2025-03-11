@@ -1,10 +1,15 @@
+// /src/pages/Dashboard/components/MyListings/MyListingDashboard/Tabs/Documents/components/CreateSignaturePackage/components/DocumentsListSelection/DocumentsListSelection.js
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import './DocumentsListSelection.css';
 
-// Use a simpler approach without memo to avoid defaultProps warning
-const DocumentsListSelection = ({ documents, onDocumentSelect, onReorderDocuments }) => {
+const DocumentsListSelection = ({ 
+  documents = [], 
+  onDocumentSelect = () => {}, 
+  onReorderDocuments = () => {} 
+}) => {
   const [selectedDocumentId, setSelectedDocumentId] = useState(null);
   const [orderedDocuments, setOrderedDocuments] = useState([]);
 

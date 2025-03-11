@@ -1,4 +1,4 @@
-// CreateSignaturePackage.js
+// /src/pages/Dashboard/components/MyListings/MyListingDashboard/Tabs/Documents/components/CreateSignaturePackage/CreateSignaturePackage.js
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import axios from 'axios';

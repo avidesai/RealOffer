@@ -1,7 +1,6 @@
 // /src/pages/Dashboard/components/MyListings/MyListingDashboard/Tabs/Offers/components/OfferView/components/PDFViewer/PDFViewerLogic.js
 
 import { useState, useEffect, useCallback } from 'react';
-import './pdfWorker'; // Import the worker initialization
 
 const PDFViewerLogic = ({ fileUrl, docTitle, docType, onClose }) => {
   const [numPages, setNumPages] = useState(null);

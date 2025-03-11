@@ -6,7 +6,6 @@ import { FiChevronLeft, FiChevronRight, FiZoomIn, FiZoomOut } from 'react-icons/
 import { MdCheckBox, MdCheckBoxOutlineBlank } from 'react-icons/md';
 import axios from 'axios';
 import { useAuth } from '../../../../../../../../../../../context/AuthContext';
-import './pdfWorker'; // Import the worker initialization
 import './SignaturePDFViewer.css';
 import { throttle } from 'lodash';
 
@@ -24,6 +23,29 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
   const pageRefs = useRef({});
   const scrollTimeoutRef = useRef(null);
 
+  // Cleanup function for component unmount
+  useEffect(() => {
+    return () => {
+      // Clear all timeouts
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      
+      // Disconnect observer
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+      
+      // Clear page refs
+      pageRefs.current = {};
+      
+      // Reset states
+      setVisiblePages([]);
+      setError(null);
+      setIsLoading(false);
+    };
+  }, []);
+
   // Initialize selected pages from props
   useEffect(() => {
     setLocalSelectedPages(signaturePackagePages || []);
@@ -36,19 +58,24 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
     setError(null);
     setVisiblePages([]);
     pageRefs.current = {};
+    
+    // Cleanup previous observer
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
   }, [fileUrl, documentId]);
 
-  const handleDocumentLoadSuccess = ({ numPages }) => {
+  const handleDocumentLoadSuccess = useCallback(({ numPages }) => {
     setNumPages(numPages);
     setCurrentPage(1);
     setIsLoading(false);
-  };
+  }, []);
 
-  const handleDocumentLoadError = (error) => {
+  const handleDocumentLoadError = useCallback((error) => {
     console.error('Error loading PDF:', error);
     setError('Failed to load the document. Please try again.');
     setIsLoading(false);
-  };
+  }, []);
 
   // Wrap handlePageSelect in useCallback to prevent it from changing on every render
   const handlePageSelect = useCallback(async (pageIndex, isSelected) => {
@@ -304,18 +331,6 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
   }, [numPages]);
 
   // Create page placeholders for all pages
-  useEffect(() => {
-    if (!numPages) return;
-    
-    // Initialize refs for all pages
-    for (let i = 1; i <= numPages; i++) {
-      if (!pageRefs.current[i]) {
-        pageRefs.current[i] = React.createRef();
-      }
-    }
-  }, [numPages]);
-
-  // Memoize the page components to prevent unnecessary re-renders
   const pageComponents = useMemo(() => {
     if (!numPages) return [];
     
@@ -339,6 +354,7 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
           <div className="spv-page-wrapper">
             {visiblePages.includes(pageNumber) ? (
               <Page
+                key={`${documentId}-${pageNumber}-${scale}`}
                 pageNumber={pageNumber}
                 scale={scale}
                 renderTextLayer={false}
@@ -350,9 +366,18 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
                     setTimeout(determineVisiblePage, 100);
                   }
                 }}
+                error={null}
+                retainZoom={true}
+                devicePixelRatio={window.devicePixelRatio || 1}
               />
             ) : (
-              <div className="spv-page-placeholder" style={{ height: `${scale * 792}px` }}>
+              <div 
+                className="spv-page-placeholder" 
+                style={{ 
+                  height: `${scale * 792}px`,
+                  width: `${scale * 612}px` 
+                }}
+              >
                 <span>Page {pageNumber}</span>
               </div>
             )}
@@ -376,7 +401,7 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
         </div>
       );
     });
-  }, [numPages, scale, localSelectedPages, visiblePages, handlePageSelect, handlePageClick, determineVisiblePage]);
+  }, [numPages, scale, localSelectedPages, visiblePages, handlePageSelect, handlePageClick, determineVisiblePage, documentId]);
 
   // Calculate if all pages are selected
   const allPagesSelected = useMemo(() => {
@@ -442,6 +467,11 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
           onLoadSuccess={handleDocumentLoadSuccess}
           onLoadError={handleDocumentLoadError}
           loading={null}
+          options={{
+            cMapUrl: 'cmaps/',
+            cMapPacked: true,
+            standardFontDataUrl: 'standard_fonts/',
+          }}
         >
           {pageComponents}
         </Document>
