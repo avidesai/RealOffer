@@ -1,3 +1,5 @@
+// /src/pages/Dashboard/components/MyListings/MyListingDashboard/Tabs/Offers/components/OfferView/components/PDFViewer/PDFViewerLogic.js
+
 import { useState, useEffect } from 'react';
 import { pdfjs } from 'react-pdf';
 

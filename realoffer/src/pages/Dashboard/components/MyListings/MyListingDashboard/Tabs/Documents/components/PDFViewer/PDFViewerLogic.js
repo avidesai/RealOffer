@@ -1,4 +1,4 @@
-// PDFViewerLogic.js
+// /src/pages/Dashboard/components/MyListings/MyListingDashboard/Tabs/Documents/components/PDFViewer/PDFViewerLogic.js
 
 import { useState, useEffect, useCallback } from 'react';
 import { pdfjs } from 'react-pdf';

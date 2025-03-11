@@ -1,4 +1,4 @@
-// PDFViewer.js
+// /src/pages/Dashboard/components/MyListings/MyListingDashboard/Tabs/Documents/components/PDFViewer/PDFViewer.js
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Document, Page } from 'react-pdf';
