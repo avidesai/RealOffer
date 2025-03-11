@@ -79,6 +79,8 @@ const CreateListingPackageForm = ({
           handleFileChange={handleFileChange}
           handleSubmit={handleSubmit}
           handlePrevStep={handlePrevStep}
+          loading={loading}
+          formData={formData}
         />
       )}
     </div>

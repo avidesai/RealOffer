@@ -12,14 +12,14 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  padding: 20px;
+  padding: 16px;
   box-sizing: border-box;
   animation: fadeIn 0.3s ease-in-out;
 }
 
 .csp-header, .csp-body, .csp-footer {
   width: 100%;
-  max-width: 1200px;
+  max-width: 95%;
   background-color: white;
   box-sizing: border-box;
 }
@@ -42,7 +42,7 @@
 
 .csp-body {
   display: flex;
-  height: 70vh;
+  height: 85vh;
   border-bottom: 1px solid #eaeaea;
   overflow: hidden;
 }
@@ -188,8 +188,7 @@
 @media (max-width: 1200px) {
   .csp-body {
     flex-direction: column;
-    height: auto;
-    max-height: 70vh;
+    height: 80vh;
   }
   
   .csp-documents-list, .csp-pdf-viewer {
@@ -205,7 +204,7 @@
 
 @media (max-width: 768px) {
   .csp-header, .csp-body, .csp-footer, .csp-error-message {
-    max-width: 95%;
+    max-width: 98%;
   }
   
   .csp-header h2 {
