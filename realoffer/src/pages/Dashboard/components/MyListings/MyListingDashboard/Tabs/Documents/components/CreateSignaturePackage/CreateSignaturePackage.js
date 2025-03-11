@@ -16,10 +16,8 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
   const [signaturePackage, setSignaturePackage] = useState(null);
   const [error, setError] = useState(null);
 
-  // Define handleDocumentSelect before it's used in other functions
   const handleDocumentSelect = useCallback((document) => {
     if (!document || !document.thumbnailUrl) return;
-    
     const documentUrlWithSAS = `${document.thumbnailUrl}?${document.sasToken}`;
     setSelectedDocument({ ...document, fileUrl: documentUrlWithSAS });
   }, []);
@@ -43,7 +41,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
     }
   }, [listingId, token]);
 
-  const fetchDocuments = useCallback(async () => {
+  const fetchDocuments = useCallback(async (currentOrder = []) => {
     try {
       setIsLoading(true);
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`, {
@@ -54,18 +52,14 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
       const listingDocuments = response.data.filter(doc => doc.purpose === 'listing');
       
       // If we have a document order, sort the documents accordingly
-      if (documentOrder.length > 0) {
-        // Create a map for quick lookup
-        const orderMap = new Map(documentOrder.map((id, index) => [id, index]));
-        
-        // Sort documents based on the order
+      if (currentOrder.length > 0) {
+        const orderMap = new Map(currentOrder.map((id, index) => [id, index]));
         listingDocuments.sort((a, b) => {
           const orderA = orderMap.has(a._id) ? orderMap.get(a._id) : Number.MAX_SAFE_INTEGER;
           const orderB = orderMap.has(b._id) ? orderMap.get(b._id) : Number.MAX_SAFE_INTEGER;
           return orderA - orderB;
         });
       } else {
-        // Initialize document order if it doesn't exist
         setDocumentOrder(listingDocuments.map(doc => doc._id));
       }
       
@@ -80,16 +74,23 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
     } finally {
       setIsLoading(false);
     }
-  }, [listingId, token, documentOrder, handleDocumentSelect]);
+  }, [listingId, token, handleDocumentSelect]);
 
   useEffect(() => {
-    if (isOpen) {
-      fetchListingData();
-      fetchDocuments();
-      
-      // Clear any previous errors when opening
+    if (!isOpen) return;
+
+    const fetchAllData = async () => {
+      setIsLoading(true);
       setError(null);
-    }
+      try {
+        const listingResponse = await fetchListingData();
+        await fetchDocuments(listingResponse?.data?.documentOrder || []);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchAllData();
   }, [isOpen, fetchListingData, fetchDocuments]);
 
   const handlePageSelectionChange = useCallback((updatedDocument) => {
@@ -112,14 +113,9 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
   }, []);
 
   const orderedDocuments = useMemo(() => {
-    if (documentOrder.length === 0 || documents.length === 0) return documents;
-    
-    // Create a map for quick lookup
     const docMap = new Map(documents.map(doc => [doc._id, doc]));
-    
-    // Return documents in the order specified by documentOrder
     return documentOrder
-      .filter(id => docMap.has(id)) // Filter out any IDs that don't exist in documents
+      .filter(id => docMap.has(id))
       .map(id => docMap.get(id));
   }, [documents, documentOrder]);
 
