@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import axios from 'axios';
+import api from '../../../../../../../../../context/api';
 import { useAuth } from '../../../../../../../../../context/AuthContext';
 import './ListingPhotoGallery.css';
 
@@ -11,7 +11,7 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
   const [orderedImages, setOrderedImages] = useState(images);
   const [isUpdating, setIsUpdating] = useState(false);
   const thumbnailBarRef = useRef(null);
-  const { token, logout } = useAuth();
+  const { logout } = useAuth();
 
   useEffect(() => {
     setOrderedImages(images);
@@ -56,15 +56,9 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
   const updatePhotoOrder = async (newOrder) => {
     try {
       setIsUpdating(true);
-      await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}/photos`,
-        { imageUrls: newOrder },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true,
-        }
+      await api.put(
+        `/api/propertyListings/${listingId}/photos`,
+        { imageUrls: newOrder }
       );
     } catch (error) {
       if (error.response && error.response.status === 401) {

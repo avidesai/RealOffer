@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import api from './api';
 
 const AuthContext = createContext();
@@ -12,6 +12,28 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
   const [docusignConnected, setDocusignConnected] = useState(false);
+  
+  // Use useRef to store the logout function to avoid dependency cycles
+  const logoutRef = useRef(null);
+
+  // Define logout function
+  const logout = useCallback(() => {
+    console.log('Logging out...');
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('docusignConnected');
+    
+    setUser(null);
+    setToken(null);
+    setDocusignConnected(false);
+    
+    delete api.defaults.headers.common['Authorization'];
+  }, []);
+
+  // Store the logout function in a ref to avoid dependency cycles
+  useEffect(() => {
+    logoutRef.current = logout;
+  }, [logout]);
 
   // Initialize auth state from localStorage
   useEffect(() => {
@@ -33,15 +55,17 @@ export const AuthProvider = ({ children }) => {
           console.log('Token verified successfully');
         } catch (error) {
           console.error('Token verification failed:', error);
-          // Clear invalid credentials
-          logout();
+          // Clear invalid credentials using the ref
+          if (logoutRef.current) {
+            logoutRef.current();
+          }
         }
       }
       setLoading(false);
     };
 
     initializeAuth();
-  }, []);
+  }, []); // No dependencies needed since we're using logoutRef
 
   const login = async (email, password) => {
     try {
@@ -69,19 +93,6 @@ export const AuthProvider = ({ children }) => {
       throw new Error(error.response?.data?.message || 'Login failed. Please try again.');
     }
   };
-
-  const logout = useCallback(() => {
-    console.log('Logging out...');
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    localStorage.removeItem('docusignConnected');
-    
-    setUser(null);
-    setToken(null);
-    setDocusignConnected(false);
-    
-    delete api.defaults.headers.common['Authorization'];
-  }, []);
 
   const checkDocusignConnection = useCallback(async () => {
     if (!token) {

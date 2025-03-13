@@ -1,15 +1,13 @@
 // MoreInfo.js
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../../../../../../../../../context/AuthContext';
-import axios from 'axios';
+import api from '../../../../../../../../../context/api';
 import Modal from 'react-modal';
 import './MoreInfo.css';
 
 Modal.setAppElement('#root'); // Set the root element for accessibility
 
 const MoreInfo = ({ isOpen, onClose, listingId }) => {
-  const { token } = useAuth();
   const [listing, setListing] = useState(null);
   const [isEditing, setIsEditing] = useState(null);
   const [newValue, setNewValue] = useState('');
@@ -24,19 +22,27 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     setError(null);
     
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      setListing(response.data);
+      const response = await api.get(`/api/propertyListings/${listingId}`);
+      
+      // Ensure escrow data structure exists
+      const listingData = response.data;
+      if (!listingData.escrowInfo) {
+        listingData.escrowInfo = { 
+          escrowNumber: '', 
+          company: { name: '', phone: '', email: '' } 
+        };
+      } else if (!listingData.escrowInfo.company) {
+        listingData.escrowInfo.company = { name: '', phone: '', email: '' };
+      }
+      
+      setListing(listingData);
     } catch (error) {
       console.error('Error fetching listing:', error);
       setError('Failed to load property information. Please try again.');
     } finally {
       setLoading(false);
     }
-  }, [listingId, token]);
+  }, [listingId]);
 
   useEffect(() => {
     if (isOpen) {
@@ -48,8 +54,8 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
 
   const handleEdit = (field, value) => {
     setIsEditing(field);
-    setOriginalValue(value);
-    setNewValue(value);
+    setOriginalValue(value || '');
+    setNewValue(value || '');
   };
 
   const handleChange = (e) => {
@@ -65,27 +71,50 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     setLoading(true);
     setError(null);
     
-    const [mainField, subField] = field.split('.');
-    let updatedField = { [field]: newValue };
+    const [mainField, subField, nestedField] = field.split('.');
+    let updatedField = {};
 
-    if (subField) {
+    // Handle nested fields (up to 3 levels deep)
+    if (nestedField) {
+      // Handle fields like escrowInfo.company.name
+      updatedField = {
+        [mainField]: {
+          ...listing[mainField],
+          [subField]: {
+            ...listing[mainField][subField],
+            [nestedField]: newValue
+          }
+        }
+      };
+    } else if (subField) {
+      // Handle fields like homeCharacteristics.beds
       updatedField = {
         [mainField]: {
           ...listing[mainField],
           [subField]: newValue
         }
       };
+    } else {
+      // Handle top-level fields like description
+      updatedField = { [field]: newValue };
     }
 
     try {
-      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, updatedField, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      await api.put(`/api/propertyListings/${listingId}`, updatedField);
       
       // Update local state with new value
-      if (subField) {
+      if (nestedField) {
+        setListing(prevState => ({
+          ...prevState,
+          [mainField]: {
+            ...prevState[mainField],
+            [subField]: {
+              ...prevState[mainField][subField],
+              [nestedField]: newValue
+            }
+          }
+        }));
+      } else if (subField) {
         setListing(prevState => ({
           ...prevState,
           [mainField]: {
@@ -110,9 +139,16 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
   };
 
   // Formatting helpers
-  const formatPrice = (price) => `$${price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+  const formatPrice = (price) => price ? `$${price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}` : '$0';
   const formatNumber = (number) => number?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") || '';
-  const formatPhone = (phone) => phone?.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3') || '';
+  const formatPhone = (phone) => {
+    if (!phone) return '';
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length === 10) {
+      return cleaned.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+    }
+    return phone;
+  };
   const formatPropertyType = (type) => {
     const types = {
       singleFamily: "Single Family Home",

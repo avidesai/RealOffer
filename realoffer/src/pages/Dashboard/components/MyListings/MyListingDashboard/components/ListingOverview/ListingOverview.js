@@ -1,15 +1,13 @@
 // ListingOverview.js
 
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../../../../../../../context/AuthContext';
-import axios from 'axios';
+import api from '../../../../../../../context/api';
 import MoreInfo from './components/MoreInfo/MoreInfo';
 import ListingPhotoGallery from './components/ListingPhotoGallery/ListingPhotoGallery';
 import ShareUrl from './components/ShareUrl/ShareUrl'; // Import ShareUrl component
 import './ListingOverview.css';
 
 function ListingOverview({ listing }) {
-  const { token } = useAuth();
   const [agents, setAgents] = useState([]);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -17,16 +15,36 @@ function ListingOverview({ listing }) {
   const [showGallery, setShowGallery] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false); // State for ShareUrl modal
 
+  // Ensure listing has all required structures
+  useEffect(() => {
+    if (listing) {
+      // Create a normalized copy of the listing with all required fields
+      const normalizedListing = { ...listing };
+      
+      // Ensure escrow data exists
+      if (!normalizedListing.escrowInfo) {
+        normalizedListing.escrowInfo = { 
+          escrowNumber: '', 
+          company: { name: '', phone: '', email: '' } 
+        };
+      } else if (!normalizedListing.escrowInfo.company) {
+        normalizedListing.escrowInfo.company = { name: '', phone: '', email: '' };
+      }
+      
+      setCurrentListing(normalizedListing);
+    }
+  }, [listing]);
+
   useEffect(() => {
     const fetchAgentDetails = async () => {
+      if (!currentListing || !currentListing.agentIds || !currentListing.agentIds.length) {
+        return;
+      }
+      
       try {
         const agentDetails = await Promise.all(
           currentListing.agentIds.map(async (id) => {
-            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`, {
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
-            });
+            const response = await api.get(`/api/users/${id}`);
             return response.data;
           })
         );
@@ -35,18 +53,27 @@ function ListingOverview({ listing }) {
         console.error('Error fetching agent details:', error);
       }
     };
+    
     fetchAgentDetails();
-  }, [currentListing.agentIds, token]);
+  }, [currentListing]);
 
   const handleRefreshListing = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${currentListing._id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      setCurrentListing(response.data);
+      const response = await api.get(`/api/propertyListings/${currentListing._id}`);
+      
+      // Ensure escrow data exists in the refreshed listing
+      const refreshedListing = response.data;
+      if (!refreshedListing.escrowInfo) {
+        refreshedListing.escrowInfo = { 
+          escrowNumber: '', 
+          company: { name: '', phone: '', email: '' } 
+        };
+      } else if (!refreshedListing.escrowInfo.company) {
+        refreshedListing.escrowInfo.company = { name: '', phone: '', email: '' };
+      }
+      
+      setCurrentListing(refreshedListing);
     } catch (error) {
       console.error('Error refreshing listing:', error);
     } finally {
@@ -64,6 +91,17 @@ function ListingOverview({ listing }) {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
+  // Guard against rendering before currentListing is properly initialized
+  if (!currentListing) {
+    return (
+      <div className="listing-overview">
+        <div className="listing-overview-spinner-overlay">
+          <div className="listing-overview-spinner"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="listing-overview">
       {loading && (
@@ -74,7 +112,13 @@ function ListingOverview({ listing }) {
       <div className={`listing-content ${loading ? 'blurred' : ''}`}>
         <div className="overview-header">
           <div className="overview-image" onClick={() => setShowGallery(true)}>
-            <img src={currentListing.imagesUrls[0]} alt="Property" className="property-image" />
+            <img 
+              src={currentListing.imagesUrls && currentListing.imagesUrls.length > 0 
+                ? currentListing.imagesUrls[0] 
+                : 'https://via.placeholder.com/200x150?text=No+Image'} 
+              alt="Property" 
+              className="property-image" 
+            />
           </div>
           <div className="overview-details">
             <h1 className="property-address">{currentListing.homeCharacteristics.address}</h1>
@@ -89,7 +133,11 @@ function ListingOverview({ listing }) {
           <div className="overview-agents">
             {agents.map(agent => (
               <div key={agent._id} className="listing-overview-agent-info">
-                <img src={agent.profilePhotoUrl} alt={agent.firstName} className="listing-overview-agent-image" />
+                <img 
+                  src={agent.profilePhotoUrl || 'https://via.placeholder.com/32x32?text=Agent'} 
+                  alt={agent.firstName} 
+                  className="listing-overview-agent-image" 
+                />
                 <p>{agent.firstName} {agent.lastName}</p>
               </div>
             ))}
@@ -105,7 +153,7 @@ function ListingOverview({ listing }) {
             listingId={currentListing._id}
           />
         )}
-        {showGallery && (
+        {showGallery && currentListing.imagesUrls && currentListing.imagesUrls.length > 0 && (
           <ListingPhotoGallery
             images={currentListing.imagesUrls}
             onClose={handleGalleryClose}

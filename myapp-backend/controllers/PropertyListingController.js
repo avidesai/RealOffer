@@ -91,6 +91,16 @@ exports.createListing = async (req, res) => {
   const publicUrlToken = crypto.randomBytes(16).toString('hex');
   const publicUrl = `${process.env.FRONTEND_URL}/listings/public/${publicUrlToken}`;
 
+  // Ensure escrow data is properly structured even if fields are empty
+  const escrowInfo = {
+    escrowNumber: officerNumber || '',
+    company: {
+      name: companyName || '',
+      phone: officerPhone || '',
+      email: officerEmail || '',
+    },
+  };
+
   const newListing = new PropertyListing({
     role,
     homeCharacteristics: {
@@ -108,18 +118,11 @@ exports.createListing = async (req, res) => {
       lotSize,
       yearBuilt,
     },
-    description,
+    description: description || '',
     agentIds,
     imagesUrls: propertyImages,
     status: 'active',
-    escrowInfo: {
-      escrowNumber: officerNumber,
-      company: {
-        name: companyName,
-        phone: officerPhone,
-        email: officerEmail,
-      },
-    },
+    escrowInfo,
     createdBy: req.user.id,
     publicUrl,
   });
