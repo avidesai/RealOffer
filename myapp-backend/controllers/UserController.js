@@ -188,3 +188,31 @@ exports.checkEmailExists = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Add verifyToken function
+exports.verifyToken = async (req, res) => {
+  try {
+    // The auth middleware already verified the token
+    // Just return success with the user data from the token
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.status(200).json({ 
+      valid: true, 
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    console.error('Token verification error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
