@@ -1,13 +1,15 @@
 // CreateListingPackageLogic.js
 
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import api from '../../../../../context/api';
 import CreateListingPackageForm from './CreateListingPackageForm';
 import { useAuth } from '../../../../../context/AuthContext';
 import './CreateListingPackage.css';
 
 const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
-  const { user, token, logout } = useAuth(); // Added logout to handle 401 errors
+  const { user, token } = useAuth();
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     role: 'seller',
@@ -78,82 +80,69 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
     const files = e.target.files ? Array.from(e.target.files) : e.target.files;
     setFormData((prevData) => ({
       ...prevData,
-      propertyImages: files || [], // Handle both file selection and reordering
+      propertyImages: files || [],
     }));
-  };  
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrors({});
-  
+
+    if (!token) {
+      setErrors({ submit: 'You must be logged in to create a listing' });
+      setLoading(false);
+      return;
+    }
+
     const formDataToSend = new FormData();
-  
-    // Append files in the order they appear in `propertyImages`
+
+    // Append files in the order they appear in propertyImages
     formData.propertyImages.forEach((file, index) => {
-      formDataToSend.append(`propertyImages[${index}]`, file); // Use indexed keys
+      formDataToSend.append('propertyImages', file);
     });
-  
+
     // Append other fields
-    for (const key in formData) {
-      if (key !== 'propertyImages') {
+    Object.keys(formData).forEach(key => {
+      if (key !== 'propertyImages' && formData[key]) {
         formDataToSend.append(key, formData[key]);
       }
-    }
-  
+    });
+
     try {
-      if (!token) {
-        throw new Error('No authentication token available');
-      }
-  
-      const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings`,
-        formDataToSend,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true,
-        }
-      );
+      console.log('Creating listing with token:', token ? 'Present' : 'Missing');
+      const response = await api.post('/api/propertyListings', formDataToSend);
       console.log('Listing created successfully:', response.data);
       addNewListing(response.data);
       onClose();
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        console.error('Authentication failed, token may be expired. Logging out.');
-        logout();
-      } else if (error.request) {
-        setErrors({
-          submit:
-            'No response from server. Please check your internet connection and try again.',
-        });
-      } else {
-        setErrors({ submit: 'An unexpected error occurred. Please try again.' });
-      }
       console.error('Error creating listing:', error);
+      if (error.response?.status === 401) {
+        setErrors({ submit: 'Your session has expired. Please log in again.' });
+        navigate('/login');
+      } else {
+        setErrors({
+          submit: error.response?.data?.message || 'Failed to create listing. Please try again.'
+        });
+      }
     } finally {
       setLoading(false);
     }
   };
-  
 
   return (
-    <>
-      <CreateListingPackageForm
-        step={step}
-        formData={formData}
-        errors={errors}
-        handleNextStep={handleNextStep}
-        handlePrevStep={handlePrevStep}
-        handleChange={handleChange}
-        handleFileChange={handleFileChange}
-        handleSubmit={handleSubmit}
-        onClose={onClose}
-        loading={loading}
-      />
-    </>
+    <CreateListingPackageForm
+      step={step}
+      formData={formData}
+      errors={errors}
+      handleNextStep={handleNextStep}
+      handlePrevStep={handlePrevStep}
+      handleChange={handleChange}
+      handleFileChange={handleFileChange}
+      handleSubmit={handleSubmit}
+      onClose={onClose}
+      loading={loading}
+    />
   );
 };
 

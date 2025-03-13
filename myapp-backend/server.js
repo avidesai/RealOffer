@@ -14,28 +14,35 @@ const app = express();
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://localhost:3001',
   'https://www.realoffer.io',
   'https://realoffer.io',
+  'https://api.realoffer.io'
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    console.log('Origin:', origin);
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
+      console.warn('Blocked by CORS:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true, // Allow credentials (cookies, authorization headers, TLS client certificates)
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 600 // Increase preflight cache time to 10 minutes
 };
 
-// Apply CORS middleware globally
+// Apply CORS middleware before other middleware
 app.use(cors(corsOptions));
 
-// Preflight response handling for all routes
+// Handle preflight requests
 app.options('*', cors(corsOptions));
 
 // JSON body parsing middleware

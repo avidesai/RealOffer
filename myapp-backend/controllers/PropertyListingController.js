@@ -17,7 +17,15 @@ const uploadPhotos = multer({
       const uniqueFilename = `${Date.now()}-${file.originalname}`;
       cb(null, uniqueFilename);
     },
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+    metadata: function (req, file, cb) {
+      cb(null, { fieldName: file.fieldname });
+    }
   }),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB file size limit
+    files: 50 // Maximum number of files
+  }
 });
 
 // Get all property listings for the logged-in user
