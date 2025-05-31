@@ -103,14 +103,16 @@ const MakeOfferModal = ({ onClose, listingId }) => {
   const handleSubmit = useCallback(async () => {
     const formDataToSend = new FormData();
     for (const key in offerData) {
-      if (key !== 'documents') {
-        if (key === 'presentedBy' || key === 'brokerageInfo') {
-          for (const nestedKey in offerData[key]) {
-            formDataToSend.append(`${key}.${nestedKey}`, offerData[key][nestedKey]);
-          }
-        } else {
-          formDataToSend.append(key, offerData[key]);
+      if (key === 'documents') {
+        offerData.documents.forEach(doc => {
+          formDataToSend.append('documents[]', doc.id);
+        });
+      } else if (key === 'presentedBy' || key === 'brokerageInfo') {
+        for (const nestedKey in offerData[key]) {
+          formDataToSend.append(`${key}.${nestedKey}`, offerData[key][nestedKey]);
         }
+      } else {
+        formDataToSend.append(key, offerData[key]);
       }
     }
     formDataToSend.append('propertyListingId', listingId);

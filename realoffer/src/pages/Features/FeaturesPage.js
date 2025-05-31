@@ -14,38 +14,38 @@ const featureData = [
   {
     id: 'manage-offers',
     image: manageOffers,
-    buttonText: 'Manage Offers & Closing Services',
-    title1: 'Send, Receive, Respond and Manage Offers',
-    text1: 'Receive all of your offers in one secure, online location. RealOffer will automatically organize every offer into a beautiful dashboard (pictured left) that compares the terms side-by-side. This dashboard is sharable with your seller.',
-    title2: 'Give clients a great closing',
-    text2: 'A modern escrow experience designed for top agents, their teams, and their clients. Enjoy a single and secure place where all closing documents are easily accessible, anytime. Our industry-leading security coupled with automated notifications keeps everyone on track so that you can give your client a great closing experience every time. '
+    buttonText: 'Offer Management',
+    title1: 'Streamlined Offer Management',
+    text1: 'Experience a modern approach to managing real estate offers. Our intuitive dashboard automatically organizes and compares offers side-by-side, making it easy to evaluate terms and conditions. Share this comprehensive view with your sellers to facilitate informed decision-making.',
+    title2: 'Seamless Closing Experience',
+    text2: 'Transform the closing process with our integrated platform. Access all closing documents in one secure location, with automated notifications keeping everyone on track. Our industry-leading security ensures your clients enjoy a smooth, professional closing experience every time.'
   },
   {
     id: 'form-filling',
     image: formFilling,
-    buttonText: 'Form Filling & Document Management',
-    title1: 'Manage, Store, and View Activity on Documents',
-    text1: 'Need to split a large document into smaller files, re-order pages, or redact private info? You have access to all of the powerful PDF manipulation tools you need without ever opening Adobe Acrobat. Create a privatemanage or public Listing Information Package and share it with interested buyer parties.',
-    title2: 'Seller Disclosures & Form Filling',
-    text2: 'Faster, Easier, & Safer Disclosures. Easy form filling for every disclosure doc you\'re already using. RealOffer makes it seamless and straightforward for your clients to complete seller disclosures. Prevent seller mistakes, limit agent liability, and save a ton of time! Best yet, it’s free to use. '
+    buttonText: 'Document Management',
+    title1: 'Advanced Document Tools',
+    text1: 'Powerful PDF manipulation tools at your fingertips. Split documents, reorder pages, and redact sensitive information without leaving the platform. Create and share private or public Listing Information Packages with interested buyers, all while maintaining complete control over access.',
+    title2: 'Smart Disclosure Management',
+    text2: 'Simplify the disclosure process with our intelligent form-filling system. Guide sellers through disclosure documents step-by-step, preventing common mistakes and reducing liability. Save time while ensuring accuracy and compliance with all requirements.'
   },
   {
     id: 'listing-information',
     image: listingInformation,
-    buttonText: 'Listing Information Packages',
-    title1: 'Private/Public Listing Information Packages',
-    text1: 'Create digital Listing Information Packages that are easy to share and track viewership activity. Either private or public, a “Listing Information Package” contains the supplemental documents that buyers won\'t find on real estate portals like Zillow. RealOffer keeps your listing-info-package secure. You\'ll decide who deserves access, and your packet will never end up on google.',
-    title2: 'Listing Team Shared Access',
-    text2: 'RealOffer is built for teams. Trusted by Transaction Coordinators, Assistants, Realtors, Brokers, & Brokerages, RealOffer makes it easy for you to invite your team to manage, store, and monitor viewer activity on listing documents - in one secure location.'
+    buttonText: 'Listing Packages',
+    title1: 'Digital Listing Packages',
+    text1: 'Create professional digital Listing Information Packages that go beyond what buyers see on traditional real estate portals. Share comprehensive property information securely, with complete control over access and visibility. Your listing information stays protected and never appears in public search results.',
+    title2: 'Team Collaboration',
+    text2: 'Built for modern real estate teams. Enable seamless collaboration between Transaction Coordinators, Assistants, Realtors, and Brokers. Manage, store, and monitor document activity in one secure location, ensuring everyone stays informed and aligned.'
   },
   {
     id: 'buyer-activity',
     image: buyerActivity,
-    buttonText: 'Detailed Buyer Interest Reports',
-    title1: 'PDFs and email can\'t track viewership activity',
-    text1: 'Email wasn\'t designed for large attachments, and it won\'t let you track the activity for each viewer. With RealOffer\'s Listing Information Packages, you and your team can view Buyer Interest Reports explaining the: open, read, and percentage of each document read by each buyer party. You can also share the Buyer Interest Reports with your seller.',
-    title2: 'View a full timeline and get instant notifications',
-    text2: 'You can view and download an entire timeline of viewership activity. Email, text, and iOS App notifications keep you up to date on your listing interest in real-time. Provide the proper attention to the most interested parties and start seeing offers coming well before they arrive.'
+    buttonText: 'Buyer Analytics',
+    title1: 'Real-Time Buyer Insights',
+    text1: 'Gain valuable insights into buyer interest with our advanced analytics. Track document views, reading time, and engagement levels for each buyer. Share detailed Buyer Interest Reports with sellers to demonstrate property demand and guide pricing decisions.',
+    title2: 'Smart Notifications',
+    text2: 'Stay ahead of the competition with instant notifications. Receive real-time updates on buyer activity through email, text, and our iOS app. Monitor the complete timeline of property interest and focus your attention on the most engaged buyers.'
   },
   // Add other feature data objects here
 ];
@@ -57,7 +57,7 @@ function FeaturesPage() {
     <div className="features-page-container">
       <Header />
       <div className="features-page-content">
-        <h2 className="features-page-title">Our Key Features</h2>
+        <h2 className="features-page-title">Powerful Features for Modern Real Estate</h2>
         <div className="features-page-menu">
           {featureData.map((feature) => (
             <button

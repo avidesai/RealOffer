@@ -34,7 +34,7 @@ exports.createOffer = async (req, res) => {
       ...req.body,
       offerExpiryDate: req.body.offerExpiryDate,
       sellerRentBack: req.body.sellerRentBack,
-      sellerRentBackDays: req.body.sellerRentBackDays, // Ensure this is included
+      sellerRentBackDays: req.body.sellerRentBackDays,
       'buyerDetails.buyerName': req.body.buyerName,
     };
 
@@ -47,14 +47,25 @@ exports.createOffer = async (req, res) => {
     );
 
     // Update the documents with the new offer ID
-    const documentIds = req.body.documents;
-    await Document.updateMany(
-      { _id: { $in: documentIds } },
-      { $set: { offer: offer._id } }
-    );
+    const documentIds = req.body.documents || [];
+    if (documentIds.length > 0) {
+      await Document.updateMany(
+        { _id: { $in: documentIds } },
+        { $set: { offer: offer._id } }
+      );
+      
+      // Update the offer with the document references
+      await Offer.findByIdAndUpdate(
+        offer._id,
+        { $set: { documents: documentIds } }
+      );
+    }
 
-    res.status(201).json(offer);
+    // Fetch the complete offer with populated documents
+    const populatedOffer = await Offer.findById(offer._id).populate('documents');
+    res.status(201).json(populatedOffer);
   } catch (error) {
+    console.error('Error creating offer:', error);
     res.status(500).json({ message: error.message });
   }
 };
