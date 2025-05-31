@@ -4,97 +4,51 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #ffffff;
 }
 
 .features-page-content {
   max-width: 1200px;
-  margin: 0 auto;
-  padding: 4rem 2rem;
-  width: 100%;
+  margin: auto;
+  padding: 2rem;
 }
 
 .features-page-title {
   text-align: center;
-  font-size: 3rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 3rem;
-  letter-spacing: -0.02em;
+  font-size: 2rem;
+  margin-bottom: 1rem;
 }
 
 .features-page-menu {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-  background: #f8fafc;
-  padding: 1.5rem;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  margin-bottom: 3rem;
+  background: #f9f9f9;
+  padding: 0.8rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 2rem;
+  margin-bottom: 1rem;
 }
 
 .features-page-menu-item {
-  padding: 0.75rem 1.5rem;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 0.5rem 0.9rem;
+  margin: 0 0.5rem;
+  background: #e7e7e7; /* Subtle background color */
+  border: none;
   cursor: pointer;
   font-size: 1rem;
   font-weight: 500;
-  transition: all 0.3s ease;
-  border-radius: 12px;
-  color: #4b5563;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-  white-space: nowrap;
+  transition: all 0.2s ease;
+  border-radius: 10px; /* Rounded corners */
+  color: #333; /* Text color */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
-.features-page-menu-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  color: #2563eb;
-  border-color: #2563eb;
-}
-
+.features-page-menu-item:hover,
 .features-page-menu-item.active {
-  background-color: #2563eb;
-  color: #ffffff;
-  border-color: #2563eb;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  background-color: rgb(27, 92, 243); /* Brand color for hover and active state */
+  color: rgb(255, 255, 255); /* White text for contrast */
 }
 
-@media (max-width: 768px) {
-  .features-page-content {
-    padding: 3rem 1.5rem;
-  }
-
-  .features-page-title {
-    font-size: 2.25rem;
-    margin-bottom: 2rem;
-  }
-
-  .features-page-menu {
-    padding: 1rem;
-    margin-bottom: 2rem;
-  }
-
-  .features-page-menu-item {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.95rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .features-page-title {
-    font-size: 2rem;
-  }
-
-  .features-page-menu {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .features-page-menu-item {
-    text-align: center;
-  }
+.features-page-menu-item:not(.active):hover {
+  background-color: rgb(0, 83, 172); /* Lighter shade for hover on non-active buttons */
 }

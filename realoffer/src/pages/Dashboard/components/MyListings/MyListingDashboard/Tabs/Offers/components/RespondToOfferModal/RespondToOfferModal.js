@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useAuth } from '../../../../../../../../../context/AuthContext';
 import './RespondToOfferModal.css';
 
 function RespondToOfferModal({ isOpen, onClose, offer, propertyListing }) {
+  const { token } = useAuth();
   const [response, setResponse] = useState('sendMessage'); // Default to "Send Message"
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
@@ -37,11 +39,19 @@ function RespondToOfferModal({ isOpen, onClose, offer, propertyListing }) {
 
   const handleSubmit = async () => {
     try {
-      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/respond`, {
-        responseType: response,
-        subject,
-        message
-      });
+      await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/respond`,
+        {
+          responseType: response,
+          subject,
+          message
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
       onClose(true); // Indicate that the modal was submitted
     } catch (error) {
       console.error('Error responding to offer:', error);

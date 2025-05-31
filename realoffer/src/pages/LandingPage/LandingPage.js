@@ -12,9 +12,7 @@ import './LandingPage.css';
 
 const Feature = ({ icon: Icon, title, description }) => (
   <div className="feature">
-    <div className="feature-icon-wrapper">
-      <Icon className="feature-icon" />
-    </div>
+    <Icon className="feature-icon" />
     <h3 className="feature-title">{title}</h3>
     <p className="feature-description">{description}</p>
   </div>
@@ -24,16 +22,8 @@ const Stat = ({ icon: Icon, value, description }) => (
   <VisibilitySensor partialVisibility offset={{ bottom: 200 }}>
     {({ isVisible }) => (
       <div className="stat">
-        <div className="stat-icon-wrapper">
-          <Icon className="stat-icon" />
-        </div>
-        <CountUp 
-          start={0} 
-          end={isVisible ? value : 0} 
-          duration={2.5} 
-          redraw={true}
-          separator=","
-        >
+        <Icon className="stat-icon" />
+        <CountUp start={0} end={isVisible ? value : 0} duration={2.75} redraw={true}>
           {({ countUpRef }) => <span ref={countUpRef} className="stat-value" />}
         </CountUp>
         <p className="stat-description">{description}</p>
@@ -44,7 +34,6 @@ const Stat = ({ icon: Icon, value, description }) => (
 
 const LandingPage = () => {
   const [scrollPosition, setScrollPosition] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -53,9 +42,6 @@ const LandingPage = () => {
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-
-    // Trigger initial visibility
-    setIsVisible(true);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -69,21 +55,10 @@ const LandingPage = () => {
         <section className="hero">
           <div 
             className="hero-image" 
-            style={{ 
-              transform: `translateY(${scrollPosition * 0.4}px)`,
-              opacity: isVisible ? 1 : 0,
-              transition: 'opacity 1s ease-out'
-            }}
-          />
-          <div className="hero-overlay" />
-          <div 
-            className="hero-content"
-            style={{
-              opacity: isVisible ? 1 : 0,
-              transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-              transition: 'opacity 1s ease-out, transform 1s ease-out'
-            }}
-          >
+            style={{ transform: `translateY(${scrollPosition * 0.5}px)` }}
+          ></div>
+          <div className="hero-overlay"></div>
+          <div className="hero-content">
             <div className="hero-logo">
               <img src={logo} alt="RealOffer logo" className="hero-logo-image" />
               <span className="hero-logo-text">RealOffer</span>
@@ -166,7 +141,7 @@ const LandingPage = () => {
           <h2 className="cta-title">Ready to Transform Your Real Estate Business?</h2>
           <p className="cta-subtitle">Join thousands of successful agents using RealOffer</p>
           <Link to="/signup" className="cta-button">
-            Sign Up For Free <ChevronRight className="cta-icon" />
+            Sign Up For Free
           </Link>
         </section>
       </main>
