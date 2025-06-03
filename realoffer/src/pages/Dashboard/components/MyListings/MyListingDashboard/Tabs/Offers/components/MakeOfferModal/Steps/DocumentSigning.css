@@ -1,3 +1,92 @@
+.docusign-spinner-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.1);
+  z-index: 2000;
+}
+
+.docusign-spinner {
+  border: 8px solid rgba(0, 0, 0, 0.1);
+  border-top: 8px solid #007bff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.prev-step-button,
+.send-for-signing-button,
+.skip-signing-button {
+  color: #ffffff;
+  padding: 0.8rem 1.2rem;
+  font-size: 1.2rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+  width: 32%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.prev-step-button {
+  background-color: #a0a0a0;
+}
+
+.prev-step-button:hover {
+  background-color: #808080;
+}
+
+.send-for-signing-button {
+  background-color: #007bff;
+}
+
+.send-for-signing-button:hover {
+  background-color: #0056b3;
+}
+
+.send-for-signing-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.skip-signing-button {
+  background-color: #e7e7e7;
+  color: #333;
+  border: 2px solid #d0d0d0;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-left: 0;
+  margin-right: 0;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.skip-signing-button:hover {
+  background-color: #999999;
+  color: #ffffff;
+}
+
+.signing-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+  gap: 2%;
+}
+
 .signing-container {
   padding: 20px;
   max-width: 800px;
@@ -51,44 +140,6 @@
 
 .add-signer-button:hover {
   background-color: #45a049;
-}
-
-.signing-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-.prev-step-button,
-.send-for-signing-button {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.prev-step-button {
-  background-color: #f0f0f0;
-  color: #333;
-}
-
-.prev-step-button:hover {
-  background-color: #e0e0e0;
-}
-
-.send-for-signing-button {
-  background-color: #2196F3;
-  color: white;
-}
-
-.send-for-signing-button:hover {
-  background-color: #1976D2;
-}
-
-.send-for-signing-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
 }
 
 .signing-error {

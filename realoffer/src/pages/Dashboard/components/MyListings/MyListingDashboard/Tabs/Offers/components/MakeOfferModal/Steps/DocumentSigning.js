@@ -69,29 +69,34 @@ const DocumentSigning = ({ handleNextStep, handlePrevStep }) => {
     }
   };
 
+  const handleSkip = () => {
+    handleNextStep();
+  };
+
   return (
     <div className="modal-step">
       <div className='offer-modal-header'>
         <h2>Document Signing</h2>
-        <p>Send documents for electronic signature</p>
+        <p>Send documents for electronic signature, or skip this step if you do not need to sign now.</p>
       </div>
-
       <div className="signing-container">
         <DocuSignConfig onConfigComplete={setIsDocuSignConfigured} />
-
+        {sending && (
+          <div className="docusign-spinner-overlay">
+            <div className="docusign-spinner"></div>
+          </div>
+        )}
         {error && (
           <div className="signing-error">
             {error}
           </div>
         )}
-
         {success && (
           <div className="signing-success">
             Documents sent for signing successfully!
           </div>
         )}
-
-        {isDocuSignConfigured && (
+        {isDocuSignConfigured && !sending && (
           <>
             <div className="signers-list">
               {signers.map((signer, index) => (
@@ -121,21 +126,19 @@ const DocumentSigning = ({ handleNextStep, handlePrevStep }) => {
                 </div>
               ))}
             </div>
-
             <button
               onClick={handleAddSigner}
               className="add-signer-button"
             >
               Add Another Signer
             </button>
-
             <div className="signing-actions">
               <button
                 onClick={handlePrevStep}
                 className="prev-step-button"
                 disabled={sending}
               >
-                Previous
+                Back
               </button>
               <button
                 onClick={handleSendForSigning}
@@ -144,8 +147,33 @@ const DocumentSigning = ({ handleNextStep, handlePrevStep }) => {
               >
                 {sending ? 'Sending...' : 'Send for Signing'}
               </button>
+              <button
+                onClick={handleSkip}
+                className="skip-signing-button"
+                disabled={sending}
+              >
+                Skip
+              </button>
             </div>
           </>
+        )}
+        {!isDocuSignConfigured && !sending && (
+          <div className="signing-actions">
+            <button
+              onClick={handlePrevStep}
+              className="prev-step-button"
+              disabled={sending}
+            >
+              Back
+            </button>
+            <button
+              onClick={handleSkip}
+              className="skip-signing-button"
+              disabled={sending}
+            >
+              Skip
+            </button>
+          </div>
         )}
       </div>
     </div>
