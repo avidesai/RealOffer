@@ -38,7 +38,14 @@ const userSchema = new mongoose.Schema({
     templates: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ListingTemplate', default: [] }],
     contacts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
     listingPackages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'PropertyListing', default: [] }],
-    buyerPackages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'BuyerPackage', default: [] }]
+    buyerPackages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'BuyerPackage', default: [] }],
+    
+    // DocuSign integration fields
+    docusignAccessToken: { type: String },
+    docusignRefreshToken: { type: String },
+    docusignTokenExpiry: { type: Date },
+    docusignAccountId: { type: String },
+    docusignUserId: { type: String },
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {

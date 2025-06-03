@@ -1,105 +1,197 @@
-// controllers/DocuSignController.js
+const docusign = require('docusign-esign');
+const { config, createApiClient, getAccessToken, createEnvelope } = require('../config/docusign');
+const User = require('../models/User');
+const Document = require('../models/Document');
+const { containerClient } = require('../config/azureStorage');
 
-const {
-  getOAuthLoginUrl,
-  getAccessTokenFromCode,
-  generateCodeVerifier,
-  generateCodeChallenge,
-} = require('../config/docusign');
+// Get DocuSign connection status
+exports.getConnectionStatus = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-// Initiate DocuSign login
-exports.loginToDocuSign = (req, res) => {
-  const { listingId } = req.query;
-  if (!listingId) {
-    console.error('Listing ID is missing in request query.');
-    return res.status(400).json({ message: 'Listing ID is required' });
+    const isConnected = !!user.docusignAccessToken;
+    res.json({ isConnected });
+  } catch (error) {
+    console.error('Error checking DocuSign connection:', error);
+    res.status(500).json({ message: 'Error checking DocuSign connection' });
   }
-  const codeVerifier = generateCodeVerifier();
-  const codeChallenge = generateCodeChallenge(codeVerifier);
-  
-  // Store codeVerifier in an HTTP-only, secure cookie
-  res.cookie('codeVerifier', codeVerifier, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'None',
-    maxAge: 15 * 60 * 1000, // 15 minutes
-  });
-  
-  // Include listingId in the state parameter
-  const state = listingId;
-  console.log('--- DocuSign Login Start ---');
-  console.log('Code Verifier generated and stored in cookie:', codeVerifier);
-  console.log('Listing ID included in state parameter:', state);
-  const oauthUrl = getOAuthLoginUrl(codeChallenge, state);
-  console.log('Redirecting user to DocuSign OAuth URL:', oauthUrl);
-  
-  // Redirect the user to DocuSign
-  res.redirect(oauthUrl);
+};
+
+// Get DocuSign authorization URL
+exports.getAuthUrl = async (req, res) => {
+  try {
+    const apiClient = createApiClient();
+    const scopes = ['signature', 'impersonation'];
+    
+    const authUrl = await apiClient.getAuthorizationUri(
+      config.integrationKey,
+      scopes,
+      config.redirectUri,
+      'code'
+    );
+
+    res.json({ authUrl });
+  } catch (error) {
+    console.error('Error getting DocuSign auth URL:', error);
+    res.status(500).json({ message: 'Error getting DocuSign auth URL' });
+  }
 };
 
 // Handle DocuSign OAuth callback
-exports.docusignCallback = async (req, res) => {
-  console.log('--- DocuSign Callback Start ---');
-  console.log('DocuSign callback received:', req.query);
-  console.log('Cookies received in callback:', req.cookies);
-  const { code, state } = req.query;
-  const codeVerifier = req.cookies.codeVerifier;
-  const listingId = state; // Retrieve listingId from the state parameter
-  
-  console.log('Authorization code from query:', code);
-  console.log('State (listingId) from query:', listingId);
-  console.log('Code Verifier from cookie:', codeVerifier);
-  
-  if (!code) {
-    console.error('Authorization code is missing in the callback query parameters.');
-    return res.redirect(`${process.env.FRONTEND_URL}/mylisting/${listingId}?docusignError=true&errorMessage=${encodeURIComponent('Authorization code is missing')}`);
-  }
-  
-  if (!codeVerifier) {
-    console.error('Code verifier is missing from cookies', { cookies: req.cookies });
-    return res.redirect(`${process.env.FRONTEND_URL}/mylisting/${listingId}?docusignError=true&errorMessage=${encodeURIComponent('Code verifier is missing')}`);
-  }
-  
+exports.handleCallback = async (req, res) => {
   try {
-    const accessToken = await getAccessTokenFromCode(code, codeVerifier);
-    req.session.docusignAccessToken = accessToken;
-    req.session.isDocuSignAuthenticated = true;
-    
-    // Clear the codeVerifier from the cookies
-    res.clearCookie('codeVerifier', {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'None',
-      domain: '.realoffer.io',
+    const { code } = req.query;
+    if (!code) {
+      return res.status(400).json({ message: 'Authorization code is required' });
+    }
+
+    const apiClient = createApiClient();
+    const response = await apiClient.generateAccessToken(
+      config.integrationKey,
+      config.clientSecret,
+      code,
+      config.redirectUri
+    );
+
+    const { access_token, refresh_token, expires_in } = response.body;
+
+    // Update user with DocuSign tokens
+    await User.findByIdAndUpdate(req.user.id, {
+      docusignAccessToken: access_token,
+      docusignRefreshToken: refresh_token,
+      docusignTokenExpiry: new Date(Date.now() + expires_in * 1000)
     });
-    
-    console.log('DocuSign Access Token obtained and stored in session.');
-    console.log('Session Data after storing access token:', req.session);
-    
-    req.session.save((err) => {
-      if (err) {
-        console.error('Session save error:', err);
-        return res.redirect(`${process.env.FRONTEND_URL}/mylisting/${listingId}?docusignError=true&errorMessage=${encodeURIComponent('Failed to save session')}`);
-      }
-      console.log('Session after saving:', req.session);
-      // Redirect to the frontend
-      const redirectUrl = `${process.env.FRONTEND_URL}/mylisting/${listingId}?docusignConnected=true`;
-      console.log('Redirecting user to:', redirectUrl);
-      res.redirect(redirectUrl);
-    });
+
+    // Send success message to frontend
+    res.send(`
+      <script>
+        window.opener.postMessage({ type: 'DOCUSIGN_OAUTH_CALLBACK' }, '*');
+        window.close();
+      </script>
+    `);
   } catch (error) {
-    console.error('Error during DocuSign authentication:', error);
-    const errorMessage = error.message || 'An error occurred during authentication';
-    const redirectUrl = `${process.env.FRONTEND_URL}/mylisting/${listingId}?docusignError=true&errorMessage=${encodeURIComponent(errorMessage)}`;
-    console.log('Redirecting user to error page:', redirectUrl);
-    res.redirect(redirectUrl);
+    console.error('Error handling DocuSign callback:', error);
+    res.status(500).json({ message: 'Error handling DocuSign callback' });
   }
 };
 
-// Check DocuSign connection status
-exports.checkDocuSignStatus = (req, res) => {
-  console.log('--- Check DocuSign Status ---');
-  console.log('Session Data:', req.session);
-  const isConnected = req.session.isDocuSignAuthenticated || false;
-  res.json({ connected: isConnected });
+// Send documents for signing
+exports.sendDocumentsForSigning = async (req, res) => {
+  try {
+    const { documents, signers, title, message } = req.body;
+
+    // Get user's DocuSign access token
+    const user = await User.findById(req.user.id);
+    if (!user || !user.docusignAccessToken) {
+      return res.status(401).json({ message: 'DocuSign not connected' });
+    }
+
+    // Get documents from Azure Storage
+    const documentContents = await Promise.all(
+      documents.map(async (docId) => {
+        const document = await Document.findById(docId);
+        if (!document) {
+          throw new Error(`Document ${docId} not found`);
+        }
+
+        const blockBlobClient = containerClient.getBlockBlobClient(document.azureKey);
+        const downloadResponse = await blockBlobClient.download();
+        const content = await streamToBuffer(downloadResponse.readableStreamBody);
+        
+        return {
+          id: docId,
+          name: document.title,
+          content: content.toString('base64')
+        };
+      })
+    );
+
+    // Create envelope
+    const envelopeData = {
+      title,
+      message,
+      documents: documentContents,
+      signers
+    };
+
+    const envelope = await createEnvelope(user.docusignAccessToken, envelopeData);
+
+    // Update documents with envelope ID
+    await Document.updateMany(
+      { _id: { $in: documents } },
+      { 
+        $set: { 
+          docusignEnvelopeId: envelope.envelopeId,
+          signingStatus: 'pending'
+        }
+      }
+    );
+
+    res.json({ 
+      envelopeId: envelope.envelopeId,
+      message: 'Documents sent for signing successfully'
+    });
+  } catch (error) {
+    console.error('Error sending documents for signing:', error);
+    res.status(500).json({ message: 'Error sending documents for signing' });
+  }
 };
+
+// Get envelope status
+exports.getEnvelopeStatus = async (req, res) => {
+  try {
+    const { envelopeId } = req.params;
+    const user = await User.findById(req.user.id);
+    
+    if (!user || !user.docusignAccessToken) {
+      return res.status(401).json({ message: 'DocuSign not connected' });
+    }
+
+    const apiClient = createApiClient();
+    apiClient.addDefaultHeader('Authorization', `Bearer ${user.docusignAccessToken}`);
+    
+    const envelopeApi = new docusign.EnvelopesApi(apiClient);
+    const envelopeInfo = await envelopeApi.getEnvelope('me', envelopeId);
+
+    res.json({
+      status: envelopeInfo.status,
+      created: envelopeInfo.created,
+      lastModified: envelopeInfo.lastModified,
+      documentsUri: envelopeInfo.documentsUri,
+      recipientsUri: envelopeInfo.recipientsUri,
+      attachmentsUri: envelopeInfo.attachmentsUri,
+      envelopeUri: envelopeInfo.envelopeUri,
+      emailSubject: envelopeInfo.emailSubject,
+      emailBlurb: envelopeInfo.emailBlurb,
+      signingLocation: envelopeInfo.signingLocation,
+      customFieldsUri: envelopeInfo.customFieldsUri,
+      notificationUri: envelopeInfo.notificationUri,
+      enableWetSign: envelopeInfo.enableWetSign,
+      allowMarkup: envelopeInfo.allowMarkup,
+      allowReassign: envelopeInfo.allowReassign,
+      createdDateTime: envelopeInfo.createdDateTime,
+      lastModifiedDateTime: envelopeInfo.lastModifiedDateTime,
+      deliveredDateTime: envelopeInfo.deliveredDateTime,
+      initialSentDateTime: envelopeInfo.initialSentDateTime,
+      statusChangedDateTime: envelopeInfo.statusChangedDateTime,
+      documentsCombinedUri: envelopeInfo.documentsCombinedUri,
+      certificateUri: envelopeInfo.certificateUri,
+      templatesUri: envelopeInfo.templatesUri
+    });
+  } catch (error) {
+    console.error('Error getting envelope status:', error);
+    res.status(500).json({ message: 'Error getting envelope status' });
+  }
+};
+
+// Helper function to convert stream to buffer
+const streamToBuffer = async (stream) => {
+  const chunks = [];
+  for await (const chunk of stream) {
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks);
+}; 

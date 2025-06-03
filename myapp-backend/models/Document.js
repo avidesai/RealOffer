@@ -18,7 +18,20 @@ const documentSchema = new mongoose.Schema({
   purpose: { type: String, default: 'listing' },
   offer: { type: mongoose.Schema.Types.ObjectId, ref: 'Offer', required: false },
   docType: { type: String, required: true },
-  signed: { type: Boolean, default: false }
+  signed: { type: Boolean, default: false },
+  
+  // DocuSign integration fields
+  docusignEnvelopeId: { type: String },
+  signingStatus: {
+    type: String,
+    enum: ['pending', 'signed', 'declined', 'expired'],
+    default: null
+  },
+  signedBy: [{
+    name: { type: String },
+    email: { type: String },
+    signedAt: { type: Date }
+  }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Document', documentSchema);

@@ -55,12 +55,6 @@ const TabSection = ({ listing }) => {
           Activity
         </button>
         <button
-          className={`tab-button ${activeTab === 'messages' ? 'active' : ''}`}
-          onClick={() => handleTabClick('messages')}
-        >
-          Messages
-        </button>
-        <button
           className={`tab-button ${activeTab === 'offers' ? 'active' : ''}`}
           onClick={() => handleTabClick('offers')}
         >

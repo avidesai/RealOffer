@@ -1,17 +1,24 @@
-// routes/docusign.js
-
 const express = require('express');
 const router = express.Router();
 const DocuSignController = require('../controllers/DocuSignController');
 const authMiddleware = require('../middleware/auth');
 
-// OAuth Login route
-router.get('/login', DocuSignController.loginToDocuSign);
+// Apply auth middleware to all routes
+router.use(authMiddleware);
 
-// OAuth Callback route
-router.get('/callback', DocuSignController.docusignCallback);
+// Get DocuSign connection status
+router.get('/status', DocuSignController.getConnectionStatus);
 
-// DocuSign Status Check route
-router.get('/status', authMiddleware, DocuSignController.checkDocuSignStatus);
+// Get DocuSign authorization URL
+router.get('/auth-url', DocuSignController.getAuthUrl);
 
-module.exports = router;
+// Handle DocuSign OAuth callback
+router.get('/callback', DocuSignController.handleCallback);
+
+// Send documents for signing
+router.post('/send', DocuSignController.sendDocumentsForSigning);
+
+// Get envelope status
+router.get('/envelope/:envelopeId', DocuSignController.getEnvelopeStatus);
+
+module.exports = router; 

@@ -1,62 +1,89 @@
-// config/docusign.js
 const docusign = require('docusign-esign');
-const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 
-const dsConfig = {
-  clientId: process.env.DOCUSIGN_CLIENT_ID,
+// DocuSign configuration
+const config = {
+  integrationKey: process.env.DOCUSIGN_INTEGRATION_KEY,
+  clientSecret: process.env.DOCUSIGN_CLIENT_SECRET,
   redirectUri: process.env.DOCUSIGN_REDIRECT_URI,
-  basePath: process.env.DOCUSIGN_BASE_PATH,
+  authServer: process.env.DOCUSIGN_AUTH_SERVER || 'https://account-d.docusign.com',
+  apiUrl: process.env.DOCUSIGN_API_URL || 'https://demo.docusign.net/restapi',
+  jwtSecret: process.env.JWT_SECRET
 };
 
-const apiClient = new docusign.ApiClient();
-apiClient.setOAuthBasePath(dsConfig.basePath);
-
-console.log('DOCUSIGN_CLIENT_SECRET:', process.env.DOCUSIGN_CLIENT_SECRET);
-
-const generateCodeVerifier = () => {
-  return crypto.randomBytes(64).toString('base64url');
+// Create DocuSign API client
+const createApiClient = () => {
+  const apiClient = new docusign.ApiClient();
+  apiClient.setBasePath(config.apiUrl);
+  return apiClient;
 };
 
-const generateCodeChallenge = (verifier) => {
-  return crypto
-    .createHash('sha256')
-    .update(verifier)
-    .digest('base64url');
+// Generate JWT token for DocuSign
+const generateJWT = (userId) => {
+  return jwt.sign({ userId }, config.jwtSecret, { expiresIn: '1h' });
 };
 
-const getOAuthLoginUrl = (codeChallenge, state) => {
-  const scopes = 'signature';
-  const url = `${dsConfig.basePath}/oauth/auth?response_type=code&scope=${scopes}&client_id=${dsConfig.clientId}&redirect_uri=${encodeURIComponent(
-    dsConfig.redirectUri
-  )}&code_challenge=${codeChallenge}&code_challenge_method=S256&state=${state}`;
-  console.log('Generated OAuth Login URL:', url);
-  return url;
-};
-
-const getAccessTokenFromCode = async (code, codeVerifier) => {
+// Get DocuSign access token
+const getAccessToken = async (userId) => {
   try {
-    console.log('Attempting to get access token from DocuSign...');
-    const results = await apiClient.generateAccessToken(dsConfig.clientId, {
-      code: code,
-      redirect_uri: dsConfig.redirectUri,
-      grant_type: 'authorization_code',
-      code_verifier: codeVerifier
-    });
-    if (results && results.access_token) {
-      console.log('Access token successfully obtained from DocuSign.');
-      return results.access_token;
-    } else {
-      throw new Error('Access token not found in DocuSign response');
-    }
+    const apiClient = createApiClient();
+    const scopes = ['signature', 'impersonation'];
+    
+    const jwtToken = generateJWT(userId);
+    const response = await apiClient.requestJWTUserToken(
+      config.integrationKey,
+      userId,
+      scopes,
+      config.clientSecret,
+      3600
+    );
+
+    return response.body.access_token;
   } catch (error) {
-    console.error('Error getting access token from DocuSign:', error);
+    console.error('Error getting DocuSign access token:', error);
+    throw error;
+  }
+};
+
+// Create DocuSign envelope
+const createEnvelope = async (accessToken, envelopeData) => {
+  try {
+    const apiClient = createApiClient();
+    apiClient.addDefaultHeader('Authorization', `Bearer ${accessToken}`);
+    
+    const envelopeApi = new docusign.EnvelopesApi(apiClient);
+    const envelope = new docusign.EnvelopeDefinition();
+    
+    envelope.emailSubject = envelopeData.title;
+    envelope.emailBlurb = envelopeData.message;
+    envelope.documents = envelopeData.documents.map(doc => ({
+      documentBase64: doc.content,
+      name: doc.name,
+      fileExtension: 'pdf',
+      documentId: doc.id
+    }));
+
+    envelope.recipients = new docusign.Recipients();
+    envelope.recipients.signers = envelopeData.signers.map((signer, index) => ({
+      email: signer.email,
+      name: signer.name,
+      recipientId: (index + 1).toString(),
+      routingOrder: (index + 1).toString()
+    }));
+
+    envelope.status = 'sent';
+
+    const results = await envelopeApi.createEnvelope('me', { envelopeDefinition: envelope });
+    return results;
+  } catch (error) {
+    console.error('Error creating DocuSign envelope:', error);
     throw error;
   }
 };
 
 module.exports = {
-  getOAuthLoginUrl,
-  getAccessTokenFromCode,
-  generateCodeVerifier,
-  generateCodeChallenge,
-};
+  config,
+  createApiClient,
+  getAccessToken,
+  createEnvelope
+}; 
