@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../../../../../../../../context/AuthContext';
 import './DocuSignConfig.css';
 
@@ -8,11 +8,7 @@ const DocuSignConfig = ({ onConfigComplete }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    checkDocuSignConnection();
-  }, []);
-
-  const checkDocuSignConnection = async () => {
+  const checkDocuSignConnection = useCallback(async () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/status`, {
         headers: {
@@ -29,7 +25,11 @@ const DocuSignConfig = ({ onConfigComplete }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [token, onConfigComplete]);
+
+  useEffect(() => {
+    checkDocuSignConnection();
+  }, [checkDocuSignConnection]);
 
   const handleConnect = async () => {
     try {

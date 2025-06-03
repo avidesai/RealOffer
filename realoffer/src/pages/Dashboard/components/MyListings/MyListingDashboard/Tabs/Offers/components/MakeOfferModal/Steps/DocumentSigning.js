@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../../../../../../../../../context/AuthContext';
 import { useOffer } from '../../../../../../../../../../context/OfferContext';
 import DocuSignConfig from './DocuSignConfig';
@@ -56,7 +56,6 @@ const DocumentSigning = ({ handleNextStep, handlePrevStep }) => {
         throw new Error('Failed to send documents for signing');
       }
 
-      const data = await response.json();
       setSuccess(true);
       
       // Wait a moment before proceeding to next step

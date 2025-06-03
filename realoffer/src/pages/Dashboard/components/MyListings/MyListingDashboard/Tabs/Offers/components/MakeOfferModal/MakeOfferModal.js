@@ -9,6 +9,7 @@ import Contingencies from './Steps/Contingencies';
 import AgentInformation from './Steps/AgentInformation';
 import OfferDetails from './Steps/OfferDetails';
 import Documents from './Steps/Documents';
+import DocumentSigning from './Steps/DocumentSigning';
 import FinalReview from './Steps/FinalReview';
 import AutoFillForms from './Steps/AutoFillForms';
 import axios from 'axios';
@@ -216,6 +217,10 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       updateOfferData={updateOfferData}
       listingId={listingId}
     />,
+    documentSigning: <DocumentSigning
+      handleNextStep={handleNextStep}
+      handlePrevStep={handlePrevStep}
+    />,
     finalReview: <FinalReview
       formData={offerData}
       handlePrevStep={handlePrevStep}
@@ -243,7 +248,8 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         {step === 4 && memoizedComponents.offerDetails}
         {step === 5 && memoizedComponents.autoFillForms}
         {step === 6 && memoizedComponents.documents}
-        {step === 7 && memoizedComponents.finalReview}
+        {step === 7 && memoizedComponents.documentSigning}
+        {step === 8 && memoizedComponents.finalReview}
       </div>
     </div>
   );
