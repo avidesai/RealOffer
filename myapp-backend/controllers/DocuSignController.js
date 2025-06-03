@@ -25,12 +25,14 @@ exports.getAuthUrl = async (req, res) => {
   try {
     const apiClient = createApiClient();
     const scopes = ['signature', 'impersonation'];
+    const state = req.user.id || req.user._id;
     
     const authUrl = await apiClient.getAuthorizationUri(
       config.integrationKey,
       scopes,
       config.redirectUri,
-      'code'
+      'code',
+      state
     );
 
     res.json({ authUrl });
@@ -43,9 +45,18 @@ exports.getAuthUrl = async (req, res) => {
 // Handle DocuSign OAuth callback
 exports.handleCallback = async (req, res) => {
   try {
-    const { code } = req.query;
-    if (!code) {
-      return res.status(400).json({ message: 'Authorization code is required' });
+    const { code, state } = req.query;
+    console.log('DocuSign callback received:', { code, state });
+
+    if (!code || !state) {
+      return res.status(400).json({ message: 'Authorization code and state are required' });
+    }
+
+    const user = await User.findById(state);
+    console.log('User found for state:', user);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found for DocuSign callback' });
     }
 
     const apiClient = createApiClient();
@@ -59,11 +70,10 @@ exports.handleCallback = async (req, res) => {
     const { access_token, refresh_token, expires_in } = response.body;
 
     // Update user with DocuSign tokens
-    await User.findByIdAndUpdate(req.user.id, {
-      docusignAccessToken: access_token,
-      docusignRefreshToken: refresh_token,
-      docusignTokenExpiry: new Date(Date.now() + expires_in * 1000)
-    });
+    user.docusignAccessToken = access_token;
+    user.docusignRefreshToken = refresh_token;
+    user.docusignTokenExpiry = new Date(Date.now() + expires_in * 1000);
+    await user.save();
 
     // Send success message to frontend
     res.send(`
@@ -73,8 +83,8 @@ exports.handleCallback = async (req, res) => {
       </script>
     `);
   } catch (error) {
-    console.error('Error handling DocuSign callback:', error);
-    res.status(500).json({ message: 'Error handling DocuSign callback' });
+    console.error('Error handling DocuSign callback:', error, req.query);
+    res.status(500).json({ message: 'Error handling DocuSign callback', error: error.message });
   }
 };
 
