@@ -62,11 +62,12 @@ exports.handleCallback = async (req, res) => {
     const apiClient = createApiClient();
     
     try {
-      const response = await apiClient.generateAccessToken(
+      const response = await apiClient.requestJWTUserToken(
         config.integrationKey,
+        state,
+        ['signature', 'impersonation'],
         config.clientSecret,
-        code,
-        config.redirectUri
+        3600
       );
 
       if (!response || !response.body) {
@@ -81,11 +82,6 @@ exports.handleCallback = async (req, res) => {
       user.docusignTokenExpiry = new Date(Date.now() + expires_in * 1000);
       await user.save();
 
-      // Set CORS headers for the response
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Access-Control-Allow-Methods', 'GET');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
       // Send success message to frontend
       res.send(`
         <script>
@@ -95,18 +91,10 @@ exports.handleCallback = async (req, res) => {
       `);
     } catch (tokenError) {
       console.error('DocuSign token exchange error:', tokenError);
-      // Set CORS headers for error response
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Access-Control-Allow-Methods', 'GET');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
       return res.status(500).json({ message: 'DocuSign token exchange error', error: tokenError.message });
     }
   } catch (error) {
     console.error('Error handling DocuSign callback:', error, req.query);
-    // Set CORS headers for error response
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.status(500).json({ message: 'Error handling DocuSign callback', error: error.message });
   }
 };
