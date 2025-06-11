@@ -60,35 +60,53 @@ exports.handleCallback = async (req, res) => {
     }
 
     const apiClient = createApiClient();
-    apiClient.generateAccessToken(
-      config.integrationKey,
-      config.clientSecret,
-      code,
-      config.redirectUri,
-      async function (err, response) {
-        if (err) {
-          console.error('DocuSign token exchange error:', err);
-          return res.status(500).json({ message: 'DocuSign token exchange error', error: err.message });
-        }
-        const { access_token, refresh_token, expires_in } = response.body;
+    
+    try {
+      const response = await apiClient.generateAccessToken(
+        config.integrationKey,
+        config.clientSecret,
+        code,
+        config.redirectUri
+      );
 
-        // Update user with DocuSign tokens
-        user.docusignAccessToken = access_token;
-        user.docusignRefreshToken = refresh_token;
-        user.docusignTokenExpiry = new Date(Date.now() + expires_in * 1000);
-        await user.save();
-
-        // Send success message to frontend
-        res.send(`
-          <script>
-            window.opener.postMessage({ type: 'DOCUSIGN_OAUTH_CALLBACK' }, '*');
-            window.close();
-          </script>
-        `);
+      if (!response || !response.body) {
+        throw new Error('Invalid response from DocuSign token exchange');
       }
-    );
+
+      const { access_token, refresh_token, expires_in } = response.body;
+
+      // Update user with DocuSign tokens
+      user.docusignAccessToken = access_token;
+      user.docusignRefreshToken = refresh_token;
+      user.docusignTokenExpiry = new Date(Date.now() + expires_in * 1000);
+      await user.save();
+
+      // Set CORS headers for the response
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+      // Send success message to frontend
+      res.send(`
+        <script>
+          window.opener.postMessage({ type: 'DOCUSIGN_OAUTH_CALLBACK' }, '*');
+          window.close();
+        </script>
+      `);
+    } catch (tokenError) {
+      console.error('DocuSign token exchange error:', tokenError);
+      // Set CORS headers for error response
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+      return res.status(500).json({ message: 'DocuSign token exchange error', error: tokenError.message });
+    }
   } catch (error) {
     console.error('Error handling DocuSign callback:', error, req.query);
+    // Set CORS headers for error response
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.status(500).json({ message: 'Error handling DocuSign callback', error: error.message });
   }
 };

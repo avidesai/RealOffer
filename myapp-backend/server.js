@@ -17,7 +17,9 @@ const allowedOrigins = [
   'http://localhost:3001',
   'https://www.realoffer.io',
   'https://realoffer.io',
-  'https://api.realoffer.io'
+  'https://api.realoffer.io',
+  'https://account-d.docusign.com',  // Add DocuSign auth server
+  'https://demo.docusign.net'        // Add DocuSign API server
 ];
 
 const corsOptions = {
@@ -25,7 +27,7 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('docusign.com')) {
       callback(null, true);
     } else {
       console.warn('Blocked by CORS:', origin);
