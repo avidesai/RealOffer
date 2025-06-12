@@ -60,19 +60,18 @@ exports.handleCallback = async (req, res) => {
     }
 
     try {
-      // Use the new token generation method
-      const tokenResponse = await getAccessTokenFromCode(code);
+      // Get access token using the authorization code
+      const tokenData = await getAccessTokenFromCode(code);
+      console.log('Token response:', tokenData);
 
-      if (!tokenResponse || !tokenResponse.access_token) {
-        throw new Error('Invalid response from DocuSign token exchange');
+      if (!tokenData || !tokenData.access_token) {
+        throw new Error('Invalid token response from DocuSign');
       }
 
-      const { access_token, refresh_token, expires_in } = tokenResponse;
-
       // Update user with DocuSign tokens
-      user.docusignAccessToken = access_token;
-      user.docusignRefreshToken = refresh_token;
-      user.docusignTokenExpiry = new Date(Date.now() + expires_in * 1000);
+      user.docusignAccessToken = tokenData.access_token;
+      user.docusignRefreshToken = tokenData.refresh_token;
+      user.docusignTokenExpiry = new Date(Date.now() + (tokenData.expires_in * 1000));
       await user.save();
 
       // Send success message to frontend
