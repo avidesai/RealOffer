@@ -1,55 +1,89 @@
 /* /Tabs/Documents.css */
 
 .documents-tab {
-  padding: 1rem;
-  background-color: #f1f1f1;
-  border-radius: 10px;
+  padding: 0.4rem 0.5rem 1.2rem 0.5rem;
+  background-color: #f8fafd;
+  border-radius: 0 0 16px 16px;
 }
 
 .documents-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  margin-left: 1rem;
-  margin-right: 1rem;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 0.7rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  margin-top: 0;
 }
 
-.signature-button, .docusign-button, .add-documents-button, .delete-button, .download-doc-button {
-  background-color: #ffffff;
+@media (min-width: 768px) {
+  .documents-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+    margin-top: 0;
+  }
+}
+
+.signature-button, .add-documents-button, .delete-button {
+  background-color: #fff;
   color: #262626;
-  border: 1px solid #898888;
+  border: 1.5px solid #bfc9d8;
   border-radius: 10px;
-  padding: 10px 20px;
+  padding: 12px 26px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  transition: background-color 0.5s ease, box-shadow 0.5s ease;
+  transition: background-color 0.18s, box-shadow 0.18s, color 0.18s;
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+@media (min-width: 768px) {
+  .signature-button, .add-documents-button, .delete-button {
+    width: auto;
+  }
 }
 
 .add-documents-button {
   background-color: #007bff;
-  padding: 10px 25px;
   color: #fff;
+  border: none;
 }
 
-.signature-button:hover, .docusign-button:hover, .download-doc-button:hover, .delete-button:hover {
-  transform: scale(1.05);
+.signature-button:hover, .delete-button:hover {
+  transform: scale(1.04);
   background-color: #ececec;
 }
 
 .add-documents-button:hover {
-  transform: scale(1.05);
+  transform: scale(1.04);
   background-color: #0056b3;
 }
 
 .action-buttons {
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .action-buttons {
+    flex-direction: row;
+    width: auto;
+  }
 }
 
 .documents-list {
-  margin-top: 1rem;
+  margin-top: 0.5rem;
+  border-radius: 12px;
+  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
 }
 
 .no-documents-message {
@@ -61,38 +95,62 @@
 
 .document-item {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   background-color: #fff;
-  padding: 1rem;
-  padding-top: 1.2rem;
-  padding-bottom: 0.6rem;
-  border-radius: 10px;
-  margin-bottom: 1rem;
-  transition: background-color 0.5s ease, box-shadow 0.5s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.25rem 1.25rem 1rem 1.25rem;
+  border-radius: 16px;
+  transition: background-color 0.18s, box-shadow 0.18s, border-color 0.18s;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.10);
   position: relative;
   cursor: pointer;
+  border: 1.5px solid #e3e8f0;
+}
+
+@media (min-width: 768px) {
+  .document-item {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.2rem;
+    padding-bottom: 0.6rem;
+  }
 }
 
 .document-item:hover {
-  background-color: #dceeff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #eaf2ff;
+  box-shadow: 0 4px 16px rgba(0,123,255,0.07);
 }
 
 .document-checkbox {
   position: absolute;
-  left: 35px; /* Increase padding to the left */
+  left: 18px;
+  top: 50%;
   width: 22px;
   height: 22px;
   cursor: pointer;
-  margin-bottom: 10px;
+  margin-bottom: 0;
+  transform: translateY(-50%);
+}
+
+@media (min-width: 768px) {
+  .document-checkbox {
+    left: 38px;
+  }
 }
 
 .document-info {
   display: flex;
-  align-items: center;
-  margin-left: 5rem;
+  align-items: flex-start;
+  margin-left: 3.2rem;
+  margin-top: 0.2rem;
+}
+
+@media (min-width: 768px) {
+  .document-info {
+    align-items: center;
+    margin-left: 5.2rem;
+    margin-top: 0;
+  }
 }
 
 .document-details {
@@ -103,76 +161,87 @@
 .document-title {
   font-weight: bold;
   margin: 0;
-  color: #333;
-  margin-bottom: 0.7rem; /* Add space below the title */
+  color: #222;
+  margin-bottom: 0.5rem;
+  font-size: 1.08rem;
 }
 
 .document-type {
   font-style: italic;
   margin: 0;
   color: #666;
+  font-size: 0.98rem;
 }
 
 .document-meta {
   color: #888;
-  font-size: 0.9em;
+  font-size: 0.93em;
 }
 
 .meta-divider {
-  margin: 0 0.25rem; /* Add horizontal space around the "|" character */
+  margin: 0 0.25rem;
 }
 
 .document-actions {
   display: flex;
   gap: 0.6rem;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  margin-top: -10px;
-  padding-right: 1rem;
+  margin-top: 1rem;
+  padding-right: 0;
+  opacity: 1;
+  flex-wrap: wrap;
 }
 
-.document-item:hover .document-actions {
-  opacity: 1;
+@media (min-width: 768px) {
+  .document-actions {
+    margin-top: -10px;
+    padding-right: 1rem;
+    opacity: 0;
+  }
+  .document-item:hover .document-actions {
+    opacity: 1;
+  }
 }
 
 .document-actions button {
-  background-color: #ffffff;
+  background-color: #fff;
   color: #262626;
-  border: 1px solid #898888;
-  border-radius: 10px;
-  padding: 10px 20px;
-  margin-right: 0.2rem;
+  border: 1.5px solid #bfc9d8;
+  border-radius: 8px;
+  padding: 10px 18px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  transition: background-color 0.5s ease, box-shadow 0.5s ease;
+  transition: background-color 0.18s, box-shadow 0.18s, color 0.18s;
+  flex: 1;
+  min-width: 90px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
 }
 
-.download-actions-button {
+@media (min-width: 768px) {
+  .document-actions button {
+    padding: 10px 20px;
+    flex: 0;
+    min-width: auto;
+  }
+}
+
+.download-action-button {
   background-color: #007bff;
-  color: white;
+  color: #fff;
+  border: none;
 }
-
-.document-actions .download-action-button {
-  background-color: #007bff;
-  color: white;
-}
-
 
 .document-actions .delete-action-button:hover,
-.document-actions .document-actions-button:hover {
-  transform: scale(1.05);
-  background-color: #ececec;
-
-}
-
+.document-actions .document-actions-button:hover,
 .document-actions .download-action-button:hover {
-  transform: scale(1.05);
-  background-color: #0056b3;
+  transform: scale(1.04);
+  background-color: #ececec;
+  color: #222;
 }
 
 .selected {
   background-color: #dceeff;
+  border-color: #007bff;
 }
 
 .spinner-container {
@@ -189,4 +258,12 @@
   width: 60px;
   height: 60px;
   animation: spin 1s linear infinite;
+}
+
+.documents-list .document-item:last-child {
+  margin-bottom: 0;
+}
+
+.documents-list .document-item:first-child {
+  margin-top: 0.1rem;
 }

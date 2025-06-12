@@ -1,7 +1,5 @@
 // /Tabs/Documents.js
 
-// /Tabs/Documents.js
-
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../../../../../context/AuthContext';
@@ -10,12 +8,11 @@ import './Documents.css';
 import UploadDocumentsLogic from './components/UploadDocuments/UploadDocumentsLogic';
 import PDFViewer from './components/PDFViewer/PDFViewer';
 import CreateSignaturePackage from './components/CreateSignaturePackage/CreateSignaturePackage';
-import DocuSignLoginModal from './components/DocuSignLoginModal/DocuSignLoginModal';
 
 axios.defaults.withCredentials = true;
 
 const Documents = ({ listingId }) => {
-  const { token, docusignConnected, checkDocusignConnection, setDocusignConnected } = useAuth();
+  const { token } = useAuth();
   const [documents, setDocuments] = useState([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
@@ -26,7 +23,6 @@ const Documents = ({ listingId }) => {
   const [currentDocType, setCurrentDocType] = useState('');
   const [showSignaturePackageModal, setShowSignaturePackageModal] = useState(false);
   const [hasSignaturePackage, setHasSignaturePackage] = useState(false);
-  const [showDocuSignLoginModal, setShowDocuSignLoginModal] = useState(false);
 
   const location = useLocation();
 
@@ -64,27 +60,8 @@ const Documents = ({ listingId }) => {
     if (token) {
       fetchListingData();
       fetchDocuments();
-      checkDocusignConnection();
     }
-  }, [fetchListingData, fetchDocuments, token, checkDocusignConnection]);
-
-  useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const docusignConnected = searchParams.get('docusignConnected');
-    const docusignError = searchParams.get('docusignError');
-    const errorMessage = searchParams.get('errorMessage');
-
-    if (docusignConnected === 'true') {
-      setDocusignConnected(true);
-      checkDocusignConnection();
-      alert('Successfully connected to DocuSign!');
-    }
-
-    if (docusignError === 'true') {
-      console.error('DocuSign connection failed');
-      alert(`Failed to connect to DocuSign. ${errorMessage || 'Please try again.'}`);
-    }
-  }, [location.search, setDocusignConnected, checkDocusignConnection]);
+  }, [fetchListingData, fetchDocuments, token]);
 
   const handleUploadClick = () => {
     setShowUploadModal(true);
@@ -173,45 +150,6 @@ const Documents = ({ listingId }) => {
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
-  const handleDocuSign = () => {
-    if (!docusignConnected) {
-      handleDocuSignLogin();
-    } else {
-      sendToDocuSign();
-    }
-  };
-
-  const handleDocuSignLogin = () => {
-    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/api/docusign/login?listingId=${listingId}`;
-  };
-
-  const sendToDocuSign = async () => {
-    if (selectedDocuments.length === 0) {
-      alert('Please select at least one document to send via DocuSign.');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents/createSigningSession`, {
-        documentIds: selectedDocuments
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        withCredentials: true
-      });
-
-      const { signingUrl } = response.data;
-      window.open(signingUrl, '_blank');
-    } catch (error) {
-      console.error('Error initiating DocuSign session:', error);
-      alert('Failed to initiate DocuSign session. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="documents-tab">
       <div className="documents-header">
@@ -221,9 +159,6 @@ const Documents = ({ listingId }) => {
           </button>
           <button className="delete-button" onClick={handleDeleteSelectedDocuments}>
             Delete
-          </button>
-          <button className="docusign-button" onClick={handleDocuSign}>
-            {docusignConnected ? "DocuSign" : "Login To DocuSign"}
           </button>
         </div>
         <button className="signature-button" onClick={openSignaturePackageModal}>
@@ -268,12 +203,9 @@ const Documents = ({ listingId }) => {
                     <button className="download-action-button document-actions-button">Download</button>
                   </a>
                   {doc.purpose !== 'signature_package' && (
-                    <>
-                      <button className="rename-action-button document-actions-button">Rename</button>
-                      <button className="delete-action-button document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
-                        Delete
-                      </button>
-                    </>
+                    <button className="delete-action-button document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
+                      Delete
+                    </button>
                   )}
                 </div>
               </div>
@@ -306,11 +238,6 @@ const Documents = ({ listingId }) => {
           hasSignaturePackage={hasSignaturePackage}
         />
       )}
-      <DocuSignLoginModal
-        isOpen={showDocuSignLoginModal}
-        onClose={() => setShowDocuSignLoginModal(false)}
-        onLogin={handleDocuSignLogin}
-      />
     </div>
   );
 };
