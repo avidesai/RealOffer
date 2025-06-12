@@ -1,5 +1,5 @@
 const docusign = require('docusign-esign');
-const { config, createApiClient, getAccessToken, createEnvelope } = require('../config/docusign');
+const { config, createApiClient, getAccessTokenFromCode, createEnvelope } = require('../config/docusign');
 const User = require('../models/User');
 const Document = require('../models/Document');
 const { containerClient } = require('../config/azureStorage');
