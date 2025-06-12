@@ -1,5 +1,7 @@
 const docusign = require('docusign-esign');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+const path = require('path');
 
 // DocuSign configuration
 const config = {
@@ -8,7 +10,7 @@ const config = {
   redirectUri: process.env.DOCUSIGN_REDIRECT_URI,
   authServer: process.env.DOCUSIGN_AUTH_SERVER || 'https://account-d.docusign.com',
   apiUrl: process.env.DOCUSIGN_API_URL || 'https://demo.docusign.net/restapi',
-  jwtSecret: process.env.JWT_SECRET
+  privateKeyPath: process.env.DOCUSIGN_PRIVATE_KEY_PATH || path.join(__dirname, '../keys/docusign_private.key')
 };
 
 // Create DocuSign API client
@@ -18,27 +20,17 @@ const createApiClient = () => {
   return apiClient;
 };
 
-// Generate JWT token for DocuSign
-const generateJWT = (userId) => {
-  return jwt.sign({ userId }, config.jwtSecret, { expiresIn: '1h' });
-};
-
-// Get DocuSign access token
-const getAccessToken = async (userId) => {
+// Get DocuSign access token using authorization code
+const getAccessTokenFromCode = async (code) => {
   try {
     const apiClient = createApiClient();
-    const scopes = ['signature', 'impersonation'];
-    
-    const jwtToken = generateJWT(userId);
-    const response = await apiClient.requestJWTUserToken(
+    const response = await apiClient.generateAccessToken(
       config.integrationKey,
-      userId,
-      scopes,
       config.clientSecret,
-      3600
+      code,
+      config.redirectUri
     );
-
-    return response.body.access_token;
+    return response.body;
   } catch (error) {
     console.error('Error getting DocuSign access token:', error);
     throw error;
@@ -84,6 +76,6 @@ const createEnvelope = async (accessToken, envelopeData) => {
 module.exports = {
   config,
   createApiClient,
-  getAccessToken,
+  getAccessTokenFromCode,
   createEnvelope
 }; 

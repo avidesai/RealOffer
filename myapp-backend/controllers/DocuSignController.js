@@ -59,22 +59,15 @@ exports.handleCallback = async (req, res) => {
       return res.status(404).json({ message: 'User not found for DocuSign callback' });
     }
 
-    const apiClient = createApiClient();
-    
     try {
-      const response = await apiClient.requestJWTUserToken(
-        config.integrationKey,
-        state,
-        ['signature', 'impersonation'],
-        config.clientSecret,
-        3600
-      );
+      // Use the new token generation method
+      const tokenResponse = await getAccessTokenFromCode(code);
 
-      if (!response || !response.body) {
+      if (!tokenResponse || !tokenResponse.access_token) {
         throw new Error('Invalid response from DocuSign token exchange');
       }
 
-      const { access_token, refresh_token, expires_in } = response.body;
+      const { access_token, refresh_token, expires_in } = tokenResponse;
 
       // Update user with DocuSign tokens
       user.docusignAccessToken = access_token;
