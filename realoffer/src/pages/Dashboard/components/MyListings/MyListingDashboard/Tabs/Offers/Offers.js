@@ -16,7 +16,6 @@ const Offers = ({ listingId }) => {
   const [propertyListing, setPropertyListing] = useState(null);
   const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('priceHighToLow');
-  const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
@@ -52,10 +51,6 @@ const Offers = ({ listingId }) => {
     setSort(newSort);
   };
 
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-  };
-
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };
@@ -67,11 +62,6 @@ const Offers = ({ listingId }) => {
   const handleCloseModal = async () => {
     setShowModal(false);
     await fetchOffers();
-  };
-
-  const handleDownloadSummary = () => {
-    console.log('Download Summary clicked');
-    // Add logic to download summary
   };
 
   const handleOfferClick = (offerId) => {
@@ -123,11 +113,17 @@ const Offers = ({ listingId }) => {
     }
   });
 
-  const searchedOffers = sortedOffers.filter((offer) =>
-    offer.specialTerms?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const paginatedOffers = sortedOffers.slice((currentPage - 1) * 4, currentPage * 4);
 
-  const paginatedOffers = searchedOffers.slice((currentPage - 1) * 4, currentPage * 4);
+  // Offer counts for dropdowns
+  const statusCounts = {
+    all: offers.length,
+    submitted: offers.filter(o => o.offerStatus === 'submitted').length,
+    'under review': offers.filter(o => o.offerStatus === 'under review').length,
+    rejected: offers.filter(o => o.offerStatus === 'rejected').length,
+    countered: offers.filter(o => o.offerStatus === 'countered').length,
+    accepted: offers.filter(o => o.offerStatus === 'accepted').length,
+  };
 
   return (
     <div className="offers-tab">
@@ -138,12 +134,11 @@ const Offers = ({ listingId }) => {
           <OfferSortBar
             onFilterChange={handleFilterChange}
             onSortChange={handleSortChange}
-            onSearch={handleSearch}
             onAddOffer={handleAddOffer}
-            onDownloadSummary={handleDownloadSummary}
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={handlePageChange}
+            statusCounts={statusCounts}
           />
           <div className="offers-list">
             {loading && (

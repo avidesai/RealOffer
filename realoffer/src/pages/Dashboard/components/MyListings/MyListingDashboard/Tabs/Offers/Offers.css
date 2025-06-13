@@ -1,24 +1,27 @@
 /* Offers.css */
 
 .offers-tab {
-  padding: 1rem;
-  background-color: #f1f1f1;
-  border-radius: 10px;
-  position: relative;
+  padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+  background-color: #f8fafd;
+  border-radius: 0 0 12px 12px;
 }
 
 .offers-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.1rem;
+  margin-top: 0.5rem;
 }
 
 .no-offers-message {
-  margin-top: 1rem;
-  margin-left: 1rem;
-  color: #666;
-  font-size: 16px;
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+  font-size: 1rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 
 .offer-item {
@@ -78,7 +81,7 @@
 }
 
 .offers-tab-spinner-overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -91,16 +94,33 @@
 }
 
 .offers-tab-spinner {
-  border: 8px solid rgba(0, 0, 0, 0.1);
-  border-top: 8px solid #3498db;
+  border: 4px solid rgba(0, 123, 255, 0.1);
+  border-top: 4px solid #007bff;
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
+  width: 40px;
+  height: 40px;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1200px) {
+  .offers-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .offers-tab {
+    padding: 0.7rem 0.2rem 1rem 0.2rem;
+  }
+  .offers-list {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 0.5rem;
   }
 }
