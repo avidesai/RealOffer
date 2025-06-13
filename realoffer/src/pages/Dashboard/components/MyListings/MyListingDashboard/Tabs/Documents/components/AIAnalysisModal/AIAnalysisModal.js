@@ -8,13 +8,11 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [retryCount, setRetryCount] = useState(0);
   const { token } = useAuth();
   const pollingIntervalRef = useRef(null);
-  const retryCountRef = useRef(0);
+  const isInitialRequestRef = useRef(true);
 
-  const MAX_RETRIES = 30; // Maximum number of retries (5 minutes with 10-second interval)
-  const POLLING_INTERVAL = 10000; // 10 seconds
+  const POLLING_INTERVAL = 5000; // 5 seconds
 
   const getProgressMessage = (progress) => {
     const messages = {
@@ -40,55 +38,33 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
     try {
       const response = await api.post('/api/document-analysis/analyze', {
         documentId,
-        forceRefresh: false
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        forceRefresh: isInitialRequestRef.current
       });
 
       setAnalysis(response.data);
       setError(null);
-      retryCountRef.current = 0;
-      setRetryCount(0);
 
-      // If analysis is still processing, continue polling
-      if (response.data.status === 'processing') {
-        if (!pollingIntervalRef.current && retryCountRef.current < MAX_RETRIES) {
-          pollingIntervalRef.current = setInterval(fetchAnalysis, POLLING_INTERVAL);
-        }
-      } else {
-        // If analysis is complete or failed, stop polling
+      // If this is the initial request and analysis is processing, start polling
+      if (isInitialRequestRef.current && response.data.status === 'processing') {
+        isInitialRequestRef.current = false;
+        pollingIntervalRef.current = setInterval(fetchAnalysis, POLLING_INTERVAL);
+      } else if (response.data.status === 'completed' || response.data.status === 'failed') {
         stopPolling();
         setLoading(false);
       }
     } catch (err) {
       console.error('Analysis error:', err);
-      
-      // Handle rate limit error
-      if (err.response?.status === 429) {
-        retryCountRef.current += 1;
-        setRetryCount(retryCountRef.current);
-        
-        if (retryCountRef.current >= MAX_RETRIES) {
-          setError('Analysis is taking longer than expected. Please try again in a few minutes.');
-          setLoading(false);
-          stopPolling();
-        } else {
-          // Wait longer before retrying after rate limit
-          stopPolling();
-          pollingIntervalRef.current = setInterval(fetchAnalysis, POLLING_INTERVAL * 2);
-        }
-      } else {
-        setError(err.response?.data?.message || 'Error analyzing document');
-        setLoading(false);
-        stopPolling();
-      }
+      setError(err.response?.data?.message || 'Error analyzing document');
+      setLoading(false);
+      stopPolling();
     }
-  }, [documentId, token, stopPolling]);
+  }, [documentId, stopPolling]);
 
   useEffect(() => {
     if (isOpen) {
+      isInitialRequestRef.current = true;
+      setLoading(true);
+      setError(null);
       fetchAnalysis();
     }
     return () => {
@@ -97,7 +73,7 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
   }, [isOpen, fetchAnalysis, stopPolling]);
 
   const handleDownload = () => {
-    if (!analysis) return;
+    if (!analysis?.result) return;
 
     const element = document.createElement('a');
     const file = new Blob([analysis.result], { type: 'text/plain' });
@@ -129,11 +105,6 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
               <p className="ai-analysis-status">
                 {getProgressMessage(analysis?.progress)}
               </p>
-              {retryCount > 0 && (
-                <p className="ai-analysis-retry-message">
-                  Retry attempt {retryCount} of {MAX_RETRIES}
-                </p>
-              )}
             </div>
           )}
 
@@ -145,8 +116,7 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
                 onClick={() => {
                   setError(null);
                   setLoading(true);
-                  retryCountRef.current = 0;
-                  setRetryCount(0);
+                  isInitialRequestRef.current = true;
                   fetchAnalysis();
                 }}
               >

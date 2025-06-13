@@ -22,12 +22,22 @@ const hourLimiter = rateLimit({
 
 // Helper function to update analysis progress
 const updateAnalysisProgress = async (analysisId, step, percentage, message) => {
-  await DocumentAnalysis.findByIdAndUpdate(analysisId, {
-    'progress.currentStep': step,
-    'progress.percentage': percentage,
-    'progress.message': message,
-    lastUpdated: new Date()
-  });
+  try {
+    const updatedAnalysis = await DocumentAnalysis.findByIdAndUpdate(
+      analysisId,
+      {
+        'progress.currentStep': step,
+        'progress.percentage': percentage,
+        'progress.message': message,
+        lastUpdated: new Date()
+      },
+      { new: true }
+    );
+    return updatedAnalysis;
+  } catch (error) {
+    console.error('Error updating analysis progress:', error);
+    throw error;
+  }
 };
 
 // Helper function to extract text from PDF using OCR
@@ -193,7 +203,8 @@ exports.analyzeDocument = async (req, res) => {
     };
     await analysis.save();
 
-    res.json({
+    // Return the final analysis result
+    return res.json({
       status: 'completed',
       result: analysis.analysisResult,
       progress: analysis.progress,
@@ -214,7 +225,7 @@ exports.analyzeDocument = async (req, res) => {
       await analysis.save();
     }
 
-    res.status(500).json({
+    return res.status(500).json({
       message: 'Error analyzing document',
       error: error.message,
       progress: analysis?.progress
