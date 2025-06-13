@@ -78,6 +78,7 @@ const extractTextFromPDF = async (pdfBuffer, analysisId) => {
 };
 
 exports.analyzeDocument = async (req, res) => {
+  let analysis = null;
   try {
     const { documentId, forceRefresh } = req.body;
 
@@ -93,7 +94,7 @@ exports.analyzeDocument = async (req, res) => {
     }
 
     // Check for existing analysis
-    let analysis = await DocumentAnalysis.findOne({ document: documentId });
+    analysis = await DocumentAnalysis.findOne({ document: documentId });
     
     if (analysis && !forceRefresh) {
       return res.json({
@@ -109,7 +110,12 @@ exports.analyzeDocument = async (req, res) => {
       analysis = new DocumentAnalysis({
         document: documentId,
         analysisType: document.type === 'Home Inspection Report' ? 'home_inspection' : 'pest_inspection',
-        status: 'processing'
+        status: 'processing',
+        progress: {
+          currentStep: 'initializing',
+          percentage: 0,
+          message: 'Starting analysis...'
+        }
       });
       await analysis.save();
     } else {
@@ -196,7 +202,7 @@ exports.analyzeDocument = async (req, res) => {
   } catch (error) {
     console.error('Error analyzing document:', error);
     
-    // Update analysis with error
+    // Update analysis with error if it exists
     if (analysis) {
       analysis.status = 'failed';
       analysis.error = error.message;
