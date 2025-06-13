@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
-import api from '../../../../../../../../../../../context/api';
+import api from '../../../../../../../../../context/api';
+import { useAuth } from '../../../../../../../../../context/AuthContext';
 import './AIAnalysisModal.css';
 
 const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
@@ -8,6 +9,7 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pollingInterval, setPollingInterval] = useState(null);
+  const { token } = useAuth();
 
   const getProgressMessage = (progress) => {
     const messages = {
@@ -27,6 +29,10 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
       const response = await api.post('/api/document-analysis/analyze', {
         documentId,
         forceRefresh: false
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       setAnalysis(response.data);
@@ -47,6 +53,7 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
         setLoading(false);
       }
     } catch (err) {
+      console.error('Analysis error:', err);
       setError(err.response?.data?.message || 'Error analyzing document');
       setLoading(false);
       if (pollingInterval) {
@@ -54,7 +61,7 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
         setPollingInterval(null);
       }
     }
-  }, [documentId, pollingInterval]);
+  }, [documentId, pollingInterval, token]);
 
   useEffect(() => {
     if (isOpen) {

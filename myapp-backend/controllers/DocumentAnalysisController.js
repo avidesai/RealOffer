@@ -157,26 +157,28 @@ exports.analyzeDocument = async (req, res) => {
          5. Recommended Actions
          Format the response in markdown.`;
 
-    // Call OpenAI API
+    // Call Claude API
     await updateAnalysisProgress(analysis._id, 'analyzing', 70, 'Analyzing document content...');
-    const openaiResponse = await axios.post('https://api.openai.com/v1/chat/completions', {
-      model: 'gpt-4',
+    const claudeResponse = await axios.post('https://api.anthropic.com/v1/messages', {
+      model: 'claude-3-haiku-20240307',
+      max_tokens: 1000,
       messages: [
-        { role: 'system', content: 'You are a professional real estate document analyzer.' },
-        { role: 'user', content: `${prompt}\n\nDocument content:\n${text}` }
-      ],
-      temperature: 0.7,
-      max_tokens: 1000
+        {
+          role: 'user',
+          content: `${prompt}\n\nDocument content:\n${text}`
+        }
+      ]
     }, {
       headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json'
+        'x-api-key': process.env.CLAUDE_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json'
       }
     });
 
     // Save analysis results
     await updateAnalysisProgress(analysis._id, 'saving', 90, 'Saving analysis results...');
-    analysis.analysisResult = openaiResponse.data.choices[0].message.content;
+    analysis.analysisResult = claudeResponse.data.content[0].text;
     analysis.status = 'completed';
     analysis.progress = {
       currentStep: 'completed',
