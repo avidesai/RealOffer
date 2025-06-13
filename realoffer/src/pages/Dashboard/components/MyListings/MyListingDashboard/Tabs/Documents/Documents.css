@@ -123,14 +123,10 @@
 }
 
 .document-checkbox {
-  position: absolute;
-  left: 18px;
-  top: 50%;
-  width: 22px;
-  height: 22px;
-  cursor: pointer;
-  margin-bottom: 0;
-  transform: translateY(-50%);
+  margin-right: 0.7rem;
+  position: relative;
+  top: 0;
+  transform: none;
 }
 
 @media (min-width: 768px) {
@@ -183,31 +179,26 @@
   margin: 0 0.25rem;
 }
 
-.document-actions {
+.documents-list .document-actions {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  padding-right: 0;
-  opacity: 1;
-  flex-wrap: wrap;
+  flex-direction: row;
+  gap: 0.8rem;
+  justify-content: flex-start;
   align-items: center;
+  flex-wrap: wrap;
+  margin-top: 1.2rem;
 }
 
-@media (min-width: 768px) {
-  .document-actions {
-    margin-top: -10px;
-    padding-right: 1rem;
-    opacity: 0;
-    align-items: center;
-  }
-  .document-item:hover .document-actions {
-    opacity: 1;
-  }
-}
-
-/* Remove all custom document-actions button overrides */
-.document-actions .document-actions-button {
-  /* No extra styles, inherit from .add-documents-button or .delete-button */
+.documents-list .document-actions .add-documents-button,
+.documents-list .document-actions .delete-button,
+.documents-list .document-actions .ai-analysis-ribbon {
+  width: auto;
+  min-width: 90px;
+  padding: 10px 18px;
+  font-size: 14px;
+  border-radius: 10px;
+  margin: 0;
+  box-sizing: border-box;
 }
 
 .selected {
@@ -246,10 +237,9 @@
   background: white;
   color: #262626;
   border: 2px solid transparent;
-  border-radius: 10px;
-  padding: 12px 26px;
-  font-size: 15px;
-  font-weight: 600;
+  border-radius: 10px !important;
+  padding: 10px 18px !important;
+  font-size: 14px !important;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0,0,0,0.03);
   transition: background 0.18s, box-shadow 0.18s, color 0.18s;
@@ -268,12 +258,18 @@
 
 /* Make document action buttons in .documents-list smaller and increase spacing */
 .documents-list .document-actions {
-  gap: 0.8rem;
+  margin-top: 1.2rem;
 }
 
-.documents-list .document-actions .add-documents-button,
-.documents-list .document-actions .delete-button,
-.documents-list .document-actions .ai-analysis-ribbon {
-  padding: 10px 18px;
-  font-size: 14px;
+@media (max-width: 767px) {
+  /* Hide the document checkbox on mobile */
+  .document-checkbox {
+    display: none !important;
+  }
+  /* Center the document actions row and make it look balanced */
+  .documents-list .document-actions {
+    justify-content: center;
+    margin-left: 0;
+    margin-right: 0;
+  }
 }
