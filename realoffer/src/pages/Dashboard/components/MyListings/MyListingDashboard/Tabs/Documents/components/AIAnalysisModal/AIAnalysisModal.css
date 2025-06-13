@@ -197,59 +197,6 @@
   background-color: #218838;
 }
 
-/* AI Analysis Button Styles */
-.ai-analysis-button {
-  background: linear-gradient(135deg, #007bff, #00c6ff);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  min-width: 180px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  box-shadow: 0 2px 10px rgba(0, 123, 255, 0.2);
-}
-
-.ai-analysis-button::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(135deg, #007bff, #00c6ff);
-  border-radius: 10px;
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.ai-analysis-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-}
-
-.ai-analysis-button:hover::before {
-  opacity: 1;
-}
-
-.ai-analysis-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
-}
-
-.ai-analysis-button i {
-  font-size: 1.1rem;
-}
-
 /* Markdown content styling */
 .ai-analysis-content h1,
 .ai-analysis-content h2,
