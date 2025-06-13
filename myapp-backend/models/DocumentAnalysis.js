@@ -16,6 +16,15 @@ const documentAnalysisSchema = new mongoose.Schema({
     enum: ['processing', 'completed', 'failed'],
     default: 'processing'
   },
+  progress: {
+    currentStep: {
+      type: String,
+      enum: ['initializing', 'extracting_text', 'performing_ocr', 'analyzing', 'saving'],
+      default: 'initializing'
+    },
+    percentage: { type: Number, default: 0 },
+    message: { type: String, default: 'Starting analysis...' }
+  },
   analysisResult: {
     type: String,
     default: null
