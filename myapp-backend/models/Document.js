@@ -20,6 +20,7 @@ const documentSchema = new mongoose.Schema({
   docType: { type: String, required: true },
   signed: { type: Boolean, default: false },
   analysis: { type: mongoose.Schema.Types.ObjectId, ref: 'DocumentAnalysis', required: false },
+  analyzed: { type: Boolean, default: false },
   
   // DocuSign integration fields
   docusignEnvelopeId: { type: String },

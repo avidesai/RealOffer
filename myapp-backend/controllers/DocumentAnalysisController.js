@@ -106,11 +106,16 @@ exports.analyzeDocument = async (req, res) => {
     // Check for existing analysis
     analysis = await DocumentAnalysis.findOne({ document: documentId });
     
-    if (analysis && !forceRefresh) {
+    // If document is already analyzed and we're not forcing a refresh, return existing analysis
+    if (document.analyzed && analysis && !forceRefresh) {
       return res.json({
-        status: analysis.status,
+        status: 'completed',
         result: analysis.analysisResult,
-        progress: analysis.progress,
+        progress: {
+          currentStep: 'completed',
+          percentage: 100,
+          message: 'Analysis completed'
+        },
         lastUpdated: analysis.lastUpdated
       });
     }
@@ -138,8 +143,9 @@ exports.analyzeDocument = async (req, res) => {
       await analysis.save();
     }
 
-    // Update document reference
+    // Update document reference and analyzed flag
     document.analysis = analysis._id;
+    document.analyzed = false;
     await document.save();
 
     // Generate SAS token for document access
@@ -203,11 +209,19 @@ exports.analyzeDocument = async (req, res) => {
     };
     await analysis.save();
 
+    // After successful analysis, update the analyzed flag
+    document.analyzed = true;
+    await document.save();
+
     // Return the final analysis result
     return res.json({
       status: 'completed',
       result: analysis.analysisResult,
-      progress: analysis.progress,
+      progress: {
+        currentStep: 'completed',
+        percentage: 100,
+        message: 'Analysis completed successfully'
+      },
       lastUpdated: analysis.lastUpdated
     });
   } catch (error) {
