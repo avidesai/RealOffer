@@ -66,7 +66,7 @@
 .action-buttons {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.8rem;
   width: 100%;
 }
 
@@ -74,6 +74,7 @@
   .action-buttons {
     flex-direction: row;
     width: auto;
+    gap: 0.8rem;
   }
 }
 
@@ -236,4 +237,43 @@
 
 .documents-list .document-item:first-child {
   margin-top: 0.1rem;
+}
+
+/* AI Analysis Ribbon Gradient Border Effect - static border only, white fill */
+.ai-analysis-ribbon {
+  position: relative;
+  z-index: 1;
+  background: white;
+  color: #262626;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: 12px 26px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  transition: background 0.18s, box-shadow 0.18s, color 0.18s;
+  overflow: hidden;
+  background-image:
+    linear-gradient(white, white),
+    linear-gradient(90deg, #007bff, #00c6ff, #10b981, #f59e42, #e34d8c, #007bff);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+/* Remove previous ::before and animation for ai-analysis-ribbon */
+.ai-analysis-ribbon::before {
+  display: none;
+}
+
+/* Make document action buttons in .documents-list smaller and increase spacing */
+.documents-list .document-actions {
+  gap: 0.8rem;
+}
+
+.documents-list .document-actions .add-documents-button,
+.documents-list .document-actions .delete-button,
+.documents-list .document-actions .ai-analysis-ribbon {
+  padding: 10px 18px;
+  font-size: 14px;
 }

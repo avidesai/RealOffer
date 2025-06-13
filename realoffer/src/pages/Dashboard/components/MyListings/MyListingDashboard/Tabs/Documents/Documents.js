@@ -209,9 +209,12 @@ const Documents = ({ listingId }) => {
                   </div>
                 </div>
                 <div className="document-actions">
+                  <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
+                    <button className="add-documents-button document-actions-button">Download</button>
+                  </a>
                   {(doc.type === 'Home Inspection Report' || doc.type === 'Pest Inspection Report') && (
                     <button 
-                      className="add-documents-button document-actions-button"
+                      className="add-documents-button document-actions-button ai-analysis-ribbon"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleAIAnalysis(doc);
@@ -220,9 +223,6 @@ const Documents = ({ listingId }) => {
                       AI Analysis
                     </button>
                   )}
-                  <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
-                    <button className="add-documents-button document-actions-button">Download</button>
-                  </a>
                   {doc.purpose !== 'signature_package' && (
                     <button className="delete-button document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
                       Delete
