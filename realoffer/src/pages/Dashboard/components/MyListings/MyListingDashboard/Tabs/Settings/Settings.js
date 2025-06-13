@@ -58,17 +58,19 @@ const Settings = ({ listing, onStatusChange }) => {
           <div className="spinner"></div>
         </div>
       )}
-      <div className="settings-section">
-        <h2 className="settings-title">Archive Package</h2>
-        <p className="settings-description">Archived packages are read only and buyer parties lose access.</p>
-        <button className="archive-button" onClick={handleArchivePackage}>
-          {listing.status === 'active' ? 'Archive Package' : 'Unarchive Package'}
-        </button>
-      </div>
-      <div className="settings-section danger-zone">
-        <h2 className="settings-title">Danger Zone</h2>
-        <p className="settings-description">Delete this package. This action cannot be undone.</p>
-        <button className="settings-delete-button" onClick={handleDeletePackage}>Delete Package</button>
+      <div className="settings-sections-row">
+        <div className="settings-section">
+          <h2 className="settings-title">Archive Package</h2>
+          <p className="settings-description">Archived packages are read only and buyer parties lose access.</p>
+          <button className="archive-button" onClick={handleArchivePackage}>
+            {listing.status === 'active' ? 'Archive Package' : 'Unarchive Package'}
+          </button>
+        </div>
+        <div className="settings-section danger-zone">
+          <h2 className="settings-title">Danger Zone</h2>
+          <p className="settings-description">Delete this package. This action cannot be undone.</p>
+          <button className="settings-delete-button" onClick={handleDeletePackage}>Delete Package</button>
+        </div>
       </div>
     </div>
   );

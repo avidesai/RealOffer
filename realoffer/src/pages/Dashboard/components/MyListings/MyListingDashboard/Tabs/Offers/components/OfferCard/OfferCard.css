@@ -18,7 +18,9 @@
 
 .offer-card-header {
   display: flex;
+  flex-direction: row;
   align-items: center;
+  justify-content: center;
   margin-bottom: 1.25rem;
 }
 
@@ -47,6 +49,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  align-items: flex-start;
+  text-align: left;
 }
 
 .offer-agent-name {
@@ -142,32 +146,51 @@
 }
 
 .offer-details strong {
-  color: #6c757d;
+  color: #2c3e50;
   font-weight: 500;
 }
 
+/* Private Notes Section */
 .offer-card-footer {
   margin-top: 1.1rem;
   margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .offer-card-footer p {
-  margin: 0.75rem 0;
-  font-size: 0.9rem;
-  color: #6c757d;
-  font-weight: 500;
+  margin: 0.75rem 0 0.5rem 0;
+  font-size: 0.95rem;
+  color: #2c3e50;
+  font-weight: 600;
+  text-align: left;
+  width: 95%;
+  max-width: 420px;
 }
 
 .team-notes {
+  width: 95%;
+  max-width: 420px;
+  min-height: 100px;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  border: 1.5px solid #e1e4e8;
+  font-size: 0.92rem;
   font-family: inherit;
-  margin-top: 0.5rem;
+  margin-top: 0.2rem;
   margin-bottom: 0.7rem;
+  resize: vertical;
+  background: #fafbfc;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
 .team-notes:focus {
   outline: none;
   border-color: #007bff;
-  box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+  box-shadow: 0 0 0 3px rgba(0,123,255,0.08);
+  background: #fff;
 }
 
 .team-notes::placeholder {

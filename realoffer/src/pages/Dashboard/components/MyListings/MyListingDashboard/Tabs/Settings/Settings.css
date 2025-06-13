@@ -1,78 +1,111 @@
 /* /Tabs/Settings/Settings.css */
 
 .settings-container {
-  padding: 2rem;
-  background-color: #f1f1f1;
-  border-radius: 10px;
+  padding: 2.2rem 1.5rem;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  height: 100%;
-  position: relative; /* Ensure that the overlay covers the entire container */
+  justify-content: center;
+  max-width: 720px;
+  margin: 2.5rem auto 0 auto;
+  position: relative;
 }
 
-.settings-section {
-  margin: 0 40px 20px 40px; /* Add horizontal margin */
+.settings-sections-row {
+  display: flex;
+  flex-direction: row;
+  gap: 2.2rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.settings-section,
+.danger-zone {
+  width: 100%;
+  max-width: 340px;
+  margin: 0;
+  padding: 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .settings-title {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.18rem;
+  font-weight: 700;
   color: #2c3e50;
-  margin-bottom: 10px;
+  margin-bottom: 0.5rem;
+  text-align: center;
 }
 
 .settings-description {
-  font-size: 1rem;
-  color: #7f8c8d;
-  margin-bottom: 20px;
+  font-size: 0.97rem;
+  color: #7a8595;
+  margin-bottom: 1.1rem;
+  text-align: center;
 }
 
 .archive-button,
 .settings-delete-button {
-  border-radius: 10px;
+  border-radius: 8px;
   display: inline-block;
-  padding: 10px 20px;
-  font-size: 1rem;
+  padding: 0.65rem 1.5rem;
+  font-size: 0.97rem;
   font-weight: 600;
   text-align: center;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background 0.2s, color 0.2s;
+  border: none;
+  margin-top: 0.2rem;
 }
 
 .archive-button {
-  background-color: #dfdfdf; /* Neutral grey */
-  color: #000;
-  border: none;
+  background: #f4f6f8;
+  color: #222;
+  border: 1.5px solid #e1e4e8;
 }
-
 .archive-button:hover {
-  background-color: #868686; /* Neutral grey */
-  color: #fff;
+  background: #e1e4e8;
+  color: #007bff;
+  border-color: #007bff;
 }
 
+.danger-zone {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.danger-zone .settings-title {
+  color: #c0392b;
+}
 .danger-zone .settings-delete-button {
-  background-color: #e74c3c;
+  background: #e74c3c;
   color: #fff;
   border: none;
+  margin-top: 0.5rem;
 }
-
 .danger-zone .settings-delete-button:hover {
-  background-color: #c0392b;
+  background: #c0392b;
 }
 
-/* Spinner overlay styles */
 .spinner-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.1); /* Shaded background similar to Documents.css */
+  background-color: rgba(0, 0, 0, 0.08);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* Ensure it covers everything else */
+  z-index: 1000;
 }
 
 .spinner {
@@ -87,4 +120,16 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 900px) {
+  .settings-sections-row {
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+  .settings-section,
+  .danger-zone {
+    max-width: 100%;
+  }
 }
