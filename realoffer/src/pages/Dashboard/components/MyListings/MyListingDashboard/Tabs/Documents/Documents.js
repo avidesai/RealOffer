@@ -3,11 +3,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../../../../../context/AuthContext';
-import { useLocation } from 'react-router-dom';
 import './Documents.css';
 import UploadDocumentsLogic from './components/UploadDocuments/UploadDocumentsLogic';
 import PDFViewer from './components/PDFViewer/PDFViewer';
 import CreateSignaturePackage from './components/CreateSignaturePackage/CreateSignaturePackage';
+import AIAnalysisModal from './components/AIAnalysisModal/AIAnalysisModal';
 
 axios.defaults.withCredentials = true;
 
@@ -23,8 +23,8 @@ const Documents = ({ listingId }) => {
   const [currentDocType, setCurrentDocType] = useState('');
   const [showSignaturePackageModal, setShowSignaturePackageModal] = useState(false);
   const [hasSignaturePackage, setHasSignaturePackage] = useState(false);
-
-  const location = useLocation();
+  const [showAIAnalysis, setShowAIAnalysis] = useState(false);
+  const [selectedDocumentForAnalysis, setSelectedDocumentForAnalysis] = useState(null);
 
   const fetchListingData = useCallback(async () => {
     try {
@@ -150,6 +150,16 @@ const Documents = ({ listingId }) => {
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
+  const handleAIAnalysis = (doc) => {
+    setSelectedDocumentForAnalysis(doc);
+    setShowAIAnalysis(true);
+  };
+
+  const closeAIAnalysis = () => {
+    setShowAIAnalysis(false);
+    setSelectedDocumentForAnalysis(null);
+  };
+
   return (
     <div className="documents-tab">
       <div className="documents-header">
@@ -202,6 +212,17 @@ const Documents = ({ listingId }) => {
                   <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
                     <button className="download-action-button document-actions-button">Download</button>
                   </a>
+                  {(doc.type === 'Home Inspection Report' || doc.type === 'Pest Inspection Report') && (
+                    <button 
+                      className="ai-analysis-button document-actions-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAIAnalysis(doc);
+                      }}
+                    >
+                      AI Analysis
+                    </button>
+                  )}
                   {doc.purpose !== 'signature_package' && (
                     <button className="delete-action-button document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
                       Delete
@@ -236,6 +257,14 @@ const Documents = ({ listingId }) => {
           onClose={closeSignaturePackageModal}
           refreshDocuments={fetchDocuments}
           hasSignaturePackage={hasSignaturePackage}
+        />
+      )}
+      {showAIAnalysis && selectedDocumentForAnalysis && (
+        <AIAnalysisModal
+          isOpen={showAIAnalysis}
+          onClose={closeAIAnalysis}
+          documentId={selectedDocumentForAnalysis._id}
+          documentType={selectedDocumentForAnalysis.type}
         />
       )}
     </div>

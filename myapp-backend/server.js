@@ -140,6 +140,7 @@ const offersRouter = require('./routes/offers');
 const activitiesRouter = require('./routes/activities');
 const messagesRouter = require('./routes/messages');
 const docusignRouter = require('./routes/docusign');
+const documentAnalysisRouter = require('./routes/documentAnalysis');
 
 // Route Usage
 app.use('/api/users', usersRouter);
@@ -151,6 +152,7 @@ app.use('/api/offers', offersRouter);
 app.use('/api/activities', activitiesRouter);
 app.use('/api/messages', messagesRouter);
 app.use('/api/docusign', docusignRouter);
+app.use('/api/document-analysis', documentAnalysisRouter);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

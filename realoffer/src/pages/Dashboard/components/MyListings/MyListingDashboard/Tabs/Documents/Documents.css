@@ -267,3 +267,14 @@
 .documents-list .document-item:first-child {
   margin-top: 0.1rem;
 }
+
+.ai-analysis-button {
+  background-color: #10b981;
+  color: #fff;
+  border: none;
+}
+
+.ai-analysis-button:hover {
+  background-color: #059669;
+  transform: scale(1.04);
+}

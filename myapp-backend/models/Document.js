@@ -19,6 +19,7 @@ const documentSchema = new mongoose.Schema({
   offer: { type: mongoose.Schema.Types.ObjectId, ref: 'Offer', required: false },
   docType: { type: String, required: true },
   signed: { type: Boolean, default: false },
+  analysis: { type: mongoose.Schema.Types.ObjectId, ref: 'DocumentAnalysis', required: false },
   
   // DocuSign integration fields
   docusignEnvelopeId: { type: String },
