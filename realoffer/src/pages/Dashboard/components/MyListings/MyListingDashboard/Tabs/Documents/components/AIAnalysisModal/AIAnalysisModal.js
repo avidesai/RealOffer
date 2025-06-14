@@ -14,6 +14,13 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
 
   const POLLING_INTERVAL = 5000; // 5 seconds
 
+  const getModalTitle = () => {
+    if (documentType && documentType.toLowerCase().includes('pest')) {
+      return 'Pest Inspection Report Analysis';
+    }
+    return 'Home Inspection Report Analysis';
+  };
+
   const getProgressMessage = (progress) => {
     const messages = {
       initializing: 'Initializing analysis...',
@@ -41,7 +48,12 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
         forceRefresh: isInitialRequestRef.current
       });
 
-      setAnalysis(response.data);
+      // Remove "Here is a structured summary..." if present
+      let result = response.data.result;
+      if (result && result.trim().toLowerCase().startsWith('here is a structured summary')) {
+        result = result.replace(/^.*?\n+/i, '');
+      }
+      setAnalysis({ ...response.data, result });
       setError(null);
 
       // If this is the initial request and analysis is processing, start polling
@@ -90,8 +102,8 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
     <div className="ai-analysis-modal-overlay">
       <div className="ai-analysis-modal">
         <div className="ai-analysis-modal-header">
-          <h2>AI Analysis - {documentType}</h2>
-          <button className="ai-analysis-close-button" onClick={onClose}>×</button>
+          <h2>{getModalTitle()}</h2>
+          <button className="ai-analysis-close-button" onClick={onClose} aria-label="Close">×</button>
         </div>
         <div className="ai-analysis-modal-content">
           {loading && (
@@ -131,8 +143,8 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
                 <ReactMarkdown>{analysis.result}</ReactMarkdown>
               </div>
               <div className="ai-analysis-footer">
-                <button className="ai-analysis-close-button" onClick={onClose}>
-                  Close
+                <button className="ai-analysis-close-button" onClick={onClose} aria-label="Close">
+                  ×
                 </button>
               </div>
               <div className="ai-analysis-actions">

@@ -103,24 +103,30 @@ exports.analyzeDocument = async (req, res) => {
       return res.status(400).json({ message: 'Document type not supported for analysis' });
     }
 
-    // Check for existing analysis
-    analysis = await DocumentAnalysis.findOne({ document: documentId });
-    
-    // If document is already analyzed and we're not forcing a refresh, return existing analysis
-    if (document.analyzed && analysis && !forceRefresh) {
-      return res.json({
-        status: 'completed',
-        result: analysis.analysisResult,
-        progress: {
-          currentStep: 'completed',
-          percentage: 100,
-          message: 'Analysis completed'
-        },
-        lastUpdated: analysis.lastUpdated
-      });
+    // Robust analysis retrieval
+    if (document.analysis) {
+      analysis = await DocumentAnalysis.findById(document.analysis);
+      if (
+        analysis &&
+        analysis.status === 'completed' &&
+        analysis.analysisResult &&
+        !forceRefresh
+      ) {
+        // Return cached result
+        return res.json({
+          status: 'completed',
+          result: analysis.analysisResult,
+          progress: {
+            currentStep: 'completed',
+            percentage: 100,
+            message: 'Analysis completed'
+          },
+          lastUpdated: analysis.lastUpdated
+        });
+      }
     }
 
-    // Create new analysis or reset existing one
+    // If no completed analysis, create or reset
     if (!analysis) {
       analysis = new DocumentAnalysis({
         document: documentId,
@@ -133,6 +139,9 @@ exports.analyzeDocument = async (req, res) => {
         }
       });
       await analysis.save();
+      document.analysis = analysis._id;
+      document.analyzed = false;
+      await document.save();
     } else {
       analysis.status = 'processing';
       analysis.progress = {
@@ -141,12 +150,9 @@ exports.analyzeDocument = async (req, res) => {
         message: 'Starting new analysis...'
       };
       await analysis.save();
+      document.analyzed = false;
+      await document.save();
     }
-
-    // Update document reference and analyzed flag
-    document.analysis = analysis._id;
-    document.analyzed = false;
-    await document.save();
 
     // Generate SAS token for document access
     const sasToken = generateSASToken(document.azureKey);
@@ -164,20 +170,8 @@ exports.analyzeDocument = async (req, res) => {
     // Prepare prompt based on document type
     await updateAnalysisProgress(analysis._id, 'analyzing', 50, 'Preparing analysis...');
     const prompt = document.type === 'Home Inspection Report'
-      ? `Analyze this home inspection report and provide a structured summary with the following sections:
-         1. Overall Condition
-         2. Major Issues
-         3. Minor Issues
-         4. Safety Concerns
-         5. Recommended Actions
-         Format the response in markdown.`
-      : `Analyze this pest inspection report and provide a structured summary with the following sections:
-         1. Overall Findings
-         2. Active Infestations
-         3. Previous Infestations
-         4. Preventive Measures
-         5. Recommended Actions
-         Format the response in markdown.`;
+      ? `You are an expert real estate advisor. Read the following home inspection report and provide a clear, useful summary for a home buyer and their agent. Structure your response as follows:\n\n1. Overall Condition\n   - Give a brief summary of the overall state of the home.\n2. Major Issues\n   - List any major or urgent issues that require attention.\n3. Minor Issues\n   - List minor or cosmetic issues.\n\nDo not include a section called 'Recommended Actions'. Do not start your response with 'Here is a structured summary...' or similar. Use clear, professional language and bullet points or numbered lists where appropriate.\n\nReport content:\n${text}`
+      : `You are a licensed pest inspector and real estate advisor. Read the following pest inspection report and provide a clear, helpful summary for home buyers and agents. Structure your response as follows:\n\n1. Overall Findings\n   - Briefly summarize the pest status of the property.\n2. Active Infestations\n   - List any active infestations and their locations.\n3. Previous Infestations\n   - List any previous infestations or treatments.\n4. Preventive Measures\n   - List any recommended preventive measures.\n\nDo not include a section called 'Recommended Actions'. Do not start your response with 'Here is a structured summary...' or similar. Use clear, professional language and bullet points or numbered lists where appropriate.\n\nReport content:\n${text}`;
 
     // Call Claude API
     await updateAnalysisProgress(analysis._id, 'analyzing', 70, 'Analyzing document content...');
@@ -187,7 +181,7 @@ exports.analyzeDocument = async (req, res) => {
       messages: [
         {
           role: 'user',
-          content: `${prompt}\n\nDocument content:\n${text}`
+          content: prompt
         }
       ]
     }, {
