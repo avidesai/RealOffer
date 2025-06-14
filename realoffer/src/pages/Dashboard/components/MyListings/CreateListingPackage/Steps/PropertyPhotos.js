@@ -1,10 +1,11 @@
 // /CreateListingPackage/Steps/PropertyPhotos.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const PropertyPhotos = ({ handleFileChange, handleSubmit, handlePrevStep, loading, formData }) => {
   const [previews, setPreviews] = useState([]);
+  const fileInputRef = useRef();
 
   useEffect(() => {
     // Create URL previews for the selected files
@@ -39,18 +40,46 @@ const PropertyPhotos = ({ handleFileChange, handleSubmit, handlePrevStep, loadin
     setPreviews(previewItems);
   };
 
+  // Drag-and-drop and click handler
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFileChange({ target: { name: 'propertyImages', files: e.dataTransfer.files } });
+    }
+  };
+
+  const handleAreaClick = () => {
+    if (fileInputRef.current) fileInputRef.current.click();
+  };
+
   return (
     <div className="clp-step">
       <h2>Property Photos (Optional)</h2>
-      <input
-        type="file"
-        name="propertyImages"
-        multiple
-        onChange={handleFileChange}
-        className="clp-input"
-        accept="image/*"
-      />
-      
+      <label
+        className="clp-photo-upload-area"
+        tabIndex={0}
+        onClick={handleAreaClick}
+        onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && handleAreaClick()}
+        onDrop={handleDrop}
+        onDragOver={e => e.preventDefault()}
+        aria-label="Upload property photos"
+      >
+        <span className="clp-photo-upload-icon" aria-hidden="true">📷</span>
+        <span className="clp-photo-upload-text">Click or drag photos to upload</span>
+        <span className="clp-photo-upload-hint">JPG, PNG, up to 10MB each</span>
+        <input
+          type="file"
+          name="propertyImages"
+          multiple
+          onChange={handleFileChange}
+          className="clp-photo-upload-input"
+          accept="image/*"
+          ref={fileInputRef}
+          tabIndex={-1}
+        />
+      </label>
+
       {previews.length > 0 && (
         <div className="photo-preview-container">
           <DragDropContext onDragEnd={handleDragEnd}>

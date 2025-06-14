@@ -1,35 +1,92 @@
 .my-listings {
-  padding: 0.5rem 2rem 2rem 2rem;
+  padding: 0.5rem 2.5rem 2rem 2.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .create-property-package {
   text-align: left;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 }
 
 .create-package-button {
-  padding: 0.6rem 1.5rem;
-  background-color: rgb(35, 167, 255); /* Match your site's color scheme */
+  padding: 0.8rem 1.8rem;
+  background: linear-gradient(135deg, #1b5cf3 0%, #4078fb 100%);
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 10px;
   cursor: pointer;
-  font-weight: bold;
-  font-size: 0.8rem;
-  transition: background-color 0.3s ease;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(27, 92, 243, 0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .create-package-button:hover {
-  background-color: #0056b3;
+  background: linear-gradient(135deg, #1544b2 0%, #3460c8 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(27, 92, 243, 0.3);
 }
 
 .listings-container {
   opacity: 1;
-  transition: opacity 0.1s ease-in-out;
+  transition: all 0.3s ease;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
 }
 
 .mylistings-error {
-  padding-left: 0.5rem;
-  padding-top: 1rem;
-  color: rgb(0, 0, 0);
+  padding: 1.5rem;
+  color: #e53e3e;
+  background-color: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 1rem 0;
+  box-shadow: 0 2px 8px rgba(229, 62, 62, 0.1);
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #1b5cf3;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .my-listings {
+    padding: 1.5rem 1rem;
+  }
+
+  .create-package-button {
+    padding: 0.7rem 1.4rem;
+    font-size: 0.9rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .listings-container {
+    padding: 1rem;
+    border-radius: 12px;
+  }
 }

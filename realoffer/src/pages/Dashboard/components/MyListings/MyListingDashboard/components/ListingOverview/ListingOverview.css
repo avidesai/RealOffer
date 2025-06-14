@@ -2,38 +2,41 @@
 
 .listing-overview {
   position: relative;
-  padding: 2rem;
-  padding-top: 2rem;
-  padding-bottom: 0.5rem;
-  padding-left: 3rem;
-  padding-right: 3rem;
+  padding: 2.5rem;
+  padding-top: 2.5rem;
+  padding-bottom: 1rem;
+  padding-left: 3.5rem;
+  padding-right: 3.5rem;
   background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .overview-header {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .overview-image {
   position: relative;
-  margin-right: 2rem;
-  cursor: pointer; /* Change cursor to pointer on hover */
-}
-
-.property-image {
-  width: 200px;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 10px;
+  margin-right: 2.5rem;
+  cursor: pointer;
   transition: transform 0.3s ease;
 }
 
+.property-image {
+  width: 220px;
+  height: 165px;
+  object-fit: cover;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 .property-image:hover {
-  transform: scale(1.025);
+  transform: scale(1.03);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
 .overview-details {
@@ -42,65 +45,74 @@
 
 .property-address {
   margin: 0;
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 26px;
+  font-weight: 600;
+  color: #1a1a1a;
+  letter-spacing: -0.5px;
 }
 
 .property-location,
 .property-price {
-  margin: 10px 0;
-  color: #555;
+  margin: 12px 0;
+  color: #4a4a4a;
+  font-size: 1.05rem;
 }
 
 .space {
   display: inline-block;
-  margin: 0 6px; /* Adjust the value to increase or decrease space */
+  margin: 0 8px;
+  color: #999;
 }
 
-
 .overview-buttons {
-  margin-top: 10px;
+  margin-top: 16px;
 }
 
 .overview-btn {
-  background-color: #e7e7e7;
+  background-color: #f5f5f5;
   color: #333;
-  border: 2px solid #d0d0d0;
-  border-radius: 20px;
-  padding: 8px 15px;
-  margin: 10px 10px 10px 0;
+  border: 1px solid #e0e0e0;
+  border-radius: 24px;
+  padding: 10px 20px;
+  margin: 10px 12px 10px 0;
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
 .overview-btn:hover {
-  background-color: #999999;
-  color: #ffffff;
+  background-color: #e0e0e0;
+  color: #1a1a1a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .overview-btn-share-package {
-  background-color: #32b643;
+  background-color: #2ecc71;
   color: #ffffff;
-  border: 2px solid #e7e7e7;
-  border-radius: 20px;
-  padding: 8px 15px;
-  margin: 10px 10px 10px 0;
+  border: none;
+  border-radius: 24px;
+  padding: 10px 20px;
+  margin: 10px 12px 10px 0;
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
 .overview-btn-share-package:hover {
-  background-color: #238c31;
+  background-color: #27ae60;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.2);
 }
 
 .overview-agents {
   position: absolute;
-  top: 3rem;
-  right: 3rem;
+  top: 3.5rem;
+  right: 3.5rem;
   display: flex;
   flex-direction: column;
   text-align: right;
@@ -109,22 +121,24 @@
 .listing-overview-agent-info {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
 }
 
 .listing-overview-agent-image {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   object-fit: cover;
   border-radius: 50%;
-  margin-right: 1.1rem;
+  margin-right: 1.2rem;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .listing-overview-agent-info p {
   margin: 0;
-  font-size: 1.05rem;
-  font-weight: 450;
-  color: #000000;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #1a1a1a;
 }
 
 /* Spinner overlay with grayed-out background */

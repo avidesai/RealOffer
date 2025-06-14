@@ -3,76 +3,87 @@
 .address-autocomplete-container {
   position: relative;
   width: 100%;
+  margin-bottom: 1.25rem;
 }
 
 .address-autocomplete-input {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 0; /* Remove bottom margin */
-  border: 1px solid #dddddd;
-  border-radius: 5px;
-  font-size: 1rem;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+  padding: 0.875rem 1.125rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
   box-sizing: border-box;
   background-color: #fff;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.2s ease;
+  color: #2d3748;
 }
 
 .address-autocomplete-input:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  border-color: #1b5cf3;
+  box-shadow: 0 0 0 4px rgba(27, 92, 243, 0.1);
+}
+
+.address-autocomplete-input::placeholder {
+  color: #a0aec0;
 }
 
 .address-autocomplete-suggestions {
   position: absolute;
-  top: 100%; /* Ensure it aligns directly below the input */
+  top: calc(100% + 4px);
   left: 0;
   right: 0;
-  margin-top: 0; /* Remove any margin between input and suggestions */
-  padding-top: 0; /* Remove padding on top */
-  margin-left: 2rem;
-  max-height: 200px;
   background-color: #fff;
-  border: 1px solid #dddddd;
-  border-radius: 0 0 5px 5px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   overflow-y: auto;
-  transition: max-height 0.3s ease;
-  list-style-type: none; /* Remove bullet points */
+  max-height: 240px;
+  transition: all 0.2s ease;
+  animation: fadeIn 0.2s ease;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .address-autocomplete-suggestion {
-  padding: 10px;
-  padding-left: 0; /* Remove left padding */
-  font-size: 1rem;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+  padding: 0.875rem 1.125rem;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
   cursor: pointer;
   background-color: #fff;
-  transition: background-color 0.3s ease;
+  transition: all 0.2s ease;
+  color: #2d3748;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.address-autocomplete-suggestion:last-child {
+  border-bottom: none;
 }
 
 .address-autocomplete-suggestion:hover {
-  background-color: #f1f1f1;
+  background-color: #f8fafc;
+  color: #1b5cf3;
 }
 
 .address-autocomplete-suggestion:active {
-  background-color: #e9ecef;
+  background-color: #eff6ff;
 }
 
 .address-autocomplete-no-results {
-  padding: 10px;
-  font-size: 1rem;
-  color: #999999;
+  padding: 1rem;
+  font-size: 0.95rem;
+  color: #64748b;
   text-align: center;
+  font-weight: 500;
 }
 
-/* Subtle animation for fade in */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-5px);
+    transform: translateY(-4px);
   }
   to {
     opacity: 1;
@@ -80,20 +91,39 @@
   }
 }
 
-.address-autocomplete-suggestions {
-  animation: fadeIn 0.3s ease;
+/* Scrollbar styles */
+.address-autocomplete-suggestions::-webkit-scrollbar {
+  width: 8px;
+}
+
+.address-autocomplete-suggestions::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.address-autocomplete-suggestions::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.address-autocomplete-suggestions::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 /* Mobile responsive adjustments */
 @media (max-width: 768px) {
   .address-autocomplete-input {
-    padding: 10px;
+    padding: 0.75rem 1rem;
     font-size: 0.9rem;
   }
 
   .address-autocomplete-suggestion {
-    padding: 8px;
-    padding-left: 0; /* Remove left padding */
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .address-autocomplete-no-results {
+    padding: 0.875rem;
     font-size: 0.9rem;
   }
 }

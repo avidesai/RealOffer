@@ -4,95 +4,100 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 2rem;
+    padding: 1rem 2.5rem;
     background-color: #fff;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    z-index: 10;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    z-index: 1000;
+    position: relative;
 }
 
 .header-logo {
-    height: 55px;
+    height: 48px;
     cursor: pointer;
-    transition: transform 0.3s;
+    transition: all 0.3s ease;
     padding-right: 1.5rem;
     padding-left: 1rem;
-    transition: transform 0.3s;
 }
 
 .header-logo:hover {
-  transform: scale(1.05);
+    transform: scale(1.05);
+    filter: brightness(1.1);
 }
 
 .header-group {
     display: flex;
     align-items: center;
+    gap: 2rem;
 }
 
-.header-navigation,
-.header-divider {
+.header-navigation {
     display: flex;
+    gap: 2rem;
 }
 
 .header-link {
-    margin: 0 1rem;
+    margin: 0;
     text-decoration: none;
     color: #444;
-    font-weight: 600;
-    font-size: 1.05rem;
-    transition: color 0.3s ease;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 0.5rem 0;
 }
 
 .header-link:hover,
 .header-link:focus {
-    color: rgb(27, 92, 243);
+    color: #1b5cf3;
+}
+
+.header-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #1b5cf3;
+    transition: width 0.3s ease;
+}
+
+.header-link:hover::after {
+    width: 100%;
 }
 
 .header-divider {
-    height: 30px;
-    border-left: 2px solid #8a8a8a;
-    margin: 0 2.2rem;
+    height: 24px;
+    border-left: 1px solid #e0e0e0;
+    margin: 0;
 }
 
 .header-actions {
     display: flex;
     align-items: center;
+    gap: 1.5rem;
 }
 
-.header-signup-button {
-    padding: 0.6rem 1.2rem;
-    margin-left: 20px;
-    background-color: rgb(27, 92, 243);
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    text-decoration: none;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
-    outline: none;
-}
-
-.header-signup-button:hover {
-    background-color: rgb(0, 83, 172);
-}
-
+.header-signup-button,
 .header-logout-button {
-    padding: 0.6rem 1.2rem;
-    margin-left: 20px;
-    background-color: rgb(27, 92, 243);
+    padding: 0.7rem 1.4rem;
+    background-color: #1b5cf3;
     color: #fff;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     text-decoration: none;
     cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
-    outline: none;
-    font-size: 1rem;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(27, 92, 243, 0.2);
 }
 
+.header-signup-button:hover,
 .header-logout-button:hover {
-    background-color: rgb(0, 83, 172);
+    background-color: #1544b2;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(27, 92, 243, 0.3);
 }
 
 /* Responsive design adjustments for small screens */
@@ -103,16 +108,18 @@
     }
 
     .header-logo {
-        height: 50px;
+        height: 42px;
         flex-basis: 100%; /* Makes the logo take full width */
         order: 1; /* Reorders the logo to the top */
         text-align: center; /* Centers the logo */
+        padding: 0;
     }
 
     .header-group {
         width: 100%; /* Ensures group takes full width */
         justify-content: space-between; /* Spreads items to full width */
         order: 3; /* Places navigation at the bottom */
+        gap: 1rem;
     }
 
     .header-navigation,
@@ -124,9 +131,12 @@
         order: 2; /* Places actions below logo */
         justify-content: center; /* Centers actions */
         width: 100%; /* Full width to contain buttons */
+        gap: 1rem;
     }
 
-    .header-signup-button {
-        padding: 0.5rem 1rem;
+    .header-signup-button,
+    .header-logout-button {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
     }
 }

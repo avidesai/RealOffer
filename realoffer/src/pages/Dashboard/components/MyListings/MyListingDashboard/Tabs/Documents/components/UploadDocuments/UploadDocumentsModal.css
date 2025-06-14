@@ -48,18 +48,35 @@
 
 .offer-close-button {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: transparent;
-  border: none;
-  font-size: 1.5rem;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5em;
   cursor: pointer;
   color: #666;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .offer-close-button:hover {
-  color: #333;
+  color: #ffffff;
+  background-color: #e74c3c;
+  box-shadow: 0 6px 16px rgba(231, 76, 60, 0.2);
+}
+
+.offer-close-button:before {
+  content: '×';
+  font-weight: 300;
+  display: inline-block;
+  margin-top: -0.15rem;
+  line-height: 1;
 }
 
 .offer-upload-area {

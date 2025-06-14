@@ -169,33 +169,32 @@ select {
   top: 1.5rem;
   right: 1.5rem;
   background: #ffffff;
-  border: 2px solid #d5d5d5; /* Black border */
+  border: 1px solid #e0e0e0;
   border-radius: 50%;
-  width: 45px;
-  height: 45px;
+  width: 42px;
+  height: 42px;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 1.5em;
   cursor: pointer;
-  color: #000000; /* Black X */
+  color: #666;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), /* Slight shadow for 3D effect */
-              0 2px 3px rgba(0, 0, 0, 0.2); /* More depth */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .close-button:hover {
-  color: #ffffff; /* White X on hover */
-  background-color: #b12525; /* Black background on hover */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Enhanced shadow for 3D effect */
+  color: #ffffff;
+  background-color: #e74c3c;
+  box-shadow: 0 6px 16px rgba(231, 76, 60, 0.2);
 }
 
 .close-button:before {
-  content: '×'; /* Using the times character for the X */
-  font-weight: bold; /* Make the X bold */
+  content: '×';
+  font-weight: 300;
   display: inline-block;
-  margin-top: -0.15rem; /* Slightly raise the X */
-  line-height: 1; /* Adjust line height for better vertical alignment */
+  margin-top: -0.15rem;
+  line-height: 1;
 }
 
 .error {
