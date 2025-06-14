@@ -11,7 +11,6 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
   const [files, setFiles] = useState(offerData.documents || []);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState([]);
-  const [filesUploaded, setFilesUploaded] = useState(true);
   const fileInputRef = useRef(null);
   const { user, token } = useAuth();
 
@@ -64,25 +63,21 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
     e.preventDefault();
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = async (e) => {
     e.preventDefault();
     const droppedFiles = Array.from(e.dataTransfer.files);
-    const newFiles = [
-      ...files,
-      ...droppedFiles.map((file) => ({ file, type: '', title: file.name })),
-    ];
-    setFiles(newFiles);
-    setFilesUploaded(false);
+    await handleFiles(droppedFiles);
   };
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = async (e) => {
     const selectedFiles = Array.from(e.target.files);
-    const newFiles = [
-      ...files,
-      ...selectedFiles.map((file) => ({ file, type: '', title: file.name })),
-    ];
-    setFiles(newFiles);
-    setFilesUploaded(false);
+    await handleFiles(selectedFiles);
+  };
+
+  const handleFiles = async (newFiles) => {
+    const filesToUpload = newFiles.map((file) => ({ file, type: '', title: file.name }));
+    setFiles(prevFiles => [...prevFiles, ...filesToUpload]);
+    await uploadFiles(filesToUpload);
   };
 
   const handleUploadClick = () => {
@@ -92,53 +87,36 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
   const handleDeleteFile = useCallback((index) => {
     const newFiles = files.filter((_, i) => i !== index);
     setFiles(newFiles);
-    setFilesUploaded(false);
-    
     updateOfferData(prevData => ({
       ...prevData,
       documents: newFiles
     }));
   }, [files, updateOfferData]);
 
-  const handleFileTypeChange = (index, newType) => {
+  const handleFileTypeChange = async (index, newType) => {
     const newFiles = files.map((file, i) => 
       i === index ? { ...file, type: newType } : file
     );
     setFiles(newFiles);
-    setFilesUploaded(false);
+    await uploadFiles([newFiles[index]]);
   };
 
-  const handleFileTitleChange = (index, newTitle) => {
+  const handleFileTitleChange = async (index, newTitle) => {
     const newFiles = files.map((file, i) => 
       i === index ? { ...file, title: newTitle } : file
     );
     setFiles(newFiles);
-    setFilesUploaded(false);
+    await uploadFiles([newFiles[index]]);
   };
 
-  const handleUpload = async () => {
-    const newErrors = [];
-    const filesToUpload = files.filter(file => file.file instanceof File);
-
-    if (filesToUpload.length === 0) {
-      newErrors.push('Please upload at least one new file.');
-    }
-
-    filesToUpload.forEach((file, index) => {
-      if (!file.type) {
-        newErrors.push(`Please select a type for file ${index + 1}.`);
-      }
-    });
-
-    if (newErrors.length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+  const uploadFiles = async (filesToUpload) => {
+    const filesWithType = filesToUpload.filter(file => file.type);
+    if (filesWithType.length === 0) return;
 
     setUploading(true);
     try {
       const formData = new FormData();
-      filesToUpload.forEach(({ file, type, title }) => {
+      filesWithType.forEach(({ file, type, title }) => {
         formData.append('documents', file);
         formData.append('type[]', type);
         formData.append('title[]', title);
@@ -155,7 +133,6 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
         },
       });
 
-      setUploading(false);
       const uploadedDocuments = response.data.map(doc => ({
         id: doc._id,
         title: doc.title,
@@ -169,21 +146,13 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
         documents: newFiles
       }));
       setFiles(newFiles);
-      setFilesUploaded(true);
       setErrors([]);
     } catch (error) {
-      setUploading(false);
       setErrors(['An error occurred while uploading. Please try again.']);
+    } finally {
+      setUploading(false);
     }
   };
-
-  const handleNextStepWrapper = useCallback(() => {
-    if (!filesUploaded && files.some(file => !file.id && file.type !== 'Signature Package')) {
-      setErrors(['Please click "Add Files To Offer" before proceeding.']);
-    } else {
-      handleNextStep();
-    }
-  }, [filesUploaded, files, handleNextStep]);
 
   return (
     <div className="modal-step">
@@ -256,16 +225,13 @@ const Documents = ({ handleNextStep, handlePrevStep, listingId }) => {
               ))}
             </div>
           </div>
-          <div className="offer-modal-footer">
-            <button className="offer-upload-files-button" onClick={handleUpload}>Add Files To Offer</button>
-          </div>
         </div>
       </div>
       <div className="button-container">
         <button className="step-back-button" onClick={handlePrevStep}>
           Back
         </button>
-        <button className="next-button" onClick={handleNextStepWrapper}>
+        <button className="next-button" onClick={handleNextStep}>
           Next
         </button>
       </div>

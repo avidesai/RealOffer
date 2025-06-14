@@ -34,7 +34,7 @@ const AutoFillForms = ({ formData, listingId, handlePrevStep, handleNextStep }) 
           {/* Add more options here if needed */}
         </select>
       </div>
-      <div className="form-group">
+      <div className="form-actions">
         <button
           className="include-button"
           onClick={handleIncludeAndUpload}
