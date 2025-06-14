@@ -1,10 +1,26 @@
 // Steps/OfferDetails.js
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useOffer } from '../../../../../../../../../../context/OfferContext';
 
 const OfferDetails = ({ handleNextStep, handlePrevStep }) => {
   const { offerData, updateOfferData } = useOffer();
+
+  // Set default offerExpiryDate to 24 hours after submittedOn, rounded up to the next hour
+  useEffect(() => {
+    if (offerData.submittedOn && !offerData.offerExpiryDate) {
+      const submittedDate = new Date(offerData.submittedOn);
+      let expiryDate = new Date(submittedDate.getTime() + 24 * 60 * 60 * 1000);
+      // Round up to the next hour
+      if (expiryDate.getMinutes() > 0 || expiryDate.getSeconds() > 0 || expiryDate.getMilliseconds() > 0) {
+        expiryDate.setHours(expiryDate.getHours() + 1);
+        expiryDate.setMinutes(0, 0, 0);
+      }
+      // Format to yyyy-MM-ddTHH:mm for datetime-local input
+      const formattedExpiry = expiryDate.toISOString().slice(0, 16);
+      updateOfferData({ offerExpiryDate: formattedExpiry });
+    }
+  }, [offerData.submittedOn, offerData.offerExpiryDate, updateOfferData]);
 
   const formatToPacificTime = (isoString) => {
     const date = new Date(isoString);
@@ -37,6 +53,7 @@ const OfferDetails = ({ handleNextStep, handlePrevStep }) => {
           name="submittedOn"
           value={formatToPacificTime(offerData.submittedOn)}
           readOnly
+          style={{ fontFamily: 'inherit', fontSize: '1rem', color: '#1a1a1a' }}
         />
       </div>
       <div className="form-group">
@@ -46,6 +63,7 @@ const OfferDetails = ({ handleNextStep, handlePrevStep }) => {
           name="offerExpiryDate"
           value={offerData.offerExpiryDate || ''}
           onChange={handleChange}
+          style={{ fontFamily: 'inherit', fontSize: '1rem', color: '#1a1a1a' }}
         />
       </div>
       <div className="form-group">

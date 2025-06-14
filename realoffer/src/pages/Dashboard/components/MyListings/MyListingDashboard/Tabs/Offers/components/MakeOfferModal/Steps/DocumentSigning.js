@@ -4,7 +4,7 @@ import { useOffer } from '../../../../../../../../../../context/OfferContext';
 import DocuSignConfig from './DocuSignConfig';
 import './DocumentSigning.css';
 
-const DocumentSigning = ({ handleNextStep, handlePrevStep }) => {
+const DocumentSigning = ({ handleNextStep, handlePrevStep, onClose }) => {
   const { offerData } = useOffer();
   const { token } = useAuth();
   const [signers, setSigners] = useState([{ email: '', name: '' }]);
@@ -57,8 +57,6 @@ const DocumentSigning = ({ handleNextStep, handlePrevStep }) => {
       }
 
       setSuccess(true);
-      
-      // Wait a moment before proceeding to next step
       setTimeout(() => {
         handleNextStep();
       }, 2000);
@@ -74,7 +72,10 @@ const DocumentSigning = ({ handleNextStep, handlePrevStep }) => {
   };
 
   return (
-    <div className="modal-step">
+    <div className="modal-step" style={{ position: 'relative' }}>
+      {onClose && (
+        <button className="docusign-modal-close-button" onClick={onClose}></button>
+      )}
       <div className='offer-modal-header'>
         <h2>Document Signing</h2>
         <p>Send documents for electronic signature, or skip this step if you do not need to sign now.</p>

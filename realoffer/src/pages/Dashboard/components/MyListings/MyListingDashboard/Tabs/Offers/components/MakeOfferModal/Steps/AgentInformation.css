@@ -1,18 +1,62 @@
 .agent-info-toggle {
     display: flex;
-    justify-content: space-between;
-    margin-bottom: 3rem;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 0.75rem;
   }
   
-  .agent-info-radio {
-    flex: 1;
-    margin-right: 1rem;
+  .agent-info-checkbox {
     display: flex;
     align-items: center;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #1a1a1a;
+    cursor: pointer;
+    gap: 0.5rem;
+    margin-right: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    transition: background 0.18s;
   }
   
-  .agent-info-radio input {
-    margin-right: 0.5rem;
+  .agent-info-checkbox input[type="checkbox"] {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #bfc9d8;
+    border-radius: 5px;
+    background: #fff;
+    margin-right: 0.4rem;
+    transition: border-color 0.18s, box-shadow 0.18s;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    display: inline-block;
+  }
+  
+  .agent-info-checkbox input[type="checkbox"]:checked {
+    border-color: #007bff;
+    background-color: #eaf2ff;
+  }
+  
+  .agent-info-checkbox input[type="checkbox"]:checked::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
+    border: solid #007bff;
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg);
+  }
+  
+  .agent-info-checkbox:hover {
+    background: #f5faff;
   }
   
   .agent-info-form-group {
@@ -22,8 +66,11 @@
   }
   
   .agent-info-label {
-    font-weight: bold;
-    margin-bottom: 1rem;
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 0.75rem;
   }
   
   .agent-info-input {

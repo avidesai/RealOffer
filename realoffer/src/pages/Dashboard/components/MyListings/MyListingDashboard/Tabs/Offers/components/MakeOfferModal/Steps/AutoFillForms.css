@@ -137,3 +137,12 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
   
+  .contingency,
+  .form-group label {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 0.75rem;
+  }
+  

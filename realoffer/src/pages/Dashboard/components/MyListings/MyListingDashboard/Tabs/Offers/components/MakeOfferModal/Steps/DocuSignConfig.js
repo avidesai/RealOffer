@@ -68,7 +68,7 @@ const DocuSignConfig = ({ onConfigComplete }) => {
   if (isLoading) {
     return (
       <div className="docusign-config">
-        <div className="loading-spinner">Loading...</div>
+        <div className="listing-overview-spinner" style={{ margin: '40px auto' }}></div>
       </div>
     );
   }

@@ -193,33 +193,36 @@
 
 .offer-close-button {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  top: 2rem;
+  right: 2rem;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
   border-radius: 50%;
-  transition: all 0.2s ease;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5em;
+  cursor: pointer;
   color: #666;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  z-index: 1005;
 }
 
 .offer-close-button:hover {
-  background-color: #f1f3f5;
-  color: #1a1a1a;
-  transform: rotate(90deg);
+  color: #ffffff;
+  background-color: #e74c3c;
+  box-shadow: 0 6px 16px rgba(231, 76, 60, 0.2);
 }
 
 .offer-close-button:before {
   content: '×';
-  font-size: 24px;
-  line-height: 1;
   font-weight: 300;
+  display: inline-block;
+  line-height: 1;
+  margin-bottom: 2px;
 }
 
 .calculated-values {

@@ -59,10 +59,6 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
     }
   }, [isAgent, fetchUserData, getRandomColor, handleNestedChange]);
 
-  const handleToggleChange = (e) => {
-    setIsAgent(e.target.value === 'agent');
-  };
-
   const formatPhoneNumber = (value) => {
     if (!value) return '';
     const cleaned = ('' + value).replace(/\D/g, '');
@@ -86,23 +82,21 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
         <p>Provide contact and brokerage info for the Buyer Agent.</p>
       </div>
       <div className="agent-info-toggle">
-        <label className="agent-info-radio">
+        <label className="agent-info-checkbox">
           <input
-            type="radio"
-            name="agentOption"
-            value="enter"
+            type="checkbox"
+            name="agentOptionOther"
             checked={!isAgent}
-            onChange={handleToggleChange}
+            onChange={() => setIsAgent(false)}
           />
           Enter agent / broker information
         </label>
-        <label className="agent-info-radio">
+        <label className="agent-info-checkbox">
           <input
-            type="radio"
+            type="checkbox"
             name="agentOption"
-            value="agent"
             checked={isAgent}
-            onChange={handleToggleChange}
+            onChange={() => setIsAgent(!isAgent)}
           />
           I am the agent in this transaction
         </label>
