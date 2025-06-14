@@ -79,16 +79,26 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
   
-  .download-button {
-    background-color: #f8f9fa;
-    color: #1a1a1a;
-    border: 1px solid #dee2e6;
+  .include-button:disabled,
+  .download-button:disabled {
+    background-color: #6c7280;
+    color: #222;
+    border: none;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+    opacity: 1;
   }
   
-  .download-button:hover {
-    background-color: #f1f3f5;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  .include-button:disabled:hover,
+  .download-button:disabled:hover {
+    background-color: #6c7280;
+    color: #222;
+    border: none;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+    opacity: 1;
   }
   
   .button-container {

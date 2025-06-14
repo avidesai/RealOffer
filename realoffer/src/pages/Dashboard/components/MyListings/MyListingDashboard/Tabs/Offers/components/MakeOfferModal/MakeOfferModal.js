@@ -241,7 +241,6 @@ const MakeOfferModal = ({ onClose, listingId }) => {
           </button>
           <h1 className="modal-title">Create Offer</h1>
         </div>
-        <hr className="modal-divider" />
         {step === 1 && memoizedComponents.purchasePrice}
         {step === 2 && memoizedComponents.contingencies}
         {step === 3 && memoizedComponents.agentInformation}
