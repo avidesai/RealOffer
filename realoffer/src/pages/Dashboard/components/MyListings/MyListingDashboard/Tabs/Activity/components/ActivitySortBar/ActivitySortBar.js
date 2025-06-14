@@ -30,17 +30,8 @@ function ActivitySortBar({ onFilterChange, onSortChange, onSearch }) {
     onSearch('');
   };
 
-  const handleReset = () => {
-    setFilter('all');
-    setSort('most-recent');
-    setSearchQuery('');
-    onFilterChange('all');
-    onSortChange('most-recent');
-    onSearch('');
-  };
-
   return (
-    <div className="activity-sort-bar">
+    <div className="activity-sort-bar improved-activity-sort-bar">
       <div className="filter-sort-section">
         <div className="activity-filter-section">
           <div className="filter-pills">
@@ -76,9 +67,6 @@ function ActivitySortBar({ onFilterChange, onSortChange, onSearch }) {
             </select>
           </div>
         </div>
-        <button className="reset-button" onClick={handleReset}>
-          Reset
-        </button>
       </div>
       <div className="activity-search-section">
         <form onSubmit={handleSearchSubmit} className="search-form">

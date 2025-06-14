@@ -91,7 +91,7 @@
   width: 100%;
   height: 1.5px;
   background-color: #f0f1f3;
-  margin: 0.7rem 0 0.5rem 0;
+  margin: 0.5rem 0 0.5rem 0;
   border-radius: 2px;
   box-shadow: none;
   border: none;
@@ -114,35 +114,36 @@
 /* --- Add/replace styles for improved OfferSortBar layout --- */
 .offer-sort-bar.improved-offer-sort-bar {
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  padding: 1rem 1.5rem 0.7rem 1.5rem;
-  margin-bottom: 1.2rem;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  padding: 1.2rem 2rem 1rem 2rem;
+  margin-bottom: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.5rem;
+  border: 1.5px solid #e6e8ec;
 }
 
 .offer-sort-bar-top-row {
   display: flex;
   align-items: flex-end;
-  justify-content: flex-start;
-  gap: 1.2rem;
+  justify-content: space-between;
+  gap: 2rem;
   flex-wrap: wrap;
-  margin-bottom: 0.1rem;
+  margin-bottom: 0.2rem;
 }
 
 .filter-sort-section {
   display: flex;
   align-items: flex-end;
-  gap: 1.1rem;
+  gap: 2rem;
 }
 
 .offer-filter-section, .offer-sort-section {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.1rem;
+  gap: 0.2rem;
 }
 
 .offer-search-section {
@@ -158,24 +159,25 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 0.1rem;
-  gap: 1.2rem;
+  margin-top: 0.2rem;
+  gap: 1.5rem;
 }
 
 .add-offer-button {
-  padding: 0.6rem 1.1rem;
-  font-size: 0.92rem;
-  border-radius: 8px;
+  padding: 0.7rem 1.3rem;
+  font-size: 1rem;
+  border-radius: 9px;
   background-color: #007bff;
   color: #fff;
   border: none;
   cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  font-weight: 600;
+  transition: all 0.2s;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   box-shadow: 0 1px 4px rgba(0,123,255,0.08);
+  letter-spacing: 0.01em;
 }
 
 .add-offer-button:hover {
@@ -187,7 +189,7 @@
   width: 100%;
   height: 1.5px;
   background-color: #f0f1f3;
-  margin: 0.12rem 0 0.12rem 0;
+  margin: 0.18rem 0 0.18rem 0;
   border-radius: 2px;
   box-shadow: none;
   border: none;
@@ -207,39 +209,125 @@
     width: 100%;
     justify-content: center;
   }
+  .filter-sort-section {
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+  .offer-sortbar-select,
+  .custom-dropdown {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .offer-sort-bar.improved-offer-sort-bar {
+    padding: 0.7rem 0.5rem 0.7rem 0.5rem;
+    border-radius: 8px;
+  }
+  .offer-sort-bar-top-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.7rem;
+    margin-bottom: 0.3rem;
+  }
+  .filter-sort-section {
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+  .offer-filter-section, .offer-sort-section {
+    width: 100%;
+    align-items: stretch;
+    gap: 0.2rem;
+  }
+  .offer-sortbar-label {
+    font-size: 1rem;
+    margin-bottom: 0.18rem;
+    color: #222;
+    font-weight: 600;
+    width: 100%;
+  }
+  .offer-sortbar-select,
+  .custom-dropdown {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    font-size: 1rem;
+    padding: 0.6rem 2.2rem 0.6rem 1rem;
+    border-radius: 9px;
+    margin-bottom: 0.2rem;
+  }
+  .offer-sortbar-divider.tight-divider {
+    display: block !important;
+    margin: 0.5rem 0 0.5rem 0;
+    height: 1.5px;
+    background-color: #f0f1f3;
+    border-radius: 2px;
+    box-shadow: none;
+    border: none;
+  }
+  .offer-sort-bar-bottom-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.7rem;
+    margin-top: 0;
+  }
+  .add-offer-button {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.98rem;
+    padding: 0.7rem 0.5rem;
+    border-radius: 9px;
+    margin-bottom: 0.5rem;
+  }
+  .offers-pagination {
+    justify-content: center;
+    margin: 0 auto;
+    padding-bottom: 0.2rem;
+  }
+  .offers-page-item {
+    font-size: 1.1rem;
+    padding: 0.7rem 1.2rem;
+    border-radius: 10px;
+    margin: 0 0.2rem;
+  }
 }
 
 .offer-sortbar-label {
-  color: #7a8595;
-  font-size: 0.93rem;
-  font-weight: 500;
+  color: #222;
+  font-size: 1rem;
+  font-weight: 600;
   margin-bottom: 0.18rem;
   display: block;
+  letter-spacing: 0.01em;
 }
 
 .offer-sortbar-select,
 .custom-dropdown {
-  min-width: 200px;
-  max-width: 260px;
-  padding: 0.5rem 2rem 0.5rem 1rem;
-  font-size: 0.95rem;
-  border-radius: 8px;
+  min-width: 170px;
+  max-width: 220px;
+  padding: 0.6rem 2.2rem 0.6rem 1rem;
+  font-size: 1rem;
+  border-radius: 9px;
   border: 1.5px solid #e1e4e8;
-  background-color: #fff;
-  color: #333;
+  background-color: #f8fafd;
+  color: #222;
   cursor: pointer;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a8595' d='M6 8.825L1.175 4 2.05 3.125 6 7.075 9.95 3.125 10.825 4z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 0.75rem center;
+  background-position: right 0.9rem center;
   background-size: 12px;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, background 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
 }
 
 .offer-sortbar-select:focus,
 .custom-dropdown:focus {
   border-color: #007bff;
   outline: none;
+  background-color: #fff;
 }
 
 /* Remove search bar styles if present */
