@@ -33,8 +33,6 @@ const UploadDocumentsModal = ({
         )}
         <div className="offer-upload-area">
           <div className="offer-drag-drop">
-            <p className="offer-drag-drop-text">Drag and drop PDF files or images here</p>
-            <p className="offer-or-text">Or</p>
             <button className="offer-upload-button" onClick={handleUploadClick}>
               Upload from your device
             </button>
