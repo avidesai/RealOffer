@@ -140,7 +140,6 @@ exports.analyzeDocument = async (req, res) => {
       });
       await analysis.save();
       document.analysis = analysis._id;
-      document.analyzed = false;
       await document.save();
     } else {
       analysis.status = 'processing';
@@ -150,7 +149,6 @@ exports.analyzeDocument = async (req, res) => {
         message: 'Starting new analysis...'
       };
       await analysis.save();
-      document.analyzed = false;
       await document.save();
     }
 
@@ -202,10 +200,6 @@ exports.analyzeDocument = async (req, res) => {
       message: 'Analysis completed successfully'
     };
     await analysis.save();
-
-    // After successful analysis, update the analyzed flag
-    document.analyzed = true;
-    await document.save();
 
     // Return the final analysis result
     return res.json({

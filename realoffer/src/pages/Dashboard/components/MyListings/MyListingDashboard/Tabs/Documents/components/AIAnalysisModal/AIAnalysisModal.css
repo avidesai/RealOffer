@@ -207,6 +207,25 @@
   background-color: #218838;
 }
 
+.ai-analysis-refresh-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 1rem;
+}
+
+.ai-analysis-refresh-button:hover {
+  background-color: #5a6268;
+}
+
 /* Markdown content styling */
 .ai-analysis-content h1,
 .ai-analysis-content h2,

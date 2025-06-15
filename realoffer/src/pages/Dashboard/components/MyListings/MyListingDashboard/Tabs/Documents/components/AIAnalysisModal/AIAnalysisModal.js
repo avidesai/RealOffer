@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import api from '../../../../../../../../../context/api';
-import { useAuth } from '../../../../../../../../../context/AuthContext';
 import './AIAnalysisModal.css';
 
 const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { token } = useAuth();
   const pollingIntervalRef = useRef(null);
   const isInitialRequestRef = useRef(true);
 
@@ -45,7 +43,7 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
     try {
       const response = await api.post('/api/document-analysis/analyze', {
         documentId,
-        forceRefresh: isInitialRequestRef.current
+        forceRefresh: false // Only generate new analysis if one doesn't exist
       });
 
       // Remove "Here is a structured summary..." if present
@@ -96,6 +94,13 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
     document.body.removeChild(element);
   };
 
+  const handleRefreshAnalysis = () => {
+    setLoading(true);
+    setError(null);
+    isInitialRequestRef.current = true;
+    fetchAnalysis();
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -125,12 +130,7 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
               <p>{error}</p>
               <button 
                 className="ai-analysis-retry-button"
-                onClick={() => {
-                  setError(null);
-                  setLoading(true);
-                  isInitialRequestRef.current = true;
-                  fetchAnalysis();
-                }}
+                onClick={handleRefreshAnalysis}
               >
                 Retry Analysis
               </button>
@@ -150,6 +150,9 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
               <div className="ai-analysis-actions">
                 <button className="ai-analysis-download-button" onClick={handleDownload}>
                   Download Analysis
+                </button>
+                <button className="ai-analysis-refresh-button" onClick={handleRefreshAnalysis}>
+                  Refresh Analysis
                 </button>
               </div>
             </>

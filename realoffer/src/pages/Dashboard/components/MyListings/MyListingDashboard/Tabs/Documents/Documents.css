@@ -157,6 +157,7 @@
 .document-details {
   display: flex;
   flex-direction: column;
+  padding-top: 0.7rem;
 }
 
 .document-title {
@@ -279,26 +280,41 @@
 }
 
 @media (max-width: 767px) {
-  /* Hide the document checkbox on mobile */
-  .document-checkbox {
-    display: none !important;
-  }
   /* Center the document actions row and make it look balanced */
   .documents-list .document-actions {
     justify-content: center;
     gap: 0.8rem;
-    margin-top: 1.2rem;
+    margin-top: 0.25rem;
   }
   /* Make document action buttons in .documents-list smaller and increase spacing */
   .documents-list .document-actions .add-documents-button,
   .documents-list .document-actions .delete-button,
   .documents-list .document-actions .ai-analysis-ribbon {
-    padding: 10px 18px;
+    padding: 10px 15px;
     font-size: 14px;
     width: auto;
     min-width: 90px;
     border-radius: 10px;
     margin: 0;
     box-sizing: border-box;
+  }
+  .document-checkbox {
+    position: static;
+    left: unset;
+    top: unset;
+    transform: none;
+    margin-right: 0.7rem;
+    margin-bottom: 0;
+    vertical-align: middle;
+    display: inline-block;
+  }
+  .document-info {
+    margin-left: 0;
+    margin-top: 0;
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .document-details {
+    padding-top: 0.2rem;
   }
 }
