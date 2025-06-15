@@ -92,7 +92,7 @@ const UploadDocumentsModal = ({
           </div>
         </div>
         <div className="offer-modal-footer">
-          <button className="offer-upload-files-button" onClick={handleUpload}>Upload Files</button>
+          <button className="offer-upload-files-button" onClick={handleUpload}>Add Documents</button>
         </div>
       </div>
     </div>

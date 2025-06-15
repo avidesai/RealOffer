@@ -9,7 +9,6 @@ const Footer = () => {
     <footer className="footer">
       <div className="footer-text">
         <img src={logo} alt="RealOffer Logo" className="footer-logo" />
-        <p>RealOffer © {new Date().getFullYear()}</p>
       </div>
       <div className="footer-socials">
 
