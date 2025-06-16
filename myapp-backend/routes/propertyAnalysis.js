@@ -4,9 +4,13 @@ const propertyAnalysisController = require('../controllers/propertyAnalysisContr
 const { authenticateToken } = require('../middleware/auth');
 
 // Get property valuation
-router.get('/valuation/:propertyId', authenticateToken, propertyAnalysisController.getPropertyValuation);
+router.get('/valuation/:propertyId', authenticateToken, (req, res) => {
+  propertyAnalysisController.getPropertyValuation(req, res);
+});
 
 // Get comparable properties
-router.get('/comps/:propertyId', authenticateToken, propertyAnalysisController.getComparableProperties);
+router.get('/comps/:propertyId', authenticateToken, (req, res) => {
+  propertyAnalysisController.getComparableProperties(req, res);
+});
 
 module.exports = router; 

@@ -2,7 +2,7 @@ const axios = require('axios');
 const PropertyListing = require('../models/PropertyListing');
 
 // Get property valuation from RentCast API
-const getPropertyValuation = async (req, res) => {
+exports.getPropertyValuation = async (req, res) => {
   try {
     const { propertyId } = req.params;
 
@@ -54,7 +54,7 @@ const getPropertyValuation = async (req, res) => {
 };
 
 // Get comparable properties from RentCast API
-const getComparableProperties = async (req, res) => {
+exports.getComparableProperties = async (req, res) => {
   try {
     const { propertyId } = req.params;
 
@@ -129,9 +129,4 @@ const getComparableProperties = async (req, res) => {
     console.error('Error fetching comparable properties:', error);
     res.status(500).json({ message: 'Error fetching comparable properties' });
   }
-};
-
-module.exports = {
-  getPropertyValuation,
-  getComparableProperties
 }; 
