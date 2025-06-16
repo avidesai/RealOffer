@@ -5,6 +5,7 @@ import Activity from '../../Tabs/Activity/Activity';
 import Messages from '../../Tabs/Messages/Messages';
 import Settings from '../../Tabs/Settings/Settings';
 import Offers from '../../Tabs/Offers/Offers';
+import Analysis from '../../Tabs/Analysis/Analysis';
 import axios from 'axios';
 import './TabSection.css';
 
@@ -53,6 +54,7 @@ const TabSection = ({ listing }) => {
 
   const tabs = [
     { id: 'docs', label: 'Documents' },
+    { id: 'analysis', label: 'Analysis' },
     { id: 'activity', label: 'Activity' },
     { id: 'offers', label: 'Offers' },
     { id: 'settings', label: 'Settings' }
@@ -81,6 +83,7 @@ const TabSection = ({ listing }) => {
       </div>
       <div className="tab-content" role="tabpanel">
         {activeTab === 'docs' && <Documents listingId={updatedListing._id} />}
+        {activeTab === 'analysis' && <Analysis listingId={updatedListing._id} />}
         {activeTab === 'activity' && <Activity listingId={updatedListing._id} />}
         {activeTab === 'messages' && <Messages listingId={updatedListing._id} />}
         {activeTab === 'offers' && <Offers listingId={updatedListing._id} />}
