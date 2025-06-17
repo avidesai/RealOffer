@@ -1,5 +1,13 @@
 const axios = require('axios');
 const PropertyListing = require('../models/PropertyListing');
+const PropertyAnalysis = require('../models/PropertyAnalysis');
+
+// Helper function to check if analysis data is stale (older than 14 days)
+const isAnalysisStale = (lastUpdated) => {
+  const fourteenDaysAgo = new Date();
+  fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+  return lastUpdated < fourteenDaysAgo;
+};
 
 // Helper function to map property types to RentCast API expected values
 const mapPropertyType = (propertyType) => {
@@ -30,58 +38,127 @@ const mapPropertyType = (propertyType) => {
   return mappings[type] || 'Single Family';
 };
 
-// Get property valuation from RentCast API
-exports.getPropertyValuation = async (req, res) => {
-  try {
-    const { propertyId } = req.params;
+// Helper function to fetch fresh data from RentCast
+const fetchFreshAnalysisData = async (property) => {
+  const { homeCharacteristics } = property;
+  const address = `${homeCharacteristics.address}, ${homeCharacteristics.city}, ${homeCharacteristics.state} ${homeCharacteristics.zip}`;
 
-    // Get property details from our database
-    const property = await PropertyListing.findById(propertyId);
-    if (!property) {
-      return res.status(404).json({ message: 'Property not found' });
-    }
-
-    const { homeCharacteristics } = property;
-
-    // Prepare address for RentCast API
-    const address = `${homeCharacteristics.address}, ${homeCharacteristics.city}, ${homeCharacteristics.state} ${homeCharacteristics.zip}`;
-
-    // Call RentCast API for property value estimate
-    const response = await axios.get('https://api.rentcast.io/v1/avm/value', {
+  // Fetch all data in parallel
+  const [valuationResponse, rentResponse] = await Promise.all([
+    axios.get('https://api.rentcast.io/v1/avm/value', {
       params: {
-        address: address,
+        address,
         bedrooms: homeCharacteristics.beds,
         bathrooms: homeCharacteristics.baths,
         squareFootage: homeCharacteristics.squareFootage,
         yearBuilt: homeCharacteristics.yearBuilt,
         propertyType: mapPropertyType(homeCharacteristics.propertyType),
         lotSize: homeCharacteristics.lotSize,
-        // Optional parameters for better accuracy
-        maxRadius: 5, // 5 miles radius
-        daysOld: 270, // Look back 270 days
-        compCount: 20 // Use up to 20 comparables
+        maxRadius: 2,
+        daysOld: 180,
+        compCount: 10
       },
       headers: {
         'X-Api-Key': process.env.RENTCAST_API_KEY
       }
+    }),
+    axios.get('https://api.rentcast.io/v1/avm/rent/long-term', {
+      params: {
+        address,
+        bedrooms: homeCharacteristics.beds,
+        bathrooms: homeCharacteristics.baths,
+        squareFootage: homeCharacteristics.squareFootage,
+        yearBuilt: homeCharacteristics.yearBuilt,
+        propertyType: mapPropertyType(homeCharacteristics.propertyType),
+        lotSize: homeCharacteristics.lotSize,
+        maxRadius: 5,
+        daysOld: 270,
+        compCount: 20
+      },
+      headers: {
+        'X-Api-Key': process.env.RENTCAST_API_KEY
+      }
+    })
+  ]);
+
+  // Format the comparables with additional comparison metrics
+  const comparables = (valuationResponse.data.comparables || []).map(comp => ({
+    ...comp,
+    pricePerSqFt: comp.squareFootage ? Math.round(comp.price / comp.squareFootage) : null,
+    priceDifference: comp.price - homeCharacteristics.price,
+    priceDifferencePercent: homeCharacteristics.price ? 
+      ((comp.price - homeCharacteristics.price) / homeCharacteristics.price * 100).toFixed(1) : null
+  }));
+
+  // Sort rental comparables by correlation
+  const rentalComps = (rentResponse.data.comparables || [])
+    .sort((a, b) => (b.correlation || 0) - (a.correlation || 0))
+    .map(comp => ({
+      address: comp.formattedAddress,
+      rent: comp.rent,
+      correlation: comp.correlation
+    }));
+
+  return {
+    valuation: {
+      ...valuationResponse.data,
+      comparables
+    },
+    rentEstimate: {
+      ...rentResponse.data,
+      comparables: rentalComps
+    },
+    subjectProperty: {
+      address,
+      price: homeCharacteristics.price,
+      beds: homeCharacteristics.beds,
+      baths: homeCharacteristics.baths,
+      sqft: homeCharacteristics.squareFootage,
+      yearBuilt: homeCharacteristics.yearBuilt,
+      propertyType: mapPropertyType(homeCharacteristics.propertyType),
+      lotSize: homeCharacteristics.lotSize
+    }
+  };
+};
+
+// Get property analysis (valuation, rent, and comps)
+exports.getPropertyAnalysis = async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+
+    // Get property details
+    const property = await PropertyListing.findById(propertyId);
+    if (!property) {
+      return res.status(404).json({ message: 'Property not found' });
+    }
+
+    // Check for existing analysis
+    let analysis = await PropertyAnalysis.findOne({ propertyId });
+
+    // If no analysis exists or it's stale, fetch fresh data
+    if (!analysis || isAnalysisStale(analysis.lastUpdated)) {
+      const freshData = await fetchFreshAnalysisData(property);
+      
+      // Create or update analysis document
+      analysis = await PropertyAnalysis.findOneAndUpdate(
+        { propertyId },
+        {
+          ...freshData,
+          lastUpdated: new Date()
+        },
+        { upsert: true, new: true }
+      );
+    }
+
+    res.json({
+      valuation: analysis.valuation,
+      rentEstimate: analysis.rentEstimate,
+      subjectProperty: analysis.subjectProperty
     });
-
-    // Format the response according to RentCast API structure
-    const valuation = {
-      estimatedValue: response.data.price,
-      priceRangeLow: response.data.priceRangeLow,
-      priceRangeHigh: response.data.priceRangeHigh,
-      pricePerSqFt: response.data.price ? Math.round(response.data.price / homeCharacteristics.squareFootage) : null,
-      latitude: response.data.latitude,
-      longitude: response.data.longitude,
-      comparables: response.data.comparables || []
-    };
-
-    res.json(valuation);
   } catch (error) {
-    console.error('Error fetching property valuation:', error.response?.data || error.message);
-    res.status(500).json({ 
-      message: 'Error fetching property valuation',
+    console.error('Error fetching property analysis:', error.response?.data || error.message);
+    res.status(500).json({
+      message: 'Error fetching property analysis',
       error: error.response?.data?.message || error.message
     });
   }
@@ -208,6 +285,15 @@ exports.getRentEstimate = async (req, res) => {
       }
     });
 
+    // Sort comparables by correlation (most relevant first)
+    const rentalComps = (response.data.comparables || [])
+      .sort((a, b) => (b.correlation || 0) - (a.correlation || 0))
+      .map(comp => ({
+        address: comp.formattedAddress,
+        rent: comp.rent,
+        correlation: comp.correlation
+      }));
+
     // Format the response according to RentCast API structure
     const rentEstimate = {
       rent: response.data.rent,
@@ -215,7 +301,8 @@ exports.getRentEstimate = async (req, res) => {
       rentRangeHigh: response.data.rentRangeHigh,
       latitude: response.data.latitude,
       longitude: response.data.longitude,
-      comparables: response.data.comparables || []
+      comparables: response.data.comparables || [],
+      rentalComps: rentalComps
     };
 
     res.json(rentEstimate);

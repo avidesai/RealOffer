@@ -8,10 +8,11 @@ const Analysis = ({ listingId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('valuation');
-  const [valuation, setValuation] = useState(null);
-  const [rentEstimate, setRentEstimate] = useState(null);
-  const [comps, setComps] = useState([]);
-  const [subjectProperty, setSubjectProperty] = useState(null);
+  const [analysisData, setAnalysisData] = useState({
+    valuation: null,
+    rentEstimate: null,
+    subjectProperty: null
+  });
 
   useEffect(() => {
     const fetchAnalysisData = async () => {
@@ -19,38 +20,20 @@ const Analysis = ({ listingId }) => {
         setLoading(true);
         setError(null);
 
-        // Fetch all analysis data in parallel
-        const [valuationResponse, rentResponse, compsResponse] = await Promise.all([
-          axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/property-analysis/valuation/${listingId}`,
-            {
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
+        const response = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/property-analysis/${listingId}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
             }
-          ),
-          axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/property-analysis/rent/${listingId}`,
-            {
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
-            }
-          ),
-          axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/property-analysis/comps/${listingId}`,
-            {
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
-            }
-          )
-        ]);
+          }
+        );
 
-        setValuation(valuationResponse.data);
-        setRentEstimate(rentResponse.data);
-        setComps(compsResponse.data.comps);
-        setSubjectProperty(compsResponse.data.subjectProperty);
+        setAnalysisData({
+          valuation: response.data.valuation,
+          rentEstimate: response.data.rentEstimate,
+          subjectProperty: response.data.subjectProperty
+        });
       } catch (err) {
         setError('Failed to load analysis data. Please try again later.');
         console.error('Error fetching analysis data:', err);
@@ -176,15 +159,15 @@ const Analysis = ({ listingId }) => {
                 <h3>Estimated Value</h3>
               </div>
               <div className="card-content">
-                <div className="main-value">{formatCurrency(valuation?.estimatedValue)}</div>
-                {valuation?.priceRangeLow && valuation?.priceRangeHigh && (
+                <div className="main-value">{formatCurrency(analysisData.valuation?.estimatedValue)}</div>
+                {analysisData.valuation?.priceRangeLow && analysisData.valuation?.priceRangeHigh && (
                   <div className="value-range">
-                    Range: {formatCurrency(valuation.priceRangeLow)} - {formatCurrency(valuation.priceRangeHigh)}
+                    Range: {formatCurrency(analysisData.valuation.priceRangeLow)} - {formatCurrency(analysisData.valuation.priceRangeHigh)}
                   </div>
                 )}
-                {valuation?.pricePerSqFt && (
+                {analysisData.valuation?.pricePerSqFt && (
                   <div className="price-per-sqft">
-                    {formatCurrency(valuation.pricePerSqFt)} per sq ft
+                    {formatCurrency(analysisData.valuation.pricePerSqFt)} per sq ft
                   </div>
                 )}
               </div>
@@ -198,7 +181,7 @@ const Analysis = ({ listingId }) => {
                 <div className="detail-grid">
                   <div className="detail-item">
                     <span className="detail-label">Comparables Used</span>
-                    <span className="detail-value">{valuation?.comparables?.length || 0}</span>
+                    <span className="detail-value">{analysisData.valuation?.comparables?.length || 0}</span>
                   </div>
                   <div className="detail-item">
                     <span className="detail-label">Data Source</span>
@@ -206,7 +189,7 @@ const Analysis = ({ listingId }) => {
                   </div>
                   <div className="detail-item">
                     <span className="detail-label">Last Updated</span>
-                    <span className="detail-value">Today</span>
+                    <span className="detail-value">{formatDate(analysisData.valuation?.lastUpdated)}</span>
                   </div>
                 </div>
               </div>
@@ -229,15 +212,15 @@ const Analysis = ({ listingId }) => {
                 <h3>Monthly Rent Estimate</h3>
               </div>
               <div className="card-content">
-                <div className="main-value">{formatCurrency(rentEstimate?.rent)}</div>
-                {rentEstimate?.rentRangeLow && rentEstimate?.rentRangeHigh && (
+                <div className="main-value">{formatCurrency(analysisData.rentEstimate?.rent)}</div>
+                {analysisData.rentEstimate?.rentRangeLow && analysisData.rentEstimate?.rentRangeHigh && (
                   <div className="value-range">
-                    Range: {formatCurrency(rentEstimate.rentRangeLow)} - {formatCurrency(rentEstimate.rentRangeHigh)}
+                    Range: {formatCurrency(analysisData.rentEstimate.rentRangeLow)} - {formatCurrency(analysisData.rentEstimate.rentRangeHigh)}
                   </div>
                 )}
-                {rentEstimate?.rent && subjectProperty?.sqft && (
+                {analysisData.rentEstimate?.rent && analysisData.subjectProperty?.sqft && (
                   <div className="price-per-sqft">
-                    {formatCurrency(Math.round(rentEstimate.rent / subjectProperty.sqft))} per sq ft
+                    {formatCurrency(Math.round(analysisData.rentEstimate.rent / analysisData.subjectProperty.sqft))} per sq ft
                   </div>
                 )}
               </div>
@@ -251,17 +234,17 @@ const Analysis = ({ listingId }) => {
                 <div className="detail-grid">
                   <div className="detail-item">
                     <span className="detail-label">Annual Rent</span>
-                    <span className="detail-value">{formatCurrency((rentEstimate?.rent || 0) * 12)}</span>
+                    <span className="detail-value">{formatCurrency((analysisData.rentEstimate?.rent || 0) * 12)}</span>
                   </div>
                   <div className="detail-item">
                     <span className="detail-label">Rental Comparables</span>
-                    <span className="detail-value">{rentEstimate?.comparables?.length || 0}</span>
+                    <span className="detail-value">{analysisData.rentEstimate?.comparables?.length || 0}</span>
                   </div>
-                  {valuation?.estimatedValue && rentEstimate?.rent && (
+                  {analysisData.valuation?.estimatedValue && analysisData.rentEstimate?.rent && (
                     <div className="detail-item">
                       <span className="detail-label">Gross Yield</span>
                       <span className="detail-value">
-                        {((rentEstimate.rent * 12 / valuation.estimatedValue) * 100).toFixed(1)}%
+                        {((analysisData.rentEstimate.rent * 12 / analysisData.valuation.estimatedValue) * 100).toFixed(1)}%
                       </span>
                     </div>
                   )}
@@ -280,33 +263,33 @@ const Analysis = ({ listingId }) => {
             <p>Recently sold properties with similar characteristics</p>
           </div>
 
-          {subjectProperty && (
+          {analysisData.subjectProperty && (
             <div className="subject-property">
               <h3>Subject Property</h3>
               <div className="subject-details">
                 <div className="subject-stat">
                   <span className="stat-label">Listed Price</span>
-                  <span className="stat-value">{formatCurrency(subjectProperty.price)}</span>
+                  <span className="stat-value">{formatCurrency(analysisData.subjectProperty.price)}</span>
                 </div>
                 <div className="subject-stat">
                   <span className="stat-label">Beds/Baths</span>
-                  <span className="stat-value">{subjectProperty.beds}/{subjectProperty.baths}</span>
+                  <span className="stat-value">{analysisData.subjectProperty.beds}/{analysisData.subjectProperty.baths}</span>
                 </div>
                 <div className="subject-stat">
                   <span className="stat-label">Square Feet</span>
-                  <span className="stat-value">{subjectProperty.sqft?.toLocaleString()}</span>
+                  <span className="stat-value">{analysisData.subjectProperty.sqft?.toLocaleString()}</span>
                 </div>
                 <div className="subject-stat">
                   <span className="stat-label">Year Built</span>
-                  <span className="stat-value">{subjectProperty.yearBuilt}</span>
+                  <span className="stat-value">{analysisData.subjectProperty.yearBuilt}</span>
                 </div>
               </div>
             </div>
           )}
 
           <div className="comps-grid">
-            {comps.length > 0 ? (
-              comps.map((comp, index) => (
+            {analysisData.valuation?.comparables?.length > 0 ? (
+              analysisData.valuation.comparables.map((comp, index) => (
                 <div key={index} className="comp-card">
                   <div className="comp-header">
                     <h4>{comp.formattedAddress}</h4>
