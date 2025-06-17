@@ -225,11 +225,11 @@ const Analysis = ({ listingId }) => {
                 <div className="comp-specs">
                   <div className="spec-item">
                     <span className="spec-label">Beds/Baths</span>
-                    <span className="spec-value">{comp.bedrooms || comp.beds}/{comp.bathrooms || comp.baths}</span>
+                    <span className="spec-value">{comp.bedrooms}/{comp.bathrooms}</span>
                   </div>
                   <div className="spec-item">
                     <span className="spec-label">Square Feet</span>
-                    <span className="spec-value">{comp.squareFootage?.toLocaleString() || comp.sqft?.toLocaleString()}</span>
+                    <span className="spec-value">{comp.squareFootage?.toLocaleString()} sqft</span>
                   </div>
                   <div className="spec-item">
                     <span className="spec-label">Lot Size</span>
@@ -238,8 +238,8 @@ const Analysis = ({ listingId }) => {
                   <div className="spec-item">
                     <span className="spec-label">Price/Sq Ft</span>
                     <span className="spec-value">
-                      {comp.price && (comp.squareFootage || comp.sqft)
-                        ? formatCurrency(Math.round(comp.price / (comp.squareFootage || comp.sqft)))
+                      {comp.price && comp.squareFootage
+                        ? formatCurrency(Math.round(comp.price / comp.squareFootage))
                         : 'N/A'}
                     </span>
                   </div>

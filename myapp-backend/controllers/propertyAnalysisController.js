@@ -88,7 +88,7 @@ const fetchFreshAnalysisData = async (property) => {
     priceDifference: comp.price - homeCharacteristics.price,
     priceDifferencePercent: homeCharacteristics.price ? 
       ((comp.price - homeCharacteristics.price) / homeCharacteristics.price * 100).toFixed(1) : null,
-    // Ensure we have all required fields
+    // Ensure we have all required fields with correct RentCast API field names
     bedrooms: comp.bedrooms,
     bathrooms: comp.bathrooms,
     squareFootage: comp.squareFootage,
@@ -114,7 +114,7 @@ const fetchFreshAnalysisData = async (property) => {
 
   return {
     valuation: {
-      estimatedValue: valuationResponse.data.estimatedValue,
+      estimatedValue: valuationResponse.data.price,
       priceRangeLow: valuationResponse.data.priceRangeLow,
       priceRangeHigh: valuationResponse.data.priceRangeHigh,
       lastUpdated: new Date(),
