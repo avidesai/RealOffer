@@ -42,17 +42,29 @@
   gap: 1rem;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.last-updated {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
 .refresh-button {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0.8rem;
   background: #007bff;
   color: white;
   border: none;
   border-radius: 6px;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -69,8 +81,8 @@
 }
 
 .refresh-button svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 /* Valuation Cards */
@@ -126,6 +138,15 @@
   padding: 1rem;
   background: #f8fafd;
   border-radius: 8px;
+  position: relative;
+}
+
+.value-section:first-child {
+  background: #f0f7ff;
+}
+
+.value-section:last-child {
+  background: #f0fdf4;
 }
 
 .value-divider {
@@ -293,6 +314,7 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   border: 2px solid transparent;
+  position: relative;
 }
 
 .comp-card:hover {
@@ -352,6 +374,25 @@
 
 .price-difference.negative {
   color: #dc3545;
+}
+
+.price-difference::before {
+  content: '';
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  margin-right: 0.25rem;
+}
+
+.price-difference.positive::before {
+  border-width: 0 4px 6px 4px;
+  border-color: transparent transparent #28a745 transparent;
+}
+
+.price-difference.negative::before {
+  border-width: 6px 4px 0 4px;
+  border-color: #dc3545 transparent transparent transparent;
 }
 
 .price-percent {
@@ -497,9 +538,9 @@
   padding: 3rem 1rem;
   color: #6c757d;
   text-align: center;
-  background: #fff;
+  background: #f8fafd;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 2px dashed #dee2e6;
 }
 
 .no-comps svg {
@@ -558,9 +599,24 @@
     text-align: center;
   }
 
+  .header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .last-updated {
+    font-size: 0.8rem;
+  }
+
   .refresh-button {
-    width: 100%;
-    justify-content: center;
+    font-size: 0.8rem;
+    padding: 0.35rem 0.7rem;
+  }
+
+  .refresh-button svg {
+    width: 12px;
+    height: 12px;
   }
 
   .subject-details {

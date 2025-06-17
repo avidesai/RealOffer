@@ -171,7 +171,8 @@ exports.getPropertyAnalysis = async (req, res) => {
     res.json({
       valuation: analysis.valuation,
       rentEstimate: analysis.rentEstimate,
-      subjectProperty: analysis.subjectProperty
+      subjectProperty: analysis.subjectProperty,
+      lastUpdated: analysis.lastUpdated
     });
   } catch (error) {
     console.error('Error fetching property analysis:', error.response?.data || error.message);
