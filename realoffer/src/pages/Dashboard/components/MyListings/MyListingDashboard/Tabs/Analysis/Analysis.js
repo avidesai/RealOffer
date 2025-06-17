@@ -7,41 +7,40 @@ const Analysis = ({ listingId }) => {
   const { token } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('valuation');
   const [analysisData, setAnalysisData] = useState({
     valuation: null,
     rentEstimate: null,
     subjectProperty: null
   });
 
-  useEffect(() => {
-    const fetchAnalysisData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const fetchAnalysisData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/property-analysis/${listingId}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/api/property-analysis/${listingId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
           }
-        );
+        }
+      );
 
-        setAnalysisData({
-          valuation: response.data.valuation,
-          rentEstimate: response.data.rentEstimate,
-          subjectProperty: response.data.subjectProperty
-        });
-      } catch (err) {
-        setError('Failed to load analysis data. Please try again later.');
-        console.error('Error fetching analysis data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      setAnalysisData({
+        valuation: response.data.valuation,
+        rentEstimate: response.data.rentEstimate,
+        subjectProperty: response.data.subjectProperty
+      });
+    } catch (err) {
+      setError('Failed to load analysis data. Please try again later.');
+      console.error('Error fetching analysis data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     if (listingId && token) {
       fetchAnalysisData();
     }
@@ -114,138 +113,51 @@ const Analysis = ({ listingId }) => {
 
   return (
     <div className="analysis-tab">
-      {/* Analysis Navigation */}
-      <div className="analysis-nav">
-        <button
-          className={`analysis-nav-btn ${activeTab === 'valuation' ? 'active' : ''}`}
-          onClick={() => setActiveTab('valuation')}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 13H11L15 9L21 15V21H3V13Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          Property Value
-        </button>
-        <button
-          className={`analysis-nav-btn ${activeTab === 'rent' ? 'active' : ''}`}
-          onClick={() => setActiveTab('rent')}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          Rent Estimate
-        </button>
-        <button
-          className={`analysis-nav-btn ${activeTab === 'comps' ? 'active' : ''}`}
-          onClick={() => setActiveTab('comps')}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 6H20L18 4H6L4 6ZM2 8V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V8H2ZM8 11H16V13H8V11Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          Comparables
-        </button>
-      </div>
-
-      {/* Property Valuation Tab */}
-      {activeTab === 'valuation' && (
-        <div className="analysis-content">
-          <div className="analysis-header">
-            <h2>Property Value Analysis</h2>
-            <p>Automated valuation model based on comparable properties</p>
-          </div>
-
-          <div className="valuation-cards">
-            <div className="valuation-card primary">
-              <div className="card-header">
-                <h3>Estimated Value</h3>
-              </div>
-              <div className="card-content">
-                <div className="main-value">{formatCurrency(analysisData.valuation?.estimatedValue)}</div>
-                {analysisData.valuation?.priceRangeLow && analysisData.valuation?.priceRangeHigh && (
-                  <div className="value-range">
-                    Range: {formatCurrency(analysisData.valuation.priceRangeLow)} - {formatCurrency(analysisData.valuation.priceRangeHigh)}
-                  </div>
-                )}
-                {analysisData.valuation?.pricePerSqFt && (
-                  <div className="price-per-sqft">
-                    {formatCurrency(analysisData.valuation.pricePerSqFt)} per sq ft
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="valuation-card">
-              <div className="card-header">
-                <h3>Analysis Details</h3>
-              </div>
-              <div className="card-content">
-                <div className="detail-grid">
-                  <div className="detail-item">
-                    <span className="detail-label">Comparables Used</span>
-                    <span className="detail-value">{analysisData.valuation?.comparables?.length || 0}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Data Source</span>
-                    <span className="detail-value">RentCast AVM</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Last Updated</span>
-                    <span className="detail-value">{formatDate(analysisData.valuation?.lastUpdated)}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="analysis-content">
+        <div className="analysis-header">
+          <h2>Property Analysis</h2>
+          <p>AI valuation based on comparable properties</p>
         </div>
-      )}
 
-      {/* Rent Estimate Tab */}
-      {activeTab === 'rent' && (
-        <div className="analysis-content">
-          <div className="analysis-header">
-            <h2>Rental Analysis</h2>
-            <p>Estimated monthly rental income based on local market data</p>
-          </div>
-
-          <div className="valuation-cards">
-            <div className="valuation-card primary">
-              <div className="card-header">
-                <h3>Monthly Rent Estimate</h3>
-              </div>
-              <div className="card-content">
-                <div className="main-value">{formatCurrency(analysisData.rentEstimate?.rent)}</div>
-                {analysisData.rentEstimate?.rentRangeLow && analysisData.rentEstimate?.rentRangeHigh && (
-                  <div className="value-range">
-                    Range: {formatCurrency(analysisData.rentEstimate.rentRangeLow)} - {formatCurrency(analysisData.rentEstimate.rentRangeHigh)}
-                  </div>
-                )}
-                {analysisData.rentEstimate?.rent && analysisData.subjectProperty?.sqft && (
-                  <div className="price-per-sqft">
-                    {formatCurrency(Math.round(analysisData.rentEstimate.rent / analysisData.subjectProperty.sqft))} per sq ft
-                  </div>
-                )}
-              </div>
+        <div className="valuation-cards">
+          <div className="valuation-card primary">
+            <div className="card-header">
+              <h3>Property Value & Rent Estimate</h3>
+              <button 
+                className="refresh-button"
+                onClick={fetchAnalysisData}
+                disabled={loading}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M23 4V10H17M1 20V14H7M21.24 7.24C20.07 5.99 18.68 5.03 17.15 4.43C15.62 3.83 13.98 3.6 12.35 3.77C10.72 3.94 9.16 4.5 7.79 5.41C6.42 6.32 5.28 7.55 4.46 9.01L1 14M23 10L19.54 14.99C18.72 16.45 17.58 17.68 16.21 18.59C14.84 19.5 13.28 20.06 11.65 20.23C10.02 20.4 8.38 20.17 6.85 19.57C5.32 18.97 3.93 18.01 2.76 16.76L1 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Refresh Data
+              </button>
             </div>
+            <div className="card-content">
+              <div className="value-sections">
+                <div className="value-section">
+                  <div className="main-value">
+                    {formatCurrency(analysisData.valuation?.estimatedValue)}
+                    <div className="value-label">Estimated Home Value</div>
+                  </div>
+                  {analysisData.valuation?.priceRangeLow && analysisData.valuation?.priceRangeHigh && (
+                    <div className="value-range">
+                      Range: {formatCurrency(analysisData.valuation.priceRangeLow)} - {formatCurrency(analysisData.valuation.priceRangeHigh)}
+                    </div>
+                  )}
+                </div>
 
-            <div className="valuation-card">
-              <div className="card-header">
-                <h3>Investment Metrics</h3>
-              </div>
-              <div className="card-content">
-                <div className="detail-grid">
-                  <div className="detail-item">
-                    <span className="detail-label">Annual Rent</span>
-                    <span className="detail-value">{formatCurrency((analysisData.rentEstimate?.rent || 0) * 12)}</span>
+                <div className="value-divider"></div>
+
+                <div className="value-section">
+                  <div className="main-value">
+                    {formatCurrency(analysisData.rentEstimate?.rent)}
+                    <div className="value-label">Estimated Monthly Rent</div>
                   </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Rental Comparables</span>
-                    <span className="detail-value">{analysisData.rentEstimate?.comparables?.length || 0}</span>
-                  </div>
-                  {analysisData.valuation?.estimatedValue && analysisData.rentEstimate?.rent && (
-                    <div className="detail-item">
-                      <span className="detail-label">Gross Yield</span>
-                      <span className="detail-value">
-                        {((analysisData.rentEstimate.rent * 12 / analysisData.valuation.estimatedValue) * 100).toFixed(1)}%
-                      </span>
+                  {analysisData.rentEstimate?.rentRangeLow && analysisData.rentEstimate?.rentRangeHigh && (
+                    <div className="value-range">
+                      Range: {formatCurrency(analysisData.rentEstimate.rentRangeLow)} - {formatCurrency(analysisData.rentEstimate.rentRangeHigh)}
                     </div>
                   )}
                 </div>
@@ -253,120 +165,124 @@ const Analysis = ({ listingId }) => {
             </div>
           </div>
         </div>
-      )}
 
-      {/* Comparables Tab */}
-      {activeTab === 'comps' && (
-        <div className="analysis-content">
-          <div className="analysis-header">
-            <h2>Comparable Properties</h2>
-            <p>Recently sold properties with similar characteristics</p>
-          </div>
-
-          {analysisData.subjectProperty && (
-            <div className="subject-property">
-              <h3>Subject Property</h3>
-              <div className="subject-details">
-                <div className="subject-stat">
-                  <span className="stat-label">Listed Price</span>
-                  <span className="stat-value">{formatCurrency(analysisData.subjectProperty.price)}</span>
-                </div>
-                <div className="subject-stat">
-                  <span className="stat-label">Beds/Baths</span>
-                  <span className="stat-value">{analysisData.subjectProperty.beds}/{analysisData.subjectProperty.baths}</span>
-                </div>
-                <div className="subject-stat">
-                  <span className="stat-label">Square Feet</span>
-                  <span className="stat-value">{analysisData.subjectProperty.sqft?.toLocaleString()}</span>
-                </div>
-                <div className="subject-stat">
-                  <span className="stat-label">Year Built</span>
-                  <span className="stat-value">{analysisData.subjectProperty.yearBuilt}</span>
-                </div>
+        {analysisData.subjectProperty && (
+          <div className="subject-property">
+            <h3>Subject Property</h3>
+            <div className="subject-details">
+              <div className="subject-stat">
+                <span className="stat-label">Listed Price</span>
+                <span className="stat-value">{formatCurrency(analysisData.subjectProperty.price)}</span>
+              </div>
+              <div className="subject-stat">
+                <span className="stat-label">Beds/Baths</span>
+                <span className="stat-value">{analysisData.subjectProperty.beds}/{analysisData.subjectProperty.baths}</span>
+              </div>
+              <div className="subject-stat">
+                <span className="stat-label">Square Feet</span>
+                <span className="stat-value">{analysisData.subjectProperty.sqft?.toLocaleString()} sqft</span>
+              </div>
+              <div className="subject-stat">
+                <span className="stat-label">Lot Size</span>
+                <span className="stat-value">{analysisData.subjectProperty.lotSize?.toLocaleString()} sqft</span>
+              </div>
+              <div className="subject-stat">
+                <span className="stat-label">Price/Sq Ft</span>
+                <span className="stat-value">
+                  {analysisData.subjectProperty.price && analysisData.subjectProperty.sqft 
+                    ? formatCurrency(Math.round(analysisData.subjectProperty.price / analysisData.subjectProperty.sqft))
+                    : 'N/A'}
+                </span>
+              </div>
+              <div className="subject-stat">
+                <span className="stat-label">Year Built</span>
+                <span className="stat-value">{analysisData.subjectProperty.yearBuilt}</span>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
+        <div className="comparable-sales">
+          <h3>Comparable Sales</h3>
           <div className="comps-grid">
-            {analysisData.valuation?.comparables?.length > 0 ? (
-              analysisData.valuation.comparables.map((comp, index) => (
-                <div key={index} className="comp-card">
-                  <div className="comp-header">
-                    <h4>{comp.formattedAddress}</h4>
-                    <div className="comp-distance">{comp.distance} mi</div>
-                  </div>
-                  
-                  <div className="comp-price">
-                    <div className="price-main">{formatCurrency(comp.price)}</div>
-                    {comp.priceDifference && (
-                      <div className={`price-difference ${comp.priceDifference > 0 ? 'positive' : 'negative'}`}>
-                        {comp.priceDifference > 0 ? '+' : ''}{formatCurrency(comp.priceDifference)}
-                        <span className="price-percent">({comp.priceDifferencePercent}%)</span>
-                      </div>
-                    )}
-                  </div>
+            {analysisData.valuation?.comparables?.slice(0, 6).map((comp, index) => (
+              <div key={index} className="comp-card">
+                <div className="comp-header">
+                  <h4>{comp.formattedAddress}</h4>
+                  <div className="comp-distance">{Number(comp.distance).toFixed(2)} mi</div>
+                </div>
+                
+                <div className="comp-price">
+                  <div className="price-main">{formatCurrency(comp.price)}</div>
+                  {comp.priceDifference && (
+                    <div className={`price-difference ${comp.priceDifference > 0 ? 'positive' : 'negative'}`}>
+                      {comp.priceDifference > 0 ? '+' : ''}{formatCurrency(comp.priceDifference)}
+                      <span className="price-percent">({Math.round(comp.priceDifferencePercent)}%)</span>
+                    </div>
+                  )}
+                </div>
 
-                  <div className="comp-specs">
-                    <div className="spec-item">
-                      <span className="spec-label">Beds/Baths</span>
-                      <span className="spec-value">{comp.beds}/{comp.baths}</span>
-                    </div>
-                    <div className="spec-item">
-                      <span className="spec-label">Square Feet</span>
-                      <span className="spec-value">{comp.sqft?.toLocaleString()}</span>
-                    </div>
-                    <div className="spec-item">
-                      <span className="spec-label">Price/Sq Ft</span>
-                      <span className="spec-value">{formatCurrency(comp.pricePerSqFt)}</span>
-                    </div>
-                    <div className="spec-item">
-                      <span className="spec-label">Year Built</span>
-                      <span className="spec-value">{comp.yearBuilt}</span>
-                    </div>
+                <div className="comp-specs">
+                  <div className="spec-item">
+                    <span className="spec-label">Beds/Baths</span>
+                    <span className="spec-value">{comp.bedrooms || comp.beds}/{comp.bathrooms || comp.baths}</span>
                   </div>
-
-                  <div className="comp-details">
-                    <div className="detail-row">
-                      <span className="detail-label">Listed Date</span>
-                      <span className="detail-value">{formatDate(comp.listedDate)}</span>
-                    </div>
-                    {comp.removedDate && (
-                      <div className="detail-row">
-                        <span className="detail-label">Sold Date</span>
-                        <span className="detail-value">{formatDate(comp.removedDate)}</span>
-                      </div>
-                    )}
-                    <div className="detail-row">
-                      <span className="detail-label">Days on Market</span>
-                      <span className="detail-value">{comp.daysOnMarket} days</span>
-                    </div>
-                    {comp.correlation && (
-                      <div className="detail-row">
-                        <span className="detail-label">Similarity</span>
-                        <span 
-                          className="detail-value confidence-badge"
-                          style={{ color: getConfidenceColor(comp.correlation) }}
-                        >
-                          {getConfidenceLevel(comp.correlation)} ({Math.round(comp.correlation * 100)}%)
-                        </span>
-                      </div>
-                    )}
+                  <div className="spec-item">
+                    <span className="spec-label">Square Feet</span>
+                    <span className="spec-value">{comp.squareFootage?.toLocaleString() || comp.sqft?.toLocaleString()}</span>
+                  </div>
+                  <div className="spec-item">
+                    <span className="spec-label">Lot Size</span>
+                    <span className="spec-value">{comp.lotSize?.toLocaleString()} sqft</span>
+                  </div>
+                  <div className="spec-item">
+                    <span className="spec-label">Price/Sq Ft</span>
+                    <span className="spec-value">
+                      {comp.price && (comp.squareFootage || comp.sqft)
+                        ? formatCurrency(Math.round(comp.price / (comp.squareFootage || comp.sqft)))
+                        : 'N/A'}
+                    </span>
+                  </div>
+                  <div className="spec-item">
+                    <span className="spec-label">Year Built</span>
+                    <span className="spec-value">{comp.yearBuilt}</span>
                   </div>
                 </div>
-              ))
-            ) : (
-              <div className="no-comps">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9 12H15M9 16H15M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H12.5858C12.851 3 13.1054 3.10536 13.2929 3.29289L19.7071 9.70711C19.8946 9.89464 20 10.149 20 10.4142V19C20 20.1046 19.1046 21 18 21H17Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <p>No comparable properties found</p>
+
+                <div className="comp-details">
+                  <div className="detail-row">
+                    <span className="detail-label">Listed Date</span>
+                    <span className="detail-value">{formatDate(comp.listedDate)}</span>
+                  </div>
+                  {comp.removedDate && (
+                    <div className="detail-row">
+                      <span className="detail-label">Sold Date</span>
+                      <span className="detail-value">{formatDate(comp.removedDate)}</span>
+                    </div>
+                  )}
+                  <div className="detail-row">
+                    <span className="detail-label">Days on Market</span>
+                    <span className="detail-value">{comp.daysOnMarket} days</span>
+                  </div>
+                  {comp.correlation && (
+                    <div className="detail-row">
+                      <span className="detail-label">Similarity</span>
+                      <span 
+                        className="detail-value confidence-badge"
+                        style={{ color: getConfidenceColor(comp.correlation) }}
+                      >
+                        {getConfidenceLevel(comp.correlation)} ({Math.round(comp.correlation * 100)}%)
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
+            ))}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
-export default Analysis; 
+export default Analysis;

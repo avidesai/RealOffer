@@ -87,12 +87,25 @@ const fetchFreshAnalysisData = async (property) => {
     pricePerSqFt: comp.squareFootage ? Math.round(comp.price / comp.squareFootage) : null,
     priceDifference: comp.price - homeCharacteristics.price,
     priceDifferencePercent: homeCharacteristics.price ? 
-      ((comp.price - homeCharacteristics.price) / homeCharacteristics.price * 100).toFixed(1) : null
+      ((comp.price - homeCharacteristics.price) / homeCharacteristics.price * 100).toFixed(1) : null,
+    // Ensure we have all required fields
+    bedrooms: comp.bedrooms,
+    bathrooms: comp.bathrooms,
+    squareFootage: comp.squareFootage,
+    lotSize: comp.lotSize,
+    yearBuilt: comp.yearBuilt,
+    price: comp.price,
+    distance: comp.distance,
+    correlation: comp.correlation,
+    listedDate: comp.listedDate,
+    removedDate: comp.removedDate,
+    daysOnMarket: comp.daysOnMarket
   }));
 
   // Sort rental comparables by correlation
   const rentalComps = (rentResponse.data.comparables || [])
     .sort((a, b) => (b.correlation || 0) - (a.correlation || 0))
+    .slice(0, 10)
     .map(comp => ({
       address: comp.formattedAddress,
       rent: comp.rent,
@@ -101,11 +114,16 @@ const fetchFreshAnalysisData = async (property) => {
 
   return {
     valuation: {
-      ...valuationResponse.data,
+      estimatedValue: valuationResponse.data.estimatedValue,
+      priceRangeLow: valuationResponse.data.priceRangeLow,
+      priceRangeHigh: valuationResponse.data.priceRangeHigh,
+      lastUpdated: new Date(),
       comparables
     },
     rentEstimate: {
-      ...rentResponse.data,
+      rent: rentResponse.data.rent,
+      rentRangeLow: rentResponse.data.rentRangeLow,
+      rentRangeHigh: rentResponse.data.rentRangeHigh,
       comparables: rentalComps
     },
     subjectProperty: {
@@ -114,9 +132,9 @@ const fetchFreshAnalysisData = async (property) => {
       beds: homeCharacteristics.beds,
       baths: homeCharacteristics.baths,
       sqft: homeCharacteristics.squareFootage,
+      lotSize: homeCharacteristics.lotSize,
       yearBuilt: homeCharacteristics.yearBuilt,
-      propertyType: mapPropertyType(homeCharacteristics.propertyType),
-      lotSize: homeCharacteristics.lotSize
+      propertyType: mapPropertyType(homeCharacteristics.propertyType)
     }
   };
 };
@@ -288,6 +306,7 @@ exports.getRentEstimate = async (req, res) => {
     // Sort comparables by correlation (most relevant first)
     const rentalComps = (response.data.comparables || [])
       .sort((a, b) => (b.correlation || 0) - (a.correlation || 0))
+      .slice(0, 10) // Limit to top 10 rental comparables
       .map(comp => ({
         address: comp.formattedAddress,
         rent: comp.rent,
