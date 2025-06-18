@@ -43,7 +43,7 @@ const fetchFreshAnalysisData = async (property) => {
   const { homeCharacteristics } = property;
   const address = `${homeCharacteristics.address}, ${homeCharacteristics.city}, ${homeCharacteristics.state} ${homeCharacteristics.zip}`;
 
-  // Fetch all data in parallel
+  // Fetch valuation and rent estimate in parallel
   const [valuationResponse, rentResponse] = await Promise.all([
     axios.get('https://api.rentcast.io/v1/avm/value', {
       params: {
@@ -81,28 +81,33 @@ const fetchFreshAnalysisData = async (property) => {
     })
   ]);
 
-  // Format the comparables with additional comparison metrics
+  // Format valuation comparables with consistent field names
   const comparables = (valuationResponse.data.comparables || []).map(comp => ({
-    ...comp,
-    pricePerSqFt: comp.squareFootage ? Math.round(comp.price / comp.squareFootage) : null,
-    priceDifference: comp.price - homeCharacteristics.price,
-    priceDifferencePercent: homeCharacteristics.price ? 
-      ((comp.price - homeCharacteristics.price) / homeCharacteristics.price * 100).toFixed(1) : null,
-    // Ensure we have all required fields with correct RentCast API field names
-    bedrooms: comp.bedrooms,
-    bathrooms: comp.bathrooms,
-    squareFootage: comp.squareFootage,
-    lotSize: comp.lotSize,
-    yearBuilt: comp.yearBuilt,
+    id: comp.id,
+    formattedAddress: comp.formattedAddress,
+    address: comp.formattedAddress,
     price: comp.price,
+    beds: comp.bedrooms,
+    baths: comp.bathrooms,
+    sqft: comp.squareFootage,
+    yearBuilt: comp.yearBuilt,
     distance: comp.distance,
-    correlation: comp.correlation,
+    propertyType: comp.propertyType,
+    lotSize: comp.lotSize,
+    listingType: comp.listingType,
     listedDate: comp.listedDate,
     removedDate: comp.removedDate,
-    daysOnMarket: comp.daysOnMarket
+    daysOnMarket: comp.daysOnMarket,
+    daysOld: comp.daysOld,
+    correlation: comp.correlation,
+    pricePerSqFt: comp.squareFootage ? Math.round(comp.price / comp.squareFootage) : null,
+    priceDifference: comp.price - homeCharacteristics.price,
+    priceDifferencePercent: homeCharacteristics.price
+      ? ((comp.price - homeCharacteristics.price) / homeCharacteristics.price * 100).toFixed(1)
+      : null
   }));
 
-  // Sort rental comparables by correlation
+  // Format rental comparables
   const rentalComps = (rentResponse.data.comparables || [])
     .sort((a, b) => (b.correlation || 0) - (a.correlation || 0))
     .slice(0, 10)
@@ -118,12 +123,19 @@ const fetchFreshAnalysisData = async (property) => {
       priceRangeLow: valuationResponse.data.priceRangeLow,
       priceRangeHigh: valuationResponse.data.priceRangeHigh,
       lastUpdated: new Date(),
+      pricePerSqFt: valuationResponse.data.price && homeCharacteristics.squareFootage
+        ? Math.round(valuationResponse.data.price / homeCharacteristics.squareFootage)
+        : null,
+      latitude: valuationResponse.data.latitude,
+      longitude: valuationResponse.data.longitude,
       comparables
     },
     rentEstimate: {
       rent: rentResponse.data.rent,
       rentRangeLow: rentResponse.data.rentRangeLow,
       rentRangeHigh: rentResponse.data.rentRangeHigh,
+      latitude: rentResponse.data.latitude,
+      longitude: rentResponse.data.longitude,
       comparables: rentalComps
     },
     subjectProperty: {
