@@ -193,7 +193,6 @@
 @media (max-width: 768px) {
   .dashboard-header {
     padding: 0.75rem 1.5rem;
-    justify-content: space-between;
   }
 
   .header-logo {
@@ -211,12 +210,7 @@
   }
 
   .header-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    flex: 1;
-    padding-right: 0;
-    gap: 1rem;
+    margin-left: auto;
   }
 
   .header-upgrade-btn {
@@ -229,5 +223,9 @@
 
   .user-info {
     display: none;
+  }
+
+  .user-avatar {
+    margin-left: auto;
   }
 }

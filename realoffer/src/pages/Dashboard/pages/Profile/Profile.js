@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import InputMask from 'react-input-mask';
+import { useNavigate } from 'react-router-dom';
 import useProfileLogic from './ProfileLogic';
 import ProfileHeader from './components/ProfileHeader/ProfileHeader';
 import Footer from '../../components/Footer/Footer';
@@ -10,6 +11,7 @@ import EditEmailModal from './components/EditEmailModal/EditEmailModal';
 import './Profile.css';
 
 const Profile = () => {
+  const navigate = useNavigate();
   const {
     profileData,
     loading,
@@ -22,6 +24,14 @@ const Profile = () => {
   } = useProfileLogic();
 
   const [isEmailModalOpen, setEmailModalOpen] = useState(false);
+
+  const handleUpgradeClick = () => {
+    navigate('/upgrade');
+  };
+
+  const handleManageSubscription = () => {
+    navigate('/dashboard/manage-subscription');
+  };
 
   if (loading) return <ProfileSpinner />;
 
@@ -51,10 +61,15 @@ const Profile = () => {
                   {isUploading.profilePhotoUrl && <div className="input-spinner"></div>}
                 </div>
                 <div className="form-group">
-                  <label>Pro Features</label>
+                  <label>Account Status</label>
                   <div className={`pro-status ${profileData.isPremium ? 'enabled' : 'disabled'}`}>
-                    {profileData.isPremium ? 'Pro Features: Enabled' : 'Pro Features: Not Enabled'}
+                    {profileData.isPremium ? 'Pro Account' : 'Free Account'}
                   </div>
+                  {!profileData.isPremium && (
+                    <button className="header-upgrade-btn" onClick={handleUpgradeClick}>
+                      Upgrade to Pro
+                    </button>
+                  )}
                 </div>
                 <div className="form-group">
                   <label>Role</label>
@@ -256,6 +271,23 @@ const Profile = () => {
                 </div>
               </div>
             </div>
+          </div>
+          <div className="profile-subscription-actions">
+            {profileData.isPremium ? (
+              <button 
+                className="manage-subscription-button"
+                onClick={handleManageSubscription}
+              >
+                Manage Subscription
+              </button>
+            ) : (
+              <button 
+                className="upgrade-to-pro-button"
+                onClick={handleUpgradeClick}
+              >
+                Upgrade to Pro
+              </button>
+            )}
           </div>
         </div>
       </div>
