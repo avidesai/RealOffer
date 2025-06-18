@@ -66,7 +66,7 @@ const Profile = () => {
                     {profileData.isPremium ? 'Pro Account' : 'Free Account'}
                   </div>
                   {!profileData.isPremium && (
-                    <button className="header-upgrade-btn" onClick={handleUpgradeClick}>
+                    <button className="profile-upgrade-btn" onClick={handleUpgradeClick}>
                       Upgrade to Pro
                     </button>
                   )}
@@ -272,17 +272,17 @@ const Profile = () => {
               </div>
             </div>
           </div>
-          <div className="profile-subscription-actions">
+          <div className="profile-upgrade-to-pro-actions">
             {profileData.isPremium ? (
               <button 
-                className="manage-subscription-button"
+                className="profile-manage-subscription-btn"
                 onClick={handleManageSubscription}
               >
                 Manage Subscription
               </button>
             ) : (
               <button 
-                className="upgrade-to-pro-button"
+                className="profile-upgrade-to-pro-btn"
                 onClick={handleUpgradeClick}
               >
                 Upgrade to Pro

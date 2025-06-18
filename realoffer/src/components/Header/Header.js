@@ -24,27 +24,27 @@ function Header() {
   };
 
   return (
-    <header className="header">
+    <header className="main-header">
       <Link to="/">
-        <img src={logo} alt="RealOffer Logo" className="header-logo" />
+        <img src={logo} alt="RealOffer Logo" className="main-header-logo" />
       </Link>
-      <div className="header-group">
-        <nav className="header-navigation">
-          <Link to="/features" className="header-link">Features</Link>
+      <div className="main-header-group">
+        <nav className="main-header-navigation">
+          <Link to="/features" className="main-header-link">Features</Link>
         </nav>
-        <div className="header-divider"></div>
-        <div className="header-actions">
+        <div className="main-header-divider"></div>
+        <div className="main-header-actions">
           {/* Log In link redirects to /dashboard if the user is logged in */}
-          <Link to="/login" className="header-link" onClick={handleLoginClick}>
+          <Link to="/login" className="main-header-link" onClick={handleLoginClick}>
             {user ? 'Dashboard' : 'Log In'}
           </Link>
           {/* If the user is logged in, show Logout, otherwise show Sign Up */}
           {user ? (
-            <button className="header-logout-button" onClick={handleLogoutClick}>
+            <button className="main-header-logout-button" onClick={handleLogoutClick}>
               Log Out
             </button>
           ) : (
-            <Link to="/signup" className="header-signup-button">Sign Up</Link>
+            <Link to="/signup" className="main-header-signup-button">Sign Up</Link>
           )}
         </div>
       </div>

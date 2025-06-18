@@ -3,207 +3,197 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  padding-top: 1rem;
-  padding-bottom: 2rem;
-  padding-left: 0; /* Remove left padding */
-  padding-right: 0; /* Remove right padding */
-  background-color: #ffffff; /* For a clean, modern look */
-  border-radius: 30px;
+  padding: 4rem 0;
+  background: linear-gradient(135deg, #f8fafd 0%, #e2e8f0 100%);
+  border-radius: 0;
 }
 
 .features-title {
-  font-size: 2rem; /* Larger for emphasis */
-  font-weight: 500; /* Semi-bold for a stronger presence */
-  margin-bottom: 2rem; /* More space below the title */
-  color: #333; /* Deep color for contrast */
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 3rem;
+  color: #23272f;
+  text-align: center;
+  letter-spacing: -1px;
 }
 
 .features-feature-toggle {
   display: flex;
   justify-content: center;
-  margin-bottom: 3rem; /* Increase spacing for aesthetic separation */
+  margin-bottom: 4rem;
+  background: #ffffff;
+  padding: 0.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0f4fa;
 }
 
 .features-toggle-btn {
-  font-size: 1.1rem; /* Larger font size for readability */
-  padding: 12px 24px; /* Bigger padding for a larger button */
-  margin: 0 10px; /* Space between buttons */
-  background-color: #e2e2e2; /* Light gray background for inactive button */
-  color: #333;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  margin: 0 0.25rem;
+  background: transparent;
+  color: #4a5568;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 600;
-  border-radius: 10px;
-  border: 2px solid #e2e2e2; /* Matching border to the background */
+  border-radius: 12px;
+  border: none;
+  outline: none;
 }
 
-
 .features-toggle-btn.active {
-  background-color: rgb(27, 92, 243);
+  background: linear-gradient(135deg, #4078fb 0%, #9b2ae2 100%);
   color: white;
-  border-color: rgb(27, 92, 243);
-  box-shadow: 0px 2px 5px rgba(0,0,0,0.2); /* Shadow for active button */
+  box-shadow: 0 4px 16px rgba(64, 120, 251, 0.25);
 }
 
 .features-toggle-btn:hover:not(.active) {
-  background-color: #d0d0d0; /* Darker shade on hover for inactive button */
-  border-color: #d0d0d0;
-}
-
-.toggle-btn:hover {
-  background-color: rgb(27, 92, 243);
-  color: white;
-  border-color: rgb(27, 92, 243);
-  box-shadow: 0px 2px 5px rgba(0,0,0,0.2); /* Add a shadow to the active/hover state */
+  background: #f7fafd;
+  color: #23272f;
 }
 
 .feature-content {
   display: flex;
-  justify-content: center; /* Center the content horizontally */
+  justify-content: center;
   width: 100%;
   max-width: 1200px;
-  margin: auto;
-  gap: 1rem;
+  margin: 0 auto;
+  padding: 0 2rem;
 }
 
 .feature-details {
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* Center the content horizontally */
-  margin-bottom: 1rem;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 3rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f4fa;
+  width: 100%;
+  max-width: 800px;
+}
+
+.feature-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid #f0f4fa;
+}
+
+.feature-role-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #23272f;
+  margin-bottom: 0.5rem;
+}
+
+.feature-role-subtitle {
+  font-size: 1.2rem;
+  color: #4a5568;
+  margin: 0;
+  line-height: 1.5;
 }
 
 .feature-point {
-  font-size: 1.2rem;
-  color: #454545; /* Lighter color for a modern look */
-  line-height: 1.5; /* Increased line height for readability */
-  font-weight: 500;
   display: flex;
-  align-items: center;
-  margin-bottom: 0.8rem;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #f8fafd;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
 }
 
-.feature-point-icon {
-  width: 28px;
-  height: 28px;
-  margin-right: 18px;
-}
-
-.sign-up-btn {
-  padding: 1rem 2rem;
-  background-color: rgb(27, 92, 243);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  box-shadow: 0px 8px 15px rgba(0,0,0,0.1);
-  transition: all 0.3s ease; /* Add a transition */
-  margin-top: 1rem;
-  margin-left: auto;
-  margin-right: auto;
-  text-decoration: none;
-}
-
-.sign-up-btn:hover {
-  background-color: #004a8f; /* Change the hover color to a darker shade */
-  box-shadow: 0px 8px 25px rgba(0,0,0,0.2);
+.feature-point:hover {
+  background: #ffffff;
+  border-color: #4078fb;
+  box-shadow: 0 4px 16px rgba(64, 120, 251, 0.1);
   transform: translateY(-2px);
 }
 
-/* Responsive adjustments */
-@media (max-width: 1024px) {
-  .features-section {
-    padding-left: 0.7rem; /* Add some left padding for smaller screens */
-    padding-right: 0rem; /* Add some right padding for smaller screens */
-  }
+.feature-point-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
 
-  .feature-content {
-    flex-direction: column;
-  }
+.feature-point p {
+  font-size: 1.1rem;
+  color: #23272f;
+  line-height: 1.6;
+  margin: 0;
+  font-weight: 500;
+}
 
-  .features-title {
-    font-size: 1.7rem;
-    margin-bottom: 2rem;
-  }
+.sign-up-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #4078fb 0%, #9b2ae2 100%);
+  color: white;
+  padding: 1rem 2.5rem;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-top: 2rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(64, 120, 251, 0.25);
+  text-align: center;
+  width: 100%;
+}
 
-  .feature-details {
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    align-items: center; /* Center the content horizontally */
-  }
-
-  .features-feature-toggle {
-    margin-bottom: 2.2rem; /* Increase spacing for aesthetic separation */
-  }
-
-  .features-toggle-btn {
-    font-size: 0.9rem;
-  }
-
-  .feature-point {
-    font-size: 1.1rem; /* Adjust font size for mobile readability */
-    margin-bottom: 0.2rem;
-  }
-
-  .feature-point-icon {
-    width: 22px;
-    height: 22px;
-  }
-
-  .sign-up-btn {
-    margin-top: 1.5rem;
-  }
+.sign-up-btn:hover {
+  background: linear-gradient(135deg, #3460c8 0%, #8423c1 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(64, 120, 251, 0.35);
+  color: white;
+  text-decoration: none;
 }
 
 @media (max-width: 768px) {
   .features-section {
-    padding-left: 0.5rem; /* Add some left padding for even smaller screens */
-    padding-right: 0.5rem; /* Add some right padding for even smaller screens */
+    padding: 3rem 1rem;
   }
-
+  
   .features-title {
-    font-size: 1.5rem; /* Adjust font size for mobile readability */
-    margin-bottom: 1rem; /* Adjust margin for mobile */
+    font-size: 2rem;
+    margin-bottom: 2rem;
   }
-
+  
   .features-feature-toggle {
-    margin-top: 1.2rem;
-    margin-bottom: 2rem; /* Increase spacing for aesthetic separation */
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem;
   }
-
+  
   .features-toggle-btn {
-    font-size: 0.8rem; /* Adjust font size for mobile */
-    padding: 8px 12px; /* Adjust padding for mobile */
+    margin: 0;
+    padding: 0.875rem 1.5rem;
   }
-
+  
   .feature-content {
-    flex-direction: column; /* Stack the image and details vertically */
+    padding: 0 1rem;
   }
-
+  
   .feature-details {
-    width: 100%;
-    margin-top: 0.5rem; /* Add some space above the details */
-    margin-left: auto;
-    margin-right: auto;
-    align-items: center; /* Center the content horizontally */
+    padding: 2rem 1.5rem;
   }
-
+  
+  .feature-role-title {
+    font-size: 1.75rem;
+  }
+  
+  .feature-role-subtitle {
+    font-size: 1.1rem;
+  }
+  
   .feature-point {
-    font-size: 0.9rem; /* Adjust font size for mobile readability */
-    margin-bottom: 0.5rem;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
   }
-
-  .feature-point-icon {
-    width: 20px; /* Adjust icon size for mobile */
-    height: 20px; /* Adjust icon size for mobile */
-  }
-
-  .sign-up-btn {
-    padding: 0.8rem 1.6rem; /* Adjust button size for mobile */
-    font-size: 0.9rem; /* Adjust font size for mobile */
+  
+  .feature-point p {
+    font-size: 1rem;
   }
 }

@@ -287,7 +287,7 @@ input[type="email"]:focus,
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.header-upgrade-btn {
+.profile-upgrade-btn {
   margin-top: 1rem;
   padding: 0.7rem 1.4rem;
   background: linear-gradient(135deg, #9b2ae2 0%, #4078fb 100%);
@@ -304,7 +304,7 @@ input[type="email"]:focus,
   width: 100%;
 }
 
-.header-upgrade-btn:hover {
+.profile-upgrade-btn:hover {
   background: linear-gradient(135deg, #8423c1 0%, #3460c8 100%);
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(155, 42, 226, 0.3);

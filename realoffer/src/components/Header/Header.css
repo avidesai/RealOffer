@@ -1,57 +1,62 @@
 /* Header.css */
 
-.header {
+.main-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 2.5rem;
+    padding: 1.1rem 2.5rem 1.1rem 2.5rem;
     background-color: #fff;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     z-index: 1000;
     position: relative;
 }
 
-.header-logo {
-    height: 48px;
+.main-header-logo {
+    height: 44px;
     cursor: pointer;
     transition: all 0.3s ease;
-    padding-right: 1.5rem;
-    padding-left: 1rem;
+    margin-right: 2rem;
+    margin-left: 0.5rem;
+    display: block;
 }
 
-.header-logo:hover {
+.main-header-logo:hover {
     transform: scale(1.05);
     filter: brightness(1.1);
 }
 
-.header-group {
+.main-header-group {
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 2.2rem;
+    flex: 1;
+    justify-content: flex-end;
 }
 
-.header-navigation {
+.main-header-navigation {
     display: flex;
     gap: 2rem;
+    align-items: center;
 }
 
-.header-link {
+.main-header-link {
     margin: 0;
     text-decoration: none;
     color: #444;
     font-weight: 500;
-    font-size: 1rem;
+    font-size: 1.05rem;
     transition: all 0.3s ease;
     position: relative;
     padding: 0.5rem 0;
+    display: inline-block;
 }
 
-.header-link:hover,
-.header-link:focus {
+.main-header-link:hover,
+.main-header-link:focus {
     color: #1b5cf3;
 }
 
-.header-link::after {
+.main-header-link::after {
     content: '';
     position: absolute;
     width: 0;
@@ -62,81 +67,148 @@
     transition: width 0.3s ease;
 }
 
-.header-link:hover::after {
+.main-header-link:hover::after {
     width: 100%;
 }
 
-.header-divider {
-    height: 24px;
+.main-header-divider {
+    height: 28px;
     border-left: 1px solid #e0e0e0;
-    margin: 0;
+    margin: 0 1.2rem;
 }
 
-.header-actions {
+.main-header-actions {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 2rem;
 }
 
-.header-signup-button,
-.header-logout-button {
-    padding: 0.7rem 1.4rem;
+.main-header-signup-button,
+.main-header-logout-button {
+    padding: 0.7rem 1.5rem;
     background-color: #1b5cf3;
     color: #fff;
     border: none;
     border-radius: 8px;
     text-decoration: none;
     cursor: pointer;
-    font-weight: 500;
-    font-size: 0.95rem;
+    font-weight: 600;
+    font-size: 1rem;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(27, 92, 243, 0.2);
+    box-shadow: 0 2px 8px rgba(27, 92, 243, 0.18);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
 }
 
-.header-signup-button:hover,
-.header-logout-button:hover {
+.main-header-signup-button {
+    background-color: #1b5cf3;
+    margin-left: 0.5rem;
+}
+
+.main-header-signup-button:hover,
+.main-header-logout-button:hover {
     background-color: #1544b2;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(27, 92, 243, 0.3);
+    box-shadow: 0 4px 12px rgba(27, 92, 243, 0.28);
 }
 
 /* Responsive design adjustments for small screens */
+@media (max-width: 900px) {
+    .main-header {
+        padding: 0.8rem 1.2rem;
+    }
+    .main-header-logo {
+        height: 38px;
+        margin-right: 1.2rem;
+    }
+    .main-header-group {
+        gap: 1.2rem;
+    }
+    .main-header-navigation {
+        gap: 1.2rem;
+    }
+    .main-header-actions {
+        gap: 2rem;
+    }
+    .main-header-signup-button,
+    .main-header-logout-button {
+        padding: 0.6rem 1.1rem;
+        font-size: 0.95rem;
+    }
+}
+
 @media (max-width: 768px) {
-    .header {
-        padding: 0.75rem 1.5rem;
-        flex-wrap: wrap; /* Ensures content wraps and doesn't overflow */
+    .main-header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.2rem 1rem 1.2rem;
+        min-height: 64px;
+        gap: 0;
+        box-sizing: border-box;
     }
-
-    .header-logo {
-        height: 42px;
-        flex-basis: 100%; /* Makes the logo take full width */
-        order: 1; /* Reorders the logo to the top */
-        text-align: center; /* Centers the logo */
-        padding: 0;
+    .main-header-logo {
+        height: 40px;
+        margin: 0 0.9rem 0 0.2rem;
+        order: 1;
     }
-
-    .header-group {
-        width: 100%; /* Ensures group takes full width */
-        justify-content: space-between; /* Spreads items to full width */
-        order: 3; /* Places navigation at the bottom */
-        gap: 1rem;
+    .main-header-group {
+        width: auto;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+        order: 2;
+        gap: 1.2rem;
+        flex: 1;
     }
-
-    .header-navigation,
-    .header-divider {
-        display: none; /* Still hide navigation and divider */
+    .main-header-navigation {
+        display: none;
     }
-
-    .header-actions {
-        order: 2; /* Places actions below logo */
-        justify-content: center; /* Centers actions */
-        width: 100%; /* Full width to contain buttons */
-        gap: 1rem;
+    .main-header-divider {
+        display: none;
     }
-
-    .header-signup-button,
-    .header-logout-button {
+    .main-header-actions {
+        justify-content: flex-end;
+        gap: 1.5rem;
+        flex-wrap: nowrap;
+        width: auto;
+        padding-right: 0.2rem;
+    }
+    .main-header-signup-button,
+    .main-header-logout-button {
         padding: 0.6rem 1.2rem;
-        font-size: 0.9rem;
+        font-size: 1.05rem;
+        min-width: 95px;
+        flex: 0 0 auto;
+        border-radius: 7px;
+    }
+    .main-header-signup-button {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-header {
+        padding: 0.7rem 0.7rem 0.7rem 1rem;
+        min-height: 60px;
+    }
+    .main-header-logo {
+        height: 34px;
+        margin: 0 0.7rem 0 0.2rem;
+    }
+    .main-header-actions {
+        gap: 1.5rem;
+        padding-right: 0.2rem;
+    }
+    .main-header-signup-button,
+    .main-header-logout-button {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        min-width: 80px;
+    }
+    .main-header-signup-button {
+        margin-left: 0;
     }
 }

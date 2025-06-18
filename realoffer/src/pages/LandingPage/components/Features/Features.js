@@ -1,7 +1,7 @@
 // Features.js
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // Import Link
+import { Link } from 'react-router-dom';
 import './Features.css';
 import chart from './chart.svg'
 import chat from './chat.svg'
@@ -10,47 +10,57 @@ import offer from './offer.svg'
 import notifications from './notifications.svg'
 
 const Features = () => {
-  const [activeFeature, setActiveFeature] = useState('sell');
+  const [activeFeature, setActiveFeature] = useState('listing');
 
   const featureDetails = {
-    sell: {
-      title: 'Seller’s Agent Features (Listing Side)',
+    listing: {
+      title: 'For Listing Agents',
+      subtitle: 'Streamline your listings and close deals faster',
       points: [
         {
-          text: 'Host disclosure documents for buyers to view and download',
+          text: 'Upload and organize disclosure documents with AI-powered analysis',
           icon: clipboard,
         },
         {
-          text: 'Automatically generate listing agreements and other documents for sellers to sign',
-          icon: notifications,
-        },
-        {
-          text: 'Communicate with buyers and agents through the platform.',
-          icon: chat,
-        },
-        {
-          text: 'Track and analyze buyer activity, including views, downloads, and interactions with documents (Premium).',
+          text: 'Track buyer engagement and document views in real-time',
           icon: chart,
         },
-      ],
-    },
-    buy: {
-      title: 'Buyer’s Agent and Buyer Features (Buyer Side)',
-      points: [
         {
-          text: 'View and download disclosure documents provided by the seller’s agent.',
-          icon: clipboard,
-        },
-        {
-          text: 'Directly make offers to the listing agent on the platform, attaching documents and including detailed terms.',
+          text: 'Receive and manage offers through a centralized dashboard',
           icon: offer,
         },
         {
-          text: 'Communicate with sellers and listing agents through the platform.',
+          text: 'Communicate securely with buyers and their agents',
           icon: chat,
         },
         {
-          text: 'Track and analyze interest in the listing by other agents/buyers, including views, downloads, and interactions with disclosure documents (Premium).',
+          text: 'Generate professional listing agreements and contracts',
+          icon: notifications,
+        },
+      ],
+    },
+    buyer: {
+      title: 'For Buyer\'s Agents',
+      subtitle: 'Make competitive offers and win more deals',
+      points: [
+        {
+          text: 'Access disclosure documents instantly, 24/7',
+          icon: clipboard,
+        },
+        {
+          text: 'Submit professional offers with all required documents attached',
+          icon: offer,
+        },
+        {
+          text: 'Track offer status and receive instant notifications',
+          icon: notifications,
+        },
+        {
+          text: 'Communicate directly with listing agents through the platform',
+          icon: chat,
+        },
+        {
+          text: 'Monitor listing activity and buyer interest levels',
           icon: chart,
         },
       ],
@@ -59,30 +69,34 @@ const Features = () => {
 
   return (
     <div className="features-section">
-      <h2 className="features-title">Key Features</h2>
+      <h2 className="features-title">Built for Real Estate Professionals</h2>
       <div className="features-feature-toggle">
         <button
-          className={`features-toggle-btn features-toggle-btn-left ${activeFeature === 'sell' ? 'active' : ''}`}
-          onClick={() => setActiveFeature('sell')}
+          className={`features-toggle-btn features-toggle-btn-left ${activeFeature === 'listing' ? 'active' : ''}`}
+          onClick={() => setActiveFeature('listing')}
         >
-          Sell Your Home
+          Listing Agents
         </button>
         <button
-          className={`features-toggle-btn features-toggle-btn-right ${activeFeature === 'buy' ? 'active' : ''}`}
-          onClick={() => setActiveFeature('buy')}
+          className={`features-toggle-btn features-toggle-btn-right ${activeFeature === 'buyer' ? 'active' : ''}`}
+          onClick={() => setActiveFeature('buyer')}
         >
-          Buy Your Home
+          Buyer's Agents
         </button>
       </div>
       <div className="feature-content">
         <div className="feature-details">
+          <div className="feature-header">
+            <h3 className="feature-role-title">{featureDetails[activeFeature].title}</h3>
+            <p className="feature-role-subtitle">{featureDetails[activeFeature].subtitle}</p>
+          </div>
           {featureDetails[activeFeature].points.map((point, index) => (
             <div key={index} className="feature-point">
               <img src={point.icon} alt="" className="feature-point-icon" />
               <p>{point.text}</p>
             </div>
           ))}
-          <Link to="/signup" className="sign-up-btn">Sign Up Now</Link> 
+          <Link to="/signup" className="sign-up-btn">Start Free Trial</Link> 
         </div>
       </div>
     </div>
