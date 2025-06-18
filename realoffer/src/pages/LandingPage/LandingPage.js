@@ -1,14 +1,84 @@
 // LandingPage.js
 
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Home, FileText, Calendar, BarChart2, MessageCircle, DollarSign, Users, Inbox, FileSignature, PenTool, Zap, Shield, Clock, TrendingUp, Award, Smartphone, Globe, Search, Calculator, Check, Star, ArrowRight, Play, Lock, CheckCircle, XCircle, Sparkles, Building2, Briefcase, HeartHandshake } from 'lucide-react';
-import Header from '../../components/Header/Header';
+import { ChevronRight, Home, FileText, Calendar, BarChart2, MessageCircle, DollarSign, Users, Inbox, FileSignature, PenTool, Zap, Shield, Clock, TrendingUp, Award, Smartphone, Globe, Search, Calculator, Check, Star, ArrowRight, Play, Lock, CheckCircle, XCircle, Sparkles, Building2, Briefcase, HeartHandshake, Menu, X } from 'lucide-react';
 import Footer from '../../components/Footer/Footer';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import CountUp from 'react-countup';
 import VisibilitySensor from 'react-visibility-sensor';
 import logo from './images/logo.png';
+import { useAuth } from '../../context/AuthContext';
 import './LandingPage.css';
+
+// Landing Page Header Component
+const LandingHeader = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleLoginClick = (e) => {
+    if (user) {
+      e.preventDefault();
+      navigate('/dashboard');
+    }
+  };
+
+  const handleLogoutClick = (e) => {
+    e.preventDefault();
+    logout();
+    navigate('/');
+  };
+
+  return (
+    <header className={`landing-header ${isScrolled ? 'landing-header-scrolled' : ''}`}>
+      <div className="landing-header-container">
+        <Link to="/" className="landing-header-logo">
+          <img src={logo} alt="RealOffer" className="landing-header-logo-image" />
+          <span className="landing-header-logo-text">RealOffer</span>
+        </Link>
+
+        <nav className={`landing-header-nav ${isMobileMenuOpen ? 'landing-header-nav-open' : ''}`}>
+          <Link to="/features" className="landing-header-nav-link">Features</Link>
+          <Link to="/pricing" className="landing-header-nav-link">Pricing</Link>
+          <Link to="/about" className="landing-header-nav-link">About</Link>
+        </nav>
+
+        <div className="landing-header-actions">
+          <Link to="/login" className="landing-header-login" onClick={handleLoginClick}>
+            {user ? 'Dashboard' : 'Log In'}
+          </Link>
+          {user ? (
+            <button className="landing-header-signup" onClick={handleLogoutClick}>
+              Log Out
+            </button>
+          ) : (
+            <Link to="/signup" className="landing-header-signup">
+              Get Started
+            </Link>
+          )}
+        </div>
+
+        <button 
+          className="landing-header-mobile-toggle"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Toggle mobile menu"
+        >
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
+    </header>
+  );
+};
 
 const Feature = ({ icon: Icon, title, description, highlight }) => (
   <div className={`feature ${highlight ? 'feature-highlight' : ''}`}>
@@ -147,7 +217,7 @@ const LandingPage = () => {
 
   return (
     <div className="landing-page">
-      <Header />
+      <LandingHeader />
       <main className="landing-main">
         {/* Hero Section */}
         <section className="hero">
