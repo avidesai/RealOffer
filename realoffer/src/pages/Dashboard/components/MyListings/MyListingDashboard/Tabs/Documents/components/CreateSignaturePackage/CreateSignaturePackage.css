@@ -25,6 +25,9 @@
 }
 
 .csp-header {
+  position: relative;
+  min-height: 64px;
+  padding-top: 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -103,21 +106,22 @@
 
 .csp-close-button {
   position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
+  top: 0.75rem;
+  right: 1.25rem;
   background: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 50%;
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.5em;
+  font-size: 2em;
   cursor: pointer;
   color: #666;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 0.25rem;
 }
 
 .csp-close-button:hover {
@@ -220,3 +224,5 @@
     padding: 0.6rem 1rem;
   }
 }
+
+/* PDF Viewer Select All button fix */

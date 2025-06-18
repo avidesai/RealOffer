@@ -18,12 +18,17 @@ const LandingHeader = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    // Use IntersectionObserver to detect if hero is in view
+    const hero = document.querySelector('.hero');
+    if (!hero) return;
+    const observer = new window.IntersectionObserver(
+      ([entry]) => {
+        setIsScrolled(!entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(hero);
+    return () => observer.disconnect();
   }, []);
 
   const handleLoginClick = (e) => {
@@ -49,7 +54,7 @@ const LandingHeader = () => {
 
         <nav className={`landing-header-nav ${isMobileMenuOpen ? 'landing-header-nav-open' : ''}`}>
           <Link to="/features" className="landing-header-nav-link">Features</Link>
-          <Link to="/pricing" className="landing-header-nav-link">Pricing</Link>
+          <Link to="/upgrade" className="landing-header-nav-link">Pricing</Link>
           <Link to="/about" className="landing-header-nav-link">About</Link>
         </nav>
 
@@ -168,21 +173,7 @@ const PricingCard = ({ title, price, period, features, highlighted, ctaText }) =
 );
 
 const LandingPage = () => {
-  const [scrollPosition, setScrollPosition] = useState(0);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const position = window.pageYOffset;
-      setScrollPosition(position);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {

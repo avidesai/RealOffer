@@ -414,6 +414,7 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
       <div className="spv-pdf-header">
         <h3>{documentTitle}</h3>
         <div className="spv-toolbar">
+          {/* Navigation group */}
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage <= 1}
@@ -431,17 +432,24 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
           >
             <FiChevronRight />
           </button>
+          {/* Spacer between groups */}
+          <span style={{ width: 16, display: 'inline-block' }} />
+          {/* Zoom group */}
           <button onClick={zoomOut} title="Zoom out">
             <FiZoomOut />
           </button>
           <button onClick={zoomIn} title="Zoom in">
             <FiZoomIn />
           </button>
+          {/* Spacer between groups */}
+          <span style={{ width: 16, display: 'inline-block' }} />
+          {/* Select All group */}
           <button
             className="spv-select-all-button"
             onClick={handleSelectAllPages}
             disabled={!numPages}
             title={allPagesSelected ? "Deselect all pages" : "Select all pages"}
+            style={{ marginLeft: 8 }}
           >
             {allPagesSelected ? <MdCheckBox /> : <MdCheckBoxOutlineBlank />}
             <span>{allPagesSelected ? 'Deselect All' : 'Select All'}</span>
