@@ -1,3 +1,5 @@
+// propertyAnalysisController.js
+
 const axios = require('axios');
 const PropertyListing = require('../models/PropertyListing');
 const PropertyAnalysis = require('../models/PropertyAnalysis');
@@ -155,6 +157,7 @@ const fetchFreshAnalysisData = async (property) => {
 exports.getPropertyAnalysis = async (req, res) => {
   try {
     const { propertyId } = req.params;
+    const forceRefresh = req.query.force === 'true';
 
     // Get property details
     const property = await PropertyListing.findById(propertyId);
@@ -165,8 +168,8 @@ exports.getPropertyAnalysis = async (req, res) => {
     // Check for existing analysis
     let analysis = await PropertyAnalysis.findOne({ propertyId });
 
-    // If no analysis exists or it's stale, fetch fresh data
-    if (!analysis || isAnalysisStale(analysis.lastUpdated)) {
+    // If no analysis exists or it's stale or force refresh is requested, fetch fresh data
+    if (!analysis || isAnalysisStale(analysis.lastUpdated) || forceRefresh) {
       const freshData = await fetchFreshAnalysisData(property);
       
       // Create or update analysis document

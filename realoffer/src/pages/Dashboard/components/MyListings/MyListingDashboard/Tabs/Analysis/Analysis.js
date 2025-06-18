@@ -1,3 +1,5 @@
+// Analysis.js
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../../../../../context/AuthContext';
@@ -14,13 +16,13 @@ const Analysis = ({ listingId }) => {
     lastUpdated: null
   });
 
-  const fetchAnalysisData = async () => {
+  const fetchAnalysisData = async (force = false) => {
     try {
       setLoading(true);
       setError(null);
 
       const response = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/api/property-analysis/${listingId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/property-analysis/${listingId}${force ? '?force=true' : ''}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -150,7 +152,7 @@ const Analysis = ({ listingId }) => {
                 <span className="last-updated">Updated {formatLastUpdated(analysisData.lastUpdated)}</span>
                 <button 
                   className="refresh-button"
-                  onClick={fetchAnalysisData}
+                  onClick={() => fetchAnalysisData(true)}
                   disabled={loading}
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -252,11 +254,11 @@ const Analysis = ({ listingId }) => {
                   <div className="comp-specs">
                     <div className="spec-item">
                       <span className="spec-label">Beds/Baths</span>
-                      <span className="spec-value">{comp.bedrooms}/{comp.bathrooms}</span>
+                      <span className="spec-value">{comp.beds}/{comp.baths}</span>
                     </div>
                     <div className="spec-item">
                       <span className="spec-label">Square Feet</span>
-                      <span className="spec-value">{comp.squareFootage?.toLocaleString()} sqft</span>
+                      <span className="spec-value">{comp.sqft?.toLocaleString()} sqft</span>
                     </div>
                     <div className="spec-item">
                       <span className="spec-label">Lot Size</span>
@@ -265,8 +267,8 @@ const Analysis = ({ listingId }) => {
                     <div className="spec-item">
                       <span className="spec-label">Price/Sq Ft</span>
                       <span className="spec-value">
-                        {comp.price && comp.squareFootage
-                          ? formatCurrency(Math.round(comp.price / comp.squareFootage))
+                        {comp.price && comp.sqft
+                          ? formatCurrency(Math.round(comp.price / comp.sqft))
                           : 'N/A'}
                       </span>
                     </div>

@@ -1,3 +1,5 @@
+// PropertyAnalysis.js
+
 const mongoose = require('mongoose');
 
 const comparableSchema = new mongoose.Schema({
