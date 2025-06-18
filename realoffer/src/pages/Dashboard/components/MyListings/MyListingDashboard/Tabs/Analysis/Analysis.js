@@ -140,8 +140,6 @@ const Analysis = ({ listingId }) => {
     <div className="analysis-tab">
       <div className="analysis-content">
         <div className="analysis-header">
-          <h2>Property Analysis</h2>
-          <p>AI valuation based on comparable properties</p>
         </div>
 
         <div className="valuation-cards">
@@ -167,7 +165,7 @@ const Analysis = ({ listingId }) => {
                 <div className="value-section">
                   <div className="main-value">
                     {formatCurrency(analysisData.valuation?.estimatedValue)}
-                    <div className="value-label">Estimated Home Value</div>
+                    <div className="value-label">Estimated Property Value</div>
                   </div>
                   {analysisData.valuation?.priceRangeLow && analysisData.valuation?.priceRangeHigh && (
                     <div className="value-range">
@@ -196,15 +194,15 @@ const Analysis = ({ listingId }) => {
 
         {analysisData.subjectProperty && (
           <div className="subject-property">
-            <h3>Subject Property</h3>
+            <h3>Property Details</h3>
             <div className="subject-details">
               <div className="subject-stat">
-                <span className="stat-label">Listed Price</span>
+                <span className="stat-label">List Price</span>
                 <span className="stat-value">{formatCurrency(analysisData.subjectProperty.price)}</span>
               </div>
               <div className="subject-stat">
-                <span className="stat-label">Beds/Baths</span>
-                <span className="stat-value">{analysisData.subjectProperty.beds}/{analysisData.subjectProperty.baths}</span>
+                <span className="stat-label">Beds / Baths</span>
+                <span className="stat-value">{analysisData.subjectProperty.beds} / {analysisData.subjectProperty.baths}</span>
               </div>
               <div className="subject-stat">
                 <span className="stat-label">Square Feet</span>
@@ -253,8 +251,8 @@ const Analysis = ({ listingId }) => {
 
                   <div className="comp-specs">
                     <div className="spec-item">
-                      <span className="spec-label">Beds/Baths</span>
-                      <span className="spec-value">{comp.beds}/{comp.baths}</span>
+                      <span className="spec-label">Beds / Baths</span>
+                      <span className="spec-value">{comp.beds} / {comp.baths}</span>
                     </div>
                     <div className="spec-item">
                       <span className="spec-label">Square Feet</span>
@@ -280,12 +278,12 @@ const Analysis = ({ listingId }) => {
 
                   <div className="comp-details">
                     <div className="detail-row">
-                      <span className="detail-label">Listed Date</span>
+                      <span className="detail-label">Date Listed</span>
                       <span className="detail-value">{formatDate(comp.listedDate)}</span>
                     </div>
                     {comp.removedDate && (
                       <div className="detail-row">
-                        <span className="detail-label">Sold Date</span>
+                        <span className="detail-label">Date Sold</span>
                         <span className="detail-value">{formatDate(comp.removedDate)}</span>
                       </div>
                     )}
@@ -293,17 +291,6 @@ const Analysis = ({ listingId }) => {
                       <span className="detail-label">Days on Market</span>
                       <span className="detail-value">{comp.daysOnMarket} days</span>
                     </div>
-                    {comp.correlation && (
-                      <div className="detail-row">
-                        <span className="detail-label">Similarity</span>
-                        <span 
-                          className="detail-value confidence-badge"
-                          style={{ color: getConfidenceColor(comp.correlation) }}
-                        >
-                          {getConfidenceLevel(comp.correlation)} ({Math.round(comp.correlation * 100)}%)
-                        </span>
-                      </div>
-                    )}
                   </div>
                 </div>
               ))}

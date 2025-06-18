@@ -71,4 +71,8 @@
   .footer-socials {
     margin-top: 0.5rem;
   }
+
+  .footer-text p {
+    display: none;
+  }
 }

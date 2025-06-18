@@ -5,121 +5,150 @@ body {
 }
 
 .profile-background {
-  padding-top: 2.5rem; /* Increased spacing above the profile container */
-  padding-bottom: 2.5rem; /* Increased spacing below the profile container */
+  padding: 3rem 1.5rem;
+  min-height: calc(100vh - 60px);
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
 .profile-container {
-  max-width: 65%; /* Adjusted max width to a percentage */
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 1rem 4rem; /* Added more padding on the left and right */
+  padding: 2rem;
   background-color: #fff;
-  border-radius: 1.5rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 }
 
 .profile-title {
   font-size: 2rem;
-  margin-bottom: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
   text-align: center;
+  color: #2d3748;
 }
 
 .profile-content {
   display: flex;
   justify-content: space-between;
-  gap: 3rem; /* Added more gap for more spacing */
+  gap: 2rem;
 }
 
 .profile-section {
-  width: 45%; /* Adjust width to make them side by side */
+  width: 48%;
 }
 
 .profile-section h3 {
-  font-size: 1.5rem;
-  margin-bottom: 2rem;
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #2d3748;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e2e8f0;
 }
 
 .profile-form {
   display: flex;
   flex-direction: column;
+  gap: 1.25rem;
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
-  position: relative; /* Position for input-spinner */
+  margin-bottom: 1rem;
+  position: relative;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 0.75rem; /* Added more spacing beneath labels */
-  font-weight: bold;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #4a5568;
+  font-size: 0.95rem;
 }
 
 input[type="text"],
 input[type="email"],
 .upload-input,
 .form-control {
-  width: calc(100% - 1rem); /* Reduced width */
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 1rem; /* Set the font size for form controls */
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background-color: #fff;
+  color: #2d3748;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+.form-control:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
 }
 
 .upload-container {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .upload-button {
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
+  padding: 0.75rem 1.5rem;
+  background-color: #4299e1;
   color: #fff;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .upload-button:hover {
-  background-color: #0056b3;
+  background-color: #3182ce;
+  transform: translateY(-1px);
 }
 
 .profile-photo,
 .agency-photo {
   width: 100px;
   height: 100px;
-  border-radius: 50%;
+  border-radius: 12px;
   object-fit: cover;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
 }
 
 .profile-checkbox-label {
   display: flex;
   align-items: center;
-  margin-top: 0.5rem;
-  font-weight: normal; /* Make text not bold */
-  font-size: 0.9rem; /* Make text smaller */
-  gap: 0.5rem; /* Add gap between checkbox and text */
+  margin-top: 0.75rem;
+  font-weight: normal;
+  font-size: 0.9rem;
+  color: #4a5568;
+  gap: 1rem;
 }
 
 .profile-checkbox-label input[type="checkbox"] {
-  margin-right: 1rem; /* Remove default margin */
-  width: 1rem;
-  height: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 4px;
+  border: 1.5px solid #e2e8f0;
+  cursor: pointer;
 }
 
 .input-spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-top: 4px solid #3498db;
+  border: 3px solid rgba(66, 153, 225, 0.1);
+  border-top: 3px solid #4299e1;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  animation: spin 1s linear infinite;
+  width: 24px;
+  height: 24px;
+  animation: spin 0.8s linear infinite;
   position: absolute;
-  right: 10px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -127,61 +156,157 @@ input[type="email"],
 .email-group {
   display: flex;
   align-items: center;
-  background-color: #f4f4f4;
-  padding: 0.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  border-radius: 4px;
+  background-color: #f8fafc;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
 }
 
 .email-display {
   flex-grow: 1;
   font-size: 1rem;
-  color: #666;
+  color: #4a5568;
 }
 
 .edit-button {
-  margin-left: 0.5rem;
-  padding: 0.4rem 1rem;
-  background-color: #007bff;
+  padding: 0.5rem 1.25rem;
+  background-color: #4299e1;
   color: #fff;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .edit-button:hover {
-  background-color: #0056b3;
+  background-color: #3182ce;
+  transform: translateY(-1px);
 }
 
 .role-display {
-  padding: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  color: #4a5568;
+  border: 1.5px solid #e2e8f0;
 }
 
 .pro-status {
-  padding: 0.5rem;
-  border-radius: 5px;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
   text-align: center;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .pro-status.enabled {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background-color: #c6f6d5;
+  color: #2f855a;
+  border: 1.5px solid #9ae6b4;
 }
 
 .pro-status.disabled {
-  background-color: #e2e3e5;
-  color: #6c757d;
-  border: 1px solid #d6d8db;
+  background-color: #edf2f7;
+  color: #718096;
+  border: 1.5px solid #e2e8f0;
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 1024px) {
+  .profile-container {
+    max-width: 85%;
+    padding: 1.75rem;
   }
 }
+
+@media (max-width: 768px) {
+  .profile-background {
+    padding: 2rem 1rem;
+  }
+  
+  .profile-container {
+    padding: 1.5rem;
+  }
+  
+  .profile-content {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .profile-section {
+    width: 100%;
+  }
+}
+
+.profile-subscription-actions {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e2e8f0;
+  display: flex;
+  justify-content: center;
+}
+
+.upgrade-to-pro-button,
+.manage-subscription-button {
+  padding: 0.875rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  min-width: 200px;
+}
+
+.upgrade-to-pro-button {
+  background-color: #4299e1;
+  color: white;
+}
+
+.upgrade-to-pro-button:hover {
+  background-color: #3182ce;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.2);
+}
+
+.manage-subscription-button {
+  background-color: #f7fafc;
+  color: #4a5568;
+  border: 1.5px solid #e2e8f0;
+}
+
+.manage-subscription-button:hover {
+  background-color: #edf2f7;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.header-upgrade-btn {
+  margin-top: 1rem;
+  padding: 0.7rem 1.4rem;
+  background: linear-gradient(135deg, #9b2ae2 0%, #4078fb 100%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(155, 42, 226, 0.2);
+  width: 100%;
+}
+
+.header-upgrade-btn:hover {
+  background: linear-gradient(135deg, #8423c1 0%, #3460c8 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(155, 42, 226, 0.3);
+}
+
