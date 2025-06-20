@@ -1,7 +1,7 @@
 // LandingPage.js
 
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Home, FileText, Calendar, BarChart2, MessageCircle, DollarSign, Users, Inbox, FileSignature, PenTool, Zap, Shield, Clock, TrendingUp, Award, Smartphone, Globe, Search, Calculator, Check, Star, ArrowRight, Play, Lock, CheckCircle, XCircle, Sparkles, Building2, Briefcase, HeartHandshake, Menu, X } from 'lucide-react';
+import { ChevronRight, Home, FileText, Calendar, BarChart2, MessageCircle, DollarSign, Users, Inbox, FileSignature, PenTool, Zap, Shield, Clock, TrendingUp, Award, Smartphone, Globe, Search, Calculator, Check, Star, ArrowRight, Play, Lock, CheckCircle, XCircle, Sparkles, Building2, Briefcase, HeartHandshake, Menu, X, Trophy } from 'lucide-react';
 import Footer from '../../components/Footer/Footer';
 import { Link, useNavigate } from 'react-router-dom';
 import CountUp from 'react-countup';
@@ -242,16 +242,16 @@ const LandingPage = () => {
             </div>
             <div className="hero-trust-badges">
               <div className="hero-trust-badge">
-                <Shield className="hero-trust-icon" />
-                <span>Bank-Level Security</span>
+                <DollarSign className="hero-trust-icon" />
+                <span>Win More Listings</span>
               </div>
               <div className="hero-trust-badge">
                 <Clock className="hero-trust-icon" />
-                <span>24/7 Support</span>
+                <span>Save Hours Per Deal</span>
               </div>
               <div className="hero-trust-badge">
-                <CheckCircle className="hero-trust-icon" />
-                <span>No Credit Card Required</span>
+                <Trophy className="hero-trust-icon" />
+                <span>Beat Other Offers</span>
               </div>
             </div>
           </div>
@@ -301,7 +301,6 @@ const LandingPage = () => {
               icon={FileText}
               title="Smart Document Hub"
               description="AI-powered document analysis identifies key terms, dates, and potential issues instantly."
-              highlight={true}
             />
             <Feature
               icon={Zap}
@@ -508,18 +507,11 @@ const LandingPage = () => {
               Join thousands of successful agents closing more deals with RealOffer
             </p>
             <div className="cta-buttons">
-              <Link to="/signup" className="cta-button-primary">
+              <Link to="/signup" className="hero-cta-primary">
                 Get Started For Free
-                <ArrowRight className="cta-button-icon" />
-              </Link>
-              <Link to="/demo" className="cta-button-secondary">
-                Schedule a Demo
+                <ArrowRight className="hero-cta-icon" />
               </Link>
             </div>
-            <p className="cta-guarantee">
-              <CheckCircle className="cta-guarantee-icon" />
-              30-day money-back guarantee • No credit card required
-            </p>
           </div>
         </section>
       </main>

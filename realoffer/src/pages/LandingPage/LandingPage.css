@@ -738,11 +738,6 @@
   transform: scaleX(1);
 }
 
-.feature-highlight {
-  background: linear-gradient(135deg, rgba(27, 92, 243, 0.05) 0%, rgba(64, 120, 251, 0.05) 100%);
-  border-color: rgba(27, 92, 243, 0.2);
-}
-
 .feature-icon-wrapper {
   width: 72px;
   height: 72px;
@@ -756,7 +751,8 @@
 }
 
 .feature:hover .feature-icon-wrapper {
-  transform: scale(1.1) rotate(5deg);
+  transform: translateY(-6px) scale(1.05);
+  box-shadow: var(--shadow-glow);
 }
 
 .feature-icon {
@@ -1195,7 +1191,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: var(--space-xl);
-  align-items: start;
+  align-items: stretch;
 }
 
 .pricing-card {
@@ -1205,6 +1201,10 @@
   border: 2px solid var(--border-color);
   position: relative;
   transition: all var(--transition-slow);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  flex-grow: 1;
 }
 
 .pricing-card:hover {
@@ -1283,24 +1283,25 @@
   align-items: center;
   gap: var(--space-sm);
   color: var(--text-secondary);
+  flex-shrink: 0;
 }
 
 .pricing-feature-icon {
   width: 20px;
   height: 20px;
   color: #10b981;
-  flex-shrink: 0;
 }
 
 .pricing-cta {
   display: block;
-  width: 100%;
-  padding: 1rem;
+  padding: 0.9rem 2.2rem;
   text-align: center;
   font-weight: 600;
   text-decoration: none;
   border-radius: var(--radius-lg);
   transition: all var(--transition-base);
+  align-self: center;
+  min-width: 180px;
 }
 
 .pricing-cta-primary {
@@ -1323,6 +1324,8 @@
 .pricing-cta-secondary:hover {
   background: var(--primary-blue);
   color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(27, 92, 243, 0.2);
 }
 
 /* CTA Section */

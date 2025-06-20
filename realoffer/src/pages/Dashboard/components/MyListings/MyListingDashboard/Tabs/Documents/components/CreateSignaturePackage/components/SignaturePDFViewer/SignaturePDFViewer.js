@@ -433,7 +433,7 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
             <FiChevronRight />
           </button>
           {/* Spacer between groups */}
-          <span style={{ width: 16, display: 'inline-block' }} />
+          <span style={{ width: 8, display: 'inline-block' }} />
           {/* Zoom group */}
           <button onClick={zoomOut} title="Zoom out">
             <FiZoomOut />
@@ -442,7 +442,7 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
             <FiZoomIn />
           </button>
           {/* Spacer between groups */}
-          <span style={{ width: 16, display: 'inline-block' }} />
+          <span style={{ width: 8, display: 'inline-block' }} />
           {/* Select All group */}
           <button
             className="spv-select-all-button"
