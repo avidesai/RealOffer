@@ -56,6 +56,21 @@ const LandingHeader = () => {
           <Link to="/features" className="landing-header-nav-link">Features</Link>
           <Link to="/upgrade" className="landing-header-nav-link">Pricing</Link>
           <Link to="/about" className="landing-header-nav-link">About</Link>
+
+          <div className="landing-header-mobile-actions">
+            <Link to="/login" className="landing-header-login" onClick={handleLoginClick}>
+              {user ? 'Dashboard' : 'Log In'}
+            </Link>
+            {user ? (
+              <button className="landing-header-signup" onClick={handleLogoutClick}>
+                Log Out
+              </button>
+            ) : (
+              <Link to="/signup" className="landing-header-signup">
+                Get Started
+              </Link>
+            )}
+          </div>
         </nav>
 
         <div className="landing-header-actions">

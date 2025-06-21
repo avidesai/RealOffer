@@ -240,6 +240,10 @@
   background: rgba(0, 0, 0, 0.05);
 }
 
+.landing-header-mobile-actions {
+  display: none;
+}
+
 /* Mobile Responsive Header */
 @media (max-width: 768px) {
   .landing-header-nav {
@@ -280,7 +284,27 @@
   }
 
   .landing-header-actions {
+    display: none;
+  }
+
+  .landing-header-nav-open .landing-header-mobile-actions {
+    display: flex;
+    flex-direction: column;
     gap: var(--space-md);
+    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--border-color);
+  }
+  
+  .landing-header-mobile-actions .landing-header-login {
+    color: var(--text-primary);
+    text-align: center;
+    width: 100%;
+    padding: var(--space-sm) 0;
+  }
+  
+  .landing-header-mobile-actions .landing-header-signup {
+    width: 100%;
   }
 
   .landing-header-signup {
@@ -527,26 +551,7 @@
 }
 
 .hero-cta-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: 1rem 2rem;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  font-weight: 600;
-  font-size: 1.125rem;
-  text-decoration: none;
-  border-radius: var(--radius-lg);
-  transition: all var(--transition-base);
-  cursor: pointer;
-}
-
-.hero-cta-secondary:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: translateY(-2px);
+  display: none;
 }
 
 .hero-play-icon {
@@ -1458,31 +1463,29 @@
 @media (max-width: 968px) {
   .hero {
     min-height: auto;
-    padding: var(--space-2xl) 5%;
+    padding-top: calc(var(--space-3xl) + 80px);
+    text-align: center;
+    min-height: 350px;
   }
   
   .hero-visual {
-    position: static;
-    transform: none;
-    margin-top: var(--space-3xl);
+    display: none; /* Hide visual on smaller screens */
   }
-  
-  .hero-dashboard-preview {
-    width: 100%;
-    max-width: 500px;
-    height: 300px;
-    transform: none;
-    margin: 0 auto;
+
+  .hero-content {
+    max-width: 100%;
   }
   
   .features-grid,
   .benefits-grid,
   .pricing-grid {
     grid-template-columns: 1fr;
+    gap: var(--space-lg);
   }
   
   .how-it-works-steps {
     flex-direction: column;
+    gap: var(--space-xl);
   }
   
   .how-step-connector {
@@ -1491,88 +1494,179 @@
   
   .landing-stats-container {
     grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
   }
   
   .pricing-card-highlighted {
     transform: scale(1);
   }
+
+  .testimonials-slider {
+    height: auto;
+    min-height: 350px;
+  }
 }
 
-@media (max-width: 640px) {
-  :root {
-    --space-3xl: 3rem;
-    --space-2xl: 2rem;
+@media (max-width: 768px) {
+  .hero {
+    padding: calc(var(--space-xl) + 60px) var(--space-xl) var(--space-3xl) var(--space-xl);
   }
-  
+
+  .hero-badge {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: var(--space-xl);
+  }
+
   .hero-title {
-    font-size: 2rem;
+    font-size: 2.3rem;
+    line-height: 1.15;
+    margin-bottom: var(--space-md);
   }
-  
+
   .hero-subtitle {
-    font-size: 1rem;
+    font-size: 1.125rem;
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: var(--space-xl);
   }
-  
+
   .hero-cta-group {
     flex-direction: column;
     width: 100%;
+    max-width: 380px;
+    margin-left: auto;
+    margin-right: auto;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
   }
-  
-  .hero-cta-primary,
+
+  .hero-cta-primary {
+    margin-top: var(--space-med);
+    padding: 0.5rem 0.75rem;
+    font-size: 1.05rem;
+  }
+
   .hero-cta-secondary {
-    width: 100%;
-    justify-content: center;
+    display: none;
   }
-  
   .hero-trust-badges {
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: center;
     align-items: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+    flex-wrap: wrap;
+    padding: var(--space-lg) var(--space-lg);
+  }
+
+  .hero-trust-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-full);
+    white-space: nowrap;
   }
   
+  .trust-bar {
+    display: none;
+  }
+
   .trust-bar-logos {
     flex-direction: column;
-    gap: var(--space-lg);
+    gap: var(--space-md);
   }
-  
+
+  .trust-logo {
+    font-size: 1.1rem;
+    padding: 0.6rem 1.2rem;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  .features, .benefits, .how-it-works, .landing-stats, .testimonials, .pricing, .cta {
+    padding: var(--space-2xl) var(--space-lg);
+  }
+
   .section-title {
     font-size: 2rem;
   }
-  
+
   .section-subtitle {
     font-size: 1rem;
   }
-  
-  .feature {
-    padding: var(--space-xl);
+
+  .feature-icon-wrapper {
+    width: 64px;
+    height: 64px;
   }
-  
-  .benefit-card {
-    padding: var(--space-xl);
+
+  .feature-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .benefit-icon-wrapper {
+    width: 72px;
+    height: 72px;
+  }
+
+  .benefit-icon {
+    width: 36px;
+    height: 36px;
   }
   
   .landing-stats-container {
     grid-template-columns: 1fr;
   }
   
-  .testimonial {
-    padding: var(--space-xl);
-  }
-  
   .testimonial-quote {
     font-size: 1.125rem;
   }
   
-  .testimonials-slider {
-    height: auto;
+  .pricing-cta {
+    padding: 1rem 1.5rem;
   }
-  
-  .cta-buttons {
-    flex-direction: column;
+
+  .cta-buttons .hero-cta-primary {
+    max-width: 400px;
+    margin: 0 auto;
     width: 100%;
   }
-  
-  .cta-button-primary,
-  .cta-button-secondary {
-    width: 100%;
+}
+
+@media (max-width: 480px) {
+  :root {
+    --space-3xl: 3rem;
+    --space-2xl: 2.5rem;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .section-title {
+    font-size: 1.875rem;
+  }
+}
+
+/* Accessibility: Ensure minimum touch target size on mobile */
+@media (max-width: 968px) {
+  .landing-header-login,
+  .landing-header-signup,
+  .hero-cta-primary,
+  .pricing-cta,
+  .cta-buttons .hero-cta-primary {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
   }
 }
