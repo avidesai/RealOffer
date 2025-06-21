@@ -1,54 +1,150 @@
 /* FeaturesPage.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary-blue: #1b5cf3;
+  --primary-blue-light: #4a80f6;
+  --text-primary: #1a202c;
+  --text-secondary: #4a5568;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f7fafc;
+  --border-color: #e2e8f0;
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
 
 .features-page-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.features-page-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.features-page-hero {
+  text-align: center;
+  padding: 4rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.features-page-hero-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.features-page-hero-subtitle {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .features-page-content {
-  max-width: 1200px;
-  margin: auto;
-  padding: 2rem;
-}
-
-.features-page-title {
-  text-align: center;
-  font-size: 2rem;
-  margin-bottom: 1rem;
-}
-
-.features-page-menu {
   display: flex;
-  justify-content: center;
-  background: #f9f9f9;
-  padding: 0.8rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-top: 2rem;
+  gap: 4rem;
+  padding: 4rem 0;
+}
+
+.features-page-sidebar {
+  flex: 0 0 280px;
+  position: sticky;
+  top: 120px; /* Adjust based on header height */
+  align-self: flex-start;
+}
+
+.features-category {
+  margin-bottom: 2rem;
+}
+
+.features-category-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   margin-bottom: 1rem;
+  padding-left: 1rem;
 }
 
 .features-page-menu-item {
-  padding: 0.5rem 0.9rem;
-  margin: 0 0.5rem;
-  background: #e7e7e7; /* Subtle background color */
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  background: transparent;
   border: none;
-  cursor: pointer;
+  border-radius: 8px;
   font-size: 1rem;
   font-weight: 500;
-  transition: all 0.2s ease;
-  border-radius: 10px; /* Rounded corners */
-  color: #333; /* Text color */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.features-page-menu-item:hover,
+.features-page-menu-item:hover {
+  background-color: var(--bg-secondary);
+}
+
 .features-page-menu-item.active {
-  background-color: rgb(27, 92, 243); /* Brand color for hover and active state */
-  color: rgb(255, 255, 255); /* White text for contrast */
+  background-color: var(--primary-blue);
+  color: white;
+  font-weight: 600;
 }
 
-.features-page-menu-item:not(.active):hover {
-  background-color: rgb(0, 83, 172); /* Lighter shade for hover on non-active buttons */
+.features-page-feature-display {
+  flex: 1;
+  min-width: 0; /* Prevents flexbox overflow issues */
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .features-page-content {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .features-page-sidebar {
+    position: static;
+    top: auto;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+  }
+  
+  .features-category {
+    width: 100%;
+    text-align: center;
+  }
+
+  .features-category-title {
+    padding-left: 0;
+  }
+
+  .features-page-menu-item {
+    display: inline-block;
+    width: auto;
+    margin: 0 0.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .features-page-hero-title {
+    font-size: 2.5rem;
+  }
+
+  .features-page-hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .features-page-main {
+    padding: 0 1rem;
+  }
 }
