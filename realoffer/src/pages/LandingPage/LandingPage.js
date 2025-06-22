@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import CountUp from 'react-countup';
 import VisibilitySensor from 'react-visibility-sensor';
 import logo from './images/logo.png';
+import heroDesktopImage from './images/hero-desktop-image.png';
 import { useAuth } from '../../context/AuthContext';
 import './LandingPage.css';
 
@@ -281,7 +282,7 @@ const LandingPage = () => {
                   </div>
                 </div>
                 <div className="hero-dashboard-content">
-                  {/* Placeholder for dashboard preview */}
+                  <img src={heroDesktopImage} alt="RealOffer platform dashboard preview" className="hero-dashboard-image" />
                 </div>
               </div>
             </div>

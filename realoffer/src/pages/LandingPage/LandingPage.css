@@ -616,6 +616,8 @@
   width: 100%;
   height: 100%;
   background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
 }
 
 .hero-dashboard-header {
@@ -646,6 +648,18 @@
 
 .hero-dashboard-dots span:last-child {
   background: #10b981;
+}
+
+.hero-dashboard-content {
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.hero-dashboard-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
 }
 
 /* Trust Bar */
@@ -767,14 +781,14 @@
 }
 
 .feature-title {
-  font-size: 1.375rem;
+  font-size: 1.1rem;
   font-weight: 700;
   margin-bottom: var(--space-md);
   color: var(--text-primary);
 }
 
 .feature-description {
-  font-size: 1rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
   line-height: 1.6;
 }
