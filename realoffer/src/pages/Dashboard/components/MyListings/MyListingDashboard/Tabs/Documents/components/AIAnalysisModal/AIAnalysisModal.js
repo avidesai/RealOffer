@@ -157,7 +157,29 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
           {!loading && !error && analysis?.result && (
             <>
               <div className="ai-analysis-result">
-                <ReactMarkdown>{analysis.result}</ReactMarkdown>
+                <ReactMarkdown 
+                  components={{
+                    h2: ({ children, ...props }) => {
+                      // Check if this is the first h2 (Overall Condition)
+                      if (children && typeof children === 'string' && children.includes('Overall Condition')) {
+                        // Extract score from the heading text
+                        const scoreMatch = children.match(/(\d+)\/10/);
+                        const score = scoreMatch ? scoreMatch[1] : '';
+                        return (
+                          <h2 
+                            {...props} 
+                            data-score={score ? `${score}/10` : ''}
+                          >
+                            {children.replace(/\s+\d+\/10$/, '')}
+                          </h2>
+                        );
+                      }
+                      return <h2 {...props}>{children}</h2>;
+                    }
+                  }}
+                >
+                  {analysis.result}
+                </ReactMarkdown>
               </div>
               <div className="ai-analysis-footer">
                 <button className="ai-analysis-close-button" onClick={onClose} aria-label="Close">

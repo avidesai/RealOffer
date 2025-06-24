@@ -189,6 +189,25 @@
   opacity: 0.7;
 }
 
+/* Style for condition score bubble */
+.ai-analysis-result h2:first-of-type {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ai-analysis-result h2:first-of-type::after {
+  content: attr(data-score);
+  background-color: #111827;
+  color: #ffffff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-left: auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
 .ai-analysis-result h3 {
   color: #4a5568;
   margin-top: 1.5rem;
@@ -326,16 +345,6 @@
   padding: 0.3rem 0;
 }
 
-/* Hover effects for lists */
-.ai-analysis-result li {
-  transition: transform 0.2s ease, padding-left 0.2s ease;
-}
-
-.ai-analysis-result li:hover {
-  transform: translateX(3px);
-  padding-left: 0.3rem;
-}
-
 .ai-analysis-footer {
   margin-top: 2rem;
   padding-top: 1rem;
@@ -349,34 +358,56 @@
   display: flex;
   justify-content: center;
   margin-top: 1.5rem;
-  gap: 1.2rem;
+  gap: 1rem;
 }
 
 .ai-analysis-download-button,
 .ai-analysis-refresh-button,
 .ai-analysis-retry-button {
-  background-color: #f3f4f6;
-  color: #222;
-  border: 1px solid #e5e7eb;
-  padding: 0.7rem 1.5rem;
-  border-radius: 7px;
+  color: #ffffff;
+  padding: 1rem 1.5rem;
   font-size: 1rem;
   font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
   cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-  margin: 0;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 8px;
+  min-width: 160px;
 }
 
-.ai-analysis-download-button:hover,
-.ai-analysis-refresh-button:hover,
+.ai-analysis-download-button {
+  background-color: #4a90e2;
+}
+
+.ai-analysis-refresh-button {
+  background-color: #6c757d;
+}
+
+.ai-analysis-retry-button {
+  background-color: #dc3545;
+}
+
+.ai-analysis-download-button:hover {
+  background-color: #357abd;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.ai-analysis-refresh-button:hover {
+  background-color: #5a6268;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 .ai-analysis-retry-button:hover {
-  background-color: #e5e7eb;
-  color: #007bff;
-  border-color: #b3d1fa;
+  background-color: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Markdown content styling */

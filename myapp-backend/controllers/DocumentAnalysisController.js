@@ -215,7 +215,7 @@ exports.analyzeDocument = async (req, res) => {
 
 Structure your response as follows:
 
-## Overall Condition Score (Out of 10)
+## Overall Condition 6/10
 
 Provide a condition score from 1 to 10 based on the overall state of the home. A 10 means excellent condition with very few or no issues. A 5 means there are moderate issues. A 1 means the home requires major repairs.
 
