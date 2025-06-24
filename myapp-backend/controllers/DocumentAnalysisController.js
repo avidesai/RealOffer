@@ -215,25 +215,25 @@ exports.analyzeDocument = async (req, res) => {
 
 Structure your response as follows:
 
-## 1. Overall Condition Score (Out of 10)
+## Overall Condition Score (Out of 10)
 
 Provide a condition score from 1 to 10 based on the overall state of the home. A 10 means excellent condition with very few or no issues. A 5 means there are moderate issues. A 1 means the home requires major repairs.
 
 Justify the score in 2–3 sentences, summarizing the general condition of the property and highlighting any major strengths or concerns.
 
-## 2. Urgent Issues (Must Fix Before Move-In)
+## Urgent Issues (Must Fix Before Move-In)
 
 List all critical problems that affect safety, habitability, or are likely to be very costly (e.g., foundation cracks, roof replacement, electrical panel upgrades).
 
 For each issue, briefly explain why it's urgent and whether it could be expensive to fix.
 
-## 3. Recommended Repairs (Fix Soon)
+## Recommended Repairs (Fix Soon)
 
 Include important but non-urgent issues that should be fixed in the near future (e.g., HVAC tune-up, minor leaks, window seals).
 
 Indicate if the repair is likely low, moderate, or high cost.
 
-## 4. Optional or Cosmetic Fixes
+## Optional or Cosmetic Fixes
 
 List minor issues that are cosmetic or convenience-related (e.g., door alignment, worn paint, cracked tiles).
 
@@ -245,32 +245,32 @@ ${text}`
 
 Structure your response as follows:
 
-## 1. Total Estimated Repair Cost
+## Total Estimated Repair Cost
 
 Search the report for the "total amount," "grand total," or any final estimate of repair and treatment costs. This is usually found on the last page or summary section.
 
 Present this total clearly, e.g., **Estimated Total Cost: $4,750**.
 
-## 2. Summary for Buyers
+## Summary for Buyers
 
 Write 2–3 sentences giving the buyer a high-level overview of the report's findings.
 
 Mention whether the property has no major pest issues, some moderate concerns, or serious infestations requiring attention.
 
-## 3. Active Infestations
+## Active Infestations
 
 List any active signs of termites, wood-destroying organisms, or other pests.
 
 - Specify the type (subterranean termites, drywood termites, fungus, etc.).
 - Indicate where the infestation was found and whether it is considered minor, moderate, or severe.
 
-## 4. Areas of Damage
+## Areas of Damage
 
 Summarize any physical damage caused by pests, including wood rot, structural weakening, or other deterioration.
 
 Indicate whether the damage is structural or surface-level and where it is located.
 
-## 5. Treatment Recommendations
+## Treatment Recommendations
 
 List each recommended treatment (e.g., fumigation, local treatment, wood replacement, moisture correction).
 
