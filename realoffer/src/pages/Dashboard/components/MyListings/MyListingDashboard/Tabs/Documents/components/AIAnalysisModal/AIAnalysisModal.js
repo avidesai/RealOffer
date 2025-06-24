@@ -159,21 +159,28 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
               <div className="ai-analysis-result">
                 <ReactMarkdown 
                   components={{
-                    h2: ({ children, ...props }) => {
-                      // Check if this is the first h2 (Overall Condition)
-                      if (children && typeof children === 'string' && children.includes('Overall Condition')) {
-                        // Extract score from the heading text
-                        const scoreMatch = children.match(/(\d+)\/10/);
-                        const score = scoreMatch ? scoreMatch[1] : '';
+                    h2: ({ node, children, ...props }) => {
+                      // Only show score bubble for Home Inspection Reports with a score in the heading
+                      const isHomeInspection = documentType && documentType.toLowerCase().includes('home');
+                      let headingText = '';
+                      if (Array.isArray(children)) {
+                        headingText = children.join('');
+                      } else if (typeof children === 'string') {
+                        headingText = children;
+                      }
+                      const scoreMatch = headingText.match(/(\d+)\/10/);
+                      const hasScore = !!scoreMatch;
+                      if (isHomeInspection && headingText.includes('Overall Condition') && hasScore) {
                         return (
                           <h2 
                             {...props} 
-                            data-score={score ? `${score}/10` : ''}
+                            data-score={`${scoreMatch[0]}`}
                           >
-                            {children.replace(/\s+\d+\/10$/, '')}
+                            {headingText.replace(/\s+\d+\/10$/, '')}
                           </h2>
                         );
                       }
+                      // For all other cases, render h2 as-is (no bubble, no data-score)
                       return <h2 {...props}>{children}</h2>;
                     }
                   }}
