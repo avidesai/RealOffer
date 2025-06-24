@@ -98,7 +98,24 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
     setLoading(true);
     setError(null);
     isInitialRequestRef.current = true;
-    fetchAnalysis();
+    
+    // Force a new analysis from Claude
+    api.post('/api/document-analysis/analyze', {
+      documentId,
+      forceRefresh: true // Force refresh to get new analysis
+    }).then(response => {
+      let result = response.data.result;
+      if (result && result.trim().toLowerCase().startsWith('here is a structured summary')) {
+        result = result.replace(/^.*?\n+/i, '');
+      }
+      setAnalysis({ ...response.data, result });
+      setError(null);
+      setLoading(false);
+    }).catch(err => {
+      console.error('Analysis error:', err);
+      setError(err.response?.data?.message || 'Error analyzing document');
+      setLoading(false);
+    });
   };
 
   if (!isOpen) return null;

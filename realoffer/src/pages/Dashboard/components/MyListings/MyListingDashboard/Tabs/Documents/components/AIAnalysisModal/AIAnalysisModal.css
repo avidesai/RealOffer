@@ -143,47 +143,197 @@
 }
 
 .ai-analysis-result {
-  background-color: #f8f9fa;
-  padding: 1rem 1.5rem;
+  background-color: #ffffff;
+  padding: 2rem;
   border-radius: 12px;
   margin: 0.5rem 0 1.5rem 0;
-  font-size: 1.08rem;
-  line-height: 1.75;
-  color: #23272f;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  border: 1px solid #e3e7ee;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #2c3e50;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border: 1px solid #e8ecf1;
 }
 
-.ai-analysis-result h1,
-.ai-analysis-result h2,
-.ai-analysis-result h3 {
-  color: #2c3e50;
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
+/* Add section dividers */
+.ai-analysis-result > h2:not(:first-child) {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e8ecf1;
+}
+
+.ai-analysis-result h1 {
+  color: #1a202c;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e8ecf1;
+}
+
+.ai-analysis-result h2 {
+  color: #2d3748;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Add icons before section headers */
+.ai-analysis-result h2::before {
+  content: '▸';
+  font-size: 1.2rem;
+  opacity: 0.7;
+}
+
+.ai-analysis-result h3 {
+  color: #4a5568;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.15rem;
+  font-weight: 600;
 }
 
 .ai-analysis-result p {
-  margin-bottom: 1.1rem;
+  margin-bottom: 1.2rem;
+  color: #4a5568;
 }
 
 .ai-analysis-result ul,
 .ai-analysis-result ol {
-  margin: 1.1rem 0;
-  padding-left: 2rem;
+  margin: 1.2rem 0;
+  padding-left: 1.5rem;
 }
 
 .ai-analysis-result li {
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.8rem;
+  color: #4a5568;
+  line-height: 1.7;
+}
+
+.ai-analysis-result li::marker {
+  color: #007bff;
 }
 
 .ai-analysis-result blockquote {
   border-left: 4px solid #007bff;
-  padding-left: 1.2rem;
-  margin: 1.2rem 0;
-  color: #666;
-  background: #f3f6fa;
-  border-radius: 6px;
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  background: #f0f7ff;
+  border-radius: 0 8px 8px 0;
+  color: #2c5282;
+  font-style: italic;
+}
+
+.ai-analysis-result strong {
+  color: #1a202c;
+  font-weight: 600;
+}
+
+.ai-analysis-result em {
+  color: #2d3748;
+  font-style: italic;
+}
+
+.ai-analysis-result code {
+  background-color: #f7fafc;
+  color: #e53e3e;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.9em;
+  border: 1px solid #e2e8f0;
+}
+
+.ai-analysis-result pre {
+  background-color: #f7fafc;
+  padding: 1.5rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border: 1px solid #e2e8f0;
+}
+
+.ai-analysis-result pre code {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  color: #2d3748;
+}
+
+/* Special styling for numbered sections */
+.ai-analysis-result ol > li {
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.ai-analysis-result ol > li > ul {
+  margin-top: 0.5rem;
+  font-weight: 400;
+}
+
+.ai-analysis-result ol > li > ul > li {
+  color: #4a5568;
+}
+
+/* Score highlighting */
+.ai-analysis-result p:first-child strong,
+.ai-analysis-result li:first-child strong {
+  color: #007bff;
+  font-size: 1.1em;
+}
+
+/* Cost highlighting - target strong tags that likely contain costs */
+.ai-analysis-result strong {
+  color: #1a202c;
+  font-weight: 600;
+}
+
+/* Section headers with colors */
+.ai-analysis-result h2:nth-of-type(1) {
+  color: #2563eb;
+}
+
+.ai-analysis-result h2:nth-of-type(2) {
+  color: #dc2626;
+}
+
+.ai-analysis-result h2:nth-of-type(3) {
+  color: #f59e0b;
+}
+
+.ai-analysis-result h2:nth-of-type(4) {
+  color: #10b981;
+}
+
+.ai-analysis-result h2:nth-of-type(5) {
+  color: #8b5cf6;
+}
+
+/* Highlight important keywords */
+.ai-analysis-result b,
+.ai-analysis-result strong {
+  color: #1a202c;
+  font-weight: 600;
+}
+
+/* Style for lists within sections */
+.ai-analysis-result ul li,
+.ai-analysis-result ol li {
+  padding: 0.3rem 0;
+}
+
+/* Hover effects for lists */
+.ai-analysis-result li {
+  transition: transform 0.2s ease, padding-left 0.2s ease;
+}
+
+.ai-analysis-result li:hover {
+  transform: translateX(3px);
+  padding-left: 0.3rem;
 }
 
 .ai-analysis-footer {

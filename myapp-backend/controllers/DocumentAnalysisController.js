@@ -6,6 +6,11 @@ const { createWorker } = require('tesseract.js');
 const { PDFDocument } = require('pdf-lib');
 const axios = require('axios');
 const rateLimit = require('express-rate-limit');
+const sharp = require('sharp');
+const { fromPath } = require('pdf2pic');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 
 // Create rate limiters
 const minuteLimiter = rateLimit({
@@ -40,6 +45,44 @@ const updateAnalysisProgress = async (analysisId, step, percentage, message) => 
   }
 };
 
+// Helper function to convert PDF page to image
+const convertPDFPageToImage = async (pdfBuffer, pageNumber) => {
+  const tempDir = os.tmpdir();
+  const tempPdfPath = path.join(tempDir, `temp_${Date.now()}.pdf`);
+  const tempImagePath = path.join(tempDir, `temp_${Date.now()}_page_${pageNumber}.png`);
+
+  try {
+    // Write PDF buffer to temp file
+    fs.writeFileSync(tempPdfPath, pdfBuffer);
+
+    // Convert PDF page to image using pdf2pic
+    const convert = fromPath(tempPdfPath, {
+      density: 300,
+      saveFilename: `temp_${Date.now()}_page`,
+      savePath: tempDir,
+      format: 'png',
+      width: 2480,
+      height: 3508
+    });
+
+    const pageData = await convert(pageNumber + 1); // pdf2pic uses 1-based page numbers
+    
+    // Read the converted image
+    const imageBuffer = fs.readFileSync(pageData.path);
+    
+    // Clean up temp files
+    if (fs.existsSync(tempPdfPath)) fs.unlinkSync(tempPdfPath);
+    if (fs.existsSync(pageData.path)) fs.unlinkSync(pageData.path);
+    
+    return imageBuffer;
+  } catch (error) {
+    // Clean up on error
+    if (fs.existsSync(tempPdfPath)) fs.unlinkSync(tempPdfPath);
+    if (fs.existsSync(tempImagePath)) fs.unlinkSync(tempImagePath);
+    throw error;
+  }
+};
+
 // Helper function to extract text from PDF using OCR
 const extractTextWithOCR = async (pdfBuffer) => {
   const worker = await createWorker();
@@ -52,7 +95,7 @@ const extractTextWithOCR = async (pdfBuffer) => {
       const page = pdfDoc.getPage(i);
       const { width, height } = page.getSize();
       
-      // Convert PDF page to image (you'll need to implement this)
+      // Convert PDF page to image
       const imageBuffer = await convertPDFPageToImage(pdfBuffer, i);
       
       // Perform OCR on the image
@@ -168,8 +211,75 @@ exports.analyzeDocument = async (req, res) => {
     // Prepare prompt based on document type
     await updateAnalysisProgress(analysis._id, 'analyzing', 50, 'Preparing analysis...');
     const prompt = document.type === 'Home Inspection Report'
-      ? `You are an expert real estate advisor. Read the following home inspection report and provide a clear, useful summary for a home buyer and their agent. Structure your response as follows:\n\n1. Overall Condition\n   - Give a brief summary of the overall state of the home.\n2. Major Issues\n   - List any major or urgent issues that require attention.\n3. Minor Issues\n   - List minor or cosmetic issues.\n\nDo not include a section called 'Recommended Actions'. Do not start your response with 'Here is a structured summary...' or similar. Use clear, professional language and bullet points or numbered lists where appropriate.\n\nReport content:\n${text}`
-      : `You are a licensed pest inspector and real estate advisor. Read the following pest inspection report and provide a clear, helpful summary for home buyers and agents. Structure your response as follows:\n\n1. Overall Findings\n   - Briefly summarize the pest status of the property.\n2. Active Infestations\n   - List any active infestations and their locations.\n3. Previous Infestations\n   - List any previous infestations or treatments.\n4. Preventive Measures\n   - List any recommended preventive measures.\n\nDo not include a section called 'Recommended Actions'. Do not start your response with 'Here is a structured summary...' or similar. Use clear, professional language and bullet points or numbered lists where appropriate.\n\nReport content:\n${text}`;
+      ? `You are an expert real estate advisor. Your job is to read a home inspection report and produce a clear, useful summary that helps a home buyer and their real estate agent quickly understand the condition of the property.
+
+Structure your response as follows:
+
+## 1. Overall Condition Score (Out of 10)
+
+Provide a condition score from 1 to 10 based on the overall state of the home. A 10 means excellent condition with very few or no issues. A 5 means there are moderate issues. A 1 means the home requires major repairs.
+
+Justify the score in 2–3 sentences, summarizing the general condition of the property and highlighting any major strengths or concerns.
+
+## 2. Urgent Issues (Must Fix Before Move-In)
+
+List all critical problems that affect safety, habitability, or are likely to be very costly (e.g., foundation cracks, roof replacement, electrical panel upgrades).
+
+For each issue, briefly explain why it's urgent and whether it could be expensive to fix.
+
+## 3. Recommended Repairs (Fix Soon)
+
+Include important but non-urgent issues that should be fixed in the near future (e.g., HVAC tune-up, minor leaks, window seals).
+
+Indicate if the repair is likely low, moderate, or high cost.
+
+## 4. Optional or Cosmetic Fixes
+
+List minor issues that are cosmetic or convenience-related (e.g., door alignment, worn paint, cracked tiles).
+
+Keep the tone professional, clear, and helpful. Avoid overly technical language. This summary will be shown to both buyers and real estate agents.
+
+Report content:
+${text}`
+      : `You are a licensed pest inspector and real estate advisor. Your job is to read a pest inspection report and provide a clear, helpful summary for both home buyers and real estate agents.
+
+Structure your response as follows:
+
+## 1. Total Estimated Repair Cost
+
+Search the report for the "total amount," "grand total," or any final estimate of repair and treatment costs. This is usually found on the last page or summary section.
+
+Present this total clearly, e.g., **Estimated Total Cost: $4,750**.
+
+## 2. Summary for Buyers
+
+Write 2–3 sentences giving the buyer a high-level overview of the report's findings.
+
+Mention whether the property has no major pest issues, some moderate concerns, or serious infestations requiring attention.
+
+## 3. Active Infestations
+
+List any active signs of termites, wood-destroying organisms, or other pests.
+
+- Specify the type (subterranean termites, drywood termites, fungus, etc.).
+- Indicate where the infestation was found and whether it is considered minor, moderate, or severe.
+
+## 4. Areas of Damage
+
+Summarize any physical damage caused by pests, including wood rot, structural weakening, or other deterioration.
+
+Indicate whether the damage is structural or surface-level and where it is located.
+
+## 5. Treatment Recommendations
+
+List each recommended treatment (e.g., fumigation, local treatment, wood replacement, moisture correction).
+
+Label each one as **urgent**, **recommended**, or **preventative** based on the report's language.
+
+Write clearly and use bullet points wherever possible. Avoid overly technical or inspection-specific jargon. This analysis should be useful to both real estate agents and everyday home buyers who are not experts in construction or pest management.
+
+Report content:
+${text}`;
 
     // Call Claude API
     await updateAnalysisProgress(analysis._id, 'analyzing', 70, 'Analyzing document content...');
