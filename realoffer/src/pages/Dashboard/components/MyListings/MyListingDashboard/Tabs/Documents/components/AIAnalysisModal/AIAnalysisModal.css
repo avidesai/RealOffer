@@ -198,14 +198,15 @@
 
 .ai-analysis-result h2:first-of-type::after {
   content: attr(data-score);
-  background-color: #111827;
-  color: #ffffff;
+  background-color: transparent;
+  color: #111827;
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
   font-size: 0.9rem;
   font-weight: 600;
-  margin-left: auto;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 2px solid #d1d5db;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-left: 0.25rem;
 }
 
 .ai-analysis-result h3 {
