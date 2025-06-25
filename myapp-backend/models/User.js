@@ -38,7 +38,6 @@ const userSchema = new mongoose.Schema({
     templates: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ListingTemplate', default: [] }],
     contacts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
     listingPackages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'PropertyListing', default: [] }],
-    buyerPackages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'BuyerPackage', default: [] }],
     
     // DocuSign integration fields
     docusignAccessToken: { type: String },

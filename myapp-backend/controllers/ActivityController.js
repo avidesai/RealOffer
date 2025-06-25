@@ -2,11 +2,10 @@
 
 const Activity = require('../models/Activity');
 const PropertyListing = require('../models/PropertyListing');
-const BuyerPackage = require('../models/BuyerPackage');
 
 exports.getActivities = async (req, res) => {
   try {
-    const { listingId, buyerPackageId } = req.query;
+    const { listingId } = req.query;
     let query = {};
 
     if (listingId) {
@@ -15,19 +14,11 @@ exports.getActivities = async (req, res) => {
         return res.status(403).json({ message: 'Not authorized to view these activities' });
       }
       query.propertyListing = listingId;
-    } else if (buyerPackageId) {
-      const buyerPackage = await BuyerPackage.findById(buyerPackageId);
-      if (!buyerPackage || buyerPackage.createdBy.toString() !== req.user.id) {
-        return res.status(403).json({ message: 'Not authorized to view these activities' });
-      }
-      query.buyerPackage = buyerPackageId;
     } else {
-      // If no specific listing or buyer package, only show activities for listings/packages the user created
+      // If no specific listing, only show activities for listings the user created
       const userListings = await PropertyListing.find({ createdBy: req.user.id });
-      const userBuyerPackages = await BuyerPackage.find({ createdBy: req.user.id });
       query.$or = [
         { propertyListing: { $in: userListings.map(l => l._id) } },
-        { buyerPackage: { $in: userBuyerPackages.map(b => b._id) } },
         { user: req.user.id }
       ];
     }
@@ -35,8 +26,7 @@ exports.getActivities = async (req, res) => {
     const activities = await Activity.find(query)
       .populate('user', 'name')
       .populate('documentModified', 'title')
-      .populate('propertyListing', 'title')
-      .populate('buyerPackage', 'title');
+      .populate('propertyListing', 'title');
     
     res.status(200).json(activities);
   } catch (error) {
@@ -45,14 +35,13 @@ exports.getActivities = async (req, res) => {
 };
 
 exports.createActivity = async (req, res) => {
-  const { action, type, documentModified, propertyListing, buyerPackage } = req.body;
+  const { action, type, documentModified, propertyListing } = req.body;
   const newActivity = new Activity({
     user: req.user.id,
     action,
     type,
     documentModified,
     propertyListing,
-    buyerPackage,
   });
 
   try {

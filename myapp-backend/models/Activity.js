@@ -7,8 +7,7 @@ const activitySchema = new mongoose.Schema({
   type: { type: String, required: true, enum: ['view', 'download', 'offer'] },
   timestamp: { type: Date, default: Date.now },
   documentModified: { type: mongoose.Schema.Types.ObjectId, ref: 'Document' },
-  propertyListing: { type: mongoose.Schema.Types.ObjectId, ref: 'PropertyListing' },
-  buyerPackage: { type: mongoose.Schema.Types.ObjectId, ref: 'BuyerPackage' }
+  propertyListing: { type: mongoose.Schema.Types.ObjectId, ref: 'PropertyListing' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Activity', activitySchema);

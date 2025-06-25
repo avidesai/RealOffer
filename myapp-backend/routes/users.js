@@ -10,7 +10,6 @@ router.get('/', UserController.getAllUsers);
 router.get('/verify-token', authMiddleware, UserController.verifyToken); // Add this route before the :id route
 router.get('/:id', UserController.getUserById);
 router.get('/:id/listingPackages', UserController.getUserWithListingPackages);
-router.get('/:id/buyerPackages', UserController.getUserBuyerPackages);
 router.post('/', UserController.createUser);
 router.post('/login', UserController.loginUser);
 router.post('/check-email', UserController.checkEmailExists); // New route for checking email

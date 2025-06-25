@@ -60,16 +60,6 @@ exports.getUserWithListingPackages = async (req, res) => {
     }
 };
 
-exports.getUserBuyerPackages = async (req, res) => {
-    try {
-        const user = await User.findById(req.params.id).populate('buyerPackages');
-        if (!user) return res.status(404).json({ message: "User not found" });
-        res.status(200).json(user.buyerPackages);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
 exports.createUser = async (req, res) => {
     const { firstName, lastName, email, password, role } = req.body;
     try {
@@ -86,7 +76,7 @@ exports.createUser = async (req, res) => {
             twoFactorAuthenticationEnabled: false,
             notificationSettings: '',
             phone: '',
-            brokeragePhoneNumber: '', // Added this line
+            brokeragePhoneNumber: '',
             addressLine1: '',
             addressLine2: '',
             homepage: '',
@@ -107,8 +97,7 @@ exports.createUser = async (req, res) => {
             premiumPlan: '',
             templates: [],
             contacts: [],
-            listingPackages: [],
-            buyerPackages: []
+            listingPackages: []
         });
         const savedUser = await newUser.save();
         res.status(201).json(savedUser);

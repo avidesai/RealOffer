@@ -133,7 +133,6 @@ app.get('/test-session', (req, res) => {
 // Route Imports
 const usersRouter = require('./routes/users');
 const propertyListingsRouter = require('./routes/propertyListings');
-const buyerPackagesRouter = require('./routes/buyerPackages');
 const documentsRouter = require('./routes/documents');
 const viewersRouter = require('./routes/viewers');
 const offersRouter = require('./routes/offers');
@@ -146,7 +145,6 @@ const propertyAnalysisRouter = require('./routes/propertyAnalysis');
 // Route Usage
 app.use('/api/users', usersRouter);
 app.use('/api/propertyListings', propertyListingsRouter);
-app.use('/api/buyerPackages', buyerPackagesRouter);
 app.use('/api/documents', documentsRouter);
 app.use('/api/viewers', viewersRouter);
 app.use('/api/offers', offersRouter);

@@ -2,7 +2,6 @@
 
 const Document = require('../models/Document');
 const PropertyListing = require('../models/PropertyListing');
-const BuyerPackage = require('../models/BuyerPackage');
 const Offer = require('../models/Offer');
 const { containerClient, generateSASToken } = require('../config/azureStorage');
 const multer = require('multer');
@@ -160,70 +159,6 @@ exports.addDocumentToPropertyListing = async (req, res) => {
   }
 };
 
-exports.addDocumentToBuyerPackage = async (req, res) => {
-  const { visibility = 'public', purpose = 'offer' } = req.body;
-  const files = req.files;
-
-  if (!files || files.length === 0) {
-    return res.status(400).json({ message: 'No files uploaded' });
-  }
-
-  try {
-    const buyerPackage = await BuyerPackage.findById(req.params.id);
-    if (!buyerPackage) {
-      return res.status(404).json({ message: 'Buyer package not found' });
-    }
-
-    // Check if the authenticated user is authorized to add documents to this buyer package
-    if (buyerPackage.createdBy.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Not authorized to add documents to this buyer package' });
-    }
-    const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
-    const types = Array.isArray(req.body.type) ? req.body.type : [req.body.type];
-
-    const documents = await Promise.all(files.map(async (file, index) => {
-      const title = titles[index];
-      const type = types[index];
-      const size = file.size;
-      const contentType = file.mimetype;
-      const docType = contentType === 'application/pdf' ? 'pdf' : 'image';
-
-      const blobName = `documents/${uuidv4()}-${file.originalname}`;
-      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-
-      await blockBlobClient.uploadData(file.buffer, {
-        blobHTTPHeaders: { blobContentType: contentType }
-      });
-
-      const pages = contentType === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
-
-      const newDocument = new Document({
-        title,
-        type,
-        size,
-        pages,
-        thumbnailUrl: blockBlobClient.url,
-        buyerPackage: req.params.id,
-        uploadedBy: req.user.id,
-        azureKey: blobName,
-        visibility,
-        purpose,
-        docType
-      });
-
-      const savedDocument = await newDocument.save();
-      buyerPackage.documents.push(savedDocument._id);
-      return savedDocument;
-    }));
-
-    await buyerPackage.save();
-
-    res.status(201).json(documents);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
 exports.getDocumentsByListing = async (req, res) => {
   try {
     const propertyListing = await PropertyListing.findById(req.params.listingId);
@@ -286,7 +221,6 @@ exports.deleteDocument = async (req, res) => {
     await Document.deleteOne({ _id: req.params.id });
 
     await PropertyListing.findByIdAndUpdate(document.propertyListing, { $pull: { documents: document._id } });
-    await BuyerPackage.findByIdAndUpdate(document.propertyListing, { $pull: { documents: document._id } });
 
     res.status(200).json({ message: 'Document deleted' });
   } catch (error) {

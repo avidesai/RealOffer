@@ -30,7 +30,6 @@ router.put('/updateSignedStatus', DocumentController.updateDocumentSignedStatus)
 
 // Document routes with path parameters - GENERIC ROUTES LAST
 router.post('/propertyListing/:id', DocumentController.uploadDocuments, DocumentController.addDocumentToPropertyListing);
-router.post('/buyerPackage/:id', DocumentController.uploadDocuments, DocumentController.addDocumentToBuyerPackage);
 router.get('/offer/:offerId', DocumentController.getDocumentsByOffer);
 router.get('/:listingId', DocumentController.getDocumentsByListing);
 router.delete('/:id', DocumentController.deleteDocument);

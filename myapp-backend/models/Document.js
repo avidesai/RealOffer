@@ -9,7 +9,6 @@ const documentSchema = new mongoose.Schema({
   pages: { type: Number, required: false },
   thumbnailUrl: { type: String, required: false },
   propertyListing: { type: mongoose.Schema.Types.ObjectId, ref: 'PropertyListing', required: false },
-  buyerPackage: { type: mongoose.Schema.Types.ObjectId, ref: 'BuyerPackage', required: false },
   uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
   azureKey: { type: String, required: true },
   updatedAt: { type: Date, default: Date.now },
