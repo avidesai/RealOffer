@@ -1,220 +1,257 @@
-/* ListingFilterSortBar.css */
+/* ListingFilterSortBar.css - All styles are .lfsb- prefixed and specific */
 
-.listing-filter-sort-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem 0.5rem 2rem;
-  background-color: rgb(255, 255, 255);
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e0e0e0;
-  margin-top: 1.5rem;
+.lfsb-bar {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  padding: 1.2rem 2rem 1rem 2rem;
   margin-bottom: 1.5rem;
+  border: 1.5px solid #e6e8ec;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.filter-sort-section {
+.lfsb-top-row {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.lfsb-filter-sort-group {
+  display: flex;
+  align-items: center;
   gap: 2rem;
 }
 
-.listing-filter-section,
-.listing-sort-section {
+.lfsb-filter-section, .lfsb-sort-section {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  gap: 0.3rem;
 }
 
-.listing-filter-section label,
-.listing-sort-section label {
+.lfsb-label {
+  color: #222;
+  font-size: 0.95rem;
   font-weight: 600;
-  color: #333;
+  margin-bottom: 0.15rem;
+  display: block;
+  letter-spacing: 0.01em;
 }
 
-.listing-filter-section select,
-.listing-sort-section select {
-  padding: 0.5rem 1rem;
-  width: 150px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  background-color: #ffffff;
+.lfsb-select {
+  min-width: 170px;
+  max-width: 220px;
+  padding: 0.6rem 2.2rem 0.6rem 1rem;
   font-size: 1rem;
-  color: #333;
-  transition: border-color 0.3s;
-  appearance: none;
-  outline: none;
-}
-
-.listing-filter-section select:hover,
-.listing-sort-section select:hover {
-  border-color: #007bff;
-}
-
-.listing-search-section {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-top: -1rem;
-}
-
-.listing-search-section form {
-  display: flex;
-  flex-direction: column; /* Change from row to column */
-  align-items: flex-start; /* Align items to the start */
-  width: 100%; /* Ensure full width for alignment */
-}
-
-.listing-search-section label {
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.listing-search-section input {
-  padding: 0.6rem 1rem;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-  color: #333;
-  background-color: #ffffff;
-  transition: border-color 0.3s;
-  outline: none;
-  width: 200px;
-}
-
-.listing-search-section input:focus {
-  border-color: #007bff;
-  outline: none;
-}
-
-.listing-search-button {
-  padding: 0.6rem 1rem; /* Make the button the same height as the input */
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  border-radius: 9px;
+  border: 1.5px solid #e1e4e8;
+  background-color: #f8fafd;
+  color: #222;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  font-size: 1rem;
-  font-weight: 600;
-  margin-left: 0.5rem;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a8595' d='M6 8.825L1.175 4 2.05 3.125 6 7.075 9.95 3.125 10.825 4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+  background-size: 12px;
+  transition: border-color 0.2s, background-color 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+
+.lfsb-select:hover {
+  border-color: #007bff;
+  background-color: #fff;
+}
+
+.lfsb-select:focus {
+  border-color: #007bff;
+  outline: none;
+  background-color: #fff;
+}
+
+.lfsb-search-form {
   display: flex;
   align-items: center;
+  margin-left: auto;
 }
 
-.listing-search-button:hover {
+.lfsb-search-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lfsb-search-input {
+  padding: 0.6rem 1rem;
+  border-radius: 9px;
+  border: 1.5px solid #e1e4e8;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s ease;
+  background-color: #fff;
+  color: #222;
+  min-width: 180px;
+  width: 240px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+
+.lfsb-search-input:focus {
+  border-color: #007bff;
+  background-color: #f8fafd;
+}
+
+.lfsb-search-button {
+  padding: 0.6rem 1.1rem;
+  border-radius: 9px;
+  border: none;
+  background-color: #007bff;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-shadow: 0 1px 4px rgba(0,123,255,0.08);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.lfsb-search-button:hover {
   background-color: #0056b3;
 }
 
-.listing-search-button i {
-  font-size: 1rem;
-  color: white;
+/* Medium screens - better layout */
+@media (max-width: 1024px) and (min-width: 601px) {
+  .lfsb-bar {
+    padding: 1rem 1.5rem 0.9rem 1.5rem;
+  }
+  
+  .lfsb-top-row {
+    gap: 1.5rem;
+  }
+  
+  .lfsb-filter-sort-group {
+    gap: 1.5rem;
+  }
+  
+  .lfsb-search-input {
+    min-width: 150px;
+    width: 200px;
+  }
 }
 
+/* Tablet screens */
 @media (max-width: 768px) {
-  .listing-filter-sort-bar {
-    flex-direction: column;
-    padding: 1rem;
+  .lfsb-bar {
+    padding: 1rem 1rem 0.9rem 1rem;
   }
-
-  .filter-sort-section {
+  
+  .lfsb-top-row {
     flex-direction: column;
-    width: 100%;
+    align-items: stretch;
     gap: 1rem;
-    margin-bottom: 1rem;
   }
-
-  .listing-filter-section,
-  .listing-sort-section,
-  .listing-search-section {
+  
+  .lfsb-filter-sort-group {
+    gap: 1rem;
     width: 100%;
   }
-
-  .listing-filter-section select,
-  .listing-sort-section select,
-  .listing-search-section input {
+  
+  .lfsb-filter-section, .lfsb-sort-section {
+    flex: 1;
+  }
+  
+  .lfsb-select {
+    min-width: 0;
     width: 100%;
+    max-width: 100%;
   }
-
-  .listing-search-section form {
-    width: 100%;
-  }
-
-  .listing-search-section input {
-    flex-grow: 1;
-  }
-
-  .listing-search-button {
+  
+  .lfsb-search-form {
     width: 100%;
     margin-left: 0;
-    margin-top: 0.5rem;
   }
-}
-
-/* Newly added styles */
-.search-form {
-  width: 100%;
-}
-
-.search-input-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem; /* Adjust gap between input and button as needed */
-}
-
-@media (max-width: 768px) {
-  .listing-filter-sort-bar {
-    flex-direction: column;
-    padding: 1rem;
-    gap: 1rem; /* Added gap for spacing between elements */
-  }
-
-  .filter-sort-section {
-    flex-direction: column;
+  
+  .lfsb-search-input-group {
     width: 100%;
-    gap: 0.5rem; /* Reduced gap for a tighter layout */
+    display: flex;
+    gap: 0.5rem;
   }
+  
+  .lfsb-search-input {
+    min-width: 0;
+    width: auto;
+    flex: 1;
+  }
+  
+  .lfsb-search-button {
+    flex-shrink: 0;
+  }
+}
 
-  .listing-filter-section,
-  .listing-sort-section,
-  .listing-search-section {
+/* Mobile screens */
+@media (max-width: 600px) {
+  .lfsb-bar {
+    padding: 0.8rem 0.8rem 0.8rem 0.8rem;
+    border-radius: 10px;
+  }
+  
+  .lfsb-top-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.8rem;
+  }
+  
+  .lfsb-filter-sort-group {
+    flex-direction: column;
+    gap: 0.8rem;
     width: 100%;
-    margin-bottom: 0.5rem; /* Added margin for spacing between sections */
   }
-
-  .listing-filter-section select,
-  .listing-sort-section select {
-    width: 100%; /* Ensures select elements take full width */
-    margin-bottom: 0.2rem; /* Added margin for spacing */
+  
+  .lfsb-filter-section, .lfsb-sort-section {
+    width: 100%;
+    gap: 0.3rem;
   }
-
-  .listing-search-section label {
-    display: none;
+  
+  .lfsb-label {
+    font-size: 0.9rem;
+    margin-bottom: 0.2rem;
   }
-
-  .listing-search-section form {
+  
+  .lfsb-select {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    font-size: 1rem;
+    padding: 0.65rem 2.2rem 0.65rem 1rem;
+  }
+  
+  .lfsb-search-form {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 0.3rem;
+  }
+  
+  .lfsb-search-input-group {
+    width: 100%;
     display: flex;
-    flex-direction: row; /* Changed to row for side-by-side layout */
-    justify-content: space-between; /* Space elements evenly */
-    align-items: center; /* Align items vertically */
-    gap: 0.5rem; /* Space between input and button */
+    flex-direction: column;
+    gap: 0.6rem;
   }
-
-  .listing-search-section input {
-    flex-grow: 2; /* Allows input to take more space */
-    margin-right: 0.5rem; /* Space between input and button */
+  
+  .lfsb-search-input {
+    width: 100%;
+    min-width: 0;
+    flex: none;
   }
-
-  .listing-search-button {
-    flex-grow: 1; /* Allows button to grow but less than input */
-    width: auto; /* Auto width to fit content */
-    margin-left: 0; /* Align with input */
-    margin-top: 0;
-    padding: 0.6rem 1rem; /* Adjust padding for better touch */
-  }
-
-  .search-input-button {
-    display: flex;
-    width: 100%; /* Ensure container takes full width */
+  
+  .lfsb-search-button {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    font-size: 0.98rem;
   }
 }

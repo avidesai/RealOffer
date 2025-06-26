@@ -27,39 +27,48 @@ function ListingFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
     onSearch(searchQuery);
   };
 
+  // SVG down arrow for custom dropdown
+  const downArrow =
+    'data:image/svg+xml;utf8,<svg fill="%237a8595" height="18" viewBox="0 0 20 20" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>';
+
   return (
-    <div className="listing-filter-sort-bar">
-      <div className="filter-sort-section">
-        <div className="listing-filter-section">
-          <label htmlFor="filter">Filter</label>
-          <select id="filter" value={filter} onChange={handleFilterChange}>
-            <option value="active">Active</option>
-            <option value="archived">Archived</option>
-            <option value="all">All Listings</option>
-          </select>
+    <div className="lfsb-bar">
+      <div className="lfsb-top-row">
+        <div className="lfsb-filter-sort-group">
+          <div className="lfsb-filter-section">
+            <span className="lfsb-label">Filter</span>
+            <select
+              className="lfsb-select"
+              value={filter}
+              onChange={handleFilterChange}
+            >
+              <option value="active">Active</option>
+              <option value="archived">Archived</option>
+              <option value="all">All Listings</option>
+            </select>
+          </div>
+          <div className="lfsb-sort-section">
+            <span className="lfsb-label">Sort</span>
+            <select
+              className="lfsb-select"
+              value={sort}
+              onChange={handleSortChange}
+            >
+              <option value="recent">Most Recent</option>
+              <option value="oldest">Oldest</option>
+            </select>
+          </div>
         </div>
-        <div className="listing-sort-section">
-          <label htmlFor="sort">Sort</label>
-          <select id="sort" value={sort} onChange={handleSortChange}>
-            <option value="recent">Most Recent</option>
-            <option value="oldest">Oldest</option>
-          </select>
-        </div>
-      </div>
-      <div className="listing-search-section">
-        <form onSubmit={handleSearchSubmit} className="search-form">
-          <label htmlFor="search">Search</label>
-          <div className="search-input-button">
+        <form className="lfsb-search-form" onSubmit={handleSearchSubmit} autoComplete="off">
+          <div className="lfsb-search-input-group">
             <input
               type="text"
-              id="search"
+              className="lfsb-search-input"
               placeholder="Search Packages"
               value={searchQuery}
               onChange={handleSearchChange}
             />
-            <button type="submit" className="listing-search-button">
-              Search
-            </button>
+            <button type="submit" className="lfsb-search-button">Search</button>
           </div>
         </form>
       </div>
