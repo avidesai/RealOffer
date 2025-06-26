@@ -1,12 +1,21 @@
 // ListingFilterSortBar.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ListingFilterSortBar.css';
 
 function ListingFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
   const [filter, setFilter] = useState('active');
   const [sort, setSort] = useState('recent');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Debounce search to avoid too many calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onSearch(searchQuery);
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, onSearch]);
 
   const handleFilterChange = (e) => {
     setFilter(e.target.value);
@@ -21,15 +30,6 @@ function ListingFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    onSearch(searchQuery);
-  };
-
-  // SVG down arrow for custom dropdown
-  const downArrow =
-    'data:image/svg+xml;utf8,<svg fill="%237a8595" height="18" viewBox="0 0 20 20" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>';
 
   return (
     <div className="lfsb-bar">
@@ -59,18 +59,15 @@ function ListingFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
             </select>
           </div>
         </div>
-        <form className="lfsb-search-form" onSubmit={handleSearchSubmit} autoComplete="off">
-          <div className="lfsb-search-input-group">
-            <input
-              type="text"
-              className="lfsb-search-input"
-              placeholder="Search Packages"
-              value={searchQuery}
-              onChange={handleSearchChange}
-            />
-            <button type="submit" className="lfsb-search-button">Search</button>
-          </div>
-        </form>
+        <div className="lfsb-search-section">
+          <input
+            type="text"
+            className="lfsb-search-input"
+            placeholder="Search Listings"
+            value={searchQuery}
+            onChange={handleSearchChange}
+          />
+        </div>
       </div>
     </div>
   );

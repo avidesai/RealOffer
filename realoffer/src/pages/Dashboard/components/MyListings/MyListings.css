@@ -1,12 +1,12 @@
 .my-listings {
-  padding: 0.5rem 2.5rem 2rem 2.5rem;
+  padding: 0rem 2.5rem 2rem 2.5rem;
   max-width: 1400px;
   margin: 0 auto;
 }
 
 .create-property-package {
   text-align: left;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .create-package-button {
@@ -75,7 +75,11 @@
 
 @media (max-width: 768px) {
   .my-listings {
-    padding: 1.5rem 1rem;
+    padding: 1rem 1rem 2rem 1rem;
+  }
+
+  .create-property-package {
+    margin-bottom: 1rem;
   }
 
   .create-package-button {

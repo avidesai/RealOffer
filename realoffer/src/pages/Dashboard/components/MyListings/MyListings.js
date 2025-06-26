@@ -20,6 +20,7 @@ function MyListings() {
   const [showCreateListingModal, setShowCreateListingModal] = useState(false);
   const [filter, setFilter] = useState('active');
   const [sort, setSort] = useState('recent');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchUserDetails = useCallback(async () => {
     if ((user?._id || user?.id) && token) {
@@ -58,10 +59,45 @@ function MyListings() {
   useEffect(() => {
     const filterAndSortListings = () => {
       let filteredListings = listings;
+      
+      // Apply filter
       if (filter === 'active') {
         filteredListings = listings.filter(listing => listing.status === 'active');
       } else if (filter === 'archived') {
         filteredListings = listings.filter(listing => listing.status === 'archived');
+      }
+
+      // Apply search
+      if (searchQuery.trim()) {
+        filteredListings = filteredListings.filter(listing => {
+          const searchTerm = searchQuery.toLowerCase().trim();
+          
+          // Create a comprehensive search string that includes all address components
+          const fullAddress = [
+            listing.homeCharacteristics?.address,
+            listing.homeCharacteristics?.city,
+            listing.homeCharacteristics?.state,
+            listing.homeCharacteristics?.zip,
+            listing.homeCharacteristics?.county
+          ]
+            .filter(Boolean) // Remove null/undefined values
+            .join(' ')
+            .toLowerCase();
+          
+          // Search through individual fields and combined address
+          return (
+            listing.title?.toLowerCase().includes(searchTerm) ||
+            listing.description?.toLowerCase().includes(searchTerm) ||
+            listing.homeCharacteristics?.address?.toLowerCase().includes(searchTerm) ||
+            listing.homeCharacteristics?.city?.toLowerCase().includes(searchTerm) ||
+            listing.homeCharacteristics?.state?.toLowerCase().includes(searchTerm) ||
+            listing.homeCharacteristics?.zip?.toLowerCase().includes(searchTerm) ||
+            listing.homeCharacteristics?.county?.toLowerCase().includes(searchTerm) ||
+            fullAddress.includes(searchTerm) || // Search the combined address string
+            // Handle partial matches for addresses like "117 Panorama" matching "117 Panorama Way"
+            searchTerm.split(' ').every(word => fullAddress.includes(word))
+          );
+        });
       }
 
       // Sort by updatedAt
@@ -75,7 +111,7 @@ function MyListings() {
     };
 
     filterAndSortListings();
-  }, [listings, filter, sort]);
+  }, [listings, filter, sort, searchQuery]);
 
   const addNewListing = (newListing) => {
     setListings((prevListings) => [newListing, ...prevListings]);
@@ -103,6 +139,11 @@ function MyListings() {
 
   const handleSortChange = (newSort) => {
     setSort(newSort);
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    setCurrentPage(1); // Reset to first page when searching
   };
 
   const handleStatusChange = async (listingId, newStatus) => {
@@ -136,7 +177,7 @@ function MyListings() {
     <div className="my-listings">
       <div className="create-property-package">
         <button className="create-package-button" onClick={handleCreateListingClick}>
-          Create Listing Package
+          Create New Listing
         </button>
       </div>
       {error ? (
@@ -146,7 +187,7 @@ function MyListings() {
           <ListingFilterSortBar
             onFilterChange={handleFilterChange}
             onSortChange={handleSortChange}
-            onSearch={() => {}} // Keeping the search function as a placeholder
+            onSearch={handleSearch}
           />
           {currentListings.length > 0 ? currentListings.map(listing => (
             <ListingItem key={listing._id} listing={listing} onStatusChange={handleStatusChange} />
