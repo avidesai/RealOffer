@@ -769,17 +769,17 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
         </div>
       )}
 
-      <div className="button-container">
+        <div className="button-container">
         <button className="step-back-button" onClick={handlePrevStep} disabled={loading}>
-          Back
-        </button>
-        <button 
-          className="next-button" 
+            Back
+          </button>
+          <button
+            className="next-button"
           onClick={handleNext} 
           disabled={loading || !validation.canProceed}
-        >
-          Next
-        </button>
+          >
+            Next
+          </button>
       </div>
     </div>
   );

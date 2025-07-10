@@ -89,7 +89,6 @@ const PurchaseAgreementSection = ({
               <div className="document-info">
                 <span className="document-icon" role="img" aria-label="PDF">📄</span>
                 <span className="document-name main-blue">Purchase Agreement</span>
-                <span className="page-count">{documentWorkflow.purchaseAgreement.document.pages || 'Unknown'} pages</span>
               </div>
               <div className="button-group">
                 <button
@@ -132,7 +131,6 @@ const PurchaseAgreementSection = ({
               <div className="document-info">
                 <span className="document-icon" role="img" aria-label="PDF">📄</span>
                 <span className="document-name main-blue">Purchase Agreement</span>
-                <span className="page-count">{documentWorkflow.purchaseAgreement.document.pages || 'Unknown'} pages</span>
                 <span className="auto-generated-pill">Auto-Generated</span>
               </div>
               <div className="button-group">
