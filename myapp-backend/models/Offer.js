@@ -45,6 +45,18 @@ const OfferSchema = new Schema({
     brokerageLogo: { type: String, required: false },
   },
   documents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Document', required: false }],
+  // Document workflow and signing preferences
+  documentWorkflow: {
+    purchaseAgreement: {
+      choice: { type: String, enum: ['upload', 'generate', 'skip'], default: 'upload' },
+      sendForSigning: { type: Boolean, default: true }
+    },
+    signingDocuments: [{ 
+      documentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Document' },
+      sendForSigning: { type: Boolean, default: false }
+    }],
+    docuSignConnected: { type: Boolean, default: false }
+  },
   buyersAgent: { type: Schema.Types.ObjectId, ref: 'User', required: false },
   propertyListing: { type: Schema.Types.ObjectId, ref: 'PropertyListing', required: true },
   buyersAgentCommission: { type: Number, required: false },

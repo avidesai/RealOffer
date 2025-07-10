@@ -30,12 +30,24 @@ exports.createOffer = async (req, res) => {
       return res.status(404).json({ message: 'Property listing not found' });
     }
 
+    // Parse documentWorkflow if it exists
+    let documentWorkflow = {};
+    if (req.body.documentWorkflow) {
+      try {
+        documentWorkflow = JSON.parse(req.body.documentWorkflow);
+      } catch (error) {
+        console.error('Error parsing documentWorkflow:', error);
+        // Continue without document workflow if parsing fails
+      }
+    }
+
     const offerData = {
       ...req.body,
       offerExpiryDate: req.body.offerExpiryDate,
       sellerRentBack: req.body.sellerRentBack,
       sellerRentBackDays: req.body.sellerRentBackDays,
       'buyerDetails.buyerName': req.body.buyerName,
+      documentWorkflow: documentWorkflow
     };
 
     const offer = new Offer(offerData);

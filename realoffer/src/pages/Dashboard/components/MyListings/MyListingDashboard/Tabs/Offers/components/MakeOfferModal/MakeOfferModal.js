@@ -122,6 +122,37 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       allDocuments.push({ id: doc.id });
     });
 
+    // Prepare signing documents data
+    const signingDocuments = [];
+    
+    // Purchase agreement signing preference
+    if (documentWorkflow.purchaseAgreement.document && documentWorkflow.purchaseAgreement.sendForSigning) {
+      signingDocuments.push({
+        documentId: documentWorkflow.purchaseAgreement.document.id,
+        sendForSigning: true
+      });
+    }
+    
+    // Required documents signing preferences
+    documentWorkflow.requirements.documents.forEach(req => {
+      if (req.document && req.sendForSigning) {
+        signingDocuments.push({
+          documentId: req.document.id,
+          sendForSigning: true
+        });
+      }
+    });
+    
+    // Additional documents signing preferences
+    documentWorkflow.additional.documents.forEach(doc => {
+      if (doc.sendForSigning) {
+        signingDocuments.push({
+          documentId: doc.id,
+          sendForSigning: true
+        });
+      }
+    });
+
     const formDataToSend = new FormData();
     for (const key in offerData) {
       if (key === 'documents') {
@@ -137,6 +168,17 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         formDataToSend.append(key, offerData[key]);
       }
     }
+    
+    // Add document workflow data
+    formDataToSend.append('documentWorkflow', JSON.stringify({
+      purchaseAgreement: {
+        choice: documentWorkflow.purchaseAgreement.choice,
+        sendForSigning: documentWorkflow.purchaseAgreement.sendForSigning !== false
+      },
+      signingDocuments: signingDocuments,
+      docuSignConnected: documentWorkflow.signing?.docuSignConnected || false
+    }));
+    
     formDataToSend.append('propertyListingId', listingId);
   
     try {
