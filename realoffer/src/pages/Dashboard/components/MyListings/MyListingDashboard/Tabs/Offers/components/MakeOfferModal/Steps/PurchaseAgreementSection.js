@@ -18,7 +18,7 @@ const PurchaseAgreementSection = ({
   const handlePreview = () => {
     const doc = documentWorkflow.purchaseAgreement.document;
     if (doc && doc.id) {
-      // Assuming backend serves documents at /api/documents/:id/download
+      // Use the backend download endpoint that handles authorization and SAS tokens
       window.open(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${doc.id}/download`, '_blank');
     }
   };

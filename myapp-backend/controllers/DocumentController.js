@@ -617,13 +617,72 @@ exports.getSingleDocument = async (req, res) => {
       return res.status(404).json({ message: 'Document not found' });
     }
     
+    // Check authorization based on the document's purpose and ownership
+    if (document.propertyListing) {
+      // For listing documents, check if user owns the listing
+      const propertyListing = await PropertyListing.findById(document.propertyListing);
+      if (!propertyListing || propertyListing.createdBy.toString() !== req.user.id) {
+        return res.status(403).json({ message: 'Not authorized to access this document' });
+      }
+    } else if (document.offer) {
+      // For offer documents, check if user owns the listing the offer is for
+      const offer = await Offer.findById(document.offer).populate('propertyListing');
+      if (!offer || !offer.propertyListing || offer.propertyListing.createdBy.toString() !== req.user.id) {
+        return res.status(403).json({ message: 'Not authorized to access this document' });
+      }
+    } else {
+      // Document has no associated listing or offer
+      return res.status(403).json({ message: 'Not authorized to access this document' });
+    }
+    
     // Generate SAS token for the document
     const sasToken = generateSASToken(document.azureKey);
-    document.sasToken = sasToken;
+    const documentWithSasToken = {
+      ...document._doc,
+      sasToken: sasToken
+    };
     
-    res.json(document);
+    res.json(documentWithSasToken);
   } catch (error) {
     console.error('Error fetching document:', error);
     res.status(500).json({ message: 'Error fetching document', error: error.message });
+  }
+};
+
+exports.downloadDocument = async (req, res) => {
+  try {
+    const document = await Document.findById(req.params.id);
+    
+    if (!document) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+    
+    // Check authorization based on the document's purpose and ownership
+    if (document.propertyListing) {
+      // For listing documents, check if user owns the listing
+      const propertyListing = await PropertyListing.findById(document.propertyListing);
+      if (!propertyListing || propertyListing.createdBy.toString() !== req.user.id) {
+        return res.status(403).json({ message: 'Not authorized to access this document' });
+      }
+    } else if (document.offer) {
+      // For offer documents, check if user owns the listing the offer is for
+      const offer = await Offer.findById(document.offer).populate('propertyListing');
+      if (!offer || !offer.propertyListing || offer.propertyListing.createdBy.toString() !== req.user.id) {
+        return res.status(403).json({ message: 'Not authorized to access this document' });
+      }
+    } else {
+      // Document has no associated listing or offer
+      return res.status(403).json({ message: 'Not authorized to access this document' });
+    }
+    
+    // Generate SAS token and redirect to the document
+    const sasToken = generateSASToken(document.azureKey);
+    const documentUrlWithSAS = `${document.thumbnailUrl}?${sasToken}`;
+    
+    // Redirect to the document URL
+    res.redirect(documentUrlWithSAS);
+  } catch (error) {
+    console.error('Error downloading document:', error);
+    res.status(500).json({ message: 'Error downloading document', error: error.message });
   }
 };

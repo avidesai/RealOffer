@@ -28,6 +28,9 @@ router.get('/single/:id', DocumentController.getSingleDocument);
 router.put('/createBuyerSignaturePacket', DocumentController.createBuyerSignaturePacket);
 router.put('/updateSignedStatus', DocumentController.updateDocumentSignedStatus);
 
+// Document download route (specific route before generic ones)
+router.get('/:id/download', DocumentController.downloadDocument);
+
 // Document routes with path parameters - GENERIC ROUTES LAST
 router.post('/propertyListing/:id', DocumentController.uploadDocuments, DocumentController.addDocumentToPropertyListing);
 router.get('/offer/:offerId', DocumentController.getDocumentsByOffer);
