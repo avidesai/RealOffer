@@ -1,0 +1,623 @@
+/* DocumentsAndSigning.css - Four distinct sections with improved functionality */
+
+.modal-step {
+  margin-bottom: 2rem;
+}
+
+.offer-modal-header {
+  margin-bottom: 2rem;
+}
+
+.offer-modal-header h2 {
+  font-size: 1.75rem;
+  color: #1a1a1a;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.offer-modal-header p {
+  color: #666;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+/* Error Message */
+.error-message {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+/* Document Sections - Four distinct sections */
+.document-section {
+  margin-bottom: 2.5rem;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+}
+
+.section-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.section-header h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.section-header p {
+  margin: 0;
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.section-content {
+  padding: 1.5rem;
+}
+
+/* Radio Groups */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  color: #333;
+  cursor: pointer;
+  padding: 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.radio-option:hover {
+  border-color: #cbd5e1;
+  background: #f8f9fa;
+}
+
+.radio-option.recommended {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-color: #bbf7d0;
+  position: relative;
+}
+
+.radio-option.recommended:hover {
+  border-color: #86efac;
+}
+
+.radio-option input[type="radio"] {
+  margin-right: 0.75rem;
+  margin-top: 0;
+  accent-color: #4a90e2;
+  transform: scale(1.2);
+}
+
+.radio-option input[type="radio"]:checked + * {
+  font-weight: 500;
+}
+
+.recommended-badge {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  color: #ffffff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: 0.5rem;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+/* Upload Areas */
+.upload-area {
+  margin-top: 1rem;
+  padding: 1.5rem;
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.upload-area:hover {
+  border-color: #9ca3af;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+}
+
+.file-input {
+  display: none;
+}
+
+.upload-label {
+  display: inline-block;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  color: #ffffff;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.25);
+}
+
+.upload-label:hover {
+  background: linear-gradient(135deg, #357abd 0%, #2c5282 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.35);
+}
+
+/* Uploaded Documents Display */
+.uploaded-document {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  margin: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+}
+
+.uploaded-document:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
+}
+
+.document-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.document-name {
+  font-weight: 500;
+  color: #333;
+  font-size: 1rem;
+}
+
+.document-size {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.auto-generated-badge {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.remove-document-btn {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #666;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.remove-document-btn:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+/* Generation Areas */
+.generation-area {
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  margin-top: 1rem;
+}
+
+.generation-info {
+  margin: 0 0 1.5rem 0;
+  color: #065f46;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.generate-button,
+.regenerate-button {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  color: #ffffff;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+}
+
+.generate-button:hover:not(:disabled),
+.regenerate-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+.generate-button:disabled,
+.regenerate-button:disabled {
+  background: #a0a4aa;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.generation-actions {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+/* Required Documents */
+.required-document {
+  padding: 1.25rem;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  margin-bottom: 1.25rem;
+}
+
+.document-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.document-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.required-badge {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #d97706;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.document-description {
+  margin: 0 0 1rem 0;
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* Document Summary for Signing */
+.document-summary {
+  background: linear-gradient(135deg, #f0f7ff 0%, #e0f2fe 100%);
+  border: 1px solid #bae6fd;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.document-summary h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #0c4a6e;
+}
+
+.documents-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.summary-document {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: #ffffff;
+  border: 1px solid #e0f2fe;
+  border-radius: 8px;
+}
+
+.doc-name {
+  font-weight: 500;
+  color: #0c4a6e;
+  flex: 1;
+}
+
+.doc-category {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.signable-badge {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #15803d;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.signing-info {
+  margin: 0;
+  color: #0c4a6e;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* DocuSign Sections */
+.docusign-connected {
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.success-indicator {
+  color: #059669;
+  font-weight: 600;
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.docusign-connected p {
+  margin: 0;
+  color: #065f46;
+  font-size: 0.95rem;
+}
+
+.docusign-setup {
+  padding: 1.25rem;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.connect-button {
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  color: #ffffff;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.25);
+}
+
+.connect-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #357abd 0%, #2c5282 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.35);
+}
+
+.connect-button:disabled {
+  background: #a0a4aa;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.connect-hint {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Button Container - consistent with other steps */
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2.5rem;
+  gap: 1rem;
+}
+
+.step-back-button,
+.next-button {
+  color: #ffffff;
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  width: 48%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.step-back-button {
+  background: linear-gradient(135deg, #a0a4aa 0%, #888b92 100%);
+}
+
+.next-button {
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+}
+
+.step-back-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #888b92 0%, #6c757d 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.next-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #357abd 0%, #2c5282 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.step-back-button:disabled,
+.next-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .document-section {
+    margin-bottom: 2rem;
+  }
+  
+  .section-header {
+    padding: 1.25rem;
+  }
+  
+  .section-header h3 {
+    font-size: 1.2rem;
+  }
+  
+  .section-content {
+    padding: 1.25rem;
+  }
+  
+  .radio-option {
+    padding: 0.75rem;
+    font-size: 0.95rem;
+  }
+  
+  .upload-area {
+    padding: 1.25rem;
+  }
+  
+  .upload-label {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+  }
+  
+  .uploaded-document {
+    padding: 0.875rem 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .document-info {
+    width: 100%;
+  }
+  
+  .remove-document-btn {
+    align-self: flex-end;
+  }
+  
+  .generation-area {
+    padding: 1.5rem;
+  }
+  
+  .required-document {
+    padding: 1rem;
+  }
+  
+  .document-summary {
+    padding: 1.25rem;
+  }
+  
+  .summary-document {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .button-container {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .step-back-button,
+  .next-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-header {
+    padding: 1rem;
+  }
+  
+  .section-content {
+    padding: 1rem;
+  }
+  
+  .radio-option {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .recommended-badge {
+    display: block;
+    margin: 0.5rem 0 0 0;
+  }
+  
+  .upload-area {
+    padding: 1rem;
+  }
+  
+  .generation-area {
+    padding: 1.25rem;
+  }
+  
+  .document-summary {
+    padding: 1rem;
+  }
+} 

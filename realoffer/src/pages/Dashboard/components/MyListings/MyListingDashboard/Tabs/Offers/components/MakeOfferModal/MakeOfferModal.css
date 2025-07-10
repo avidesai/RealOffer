@@ -172,7 +172,7 @@
 }
 
 .step-back-button {
-  background-color: #6c757d;
+  background-color: #a0a4aa;
 }
 
 .next-button {
@@ -180,7 +180,7 @@
 }
 
 .step-back-button:hover {
-  background-color: #5a6268;
+  background-color: #888b92;
   transform: translateY(-1px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }

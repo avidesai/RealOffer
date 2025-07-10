@@ -8,10 +8,8 @@ import PurchasePrice from './Steps/PurchasePrice';
 import Contingencies from './Steps/Contingencies';
 import AgentInformation from './Steps/AgentInformation';
 import OfferDetails from './Steps/OfferDetails';
-import Documents from './Steps/Documents';
-import DocumentSigning from './Steps/DocumentSigning';
+import DocumentsAndSigning from './Steps/DocumentsAndSigning';
 import FinalReview from './Steps/FinalReview';
-import AutoFillForms from './Steps/AutoFillForms';
 import axios from 'axios';
 
 const parseNumber = (value) => {
@@ -19,7 +17,7 @@ const parseNumber = (value) => {
 };
 
 const MakeOfferModal = ({ onClose, listingId }) => {
-  const { offerData, updateOfferData } = useOffer();
+  const { offerData, documentWorkflow, updateOfferData, resetDocumentWorkflow } = useOffer();
   const { token } = useAuth();
   const [step, setStep] = useState(1);
 
@@ -98,14 +96,37 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         addressLine2: '',
       }
     });
+    resetDocumentWorkflow();
     setStep(1);
-  }, [updateOfferData, listingId]);
+  }, [updateOfferData, resetDocumentWorkflow, listingId]);
 
   const handleSubmit = useCallback(async () => {
+    
+    // Collect all documents from documentWorkflow
+    const allDocuments = [];
+    
+    // Add purchase agreement document
+    if (documentWorkflow.purchaseAgreement.document) {
+      allDocuments.push({ id: documentWorkflow.purchaseAgreement.document.id });
+    }
+    
+    // Add required documents
+    documentWorkflow.requirements.documents.forEach(req => {
+      if (req.document) {
+        allDocuments.push({ id: req.document.id });
+      }
+    });
+    
+    // Add additional documents
+    documentWorkflow.additional.documents.forEach(doc => {
+      allDocuments.push({ id: doc.id });
+    });
+
     const formDataToSend = new FormData();
     for (const key in offerData) {
       if (key === 'documents') {
-        offerData.documents.forEach(doc => {
+        // Use documents from documentWorkflow instead of offerData.documents
+        allDocuments.forEach(doc => {
           formDataToSend.append('documents[]', doc.id);
         });
       } else if (key === 'presentedBy' || key === 'brokerageInfo') {
@@ -129,8 +150,9 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       
       const createdOfferId = response.data._id;
   
-      if (offerData.documents && offerData.documents.length > 0) {
-        const documentUpdatePromises = offerData.documents.map(doc => 
+      // Update all documents with the offer ID
+      if (allDocuments.length > 0) {
+        const documentUpdatePromises = allDocuments.map(doc => 
           axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${doc.id}`, 
             { offer: createdOfferId },
             { headers: { 'Authorization': `Bearer ${token}` } }
@@ -148,7 +170,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       console.error('Error creating offer:', error);
       // You might want to show an error message to the user here
     }
-  }, [offerData, listingId, onClose, handleResetOffer, token]);
+  }, [offerData, listingId, onClose, handleResetOffer, token, documentWorkflow]);
 
   useEffect(() => {
     const downPayment = parseNumber(offerData.downPayment);
@@ -203,30 +225,17 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       handleNextStep={handleNextStep}
       handlePrevStep={handlePrevStep}
     />,
-    autoFillForms: <AutoFillForms
-      formData={offerData}
+    documentsAndSigning: <DocumentsAndSigning
       handleNextStep={handleNextStep}
       handlePrevStep={handlePrevStep}
-      updateOfferData={updateOfferData}
       listingId={listingId}
-    />,
-    documents: <Documents
-      formData={offerData}
-      handleNextStep={handleNextStep}
-      handlePrevStep={handlePrevStep}
-      updateOfferData={updateOfferData}
-      listingId={listingId}
-    />,
-    documentSigning: <DocumentSigning
-      handleNextStep={handleNextStep}
-      handlePrevStep={handlePrevStep}
     />,
     finalReview: <FinalReview
       formData={offerData}
       handlePrevStep={handlePrevStep}
       handleSubmit={handleSubmit}
     />
-  }), [offerData, handleChange, handleFinanceTypeChange, handleNextStep, handlePrevStep, handleNestedChange, updateOfferData, listingId, handleSubmit]);
+  }), [offerData, handleChange, handleFinanceTypeChange, handleNextStep, handlePrevStep, handleNestedChange, listingId, handleSubmit]);
 
   return (
     <div className="make-offer-modal">
@@ -245,10 +254,8 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         {step === 2 && memoizedComponents.contingencies}
         {step === 3 && memoizedComponents.agentInformation}
         {step === 4 && memoizedComponents.offerDetails}
-        {step === 5 && memoizedComponents.autoFillForms}
-        {step === 6 && memoizedComponents.documents}
-        {step === 7 && memoizedComponents.documentSigning}
-        {step === 8 && memoizedComponents.finalReview}
+        {step === 5 && memoizedComponents.documentsAndSigning}
+        {step === 6 && memoizedComponents.finalReview}
       </div>
     </div>
   );
