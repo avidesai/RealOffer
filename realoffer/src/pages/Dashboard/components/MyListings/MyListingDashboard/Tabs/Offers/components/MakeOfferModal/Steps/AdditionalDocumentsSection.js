@@ -5,7 +5,7 @@ const AdditionalDocumentsSection = ({ documentWorkflow, handleAdditionalDocsUplo
     <div className="document-section">
       <div className="section-header">
         <h3>3. Additional Documents</h3>
-        <p>Add any other documents that to your offer (proof of funds, etc.)</p>
+        <p>Add any other documents to your offer (proof of funds, etc.)</p>
       </div>
       <div className="section-content">
         {documentWorkflow.additional.documents.length > 0 && (

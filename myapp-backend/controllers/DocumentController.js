@@ -649,6 +649,7 @@ exports.getSingleDocument = async (req, res) => {
   }
 };
 
+// Update downloadDocument to proxy the file
 exports.downloadDocument = async (req, res) => {
   try {
     const document = await Document.findById(req.params.id);
@@ -675,12 +676,20 @@ exports.downloadDocument = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to access this document' });
     }
     
-    // Generate SAS token and redirect to the document
-    const sasToken = generateSASToken(document.azureKey);
-    const documentUrlWithSAS = `${document.thumbnailUrl}?${sasToken}`;
+    const blockBlobClient = containerClient.getBlockBlobClient(document.azureKey);
     
-    // Redirect to the document URL
-    res.redirect(documentUrlWithSAS);
+    // Get blob properties
+    const properties = await blockBlobClient.getProperties();
+    
+    // Set response headers
+    res.setHeader('Content-Type', properties.contentType || 'application/octet-stream');
+    res.setHeader('Content-Length', properties.contentLength);
+    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(document.title)}"`);
+    
+    // Download and stream the blob
+    const downloadResponse = await blockBlobClient.download(0);
+    downloadResponse.readableStreamBody.pipe(res);
+    
   } catch (error) {
     console.error('Error downloading document:', error);
     res.status(500).json({ message: 'Error downloading document', error: error.message });

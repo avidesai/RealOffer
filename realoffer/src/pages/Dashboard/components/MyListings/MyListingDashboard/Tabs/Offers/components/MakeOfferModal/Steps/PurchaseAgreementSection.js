@@ -1,4 +1,5 @@
 import React from 'react';
+import api from '../../../../../../../../../../context/api';
 
 const PurchaseAgreementSection = ({
   purchaseAgreementChoice,
@@ -15,11 +16,20 @@ const PurchaseAgreementSection = ({
     documentWorkflow.purchaseAgreement.canRegenerate;
 
   // Helper to preview the document in a new tab
-  const handlePreview = () => {
+  const handlePreview = async () => {
     const doc = documentWorkflow.purchaseAgreement.document;
     if (doc && doc.id) {
-      // Use the backend download endpoint that handles authorization and SAS tokens
-      window.open(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${doc.id}/download`, '_blank');
+      try {
+        const response = await api.get(`/api/documents/${doc.id}/download`, { responseType: 'blob' });
+        const blob = response.data;
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        // Revoke URL after 1 minute
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+      } catch (error) {
+        console.error('Error previewing document:', error);
+        alert('Failed to load document preview. Please try again.');
+      }
     }
   };
 
