@@ -14,6 +14,7 @@ const Activity = ({ listingId }) => {
   const [sort, setSort] = useState('most-recent');
   const [searchQuery, setSearchQuery] = useState('');
   const [metrics, setMetrics] = useState({ views: 0, downloads: 0, offers: 0 });
+  const [loading, setLoading] = useState(true);
 
   const calculateMetrics = useCallback((activitiesData) => {
     const newMetrics = {
@@ -26,6 +27,7 @@ const Activity = ({ listingId }) => {
 
   const fetchActivities = useCallback(async () => {
     try {
+      setLoading(true);
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/activities?listingId=${listingId}`, {
         headers: {
           'Authorization': `Bearer ${token}` // Include the token in the header
@@ -36,6 +38,8 @@ const Activity = ({ listingId }) => {
       calculateMetrics(activitiesData);
     } catch (error) {
       console.error('Error fetching activities:', error);
+    } finally {
+      setLoading(false);
     }
   }, [calculateMetrics, listingId, token]); // Add token to dependency array
 
@@ -157,7 +161,12 @@ const Activity = ({ listingId }) => {
         </div>
       </div>
       <div className="activity-list">
-        {filteredActivities.length === 0 ? (
+        {loading ? (
+          <div className="activity-tab-loading">
+            <div className="activity-tab-spinner"></div>
+            <p>Loading activity data...</p>
+          </div>
+        ) : filteredActivities.length === 0 ? (
           <div className="no-activities">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
