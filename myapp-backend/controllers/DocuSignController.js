@@ -2,6 +2,7 @@ const docusign = require('docusign-esign');
 const { config, createApiClient, getAccessTokenFromCode, createEnvelope } = require('../config/docusign');
 const User = require('../models/User');
 const Document = require('../models/Document');
+const Offer = require('../models/Offer');
 const { containerClient } = require('../config/azureStorage');
 
 // Get DocuSign connection status
@@ -91,15 +92,187 @@ exports.handleCallback = async (req, res) => {
   }
 };
 
-// Send documents for signing
+// Enhanced envelope creation with smart field placement
+const createEnhancedEnvelope = async (accessToken, envelopeData) => {
+  try {
+    const apiClient = createApiClient();
+    apiClient.addDefaultHeader('Authorization', `Bearer ${accessToken}`);
+    
+    const envelopeApi = new docusign.EnvelopesApi(apiClient);
+    const envelope = new docusign.EnvelopeDefinition();
+    
+    envelope.emailSubject = envelopeData.emailSubject;
+    envelope.emailBlurb = envelopeData.emailBlurb;
+    envelope.status = 'sent';
+    
+    // Enhanced document preparation with field placement
+    envelope.documents = await Promise.all(envelopeData.documents.map(async (doc, index) => {
+      const document = new docusign.Document();
+      document.documentBase64 = doc.content;
+      document.name = doc.name;
+      document.fileExtension = 'pdf';
+      document.documentId = (index + 1).toString();
+      
+      return document;
+    }));
+
+    // Enhanced recipient configuration
+    envelope.recipients = new docusign.Recipients();
+    envelope.recipients.signers = envelopeData.recipients.map((recipient, index) => {
+      const signer = new docusign.Signer();
+      signer.email = recipient.email;
+      signer.name = recipient.name;
+      signer.recipientId = (index + 1).toString();
+      signer.routingOrder = recipient.order || (index + 1).toString();
+      
+      // Add tabs based on document type and recipient role
+      signer.tabs = generateSmartTabs(envelopeData.documents, recipient, index + 1);
+      
+      return signer;
+    }));
+
+    // Add custom fields for tracking
+    envelope.customFields = new docusign.CustomFields();
+    envelope.customFields.textCustomFields = [];
+    
+    if (envelopeData.metadata) {
+      if (envelopeData.metadata.offerId) {
+        envelope.customFields.textCustomFields.push({
+          name: 'OfferID',
+          value: envelopeData.metadata.offerId,
+          show: 'false',
+          required: 'false'
+        });
+      }
+      
+      if (envelopeData.metadata.listingId) {
+        envelope.customFields.textCustomFields.push({
+          name: 'PropertyListingID',
+          value: envelopeData.metadata.listingId,
+          show: 'false', 
+          required: 'false'
+        });
+      }
+    }
+
+    const results = await envelopeApi.createEnvelope('me', { envelopeDefinition: envelope });
+    return results;
+  } catch (error) {
+    console.error('Error creating enhanced DocuSign envelope:', error);
+    throw error;
+  }
+};
+
+// Smart tab generation based on document type and recipient role
+const generateSmartTabs = (documents, recipient, documentId) => {
+  const tabs = new docusign.Tabs();
+  
+  // Initialize tab arrays
+  tabs.signHereTabs = [];
+  tabs.dateSignedTabs = [];
+  tabs.fullNameTabs = [];
+  
+  documents.forEach((doc, docIndex) => {
+    const actualDocId = (docIndex + 1).toString();
+    
+    // Different placement strategies based on document type
+    if (doc.name.toLowerCase().includes('purchase agreement')) {
+      // Purchase Agreement - specific locations
+      if (recipient.type === 'buyer-agent') {
+        tabs.signHereTabs.push({
+          anchorString: 'Buyer Agent Signature',
+          anchorXOffset: '0',
+          anchorYOffset: '0',
+          documentId: actualDocId,
+          pageNumber: '1',
+          recipientId: (recipient.order || 1).toString()
+        });
+        
+        tabs.dateSignedTabs.push({
+          anchorString: 'Date',
+          anchorXOffset: '100',
+          anchorYOffset: '0',
+          documentId: actualDocId,
+          pageNumber: '1',
+          recipientId: (recipient.order || 1).toString()
+        });
+      } else if (recipient.type === 'buyer') {
+        tabs.signHereTabs.push({
+          anchorString: 'Buyer Signature',
+          anchorXOffset: '0',
+          anchorYOffset: '0',
+          documentId: actualDocId,
+          pageNumber: '1',
+          recipientId: (recipient.order || 1).toString()
+        });
+        
+        tabs.fullNameTabs.push({
+          anchorString: 'Buyer Name',
+          anchorXOffset: '0',
+          anchorYOffset: '0',
+          documentId: actualDocId,
+          pageNumber: '1',
+          recipientId: (recipient.order || 1).toString(),
+          value: recipient.name
+        });
+      }
+    } else if (doc.name.toLowerCase().includes('disclosure')) {
+      // Disclosure documents - bottom of each page
+      tabs.signHereTabs.push({
+        anchorString: '/s/',
+        anchorXOffset: '0',
+        anchorYOffset: '0',
+        documentId: actualDocId,
+        pageNumber: '1',
+        recipientId: (recipient.order || 1).toString()
+      });
+      
+      tabs.dateSignedTabs.push({
+        anchorString: '/d/',
+        anchorXOffset: '0',
+        anchorYOffset: '0',
+        documentId: actualDocId,
+        pageNumber: '1',
+        recipientId: (recipient.order || 1).toString()
+      });
+    } else {
+      // Generic documents - auto-place at bottom
+      tabs.signHereTabs.push({
+        xPosition: '100',
+        yPosition: '700',
+        documentId: actualDocId,
+        pageNumber: '1',
+        recipientId: (recipient.order || 1).toString()
+      });
+      
+      tabs.dateSignedTabs.push({
+        xPosition: '300',
+        yPosition: '700',
+        documentId: actualDocId,
+        pageNumber: '1',
+        recipientId: (recipient.order || 1).toString()
+      });
+    }
+  });
+  
+  return tabs;
+};
+
+// Enhanced send documents for signing
 exports.sendDocumentsForSigning = async (req, res) => {
   try {
-    const { documents, signers, title, message } = req.body;
+    const { offerId, documents, recipients, metadata } = req.body;
 
     // Get user's DocuSign access token
     const user = await User.findById(req.user.id);
     if (!user || !user.docusignAccessToken) {
       return res.status(401).json({ message: 'DocuSign not connected' });
+    }
+
+    // Get offer details for context
+    const offer = await Offer.findById(offerId).populate('propertyListing');
+    if (!offer) {
+      return res.status(404).json({ message: 'Offer not found' });
     }
 
     // Get documents from Azure Storage
@@ -117,22 +290,28 @@ exports.sendDocumentsForSigning = async (req, res) => {
         return {
           id: docId,
           name: document.title,
-          content: content.toString('base64')
+          content: content.toString('base64'),
+          type: document.type
         };
       })
     );
 
-    // Create envelope
+    // Create enhanced envelope
     const envelopeData = {
-      title,
-      message,
+      emailSubject: `Offer Documents for ${offer.propertyListing.address}`,
+      emailBlurb: `Please review and sign the attached offer documents for the property at ${offer.propertyListing.address}. This offer expires on ${new Date(offer.offerExpiryDate).toLocaleDateString()}.`,
       documents: documentContents,
-      signers
+      recipients: recipients,
+      metadata: {
+        offerId: offerId,
+        listingId: offer.propertyListing._id.toString(),
+        offerAmount: offer.purchasePrice
+      }
     };
 
-    const envelope = await createEnvelope(user.docusignAccessToken, envelopeData);
+    const envelope = await createEnhancedEnvelope(user.docusignAccessToken, envelopeData);
 
-    // Update documents with envelope ID
+    // Update documents with envelope ID and status
     await Document.updateMany(
       { _id: { $in: documents } },
       { 
@@ -143,13 +322,28 @@ exports.sendDocumentsForSigning = async (req, res) => {
       }
     );
 
+    // Update offer status and save envelope info
+    await Offer.findByIdAndUpdate(offerId, {
+      $set: {
+        'offerStatus': 'pending-signatures',
+        'documentWorkflow.envelopeId': envelope.envelopeId,
+        'documentWorkflow.recipients': recipients,
+        'documentWorkflow.status': 'sent'
+      }
+    });
+
     res.json({ 
       envelopeId: envelope.envelopeId,
+      status: 'sent',
+      recipients: recipients.length,
       message: 'Documents sent for signing successfully'
     });
   } catch (error) {
     console.error('Error sending documents for signing:', error);
-    res.status(500).json({ message: 'Error sending documents for signing' });
+    res.status(500).json({ 
+      message: 'Error sending documents for signing',
+      error: error.message 
+    });
   }
 };
 
@@ -173,30 +367,164 @@ exports.getEnvelopeStatus = async (req, res) => {
       status: envelopeInfo.status,
       created: envelopeInfo.created,
       lastModified: envelopeInfo.lastModified,
-      documentsUri: envelopeInfo.documentsUri,
-      recipientsUri: envelopeInfo.recipientsUri,
-      attachmentsUri: envelopeInfo.attachmentsUri,
-      envelopeUri: envelopeInfo.envelopeUri,
       emailSubject: envelopeInfo.emailSubject,
-      emailBlurb: envelopeInfo.emailBlurb,
-      signingLocation: envelopeInfo.signingLocation,
-      customFieldsUri: envelopeInfo.customFieldsUri,
-      notificationUri: envelopeInfo.notificationUri,
-      enableWetSign: envelopeInfo.enableWetSign,
-      allowMarkup: envelopeInfo.allowMarkup,
-      allowReassign: envelopeInfo.allowReassign,
-      createdDateTime: envelopeInfo.createdDateTime,
-      lastModifiedDateTime: envelopeInfo.lastModifiedDateTime,
-      deliveredDateTime: envelopeInfo.deliveredDateTime,
-      initialSentDateTime: envelopeInfo.initialSentDateTime,
-      statusChangedDateTime: envelopeInfo.statusChangedDateTime,
-      documentsCombinedUri: envelopeInfo.documentsCombinedUri,
-      certificateUri: envelopeInfo.certificateUri,
-      templatesUri: envelopeInfo.templatesUri
+      emailBlurb: envelopeInfo.emailBlurb
     });
   } catch (error) {
     console.error('Error getting envelope status:', error);
     res.status(500).json({ message: 'Error getting envelope status' });
+  }
+};
+
+// Webhook handler for envelope events
+exports.handleWebhook = async (req, res) => {
+  try {
+    console.log('DocuSign webhook received:', req.body);
+    
+    const { event, data } = req.body;
+    
+    if (event === 'envelope-completed') {
+      await handleEnvelopeCompleted(data);
+    } else if (event === 'envelope-declined') {
+      await handleEnvelopeDeclined(data);
+    } else if (event === 'envelope-voided') {
+      await handleEnvelopeVoided(data);
+    }
+    
+    res.status(200).json({ message: 'Webhook processed successfully' });
+  } catch (error) {
+    console.error('Error processing DocuSign webhook:', error);
+    res.status(500).json({ message: 'Error processing webhook' });
+  }
+};
+
+// Handle completed envelope
+const handleEnvelopeCompleted = async (envelopeData) => {
+  try {
+    const { envelopeId } = envelopeData;
+    
+    // Find the offer associated with this envelope
+    const offer = await Offer.findOne({ 'documentWorkflow.envelopeId': envelopeId });
+    if (!offer) {
+      console.log('No offer found for envelope:', envelopeId);
+      return;
+    }
+    
+    // Download completed documents from DocuSign
+    const user = await User.findById(offer.uploadedBy);
+    if (!user || !user.docusignAccessToken) {
+      console.log('User or token not found for completed envelope');
+      return;
+    }
+    
+    const apiClient = createApiClient();
+    apiClient.addDefaultHeader('Authorization', `Bearer ${user.docusignAccessToken}`);
+    
+    const envelopeApi = new docusign.EnvelopesApi(apiClient);
+    
+    // Get the combined document (all documents in one PDF)
+    const documentsResult = await envelopeApi.getDocument('me', envelopeId, 'combined');
+    
+    // Upload signed document to Azure Storage
+    const signedBlobName = `signed-documents/${envelopeId}-completed.pdf`;
+    const blockBlobClient = containerClient.getBlockBlobClient(signedBlobName);
+    
+    await blockBlobClient.uploadData(documentsResult, {
+      blobHTTPHeaders: { blobContentType: 'application/pdf' }
+    });
+    
+    // Create new signed document record
+    const signedDocument = new Document({
+      title: 'Signed Offer Documents',
+      type: 'Signed Document Package',
+      size: documentsResult.length,
+      azureKey: signedBlobName,
+      uploadedBy: offer.uploadedBy,
+      propertyListing: offer.propertyListing,
+      offer: offer._id,
+      docType: 'pdf',
+      signed: true,
+      purpose: 'signed_offer',
+      docusignEnvelopeId: envelopeId,
+      signingStatus: 'completed'
+    });
+    
+    await signedDocument.save();
+    
+    // Update offer status and add signed document
+    await Offer.findByIdAndUpdate(offer._id, {
+      $set: {
+        'offerStatus': 'documents-signed',
+        'documentWorkflow.status': 'completed',
+        'documentWorkflow.completedAt': new Date()
+      },
+      $push: {
+        'documents': signedDocument._id
+      }
+    });
+    
+    // Update original documents signing status
+    await Document.updateMany(
+      { docusignEnvelopeId: envelopeId },
+      { $set: { signingStatus: 'completed' } }
+    );
+    
+    console.log('Successfully processed completed envelope:', envelopeId);
+    
+  } catch (error) {
+    console.error('Error handling completed envelope:', error);
+  }
+};
+
+// Handle declined envelope
+const handleEnvelopeDeclined = async (envelopeData) => {
+  try {
+    const { envelopeId } = envelopeData;
+    
+    await Offer.findOneAndUpdate(
+      { 'documentWorkflow.envelopeId': envelopeId },
+      {
+        $set: {
+          'offerStatus': 'documents-declined',
+          'documentWorkflow.status': 'declined',
+          'documentWorkflow.declinedAt': new Date()
+        }
+      }
+    );
+    
+    await Document.updateMany(
+      { docusignEnvelopeId: envelopeId },
+      { $set: { signingStatus: 'declined' } }
+    );
+    
+  } catch (error) {
+    console.error('Error handling declined envelope:', error);
+  }
+};
+
+// Handle voided envelope
+const handleEnvelopeVoided = async (envelopeData) => {
+  try {
+    const { envelopeId } = envelopeData;
+    
+    await Offer.findOneAndUpdate(
+      { 'documentWorkflow.envelopeId': envelopeId },
+      {
+        $set: {
+          'offerStatus': 'documents-voided',
+          'documentWorkflow.status': 'voided',
+          'documentWorkflow.voidedAt': new Date()
+        }
+      }
+    );
+    
+    await Document.updateMany(
+      { docusignEnvelopeId: envelopeId },
+      { $set: { signingStatus: 'voided' } }
+    );
+    
+  } catch (error) {
+    console.error('Error handling voided envelope:', error);
   }
 };
 

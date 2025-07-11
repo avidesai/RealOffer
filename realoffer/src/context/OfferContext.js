@@ -68,7 +68,8 @@ const initialDocumentWorkflow = {
   signing: {
     isConfigured: false,
     selectedDocuments: [],
-    signers: [],
+    recipients: [],
+    docuSignConnected: false,
     status: 'not_configured' // 'not_configured' | 'ready' | 'sent' | 'completed'
   },
   validation: {

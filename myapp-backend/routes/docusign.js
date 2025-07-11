@@ -11,6 +11,9 @@ router.post('/send', authMiddleware, DocuSignController.sendDocumentsForSigning)
 // Do NOT protect the callback route
 router.get('/callback', DocuSignController.handleCallback);
 
+// Webhook route for DocuSign status updates (no auth required)
+router.post('/webhook', DocuSignController.handleWebhook);
+
 // Get envelope status (optional: protect if needed)
 router.get('/envelope/:envelopeId', authMiddleware, DocuSignController.getEnvelopeStatus);
 

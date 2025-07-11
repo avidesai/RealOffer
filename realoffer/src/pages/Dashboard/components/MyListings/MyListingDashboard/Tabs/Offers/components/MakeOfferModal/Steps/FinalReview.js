@@ -124,6 +124,25 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
       issues.push(`Missing required document: ${req.title}`);
     });
 
+    // DocuSign validation
+    const signableDocuments = [
+      ...(documentWorkflow.purchaseAgreement.document && documentWorkflow.purchaseAgreement.sendForSigning ? [1] : []),
+      ...documentWorkflow.requirements.documents.filter(req => req.document && req.sendForSigning),
+      ...documentWorkflow.additional.documents.filter(doc => doc.sendForSigning)
+    ];
+
+    if (signableDocuments.length > 0 && documentWorkflow.signing?.docuSignConnected) {
+      // Check if recipients are configured (this would come from DocuSignSection state)
+      // For now, we'll assume valid if DocuSign is connected and documents are selected
+      if (!formData.presentedBy?.email || !formData.buyerName) {
+        issues.push('Missing recipient information for DocuSign - agent email and buyer name required');
+      }
+    }
+
+    if (signableDocuments.length > 0 && !documentWorkflow.signing?.docuSignConnected) {
+      warnings.push('Documents selected for signing but DocuSign is not connected');
+    }
+
     return {
       canSubmit: issues.length === 0,
       issues,

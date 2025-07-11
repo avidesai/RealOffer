@@ -752,6 +752,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
         toggleDocumentSigning={toggleDocumentSigning}
         loading={loading}
         handleDocuSignConnect={handleDocuSignConnect}
+        offerData={offerData}
       />
 
       {/* Validation message */}
