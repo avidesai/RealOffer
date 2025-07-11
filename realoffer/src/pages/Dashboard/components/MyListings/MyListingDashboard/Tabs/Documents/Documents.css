@@ -1,15 +1,15 @@
 /* /Tabs/Documents.css */
 
-.documents-tab {
+.docs-tab-documents-tab {
   padding: 0.4rem 0.5rem 1.2rem 0.5rem;
   background-color: #f8fafd;
   border-radius: 0 0 16px 16px;
 }
 
-.documents-header {
+.docs-tab-documents-header {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.8rem;
   padding-top: 1rem;
   margin-bottom: 1rem;
   margin-left: 0.5rem;
@@ -17,68 +17,73 @@
 }
 
 @media (min-width: 768px) {
-  .documents-header {
+  .docs-tab-documents-header {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     margin-left: 1.5rem;
     margin-right: 1.5rem;
     margin-top: 0;
+    gap: 0.6rem;
   }
 }
 
-.signature-button, .add-documents-button, .delete-button {
+.docs-tab-signature-button, .docs-tab-add-documents-button, .docs-tab-delete-button {
   background-color: #fff;
   color: #262626;
   border: 1.5px solid #bfc9d8;
   border-radius: 10px;
-  padding: 12px 26px;
+  padding: 12px 20px;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   transition: background-color 0.18s, box-shadow 0.18s, color 0.18s;
   width: 100%;
   box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  text-align: center;
+  line-height: 1.3;
 }
 
 @media (min-width: 768px) {
-  .signature-button, .add-documents-button, .delete-button {
+  .docs-tab-signature-button, .docs-tab-add-documents-button, .docs-tab-delete-button {
     width: auto;
+    font-size: 15px;
+    padding: 12px 26px;
   }
 }
 
-.add-documents-button {
+.docs-tab-add-documents-button {
   background-color: #007bff;
   color: #fff;
   border: none;
 }
 
-.signature-button:hover, .delete-button:hover {
+.docs-tab-signature-button:hover, .docs-tab-delete-button:hover {
   transform: scale(1.04);
   background-color: #ececec;
 }
 
-.add-documents-button:hover {
+.docs-tab-add-documents-button:hover {
   transform: scale(1.04);
   background-color: #0056b3;
 }
 
-.action-buttons {
+.docs-tab-action-buttons {
   display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
+  flex-direction: row;
+  gap: 0.6rem;
   width: 100%;
 }
 
 @media (min-width: 768px) {
-  .action-buttons {
+  .docs-tab-action-buttons {
     flex-direction: row;
     width: auto;
     gap: 0.8rem;
   }
 }
 
-.documents-list {
+.docs-tab-documents-list {
   margin-top: 0.5rem;
   border-radius: 12px;
   padding: 0.5rem 0.5rem 0.5rem 0.5rem;
@@ -87,107 +92,131 @@
   gap: 0.85rem;
 }
 
-.no-documents-message {
+.docs-tab-no-documents-message {
   margin-top: 2rem;
   margin-left: 1rem;
   color: #666;
   font-size: 16px;
 }
 
-.document-item {
+.docs-tab-document-item {
   display: flex;
   flex-direction: column;
   background-color: #fff;
-  padding: 1.25rem 1.25rem 1rem 1.25rem;
-  border-radius: 16px;
-  transition: background-color 0.18s, box-shadow 0.18s, border-color 0.18s;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.10);
+  padding: 1.5rem 1.5rem 1.25rem 1.5rem;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   position: relative;
   cursor: pointer;
-  border: 1.5px solid #e3e8f0;
+  border: 1px solid #e9ecef;
 }
 
 @media (min-width: 768px) {
-  .document-item {
+  .docs-tab-document-item {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding-top: 1.2rem;
-    padding-bottom: 0.6rem;
+    padding: 1.5rem 1.5rem 1.5rem 1.5rem;
+    min-height: 85px;
   }
 }
 
-.document-item:hover {
-  background-color: #eaf2ff;
-  box-shadow: 0 4px 16px rgba(0,123,255,0.07);
+.docs-tab-document-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  border-color: #007bff;
 }
 
-.document-checkbox {
+.docs-tab-document-checkbox {
   position: absolute;
-  left: 18px;
+  left: 25px;
   top: 50%;
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   cursor: pointer;
   margin-bottom: 0;
   transform: translateY(-50%);
+  accent-color: #007bff;
 }
 
 @media (min-width: 768px) {
-  .document-checkbox {
-    left: 38px;
+  .docs-tab-document-checkbox {
+    left: 25px;
   }
 }
 
-.document-info {
+.docs-tab-document-info {
   display: flex;
-  align-items: flex-start;
-  margin-left: 3.2rem;
+  align-items: center;
+  margin-left: 3rem;
+  margin-top: 0;
+  flex: 1;
+  min-height: 60px;
+}
+
+@media (min-width: 768px) {
+  .docs-tab-document-info {
+    align-items: center;
+    margin-left: 3rem;
+    margin-top: 0.5rem;
+    flex: 1;
+    min-height: auto;
+    height: 100%;
+  }
+}
+
+.docs-tab-document-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+
+
+.docs-tab-document-title {
+  font-weight: 600;
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+  line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.docs-tab-signature-package-icon {
+  font-size: 1rem;
+}
+
+.docs-tab-document-type {
+  font-weight: 500;
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.docs-tab-document-meta {
+  color: #8e9aaf;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.4;
   margin-top: 0.2rem;
 }
 
-@media (min-width: 768px) {
-  .document-info {
-    align-items: center;
-    margin-left: 5.2rem;
-    margin-top: 0;
-  }
+.docs-tab-meta-divider {
+  margin: 0 0.4rem;
+  color: #dee2e6;
 }
 
-.document-details {
+.docs-tab-document-actions {
   display: flex;
-  flex-direction: column;
-  padding-top: 0.7rem;
-}
-
-.document-title {
-  font-weight: bold;
-  margin: 0;
-  color: #222;
-  margin-bottom: 0.5rem;
-  font-size: 1.08rem;
-}
-
-.document-type {
-  font-style: italic;
-  margin: 0;
-  color: #666;
-  font-size: 0.98rem;
-}
-
-.document-meta {
-  color: #888;
-  font-size: 0.93em;
-}
-
-.meta-divider {
-  margin: 0 0.25rem;
-}
-
-.document-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
   padding-right: 0;
   opacity: 1;
   flex-wrap: wrap;
@@ -195,35 +224,37 @@
 }
 
 @media (min-width: 768px) {
-  .document-actions {
-    margin-top: -10px;
-    padding-right: 1rem;
-    opacity: 0;
-    align-items: center;
-  }
-  .document-item:hover .document-actions {
+  .docs-tab-document-actions {
+    margin-top: 0;
+    padding-right: 0;
     opacity: 1;
+    align-items: center;
+    transition: opacity 0.2s ease;
   }
 }
 
 /* Remove all custom document-actions button overrides */
-.document-actions .document-actions-button {
-  /* No extra styles, inherit from .add-documents-button or .delete-button */
+.docs-tab-document-actions .docs-tab-document-actions-button {
+  /* No extra styles, inherit from .docs-tab-add-documents-button or .docs-tab-delete-button */
 }
 
-.selected {
-  background-color: #dceeff;
+.docs-tab-selected {
+  background-color: #f0f7ff;
   border-color: #007bff;
 }
 
-.spinner-container {
+.docs-tab-selected .docs-tab-document-title {
+  color: #0056b3;
+}
+
+.docs-tab-spinner-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
 }
 
-.spinner {
+.docs-tab-spinner {
   border: 8px solid rgba(0, 0, 0, 0.1);
   border-top: 8px solid #3498db;
   border-radius: 50%;
@@ -232,16 +263,16 @@
   animation: spin 1s linear infinite;
 }
 
-.documents-list .document-item:last-child {
+.docs-tab-documents-list .docs-tab-document-item:last-child {
   margin-bottom: 0;
 }
 
-.documents-list .document-item:first-child {
+.docs-tab-documents-list .docs-tab-document-item:first-child {
   margin-top: 0.1rem;
 }
 
 /* AI Analysis Ribbon Gradient Border Effect - static border only, white fill */
-.ai-analysis-ribbon {
+.docs-tab-ai-analysis-ribbon {
   position: relative;
   z-index: 1;
   background: white;
@@ -263,58 +294,175 @@
 }
 
 /* Remove previous ::before and animation for ai-analysis-ribbon */
-.ai-analysis-ribbon::before {
+.docs-tab-ai-analysis-ribbon::before {
   display: none;
 }
 
-/* Make document action buttons in .documents-list smaller and increase spacing */
-.documents-list .document-actions {
+/* Make document action buttons in .docs-tab-documents-list smaller and increase spacing */
+.docs-tab-documents-list .docs-tab-document-actions {
   gap: 0.8rem;
 }
 
-.documents-list .document-actions .add-documents-button,
-.documents-list .document-actions .delete-button,
-.documents-list .document-actions .ai-analysis-ribbon {
-  padding: 10px 18px;
-  font-size: 14px;
+.docs-tab-documents-list .docs-tab-document-actions .docs-tab-add-documents-button,
+.docs-tab-documents-list .docs-tab-document-actions .docs-tab-delete-button,
+.docs-tab-documents-list .docs-tab-document-actions .docs-tab-ai-analysis-ribbon {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 8px;
 }
 
 @media (max-width: 767px) {
-  /* Center the document actions row and make it look balanced */
-  .documents-list .document-actions {
-    justify-content: center;
-    gap: 0.8rem;
-    margin-top: 0.25rem;
+  .docs-tab-documents-tab {
+    padding: 0.5rem 0.3rem 1rem 0.3rem;
   }
-  /* Make document action buttons in .documents-list smaller and increase spacing */
-  .documents-list .document-actions .add-documents-button,
-  .documents-list .document-actions .delete-button,
-  .documents-list .document-actions .ai-analysis-ribbon {
-    padding: 10px 15px;
-    font-size: 14px;
+  
+  .docs-tab-documents-header {
+    gap: 0.6rem;
+    margin-left: 0.2rem;
+    margin-right: 0.2rem;
+  }
+  
+  .docs-tab-signature-button, .docs-tab-add-documents-button, .docs-tab-delete-button {
+    padding: 10px 14px;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+  
+  .docs-tab-action-buttons {
+    gap: 0.5rem;
+  }
+  
+  .docs-tab-document-item {
+    padding: 1.5rem 1.25rem 1.25rem 1.25rem;
+    text-align: center;
+  }
+  
+  /* Center the document actions row and make it look balanced */
+  .docs-tab-documents-list .docs-tab-document-actions {
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+  }
+  
+  /* Make document action buttons in .docs-tab-documents-list smaller and increase spacing */
+  .docs-tab-documents-list .docs-tab-document-actions .docs-tab-add-documents-button,
+  .docs-tab-documents-list .docs-tab-document-actions .docs-tab-delete-button,
+  .docs-tab-documents-list .docs-tab-document-actions .docs-tab-ai-analysis-ribbon {
+    padding: 8px 12px;
+    font-size: 0.8rem;
     width: auto;
-    min-width: 90px;
-    border-radius: 10px;
+    min-width: 75px;
+    border-radius: 6px;
     margin: 0;
     box-sizing: border-box;
   }
-  .document-checkbox {
+  
+  .docs-tab-document-checkbox {
     position: static;
     left: unset;
     top: unset;
     transform: none;
-    margin-right: 0.7rem;
-    margin-bottom: 0;
+    margin: 0 auto 1rem auto;
+    margin-bottom: 1rem;
     vertical-align: middle;
-    display: inline-block;
+    display: block;
+    width: 18px;
+    height: 18px;
   }
-  .document-info {
+  
+  .docs-tab-document-info {
     margin-left: 0;
     margin-top: 0;
-    flex-direction: row;
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
   }
-  .document-details {
-    padding-top: 0.2rem;
+  
+  .docs-tab-document-details {
+    gap: 0.4rem;
+    text-align: center;
+    width: 100%;
+  }
+  
+  .docs-tab-document-title {
+    font-size: 1rem;
+    line-height: 1.4;
+    text-align: center;
+    justify-content: center;
+  }
+  
+  .docs-tab-document-type {
+    font-size: 0.85rem;
+    text-align: center;
+  }
+  
+  .docs-tab-document-meta {
+    font-size: 0.8rem;
+    text-align: center;
+  }
+  
+  .docs-tab-meta-divider {
+    margin: 0 0.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .docs-tab-documents-tab {
+    padding: 0.4rem 0.2rem 0.8rem 0.2rem;
+  }
+  
+  .docs-tab-documents-header {
+    gap: 0.5rem;
+    margin-left: 0.1rem;
+    margin-right: 0.1rem;
+  }
+  
+  .docs-tab-signature-button, .docs-tab-add-documents-button, .docs-tab-delete-button {
+    padding: 9px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+  }
+  
+  .docs-tab-action-buttons {
+    gap: 0.4rem;
+  }
+  
+  .docs-tab-document-item {
+    padding: 1.25rem 1rem 1rem 1rem;
+    border-radius: 10px;
+  }
+  
+  .docs-tab-document-checkbox {
+    margin-bottom: 1.25rem;
+    width: 16px;
+    height: 16px;
+  }
+  
+  .docs-tab-document-title {
+    font-size: 0.95rem;
+  }
+  
+  .docs-tab-document-type {
+    font-size: 0.8rem;
+  }
+  
+  .docs-tab-document-meta {
+    font-size: 0.75rem;
+  }
+  
+  .docs-tab-documents-list .docs-tab-document-actions .docs-tab-add-documents-button,
+  .docs-tab-documents-list .docs-tab-document-actions .docs-tab-delete-button,
+  .docs-tab-documents-list .docs-tab-document-actions .docs-tab-ai-analysis-ribbon {
+    padding: 7px 10px;
+    font-size: 0.75rem;
+    min-width: 70px;
+    border-radius: 6px;
+  }
+  
+  .docs-tab-documents-list .docs-tab-document-actions {
+    gap: 0.5rem;
+    margin-top: 1.25rem;
   }
 }

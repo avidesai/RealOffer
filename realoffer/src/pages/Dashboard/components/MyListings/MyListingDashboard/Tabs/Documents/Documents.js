@@ -128,8 +128,8 @@ const Documents = ({ listingId }) => {
 
   const handleItemClick = (e, doc) => {
     if (
-      !e.target.classList.contains('document-checkbox') &&
-      !e.target.classList.contains('document-actions-button')
+      !e.target.classList.contains('docs-tab-document-checkbox') &&
+      !e.target.classList.contains('docs-tab-document-actions-button')
     ) {
       handleViewDocument(doc);
     }
@@ -161,60 +161,57 @@ const Documents = ({ listingId }) => {
   };
 
   return (
-    <div className="documents-tab">
-      <div className="documents-header">
-        <div className="action-buttons">
-          <button className="add-documents-button" onClick={handleUploadClick}>
+    <div className="docs-tab-documents-tab">
+      <div className="docs-tab-documents-header">
+        <div className="docs-tab-action-buttons">
+          <button className="docs-tab-add-documents-button" onClick={handleUploadClick}>
             Upload
           </button>
-          <button className="delete-button" onClick={handleDeleteSelectedDocuments}>
+          <button className="docs-tab-delete-button" onClick={handleDeleteSelectedDocuments}>
             Delete
           </button>
         </div>
-        <button className="signature-button" onClick={openSignaturePackageModal}>
+        <button className="docs-tab-signature-button" onClick={openSignaturePackageModal}>
           {hasSignaturePackage ? "Update Disclosure Signature Packet" : "Create Disclosure Signature Packet"}
         </button>
       </div>
       {loading ? (
-        <div className="spinner-container">
-          <div className="spinner"></div>
+        <div className="docs-tab-spinner-container">
+          <div className="docs-tab-spinner"></div>
         </div>
       ) : (
-        <div className="documents-list">
+        <div className="docs-tab-documents-list">
           {documents.length === 0 ? (
-            <p className="no-documents-message">No documents uploaded yet.</p>
+            <p className="docs-tab-no-documents-message">No documents uploaded yet.</p>
           ) : (
             documents.map((doc) => (
               <div
                 key={doc._id}
-                className={`document-item ${isSelected(doc._id) ? 'selected' : ''} ${doc.purpose === 'signature_package' ? 'signature-package' : ''}`}
+                className={`docs-tab-document-item ${isSelected(doc._id) ? 'docs-tab-selected' : ''} ${doc.purpose === 'signature_package' ? 'docs-tab-signature-package' : ''}`}
                 onClick={(e) => handleItemClick(e, doc)}
               >
                 <input
                   type="checkbox"
-                  className="document-checkbox"
+                  className="docs-tab-document-checkbox"
                   checked={isSelected(doc._id)}
                   onChange={() => handleDocumentSelect(doc._id)}
                 />
-                <div className="document-info">
-                  <div className="document-details">
-                    <p className="document-title">
-                      {doc.purpose === 'signature_package' && <span className="signature-package-icon">✍🏼 </span>}
+                <div className="docs-tab-document-info">
+                  <div className="docs-tab-document-details">
+                    <p className="docs-tab-document-title">
+                      {doc.purpose === 'signature_package' && <span className="docs-tab-signature-package-icon">✍🏼 </span>}
                       {doc.title || 'Untitled'}
                     </p>
-                    <p className="document-type">{doc.type || 'No type'}</p>
-                    <p className="document-meta">
-                      {doc.pages || 0} {doc.pages === 1 ? 'Page' : 'Pages'} <span className="meta-divider">•</span> {formatDate(doc.updatedAt)}
+                    <p className="docs-tab-document-type">{doc.type || 'No type'}</p>
+                    <p className="docs-tab-document-meta">
+                      {doc.pages || 0} {doc.pages === 1 ? 'Page' : 'Pages'} <span className="docs-tab-meta-divider">•</span> {formatDate(doc.updatedAt)}
                     </p>
                   </div>
                 </div>
-                <div className="document-actions">
-                  <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
-                    <button className="add-documents-button document-actions-button">Download</button>
-                  </a>
+                <div className="docs-tab-document-actions">
                   {(doc.type === 'Home Inspection Report' || doc.type === 'Pest Inspection Report') && (
                     <button 
-                      className="add-documents-button document-actions-button ai-analysis-ribbon"
+                      className="docs-tab-add-documents-button docs-tab-document-actions-button docs-tab-ai-analysis-ribbon"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleAIAnalysis(doc);
@@ -223,8 +220,11 @@ const Documents = ({ listingId }) => {
                       AI Analysis
                     </button>
                   )}
+                  <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
+                    <button className="docs-tab-delete-button docs-tab-document-actions-button">Download</button>
+                  </a>
                   {doc.purpose !== 'signature_package' && (
-                    <button className="delete-button document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
+                    <button className="docs-tab-delete-button docs-tab-document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
                       Delete
                     </button>
                   )}

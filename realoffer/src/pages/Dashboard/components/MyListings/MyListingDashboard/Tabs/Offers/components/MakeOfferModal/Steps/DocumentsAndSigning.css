@@ -1,28 +1,28 @@
 /* DocumentsAndSigning.css - Four distinct sections with improved functionality */
 
-.modal-step {
+.ds-modal-step {
   margin-bottom: 2rem;
 }
 
-.offer-modal-header {
+.ds-offer-modal-header {
   margin-bottom: 2rem;
 }
 
-.offer-modal-header h2 {
+.ds-offer-modal-header h2 {
   font-size: 1.75rem;
   color: #1a1a1a;
   margin-bottom: 0.75rem;
   font-weight: 600;
 }
 
-.offer-modal-header p {
+.ds-offer-modal-header p {
   color: #666;
   font-size: 1.1rem;
   line-height: 1.5;
 }
 
 /* Error Message */
-.error-message {
+.ds-error-message {
   background-color: #fef2f2;
   border: 1px solid #fecaca;
   border-radius: 8px;
@@ -33,7 +33,7 @@
 }
 
 /* Validation Warning */
-.validation-warning {
+.ds-validation-warning {
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
   border: 1px solid #f59e0b;
   border-radius: 10px;
@@ -41,28 +41,28 @@
   margin-bottom: 1.5rem;
 }
 
-.validation-warning h4 {
+.ds-validation-warning h4 {
   margin: 0 0 0.75rem 0;
   color: #92400e;
   font-size: 1.1rem;
   font-weight: 600;
 }
 
-.validation-warning ul {
+.ds-validation-warning ul {
   margin: 0;
   padding-left: 1.25rem;
   color: #92400e;
 }
 
-.validation-warning li {
+.ds-validation-warning li {
   margin-bottom: 0.5rem;
   font-size: 0.95rem;
   line-height: 1.4;
 }
 
 /* Document Sections - Four distinct sections */
-.document-section {
-  margin-bottom: 2.5rem;
+.ds-document-section {
+  margin-bottom: 1.5rem;
   border: 1px solid #e9ecef;
   border-radius: 12px;
   background: #ffffff;
@@ -70,90 +70,91 @@
   overflow: hidden;
 }
 
-.section-header {
+.ds-section-header {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
   border-bottom: 1px solid #e9ecef;
 }
 
-.section-header h3 {
-  margin: 0 0 0.5rem 0;
+.ds-section-header h3 {
+  margin: 0 0 0.25rem 0;
   font-size: 1.3rem;
   font-weight: 600;
   color: #1a1a1a;
 }
 
-.section-header p {
+.ds-section-header p {
   margin: 0;
   color: #666;
   font-size: 1rem;
   line-height: 1.4;
 }
 
-.section-content {
-  padding: 1.5rem;
+.ds-section-content {
+  padding: 1rem 1.5rem;
 }
 
 /* Radio Groups */
-.radio-group {
+.ds-radio-group {
   display: flex;
   flex-direction: column;
-  gap: 0.10rem;
+  gap: 0.75rem;
 }
 
-.radio-option {
+.ds-radio-option {
   display: flex;
   align-items: flex-start;
   font-size: 1rem;
   color: #333;
   cursor: pointer;
-  padding: 1rem 1.25rem;
+  padding: 0.875rem 1rem;
   border: 2px solid #e9ecef;
   border-radius: 12px;
   background: #ffffff;
   transition: all 0.2s ease;
   position: relative;
-  margin-bottom: 0.15rem;
+  margin-bottom: 0;
 }
 
-.radio-option.selected {
+.ds-radio-option.selected {
   border-color: #2563eb;
   box-shadow: 0 0 0 2px #2563eb33;
 }
 
-.radio-option input[type="radio"] {
-  margin-right: 1.25rem;
+.ds-radio-option input[type="radio"] {
+  margin-right: 1rem;
   margin-top: 0.25rem;
   accent-color: #2563eb;
   transform: scale(1.2);
   flex-shrink: 0;
 }
 
-.option-content {
+.ds-option-content {
   flex: 1;
   min-width: 0;
 }
 
-.option-title {
+.ds-option-title {
   font-weight: 600;
   font-size: 1.1rem;
   color: #1a1a1a;
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.25rem;
   line-height: 1.3;
 }
 
-.option-subtitle {
+.ds-option-subtitle {
   font-weight: 400;
   font-size: 0.95rem;
   color: #666;
   line-height: 1.4;
+  margin: 0;
 }
 
-.radio-option input[type="radio"]:checked + .option-content .option-title {
+.ds-radio-option input[type="radio"]:checked + .ds-option-content .ds-option-title {
   color: #2563eb;
 }
 
-.recommended-badge {
+.ds-recommended-badge {
   background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
   color: #ffffff;
   padding: 0.25rem 0.5rem;
@@ -163,15 +164,15 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   position: absolute;
-  top: 1rem;
+  top: 0.875rem;
   right: 1rem;
   box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 }
 
 /* Upload Areas */
-.upload-area {
-  margin-top: 1rem;
-  padding: 1.5rem;
+.ds-upload-area {
+  margin-top: 0.75rem;
+  padding: 1.25rem;
   border: 2px dashed #cbd5e1;
   border-radius: 10px;
   background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
@@ -179,18 +180,18 @@
   transition: all 0.2s ease;
 }
 
-.upload-area:hover {
+.ds-upload-area:hover {
   border-color: #9ca3af;
   background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
 }
 
-.file-input {
+.ds-file-input {
   display: none;
 }
 
-.upload-label {
+.ds-upload-label {
   display: inline-block;
-  padding: 0.875rem 1.5rem;
+  padding: 0.75rem 1.25rem;
   background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
   color: #ffffff;
   border-radius: 8px;
@@ -201,7 +202,7 @@
   box-shadow: 0 2px 8px rgba(74, 144, 226, 0.25);
 }
 
-.upload-label:hover {
+.ds-upload-label:hover {
   background: linear-gradient(135deg, #357abd 0%, #2c5282 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(74, 144, 226, 0.35);
@@ -212,7 +213,7 @@
 
 
 /* Generation Areas */
-.generation-area {
+.ds-generation-area {
   text-align: center;
   padding: 2rem;
   background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
@@ -220,15 +221,15 @@
   border-radius: 10px;
 }
 
-.generation-info {
+.ds-generation-info {
   margin: 0 0 1.5rem 0;
   color: #065f46;
   font-size: 1rem;
   line-height: 1.5;
 }
 
-.generate-button,
-.regenerate-button {
+.ds-generate-button,
+.ds-regenerate-button {
   background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
   color: #ffffff;
   padding: 0.875rem 1.5rem;
@@ -241,28 +242,28 @@
   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
 }
 
-.generate-button:hover:not(:disabled),
-.regenerate-button:hover:not(:disabled) {
+.ds-generate-button:hover:not(:disabled),
+.ds-regenerate-button:hover:not(:disabled) {
   background: linear-gradient(135deg, #059669 0%, #10b981 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
 }
 
-.generate-button:disabled,
-.regenerate-button:disabled {
+.ds-generate-button:disabled,
+.ds-regenerate-button:disabled {
   background: #a0a4aa;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
-.generation-actions {
+.ds-generation-actions {
   margin-top: 1rem;
   text-align: center;
 }
 
 /* Required Documents */
-.required-document {
+.ds-required-document {
   padding: 1.25rem;
   background: #f8f9fa;
   border: 1px solid #e9ecef;
@@ -270,21 +271,21 @@
   margin-bottom: 1.25rem;
 }
 
-.document-header {
+.ds-document-header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 0.75rem;
 }
 
-.document-header h4 {
+.ds-document-header h4 {
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
   color: #333;
 }
 
-.required-badge {
+.ds-required-badge {
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
   color: #d97706;
   padding: 0.25rem 0.5rem;
@@ -295,7 +296,7 @@
   letter-spacing: 0.05em;
 }
 
-.document-description {
+.ds-document-description {
   margin: 0 0 1rem 0;
   color: #666;
   font-size: 0.95rem;
@@ -303,7 +304,7 @@
 }
 
 /* Document Summary for Signing */
-.document-summary {
+.ds-document-summary {
   background: linear-gradient(135deg, #f0f7ff 0%, #e0f2fe 100%);
   border: 1px solid #bae6fd;
   border-radius: 10px;
@@ -311,28 +312,28 @@
   margin-bottom: 1.5rem;
 }
 
-.document-summary h4 {
+.ds-document-summary h4 {
   margin: 0 0 0.5rem 0;
   font-size: 1.2rem;
   font-weight: 600;
   color: #0c4a6e;
 }
 
-.summary-description {
+.ds-summary-description {
   margin: 0 0 1rem 0;
   color: #0c4a6e;
   font-size: 0.95rem;
   font-weight: 400;
 }
 
-.documents-list {
+.ds-documents-list {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   margin-bottom: 1rem;
 }
 
-.summary-document {
+.ds-summary-document {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -343,19 +344,19 @@
   transition: all 0.2s ease;
 }
 
-.summary-document:hover {
+.ds-summary-document:hover {
   border-color: #bae6fd;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
-.doc-name {
+.ds-doc-name {
   font-weight: 500;
   color: #0c4a6e;
   flex: 1;
   min-width: 0;
 }
 
-.doc-category {
+.ds-doc-category {
   background: #f1f5f9;
   color: #475569;
   padding: 0.25rem 0.5rem;
@@ -365,7 +366,7 @@
   flex-shrink: 0;
 }
 
-.signable-toggle {
+.ds-signable-toggle {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -376,11 +377,11 @@
   flex-shrink: 0;
 }
 
-.signable-toggle:hover {
+.ds-signable-toggle:hover {
   background: rgba(59, 130, 246, 0.05);
 }
 
-.signable-toggle input[type="checkbox"] {
+.ds-signable-toggle input[type="checkbox"] {
   appearance: none;
   width: 18px;
   height: 18px;
@@ -393,16 +394,16 @@
   margin: 0;
 }
 
-.signable-toggle input[type="checkbox"]:hover {
+.ds-signable-toggle input[type="checkbox"]:hover {
   border-color: #3b82f6;
 }
 
-.signable-toggle input[type="checkbox"]:checked {
+.ds-signable-toggle input[type="checkbox"]:checked {
   background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   border-color: #3b82f6;
 }
 
-.signable-toggle input[type="checkbox"]:checked::after {
+.ds-signable-toggle input[type="checkbox"]:checked::after {
   content: '✓';
   position: absolute;
   top: 50%;
@@ -413,24 +414,24 @@
   font-weight: 700;
 }
 
-.signable-toggle input[type="checkbox"]:disabled {
+.ds-signable-toggle input[type="checkbox"]:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.toggle-label {
+.ds-toggle-label {
   color: #1f2937;
   font-size: 0.9rem;
   font-weight: 500;
   user-select: none;
 }
 
-.signable-toggle input[type="checkbox"]:checked + .toggle-label {
+.ds-signable-toggle input[type="checkbox"]:checked + .ds-toggle-label {
   color: #3b82f6;
   font-weight: 600;
 }
 
-.signing-info {
+.ds-signing-info {
   margin: 0;
   color: #0c4a6e;
   font-size: 0.95rem;
@@ -442,7 +443,7 @@
 }
 
 /* DocuSign Sections */
-.docusign-status-compact {
+.ds-docusign-status-compact {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -453,7 +454,7 @@
   margin-bottom: 1.5rem;
 }
 
-.status-connected {
+.ds-status-connected {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -461,7 +462,7 @@
   font-weight: 500;
 }
 
-.status-disconnected {
+.ds-status-disconnected {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -469,17 +470,17 @@
   justify-content: space-between;
 }
 
-.status-disconnected .status-text {
+.ds-status-disconnected .ds-status-text {
   color: #6b7280;
   font-weight: 500;
 }
 
-.status-icon {
+.ds-status-icon {
   font-size: 1.1rem;
   font-weight: 600;
 }
 
-.connect-button-small {
+.ds-connect-button-small {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: #ffffff;
   padding: 0.5rem 1rem;
@@ -492,20 +493,20 @@
   box-shadow: 0 1px 3px rgba(59, 130, 246, 0.2);
 }
 
-.connect-button-small:hover:not(:disabled) {
+.ds-connect-button-small:hover:not(:disabled) {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   transform: translateY(-1px);
   box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
 }
 
-.connect-button-small:disabled {
+.ds-connect-button-small:disabled {
   background: #a0a4aa;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
-.signing-summary {
+.ds-signing-summary {
   margin-top: 1rem;
   padding: 0.75rem 1rem;
   background: #f0f7ff;
@@ -513,14 +514,14 @@
   border-radius: 6px;
 }
 
-.signing-summary .signing-info {
+.ds-signing-summary .ds-signing-info {
   margin: 0;
   color: #1e40af;
   font-size: 0.9rem;
   line-height: 1.4;
 }
 
-.docusign-connected {
+.ds-docusign-connected {
   padding: 1.25rem;
   background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
   border: 1px solid #bbf7d0;
@@ -528,7 +529,7 @@
   text-align: center;
 }
 
-.success-indicator {
+.ds-success-indicator {
   color: #059669;
   font-weight: 600;
   font-size: 1.1rem;
@@ -536,13 +537,13 @@
   margin-bottom: 0.5rem;
 }
 
-.docusign-connected p {
+.ds-docusign-connected p {
   margin: 0;
   color: #065f46;
   font-size: 0.95rem;
 }
 
-.docusign-setup {
+.ds-docusign-setup {
   padding: 1.25rem;
   background: #f8f9fa;
   border: 1px solid #e9ecef;
@@ -550,7 +551,7 @@
   text-align: center;
 }
 
-.connect-button {
+.ds-connect-button {
   background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
   color: #ffffff;
   padding: 0.875rem 1.5rem;
@@ -564,35 +565,35 @@
   box-shadow: 0 2px 8px rgba(74, 144, 226, 0.25);
 }
 
-.connect-button:hover:not(:disabled) {
+.ds-connect-button:hover:not(:disabled) {
   background: linear-gradient(135deg, #357abd 0%, #2c5282 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(74, 144, 226, 0.35);
 }
 
-.connect-button:disabled {
+.ds-connect-button:disabled {
   background: #a0a4aa;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
-.connect-hint {
+.ds-connect-hint {
   margin: 0;
   color: #666;
   font-size: 0.9rem;
 }
 
 /* Button Container - consistent with other steps */
-.button-container {
+.ds-button-container {
   display: flex;
   justify-content: space-between;
   margin-top: 2.5rem;
   gap: 1rem;
 }
 
-.step-back-button,
-.next-button {
+.ds-step-back-button,
+.ds-next-button {
   color: #ffffff;
   padding: 1rem 1.5rem;
   font-size: 1.1rem;
@@ -609,28 +610,28 @@
   gap: 8px;
 }
 
-.step-back-button {
+.ds-step-back-button {
   background: linear-gradient(135deg, #a0a4aa 0%, #888b92 100%);
 }
 
-.next-button {
+.ds-next-button {
   background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
 }
 
-.step-back-button:hover:not(:disabled) {
+.ds-step-back-button:hover:not(:disabled) {
   background: linear-gradient(135deg, #888b92 0%, #6c757d 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
 }
 
-.next-button:hover:not(:disabled) {
+.ds-next-button:hover:not(:disabled) {
   background: linear-gradient(135deg, #357abd 0%, #2c5282 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
 }
 
-.step-back-button:disabled,
-.next-button:disabled {
+.ds-step-back-button:disabled,
+.ds-next-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
@@ -638,7 +639,7 @@
 }
 
 /* Regenerate button for purchase agreement - green style to match generate-button */
-.regenerate-btn {
+.ds-regenerate-btn {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: #fff;
   border: none;
@@ -654,12 +655,12 @@
   display: inline-block;
 }
 
-.regenerate-btn:hover:not(:disabled) {
+.ds-regenerate-btn:hover:not(:disabled) {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
   transform: translateY(-1px);
 }
-.regenerate-btn:disabled {
+.ds-regenerate-btn:disabled {
   background: #a0a4aa;
   color: #e5e7eb;
   cursor: not-allowed;
@@ -672,7 +673,7 @@
 /* ===== COHESIVE DOCUMENT BOX STYLES ===== */
 
 /* Base uploaded document styles */
-.uploaded-document {
+.ds-uploaded-document {
   display: flex;
   align-items: center;
   padding: 0.75rem 1rem;
@@ -685,12 +686,12 @@
   transition: all 0.2s ease;
 }
 
-.uploaded-document:hover {
+.ds-uploaded-document:hover {
   border-color: #cbd5e1;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
-.uploaded-document .document-info {
+.ds-uploaded-document .ds-document-info {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -698,12 +699,12 @@
   min-width: 0;
 }
 
-.uploaded-document .document-icon {
+.ds-uploaded-document .ds-document-icon {
   font-size: 1.25rem;
   opacity: 0.8;
 }
 
-.uploaded-document .document-name {
+.ds-uploaded-document .ds-document-name {
   font-weight: 500;
   color: #1f2937;
   font-size: 1rem;
@@ -712,18 +713,18 @@
   text-overflow: ellipsis;
 }
 
-.uploaded-document .document-name.main-blue {
+.ds-uploaded-document .ds-document-name.main-blue {
   color: #1e40af;
   font-weight: 600;
 }
 
-.uploaded-document .page-count {
+.ds-uploaded-document .ds-page-count {
   color: #64748b;
   font-size: 0.875rem;
   white-space: nowrap;
 }
 
-.uploaded-document .button-group {
+.ds-uploaded-document .ds-button-group {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -731,36 +732,36 @@
 }
 
 /* Purchase Agreement - Uploaded */
-.purchase-agreement-uploaded {
+.ds-purchase-agreement-uploaded {
   border-color: #3b82f6;
   background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
 }
 
-.purchase-agreement-uploaded:hover {
+.ds-purchase-agreement-uploaded:hover {
   border-color: #2563eb;
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
 }
 
-.purchase-agreement-uploaded .document-icon {
+.ds-purchase-agreement-uploaded .ds-document-icon {
   color: #3b82f6;
 }
 
 /* Purchase Agreement - Generated */
-.purchase-agreement-generated {
+.ds-purchase-agreement-generated {
   border-color: #10b981;
   background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
 }
 
-.purchase-agreement-generated:hover {
+.ds-purchase-agreement-generated:hover {
   border-color: #059669;
   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
 }
 
-.purchase-agreement-generated .document-icon {
+.ds-purchase-agreement-generated .ds-document-icon {
   color: #10b981;
 }
 
-.purchase-agreement-generated .auto-generated-pill {
+.ds-purchase-agreement-generated .ds-auto-generated-pill {
   background: #f1f5f9;
   color: #475569;
   border-radius: 6px;
@@ -771,48 +772,48 @@
 }
 
 /* Additional Documents */
-.additional-document-item {
+.ds-additional-document-item {
   border-color: #e5e7eb;
   background: #f9fafb;
 }
 
-.additional-document-item:hover {
+.ds-additional-document-item:hover {
   border-color: #d1d5db;
   background: #f3f4f6;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-.additional-document-item .document-icon {
+.ds-additional-document-item .ds-document-icon {
   color: #6b7280;
 }
 
-.additional-document-item .document-name {
+.ds-additional-document-item .ds-document-name {
   color: #374151;
 }
 
 /* Required Documents */
-.required-document-item {
+.ds-required-document-item {
   border-color: #f59e0b;
   background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
 }
 
-.required-document-item:hover {
+.ds-required-document-item:hover {
   border-color: #d97706;
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
   box-shadow: 0 2px 6px rgba(245, 158, 11, 0.15);
 }
 
-.required-document-item .document-icon {
+.ds-required-document-item .ds-document-icon {
   color: #d97706;
 }
 
-.required-document-item .document-name {
+.ds-required-document-item .ds-document-name {
   color: #92400e;
   font-weight: 600;
 }
 
 /* Required Documents Container */
-.required-document {
+.ds-required-document {
   padding: 1.25rem;
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -821,13 +822,13 @@
   transition: all 0.2s ease;
 }
 
-.required-document:hover {
+.ds-required-document:hover {
   border-color: #d1d5db;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 /* Button Styles */
-.preview-btn.small {
+.ds-preview-btn.small {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: #fff;
   border: none;
@@ -841,13 +842,13 @@
   min-width: 80px;
 }
 
-.preview-btn.small:hover:not(:disabled) {
+.ds-preview-btn.small:hover:not(:disabled) {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.25);
   transform: translateY(-1px);
 }
 
-.remove-document-btn {
+.ds-remove-document-btn {
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 50%;
@@ -864,7 +865,7 @@
   flex-shrink: 0;
 }
 
-.remove-document-btn:hover {
+.ds-remove-document-btn:hover {
   background: #dc2626;
   border-color: #dc2626;
   color: #ffffff;
@@ -873,167 +874,167 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .document-section {
+  .ds-document-section {
     margin-bottom: 2rem;
   }
   
-  .section-header {
+  .ds-section-header {
     padding: 1.25rem;
   }
   
-  .section-header h3 {
+  .ds-section-header h3 {
     font-size: 1.2rem;
   }
   
-  .section-content {
+  .ds-section-content {
     padding: 1.25rem;
   }
   
-  .radio-option {
+  .ds-radio-option {
     padding: 0.75rem 1rem;
   }
   
-  .radio-option input[type="radio"] {
+  .ds-radio-option input[type="radio"] {
     margin-right: 1rem;
   }
   
-  .option-content {
+  .ds-option-content {
     width: 100%;
   }
   
-  .option-title {
+  .ds-option-title {
     font-size: 1rem;
   }
   
-  .option-subtitle {
+  .ds-option-subtitle {
     font-size: 0.9rem;
   }
   
-  .recommended-badge {
+  .ds-recommended-badge {
     position: static;
     margin-top: 0.5rem;
     align-self: flex-start;
   }
   
-  .upload-area {
+  .ds-upload-area {
     padding: 1.25rem;
   }
   
-  .upload-label {
+  .ds-upload-label {
     padding: 0.75rem 1.25rem;
     font-size: 0.95rem;
   }
   
-  .uploaded-document {
+  .ds-uploaded-document {
     padding: 0.875rem 1rem;
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
   }
   
-  .document-info {
+  .ds-document-info {
     width: 100%;
   }
   
-  .remove-document-btn {
+  .ds-remove-document-btn {
     align-self: flex-end;
   }
   
-  .generation-area {
+  .ds-generation-area {
     padding: 1.5rem;
   }
   
-  .required-document {
+  .ds-required-document {
     padding: 1rem;
   }
   
-  .document-summary {
+  .ds-document-summary {
     padding: 1.25rem;
   }
   
-  .summary-document {
+  .ds-summary-document {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
   
-  .doc-name {
+  .ds-doc-name {
     width: 100%;
   }
   
-  .doc-category,
-  .signable-toggle {
+  .ds-doc-category,
+  .ds-signable-toggle {
     align-self: flex-start;
   }
   
-  .signable-toggle {
+  .ds-signable-toggle {
     margin-top: 0.25rem;
   }
   
-  .validation-warning {
+  .ds-validation-warning {
     padding: 1rem;
   }
   
-  .validation-warning h4 {
+  .ds-validation-warning h4 {
     font-size: 1rem;
   }
   
-  .button-container {
+  .ds-button-container {
     flex-direction: column;
     gap: 0.75rem;
   }
   
-  .step-back-button,
-  .next-button {
+  .ds-step-back-button,
+  .ds-next-button {
     width: 100%;
   }
 }
 
 @media (max-width: 480px) {
-  .section-header {
+  .ds-section-header {
     padding: 1rem;
   }
   
-  .section-content {
+  .ds-section-content {
     padding: 1rem;
   }
   
-  .radio-option {
+  .ds-radio-option {
     padding: 0.75rem;
   }
   
-  .option-title {
+  .ds-option-title {
     font-size: 0.95rem;
   }
   
-  .option-subtitle {
+  .ds-option-subtitle {
     font-size: 0.85rem;
   }
   
-  .recommended-badge {
+  .ds-recommended-badge {
     font-size: 0.7rem;
     padding: 0.2rem 0.4rem;
   }
   
-  .upload-area {
+  .ds-upload-area {
     padding: 1rem;
   }
   
-  .generation-area {
+  .ds-generation-area {
     padding: 1.25rem;
   }
   
-  .document-summary {
+  .ds-document-summary {
     padding: 1rem;
   }
   
-  .validation-warning {
+  .ds-validation-warning {
     padding: 0.875rem;
   }
 } 
 
 /* Recipients Section Styles */
-.recipients-section {
+.ds-recipients-section {
   margin-top: 1.5rem;
   padding: 1.5rem;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
@@ -1041,28 +1042,28 @@
   border-radius: 12px;
 }
 
-.recipients-section h4 {
+.ds-recipients-section h4 {
   margin: 0 0 0.5rem 0;
   font-size: 1.2rem;
   font-weight: 600;
   color: #1f2937;
 }
 
-.recipients-description {
+.ds-recipients-description {
   margin: 0 0 1.5rem 0;
   color: #64748b;
   font-size: 0.95rem;
   line-height: 1.4;
 }
 
-.recipients-list {
+.ds-recipients-list {
   display: flex;
   flex-direction: column;
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.recipient-card {
+.ds-recipient-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
@@ -1070,12 +1071,12 @@
   transition: all 0.2s ease;
 }
 
-.recipient-card:hover {
+.ds-recipient-card:hover {
   border-color: #cbd5e1;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.recipient-header {
+.ds-recipient-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1084,7 +1085,7 @@
   border-bottom: 1px solid #f1f5f9;
 }
 
-.recipient-type {
+.ds-recipient-type {
   font-size: 1rem;
   font-weight: 600;
   color: #1f2937;
@@ -1093,7 +1094,7 @@
   gap: 0.5rem;
 }
 
-.signing-order {
+.ds-signing-order {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: #ffffff;
   padding: 0.25rem 0.75rem;
@@ -1104,7 +1105,7 @@
   letter-spacing: 0.05em;
 }
 
-.remove-recipient-btn {
+.ds-remove-recipient-btn {
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 50%;
@@ -1120,24 +1121,24 @@
   transition: all 0.2s ease;
 }
 
-.remove-recipient-btn:hover {
+.ds-remove-recipient-btn:hover {
   background: #dc2626;
   border-color: #dc2626;
   color: #ffffff;
   transform: scale(1.05);
 }
 
-.recipient-form {
+.ds-recipient-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
 
-.recipient-form .form-group {
+.ds-recipient-form .ds-form-group {
   margin-bottom: 0;
 }
 
-.recipient-form .form-group label {
+.ds-recipient-form .ds-form-group label {
   display: block;
   font-size: 0.9rem;
   font-weight: 600;
@@ -1145,7 +1146,7 @@
   margin-bottom: 0.5rem;
 }
 
-.recipients-actions {
+.ds-recipients-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1153,14 +1154,14 @@
   border-top: 1px solid #e5e7eb;
 }
 
-.recipients-validation {
+.ds-recipients-validation {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
 /* DocuSign Ready Status */
-.docusign-ready {
+.ds-docusign-ready {
   margin-top: 1.5rem;
   padding: 1.5rem;
   background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
@@ -1169,7 +1170,7 @@
   text-align: center;
 }
 
-.docusign-ready .success-indicator {
+.ds-docusign-ready .ds-success-indicator {
   color: #059669;
   font-weight: 700;
   font-size: 1.1rem;
@@ -1177,7 +1178,7 @@
   margin-bottom: 0.75rem;
 }
 
-.docusign-ready p {
+.ds-docusign-ready p {
   margin: 0;
   color: #065f46;
   font-size: 0.95rem;
@@ -1186,42 +1187,42 @@
 
 /* Responsive Design for Recipients */
 @media (max-width: 768px) {
-  .recipients-section {
+  .ds-recipients-section {
     padding: 1.25rem;
   }
   
-  .recipient-header {
+  .ds-recipient-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
   }
   
-  .recipient-form {
+  .ds-recipient-form {
     grid-template-columns: 1fr;
   }
   
-  .recipients-actions {
+  .ds-recipients-actions {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
   
-  .recipients-validation {
+  .ds-recipients-validation {
     align-self: stretch;
     justify-content: center;
   }
 }
 
 @media (max-width: 480px) {
-  .recipients-section {
+  .ds-recipients-section {
     padding: 1rem;
   }
   
-  .recipient-card {
+  .ds-recipient-card {
     padding: 1rem;
   }
   
-  .signing-order {
+  .ds-signing-order {
     font-size: 0.75rem;
     padding: 0.2rem 0.6rem;
   }

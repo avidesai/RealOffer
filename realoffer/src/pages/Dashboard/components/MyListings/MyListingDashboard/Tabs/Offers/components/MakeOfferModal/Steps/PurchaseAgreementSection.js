@@ -10,10 +10,10 @@ const PurchaseAgreementSection = ({
   handleGenerateAgreement,
   loading
 }) => {
-  const showRegenerate =
-    purchaseAgreementChoice === 'generate' &&
-    documentWorkflow.purchaseAgreement.document &&
-    documentWorkflow.purchaseAgreement.canRegenerate;
+  // const showRegenerate =
+  //   purchaseAgreementChoice === 'generate' &&
+  //   documentWorkflow.purchaseAgreement.document &&
+  //   documentWorkflow.purchaseAgreement.canRegenerate;
 
   // Helper to preview the document in a new tab
   const handlePreview = async () => {
@@ -34,12 +34,12 @@ const PurchaseAgreementSection = ({
   };
 
   return (
-    <div className="document-section">
-      <div className="section-header">
+    <div className="ds-document-section">
+      <div className="ds-section-header">
         <h3>1. Purchase Agreement</h3>
       </div>
-      <div className="radio-group">
-        <label className={`radio-option${purchaseAgreementChoice === 'upload' ? ' selected' : ''}`}>
+      <div className="ds-radio-group">
+        <label className={`ds-radio-option${purchaseAgreementChoice === 'upload' ? ' selected' : ''}`}>
           <input
             type="radio"
             name="purchaseAgreement"
@@ -47,12 +47,13 @@ const PurchaseAgreementSection = ({
             checked={purchaseAgreementChoice === 'upload'}
             onChange={(e) => handlePurchaseAgreementChoiceChange(e.target.value)}
           />
-          <div className="option-content">
-            <div className="option-title">Upload your own purchase agreement</div>
-            <div className="option-subtitle">Use your existing purchase agreement document</div>
+          <div className="ds-option-content">
+            <div className="ds-option-title">Upload your own purchase agreement</div>
+            <div className="ds-option-subtitle">Use your existing purchase agreement document</div>
           </div>
         </label>
-        <label className={`radio-option${purchaseAgreementChoice === 'generate' ? ' selected' : ''}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {/* Commented out auto-generate option - functionality preserved for future use */}
+        {/* <label className={`ds-radio-option${purchaseAgreementChoice === 'generate' ? ' selected' : ''}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
             <input
               type="radio"
@@ -61,24 +62,13 @@ const PurchaseAgreementSection = ({
               checked={purchaseAgreementChoice === 'generate'}
               onChange={(e) => handlePurchaseAgreementChoiceChange(e.target.value)}
             />
-            <div className="option-content">
-              <div className="option-title">Auto-generate purchase agreement</div>
-              <div className="option-subtitle">We'll create a purchase agreement using your offer information</div>
+            <div className="ds-option-content">
+              <div className="ds-option-title">Auto-generate purchase agreement</div>
+              <div className="ds-option-subtitle">We'll create a purchase agreement using your offer information</div>
             </div>
           </div>
-          {showRegenerate && (
-            <button
-              type="button"
-              onClick={handleGenerateAgreement}
-              className="regenerate-btn"
-              disabled={loading}
-              style={{ marginLeft: 'auto', minWidth: 120 }}
-            >
-              {loading ? 'Regenerating...' : 'Regenerate'}
-            </button>
-          )}
-        </label>
-        <label className={`radio-option${purchaseAgreementChoice === 'skip' ? ' selected' : ''}`}>
+        </label> */}
+        <label className={`ds-radio-option${purchaseAgreementChoice === 'skip' ? ' selected' : ''}`}>
           <input
             type="radio"
             name="purchaseAgreement"
@@ -86,32 +76,32 @@ const PurchaseAgreementSection = ({
             checked={purchaseAgreementChoice === 'skip'}
             onChange={(e) => handlePurchaseAgreementChoiceChange(e.target.value)}
           />
-          <div className="option-content">
-            <div className="option-title">Skip for now (add later)</div>
-            <div className="option-subtitle">Handle the purchase agreement separately</div>
+          <div className="ds-option-content">
+            <div className="ds-option-title">Skip for now (add later)</div>
+            <div className="ds-option-subtitle">Handle the purchase agreement separately</div>
           </div>
         </label>
       </div>
       {purchaseAgreementChoice === 'upload' && (
-        <div className="section-content">
+        <div className="ds-section-content">
           {documentWorkflow.purchaseAgreement.document ? (
-            <div className="uploaded-document purchase-agreement-uploaded">
-              <div className="document-info">
-                <span className="document-icon" role="img" aria-label="PDF">📄</span>
-                <span className="document-name main-blue">Purchase Agreement</span>
+            <div className="ds-uploaded-document ds-purchase-agreement-uploaded">
+              <div className="ds-document-info">
+                <span className="ds-document-icon" role="img" aria-label="PDF">📄</span>
+                <span className="ds-document-name main-blue">Purchase Agreement</span>
               </div>
-              <div className="button-group">
+              <div className="ds-button-group">
                 <button
                   type="button"
                   onClick={handlePreview}
-                  className="preview-btn small"
+                  className="ds-preview-btn small"
                 >
                   Preview
                 </button>
                 <button
                   type="button"
                   onClick={handleRemovePurchaseAgreement}
-                  className="remove-document-btn"
+                  className="ds-remove-document-btn"
                   title="Remove document"
                 >
                   ✕
@@ -119,42 +109,43 @@ const PurchaseAgreementSection = ({
               </div>
             </div>
           ) : (
-            <div className="upload-area">
+            <div className="ds-upload-area">
               <input
                 type="file"
                 accept=".pdf"
                 onChange={(e) => handlePurchaseAgreementUpload(e.target.files[0])}
-                className="file-input"
+                className="ds-file-input"
                 id="purchase-agreement-upload"
               />
-              <label htmlFor="purchase-agreement-upload" className="upload-label">
+              <label htmlFor="purchase-agreement-upload" className="ds-upload-label">
                 Choose PDF file
               </label>
             </div>
           )}
         </div>
       )}
-      {purchaseAgreementChoice === 'generate' && (
-        <div className="section-content">
+      {/* Commented out generate section content - functionality preserved for future use */}
+      {/* {purchaseAgreementChoice === 'generate' && (
+        <div className="ds-section-content">
           {documentWorkflow.purchaseAgreement.document ? (
-            <div className="uploaded-document purchase-agreement-generated">
-              <div className="document-info">
-                <span className="document-icon" role="img" aria-label="PDF">📄</span>
-                <span className="document-name main-blue">Purchase Agreement</span>
-                <span className="auto-generated-pill">Auto-Generated</span>
+            <div className="ds-uploaded-document ds-purchase-agreement-generated">
+              <div className="ds-document-info">
+                <span className="ds-document-icon" role="img" aria-label="PDF">📄</span>
+                <span className="ds-document-name main-blue">Purchase Agreement</span>
+                <span className="ds-auto-generated-pill">Auto-Generated</span>
               </div>
-              <div className="button-group">
+              <div className="ds-button-group">
                 <button
                   type="button"
                   onClick={handlePreview}
-                  className="preview-btn small"
+                  className="ds-preview-btn small"
                 >
                   Preview
                 </button>
                 <button
                   type="button"
                   onClick={handleRemovePurchaseAgreement}
-                  className="remove-document-btn"
+                  className="ds-remove-document-btn"
                   title="Remove document"
                 >
                   ✕
@@ -162,14 +153,14 @@ const PurchaseAgreementSection = ({
               </div>
             </div>
           ) : (
-            <div className="generation-area">
-              <p className="generation-info">
+            <div className="ds-generation-area">
+              <p className="ds-generation-info">
                 We'll create a custom Purchase Agreement using your offer details, property information, and agent data.
               </p>
               <button
                 type="button"
                 onClick={handleGenerateAgreement}
-                className="generate-button"
+                className="ds-generate-button"
                 disabled={loading}
               >
                 {loading ? 'Generating...' : 'Generate Purchase Agreement'}
@@ -177,7 +168,7 @@ const PurchaseAgreementSection = ({
             </div>
           )}
         </div>
-      )}
+      )} */}
     </div>
   );
 };

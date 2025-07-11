@@ -132,7 +132,7 @@ export const OfferProvider = ({ children }) => {
       requirements.push({
         type: 'pre_approval_letter',
         title: 'Pre-Approval Letter',
-        description: 'Required for financed offers - shows you can obtain the loan',
+        description: '',
         required: true,
         status: 'needed',
         acceptedTypes: '.pdf,.jpg,.png',

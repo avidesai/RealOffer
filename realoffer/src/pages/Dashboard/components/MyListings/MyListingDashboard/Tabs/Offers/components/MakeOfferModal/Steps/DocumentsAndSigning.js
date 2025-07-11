@@ -706,14 +706,14 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
   }, [validation.canProceed, handleNextStep]);
 
   return (
-    <div className="modal-step">
-      <div className="offer-modal-header">
+    <div className="ds-modal-step">
+      <div className="ds-offer-modal-header">
         <h2>Documents & Signing</h2>
         <p>Upload required documents and set up electronic signatures (optional).</p>
       </div>
 
       {error && (
-        <div className="error-message">
+        <div className="ds-error-message">
           {error}
         </div>
       )}
@@ -757,7 +757,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
 
       {/* Validation message */}
       {!validation.canProceed && (
-        <div className="validation-warning">
+        <div className="ds-validation-warning">
           <h4>⚠️ Required items missing:</h4>
           <ul>
             {!validation.hasPurchaseAgreement && (
@@ -770,12 +770,12 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
         </div>
       )}
 
-        <div className="button-container">
-        <button className="step-back-button" onClick={handlePrevStep} disabled={loading}>
+        <div className="ds-button-container">
+        <button className="ds-step-back-button" onClick={handlePrevStep} disabled={loading}>
             Back
           </button>
           <button
-            className="next-button"
+            className="ds-next-button"
           onClick={handleNext} 
           disabled={loading || !validation.canProceed}
           >

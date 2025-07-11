@@ -93,27 +93,27 @@ const DocuSignSection = ({
   };
 
   return (
-    <div className="document-section">
-      <div className="section-header">
+    <div className="ds-document-section">
+      <div className="ds-section-header">
         <h3>4. Electronic Signatures</h3>
         <p>Configure document signing via DocuSign</p>
       </div>
-      <div className="section-content">
+      <div className="ds-section-content">
         {/* DocuSign Connection Status - Compact */}
-        <div className="docusign-status-compact">
+        <div className="ds-docusign-status-compact">
           {documentWorkflow.signing?.docuSignConnected ? (
-            <div className="status-connected">
-              <span className="status-icon">✓</span>
-              <span className="status-text">DocuSign Connected</span>
+            <div className="ds-status-connected">
+              <span className="ds-status-icon">✓</span>
+              <span className="ds-status-text">DocuSign Connected</span>
             </div>
           ) : (
-            <div className="status-disconnected">
-              <span className="status-icon">○</span>
-              <span className="status-text">DocuSign Not Connected</span>
+            <div className="ds-status-disconnected">
+              <span className="ds-status-icon">○</span>
+              <span className="ds-status-text">DocuSign Not Connected</span>
               <button
                 type="button"
                 onClick={handleDocuSignConnect}
-                className="connect-button-small"
+                className="ds-connect-button-small"
                 disabled={loading}
               >
                 {loading ? 'Connecting...' : 'Connect'}
@@ -124,37 +124,37 @@ const DocuSignSection = ({
 
         {/* Document Selection */}
         {allDocuments.length > 0 && (
-          <div className="document-summary">
+          <div className="ds-document-summary">
             <h4>Documents Ready for Signature ({allDocuments.length})</h4>
-            <p className="summary-description">
+            <p className="ds-summary-description">
               Choose which documents to send for electronic signature:
             </p>
-            <div className="documents-list">
+            <div className="ds-documents-list">
               {allDocuments.map((doc, index) => (
-                <div key={index} className="summary-document">
-                  <span className="doc-name">📄 {doc.title}</span>
-                  <span className="doc-category">{doc.category}</span>
-                  <label className="signable-toggle">
+                <div key={index} className="ds-summary-document">
+                  <span className="ds-doc-name">📄 {doc.title}</span>
+                  <span className="ds-doc-category">{doc.category}</span>
+                  <label className="ds-signable-toggle">
                     <input
                       type="checkbox"
                       checked={doc.signable}
                       onChange={() => toggleDocumentSigning(doc.documentKey, doc.requirementType, doc.additionalIndex)}
                       disabled={loading}
                     />
-                    <span className="toggle-label">Send for Signature</span>
+                    <span className="ds-toggle-label">Send for Signature</span>
                   </label>
                 </div>
               ))}
             </div>
             
             {/* Summary Info */}
-            <div className="signing-summary">
+            <div className="ds-signing-summary">
               {signableDocuments.length > 0 ? (
-                <p className="signing-info">
+                <p className="ds-signing-info">
                   <strong>{signableDocuments.length} document{signableDocuments.length === 1 ? '' : 's'}</strong> selected for electronic signature
                 </p>
               ) : (
-                <p className="signing-info">
+                <p className="ds-signing-info">
                   No documents selected for electronic signature. Documents will be sent as attachments only.
                 </p>
               )}
@@ -164,25 +164,25 @@ const DocuSignSection = ({
 
         {/* Recipients Section */}
         {signableDocuments.length > 0 && documentWorkflow.signing?.docuSignConnected && (
-          <div className="recipients-section">
+          <div className="ds-recipients-section">
             <h4>Signing Recipients</h4>
-            <p className="recipients-description">
+            <p className="ds-recipients-description">
               Add the people who need to sign the documents. They will receive signing instructions via email.
             </p>
             
-            <div className="recipients-list">
+            <div className="ds-recipients-list">
               {recipients.map((recipient, index) => (
-                <div key={recipient.id} className="recipient-card">
-                  <div className="recipient-header">
-                    <span className="recipient-type">
+                <div key={recipient.id} className="ds-recipient-card">
+                  <div className="ds-recipient-header">
+                    <span className="ds-recipient-type">
                       {recipient.type === 'buyer-agent' ? '👤 Buyer\'s Agent' : `👤 Buyer ${recipient.type === 'buyer' && index > 1 ? index : ''}`}
                     </span>
-                    <span className="signing-order">Signs {index + 1}{index === 0 ? 'st' : index === 1 ? 'nd' : 'rd'}</span>
+                    <span className="ds-signing-order">Signs {index + 1}{index === 0 ? 'st' : index === 1 ? 'nd' : 'rd'}</span>
                     {!recipient.required && (
                       <button
                         type="button"
                         onClick={() => removeBuyer(recipient.id)}
-                        className="remove-recipient-btn"
+                        className="ds-remove-recipient-btn"
                         title="Remove buyer"
                       >
                         ✕
@@ -190,8 +190,8 @@ const DocuSignSection = ({
                     )}
                   </div>
                   
-                  <div className="recipient-form">
-                    <div className="form-group">
+                  <div className="ds-recipient-form">
+                    <div className="ds-form-group">
                       <label>Full Name *</label>
                       <input
                         type="text"
@@ -205,7 +205,7 @@ const DocuSignSection = ({
                       )}
                     </div>
                     
-                    <div className="form-group">
+                    <div className="ds-form-group">
                       <label>Email Address *</label>
                       <input
                         type="email"
@@ -223,7 +223,7 @@ const DocuSignSection = ({
               ))}
             </div>
             
-            <div className="recipients-actions">
+            <div className="ds-recipients-actions">
               <button
                 type="button"
                 onClick={addBuyer}
@@ -232,7 +232,7 @@ const DocuSignSection = ({
                 + Add Additional Buyer
               </button>
               
-              <div className="recipients-validation">
+              <div className="ds-recipients-validation">
                 {hasValidRecipients() ? (
                   <div className="docs-clp-success">
                     Ready to send for signatures
@@ -249,8 +249,8 @@ const DocuSignSection = ({
 
         {/* Final Status */}
         {signableDocuments.length > 0 && documentWorkflow.signing?.docuSignConnected && hasValidRecipients() && (
-          <div className="docusign-ready">
-            <div className="success-indicator">✓ Ready for Electronic Signatures</div>
+          <div className="ds-docusign-ready">
+            <div className="ds-success-indicator">✓ Ready for Electronic Signatures</div>
             <p>
               When you submit your offer, {signableDocuments.length} document{signableDocuments.length === 1 ? '' : 's'} 
               will be sent to {recipients.length} recipient{recipients.length === 1 ? '' : 's'} for signing.
