@@ -148,11 +148,18 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
         }));
       } catch (error) {
         console.error('Error checking DocuSign connection:', error);
+        
+        // If it's a 401 error, the token is invalid
+        if (error.response?.status === 401) {
+          console.warn('DocuSign token invalid - marking as disconnected');
+        }
+        
         updateDocumentWorkflow(prev => ({
           ...prev,
           signing: {
             ...prev.signing,
-            docuSignConnected: false
+            docuSignConnected: false,
+            status: 'not_configured'
           }
         }));
       }

@@ -18,7 +18,7 @@ const parseNumber = (value) => {
 };
 
 const MakeOfferModal = ({ onClose, listingId }) => {
-  const { offerData, documentWorkflow, updateOfferData, resetDocumentWorkflow } = useOffer();
+  const { offerData, documentWorkflow, updateOfferData, updateDocumentWorkflow, resetDocumentWorkflow } = useOffer();
   const { token } = useAuth();
   const [step, setStep] = useState(1);
 
@@ -250,6 +250,21 @@ const MakeOfferModal = ({ onClose, listingId }) => {
           }
         } catch (docusignError) {
           console.error('Error sending documents for signing:', docusignError);
+          
+          // Check if it's a DocuSign authentication error
+          if (docusignError.response?.status === 401) {
+            console.warn('DocuSign authentication failed - user needs to reconnect');
+            // Update the document workflow to show DocuSign as disconnected
+            updateDocumentWorkflow(prev => ({
+              ...prev,
+              signing: {
+                ...prev.signing,
+                docuSignConnected: false,
+                status: 'not_configured'
+              }
+            }));
+          }
+          
           // Don't fail the offer creation if DocuSign fails
         }
       }

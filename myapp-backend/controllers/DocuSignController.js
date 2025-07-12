@@ -5,6 +5,34 @@ const Document = require('../models/Document');
 const Offer = require('../models/Offer');
 const { containerClient } = require('../config/azureStorage');
 
+// Helper function to refresh DocuSign access token
+const refreshDocusignToken = async (refreshToken) => {
+  try {
+    const response = await fetch(`${config.authServer}/oauth/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: config.integrationKey,
+        client_secret: config.clientSecret
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Token refresh failed: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error refreshing DocuSign token:', error);
+    throw error;
+  }
+};
+
 // Get DocuSign connection status
 exports.getConnectionStatus = async (req, res) => {
   try {
@@ -13,8 +41,40 @@ exports.getConnectionStatus = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const isConnected = !!user.docusignAccessToken;
-    res.json({ isConnected });
+    if (!user.docusignAccessToken) {
+      return res.json({ isConnected: false });
+    }
+
+    // Check if token is expired
+    if (user.docusignTokenExpiry && new Date() > user.docusignTokenExpiry) {
+      console.log('DocuSign token expired, attempting refresh for connection status...');
+      
+      if (!user.docusignRefreshToken) {
+        // Token expired and no refresh token
+        return res.json({ isConnected: false, reason: 'Token expired' });
+      }
+      
+      try {
+        // Attempt to refresh the token
+        const refreshedTokenData = await refreshDocusignToken(user.docusignRefreshToken);
+        
+        // Update user with new tokens
+        user.docusignAccessToken = refreshedTokenData.access_token;
+        if (refreshedTokenData.refresh_token) {
+          user.docusignRefreshToken = refreshedTokenData.refresh_token;
+        }
+        user.docusignTokenExpiry = new Date(Date.now() + (refreshedTokenData.expires_in * 1000));
+        await user.save();
+        
+        console.log('DocuSign token refreshed successfully for connection status');
+        return res.json({ isConnected: true, refreshed: true });
+      } catch (refreshError) {
+        console.error('Failed to refresh DocuSign token for connection status:', refreshError);
+        return res.json({ isConnected: false, reason: 'Token refresh failed' });
+      }
+    }
+
+    res.json({ isConnected: true });
   } catch (error) {
     console.error('Error checking DocuSign connection:', error);
     res.status(500).json({ message: 'Error checking DocuSign connection' });
@@ -244,6 +304,32 @@ exports.sendDocumentsForSigning = async (req, res) => {
       return res.status(401).json({ message: 'DocuSign not connected' });
     }
 
+    // Check if token is expired and refresh if needed
+    if (user.docusignTokenExpiry && new Date() > user.docusignTokenExpiry) {
+      console.log('DocuSign token expired, attempting refresh...');
+      try {
+        if (!user.docusignRefreshToken) {
+          return res.status(401).json({ message: 'DocuSign token expired and no refresh token available. Please reconnect DocuSign.' });
+        }
+        
+        // Refresh the token
+        const refreshedTokenData = await refreshDocusignToken(user.docusignRefreshToken);
+        
+        // Update user with new tokens
+        user.docusignAccessToken = refreshedTokenData.access_token;
+        if (refreshedTokenData.refresh_token) {
+          user.docusignRefreshToken = refreshedTokenData.refresh_token;
+        }
+        user.docusignTokenExpiry = new Date(Date.now() + (refreshedTokenData.expires_in * 1000));
+        await user.save();
+        
+        console.log('DocuSign token refreshed successfully');
+      } catch (refreshError) {
+        console.error('Failed to refresh DocuSign token:', refreshError);
+        return res.status(401).json({ message: 'DocuSign token expired and refresh failed. Please reconnect DocuSign.' });
+      }
+    }
+
     // Get offer details for context
     const offer = await Offer.findById(offerId).populate('propertyListing');
     if (!offer) {
@@ -327,6 +413,27 @@ After field setup, all recipients will automatically receive signing invitations
     console.error('Error stack:', error.stack);
     console.error('Request body:', JSON.stringify(req.body, null, 2));
     
+    // Handle specific DocuSign API errors
+    if (error.response) {
+      const status = error.response.status;
+      const errorData = error.response.data;
+      
+      if (status === 401) {
+        return res.status(401).json({ 
+          message: 'DocuSign authentication failed. Please reconnect DocuSign.',
+          error: 'Unauthorized',
+          docusignError: errorData
+        });
+      } else if (status === 400) {
+        return res.status(400).json({ 
+          message: 'Invalid request to DocuSign API',
+          error: 'Bad Request',
+          docusignError: errorData
+        });
+      }
+    }
+    
+    // Handle general errors
     res.status(500).json({ 
       message: 'Error sending documents for signing',
       error: error.message,
