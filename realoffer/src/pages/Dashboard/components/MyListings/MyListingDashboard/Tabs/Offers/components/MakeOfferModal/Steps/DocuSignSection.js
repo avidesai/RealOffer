@@ -22,6 +22,7 @@ const DocuSignSection = ({
           {
             id: 'buyer-agent',
             type: 'buyer-agent',
+            role: 'agent', // Agent role for field setup
             name: offerData.presentedBy?.name || '',
             email: offerData.presentedBy?.email || '',
             required: true,
@@ -30,6 +31,7 @@ const DocuSignSection = ({
           {
             id: 'primary-buyer',
             type: 'buyer',
+            role: 'signer', // Signer role for signing only
             name: offerData.buyerName || '',
             email: '',
             required: true,
@@ -55,6 +57,7 @@ const DocuSignSection = ({
         if (recipient.type === 'buyer-agent' && offerData.presentedBy) {
           return {
             ...recipient,
+            role: recipient.role || 'agent', // Ensure buyer's agent has agent role
             name: recipient.name || offerData.presentedBy.name || '',
             email: recipient.email || offerData.presentedBy.email || ''
           };
@@ -62,10 +65,14 @@ const DocuSignSection = ({
         if (recipient.type === 'buyer' && recipient.id === 'primary-buyer') {
           return {
             ...recipient,
+            role: recipient.role || 'signer', // Ensure buyers have signer role
             name: recipient.name || offerData.buyerName || ''
           };
         }
-        return recipient;
+        return {
+          ...recipient,
+          role: recipient.role || 'signer' // Default to signer for any other recipients
+        };
       });
       
       // Only update if there are actual changes
@@ -97,6 +104,7 @@ const DocuSignSection = ({
     const newBuyer = {
       id: `buyer-${Date.now()}`,
       type: 'buyer',
+      role: 'signer', // New buyers are always signers
       name: '',
       email: '',
       required: false,
@@ -195,7 +203,7 @@ const DocuSignSection = ({
           <div className="ds-document-summary">
             <h4>Documents Ready for Signature ({allDocuments.length})</h4>
             <p className="ds-summary-description">
-              Choose which documents to send for electronic signature:
+              Choose which documents to send for electronic signature. The buyer's agent will set up signature fields in DocuSign before sending to all recipients:
             </p>
             <div className="ds-documents-list">
               {allDocuments.map((doc, index) => (
@@ -219,7 +227,8 @@ const DocuSignSection = ({
             <div className="ds-signing-summary">
               {signableDocuments.length > 0 ? (
                 <p className="ds-signing-info">
-                  <strong>{signableDocuments.length} document{signableDocuments.length === 1 ? '' : 's'}</strong> selected for electronic signature
+                  <strong>{signableDocuments.length} document{signableDocuments.length === 1 ? '' : 's'}</strong> selected for electronic signature.
+                  The buyer's agent will receive these documents first to set up signature fields in DocuSign.
                 </p>
               ) : (
                 <p className="ds-signing-info">
@@ -236,8 +245,8 @@ const DocuSignSection = ({
             <h4>Signing Recipients</h4>
             <p className="ds-recipients-description">
               {documentWorkflow.signing?.docuSignConnected 
-                ? "Add the people who need to sign the documents. They will receive signing instructions via email."
-                : "Configure who will sign the documents. Connect DocuSign above to enable electronic signatures."
+                ? "The buyer's agent will receive the documents first as an Agent to set up signature fields. Once configured, all recipients will receive signing invitations in order."
+                : "The buyer's agent will handle field setup in DocuSign before sending to all recipients for signing. Configure recipient order and information below."
               }
             </p>
             
@@ -248,8 +257,10 @@ const DocuSignSection = ({
                   <div className="ds-recipient-header">
                     <span className="ds-recipient-type">
                       {recipient.type === 'buyer-agent' ? '👤 Buyer\'s Agent' : `👤 Buyer ${recipient.type === 'buyer' && index > 1 ? index : ''}`}
+                      {recipient.role === 'agent' && <span className="ds-role-badge agent"> - Field Setup</span>}
+                      {recipient.role === 'signer' && <span className="ds-role-badge signer"> - Signer</span>}
                     </span>
-                    <span className="ds-signing-order">Signs {index + 1}{index === 0 ? 'st' : index === 1 ? 'nd' : 'rd'}</span>
+                    <span className="ds-signing-order">Order {index + 1}</span>
                     {!recipient.required && (
                       <button
                         type="button"
@@ -325,11 +336,16 @@ const DocuSignSection = ({
         {signableDocuments.length > 0 && documentWorkflow.signing?.docuSignConnected && hasValidRecipients() && (
           <div className="ds-docusign-ready">
             <div className="ds-success-indicator">✓ Ready for Electronic Signatures</div>
-            <p>
-              When you submit your offer, {signableDocuments.length} document{signableDocuments.length === 1 ? '' : 's'} 
-              will be sent to {recipients.length} recipient{recipients.length === 1 ? '' : 's'} for signing.
-              The offer will be marked as "pending signatures" until all parties have signed.
-            </p>
+            <div style={{ textAlign: 'left', marginTop: '0.75rem' }}>
+              <p style={{ margin: '0 0 0.75rem 0', fontWeight: '500', color: '#065f46' }}>
+                Signature workflow for {signableDocuments.length} document{signableDocuments.length === 1 ? '' : 's'}:
+              </p>
+              <ul style={{ margin: '0', paddingLeft: '1.25rem', color: '#065f46', fontSize: '0.95rem', lineHeight: '1.5' }}>
+                <li>Buyer's agent receives documents first to set up signature fields</li>
+                <li>All {recipients.length} recipient{recipients.length === 1 ? '' : 's'} receive signing invitations in order</li>
+                <li>Offer status: "pending-signatures" → "pending-review" when complete</li>
+              </ul>
+            </div>
           </div>
         )}
         
@@ -340,12 +356,12 @@ const DocuSignSection = ({
               {hasValidRecipients() ? (
                 <div className="ds-recipients-validation-success">
                   <span className="ds-validation-icon">✓</span>
-                  <span className="ds-validation-text">Recipients configured. Connect DocuSign above to enable electronic signatures.</span>
+                  <span className="ds-validation-text">Recipients configured. Connect DocuSign above to enable the electronic signature workflow with field setup.</span>
                 </div>
               ) : (
                 <div className="ds-recipients-validation-warning">
                   <span className="ds-validation-icon">⚠</span>
-                  <span className="ds-validation-text">Please complete recipient information, then connect DocuSign.</span>
+                  <span className="ds-validation-text">Please complete recipient information, then connect DocuSign to enable the signature workflow.</span>
                 </div>
               )}
             </div>

@@ -72,6 +72,7 @@ const initialDocumentWorkflow = {
       {
         id: 'buyer-agent',
         type: 'buyer-agent',
+        role: 'agent', // New field: 'agent' = DocuSign Agent for field setup
         name: '',
         email: '',
         required: true,
@@ -80,6 +81,7 @@ const initialDocumentWorkflow = {
       {
         id: 'primary-buyer',
         type: 'buyer',
+        role: 'signer', // New field: 'signer' = DocuSign Signer
         name: '',
         email: '',
         required: true,

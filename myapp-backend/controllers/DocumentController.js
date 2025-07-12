@@ -469,12 +469,37 @@ exports.getDocumentsByOffer = async (req, res) => {
       return res.status(404).json({ message: 'No documents found for this offer' });
     }
     
-    const documentsWithSAS = documents.map(doc => ({
-      ...doc._doc,
-      sasToken: generateSASToken(doc.azureKey, doc.signed),
-    }));
+    // Process documents to prioritize signed versions for display
+    const processedDocuments = [];
+    const signedDocuments = documents.filter(doc => doc.signed && doc.purpose === 'signed_offer');
+    const unsignedDocuments = documents.filter(doc => !doc.signed && doc.purpose !== 'signed_offer');
     
-    res.status(200).json(documentsWithSAS);
+    // If we have signed documents, show those instead of the unsigned versions
+    if (signedDocuments.length > 0) {
+      // Add signed documents first
+      signedDocuments.forEach(doc => {
+        processedDocuments.push({
+          ...doc._doc,
+          sasToken: generateSASToken(doc.azureKey, doc.signed),
+          displayType: 'signed' // Mark as signed for frontend handling
+        });
+      });
+      
+      // Add any unsigned documents that don't have signed counterparts
+      // For now, if there are signed documents, we'll only show those
+      // This can be refined based on specific business requirements
+    } else {
+      // No signed documents exist, show all unsigned documents
+      unsignedDocuments.forEach(doc => {
+        processedDocuments.push({
+          ...doc._doc,
+          sasToken: generateSASToken(doc.azureKey, doc.signed),
+          displayType: 'unsigned' // Mark as unsigned for frontend handling
+        });
+      });
+    }
+    
+    res.status(200).json(processedDocuments);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

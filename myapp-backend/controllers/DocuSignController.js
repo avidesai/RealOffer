@@ -1,5 +1,5 @@
 const docusign = require('docusign-esign');
-const { config, createApiClient, getAccessTokenFromCode, createEnvelope } = require('../config/docusign');
+const { config, createApiClient, getAccessTokenFromCode } = require('../config/docusign');
 const User = require('../models/User');
 const Document = require('../models/Document');
 const Offer = require('../models/Offer');
@@ -105,7 +105,7 @@ const createEnhancedEnvelope = async (accessToken, envelopeData) => {
     envelope.emailBlurb = envelopeData.emailBlurb;
     envelope.status = 'sent';
     
-    // Enhanced document preparation with field placement
+    // Enhanced document preparation without automatic field placement
     envelope.documents = await Promise.all(envelopeData.documents.map(async (doc, index) => {
       const document = new docusign.Document();
       document.documentBase64 = doc.content;
@@ -113,23 +113,69 @@ const createEnhancedEnvelope = async (accessToken, envelopeData) => {
       document.fileExtension = 'pdf';
       document.documentId = (index + 1).toString();
       
+
+      
       return document;
     }));
 
-    // Enhanced recipient configuration
+    // Enhanced recipient configuration with Agent and Signer roles
     envelope.recipients = new docusign.Recipients();
-    envelope.recipients.signers = envelopeData.recipients.map((recipient, index) => {
-      const signer = new docusign.Signer();
-      signer.email = recipient.email;
-      signer.name = recipient.name;
-      signer.recipientId = (index + 1).toString();
-      signer.routingOrder = recipient.order || (index + 1).toString();
+    envelope.recipients.signers = [];
+    envelope.recipients.agents = [];
+    
+    // Process recipients by role
+    envelopeData.recipients.forEach((recipient, index) => {
+      const recipientId = (index + 1).toString();
+      const routingOrder = recipient.order || (index + 1).toString();
       
-      // Add tabs based on document type and recipient role
-      signer.tabs = generateSmartTabs(envelopeData.documents, recipient, index + 1);
-      
-      return signer;
-    }));
+      if (recipient.role === 'agent') {
+        // Create Agent recipient for field setup
+        const agent = new docusign.Agent();
+        agent.email = recipient.email;
+        agent.name = recipient.name;
+        agent.recipientId = recipientId;
+        agent.routingOrder = '1'; // Agents always go first for field setup
+        envelope.recipients.agents.push(agent);
+        
+        // Also add as signer if they need to sign (typically order 2)
+        const agentAsSigner = new docusign.Signer();
+        agentAsSigner.email = recipient.email;
+        agentAsSigner.name = recipient.name;
+        agentAsSigner.recipientId = `${recipientId}_signer`;
+        agentAsSigner.routingOrder = '2'; // Agent signs after setting up fields
+        envelope.recipients.signers.push(agentAsSigner);
+      } else {
+        // Create regular Signer recipient
+        const signer = new docusign.Signer();
+        signer.email = recipient.email;
+        signer.name = recipient.name;
+        signer.recipientId = recipientId;
+        signer.routingOrder = (parseInt(routingOrder) + 1).toString(); // Buyers start from order 3
+        envelope.recipients.signers.push(signer);
+      }
+    });
+
+    // Add eventNotification for webhook callbacks
+    envelope.eventNotification = new docusign.EventNotification();
+    envelope.eventNotification.url = `${process.env.BACKEND_URL}/api/docusign/webhook`;
+    envelope.eventNotification.requireAcknowledgment = 'true';
+    envelope.eventNotification.useSoapInterface = 'false';
+    envelope.eventNotification.soapNameSpace = '';
+    envelope.eventNotification.includeCertificateWithSoap = 'false';
+    envelope.eventNotification.signMessageWithX509Cert = 'false';
+    envelope.eventNotification.includeDocuments = 'true';
+    envelope.eventNotification.includeEnvelopeVoidReason = 'true';
+    envelope.eventNotification.includeTimeZone = 'true';
+    envelope.eventNotification.includeSenderAccountAsCustomField = 'true';
+    envelope.eventNotification.includeDocumentFields = 'false';
+    envelope.eventNotification.includeCertificateOfCompletion = 'false';
+    
+    // Configure envelope events to monitor
+    envelope.eventNotification.envelopeEvents = [
+      { envelopeEventStatusCode: 'completed' },
+      { envelopeEventStatusCode: 'declined' },
+      { envelopeEventStatusCode: 'voided' }
+    ];
 
     // Add custom fields for tracking
     envelope.customFields = new docusign.CustomFields();
@@ -155,107 +201,22 @@ const createEnhancedEnvelope = async (accessToken, envelopeData) => {
       }
     }
 
+    // Validate all document IDs are positive integers
+    envelope.documents.forEach((doc, index) => {
+      const docId = parseInt(doc.documentId);
+      if (!doc.documentId || isNaN(docId) || docId <= 0) {
+        throw new Error(`Invalid document ID for document ${index}: "${doc.documentId}". Must be a positive integer.`);
+      }
+    });
+
+
+
     const results = await envelopeApi.createEnvelope('me', { envelopeDefinition: envelope });
     return results;
   } catch (error) {
     console.error('Error creating enhanced DocuSign envelope:', error);
     throw error;
   }
-};
-
-// Smart tab generation based on document type and recipient role
-const generateSmartTabs = (documents, recipient, documentId) => {
-  const tabs = new docusign.Tabs();
-  
-  // Initialize tab arrays
-  tabs.signHereTabs = [];
-  tabs.dateSignedTabs = [];
-  tabs.fullNameTabs = [];
-  
-  documents.forEach((doc, docIndex) => {
-    const actualDocId = (docIndex + 1).toString();
-    
-    // Different placement strategies based on document type
-    if (doc.name.toLowerCase().includes('purchase agreement')) {
-      // Purchase Agreement - specific locations
-      if (recipient.type === 'buyer-agent') {
-        tabs.signHereTabs.push({
-          anchorString: 'Buyer Agent Signature',
-          anchorXOffset: '0',
-          anchorYOffset: '0',
-          documentId: actualDocId,
-          pageNumber: '1',
-          recipientId: (recipient.order || 1).toString()
-        });
-        
-        tabs.dateSignedTabs.push({
-          anchorString: 'Date',
-          anchorXOffset: '100',
-          anchorYOffset: '0',
-          documentId: actualDocId,
-          pageNumber: '1',
-          recipientId: (recipient.order || 1).toString()
-        });
-      } else if (recipient.type === 'buyer') {
-        tabs.signHereTabs.push({
-          anchorString: 'Buyer Signature',
-          anchorXOffset: '0',
-          anchorYOffset: '0',
-          documentId: actualDocId,
-          pageNumber: '1',
-          recipientId: (recipient.order || 1).toString()
-        });
-        
-        tabs.fullNameTabs.push({
-          anchorString: 'Buyer Name',
-          anchorXOffset: '0',
-          anchorYOffset: '0',
-          documentId: actualDocId,
-          pageNumber: '1',
-          recipientId: (recipient.order || 1).toString(),
-          value: recipient.name
-        });
-      }
-    } else if (doc.name.toLowerCase().includes('disclosure')) {
-      // Disclosure documents - bottom of each page
-      tabs.signHereTabs.push({
-        anchorString: '/s/',
-        anchorXOffset: '0',
-        anchorYOffset: '0',
-        documentId: actualDocId,
-        pageNumber: '1',
-        recipientId: (recipient.order || 1).toString()
-      });
-      
-      tabs.dateSignedTabs.push({
-        anchorString: '/d/',
-        anchorXOffset: '0',
-        anchorYOffset: '0',
-        documentId: actualDocId,
-        pageNumber: '1',
-        recipientId: (recipient.order || 1).toString()
-      });
-    } else {
-      // Generic documents - auto-place at bottom
-      tabs.signHereTabs.push({
-        xPosition: '100',
-        yPosition: '700',
-        documentId: actualDocId,
-        pageNumber: '1',
-        recipientId: (recipient.order || 1).toString()
-      });
-      
-      tabs.dateSignedTabs.push({
-        xPosition: '300',
-        yPosition: '700',
-        documentId: actualDocId,
-        pageNumber: '1',
-        recipientId: (recipient.order || 1).toString()
-      });
-    }
-  });
-  
-  return tabs;
 };
 
 // Enhanced send documents for signing
@@ -288,18 +249,27 @@ exports.sendDocumentsForSigning = async (req, res) => {
         const content = await streamToBuffer(downloadResponse.readableStreamBody);
         
         return {
-          id: docId,
           name: document.title,
           content: content.toString('base64'),
-          type: document.type
+          type: document.type,
+          originalId: docId // Keep for reference but don't use as documentId
         };
       })
     );
 
     // Create enhanced envelope
     const envelopeData = {
-      emailSubject: `Offer Documents for ${offer.propertyListing.address}`,
-      emailBlurb: `Please review and sign the attached offer documents for the property at ${offer.propertyListing.address}. This offer expires on ${new Date(offer.offerExpiryDate).toLocaleDateString()}.`,
+      emailSubject: `Offer Documents for ${offer.propertyListing.address} - Agent Field Setup Required`,
+      emailBlurb: `Please review the attached offer documents for the property at ${offer.propertyListing.address}. 
+
+BUYER'S AGENT: You are receiving this as an Agent to set up signature fields first. Please:
+1. Open the envelope and use the DocuSign tagging interface to place signature fields
+2. Add tabs for yourself and all buyers as needed
+3. Click "Send" to route the envelope to all signers in order
+
+This offer expires on ${new Date(offer.offerExpiryDate).toLocaleDateString()}.
+
+After field setup, all recipients will automatically receive signing invitations in the configured order. The agent will sign first, followed by the buyers.`,
       documents: documentContents,
       recipients: recipients,
       metadata: {
@@ -379,16 +349,48 @@ exports.getEnvelopeStatus = async (req, res) => {
 // Webhook handler for envelope events
 exports.handleWebhook = async (req, res) => {
   try {
-    console.log('DocuSign webhook received:', req.body);
+    console.log('DocuSign Connect webhook received:', req.body);
     
-    const { event, data } = req.body;
+    // DocuSign Connect sends XML data, but we'll handle both XML and JSON
+    let envelopeData;
     
-    if (event === 'envelope-completed') {
-      await handleEnvelopeCompleted(data);
-    } else if (event === 'envelope-declined') {
-      await handleEnvelopeDeclined(data);
-    } else if (event === 'envelope-voided') {
-      await handleEnvelopeVoided(data);
+    if (req.body && typeof req.body === 'object') {
+      // Handle JSON format (for testing or future DocuSign updates)
+      envelopeData = req.body;
+    } else {
+      // Handle XML format from DocuSign Connect
+      // For now, we'll extract the envelope ID from XML if needed
+      // This is a simplified approach - you may want to use a proper XML parser
+      const bodyStr = req.body.toString();
+      const envelopeIdMatch = bodyStr.match(/<EnvelopeStatus.*?<EnvelopeID>(.*?)<\/EnvelopeID>/);
+      const statusMatch = bodyStr.match(/<Status>(.*?)<\/Status>/);
+      
+      if (envelopeIdMatch && statusMatch) {
+        envelopeData = {
+          envelopeId: envelopeIdMatch[1],
+          status: statusMatch[1]
+        };
+      } else {
+        console.error('Could not parse DocuSign webhook XML:', bodyStr);
+        return res.status(400).json({ message: 'Invalid webhook format' });
+      }
+    }
+    
+    const { envelopeId, status } = envelopeData;
+    
+    if (!envelopeId) {
+      console.error('No envelope ID found in webhook data');
+      return res.status(400).json({ message: 'No envelope ID found' });
+    }
+    
+    console.log(`Processing envelope ${envelopeId} with status: ${status}`);
+    
+    if (status === 'completed' || status === 'Completed') {
+      await handleEnvelopeCompleted({ envelopeId });
+    } else if (status === 'declined' || status === 'Declined') {
+      await handleEnvelopeDeclined({ envelopeId });
+    } else if (status === 'voided' || status === 'Voided') {
+      await handleEnvelopeVoided({ envelopeId });
     }
     
     res.status(200).json({ message: 'Webhook processed successfully' });
@@ -422,6 +424,22 @@ const handleEnvelopeCompleted = async (envelopeData) => {
     
     const envelopeApi = new docusign.EnvelopesApi(apiClient);
     
+    // Get recipient information for tracking who signed
+    let recipients = [];
+    try {
+      const recipientInfo = await envelopeApi.listRecipients('me', envelopeId);
+      recipients = [
+        ...(recipientInfo.signers || []),
+        ...(recipientInfo.agents || [])
+      ].map(r => ({
+        name: r.name,
+        email: r.email,
+        signedAt: r.signedDateTime ? new Date(r.signedDateTime) : new Date()
+      }));
+    } catch (recipientError) {
+      console.warn('Could not fetch recipient info:', recipientError);
+    }
+    
     // Get the combined document (all documents in one PDF)
     const documentsResult = await envelopeApi.getDocument('me', envelopeId, 'combined');
     
@@ -446,15 +464,16 @@ const handleEnvelopeCompleted = async (envelopeData) => {
       signed: true,
       purpose: 'signed_offer',
       docusignEnvelopeId: envelopeId,
-      signingStatus: 'completed'
+      signingStatus: 'completed',
+      signedBy: recipients
     });
     
     await signedDocument.save();
     
-    // Update offer status and add signed document
+    // Update offer status to pending-review (new status flow)
     await Offer.findByIdAndUpdate(offer._id, {
       $set: {
-        'offerStatus': 'documents-signed',
+        'offerStatus': 'pending-review', // Changed from 'documents-signed' to 'pending-review'
         'documentWorkflow.status': 'completed',
         'documentWorkflow.completedAt': new Date()
       },
@@ -463,13 +482,22 @@ const handleEnvelopeCompleted = async (envelopeData) => {
       }
     });
     
-    // Update original documents signing status
-    await Document.updateMany(
-      { docusignEnvelopeId: envelopeId },
-      { $set: { signingStatus: 'completed' } }
-    );
+    // Update ALL original documents signing status and add signature info
+    const originalDocuments = await Document.find({ docusignEnvelopeId: envelopeId });
+    await Promise.all(originalDocuments.map(async (doc) => {
+      await Document.findByIdAndUpdate(doc._id, {
+        $set: { 
+          signingStatus: 'completed',
+          signed: true,
+          signedBy: recipients
+        }
+      });
+    }));
     
-    console.log('Successfully processed completed envelope:', envelopeId);
+    console.log(`Successfully processed completed envelope: ${envelopeId}`);
+    console.log(`- Offer status updated to pending-review`);
+    console.log(`- ${originalDocuments.length} original documents marked as signed`);
+    console.log(`- Signed by: ${recipients.map(r => r.name).join(', ')}`);
     
   } catch (error) {
     console.error('Error handling completed envelope:', error);
@@ -492,10 +520,15 @@ const handleEnvelopeDeclined = async (envelopeData) => {
       }
     );
     
-    await Document.updateMany(
-      { docusignEnvelopeId: envelopeId },
-      { $set: { signingStatus: 'declined' } }
-    );
+    // Update all original documents
+    const originalDocuments = await Document.find({ docusignEnvelopeId: envelopeId });
+    await Promise.all(originalDocuments.map(async (doc) => {
+      await Document.findByIdAndUpdate(doc._id, {
+        $set: { signingStatus: 'declined' }
+      });
+    }));
+    
+    console.log(`Envelope ${envelopeId} declined - ${originalDocuments.length} documents marked as declined`);
     
   } catch (error) {
     console.error('Error handling declined envelope:', error);
@@ -518,10 +551,15 @@ const handleEnvelopeVoided = async (envelopeData) => {
       }
     );
     
-    await Document.updateMany(
-      { docusignEnvelopeId: envelopeId },
-      { $set: { signingStatus: 'voided' } }
-    );
+    // Update all original documents
+    const originalDocuments = await Document.find({ docusignEnvelopeId: envelopeId });
+    await Promise.all(originalDocuments.map(async (doc) => {
+      await Document.findByIdAndUpdate(doc._id, {
+        $set: { signingStatus: 'voided' }
+      });
+    }));
+    
+    console.log(`Envelope ${envelopeId} voided - ${originalDocuments.length} documents marked as voided`);
     
   } catch (error) {
     console.error('Error handling voided envelope:', error);

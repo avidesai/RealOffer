@@ -131,15 +131,19 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
     ];
 
     if (signableDocuments.length > 0 && documentWorkflow.signing?.docuSignConnected) {
-      // Check if recipients are configured (this would come from DocuSignSection state)
-      // For now, we'll assume valid if DocuSign is connected and documents are selected
+      // Check if recipients are configured
       if (!formData.presentedBy?.email || !formData.buyerName) {
         issues.push('Missing recipient information for DocuSign - agent email and buyer name required');
+      }
+      
+      // Add information about the simplified workflow
+      if (documentWorkflow.signing.recipients.length > 0) {
+        warnings.push('Documents will be sent to the buyer\'s agent first for signature field setup in DocuSign, then forwarded to all recipients for signing. Offer status will be "pending-signatures" until all parties sign, then "pending-review".');
       }
     }
 
     if (signableDocuments.length > 0 && !documentWorkflow.signing?.docuSignConnected) {
-      warnings.push('Documents selected for signing but DocuSign is not connected');
+      warnings.push('Documents selected for signing but DocuSign is not connected - signatures will need to be handled manually');
     }
 
     return {
@@ -179,99 +183,111 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
   }, [validationAnalysis.canSubmit, handleSubmit]);
 
   return (
-    <div className="enhanced-final-review">
-      <div className="review-header">
+    <div className="ds-modal-step">
+      <div className="ds-offer-modal-header">
         <h2>Final Review</h2>
         <p>Review all details before submitting your offer</p>
       </div>
 
-      <div className="review-content">
-        {/* Validation Status */}
-        <div className="validation-panel">
+      {/* Validation Status */}
+      <div className="ds-document-section">
+        <div className="ds-section-header">
+          <h3>
+            {validationAnalysis.canSubmit ? '✅ Ready to Submit' : '⚠️ Issues Need Attention'}
+          </h3>
+          <p>
+            {validationAnalysis.canSubmit 
+              ? 'Your offer is ready for submission'
+              : `${validationAnalysis.issues.length} issue(s) must be resolved before submitting`
+            }
+          </p>
+        </div>
+        <div className="ds-section-content">
           <div 
-            className={`validation-summary ${validationAnalysis.canSubmit ? 'ready' : 'issues'}`}
+            className={`ds-validation-panel ${validationAnalysis.canSubmit ? 'ready' : 'has-issues'}`}
             onClick={() => setValidationExpanded(!validationExpanded)}
           >
-            <div className="validation-header">
+            <div className="ds-validation-header">
               <StatusBadge status={validationAnalysis.canSubmit ? 'ready' : 'error'} />
-              <h3>
-                {validationAnalysis.canSubmit ? 'Ready to Submit' : 'Issues Need Attention'}
-              </h3>
-              <span className="validation-toggle">
+              <span className="ds-validation-title">
+                {validationAnalysis.canSubmit ? 'All checks passed' : 'Click to view issues'}
+              </span>
+              <span className="ds-validation-toggle">
                 {validationExpanded ? '▼' : '▶'}
               </span>
             </div>
             
-            {!validationAnalysis.canSubmit && (
-              <p className="validation-summary-text">
-                {validationAnalysis.issues.length} issue(s) must be resolved
-              </p>
+            {validationExpanded && (
+              <div className="ds-validation-details">
+                {validationAnalysis.issues.length > 0 && (
+                  <div className="ds-validation-issues">
+                    <h4>❌ Issues (Must Fix)</h4>
+                    <ul>
+                      {validationAnalysis.issues.map((issue, index) => (
+                        <li key={`issue-${index}`} className="ds-validation-issue">{issue}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {validationAnalysis.warnings.length > 0 && (
+                  <div className="ds-validation-warnings">
+                    <h4>⚠️ Important Notes</h4>
+                    <ul>
+                      {validationAnalysis.warnings.map((warning, index) => (
+                        <li key={`warning-${index}`} className="ds-validation-warning">{warning}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             )}
           </div>
-
-          {validationExpanded && (
-            <div className="validation-details">
-              {validationAnalysis.issues.length > 0 && (
-                <div className="validation-issues">
-                  <h4>❌ Issues (Must Fix)</h4>
-                  <ul>
-                    {validationAnalysis.issues.map((issue, index) => (
-                      <li key={index} className="validation-issue">{issue}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              
-              {validationAnalysis.warnings.length > 0 && (
-                <div className="validation-warnings">
-                  <h4>⚠️ Warnings (Recommended)</h4>
-                  <ul>
-                    {validationAnalysis.warnings.map((warning, index) => (
-                      <li key={index} className="validation-warning">{warning}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
         </div>
+      </div>
 
-        {/* Document Summary */}
-        <div className="document-summary-section">
+      {/* Document Summary */}
+      <div className="ds-document-section">
+        <div className="ds-section-header">
           <h3>Documents ({documentAnalysis.totalDocuments})</h3>
-          
+          <p>
+            {documentAnalysis.totalDocuments === 0 
+              ? 'No documents included with this offer'
+              : `${documentAnalysis.criticalDocuments} critical, ${documentAnalysis.optionalDocuments} additional documents`
+            }
+          </p>
+        </div>
+        <div className="ds-section-content">
           {documentAnalysis.totalDocuments === 0 ? (
-            <div className="no-documents">
-              <div className="empty-state">
-                <div className="empty-state-icon">📄</div>
-                <h4>No Documents Included</h4>
-                <p>Your offer will be submitted without supporting documents.</p>
-              </div>
+            <div className="ds-empty-state">
+              <div className="ds-empty-icon">📄</div>
+              <h4>No Documents Included</h4>
+              <p>Your offer will be submitted without supporting documents.</p>
             </div>
           ) : (
-            <div className="documents-overview">
-              <div className="document-stats">
-                <div className="stat-card">
-                  <span className="stat-number">{documentAnalysis.criticalDocuments}</span>
-                  <span className="stat-label">Critical</span>
+            <div className="ds-documents-overview">
+              <div className="ds-document-stats">
+                <div className="ds-stat-card critical">
+                  <span className="ds-stat-number">{documentAnalysis.criticalDocuments}</span>
+                  <span className="ds-stat-label">Critical</span>
                 </div>
-                <div className="stat-card">
-                  <span className="stat-number">{documentAnalysis.optionalDocuments}</span>
-                  <span className="stat-label">Additional</span>
+                <div className="ds-stat-card additional">
+                  <span className="ds-stat-number">{documentAnalysis.optionalDocuments}</span>
+                  <span className="ds-stat-label">Additional</span>
                 </div>
                 {documentWorkflow.signing?.docuSignConnected && (
-                  <div className="stat-card">
-                    <span className="stat-number">✓</span>
-                    <span className="stat-label">DocuSign Ready</span>
+                  <div className="ds-stat-card docusign">
+                    <span className="ds-stat-number">✓</span>
+                    <span className="ds-stat-label">DocuSign Ready</span>
                   </div>
                 )}
               </div>
 
               {/* Document Categories */}
               {documentAnalysis.categorized.agreement.length > 0 && (
-                <div className="document-category">
-                  <h4>Purchase Agreement</h4>
-                  <div className="offer-docs-list">
+                <div className="ds-document-category">
+                  <h4>📋 Purchase Agreement</h4>
+                  <div className="ds-document-list">
                     {documentAnalysis.categorized.agreement.map(doc => (
                       <DocumentPreview
                         key={`agreement-${doc.id || doc.title}`}
@@ -285,9 +301,9 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
               )}
 
               {documentAnalysis.categorized.required.length > 0 && (
-                <div className="document-category">
-                  <h4>Required Documents</h4>
-                  <div className="offer-docs-list">
+                <div className="ds-document-category">
+                  <h4>📄 Required Documents</h4>
+                  <div className="ds-document-list">
                     {documentAnalysis.categorized.required.map(doc => (
                       <DocumentPreview
                         key={`required-${doc.id || doc.title}`}
@@ -301,9 +317,9 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
               )}
 
               {documentAnalysis.categorized.additional.length > 0 && (
-                <div className="document-category">
-                  <h4>Additional Supporting Documents</h4>
-                  <div className="offer-docs-list">
+                <div className="ds-document-category">
+                  <h4>📎 Additional Supporting Documents</h4>
+                  <div className="ds-document-list">
                     {documentAnalysis.categorized.additional.map(doc => (
                       <DocumentPreview
                         key={`additional-${doc.id || doc.title}`}
@@ -318,151 +334,177 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
             </div>
           )}
         </div>
+      </div>
 
-        {/* Offer Summary Sections (existing) */}
-        <div className="offer-summary-sections">
-          <div className="summary-section">
-            <h3>Financial Terms</h3>
-            <div className="summary-grid">
-              <div className="summary-item">
-                <span className="label">Purchase Price:</span>
-                <span className="value primary">${formattedPurchasePrice}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Initial Deposit:</span>
-                <span className="value">${formattedInitialDeposit}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Finance Type:</span>
-                <span className="value">{formData.financeType}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Loan Amount:</span>
-                <span className="value">${formattedLoanAmount}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Down Payment:</span>
-                <span className="value">${formattedDownPayment} ({formData.percentDown}%)</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Balance Due:</span>
-                <span className="value">${formattedBalanceOfDownPayment}</span>
-              </div>
+      {/* Financial Terms */}
+      <div className="ds-document-section">
+        <div className="ds-section-header">
+          <h3>💰 Financial Terms</h3>
+          <p>Purchase price, financing, and payment details</p>
+        </div>
+        <div className="ds-section-content">
+          <div className="ds-summary-grid">
+            <div className="ds-summary-item highlight">
+              <span className="ds-summary-label">Purchase Price</span>
+              <span className="ds-summary-value primary">${formattedPurchasePrice}</span>
             </div>
-          </div>
-
-          <div className="summary-section">
-            <h3>Terms & Contingencies</h3>
-            <div className="summary-grid">
-              <div className="summary-item">
-                <span className="label">Finance Contingency:</span>
-                <span className="value">{getContingencyDisplay(formData.financeContingency, formData.financeContingencyDays)}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Appraisal Contingency:</span>
-                <span className="value">{getContingencyDisplay(formData.appraisalContingency, formData.appraisalContingencyDays)}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Inspection Contingency:</span>
-                <span className="value">{getContingencyDisplay(formData.inspectionContingency, formData.inspectionContingencyDays)}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Home Sale Contingency:</span>
-                <span className="value">{formData.homeSaleContingency}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Close of Escrow:</span>
-                <span className="value">{formData.closeOfEscrow} Days</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Seller Rent Back:</span>
-                <span className="value">{formData.sellerRentBack} Days</span>
-              </div>
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Initial Deposit</span>
+              <span className="ds-summary-value">${formattedInitialDeposit}</span>
             </div>
-          </div>
-
-          <div className="summary-section">
-            <h3>Buyer & Agent Details</h3>
-            <div className="summary-grid">
-              <div className="summary-item">
-                <span className="label">Buyer Name:</span>
-                <span className="value">{formData.buyerName}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Agent Name:</span>
-                <span className="value">{formData.presentedBy.name}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Agent License:</span>
-                <span className="value">{formData.presentedBy.licenseNumber}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Agent Email:</span>
-                <span className="value">{formData.presentedBy.email}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Agent Phone:</span>
-                <span className="value">{formData.presentedBy.phoneNumber}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Commission:</span>
-                <span className="value">{formData.buyersAgentCommission}%</span>
-              </div>
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Finance Type</span>
+              <span className="ds-summary-value">{formData.financeType}</span>
             </div>
-          </div>
-
-          <div className="summary-section">
-            <h3>Brokerage Information</h3>
-            <div className="summary-grid">
-              <div className="summary-item">
-                <span className="label">Brokerage:</span>
-                <span className="value">{formData.brokerageInfo.name}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">License:</span>
-                <span className="value">{formData.brokerageInfo.licenseNumber}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Address:</span>
-                <span className="value">
-                  {formData.brokerageInfo.addressLine1}
-                  {formData.brokerageInfo.addressLine2 && <br />}
-                  {formData.brokerageInfo.addressLine2}
-                </span>
-              </div>
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Loan Amount</span>
+              <span className="ds-summary-value">${formattedLoanAmount}</span>
             </div>
-          </div>
-
-          <div className="summary-section">
-            <h3>Timing & Communication</h3>
-            <div className="summary-grid">
-              <div className="summary-item">
-                <span className="label">Offer Submitted:</span>
-                <span className="value">{formattedSubmittedOn}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Offer Expires:</span>
-                <span className="value">{formattedOfferExpiryDate}</span>
-              </div>
-              {formData.specialTerms && (
-                <div className="summary-item full-width">
-                  <span className="label">Special Terms:</span>
-                  <span className="value multiline">{formData.specialTerms}</span>
-                </div>
-              )}
-              {formData.buyersAgentMessage && (
-                <div className="summary-item full-width">
-                  <span className="label">Message to Listing Agent:</span>
-                  <span className="value multiline">{formData.buyersAgentMessage}</span>
-                </div>
-              )}
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Down Payment</span>
+              <span className="ds-summary-value">${formattedDownPayment} ({formData.percentDown}%)</span>
+            </div>
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Balance Due</span>
+              <span className="ds-summary-value">${formattedBalanceOfDownPayment}</span>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Terms & Contingencies */}
+      <div className="ds-document-section">
+        <div className="ds-section-header">
+          <h3>📋 Terms & Contingencies</h3>
+          <p>Contract terms, contingencies, and important dates</p>
+        </div>
+        <div className="ds-section-content">
+          <div className="ds-summary-grid">
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Finance Contingency</span>
+              <span className="ds-summary-value">{getContingencyDisplay(formData.financeContingency, formData.financeContingencyDays)}</span>
+            </div>
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Appraisal Contingency</span>
+              <span className="ds-summary-value">{getContingencyDisplay(formData.appraisalContingency, formData.appraisalContingencyDays)}</span>
+            </div>
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Inspection Contingency</span>
+              <span className="ds-summary-value">{getContingencyDisplay(formData.inspectionContingency, formData.inspectionContingencyDays)}</span>
+            </div>
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Home Sale Contingency</span>
+              <span className="ds-summary-value">{formData.homeSaleContingency}</span>
+            </div>
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Close of Escrow</span>
+              <span className="ds-summary-value">{formData.closeOfEscrow} Days</span>
+            </div>
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Seller Rent Back</span>
+              <span className="ds-summary-value">{formData.sellerRentBack} Days</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Buyer & Agent Details */}
+      <div className="ds-document-section">
+        <div className="ds-section-header">
+          <h3>👤 Buyer & Agent Details</h3>
+          <p>Contact information and professional details</p>
+        </div>
+        <div className="ds-section-content">
+          <div className="ds-summary-grid">
+            <div className="ds-summary-item highlight">
+              <span className="ds-summary-label">Buyer Name</span>
+              <span className="ds-summary-value">{formData.buyerName}</span>
+            </div>
+            <div className="ds-summary-item highlight">
+              <span className="ds-summary-label">Agent Name</span>
+              <span className="ds-summary-value">{formData.presentedBy.name}</span>
+            </div>
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Agent License</span>
+              <span className="ds-summary-value">{formData.presentedBy.licenseNumber}</span>
+            </div>
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Agent Email</span>
+              <span className="ds-summary-value">{formData.presentedBy.email}</span>
+            </div>
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Agent Phone</span>
+              <span className="ds-summary-value">{formData.presentedBy.phoneNumber}</span>
+            </div>
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Commission</span>
+              <span className="ds-summary-value">{formData.buyersAgentCommission}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Brokerage Information */}
+      <div className="ds-document-section">
+        <div className="ds-section-header">
+          <h3>🏢 Brokerage Information</h3>
+          <p>Brokerage details and licensing information</p>
+        </div>
+        <div className="ds-section-content">
+          <div className="ds-summary-grid">
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Brokerage</span>
+              <span className="ds-summary-value">{formData.brokerageInfo.name}</span>
+            </div>
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">License</span>
+              <span className="ds-summary-value">{formData.brokerageInfo.licenseNumber}</span>
+            </div>
+            <div className="ds-summary-item full-width">
+              <span className="ds-summary-label">Address</span>
+              <span className="ds-summary-value">
+                {formData.brokerageInfo.addressLine1}
+                {formData.brokerageInfo.addressLine2 && <><br />{formData.brokerageInfo.addressLine2}</>}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Timing & Communication */}
+      <div className="ds-document-section">
+        <div className="ds-section-header">
+          <h3>⏰ Timing & Communication</h3>
+          <p>Important dates and special messages</p>
+        </div>
+        <div className="ds-section-content">
+          <div className="ds-summary-grid">
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Offer Submitted</span>
+              <span className="ds-summary-value">{formattedSubmittedOn}</span>
+            </div>
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Offer Expires</span>
+              <span className="ds-summary-value">{formattedOfferExpiryDate}</span>
+            </div>
+            {formData.specialTerms && (
+              <div className="ds-summary-item full-width">
+                <span className="ds-summary-label">Special Terms</span>
+                <div className="ds-summary-value multiline">{formData.specialTerms}</div>
+              </div>
+            )}
+            {formData.buyersAgentMessage && (
+              <div className="ds-summary-item full-width">
+                <span className="ds-summary-label">Message to Listing Agent</span>
+                <div className="ds-summary-value multiline">{formData.buyersAgentMessage}</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Navigation */}
-      <div className="review-navigation">
+      <div className="ds-button-container">
         <button 
           className="ds-step-back-button" 
           onClick={handlePrevStep}
@@ -471,21 +513,21 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
           Back to Documents
         </button>
         
-        <div className="submission-area">
+        <div className="ds-submission-area">
           {!validationAnalysis.canSubmit && (
-            <div className="submission-warning">
+            <div className="ds-submission-warning">
               <span>⚠️ Please resolve issues before submitting</span>
             </div>
           )}
           
           <button 
-            className={`submit-offer-button ${validationAnalysis.canSubmit ? 'ready' : 'disabled'}`}
+            className={`ds-submit-offer-button ${validationAnalysis.canSubmit ? 'ready' : 'disabled'}`}
             onClick={handleSubmitWithValidation}
             disabled={!validationAnalysis.canSubmit || isSubmitting}
           >
             {isSubmitting ? (
               <>
-                <div className="loading-spinner"></div>
+                <div className="ds-loading-spinner"></div>
                 Submitting Offer...
               </>
             ) : (

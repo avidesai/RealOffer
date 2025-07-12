@@ -54,45 +54,10 @@ const getAccessTokenFromCode = async (code) => {
   }
 };
 
-// Create DocuSign envelope
-const createEnvelope = async (accessToken, envelopeData) => {
-  try {
-    const apiClient = createApiClient();
-    apiClient.addDefaultHeader('Authorization', `Bearer ${accessToken}`);
-    
-    const envelopeApi = new docusign.EnvelopesApi(apiClient);
-    const envelope = new docusign.EnvelopeDefinition();
-    
-    envelope.emailSubject = envelopeData.title;
-    envelope.emailBlurb = envelopeData.message;
-    envelope.documents = envelopeData.documents.map(doc => ({
-      documentBase64: doc.content,
-      name: doc.name,
-      fileExtension: 'pdf',
-      documentId: doc.id
-    }));
 
-    envelope.recipients = new docusign.Recipients();
-    envelope.recipients.signers = envelopeData.signers.map((signer, index) => ({
-      email: signer.email,
-      name: signer.name,
-      recipientId: (index + 1).toString(),
-      routingOrder: (index + 1).toString()
-    }));
-
-    envelope.status = 'sent';
-
-    const results = await envelopeApi.createEnvelope('me', { envelopeDefinition: envelope });
-    return results;
-  } catch (error) {
-    console.error('Error creating DocuSign envelope:', error);
-    throw error;
-  }
-};
 
 module.exports = {
   config,
   createApiClient,
-  getAccessTokenFromCode,
-  createEnvelope
+  getAccessTokenFromCode
 }; 
