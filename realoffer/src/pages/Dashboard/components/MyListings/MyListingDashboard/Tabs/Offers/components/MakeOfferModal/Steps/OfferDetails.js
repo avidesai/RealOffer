@@ -107,11 +107,11 @@ const OfferDetails = ({ handleNextStep, handlePrevStep }) => {
           onChange={handleChange}
         ></textarea>
       </div>
-      <div className="button-container">
-        <button className="step-back-button" onClick={handlePrevStep}>
+      <div className="ds-button-container">
+        <button className="ds-step-back-button" onClick={handlePrevStep}>
           Back
         </button>
-        <button className="next-button" onClick={handleNextStep}>
+        <button className="ds-next-button" onClick={handleNextStep}>
           Next
         </button>
       </div>

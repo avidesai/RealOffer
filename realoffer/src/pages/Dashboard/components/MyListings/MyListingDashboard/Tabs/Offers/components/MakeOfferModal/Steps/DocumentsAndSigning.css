@@ -1160,12 +1160,79 @@
   gap: 0.5rem;
 }
 
+.ds-recipients-validation-success {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #065f46;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+  transition: all 0.2s ease;
+}
+
+.ds-recipients-validation-warning {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #92400e;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.08);
+  transition: all 0.2s ease;
+}
+
+.ds-validation-icon {
+  font-size: 1.1rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.ds-recipients-validation-success .ds-validation-icon {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.ds-recipients-validation-warning .ds-validation-icon {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.ds-validation-text {
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
 /* DocuSign Ready Status */
 .ds-docusign-ready {
   margin-top: 1.5rem;
   padding: 1.5rem;
   background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
   border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  text-align: center;
+}
+
+/* Recipients Setup Status */
+.ds-recipients-setup-status {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
   text-align: center;
 }
@@ -1211,6 +1278,19 @@
     align-self: stretch;
     justify-content: center;
   }
+  
+  .ds-recipients-validation-success,
+  .ds-recipients-validation-warning {
+    padding: 0.875rem 1rem;
+    font-size: 0.9rem;
+    gap: 0.625rem;
+  }
+  
+  .ds-validation-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 1rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1225,5 +1305,18 @@
   .ds-signing-order {
     font-size: 0.75rem;
     padding: 0.2rem 0.6rem;
+  }
+  
+  .ds-recipients-validation-success,
+  .ds-recipients-validation-warning {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.85rem;
+    gap: 0.5rem;
+  }
+  
+  .ds-validation-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 0.9rem;
   }
 } 

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../../../../../../../../context/AuthContext';
 import { useOffer } from '../../../../../../../../../context/OfferContext';
 import './MakeOfferModal.css';
+import './Steps/DocumentsAndSigning.css';
 import PurchasePrice from './Steps/PurchasePrice';
 import Contingencies from './Steps/Contingencies';
 import AgentInformation from './Steps/AgentInformation';
@@ -219,36 +220,34 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       // Send documents for DocuSign if configured
       if (documentsForSigning.length > 0 && documentWorkflow.signing?.docuSignConnected) {
         try {
-          // Get recipients from the DocuSignSection component
-          // For now, use default recipients from offerData
-          const recipients = [
-            {
-              name: offerData.presentedBy.name,
-              email: offerData.presentedBy.email,
-              type: 'buyer-agent',
-              order: 1
-            },
-            {
-              name: offerData.buyerName,
-              email: offerData.presentedBy.email, // TODO: Get actual buyer email from DocuSignSection
-              type: 'buyer',
-              order: 2
-            }
-          ];
+          // Get recipients from the document workflow context
+          const recipients = documentWorkflow.signing.recipients.filter(r => 
+            r.name.trim() && r.email.trim() && /\S+@\S+\.\S+/.test(r.email)
+          ).map(r => ({
+            name: r.name,
+            email: r.email,
+            type: r.type,
+            order: r.order
+          }));
 
-          await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/send`, {
-            offerId: createdOfferId,
-            documents: documentsForSigning,
-            recipients: recipients,
-            metadata: {
-              propertyAddress: response.data.propertyListing?.address || 'Property',
-              offerAmount: offerData.purchasePrice
-            }
-          }, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          
-          console.log('Documents sent for DocuSign signing');
+          // Only send to DocuSign if we have valid recipients
+          if (recipients.length > 0) {
+            await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/send`, {
+              offerId: createdOfferId,
+              documents: documentsForSigning,
+              recipients: recipients,
+              metadata: {
+                propertyAddress: response.data.propertyListing?.address || 'Property',
+                offerAmount: offerData.purchasePrice
+              }
+            }, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            console.log(`Documents sent for DocuSign signing to ${recipients.length} recipient(s)`);
+          } else {
+            console.warn('No valid recipients configured for DocuSign - documents will be attached to offer only');
+          }
         } catch (docusignError) {
           console.error('Error sending documents for signing:', docusignError);
           // Don't fail the offer creation if DocuSign fails

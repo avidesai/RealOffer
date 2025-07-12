@@ -68,7 +68,24 @@ const initialDocumentWorkflow = {
   signing: {
     isConfigured: false,
     selectedDocuments: [],
-    recipients: [],
+    recipients: [
+      {
+        id: 'buyer-agent',
+        type: 'buyer-agent',
+        name: '',
+        email: '',
+        required: true,
+        order: 1
+      },
+      {
+        id: 'primary-buyer',
+        type: 'buyer',
+        name: '',
+        email: '',
+        required: true,
+        order: 2
+      }
+    ],
     docuSignConnected: false,
     status: 'not_configured' // 'not_configured' | 'ready' | 'sent' | 'completed'
   },
@@ -201,16 +218,16 @@ export const OfferProvider = ({ children }) => {
 
     // Signing validation
     const signingReady = documentWorkflow.signing.selectedDocuments.length === 0 || 
-                        (documentWorkflow.signing.signers.length > 0 && 
-                         documentWorkflow.signing.signers.every(s => s.name && s.email));
+                        (documentWorkflow.signing.recipients.length > 0 && 
+                         documentWorkflow.signing.recipients.every(s => s.name && s.email));
 
     if (documentWorkflow.signing.selectedDocuments.length > 0) {
-      if (documentWorkflow.signing.signers.length === 0) {
-        validation.warnings.push('Documents selected for signing but no signers configured');
+      if (documentWorkflow.signing.recipients.length === 0) {
+        validation.warnings.push('Documents selected for signing but no recipients configured');
       } else {
-        const invalidSigners = documentWorkflow.signing.signers.filter(s => !s.name || !s.email);
-        if (invalidSigners.length > 0) {
-          validation.warnings.push(`${invalidSigners.length} signer(s) missing name or email`);
+        const invalidRecipients = documentWorkflow.signing.recipients.filter(s => !s.name || !s.email);
+        if (invalidRecipients.length > 0) {
+          validation.warnings.push(`${invalidRecipients.length} recipient(s) missing name or email`);
         }
       }
     }
@@ -229,13 +246,8 @@ export const OfferProvider = ({ children }) => {
     validation.signingReady = signingReady;
     validation.canProceedToReview = validation.documentsComplete && validation.issues.length === 0;
 
-    updateDocumentWorkflow(prev => ({
-      ...prev,
-      validation
-    }));
-
     return validation;
-  }, [documentWorkflow, updateDocumentWorkflow]);
+  }, [documentWorkflow]);
 
   // Reset workflow (for new offers)
   const resetDocumentWorkflow = useCallback(() => {

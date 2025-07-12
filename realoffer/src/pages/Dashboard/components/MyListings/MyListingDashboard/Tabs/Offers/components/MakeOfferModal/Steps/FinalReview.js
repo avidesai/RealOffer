@@ -26,7 +26,7 @@ const getContingencyDisplay = (contingency, days) => {
 };
 
 const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
-  const { documentWorkflow, validateDocumentWorkflow } = useOffer();
+  const { documentWorkflow } = useOffer();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationExpanded, setValidationExpanded] = useState(false);
 
@@ -94,7 +94,6 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
 
   // Validation analysis
   const validationAnalysis = useMemo(() => {
-    const validation = validateDocumentWorkflow();
     const issues = [];
     const warnings = [];
 
@@ -149,7 +148,19 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
       warnings,
       hasDocuments: documentAnalysis.totalDocuments > 0
     };
-  }, [formData, documentWorkflow, documentAnalysis.totalDocuments, validateDocumentWorkflow]);
+  }, [
+    formData.buyerName,
+    formData.offerExpiryDate,
+    formData.presentedBy?.name,
+    formData.presentedBy?.email,
+    documentWorkflow.purchaseAgreement.choice,
+    documentWorkflow.purchaseAgreement.document,
+    documentWorkflow.purchaseAgreement.sendForSigning,
+    documentWorkflow.requirements.documents,
+    documentWorkflow.additional.documents,
+    documentWorkflow.signing?.docuSignConnected,
+    documentAnalysis.totalDocuments
+  ]);
 
   const handleSubmitWithValidation = useCallback(async () => {
     if (!validationAnalysis.canSubmit) {
@@ -263,7 +274,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
                   <div className="offer-docs-list">
                     {documentAnalysis.categorized.agreement.map(doc => (
                       <DocumentPreview
-                        key={doc.id}
+                        key={`agreement-${doc.id || doc.title}`}
                         document={doc}
                         showStatus={true}
                         compact={true}
@@ -279,7 +290,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
                   <div className="offer-docs-list">
                     {documentAnalysis.categorized.required.map(doc => (
                       <DocumentPreview
-                        key={doc.id}
+                        key={`required-${doc.id || doc.title}`}
                         document={doc}
                         showStatus={true}
                         compact={true}
@@ -295,7 +306,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
                   <div className="offer-docs-list">
                     {documentAnalysis.categorized.additional.map(doc => (
                       <DocumentPreview
-                        key={doc.id}
+                        key={`additional-${doc.id || doc.title}`}
                         document={doc}
                         showStatus={true}
                         compact={true}
@@ -453,7 +464,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
       {/* Navigation */}
       <div className="review-navigation">
         <button 
-          className="step-back-button" 
+          className="ds-step-back-button" 
           onClick={handlePrevStep}
           disabled={isSubmitting}
         >

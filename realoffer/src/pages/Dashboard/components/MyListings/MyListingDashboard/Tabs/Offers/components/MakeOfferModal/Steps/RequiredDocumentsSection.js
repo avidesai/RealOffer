@@ -42,7 +42,7 @@ const RequiredDocumentsSection = ({ requirements, documentWorkflow, handleRequir
                     id={`required-doc-${requirement.type}`}
                   />
                   <label htmlFor={`required-doc-${requirement.type}`} className="ds-upload-label">
-                    Choose file ({requirement.acceptedTypes})
+                    Choose file (PDF, images)
                   </label>
                 </div>
               )}
