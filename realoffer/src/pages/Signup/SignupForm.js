@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import './SignupForm.css';
@@ -20,6 +20,7 @@ function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [generalError, setGeneralError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -29,10 +30,12 @@ function SignupForm() {
       ...prevData,
       [name]: value
     }));
+    // Clear specific field errors and general error when user starts typing
     setErrors(prevErrors => ({
       ...prevErrors,
       [name]: ''
     }));
+    setGeneralError('');
   };
 
   const togglePasswordVisibility = () => {
@@ -41,17 +44,101 @@ function SignupForm() {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.firstName.trim()) newErrors.firstName = 'First Name is required';
-    if (!formData.lastName.trim()) newErrors.lastName = 'Last Name is required';
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
-    if (!formData.password) newErrors.password = 'Password is required';
-    else if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters long';
-    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
-    if (!formData.role) newErrors.role = 'Role is required';
+    
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'First name is required';
+    } else if (formData.firstName.length < 2) {
+      newErrors.firstName = 'First name must be at least 2 characters';
+    }
+    
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Last name is required';
+    } else if (formData.lastName.length < 2) {
+      newErrors.lastName = 'Last name must be at least 2 characters';
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters long';
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
+    }
+    
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+    
+    if (!formData.role) {
+      newErrors.role = 'Please select a role';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const parseSignupError = (error) => {
+    if (!error.response) {
+      return {
+        type: 'network',
+        message: 'Unable to connect to server. Please check your internet connection and try again.'
+      };
+    }
+
+    const status = error.response.status;
+    const errorMessage = error.response.data?.message?.toLowerCase() || '';
+
+    switch (status) {
+      case 400:
+        // Bad request - validation errors
+        if (errorMessage.includes('email') && errorMessage.includes('already')) {
+          return {
+            type: 'email',
+            message: 'An account with this email already exists'
+          };
+        } else if (errorMessage.includes('password')) {
+          return {
+            type: 'password',
+            message: 'Password does not meet requirements'
+          };
+        } else {
+          return {
+            type: 'validation',
+            message: 'Please check your information and try again'
+          };
+        }
+      case 409:
+        // Conflict - duplicate email
+        return {
+          type: 'email',
+          message: 'An account with this email already exists'
+        };
+      case 429:
+        // Too many requests
+        return {
+          type: 'rate_limit',
+          message: 'Too many signup attempts. Please wait a few minutes and try again.'
+        };
+      case 500:
+        // Server error
+        return {
+          type: 'server',
+          message: 'Server error. Please try again later.'
+        };
+      default:
+        return {
+          type: 'unknown',
+          message: error.response.data?.message || 'Signup failed. Please try again.'
+        };
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -59,15 +146,41 @@ function SignupForm() {
     if (!validateForm()) return;
 
     setIsLoading(true);
+    setGeneralError('');
+    setErrors({});
+
     const { confirmPassword, ...userData } = formData;
 
     try {
       await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users`, userData);
-      setSuccessMessage('Account created successfully! Redirecting to dashboard...');
+      setSuccessMessage('Account created successfully! Logging you in...');
+      
+      // Auto-login after successful signup
       await login(formData.email, formData.password);
-      setTimeout(() => navigate('/dashboard'), 2000);
+      setTimeout(() => navigate('/dashboard'), 1500);
     } catch (error) {
-      setErrors({ form: error.response?.data?.message || 'An error occurred. Please try again.' });
+      console.error('Signup error:', error);
+      
+      const parsedError = parseSignupError(error);
+      
+      switch (parsedError.type) {
+        case 'email':
+          setErrors({ email: parsedError.message });
+          break;
+        case 'password':
+          setErrors({ password: parsedError.message });
+          break;
+        case 'validation':
+          setGeneralError(parsedError.message);
+          break;
+        case 'network':
+        case 'server':
+        case 'rate_limit':
+        case 'unknown':
+        default:
+          setGeneralError(parsedError.message);
+          break;
+      }
     } finally {
       setIsLoading(false);
     }
@@ -81,6 +194,11 @@ function SignupForm() {
           {successMessage}
         </div>
       )}
+      {generalError && (
+        <div className="sup-alert sup-alert-danger">
+          {generalError}
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="sup-form-inner">
         <div className="sup-form-row">
           <div className="sup-form-group">
@@ -92,6 +210,7 @@ function SignupForm() {
               value={formData.firstName}
               onChange={handleChange}
               className={`sup-input ${errors.firstName ? 'sup-input-invalid' : ''}`}
+              placeholder="Enter your first name"
             />
             {errors.firstName && <div className="sup-error">{errors.firstName}</div>}
           </div>
@@ -104,6 +223,7 @@ function SignupForm() {
               value={formData.lastName}
               onChange={handleChange}
               className={`sup-input ${errors.lastName ? 'sup-input-invalid' : ''}`}
+              placeholder="Enter your last name"
             />
             {errors.lastName && <div className="sup-error">{errors.lastName}</div>}
           </div>
@@ -117,6 +237,7 @@ function SignupForm() {
             value={formData.email}
             onChange={handleChange}
             className={`sup-input ${errors.email ? 'sup-input-invalid' : ''}`}
+            placeholder="Enter your email address"
           />
           {errors.email && <div className="sup-error">{errors.email}</div>}
         </div>
@@ -130,11 +251,13 @@ function SignupForm() {
               value={formData.password}
               onChange={handleChange}
               className={`sup-input ${errors.password ? 'sup-input-invalid' : ''}`}
+              placeholder="Create a strong password"
             />
             <button
               type="button"
               onClick={togglePasswordVisibility}
               className="sup-password-toggle"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
@@ -150,6 +273,7 @@ function SignupForm() {
             value={formData.confirmPassword}
             onChange={handleChange}
             className={`sup-input ${errors.confirmPassword ? 'sup-input-invalid' : ''}`}
+            placeholder="Confirm your password"
           />
           {errors.confirmPassword && <div className="sup-error">{errors.confirmPassword}</div>}
         </div>
@@ -162,22 +286,20 @@ function SignupForm() {
             onChange={handleChange}
             className={`sup-select ${errors.role ? 'sup-input-invalid' : ''}`}
           >
-            <option value="">Select a role</option>
-            <option value="agent">Agent</option>
+            <option value="">Select your role</option>
+            <option value="agent">Real Estate Agent</option>
             <option value="buyer">Buyer</option>
             <option value="seller">Seller</option>
           </select>
           {errors.role && <div className="sup-error">{errors.role}</div>}
         </div>
         <button type="submit" className="sup-button" disabled={isLoading}>
-          {isLoading ? 'Signing Up...' : 'Sign Up'}
+          {isLoading ? 'Creating Account...' : 'Create Account'}
         </button>
       </form>
-      {errors.form && (
-        <div className="sup-alert sup-alert-danger">
-          {errors.form}
-        </div>
-      )}
+      <div className="sup-footer">
+        <p>Already have an account? <Link to="/login">Login</Link></p>
+      </div>
     </div>
   );
 }

@@ -2,24 +2,28 @@
 .login-page-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Use vh to ensure full height */
-  background-color: #f9f9f9; /* A light background color */
+  min-height: 100vh;
+  background-color: #f8fafd; /* Match dashboard background */
 }
 
 .login-content-wrapper {
-  flex-grow: 1; /* Ensure it takes up the available space */
+  flex-grow: 1;
   display: flex;
-  justify-content: center; /* Center LoginForm horizontally */
-  align-items: center; /* Center LoginForm vertically */
-  padding: 2rem; /* Add some padding around the content */
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 2rem; /* Increased padding for better spacing */
 }
 
-/* Footer should already be styled from Footer.css, just make sure it's positioned correctly */
-/* Add any additional global styles that you want to apply to the login page here */
-
-/* Responsiveness */
+/* Responsive adjustments */
 @media (max-width: 768px) {
   .login-content-wrapper {
-    padding: 1rem; /* Reduce padding on smaller screens */
+    padding: 2rem 1rem;
   }
 }
+
+@media (max-width: 480px) {
+  .login-content-wrapper {
+    padding: 1.5rem 0.5rem;
+  }
+}
+

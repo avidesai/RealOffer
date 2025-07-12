@@ -7,6 +7,7 @@ import ListingItem from './components/ListingItem';
 import ListingFilterSortBar from './components/ListingFilterSortBar';
 import Pagination from './components/Pagination';
 import CreateListingPackageLogic from './CreateListingPackage/CreateListingPackageLogic';
+import ShareUrl from './MyListingDashboard/components/ListingOverview/components/ShareUrl/ShareUrl';
 import './MyListings.css';
 
 function MyListings() {
@@ -21,6 +22,8 @@ function MyListings() {
   const [filter, setFilter] = useState('active');
   const [sort, setSort] = useState('recent');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareListingUrl, setShareListingUrl] = useState('');
 
   const fetchUserDetails = useCallback(async () => {
     if ((user?._id || user?.id) && token) {
@@ -165,6 +168,11 @@ function MyListings() {
     setLoading(false);
   };
 
+  const handleShareListing = (listing) => {
+    setShareListingUrl(listing.publicUrl);
+    setShowShareModal(true);
+  };
+
   if (loading) {
     return (
       <div className="spinner-container">
@@ -190,7 +198,7 @@ function MyListings() {
             onSearch={handleSearch}
           />
           {currentListings.length > 0 ? currentListings.map(listing => (
-            <ListingItem key={listing._id} listing={listing} onStatusChange={handleStatusChange} />
+            <ListingItem key={listing._id} listing={listing} onStatusChange={handleStatusChange} onShareListing={handleShareListing} />
           )) : <div>No listings found.</div>}
           {pageCount > 1 && (
             <Pagination
@@ -203,6 +211,13 @@ function MyListings() {
       )}
       {showCreateListingModal && (
         <CreateListingPackageLogic onClose={handleCloseModal} addNewListing={addNewListing} />
+      )}
+      {showShareModal && (
+        <ShareUrl
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          url={shareListingUrl}
+        />
       )}
     </div>
   );
