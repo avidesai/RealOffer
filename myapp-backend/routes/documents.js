@@ -35,6 +35,7 @@ router.get('/:id/download', DocumentController.downloadDocument);
 router.post('/propertyListing/:id', DocumentController.uploadDocuments, DocumentController.addDocumentToPropertyListing);
 router.get('/offer/:offerId', DocumentController.getDocumentsByOffer);
 router.get('/:listingId', DocumentController.getDocumentsByListing);
+router.put('/:id', DocumentController.updateDocument);
 router.delete('/:id', DocumentController.deleteDocument);
 
 module.exports = router;

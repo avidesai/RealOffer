@@ -49,7 +49,8 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
         ...documentWorkflow.purchaseAgreement.document,
         category: 'Purchase Agreement',
         status: documentWorkflow.purchaseAgreement.status,
-        critical: true
+        critical: true,
+        sendForSigning: documentWorkflow.purchaseAgreement.sendForSigning !== false
       });
     }
 
@@ -60,7 +61,8 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
           ...req.document,
           category: 'Required',
           status: req.status,
-          critical: req.required
+          critical: req.required,
+          sendForSigning: req.sendForSigning !== false
         });
       }
     });
@@ -71,7 +73,8 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
         ...doc,
         category: 'Additional',
         status: 'uploaded',
-        critical: false
+        critical: false,
+        sendForSigning: doc.sendForSigning === true
       });
     });
 
@@ -138,7 +141,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
       
       // Add information about the simplified workflow
       if (documentWorkflow.signing.recipients.length > 0) {
-        warnings.push('Documents will be sent to the buyer\'s agent first for signature field setup in DocuSign, then forwarded to all recipients for signing. Offer status will be "pending-signatures" until all parties sign, then "pending-review".');
+        warnings.push('Documents will be sent to the buyer\'s agent first for signature setup, then forwarded to all recipients for signing. Status will be "Pending Signatures" until everyone signs, then "Pending Review".');
       }
     }
 
@@ -193,7 +196,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
       <div className="ds-document-section">
         <div className="ds-section-header">
           <h3>
-            {validationAnalysis.canSubmit ? '✅ Ready to Submit' : '⚠️ Issues Need Attention'}
+            {validationAnalysis.canSubmit ? 'Ready to Submit' : 'Issues Need Attention'}
           </h3>
           <p>
             {validationAnalysis.canSubmit 
@@ -250,12 +253,6 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
       <div className="ds-document-section">
         <div className="ds-section-header">
           <h3>Documents ({documentAnalysis.totalDocuments})</h3>
-          <p>
-            {documentAnalysis.totalDocuments === 0 
-              ? 'No documents included with this offer'
-              : `${documentAnalysis.criticalDocuments} critical, ${documentAnalysis.optionalDocuments} additional documents`
-            }
-          </p>
         </div>
         <div className="ds-section-content">
           {documentAnalysis.totalDocuments === 0 ? (
@@ -266,23 +263,6 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
             </div>
           ) : (
             <div className="ds-documents-overview">
-              <div className="ds-document-stats">
-                <div className="ds-stat-card critical">
-                  <span className="ds-stat-number">{documentAnalysis.criticalDocuments}</span>
-                  <span className="ds-stat-label">Critical</span>
-                </div>
-                <div className="ds-stat-card additional">
-                  <span className="ds-stat-number">{documentAnalysis.optionalDocuments}</span>
-                  <span className="ds-stat-label">Additional</span>
-                </div>
-                {documentWorkflow.signing?.docuSignConnected && (
-                  <div className="ds-stat-card docusign">
-                    <span className="ds-stat-number">✓</span>
-                    <span className="ds-stat-label">DocuSign Ready</span>
-                  </div>
-                )}
-              </div>
-
               {/* Document Categories */}
               {documentAnalysis.categorized.agreement.length > 0 && (
                 <div className="ds-document-category">
@@ -339,12 +319,11 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
       {/* Financial Terms */}
       <div className="ds-document-section">
         <div className="ds-section-header">
-          <h3>💰 Financial Terms</h3>
-          <p>Purchase price, financing, and payment details</p>
+          <h3>Financial Terms</h3>
         </div>
         <div className="ds-section-content">
           <div className="ds-summary-grid">
-            <div className="ds-summary-item highlight">
+            <div className="ds-summary-item">
               <span className="ds-summary-label">Purchase Price</span>
               <span className="ds-summary-value primary">${formattedPurchasePrice}</span>
             </div>
@@ -365,7 +344,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
               <span className="ds-summary-value">${formattedDownPayment} ({formData.percentDown}%)</span>
             </div>
             <div className="ds-summary-item">
-              <span className="ds-summary-label">Balance Due</span>
+              <span className="ds-summary-label">Down Payment Balance</span>
               <span className="ds-summary-value">${formattedBalanceOfDownPayment}</span>
             </div>
           </div>
@@ -375,8 +354,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
       {/* Terms & Contingencies */}
       <div className="ds-document-section">
         <div className="ds-section-header">
-          <h3>📋 Terms & Contingencies</h3>
-          <p>Contract terms, contingencies, and important dates</p>
+          <h3>Terms & Contingencies</h3>
         </div>
         <div className="ds-section-content">
           <div className="ds-summary-grid">
@@ -411,16 +389,15 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
       {/* Buyer & Agent Details */}
       <div className="ds-document-section">
         <div className="ds-section-header">
-          <h3>👤 Buyer & Agent Details</h3>
-          <p>Contact information and professional details</p>
+          <h3>Buyer & Agent Details</h3>
         </div>
         <div className="ds-section-content">
           <div className="ds-summary-grid">
-            <div className="ds-summary-item highlight">
+            <div className="ds-summary-item">
               <span className="ds-summary-label">Buyer Name</span>
               <span className="ds-summary-value">{formData.buyerName}</span>
             </div>
-            <div className="ds-summary-item highlight">
+            <div className="ds-summary-item">
               <span className="ds-summary-label">Agent Name</span>
               <span className="ds-summary-value">{formData.presentedBy.name}</span>
             </div>
@@ -447,8 +424,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
       {/* Brokerage Information */}
       <div className="ds-document-section">
         <div className="ds-section-header">
-          <h3>🏢 Brokerage Information</h3>
-          <p>Brokerage details and licensing information</p>
+          <h3>Brokerage Information</h3>
         </div>
         <div className="ds-section-content">
           <div className="ds-summary-grid">
@@ -460,11 +436,11 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
               <span className="ds-summary-label">License</span>
               <span className="ds-summary-value">{formData.brokerageInfo.licenseNumber}</span>
             </div>
-            <div className="ds-summary-item full-width">
+            <div className="ds-summary-item full-width inline">
               <span className="ds-summary-label">Address</span>
               <span className="ds-summary-value">
                 {formData.brokerageInfo.addressLine1}
-                {formData.brokerageInfo.addressLine2 && <><br />{formData.brokerageInfo.addressLine2}</>}
+                {formData.brokerageInfo.addressLine2 && `, ${formData.brokerageInfo.addressLine2}`}
               </span>
             </div>
           </div>
@@ -474,8 +450,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
       {/* Timing & Communication */}
       <div className="ds-document-section">
         <div className="ds-section-header">
-          <h3>⏰ Timing & Communication</h3>
-          <p>Important dates and special messages</p>
+          <h3>Submission and Expiration</h3>
         </div>
         <div className="ds-section-content">
           <div className="ds-summary-grid">
@@ -510,7 +485,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
           onClick={handlePrevStep}
           disabled={isSubmitting}
         >
-          Back to Documents
+          Back
         </button>
         
         <div className="ds-submission-area">

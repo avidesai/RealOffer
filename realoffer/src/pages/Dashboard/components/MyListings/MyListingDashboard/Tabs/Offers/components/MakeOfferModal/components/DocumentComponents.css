@@ -198,6 +198,13 @@
   border-color: #c7d2fe;
 }
 
+.status-badge.status-docusign {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: #ffffff;
+  border-color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+}
+
 .status-badge.status-error {
   background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
   color: #dc2626;

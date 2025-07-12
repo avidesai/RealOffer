@@ -123,12 +123,18 @@ const createEnhancedEnvelope = async (accessToken, envelopeData) => {
     envelope.recipients.signers = [];
     envelope.recipients.agents = [];
     
-    // Process recipients by role
+    // Debug: Log recipients being processed
+    console.log('Processing recipients for DocuSign envelope:', JSON.stringify(envelopeData.recipients, null, 2));
+    
+    // Process recipients by role (check both 'role' and 'type' fields for compatibility)
     envelopeData.recipients.forEach((recipient, index) => {
       const recipientId = (index + 1).toString();
       const routingOrder = recipient.order || (index + 1).toString();
       
-      if (recipient.role === 'agent') {
+      // Check for both 'role' and 'type' fields to handle different frontend formats
+      const recipientRole = recipient.role || recipient.type;
+      
+      if (recipientRole === 'agent' || recipient.type === 'buyer-agent') {
         // Create Agent recipient for field setup
         const agent = new docusign.Agent();
         agent.email = recipient.email;
@@ -212,7 +218,15 @@ const createEnhancedEnvelope = async (accessToken, envelopeData) => {
 
 
     const results = await envelopeApi.createEnvelope('me', { envelopeDefinition: envelope });
-    return results;
+    
+    // Debug: Log the actual response structure
+    console.log('DocuSign envelope creation response:', JSON.stringify(results, null, 2));
+    
+    return {
+      envelopeId: results.envelopeId,
+      status: results.status,
+      ...results
+    };
   } catch (error) {
     console.error('Error creating enhanced DocuSign envelope:', error);
     throw error;
@@ -310,9 +324,13 @@ After field setup, all recipients will automatically receive signing invitations
     });
   } catch (error) {
     console.error('Error sending documents for signing:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Request body:', JSON.stringify(req.body, null, 2));
+    
     res.status(500).json({ 
       message: 'Error sending documents for signing',
-      error: error.message 
+      error: error.message,
+      stack: error.stack
     });
   }
 };

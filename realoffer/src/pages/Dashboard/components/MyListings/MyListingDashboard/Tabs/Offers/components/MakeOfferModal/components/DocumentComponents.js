@@ -65,6 +65,8 @@ export const StatusBadge = ({ status, type = 'default' }) => {
         return { text: '⏳ Pending', className: 'status-pending' };
       case 'available':
         return { text: '📄 Available', className: 'status-available' };
+      case 'send-to-docusign':
+        return { text: 'DocuSign', className: 'status-docusign' };
       case 'error':
       case 'failed':
         return { text: '❌ Error', className: 'status-error' };
@@ -112,11 +114,11 @@ export const DocumentPreview = ({
         <div className="offer-docs-info">
           <span className="offer-docs-title">{document.title}</span>
           <span className="offer-docs-meta">
-            {document.type} • {formatFileSize(document.size)}
+            {document.type}
           </span>
         </div>
         {showStatus && (
-          <StatusBadge status={document.status || 'ready'} />
+          <StatusBadge status={document.sendForSigning ? 'send-to-docusign' : (document.status || 'ready')} />
         )}
       </div>
     );
@@ -130,11 +132,11 @@ export const DocumentPreview = ({
           <div>
             <h5 className="offer-docs-title">{document.title}</h5>
             <p className="offer-docs-meta">
-              {document.type} • {formatFileSize(document.size)}
+              {document.type}
             </p>
           </div>
         </div>
-        {showStatus && <StatusBadge status={document.status || 'ready'} />}
+        {showStatus && <StatusBadge status={document.sendForSigning ? 'send-to-docusign' : (document.status || 'ready')} />}
       </div>
       
       <div className="offer-docs-preview-actions">
