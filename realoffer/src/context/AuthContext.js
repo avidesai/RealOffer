@@ -40,13 +40,15 @@ export const AuthProvider = ({ children }) => {
     const initializeAuth = async () => {
       const storedToken = localStorage.getItem('token');
       const storedUser = JSON.parse(localStorage.getItem('user'));
-      const docusignStatus = localStorage.getItem('docusignConnected') === 'true';
-
+      // Don't trust cached DocuSign status - always verify from server
+      
       if (storedToken && storedUser) {
         console.log('Initializing auth state with stored credentials');
         setToken(storedToken);
         setUser(storedUser);
-        setDocusignConnected(docusignStatus);
+        // Clear cached DocuSign status - will be re-checked when needed
+        setDocusignConnected(false);
+        localStorage.removeItem('docusignConnected');
         api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
         
         // Verify token validity
@@ -60,12 +62,16 @@ export const AuthProvider = ({ children }) => {
             logoutRef.current();
           }
         }
+      } else {
+        // Clear any stale DocuSign status if no valid auth
+        setDocusignConnected(false);
+        localStorage.removeItem('docusignConnected');
       }
       setLoading(false);
     };
 
     initializeAuth();
-  }, []); // No dependencies needed since we're using logoutRef
+  }, []);
 
   const login = async (email, password) => {
     try {
@@ -97,23 +103,37 @@ export const AuthProvider = ({ children }) => {
   const checkDocusignConnection = useCallback(async () => {
     if (!token) {
       console.log('No token available for DocuSign check');
+      setDocusignConnected(false);
+      localStorage.removeItem('docusignConnected');
       return;
     }
 
     try {
       const response = await api.get('/api/docusign/status');
-      const isConnected = response.data.connected;
+      // Backend returns { isConnected: boolean }, not { connected: boolean }
+      const isConnected = response.data?.isConnected;
       
-      setDocusignConnected(isConnected);
-      localStorage.setItem('docusignConnected', isConnected.toString());
+      // Ensure we have a valid boolean value
+      const connectionStatus = typeof isConnected === 'boolean' ? isConnected : false;
       
-      console.log('DocuSign connection status:', isConnected);
+      setDocusignConnected(connectionStatus);
+      localStorage.setItem('docusignConnected', connectionStatus.toString());
+      
+      console.log('DocuSign connection status:', connectionStatus);
+      return connectionStatus;
     } catch (error) {
       console.error('Error checking DocuSign connection:', error);
       setDocusignConnected(false);
       localStorage.removeItem('docusignConnected');
+      return false;
     }
   }, [token]);
+
+  const clearDocusignStatus = useCallback(() => {
+    setDocusignConnected(false);
+    localStorage.removeItem('docusignConnected');
+    console.log('DocuSign status cleared.');
+  }, []);
 
   const value = {
     user,
@@ -124,6 +144,7 @@ export const AuthProvider = ({ children }) => {
     docusignConnected,
     checkDocusignConnection,
     setDocusignConnected,
+    clearDocusignStatus,
   };
 
   return (

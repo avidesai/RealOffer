@@ -52,7 +52,7 @@ const initialOfferState = {
 // Enhanced document workflow state
 const initialDocumentWorkflow = {
   purchaseAgreement: {
-    choice: 'auto_generate', // 'auto_generate' | 'upload_custom' | 'skip_for_now'
+    choice: 'upload', // Changed from 'auto_generate' to 'upload' as default
     document: null,
     status: 'pending', // 'pending' | 'ready' | 'signed'
     canRegenerate: false
@@ -86,7 +86,7 @@ const initialDocumentWorkflow = {
         order: 2
       }
     ],
-    docuSignConnected: false,
+    docuSignConnected: false, // Always default to false - will be checked from server
     status: 'not_configured' // 'not_configured' | 'ready' | 'sent' | 'completed'
   },
   validation: {

@@ -125,23 +125,80 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
   // Check DocuSign connection status
   useEffect(() => {
     const checkConnection = async () => {
+      if (!token) return;
+      
       try {
         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/status`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const data = await response.json();
+        const isConnected = typeof data?.isConnected === 'boolean' ? data.isConnected : false;
+        
         updateDocumentWorkflow(prev => ({
           ...prev,
           signing: {
             ...prev.signing,
-            docuSignConnected: data.isConnected
+            docuSignConnected: isConnected
           }
         }));
       } catch (error) {
         console.error('Error checking DocuSign connection:', error);
+        updateDocumentWorkflow(prev => ({
+          ...prev,
+          signing: {
+            ...prev.signing,
+            docuSignConnected: false
+          }
+        }));
       }
     };
+    
     checkConnection();
+  }, [token, updateDocumentWorkflow]);
+
+  // Listen for DocuSign OAuth callback messages
+  useEffect(() => {
+    const handleMessage = (event) => {
+      // Verify origin for security
+      if (event.origin !== 'https://account-d.docusign.com' && 
+          event.origin !== 'https://demo.docusign.net' &&
+          !event.origin.includes('docusign.com')) {
+        return;
+      }
+      
+      if (event.data?.type === 'DOCUSIGN_OAUTH_CALLBACK') {
+        console.log('DocuSign OAuth callback received');
+        // Re-check connection status after successful OAuth
+        setTimeout(async () => {
+          try {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/status`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            const isConnected = typeof data?.isConnected === 'boolean' ? data.isConnected : false;
+            
+            updateDocumentWorkflow(prev => ({
+              ...prev,
+              signing: {
+                ...prev.signing,
+                docuSignConnected: isConnected,
+                status: isConnected ? 'ready' : 'not_configured'
+              }
+            }));
+          } catch (error) {
+            console.error('Error re-checking DocuSign connection:', error);
+          }
+        }, 1000); // Give the backend time to process the callback
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
   }, [token, updateDocumentWorkflow]);
 
   // Update document requirements when offer data changes
@@ -547,38 +604,44 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
 
   // Connect to DocuSign
   const handleDocuSignConnect = async () => {
+    setLoading(true);
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/auth-url`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      const { authUrl } = await response.json();
       
-      window.open(authUrl, '_blank', 'width=600,height=600');
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
       
-      // Check connection status after a delay
-      setTimeout(() => {
-        const checkConnection = async () => {
-          try {
-            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/status`, {
-              headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
-            updateDocumentWorkflow(prev => ({
-              ...prev,
-              signing: {
-                ...prev.signing,
-                docuSignConnected: data.isConnected,
-                status: data.isConnected ? 'ready' : 'skipped'
-              }
-            }));
-          } catch (error) {
-            console.error('Error checking DocuSign connection:', error);
-          }
-        };
-        checkConnection();
-      }, 3000);
+      const data = await response.json();
+      if (!data.authUrl) {
+        throw new Error('No authorization URL received from server');
+      }
+      
+      // Open DocuSign auth URL in popup
+      const popup = window.open(
+        data.authUrl, 
+        'docusign-auth', 
+        'width=600,height=600,scrollbars=yes,resizable=yes'
+      );
+      
+      if (!popup) {
+        throw new Error('Failed to open popup. Please check your popup blocker settings.');
+      }
+      
+      // Monitor popup closure
+      const checkClosed = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(checkClosed);
+          setLoading(false);
+        }
+      }, 1000);
+      
     } catch (error) {
-      setError('Failed to connect to DocuSign');
+      console.error('Error connecting to DocuSign:', error);
+      setError(`Failed to connect to DocuSign: ${error.message}`);
+      setLoading(false);
     }
   };
 
