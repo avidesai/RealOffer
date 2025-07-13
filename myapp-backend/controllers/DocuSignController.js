@@ -186,11 +186,12 @@ const createEnhancedEnvelope = async (accessToken, envelopeData) => {
     // Debug: Log recipients being processed
     console.log('Processing recipients for DocuSign envelope:', JSON.stringify(envelopeData.recipients, null, 2));
     
+    // Use a counter for unique recipient IDs (DocuSign requires integer or GUID format)
+    let recipientIdCounter = 1;
+    let signerRoutingOrder = 3; // Start buyers at routing order 3 (after agent setup=1 and agent signing=2)
+    
     // Process recipients by role (check both 'role' and 'type' fields for compatibility)
     envelopeData.recipients.forEach((recipient, index) => {
-      const recipientId = (index + 1).toString();
-      const routingOrder = recipient.order || (index + 1).toString();
-      
       // Check for both 'role' and 'type' fields to handle different frontend formats
       const recipientRole = recipient.role || recipient.type;
       
@@ -199,25 +200,29 @@ const createEnhancedEnvelope = async (accessToken, envelopeData) => {
         const agent = new docusign.Agent();
         agent.email = recipient.email;
         agent.name = recipient.name;
-        agent.recipientId = recipientId;
+        agent.recipientId = recipientIdCounter.toString();
         agent.routingOrder = '1'; // Agents always go first for field setup
         envelope.recipients.agents.push(agent);
+        recipientIdCounter++;
         
         // Also add as signer if they need to sign (typically order 2)
         const agentAsSigner = new docusign.Signer();
         agentAsSigner.email = recipient.email;
         agentAsSigner.name = recipient.name;
-        agentAsSigner.recipientId = `${recipientId}_signer`;
+        agentAsSigner.recipientId = recipientIdCounter.toString(); // Use proper integer ID
         agentAsSigner.routingOrder = '2'; // Agent signs after setting up fields
         envelope.recipients.signers.push(agentAsSigner);
+        recipientIdCounter++;
       } else {
         // Create regular Signer recipient
         const signer = new docusign.Signer();
         signer.email = recipient.email;
         signer.name = recipient.name;
-        signer.recipientId = recipientId;
-        signer.routingOrder = (parseInt(routingOrder) + 1).toString(); // Buyers start from order 3
+        signer.recipientId = recipientIdCounter.toString();
+        signer.routingOrder = signerRoutingOrder.toString(); // Buyers start from order 3+ (after agent setup and agent signing)
         envelope.recipients.signers.push(signer);
+        recipientIdCounter++;
+        signerRoutingOrder++;
       }
     });
 

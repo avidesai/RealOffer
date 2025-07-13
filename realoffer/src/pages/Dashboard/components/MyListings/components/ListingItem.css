@@ -51,14 +51,14 @@
 .listing-item-info {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1rem;
 }
 
 .listing-item-title {
   font-size: 1.2rem;
   color: #2c3e50;
   font-weight: 600;
-  margin-bottom: 0.1rem;
+  margin-bottom: 0.05rem;
   line-height: 1;
   letter-spacing: -0.01em;
 }
@@ -118,6 +118,25 @@
   transform: scale(1.02);
 }
 
+.listing-item-button.confirm-archive {
+  background-color: #e74c3c;
+  color: white;
+  border-color: #e74c3c;
+  animation: pulse 1s infinite;
+}
+
+.listing-item-button.confirm-archive:hover {
+  background-color: #c0392b;
+  border-color: #c0392b;
+  transform: scale(1.02);
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
 .listing-item-agents {
   display: flex;
   align-items: center;
@@ -172,19 +191,19 @@
   .listing-item-details {
     height: auto;
     padding-right: 0;
-    padding-top: 1rem;
+    padding-top: 0.5rem;
     padding-bottom: 1rem;
     justify-content: flex-start;
   }
 
   .listing-item-info {
-    margin-bottom: 1.75rem;
+    margin-bottom: 1.25rem;
     text-align: center;
   }
 
   .listing-item-title {
     font-size: 1.2rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
   }
 
   .listing-item-location {
@@ -218,13 +237,13 @@
   }
 
   .listing-item-details {
-    padding-top: 0.75rem;
+    padding-top: 0.4rem;
     padding-bottom: 0.75rem;
     justify-content: flex-start;
   }
 
   .listing-item-info {
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.1rem;
   }
 
   .listing-item-image {
@@ -234,7 +253,7 @@
 
   .listing-item-title {
     font-size: 1.1rem;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.2rem;
   }
 
   .listing-item-location {

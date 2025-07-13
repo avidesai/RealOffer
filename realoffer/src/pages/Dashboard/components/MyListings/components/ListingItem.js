@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../../../context/AuthContext';
 import './ListingItem.css';
 
 function ListingItem({ listing, onStatusChange, onShareListing }) {
   const [agents, setAgents] = useState([]);
   const [status, setStatus] = useState(listing.status);
+  const [isConfirmingArchive, setIsConfirmingArchive] = useState(false);
+  const [confirmationTimeout, setConfirmationTimeout] = useState(null);
   const navigate = useNavigate();
+  const { token } = useAuth();
 
   useEffect(() => {
     const fetchAgents = async () => {
@@ -22,15 +26,53 @@ function ListingItem({ listing, onStatusChange, onShareListing }) {
     fetchAgents();
   }, [listing.agentIds]);
 
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (confirmationTimeout) {
+        clearTimeout(confirmationTimeout);
+      }
+    };
+  }, [confirmationTimeout]);
+
   const handleArchivePackage = async (e) => {
     e.stopPropagation();
-    try {
-      const newStatus = status === 'active' ? 'archived' : 'active';
-      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listing._id}`, { status: newStatus });
-      setStatus(newStatus);
-      onStatusChange(listing._id, newStatus);
-    } catch (error) {
-      console.error(`Error changing package status to ${status === 'active' ? 'archived' : 'active'}:`, error);
+    
+    if (!isConfirmingArchive) {
+      // First click - show confirmation
+      setIsConfirmingArchive(true);
+      
+      // Set timeout to reset confirmation after 3 seconds
+      const timeout = setTimeout(() => {
+        setIsConfirmingArchive(false);
+      }, 3000);
+      setConfirmationTimeout(timeout);
+    } else {
+      // Second click - actually perform the archive
+      try {
+        const newStatus = status === 'active' ? 'archived' : 'active';
+        await axios.put(
+          `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listing._id}`,
+          { status: newStatus },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          }
+        );
+        setStatus(newStatus);
+        onStatusChange(listing._id, newStatus);
+        setIsConfirmingArchive(false);
+        if (confirmationTimeout) {
+          clearTimeout(confirmationTimeout);
+        }
+      } catch (error) {
+        console.error(`Error changing package status to ${status === 'active' ? 'archived' : 'active'}:`, error);
+        setIsConfirmingArchive(false);
+        if (confirmationTimeout) {
+          clearTimeout(confirmationTimeout);
+        }
+      }
     }
   };
 
@@ -63,8 +105,14 @@ function ListingItem({ listing, onStatusChange, onShareListing }) {
           <button className="listing-item-button share" onClick={handleShareListing}>
             Share
           </button>
-          <button className="listing-item-button archive" onClick={handleArchivePackage}>
-            {status === 'active' ? 'Archive' : 'Unarchive'}
+          <button 
+            className={`listing-item-button ${isConfirmingArchive ? 'confirm-archive' : 'archive'}`} 
+            onClick={handleArchivePackage}
+          >
+            {isConfirmingArchive 
+              ? (status === 'active' ? 'Confirm Archive?' : 'Confirm Unarchive?')
+              : (status === 'active' ? 'Archive' : 'Unarchive')
+            }
           </button>
         </div>
       </div>
