@@ -1,6 +1,6 @@
 import React from 'react';
 
-const AdditionalDocumentsSection = ({ documentWorkflow, handleAdditionalDocsUpload, handleRemoveAdditionalDoc }) => {
+const AdditionalDocumentsSection = ({ documentWorkflow, handleAdditionalDocsUpload, handleRemoveAdditionalDoc, loading }) => {
   return (
     <div className="ds-document-section">
       <div className="ds-section-header">
@@ -21,6 +21,7 @@ const AdditionalDocumentsSection = ({ documentWorkflow, handleAdditionalDocsUplo
                   onClick={() => handleRemoveAdditionalDoc(index)}
                   className="ds-remove-document-btn"
                   title="Remove document"
+                  disabled={loading}
                 >
                   ✕
                 </button>
@@ -36,10 +37,15 @@ const AdditionalDocumentsSection = ({ documentWorkflow, handleAdditionalDocsUplo
             onChange={(e) => handleAdditionalDocsUpload(Array.from(e.target.files))}
             className="ds-file-input"
             id="additional-docs-upload"
+            disabled={loading}
           />
-          <label htmlFor="additional-docs-upload" className="ds-upload-label">
-            Choose files (PDF, images)
-          </label>
+          {loading ? (
+            <div className="ds-button-spinner"></div>
+          ) : (
+            <label htmlFor="additional-docs-upload" className="ds-upload-label">
+              Choose files (PDF, images)
+            </label>
+          )}
         </div>
       </div>
     </div>

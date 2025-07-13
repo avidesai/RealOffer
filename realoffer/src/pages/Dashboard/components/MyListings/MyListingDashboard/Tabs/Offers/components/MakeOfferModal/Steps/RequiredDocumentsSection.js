@@ -1,6 +1,6 @@
 import React from 'react';
 
-const RequiredDocumentsSection = ({ requirements, documentWorkflow, handleRequiredDocUpload, handleRemoveRequiredDoc }) => {
+const RequiredDocumentsSection = ({ requirements, documentWorkflow, handleRequiredDocUpload, handleRemoveRequiredDoc, loading }) => {
   return (
     <div className="ds-document-section">
       <div className="ds-section-header">
@@ -28,6 +28,7 @@ const RequiredDocumentsSection = ({ requirements, documentWorkflow, handleRequir
                     onClick={() => handleRemoveRequiredDoc(requirement.type)}
                     className="ds-remove-document-btn"
                     title="Remove document"
+                    disabled={loading}
                   >
                     ✕
                   </button>
@@ -40,10 +41,15 @@ const RequiredDocumentsSection = ({ requirements, documentWorkflow, handleRequir
                     onChange={(e) => handleRequiredDocUpload(requirement.type, e.target.files[0])}
                     className="ds-file-input"
                     id={`required-doc-${requirement.type}`}
+                    disabled={loading}
                   />
-                  <label htmlFor={`required-doc-${requirement.type}`} className="ds-upload-label">
-                    Choose file (PDF, images)
-                  </label>
+                  {loading ? (
+                    <div className="ds-button-spinner"></div>
+                  ) : (
+                    <label htmlFor={`required-doc-${requirement.type}`} className="ds-upload-label">
+                      Choose file (PDF, images)
+                    </label>
+                  )}
                 </div>
               )}
             </div>

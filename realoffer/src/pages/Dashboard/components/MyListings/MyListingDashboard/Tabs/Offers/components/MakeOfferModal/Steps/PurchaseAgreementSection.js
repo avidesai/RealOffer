@@ -116,10 +116,15 @@ const PurchaseAgreementSection = ({
                 onChange={(e) => handlePurchaseAgreementUpload(e.target.files[0])}
                 className="ds-file-input"
                 id="purchase-agreement-upload"
+                disabled={loading}
               />
-              <label htmlFor="purchase-agreement-upload" className="ds-upload-label">
-                Choose PDF file
-              </label>
+              {loading ? (
+                <div className="ds-button-spinner"></div>
+              ) : (
+                <label htmlFor="purchase-agreement-upload" className="ds-upload-label">
+                  Choose file (PDF)
+                </label>
+              )}
             </div>
           )}
         </div>

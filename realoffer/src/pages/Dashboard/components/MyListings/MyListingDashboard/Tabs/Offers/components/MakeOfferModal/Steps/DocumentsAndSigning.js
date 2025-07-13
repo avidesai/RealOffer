@@ -23,7 +23,10 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
   const { user, token } = useAuth();
   
   // Local state
-  const [loading, setLoading] = useState(false);
+  const [purchaseAgreementLoading, setPurchaseAgreementLoading] = useState(false);
+  const [requiredDocsLoading, setRequiredDocsLoading] = useState(false);
+  const [additionalDocsLoading, setAdditionalDocsLoading] = useState(false);
+  const [docuSignLoading, setDocuSignLoading] = useState(false);
   const [error, setError] = useState(null);
   const [listingData, setListingData] = useState({});
   const [agentData, setAgentData] = useState({});
@@ -265,7 +268,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
 
   // Auto-generate purchase agreement
   const handleGenerateAgreement = async () => {
-    setLoading(true);
+    setPurchaseAgreementLoading(true);
     setError(null);
     
     try {
@@ -369,7 +372,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
       console.error('Error generating purchase agreement:', error);
       setError('Failed to generate purchase agreement');
     } finally {
-      setLoading(false);
+      setPurchaseAgreementLoading(false);
     }
   };
 
@@ -377,7 +380,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
   const handlePurchaseAgreementUpload = async (file) => {
     if (!file) return;
     
-    setLoading(true);
+    setPurchaseAgreementLoading(true);
     setError(null);
 
     try {
@@ -424,7 +427,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
       console.error('Error uploading purchase agreement:', error);
       setError('Failed to upload purchase agreement');
     } finally {
-      setLoading(false);
+      setPurchaseAgreementLoading(false);
     }
   };
 
@@ -432,7 +435,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
   const handleRequiredDocUpload = async (requirementType, file) => {
     if (!file) return;
     
-    setLoading(true);
+    setRequiredDocsLoading(true);
     const requirement = requirements.find(req => req.type === requirementType);
 
     try {
@@ -482,7 +485,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
       console.error('Error uploading required document:', error);
       setError(`Failed to upload ${requirement?.title || 'document'}`);
     } finally {
-      setLoading(false);
+      setRequiredDocsLoading(false);
     }
   };
 
@@ -519,7 +522,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
   const handleAdditionalDocsUpload = async (files) => {
     if (!files.length) return;
     
-    setLoading(true);
+    setAdditionalDocsLoading(true);
 
     try {
       const uploadPromises = files.map(async (file) => {
@@ -569,7 +572,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
       console.error('Error uploading additional documents:', error);
       setError('Failed to upload additional documents');
     } finally {
-      setLoading(false);
+      setAdditionalDocsLoading(false);
     }
   };
 
@@ -611,7 +614,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
 
   // Connect to DocuSign
   const handleDocuSignConnect = async () => {
-    setLoading(true);
+    setDocuSignLoading(true);
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/auth-url`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -641,14 +644,14 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
       const checkClosed = setInterval(() => {
         if (popup.closed) {
           clearInterval(checkClosed);
-          setLoading(false);
+          setDocuSignLoading(false);
         }
       }, 1000);
       
     } catch (error) {
       console.error('Error connecting to DocuSign:', error);
       setError(`Failed to connect to DocuSign: ${error.message}`);
-      setLoading(false);
+      setDocuSignLoading(false);
     }
   };
 
@@ -747,6 +750,9 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
     }
   }, [validation.canProceed, handleNextStep]);
 
+  // Check if any section is loading
+  const isAnyLoading = purchaseAgreementLoading || requiredDocsLoading || additionalDocsLoading || docuSignLoading;
+
   return (
     <div className="ds-modal-step">
       <div className="ds-offer-modal-header">
@@ -768,7 +774,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
         handlePurchaseAgreementUpload={handlePurchaseAgreementUpload}
         handleRemovePurchaseAgreement={handleRemovePurchaseAgreement}
         handleGenerateAgreement={handleGenerateAgreement}
-        loading={loading}
+        loading={purchaseAgreementLoading}
       />
 
       {/* Section 2: Required Documents */}
@@ -777,6 +783,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
         documentWorkflow={documentWorkflow}
         handleRequiredDocUpload={handleRequiredDocUpload}
         handleRemoveRequiredDoc={handleRemoveRequiredDoc}
+        loading={requiredDocsLoading}
       />
 
       {/* Section 3: Additional Documents */}
@@ -784,6 +791,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
         documentWorkflow={documentWorkflow}
         handleAdditionalDocsUpload={handleAdditionalDocsUpload}
         handleRemoveAdditionalDoc={handleRemoveAdditionalDoc}
+        loading={additionalDocsLoading}
       />
 
       {/* Section 4: Electronic Signatures */}
@@ -792,7 +800,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
         signableDocuments={signableDocuments}
         documentWorkflow={documentWorkflow}
         toggleDocumentSigning={toggleDocumentSigning}
-        loading={loading}
+        loading={docuSignLoading}
         handleDocuSignConnect={handleDocuSignConnect}
         offerData={offerData}
         updateDocumentWorkflow={updateDocumentWorkflow}
@@ -814,13 +822,13 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
       )}
 
         <div className="ds-button-container">
-        <button className="ds-step-back-button" onClick={handlePrevStep} disabled={loading}>
+        <button className="ds-step-back-button" onClick={handlePrevStep} disabled={isAnyLoading}>
             Back
           </button>
           <button
             className="ds-next-button"
           onClick={handleNext} 
-          disabled={loading || !validation.canProceed}
+          disabled={isAnyLoading || !validation.canProceed}
           >
             Next
           </button>

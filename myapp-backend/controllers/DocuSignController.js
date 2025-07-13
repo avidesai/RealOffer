@@ -226,27 +226,36 @@ const createEnhancedEnvelope = async (accessToken, envelopeData) => {
       }
     });
 
-    // Add eventNotification for webhook callbacks
-    envelope.eventNotification = new docusign.EventNotification();
-    envelope.eventNotification.url = `${process.env.BACKEND_URL}/api/docusign/webhook`;
-    envelope.eventNotification.requireAcknowledgment = 'true';
-    envelope.eventNotification.useSoapInterface = 'false';
-    envelope.eventNotification.soapNameSpace = '';
-    envelope.eventNotification.includeCertificateWithSoap = 'false';
-    envelope.eventNotification.signMessageWithX509Cert = 'false';
-    envelope.eventNotification.includeDocuments = 'true';
-    envelope.eventNotification.includeEnvelopeVoidReason = 'true';
-    envelope.eventNotification.includeTimeZone = 'true';
-    envelope.eventNotification.includeSenderAccountAsCustomField = 'true';
-    envelope.eventNotification.includeDocumentFields = 'false';
-    envelope.eventNotification.includeCertificateOfCompletion = 'false';
+    // Add eventNotification for webhook callbacks only if HTTPS is available
+    const backendUrl = process.env.BACKEND_URL || '';
+    const isHttps = backendUrl.startsWith('https://');
     
-    // Configure envelope events to monitor
-    envelope.eventNotification.envelopeEvents = [
-      { envelopeEventStatusCode: 'completed' },
-      { envelopeEventStatusCode: 'declined' },
-      { envelopeEventStatusCode: 'voided' }
-    ];
+    if (isHttps) {
+      envelope.eventNotification = new docusign.EventNotification();
+      envelope.eventNotification.url = `${backendUrl}/api/docusign/webhook`;
+      envelope.eventNotification.requireAcknowledgment = 'true';
+      envelope.eventNotification.useSoapInterface = 'false';
+      envelope.eventNotification.soapNameSpace = '';
+      envelope.eventNotification.includeCertificateWithSoap = 'false';
+      envelope.eventNotification.signMessageWithX509Cert = 'false';
+      envelope.eventNotification.includeDocuments = 'true';
+      envelope.eventNotification.includeEnvelopeVoidReason = 'true';
+      envelope.eventNotification.includeTimeZone = 'true';
+      envelope.eventNotification.includeSenderAccountAsCustomField = 'true';
+      envelope.eventNotification.includeDocumentFields = 'false';
+      envelope.eventNotification.includeCertificateOfCompletion = 'false';
+      
+      // Configure envelope events to monitor
+      envelope.eventNotification.envelopeEvents = [
+        { envelopeEventStatusCode: 'completed' },
+        { envelopeEventStatusCode: 'declined' },
+        { envelopeEventStatusCode: 'voided' }
+      ];
+      
+      console.log('DocuSign webhook configured for HTTPS backend:', envelope.eventNotification.url);
+    } else {
+      console.log('Skipping DocuSign webhook configuration - HTTPS required but backend URL is HTTP:', backendUrl);
+    }
 
     // Add custom fields for tracking
     envelope.customFields = new docusign.CustomFields();

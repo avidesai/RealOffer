@@ -178,12 +178,71 @@
   background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
   text-align: center;
   transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .ds-upload-area:hover {
   border-color: #9ca3af;
   background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
 }
+
+/* Simple spinner to replace buttons during loading */
+.ds-button-spinner {
+  border: 2px solid rgba(74, 144, 226, 0.2);
+  border-top: 2px solid #4a90e2;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: ds-button-spin 0.8s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes ds-button-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Generation Areas */
+.ds-generation-area {
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+
+
+/* Required Documents Loading Overlay */
+.ds-required-document {
+  padding: 1.25rem;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  margin-bottom: 1.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+
+
+/* Smart Drop Zone Loading */
+.smart-drop-zone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 16px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+
 
 .ds-file-input {
   display: none;
@@ -206,19 +265,6 @@
   background: linear-gradient(135deg, #357abd 0%, #2c5282 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(74, 144, 226, 0.35);
-}
-
-
-
-
-
-/* Generation Areas */
-.ds-generation-area {
-  text-align: center;
-  padding: 2rem;
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-  border: 1px solid #bbf7d0;
-  border-radius: 10px;
 }
 
 .ds-generation-info {
@@ -260,15 +306,6 @@
 .ds-generation-actions {
   margin-top: 1rem;
   text-align: center;
-}
-
-/* Required Documents */
-.ds-required-document {
-  padding: 1.25rem;
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 10px;
-  margin-bottom: 1.25rem;
 }
 
 .ds-document-header {

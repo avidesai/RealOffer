@@ -312,14 +312,22 @@ export const SmartDropZone = ({
   suggestions = [], 
   autoDetectType = false,
   placeholder = "Drag files here or click to upload",
-  accept = "application/pdf,image/*"
+  accept = "application/pdf,image/*",
+  loading = false
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
 
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragOver(false);
+    if (loading) return;
     const files = Array.from(e.dataTransfer.files);
+    onDrop(files, autoDetectType);
+  };
+
+  const handleFileSelect = (e) => {
+    if (loading) return;
+    const files = Array.from(e.target.files);
     onDrop(files, autoDetectType);
   };
 
@@ -328,16 +336,24 @@ export const SmartDropZone = ({
       className={`smart-drop-zone ${isDragOver ? 'drag-over' : ''}`}
       onDragOver={(e) => {
         e.preventDefault();
-        setIsDragOver(true);
+        if (!loading) setIsDragOver(true);
       }}
       onDragLeave={() => setIsDragOver(false)}
       onDrop={handleDrop}
-      onClick={() => document.getElementById('smart-file-input').click()}
+      onClick={() => {
+        if (!loading) document.getElementById('smart-file-input').click();
+      }}
     >
       <div className="drop-zone-content">
         <span className="drop-zone-icon">📁</span>
         <p className="drop-zone-text">{placeholder}</p>
-        <button className="docs-clp-button">Choose Files</button>
+        {loading ? (
+          <div className="ds-button-spinner"></div>
+        ) : (
+          <button className="docs-clp-button">
+            Choose Files
+          </button>
+        )}
       </div>
       
       <input
@@ -346,10 +362,8 @@ export const SmartDropZone = ({
         multiple
         accept={accept}
         style={{ display: 'none' }}
-        onChange={(e) => {
-          const files = Array.from(e.target.files);
-          onDrop(files, autoDetectType);
-        }}
+        onChange={handleFileSelect}
+        disabled={loading}
       />
     </div>
   );
