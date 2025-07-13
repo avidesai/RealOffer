@@ -47,6 +47,9 @@ app.use(cors(corsOptions));
 // Handle preflight requests
 app.options('*', cors(corsOptions));
 
+// Stripe webhook needs raw body, so we handle it before JSON parsing
+app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
+
 // JSON body parsing middleware
 app.use(express.json());
 
@@ -141,6 +144,7 @@ const messagesRouter = require('./routes/messages');
 const docusignRouter = require('./routes/docusign');
 const documentAnalysisRouter = require('./routes/documentAnalysis');
 const propertyAnalysisRouter = require('./routes/propertyAnalysis');
+const stripeRouter = require('./routes/stripe');
 
 // Route Usage
 app.use('/api/users', usersRouter);
@@ -153,6 +157,7 @@ app.use('/api/messages', messagesRouter);
 app.use('/api/docusign', docusignRouter);
 app.use('/api/document-analysis', documentAnalysisRouter);
 app.use('/api/property-analysis', propertyAnalysisRouter);
+app.use('/api/stripe', stripeRouter);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

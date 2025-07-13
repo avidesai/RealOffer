@@ -166,6 +166,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
     documentWorkflow.requirements.documents,
     documentWorkflow.additional.documents,
     documentWorkflow.signing?.docuSignConnected,
+    documentWorkflow.signing?.recipients,
     documentAnalysis.totalDocuments
   ]);
 

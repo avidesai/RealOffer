@@ -375,6 +375,13 @@
   color: #4a5568;
 }
 
+.upgrade-billing-note {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
 .upgrade-payment-form {
   width: 100%;
   margin-bottom: 2.2rem;
@@ -580,4 +587,47 @@
 
 body {
   background: #f6f8fb;
+}
+
+/* Stripe Elements Styling */
+.stripe-card-element-container {
+  background: #f7fafd;
+  border: 1.5px solid #dbeafe;
+  border-radius: 7px;
+  padding: 0.7rem 1rem;
+  margin-bottom: 0.9rem;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.stripe-card-element-container:focus-within {
+  border-color: #4078fb;
+  box-shadow: 0 2px 8px rgba(64,120,251,0.10);
+}
+
+.stripe-card-element {
+  /* The CardElement will inherit the container styles */
+}
+
+.stripe-payment-form {
+  width: 100%;
+}
+
+.payment-error {
+  color: #e53e3e;
+  background: #fed7d7;
+  border: 1px solid #feb2b2;
+  border-radius: 7px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.payment-success {
+  color: #38a169;
+  background: #c6f6d5;
+  border: 1px solid #9ae6b4;
+  border-radius: 7px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
 }

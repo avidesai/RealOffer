@@ -10,6 +10,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@mui/material": "^5.15.15",
+    "@stripe/react-stripe-js": "^3.7.0",
     "@stripe/stripe-js": "^4.1.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",

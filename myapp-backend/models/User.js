@@ -45,6 +45,16 @@ const userSchema = new mongoose.Schema({
     docusignTokenExpiry: { type: Date },
     docusignAccountId: { type: String },
     docusignUserId: { type: String },
+    
+    // Stripe integration fields
+    stripeCustomerId: { type: String },
+    stripeSubscriptionId: { type: String },
+    stripeSubscriptionStatus: { type: String, enum: ['active', 'canceled', 'incomplete', 'incomplete_expired', 'past_due', 'trialing', 'unpaid'] },
+    subscriptionCurrentPeriodStart: { type: Date },
+    subscriptionCurrentPeriodEnd: { type: Date },
+    subscriptionCancelAtPeriodEnd: { type: Boolean, default: false },
+    paymentMethodId: { type: String },
+    trialEnd: { type: Date },
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {

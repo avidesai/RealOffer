@@ -275,7 +275,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       console.error('Error creating offer:', error);
       // You might want to show an error message to the user here
     }
-  }, [offerData, listingId, onClose, handleResetOffer, token, documentWorkflow]);
+  }, [offerData, listingId, onClose, handleResetOffer, token, documentWorkflow, updateDocumentWorkflow]);
 
   useEffect(() => {
     const downPayment = parseNumber(offerData.downPayment);

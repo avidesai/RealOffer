@@ -94,10 +94,7 @@ export const DocumentPreview = ({
   showStatus = false,
   compact = false
 }) => {
-  const formatFileSize = (bytes) => {
-    if (!bytes) return 'Unknown size';
-    return bytes > 1024 ? `${Math.round(bytes / 1024)}KB` : `${bytes}B`;
-  };
+
 
   const getDocumentIcon = (document) => {
     if (document.type?.toLowerCase().includes('pdf')) return '📄';
