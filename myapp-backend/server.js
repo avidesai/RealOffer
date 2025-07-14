@@ -11,6 +11,24 @@ const cors = require('cors');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const app = express();
 
+// --- Content Security Policy for Stripe ---
+app.use((req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    [
+      "default-src 'self';",
+      "script-src 'self' https://js.stripe.com https://m.stripe.network;",
+      "frame-src 'self' https://js.stripe.com https://m.stripe.network;",
+      "connect-src 'self' https://api.stripe.com https://m.stripe.network;",
+      "style-src 'self' 'unsafe-inline' https://js.stripe.com;",
+      "img-src 'self' data: https://js.stripe.com https://m.stripe.network;",
+      "font-src 'self' https://js.stripe.com;",
+      "object-src 'none';"
+    ].join(' ')
+  );
+  next();
+});
+
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
