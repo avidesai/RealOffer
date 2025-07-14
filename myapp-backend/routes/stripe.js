@@ -14,6 +14,9 @@ router.get('/subscription', authMiddleware, StripeController.getSubscription);
 router.put('/subscription', authMiddleware, StripeController.updateSubscription);
 router.delete('/subscription', authMiddleware, StripeController.cancelSubscription);
 
+// Customer Portal routes
+router.post('/create-portal-session', authMiddleware, StripeController.createPortalSession);
+
 // Payment intent routes
 router.post('/payment-intent', authMiddleware, StripeController.createPaymentIntent);
 

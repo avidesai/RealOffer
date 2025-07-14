@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import Profile from './pages/Dashboard/pages/Profile/Profile';
 import MyListingDashboard from './pages/Dashboard/components/MyListings/MyListingDashboard/MyListingDashboard';
 import UpgradeToPro from './pages/Dashboard/pages/UpgradeToPro/UpgradeToPro';
+import ManageSubscription from './pages/Dashboard/pages/ManageSubscription/ManageSubscription';
 import { useAuth } from './context/AuthContext'; // Import useAuth hook
 import './App.css'; // Your global styles
 
@@ -72,6 +73,7 @@ function App() {
           <Route path="/profile" element={<PrivateRoute element={Profile} />} />
           <Route path="/mylisting/:id" element={<PrivateRoute element={MyListingDashboard} />} />
           <Route path="/upgrade" element={<PrivateRoute element={UpgradeToPro} />} />
+          <Route path="/dashboard/manage-subscription" element={<PrivateRoute element={ManageSubscription} />} />
           {/* DocuSign Callback Route */}
           <Route path="/docusign/callback" element={<PrivateRoute element={Dashboard} />} />
         </Routes>

@@ -194,34 +194,62 @@ exports.getSubscription = async (req, res) => {
 // Cancel subscription
 exports.cancelSubscription = async (req, res) => {
   try {
+    const { subscriptionId } = req.body;
     const { id } = req.user;
-    const { immediately = false } = req.body;
     
     const user = await User.findById(id);
     if (!user || !user.stripeSubscriptionId) {
       return res.status(404).json({ message: 'No subscription found' });
     }
 
-    let subscription;
-    if (immediately) {
-      subscription = await stripe.subscriptions.del(user.stripeSubscriptionId);
-    } else {
-      subscription = await stripe.subscriptions.update(user.stripeSubscriptionId, {
-        cancel_at_period_end: true,
-      });
+    // Verify the subscription belongs to this user
+    if (user.stripeSubscriptionId !== subscriptionId) {
+      return res.status(403).json({ message: 'Unauthorized' });
     }
+
+    const subscription = await stripe.subscriptions.update(subscriptionId, {
+      cancel_at_period_end: true,
+    });
 
     // Update user in database
     await User.findByIdAndUpdate(id, {
       stripeSubscriptionStatus: subscription.status,
       subscriptionCancelAtPeriodEnd: subscription.cancel_at_period_end,
-      isPremium: immediately ? false : user.isPremium // Keep premium until period end if not immediate
+      isPremium: true // Keep premium until period end
     });
 
     res.json({ subscription });
   } catch (error) {
     console.error('Cancel subscription error:', error);
     res.status(500).json({ message: 'Error canceling subscription', error: error.message });
+  }
+};
+
+// Create Stripe Customer Portal session
+exports.createPortalSession = async (req, res) => {
+  try {
+    const { customerId, returnUrl } = req.body;
+    const { id } = req.user;
+    
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Verify the customer belongs to this user
+    if (user.stripeCustomerId !== customerId) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    const session = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: returnUrl,
+    });
+
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error('Create portal session error:', error);
+    res.status(500).json({ message: 'Error creating portal session', error: error.message });
   }
 };
 

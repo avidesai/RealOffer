@@ -1,0 +1,290 @@
+/* ManageSubscription.css */
+
+/* --- Card Shadow & Border --- */
+.subscription-container {
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 8px 32px rgba(27, 92, 243, 0.13), 0 2px 8px rgba(0,0,0,0.08);
+  border: 1.5px solid #e3e8f0;
+  padding: 3rem 2.5rem 2.5rem 2.5rem;
+  margin: 3.5rem auto 3.5rem auto;
+  max-width: 900px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.subscription-title {
+  font-size: 2.1rem;
+  font-weight: 800;
+  margin-bottom: 2.5rem;
+  text-align: center;
+  color: #2c3e50;
+  letter-spacing: -1px;
+}
+
+.subscription-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.subscription-section {
+  width: 100%;
+}
+
+.subscription-section h3 {
+  font-size: 1.18rem;
+  font-weight: 700;
+  margin-bottom: 1.3rem;
+  color: #23272f;
+  padding-bottom: 0.5rem;
+  border-bottom: 1.5px solid #e2e8f0;
+  letter-spacing: -0.5px;
+}
+
+.error-message {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-message button {
+  background: none;
+  border: none;
+  color: #721c24;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.plan-card {
+  background: #f7fafd;
+  border: 1px solid #e3e8f0;
+  border-radius: 16px;
+  padding: 1.7rem 1.5rem 1.2rem 1.5rem;
+  transition: box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(27, 92, 243, 0.04);
+}
+
+.plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.1rem;
+}
+
+.plan-header h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+}
+
+/* --- Status Badge (Unified with Profile) --- */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.22rem 0.95rem 0.22rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.98rem;
+  font-weight: 600;
+  background: linear-gradient(90deg, #1b5cf3 0%, #4078fb 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(27, 92, 243, 0.10);
+  border: none;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+.status-badge .badge-icon {
+  display: inline-block;
+  font-size: 1.1em;
+  margin-right: 0.3em;
+  vertical-align: middle;
+}
+.status-active {
+  background: linear-gradient(90deg, #1b5cf3 0%, #4078fb 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(27, 92, 243, 0.10);
+  border: none;
+}
+.status-canceled {
+  background: #f8d7da;
+  color: #721c24;
+  box-shadow: none;
+  border: 1.2px solid #f5c6cb;
+}
+.status-past-due {
+  background: #fff3cd;
+  color: #856404;
+  box-shadow: none;
+  border: 1.2px solid #ffeaa7;
+}
+.status-trialing {
+  background: #d1ecf1;
+  color: #0c5460;
+  box-shadow: none;
+  border: 1.2px solid #bee5eb;
+}
+.status-unknown {
+  background: #f8f9fa;
+  color: #6c757d;
+  box-shadow: none;
+  border: 1.2px solid #e3e8f0;
+}
+
+.plan-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e9ecef;
+  font-size: 1.01rem;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row span:first-child {
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.detail-row span:last-child {
+  color: #2c3e50;
+}
+
+.detail-row.warning {
+  background: #fff3cd;
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  border: 1px solid #ffeaa7;
+}
+
+.detail-row.warning span {
+  color: #856404;
+  font-weight: 500;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  margin-top: 1.2rem;
+}
+
+.manage-button {
+  padding: 1.1rem 2.2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.08rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 220px;
+  box-shadow: 0 2px 4px rgba(27, 92, 243, 0.08);
+}
+
+.manage-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.manage-button.primary {
+  background: linear-gradient(90deg, #1b5cf3 0%, #4078fb 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(27, 92, 243, 0.13);
+}
+
+.manage-button.primary:hover:not(:disabled) {
+  background: linear-gradient(90deg, #1544b2 0%, #3460c8 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(27, 92, 243, 0.18);
+}
+
+.manage-button.danger {
+  background: #fff;
+  color: #dc3545;
+  border: 1.5px solid #dc3545;
+}
+
+.manage-button.danger:hover:not(:disabled) {
+  background: #dc3545;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.13);
+}
+
+.subscription-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: 1rem;
+}
+
+.loading-spinner {
+  border: 3px solid rgba(27, 92, 243, 0.1);
+  border-top: 3px solid #1b5cf3;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 1024px) {
+  .subscription-container {
+    padding: 2rem 1.2rem 1.2rem 1.2rem;
+    max-width: 98vw;
+  }
+}
+
+@media (max-width: 700px) {
+  .subscription-container {
+    padding: 1.1rem 0.2rem 1.1rem 0.2rem;
+    border-radius: 14px;
+    margin: 1.2rem 0 1.2rem 0;
+  }
+  .subscription-title {
+    font-size: 1.3rem;
+    margin-bottom: 1.2rem;
+  }
+  .plan-card {
+    padding: 1.1rem 0.7rem 0.7rem 0.7rem;
+    border-radius: 10px;
+  }
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.7rem;
+    margin-top: 1rem;
+  }
+  .manage-button {
+    min-width: 0;
+    width: 100%;
+    font-size: 1rem;
+    padding: 1rem 0.5rem;
+  }
+} 

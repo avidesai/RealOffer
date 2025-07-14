@@ -8,7 +8,7 @@ import './ProfileHeader.css';
 import logo from '../../../../../../../src/assets/images/logo.svg';
 import avatar from '../../../../../../../src/assets/images/avatar.svg';
 
-function ProfileHeader() {
+function ProfileHeader({ backDestination = '/dashboard' }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [userData, setUserData] = useState({});
@@ -29,7 +29,7 @@ function ProfileHeader() {
   };
 
   const onBackClick = () => {
-    navigate('/dashboard');
+    navigate(backDestination);
   };
 
   useEffect(() => {
@@ -68,7 +68,7 @@ function ProfileHeader() {
           onClick={() => navigate('/dashboard')}
         />
         <button className="back-to-dashboard" onClick={onBackClick}>
-          &larr; Back to Dashboard
+          &larr; Back to {backDestination === '/dashboard' ? 'Dashboard' : 'Profile'}
         </button>
       </div>
 

@@ -39,14 +39,19 @@ const Profile = () => {
 
   return (
     <>
-      <ProfileHeader />
+      <ProfileHeader backDestination="/dashboard" />
       <div className="profile-background">
         <div className="profile-container">
           <h2 className="profile-title">Profile</h2>
           <div className="profile-content">
-            <div className="profile-section">
-              <h3>Profile Information</h3>
-              <div className="profile-form">
+            {/* Row 1: Profile Info Section Title / Brokerage Info Section Title */}
+            <div className="profile-grid-row">
+              <div className="profile-grid-cell"><h3>Agent Information</h3></div>
+              <div className="profile-grid-cell"><h3>Brokerage Information</h3></div>
+            </div>
+            {/* Row 2: Profile Photo / Agency Photo */}
+            <div className="profile-grid-row">
+              <div className="profile-grid-cell">
                 <div className="form-group">
                   <label htmlFor="profilePhotoUrl" className='photo-text'>Profile Photo</label>
                   <div className="upload-container">
@@ -60,23 +65,79 @@ const Profile = () => {
                   </div>
                   {isUploading.profilePhotoUrl && <div className="input-spinner"></div>}
                 </div>
+              </div>
+              <div className="profile-grid-cell">
                 <div className="form-group">
-                  <label>Account Status</label>
-                  <div className={`pro-status ${profileData.isPremium ? 'enabled' : 'disabled'}`}>
-                    {profileData.isPremium ? 'Pro Account' : 'Free Account'}
+                  <label htmlFor="agencyImage" className='photo-text'>Agency Photo</label>
+                  <div className="upload-container">
+                    <img src={profileData.agencyImage} alt="" className="agency-photo" />
+                    <input
+                      type="file"
+                      id="agencyImage"
+                      className="upload-input"
+                      onChange={(e) => handlePhotoUpload(e, 'agencyImage')}
+                    />
                   </div>
-                  {!profileData.isPremium && (
+                  {isUploading.agencyImage && <div className="input-spinner"></div>}
+                </div>
+              </div>
+            </div>
+            {/* Row 3: Account Status (with button) / empty */}
+            <div className="profile-grid-row">
+              <div className="profile-grid-cell">
+                <div className="account-status-section">
+                  <div className="account-status-row">
+                    {profileData.isPremium ? (
+                      <span className="pro-status">
+                        <span className="pro-icon" role="img" aria-label="Pro">⭐</span>
+                        Pro Account
+                      </span>
+                    ) : (
+                      <span className="pro-status disabled">
+                        Free Account
+                      </span>
+                    )}
+                  </div>
+                  {profileData.isPremium ? (
+                    <button className="profile-manage-subscription-btn" onClick={handleManageSubscription}>
+                      Manage Subscription
+                    </button>
+                  ) : (
                     <button className="profile-upgrade-btn" onClick={handleUpgradeClick}>
                       Upgrade to Pro
                     </button>
                   )}
                 </div>
+              </div>
+              <div className="profile-grid-cell"></div>
+            </div>
+            {/* Row 4: Role / Agency Name */}
+            <div className="profile-grid-row">
+              <div className="profile-grid-cell">
                 <div className="form-group">
                   <label>Role</label>
                   <div className="role-display">
                     {capitalize(profileData.role)}
                   </div>
                 </div>
+              </div>
+              <div className="profile-grid-cell">
+                <div className="form-group">
+                  <label htmlFor="agencyName">Name</label>
+                  <input
+                    type="text"
+                    id="agencyName"
+                    value={profileData.agencyName || ''}
+                    onChange={handleInputChange}
+                    className="form-control"
+                  />
+                  {updating.agencyName && <div className="input-spinner"></div>}
+                </div>
+              </div>
+            </div>
+            {/* Row 5: First Name / License Number */}
+            <div className="profile-grid-row">
+              <div className="profile-grid-cell">
                 <div className="form-group">
                   <label htmlFor="firstName">First Name</label>
                   <input
@@ -88,6 +149,24 @@ const Profile = () => {
                   />
                   {updating.firstName && <div className="input-spinner"></div>}
                 </div>
+              </div>
+              <div className="profile-grid-cell">
+                <div className="form-group">
+                  <label htmlFor="brokerageLicenseNumber">License Number</label>
+                  <input
+                    type="text"
+                    id="brokerageLicenseNumber"
+                    value={profileData.brokerageLicenseNumber || ''}
+                    onChange={handleInputChange}
+                    className="form-control"
+                  />
+                  {updating.brokerageLicenseNumber && <div className="input-spinner"></div>}
+                </div>
+              </div>
+            </div>
+            {/* Row 6: Last Name / Phone Number */}
+            <div className="profile-grid-row">
+              <div className="profile-grid-cell">
                 <div className="form-group">
                   <label htmlFor="lastName">Last Name</label>
                   <input
@@ -99,6 +178,31 @@ const Profile = () => {
                   />
                   {updating.lastName && <div className="input-spinner"></div>}
                 </div>
+              </div>
+              <div className="profile-grid-cell">
+                <div className="form-group">
+                  <label htmlFor="brokeragePhoneNumber">Phone Number</label>
+                  <InputMask
+                    mask="(999) 999-9999"
+                    value={profileData.brokeragePhoneNumber || ''}
+                    onChange={handleInputChange}
+                  >
+                    {(inputProps) => (
+                      <input
+                        {...inputProps}
+                        type="text"
+                        id="brokeragePhoneNumber"
+                        className="form-control"
+                      />
+                    )}
+                  </InputMask>
+                  {updating.brokeragePhoneNumber && <div className="input-spinner"></div>}
+                </div>
+              </div>
+            </div>
+            {/* Row 7: Email / Agency Address Line 1 */}
+            <div className="profile-grid-row">
+              <div className="profile-grid-cell">
                 <div className="form-group">
                   <label>Email</label>
                   <div className="email-group">
@@ -107,6 +211,24 @@ const Profile = () => {
                   </div>
                   {updating.email && <div className="input-spinner"></div>}
                 </div>
+              </div>
+              <div className="profile-grid-cell">
+                <div className="form-group">
+                  <label htmlFor="agencyAddressLine1">Address Line 1</label>
+                  <input
+                    type="text"
+                    id="agencyAddressLine1"
+                    value={profileData.agencyAddressLine1 || ''}
+                    onChange={handleInputChange}
+                    className="form-control"
+                  />
+                  {updating.agencyAddressLine1 && <div className="input-spinner"></div>}
+                </div>
+              </div>
+            </div>
+            {/* Row 8: License Number / Agency Address Line 2 */}
+            <div className="profile-grid-row">
+              <div className="profile-grid-cell">
                 <div className="form-group">
                   <label htmlFor="agentLicenseNumber">License Number</label>
                   <input
@@ -127,6 +249,24 @@ const Profile = () => {
                     I do not have a real estate license number
                   </label>
                 </div>
+              </div>
+              <div className="profile-grid-cell">
+                <div className="form-group">
+                  <label htmlFor="agencyAddressLine2">Address Line 2</label>
+                  <input
+                    type="text"
+                    id="agencyAddressLine2"
+                    value={profileData.agencyAddressLine2 || ''}
+                    onChange={handleInputChange}
+                    className="form-control"
+                  />
+                  {updating.agencyAddressLine2 && <div className="input-spinner"></div>}
+                </div>
+              </div>
+            </div>
+            {/* Row 9: Phone / Agency Website */}
+            <div className="profile-grid-row">
+              <div className="profile-grid-cell">
                 <div className="form-group">
                   <label htmlFor="phone">Phone Number</label>
                   <InputMask
@@ -145,119 +285,8 @@ const Profile = () => {
                   </InputMask>
                   {updating.phone && <div className="input-spinner"></div>}
                 </div>
-                <div className="form-group">
-                  <label htmlFor="addressLine1">Address Line 1</label>
-                  <input
-                    type="text"
-                    id="addressLine1"
-                    value={profileData.addressLine1 || ''}
-                    onChange={handleInputChange}
-                    className="form-control"
-                  />
-                  {updating.addressLine1 && <div className="input-spinner"></div>}
-                </div>
-                <div className="form-group">
-                  <label htmlFor="addressLine2">Address Line 2</label>
-                  <input
-                    type="text"
-                    id="addressLine2"
-                    value={profileData.addressLine2 || ''}
-                    onChange={handleInputChange}
-                    className="form-control"
-                  />
-                  {updating.addressLine2 && <div className="input-spinner"></div>}
-                </div>
-                <div className="form-group">
-                  <label htmlFor="homepage">Website</label>
-                  <input
-                    type="text"
-                    id="homepage"
-                    value={profileData.homepage || ''}
-                    onChange={handleInputChange}
-                    className="form-control"
-                  />
-                  {updating.homepage && <div className="input-spinner"></div>}
-                </div>
               </div>
-            </div>
-            <div className="profile-section">
-              <h3>Brokerage Information</h3>
-              <div className="profile-form">
-                <div className="form-group">
-                  <label htmlFor="agencyImage" className='photo-text'>Agency Photo</label>
-                  <div className="upload-container">
-                    <img src={profileData.agencyImage} alt="" className="agency-photo" />
-                    <input
-                      type="file"
-                      id="agencyImage"
-                      className="upload-input"
-                      onChange={(e) => handlePhotoUpload(e, 'agencyImage')}
-                    />
-                  </div>
-                  {isUploading.agencyImage && <div className="input-spinner"></div>}
-                </div>
-                <div className="form-group">
-                  <label htmlFor="agencyName">Name</label>
-                  <input
-                    type="text"
-                    id="agencyName"
-                    value={profileData.agencyName || ''}
-                    onChange={handleInputChange}
-                    className="form-control"
-                  />
-                  {updating.agencyName && <div className="input-spinner"></div>}
-                </div>
-                <div className="form-group">
-                  <label htmlFor="brokerageLicenseNumber">License Number</label>
-                  <input
-                    type="text"
-                    id="brokerageLicenseNumber"
-                    value={profileData.brokerageLicenseNumber || ''}
-                    onChange={handleInputChange}
-                    className="form-control"
-                  />
-                  {updating.brokerageLicenseNumber && <div class="input-spinner"></div>}
-                </div>
-                <div className="form-group">
-                  <label htmlFor="brokeragePhoneNumber">Phone Number</label>
-                  <InputMask
-                    mask="(999) 999-9999"
-                    value={profileData.brokeragePhoneNumber || ''}
-                    onChange={handleInputChange}
-                  >
-                    {(inputProps) => (
-                      <input
-                        {...inputProps}
-                        type="text"
-                        id="brokeragePhoneNumber"
-                        className="form-control"
-                      />
-                    )}
-                  </InputMask>
-                  {updating.brokeragePhoneNumber && <div className="input-spinner"></div>}
-                </div>
-                <div className="form-group">
-                  <label htmlFor="agencyAddressLine1">Address Line 1</label>
-                  <input
-                    type="text"
-                    id="agencyAddressLine1"
-                    value={profileData.agencyAddressLine1 || ''}
-                    onChange={handleInputChange}
-                    className="form-control"
-                  />
-                  {updating.agencyAddressLine1 && <div className="input-spinner"></div>}
-                </div>
-                <div className="form-group">
-                  <label htmlFor="agencyAddressLine2">Address Line 2</label>
-                  <input
-                    type="text"
-                    id="agencyAddressLine2"
-                    value={profileData.agencyAddressLine2 || ''}
-                    onChange={handleInputChange}
-                    className="form-control"
-                  />
-                  {updating.agencyAddressLine2 && <div className="input-spinner"></div>}
-                </div>
+              <div className="profile-grid-cell">
                 <div className="form-group">
                   <label htmlFor="agencyWebsite">Brokerage Website</label>
                   <input
@@ -271,28 +300,62 @@ const Profile = () => {
                 </div>
               </div>
             </div>
+            {/* Row 10: Address Line 1 / empty */}
+            <div className="profile-grid-row">
+              <div className="profile-grid-cell">
+                <div className="form-group">
+                  <label htmlFor="addressLine1">Address Line 1</label>
+                  <input
+                    type="text"
+                    id="addressLine1"
+                    value={profileData.addressLine1 || ''}
+                    onChange={handleInputChange}
+                    className="form-control"
+                  />
+                  {updating.addressLine1 && <div className="input-spinner"></div>}
+                </div>
+              </div>
+              <div className="profile-grid-cell"></div>
+            </div>
+            {/* Row 11: Address Line 2 / empty */}
+            <div className="profile-grid-row">
+              <div className="profile-grid-cell">
+                <div className="form-group">
+                  <label htmlFor="addressLine2">Address Line 2</label>
+                  <input
+                    type="text"
+                    id="addressLine2"
+                    value={profileData.addressLine2 || ''}
+                    onChange={handleInputChange}
+                    className="form-control"
+                  />
+                  {updating.addressLine2 && <div className="input-spinner"></div>}
+                </div>
+              </div>
+              <div className="profile-grid-cell"></div>
+            </div>
+            {/* Row 12: Website / empty */}
+            <div className="profile-grid-row">
+              <div className="profile-grid-cell">
+                <div className="form-group">
+                  <label htmlFor="homepage">Website</label>
+                  <input
+                    type="text"
+                    id="homepage"
+                    value={profileData.homepage || ''}
+                    onChange={handleInputChange}
+                    className="form-control"
+                  />
+                  {updating.homepage && <div className="input-spinner"></div>}
+                </div>
+              </div>
+              <div className="profile-grid-cell"></div>
+            </div>
           </div>
-          <div className="profile-upgrade-to-pro-actions">
-            {profileData.isPremium ? (
-              <button 
-                className="profile-manage-subscription-btn"
-                onClick={handleManageSubscription}
-              >
-                Manage Subscription
-              </button>
-            ) : (
-              <button 
-                className="profile-upgrade-to-pro-btn"
-                onClick={handleUpgradeClick}
-              >
-                Upgrade to Pro
-              </button>
-            )}
-          </div>
+          <EditEmailModal isOpen={isEmailModalOpen} onClose={() => setEmailModalOpen(false)} />
         </div>
+        <Footer />
       </div>
-      <Footer />
-      <EditEmailModal isOpen={isEmailModalOpen} onClose={() => setEmailModalOpen(false)} />
     </>
   );
 }

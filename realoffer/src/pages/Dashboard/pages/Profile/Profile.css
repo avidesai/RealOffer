@@ -1,60 +1,120 @@
 /* Profile.css */
 
-body {
-  background-color: #f4f4f4;
-}
-
-.profile-background {
-  padding: 3rem 1.5rem;
-  min-height: calc(100vh - 60px);
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-}
-
+/* --- Card Shadow & Border --- */
 .profile-container {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 2rem;
-  background-color: #fff;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 8px 32px rgba(27, 92, 243, 0.13), 0 2px 8px rgba(0,0,0,0.08);
+  border: 1.5px solid #e3e8f0;
+  padding: 3rem 2.5rem 2.5rem 2.5rem;
+  margin: 3.5rem auto 3.5rem auto;
+  max-width: 900px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
 }
 
 .profile-title {
-  font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 2rem;
+  font-size: 2.1rem;
+  font-weight: 800;
+  margin-bottom: 2.5rem;
   text-align: center;
-  color: #2d3748;
+  color: #2c3e50;
+  letter-spacing: -1px;
 }
 
+/* --- Account Status Pill --- */
+.account-status-section {
+  margin-bottom: 1.5rem;
+}
+
+.account-status-row {
+  margin-bottom: 0.7rem;
+}
+
+.pro-status {
+  font-size: 0.93rem;
+  padding: 0.18rem 0.8rem 0.18rem 0.6rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4a90e2 0%, #357abd 100%);
+  color: #fff;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  box-shadow: none;
+}
+
+.pro-status .pro-icon {
+  font-size: 1em;
+  margin-right: 0.2em;
+}
+
+.pro-status.disabled {
+  background: #f5f6fa;
+  color: #7b7e8c;
+  border: 1.2px solid #e3e8f0;
+  box-shadow: none;
+  font-weight: 500;
+}
+
+/* --- Button Placement --- */
+.profile-manage-subscription-btn {
+  margin-top: 0.7rem;
+  padding: 0.85rem 1.5rem;
+  font-size: 1.05rem;
+  border-radius: 8px;
+  width: auto;
+  min-width: 180px;
+}
+
+/* --- Section Alignment --- */
+/* --- Grid Layout for Profile Content --- */
 .profile-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 6rem;
+  align-items: start;
+}
+
+.profile-grid-row {
+  display: contents;
+}
+
+.profile-grid-cell {
   display: flex;
-  justify-content: space-between;
-  gap: 2rem;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .profile-section {
-  width: 48%;
+  width: 100%;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  border: none;
+  display: block;
 }
 
 .profile-section h3 {
-  font-size: 1.35rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  color: #2d3748;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid #e2e8f0;
+  font-size: 1.18rem;
+  font-weight: 700;
+  margin-bottom: 1.3rem;
+  color: #23272f;
+  padding-bottom: 0.5rem;
+  border-bottom: 1.5px solid #e2e8f0;
+  letter-spacing: -0.5px;
 }
 
 .profile-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.15rem;
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   position: relative;
 }
 
@@ -71,21 +131,22 @@ input[type="email"],
 .upload-input,
 .form-control {
   width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1.5px solid #e2e8f0;
+  padding: 0.875rem 1rem;
+  border: 1px solid #dee2e6;
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.2s ease;
   background-color: #fff;
   color: #2d3748;
+  box-sizing: border-box;
 }
 
 input[type="text"]:focus,
 input[type="email"]:focus,
 .form-control:focus {
   outline: none;
-  border-color: #4299e1;
-  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
 }
 
 .upload-container {
@@ -95,8 +156,8 @@ input[type="email"]:focus,
 }
 
 .upload-button {
-  padding: 0.75rem 1.5rem;
-  background-color: #4299e1;
+  padding: 0.875rem 1.5rem;
+  background-color: #007bff;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -107,8 +168,9 @@ input[type="email"]:focus,
 }
 
 .upload-button:hover {
-  background-color: #3182ce;
+  background-color: #0056b3;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
 }
 
 .profile-photo,
@@ -125,24 +187,34 @@ input[type="email"]:focus,
 .profile-checkbox-label {
   display: flex;
   align-items: center;
-  margin-top: 0.75rem;
-  font-weight: normal;
-  font-size: 0.9rem;
-  color: #4a5568;
-  gap: 1rem;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #495057;
+  cursor: pointer;
+  user-select: none;
 }
 
 .profile-checkbox-label input[type="checkbox"] {
-  width: 1.25rem;
-  height: 1.25rem;
-  border-radius: 4px;
-  border: 1.5px solid #e2e8f0;
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1.5px solid #bfc9d8;
+  accent-color: #1b5cf3;
   cursor: pointer;
+  margin: 0;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+  transition: box-shadow 0.15s;
+}
+
+.profile-checkbox-label input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #b3d4fc;
 }
 
 .input-spinner {
-  border: 3px solid rgba(66, 153, 225, 0.1);
-  border-top: 3px solid #4299e1;
+  border: 3px solid rgba(0, 123, 255, 0.1);
+  border-top: 3px solid #007bff;
   border-radius: 50%;
   width: 24px;
   height: 24px;
@@ -156,10 +228,10 @@ input[type="email"]:focus,
 .email-group {
   display: flex;
   align-items: center;
-  background-color: #f8fafc;
-  padding: 0.75rem 1rem;
+  background-color: #f8f9fa;
+  padding: 0.875rem 1rem;
   border-radius: 8px;
-  border: 1.5px solid #e2e8f0;
+  border: 1px solid #dee2e6;
 }
 
 .email-display {
@@ -170,7 +242,7 @@ input[type="email"]:focus,
 
 .edit-button {
   padding: 0.5rem 1.25rem;
-  background-color: #4299e1;
+  background-color: #007bff;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -181,36 +253,57 @@ input[type="email"]:focus,
 }
 
 .edit-button:hover {
-  background-color: #3182ce;
+  background-color: #0056b3;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
 }
 
 .role-display {
-  padding: 0.75rem 1rem;
-  background-color: #f8fafc;
+  padding: 0.875rem 1rem;
+  background-color: #f8f9fa;
   border-radius: 8px;
   color: #4a5568;
-  border: 1.5px solid #e2e8f0;
+  border: 1px solid #dee2e6;
 }
 
-.pro-status {
-  padding: 0.75rem 1rem;
+/* Subscription Management Buttons */
+.profile-upgrade-btn,
+.profile-manage-subscription-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 1.1rem 2.2rem;
+  border: none;
   border-radius: 8px;
-  text-align: center;
-  font-weight: 500;
+  cursor: pointer;
+  font-size: 1.08rem;
+  font-weight: 700;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(27, 92, 243, 0.08);
+  min-width: 220px;
 }
 
-.pro-status.enabled {
-  background-color: #c6f6d5;
-  color: #2f855a;
-  border: 1.5px solid #9ae6b4;
+.profile-upgrade-btn {
+  background: linear-gradient(90deg, #1b5cf3 0%, #4078fb 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(27, 92, 243, 0.13);
 }
 
-.pro-status.disabled {
-  background-color: #edf2f7;
-  color: #718096;
-  border: 1.5px solid #e2e8f0;
+.profile-upgrade-btn:hover {
+  background: linear-gradient(90deg, #1544b2 0%, #3460c8 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(27, 92, 243, 0.18);
+}
+
+.profile-manage-subscription-btn {
+  background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.13);
+}
+
+.profile-manage-subscription-btn:hover {
+  background: linear-gradient(90deg, #0056b3 0%, #004085 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.18);
 }
 
 @keyframes spin {
@@ -220,93 +313,57 @@ input[type="email"]:focus,
 
 @media (max-width: 1024px) {
   .profile-container {
-    max-width: 85%;
-    padding: 1.75rem;
+    padding: 2rem 1.2rem 1.2rem 1.2rem;
+    max-width: 98vw;
+  }
+  
+  .profile-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem 0;
+  }
+  .profile-grid-cell {
+    margin-bottom: 1.2rem;
+  }
+  
+  .profile-title {
+    font-size: 1.5rem;
+  }
+  .profile-manage-subscription-btn {
+    float: none;
+    width: 100%;
+    margin-bottom: 1.2rem;
   }
 }
 
 @media (max-width: 768px) {
-  .profile-background {
-    padding: 2rem 1rem;
-  }
-  
   .profile-container {
-    padding: 1.5rem;
+    padding: 1.1rem 0.2rem 1.1rem 0.2rem;
+    border-radius: 14px;
+    margin: 1.2rem 0 1.2rem 0;
   }
   
-  .profile-content {
-    flex-direction: column;
-    gap: 1.5rem;
+  .profile-title {
+    font-size: 1.3rem;
+    margin-bottom: 1.2rem;
   }
   
-  .profile-section {
+  .profile-upgrade-btn,
+  .profile-manage-subscription-btn {
+    min-width: 0;
     width: 100%;
+    font-size: 1rem;
+    padding: 1rem 0.5rem;
+    float: none;
   }
 }
 
-.profile-subscription-actions {
-  margin-top: 2.5rem;
-  padding-top: 2rem;
-  border-top: 2px solid #e2e8f0;
-  display: flex;
-  justify-content: center;
-}
-
-.upgrade-to-pro-button,
-.manage-subscription-button {
-  padding: 0.875rem 2rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  min-width: 200px;
-}
-
-.upgrade-to-pro-button {
-  background-color: #4299e1;
-  color: white;
-}
-
-.upgrade-to-pro-button:hover {
-  background-color: #3182ce;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.2);
-}
-
-.manage-subscription-button {
-  background-color: #f7fafc;
-  color: #4a5568;
-  border: 1.5px solid #e2e8f0;
-}
-
-.manage-subscription-button:hover {
-  background-color: #edf2f7;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.profile-upgrade-btn {
-  margin-top: 1rem;
-  padding: 0.7rem 1.4rem;
-  background: linear-gradient(135deg, #9b2ae2 0%, #4078fb 100%);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 12px rgba(155, 42, 226, 0.2);
-  width: 100%;
-}
-
-.profile-upgrade-btn:hover {
-  background: linear-gradient(135deg, #8423c1 0%, #3460c8 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(155, 42, 226, 0.3);
+@media (max-width: 900px) {
+  .profile-content {
+    grid-template-columns: 1fr;
+    gap: 0.8rem 0;
+  }
+  .profile-grid-cell {
+    margin-bottom: 0.7rem;
+  }
 }
 
