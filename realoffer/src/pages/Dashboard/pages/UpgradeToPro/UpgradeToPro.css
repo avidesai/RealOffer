@@ -1,251 +1,106 @@
+/* --- General Layout --- */
 .upgrade-page {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   font-family: 'Inter', sans-serif;
-}
-
-.upgrade-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem;
-  flex: 1;
-}
-
-.upgrade-title {
-  font-size: 1.8rem;
-  text-align: center;
-  margin-bottom: 0.8rem;
-}
-
-.upgrade-description {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  font-size: 1rem;
-  color: #555;
-}
-
-.upgrade-content {
-  display: flex;
-  justify-content: space-between;
-  gap: 1.5rem;
-}
-
-.benefits-section {
-  width: 45%;
-}
-
-.benefits-section h2 {
-  font-size: 1.4rem;
-  margin-bottom: 1rem;
-}
-
-.benefits-section h3 {
-  font-size: 1.2rem;
-  margin-top: 2rem;
-  margin-bottom: 1.2rem;
-}
-
-.benefits-section ul {
-  list-style: none;
-  padding: 0;
-  margin-bottom: 1.2rem;
-}
-
-.benefits-section li {
-  margin-bottom: 1rem;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: #333;
-}
-
-.subscription-section {
-  width: 48%;
-}
-
-.plan-section,
-.payment-section,
-.promotion-section,
-.terms-section,
-.enroll-section {
-  margin-bottom: 2rem;
-}
-
-.plan-section h2,
-.payment-section h2,
-.promotion-section h2 {
-  font-size: 1.4rem;
-  margin-bottom: 0.8rem;
-}
-
-.plan-section label {
-  display: block;
-  margin-bottom: 0.4rem;
-  font-size: 0.95rem;
-  cursor: pointer;
-  color: #333;
-}
-
-.discount-tag {
-  background-color: #28a745;
-  color: white;
-  padding: 0.25rem 0.4rem;
-  border-radius: 5px;
-  margin-left: 0.4rem;
-  font-size: 0.8rem;
-}
-
-.payment-section label {
-  display: block;
-  margin-bottom: 0.4rem;
-  font-size: 0.95rem;
-  color: #555;
-}
-
-.payment-section input {
-  width: 100%;
-  padding: 0.6rem;
-  margin-bottom: 0.8rem;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 0.95rem;
-}
-
-.expiration-cvc {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.8rem;
-}
-
-.billing-address h3 {
-  font-size: 1.1rem;
-  margin-bottom: 0.8rem;
-  color: #333;
-}
-
-.city-state-zip {
-  display: flex;
-  justify-content: space-between;
-  gap: 2.5rem;
-}
-
-.city-state-zip div {
-  flex: 1;
-}
-
-.promotion-section {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.promotion-section input {
-  flex: 1;
-  padding: 0.6rem;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 0.95rem;
-}
-
-.redeem-button {
-  padding: 0.6rem 1rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 0.95rem;
-}
-
-.redeem-button:hover {
-  background-color: #0056b3;
-}
-
-.terms-section label {
-  font-size: 0.875rem;
-  color: #555;
-}
-
-.terms-section a {
-  color: #007bff;
-  text-decoration: none;
-}
-
-.terms-section a:hover {
-  text-decoration: underline;
-}
-
-.enroll-section {
-  text-align: center;
-}
-
-.enroll-section p {
-  margin-bottom: 0.5rem;
-  font-size: 0.95rem;
-  color: #555;
-}
-
-.enroll-button {
-  width: 100%;
-  padding: 0.8rem;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-top: 1rem;
-}
-
-.enroll-button:hover {
-  background-color: #218838;
+  background: #f7fafd;
 }
 
 .upgrade-hero {
   text-align: center;
-  margin: 3rem 0 4rem 0;
+  margin: 2.5rem 0 2.5rem 0;
 }
-
 .upgrade-hero-title {
-  font-size: 2.5rem;
+  font-size: 2.3rem;
   font-weight: 800;
   color: #23272f;
-  margin-bottom: 0.7rem;
+  margin-bottom: 0.5rem;
   letter-spacing: -1px;
 }
-
 .upgrade-hero-subtitle {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   color: #4a5568;
-  margin-bottom: 0.5rem;
-  padding: 0 2.5rem;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 600px;
+  margin: 0 auto;
   text-align: center;
 }
 
 .upgrade-main-content {
   display: flex;
   flex-direction: row;
-  gap: 3.5rem;
+  gap: 2.5rem;
   justify-content: center;
   align-items: flex-start;
-  max-width: 1300px;
-  margin: 0 auto 3.5rem auto;
+  max-width: 1200px;
+  margin: 0 auto 3rem auto;
   width: 100%;
 }
 
+/* --- Feature Cards --- */
 .upgrade-features-card {
   flex: 1.2 1 0;
   min-width: 340px;
-  max-width: 600px;
-  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+  max-width: 520px;
   background: none;
   box-shadow: none;
 }
+.upgrade-features-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #23272f;
+  text-align: left;
+  margin-left: 0.5rem;
+}
+.upgrade-features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem 1.2rem;
+}
+.upgrade-feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.3rem 1.1rem;
+  box-shadow: 0 2px 12px rgba(64,120,251,0.07);
+  border: 1.5px solid #f0f4fa;
+  transition: box-shadow 0.2s, transform 0.2s, border 0.2s;
+  min-height: 120px;
+}
+.upgrade-feature-item:hover {
+  box-shadow: 0 8px 32px rgba(64,120,251,0.13);
+  border: 1.5px solid #b3d1fa;
+  transform: translateY(-2px) scale(1.03);
+}
+.upgrade-feature-icon {
+  color: #4078fb;
+  background: #eaf1ff;
+  border-radius: 50%;
+  padding: 0.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  min-height: 36px;
+  width: 36px;
+  height: 36px;
+}
+.upgrade-feature-title {
+  font-weight: 600;
+  font-size: 1.08rem;
+  color: #23272f;
+  margin-bottom: 0.5rem;
+}
+.upgrade-feature-desc {
+  color: #4a5568;
+  font-size: 0.97rem;
+  margin-top: 0;
+}
 
+/* --- Subscribe Card --- */
 .upgrade-subscribe-card {
   flex: 1 1 0;
   min-width: 320px;
@@ -253,100 +108,47 @@
   background: #fff;
   border-radius: 18px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.07);
-  padding: 2.5rem 2.2rem 2.2rem 2.2rem;
+  padding: 2.2rem 2rem 2rem 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.upgrade-features-title {
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: 2.2rem;
-  color: #23272f;
-  text-align: left;
-  margin-left: 0.5rem;
-}
-
-.upgrade-features-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.7rem 1.5rem;
-}
-
-.upgrade-feature-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  background: #fff;
-  border-radius: 14px;
-  padding: 1.5rem 1.2rem;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  border: 1.5px solid #f0f4fa;
-  transition: box-shadow 0.2s, transform 0.2s, border 0.2s;
-  min-height: 140px;
-}
-
-.upgrade-feature-item:hover {
-  box-shadow: 0 8px 32px rgba(64,120,251,0.13);
-  border: 1.5px solid #b3d1fa;
-  transform: translateY(-2px) scale(1.03);
-}
-
-.upgrade-feature-icon {
-  color: #4078fb;
-  background: #eaf1ff;
-  border-radius: 50%;
-  padding: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 32px;
-  min-height: 32px;
-  width: 32px;
-  height: 32px;
-}
-
-.upgrade-feature-title {
-  font-weight: 600;
-  font-size: 1.08rem;
-  color: #23272f;
-  margin-bottom: 0.85rem;
-}
-
-.upgrade-feature-desc {
-  color: #4a5568;
-  font-size: 0.98rem;
-  margin-top: 0;
-}
-
+/* --- Plan Toggle --- */
 .upgrade-plan-toggle {
   display: flex;
   gap: 1.2rem;
   margin-bottom: 1.7rem;
   justify-content: center;
-}
-
-.plan-btn {
   background: #f7fafd;
-  border: 1.5px solid #dbeafe;
+  border-radius: 8px;
+  padding: 0.3rem;
+}
+.upgrade-plan-toggle.modern-toggle {
+  background: #f7fafd;
+  border-radius: 8px;
+  padding: 0.3rem;
+  box-shadow: 0 1px 4px rgba(64,120,251,0.04);
+}
+.plan-btn {
+  background: none;
+  border: none;
   color: #23272f;
   font-weight: 600;
   font-size: 1.08rem;
-  border-radius: 8px;
+  border-radius: 7px;
   padding: 0.7rem 1.5rem;
   cursor: pointer;
   transition: all 0.2s;
   outline: none;
+  position: relative;
 }
-
 .plan-btn.active, .plan-btn:focus {
   background: linear-gradient(90deg, #4078fb 0%, #9b2ae2 100%);
   color: #fff;
-  border-color: #4078fb;
+  border: none;
   box-shadow: 0 2px 8px rgba(64,120,251,0.10);
 }
-
 .discount-badge {
   background: #28a745;
   color: #fff;
@@ -356,72 +158,42 @@
   margin-left: 0.5rem;
 }
 
+/* --- Price Row --- */
 .upgrade-price-row {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
-  margin-bottom: 2.2rem;
+  margin-bottom: 1.2rem;
   justify-content: center;
 }
-
 .upgrade-price {
   font-size: 2.2rem;
   font-weight: 800;
   color: #23272f;
 }
-
 .upgrade-price-desc {
   font-size: 1.1rem;
   color: #4a5568;
 }
-
 .upgrade-billing-note {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem;
   color: #6b7280;
-  font-size: 0.9rem;
+  font-size: 0.93rem;
 }
 
-.upgrade-payment-form {
-  width: 100%;
-  margin-bottom: 2.2rem;
-}
-
-.upgrade-payment-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-}
-
-.upgrade-payment-row {
-  display: flex;
-  gap: 0.7rem;
-}
-
-.upgrade-input {
-  background: #f7fafd;
-  border: 1.5px solid #dbeafe;
-  border-radius: 7px;
-  padding: 0.7rem 1rem;
-  font-size: 1rem;
-  color: #23272f;
-  outline: none;
-  transition: border 0.2s, box-shadow 0.2s;
-  width: 100%;
-}
-
-.upgrade-input:focus {
-  border-color: #4078fb;
-  box-shadow: 0 2px 8px rgba(64,120,251,0.10);
-}
-
+/* --- Coupon Row --- */
 .upgrade-coupon-row {
   display: flex;
   align-items: center;
   gap: 0.7rem;
-  margin: 1.2rem 0 0.7rem 0;
+  margin: 1.1rem 0 0.7rem 0;
+  width: 100%;
 }
-
+.coupon-input {
+  flex: 1;
+  min-width: 0;
+}
 .upgrade-coupon-btn {
   background: linear-gradient(90deg, #4078fb 0%, #9b2ae2 100%);
   color: #fff;
@@ -433,32 +205,100 @@
   cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s;
 }
-
 .upgrade-coupon-btn:hover {
   background: linear-gradient(90deg, #3460c8 0%, #8423c1 100%);
   box-shadow: 0 2px 8px rgba(155,42,226,0.10);
 }
-
 .coupon-success {
   color: #28a745;
   font-weight: 600;
   margin-left: 0.5rem;
 }
-
 .coupon-error {
   color: #dc3545;
   font-weight: 600;
   margin-left: 0.5rem;
 }
 
+/* --- Stripe Elements Styling --- */
+.stripe-card-element-container {
+  background: #f7fafd;
+  border: 1.5px solid #dbeafe;
+  border-radius: 7px;
+  padding: 0.7rem 1rem;
+  margin-bottom: 0.9rem;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.stripe-card-element-container:focus-within {
+  border-color: #4078fb;
+  box-shadow: 0 2px 8px rgba(64,120,251,0.10);
+}
+.stripe-card-element {
+  /* The CardElement will inherit the container styles */
+}
+.stripe-payment-form {
+  width: 100%;
+}
+
+/* --- Form Fields --- */
+.upgrade-payment-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  width: 100%;
+}
+.upgrade-payment-row {
+  display: flex;
+  gap: 0.7rem;
+}
+.upgrade-input {
+  background: #f7fafd;
+  border: 1.5px solid #dbeafe;
+  border-radius: 7px;
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  color: #23272f;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+.upgrade-input:focus {
+  border-color: #4078fb;
+  box-shadow: 0 2px 8px rgba(64,120,251,0.10);
+}
+
+/* --- Error/Success Messages --- */
+.payment-error {
+  color: #e53e3e;
+  background: #fed7d7;
+  border: 1px solid #feb2b2;
+  border-radius: 7px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.97rem;
+  width: 100%;
+  text-align: center;
+}
+.payment-success {
+  color: #38a169;
+  background: #c6f6d5;
+  border: 1px solid #9ae6b4;
+  border-radius: 7px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.97rem;
+  width: 100%;
+  text-align: center;
+}
+
+/* --- Terms & Button --- */
 .upgrade-terms-row {
-  margin: 1.5rem 0 0.7rem 0;
+  margin: 1.2rem 0 0.7rem 0;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: flex-start;
 }
-
 .upgrade-terms-label {
   font-size: 0.97rem;
   color: #4a5568;
@@ -468,7 +308,6 @@
   flex-wrap: wrap;
   width: 100%;
 }
-
 .upgrade-terms-label input[type="checkbox"] {
   margin-right: 0.7rem;
   margin-left: 0.1rem;
@@ -476,14 +315,12 @@
   width: 1.1em;
   height: 1.1em;
 }
-
 .upgrade-terms-label a {
   color: #4078fb;
   text-decoration: underline;
   margin: 0 0.2rem;
   font-weight: 500;
 }
-
 .upgrade-enroll-btn {
   width: 100%;
   padding: 1.1rem;
@@ -498,35 +335,32 @@
   box-shadow: 0 2px 8px rgba(64,120,251,0.10);
   transition: background 0.2s, box-shadow 0.2s;
 }
-
 .upgrade-enroll-btn:hover {
   background: linear-gradient(90deg, #3460c8 0%, #8423c1 100%);
   box-shadow: 0 4px 16px rgba(155,42,226,0.13);
 }
 
+/* --- Summary --- */
 .upgrade-summary {
-  margin-top: 2.7rem;
+  margin-top: 2.2rem;
   width: 100%;
   background: #f7fafd;
   border-radius: 14px;
-  padding: 1.5rem 1.7rem;
+  padding: 1.2rem 1.5rem;
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
   border: 1.5px solid #e0e8f3;
 }
-
 .upgrade-summary h3 {
   font-size: 1.08rem;
   font-weight: 700;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.1rem;
   color: #23272f;
 }
-
 .upgrade-summary ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-
 .upgrade-summary li {
   display: flex;
   align-items: center;
@@ -535,15 +369,15 @@
   color: #23272f;
   margin-bottom: 0.7rem;
 }
-
 .upgrade-summary-check {
   color: #28a745;
 }
 
+/* --- Responsive --- */
 @media (max-width: 1100px) {
   .upgrade-main-content {
     flex-direction: column;
-    gap: 2.7rem;
+    gap: 2.2rem;
     align-items: stretch;
     max-width: 98vw;
   }
@@ -552,11 +386,10 @@
     margin: 0 auto;
   }
 }
-
 @media (max-width: 700px) {
   .upgrade-main-content {
     flex-direction: column;
-    gap: 2.7rem;
+    gap: 2.2rem;
     align-items: stretch;
     max-width: 100vw;
   }
@@ -565,7 +398,7 @@
     padding: 1rem 0.2rem;
   }
   .upgrade-hero-title {
-    font-size: 2rem;
+    font-size: 1.5rem;
   }
   .upgrade-features-title {
     text-align: center;
@@ -573,7 +406,7 @@
   }
   .upgrade-features-grid {
     grid-template-columns: 1fr;
-    gap: 1.2rem;
+    gap: 1.1rem;
   }
   .upgrade-terms-label {
     flex-direction: column;
@@ -583,51 +416,4 @@
   .upgrade-terms-row {
     margin-bottom: 1.1rem;
   }
-}
-
-body {
-  background: #f6f8fb;
-}
-
-/* Stripe Elements Styling */
-.stripe-card-element-container {
-  background: #f7fafd;
-  border: 1.5px solid #dbeafe;
-  border-radius: 7px;
-  padding: 0.7rem 1rem;
-  margin-bottom: 0.9rem;
-  transition: border 0.2s, box-shadow 0.2s;
-}
-
-.stripe-card-element-container:focus-within {
-  border-color: #4078fb;
-  box-shadow: 0 2px 8px rgba(64,120,251,0.10);
-}
-
-.stripe-card-element {
-  /* The CardElement will inherit the container styles */
-}
-
-.stripe-payment-form {
-  width: 100%;
-}
-
-.payment-error {
-  color: #e53e3e;
-  background: #fed7d7;
-  border: 1px solid #feb2b2;
-  border-radius: 7px;
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-}
-
-.payment-success {
-  color: #38a169;
-  background: #c6f6d5;
-  border: 1px solid #9ae6b4;
-  border-radius: 7px;
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
 }

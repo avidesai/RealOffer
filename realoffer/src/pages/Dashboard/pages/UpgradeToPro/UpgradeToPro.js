@@ -6,19 +6,20 @@ import StripeWrapper from './components/StripeWrapper';
 import StripePaymentForm from './components/StripePaymentForm';
 import api from '../../../../context/api';
 import './UpgradeToPro.css';
-import { CheckCircle, Zap, BarChart2, MessageCircle, Brain, Users, Eye, Shield, Clock, TrendingUp } from 'lucide-react';
+import { CheckCircle, BarChart2, Brain, TrendingUp, Users } from 'lucide-react';
 
+// Remove Premium Communication and Priority Support features
 const proFeatures = [
-  { icon: <BarChart2 size={22} />, title: 'Advanced Analytics & Insights', desc: "Get detailed buyer engagement metrics, document viewing patterns, and offer performance analytics." },
-  { icon: <Brain size={22} />, title: 'AI-Powered Document Analysis', desc: 'Automatically analyze property disclosures, inspection reports, and contracts to identify key risks and opportunities.' },
-  { icon: <MessageCircle size={22} />, title: 'Premium Communication Hub', desc: 'Secure messaging system with compliance tracking, automated notifications, and communication history.' },
-  { icon: <Zap size={22} />, title: 'Automated Offer Generation', desc: 'Create professional offers instantly with pre-filled forms, document attachments, and e-signature integration.' },
-  { icon: <TrendingUp size={22} />, title: 'Market Intelligence & Comps', desc: 'Access real-time property valuations, comparable sales data, and neighborhood market trends.' },
-  { icon: <Users size={22} />, title: 'Unlimited Active Listings', desc: 'Manage unlimited property listings with premium organizational tools and bulk operations.' },
-  { icon: <Eye size={22} />, title: 'Buyer Engagement Tracking', desc: 'See exactly who views your listings, which documents they access, and their engagement levels.' },
-  { icon: <Shield size={22} />, title: 'Premium Security & Compliance', desc: 'Enhanced security features, audit trails, and compliance tools for professional real estate operations.' },
-  { icon: <Clock size={22} />, title: 'Priority Support', desc: 'Get fast-track customer support with dedicated account management and technical assistance.' }
+  { icon: <BarChart2 size={24} />, title: 'Advanced Analytics & Insights', desc: 'Track buyer engagement, document views, and offer activity in real time.' },
+  { icon: <Brain size={24} />, title: 'AI-Powered Document Analysis', desc: 'Instantly review disclosures and reports for key risks and insights.' },
+  { icon: <TrendingUp size={24} />, title: 'Market Intelligence & Comps', desc: 'Access up-to-date property valuations and comparable sales data.' },
+  { icon: <Users size={24} />, title: 'Unlimited Active Listings', desc: 'Manage as many listings as you need—no limits, ever.' },
 ];
+
+const ANNUAL_PRICE = 199;
+const MONTHLY_PRICE = 19;
+const ANNUAL_MONTHLY_EQUIV = (ANNUAL_PRICE / 12).toFixed(2);
+const ANNUAL_SAVINGS = Math.round((1 - (ANNUAL_PRICE / (MONTHLY_PRICE * 12))) * 100); // e.g. 13%
 
 const UpgradeToProContent = () => {
   const [plan, setPlan] = useState('annual');
@@ -33,7 +34,6 @@ const UpgradeToProContent = () => {
 
   const handleCouponChange = (event) => {
     setCoupon(event.target.value);
-    // Reset coupon status when user types
     if (couponStatus) {
       setCouponStatus(null);
       setValidCoupon(null);
@@ -41,21 +41,18 @@ const UpgradeToProContent = () => {
   };
 
   const handleTermsChange = (event) => setTermsAccepted(event.target.checked);
-  
+
   const handleCouponApply = async () => {
     if (!coupon.trim()) {
       setCouponStatus('error');
       return;
     }
-
     setCouponLoading(true);
     setPaymentError('');
-
     try {
       const response = await api.post('/api/stripe/validate-coupon', {
         couponCode: coupon.trim()
       });
-
       if (response.data.valid) {
         setCouponStatus('success');
         setValidCoupon(response.data.coupon);
@@ -64,7 +61,6 @@ const UpgradeToProContent = () => {
         setValidCoupon(null);
       }
     } catch (error) {
-      console.error('Coupon validation error:', error);
       setCouponStatus('error');
       setValidCoupon(null);
     } finally {
@@ -73,38 +69,45 @@ const UpgradeToProContent = () => {
   };
 
   const handlePaymentSuccess = (subscription) => {
-    console.log('Payment successful:', subscription);
     setPaymentSuccess(true);
     setPaymentError('');
-    
-    // Redirect to dashboard after a short delay
     setTimeout(() => {
       navigate('/dashboard');
     }, 2000);
   };
 
   const handlePaymentError = (error) => {
-    console.error('Payment error:', error);
     setPaymentError(error);
     setPaymentSuccess(false);
   };
 
   const getPrice = () => {
     if (plan === 'annual') {
-      return { amount: '29', period: 'month', total: '348/year', savings: 'Save $60/year' };
+      return { 
+        amount: ANNUAL_PRICE, 
+        period: 'year', 
+        total: `${ANNUAL_PRICE}/year`, 
+        savings: ANNUAL_SAVINGS, 
+        monthlyEquivalent: ANNUAL_MONTHLY_EQUIV 
+      };
     }
-    return { amount: '34', period: 'month', total: '408/year', savings: null };
+    return { 
+      amount: MONTHLY_PRICE, 
+      period: 'month', 
+      total: `${MONTHLY_PRICE}/month`, 
+      savings: null, 
+      monthlyEquivalent: null 
+    };
   };
-
   const currentPrice = getPrice();
 
   return (
     <div className="upgrade-page">
       <UpgradeHeader />
       <div className="upgrade-hero">
-        <h1 className="upgrade-hero-title">Scale Your Real Estate Business</h1>
+        <h1 className="upgrade-hero-title">Scale You Real Estate Business</h1>
         <p className="upgrade-hero-subtitle">
-          Unlock powerful tools that help you close more deals, understand your market better, and provide exceptional service to your clients.
+          Supercharge your business with next level tools and insights—built for top agents.
         </p>
       </div>
       <div className="upgrade-main-content">
@@ -123,12 +126,17 @@ const UpgradeToProContent = () => {
           </div>
         </div>
         <div className="upgrade-subscribe-card">
-          <div className="upgrade-plan-toggle">
+          <div className="upgrade-plan-toggle modern-toggle">
             <button 
               className={`plan-btn ${plan==='annual' ? 'active' : ''}`} 
               onClick={()=>setPlan('annual')}
             >
-              Annual {currentPrice.savings && <span className="discount-badge">{currentPrice.savings}</span>}
+              Annual
+              {currentPrice.savings && (
+                <span className="discount-badge">
+                  Save {currentPrice.savings}% 
+                </span>
+              )}
             </button>
             <button 
               className={`plan-btn ${plan==='monthly' ? 'active' : ''}`} 
@@ -142,17 +150,23 @@ const UpgradeToProContent = () => {
             <span className="upgrade-price-desc">/ {currentPrice.period}</span>
           </div>
           <div className="upgrade-billing-note">
-            <small>Billed {plan === 'annual' ? 'annually' : 'monthly'} • ${currentPrice.total}</small>
+            {plan === 'annual' ? (
+              <small>
+                Billed once per year.
+              </small>
+            ) : (
+              <small>
+                Billed monthly. Cancel anytime.
+              </small>
+            )}
           </div>
-
-          {/* Coupon Section */}
           <div className="upgrade-coupon-row">
             <input 
               type="text" 
               placeholder="Promo Code (Try: FREE2MONTHS)" 
               value={coupon} 
               onChange={handleCouponChange} 
-              className="upgrade-input" 
+              className="upgrade-input coupon-input" 
             />
             <button 
               type="button" 
@@ -171,21 +185,16 @@ const UpgradeToProContent = () => {
             )}
             {couponStatus==='error' && <span className="coupon-error">Invalid promo code</span>}
           </div>
-
-          {/* Payment Error/Success Messages */}
           {paymentError && (
             <div className="payment-error">
               {paymentError}
             </div>
           )}
-          
           {paymentSuccess && (
             <div className="payment-success">
               Payment successful! Redirecting to dashboard...
             </div>
           )}
-
-          {/* Stripe Payment Form */}
           <StripePaymentForm
             plan={plan}
             onSuccess={handlePaymentSuccess}
@@ -193,24 +202,18 @@ const UpgradeToProContent = () => {
             couponCode={couponStatus === 'success' ? coupon : ''}
             termsAccepted={termsAccepted}
           />
-
-          {/* Terms */}
           <div className="upgrade-terms-row">
             <label className="upgrade-terms-label">
               <input type="checkbox" checked={termsAccepted} onChange={handleTermsChange} />
-              I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+              <span>I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a></span>
             </label>
           </div>
-
           <div className="upgrade-summary">
-            <h3>What's Included</h3>
+            <h3>What’s Included</h3>
             <ul>
-              <li><CheckCircle className="upgrade-summary-check" size={16} /> Unlimited active listings</li>
-              <li><CheckCircle className="upgrade-summary-check" size={16} /> Advanced buyer analytics</li>
-              <li><CheckCircle className="upgrade-summary-check" size={16} /> AI document analysis</li>
-              <li><CheckCircle className="upgrade-summary-check" size={16} /> Premium communication tools</li>
-              <li><CheckCircle className="upgrade-summary-check" size={16} /> Market intelligence & comps</li>
-              <li><CheckCircle className="upgrade-summary-check" size={16} /> Priority customer support</li>
+              {proFeatures.map((f, i) => (
+                <li key={i}><CheckCircle className="upgrade-summary-check" size={16} /> {f.title}</li>
+              ))}
             </ul>
           </div>
         </div>
@@ -220,12 +223,10 @@ const UpgradeToProContent = () => {
   );
 };
 
-const UpgradeToPro = () => {
-  return (
-    <StripeWrapper>
-      <UpgradeToProContent />
-    </StripeWrapper>
-  );
-};
+const UpgradeToPro = () => (
+  <StripeWrapper>
+    <UpgradeToProContent />
+  </StripeWrapper>
+);
 
 export default UpgradeToPro;
