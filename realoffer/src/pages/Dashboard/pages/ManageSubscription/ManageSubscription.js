@@ -1,7 +1,6 @@
 // ManageSubscription.js
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../../context/AuthContext';
 import api from '../../../../context/api';
 import ProfileHeader from '../Profile/components/ProfileHeader/ProfileHeader';
@@ -9,17 +8,12 @@ import Footer from '../../components/Footer/Footer';
 import './ManageSubscription.css';
 
 const ManageSubscription = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [subscriptionData, setSubscriptionData] = useState(null);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchSubscriptionData();
-  }, []);
-
-  const fetchSubscriptionData = async () => {
+  const fetchSubscriptionData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await api.get(`/api/users/${user._id}`);
@@ -30,7 +24,11 @@ const ManageSubscription = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user._id]);
+
+  useEffect(() => {
+    fetchSubscriptionData();
+  }, [fetchSubscriptionData]);
 
   const handleManageSubscription = async () => {
     try {

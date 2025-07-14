@@ -1,7 +1,7 @@
 // LandingPage.js
 
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Home, FileText, Calendar, BarChart2, MessageCircle, DollarSign, Users, Inbox, FileSignature, PenTool, Zap, Shield, Clock, TrendingUp, Award, Smartphone, Globe, Search, Calculator, Check, Star, ArrowRight, Play, Lock, CheckCircle, XCircle, Sparkles, Building2, Briefcase, HeartHandshake, Menu, X, Trophy } from 'lucide-react';
+import { Home, FileText, BarChart2, MessageCircle, DollarSign, Users, Inbox, Zap, Shield, Clock, TrendingUp, Star, ArrowRight, Play, CheckCircle, Sparkles, Menu, X, Trophy, Calculator } from 'lucide-react';
 import Footer from '../../components/Footer/Footer';
 import { Link, useNavigate } from 'react-router-dom';
 import CountUp from 'react-countup';
@@ -191,13 +191,6 @@ const PricingCard = ({ title, price, period, features, highlighted, ctaText }) =
 const LandingPage = () => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
   const testimonials = [
     {
       quote: "RealOffer has transformed how I manage my listings. The document management and offer tracking features save me hours every week.",
@@ -221,6 +214,13 @@ const LandingPage = () => {
       rating: 5
     }
   ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [testimonials.length]);
 
   return (
     <div className="landing-page">

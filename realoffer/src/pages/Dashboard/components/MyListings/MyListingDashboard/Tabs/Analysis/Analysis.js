@@ -1,6 +1,6 @@
 // Analysis.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../../../../../context/AuthContext';
 import './Analysis.css';
@@ -16,7 +16,7 @@ const Analysis = ({ listingId }) => {
     lastUpdated: null
   });
 
-  const fetchAnalysisData = async (force = false) => {
+  const fetchAnalysisData = useCallback(async (force = false) => {
     try {
       setLoading(true);
       setError(null);
@@ -42,13 +42,13 @@ const Analysis = ({ listingId }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [listingId, token]);
 
   useEffect(() => {
     if (listingId && token) {
       fetchAnalysisData();
     }
-  }, [listingId, token]);
+  }, [listingId, token, fetchAnalysisData]);
 
   const formatCurrency = (value) => {
     if (!value) return 'N/A';
@@ -58,11 +58,6 @@ const Analysis = ({ listingId }) => {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     });
-  };
-
-  const formatPercent = (value) => {
-    if (!value) return 'N/A';
-    return `${value > 0 ? '+' : ''}${value}%`;
   };
 
   const formatDate = (dateString) => {
@@ -93,20 +88,6 @@ const Analysis = ({ listingId }) => {
         year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
       });
     }
-  };
-
-  const getConfidenceLevel = (correlation) => {
-    if (!correlation) return 'N/A';
-    if (correlation >= 0.9) return 'High';
-    if (correlation >= 0.7) return 'Medium';
-    return 'Low';
-  };
-
-  const getConfidenceColor = (correlation) => {
-    if (!correlation) return '#6c757d';
-    if (correlation >= 0.9) return '#28a745';
-    if (correlation >= 0.7) return '#ffc107';
-    return '#dc3545';
   };
 
   if (loading) {

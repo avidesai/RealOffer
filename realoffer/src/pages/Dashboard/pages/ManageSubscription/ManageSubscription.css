@@ -6,22 +6,23 @@
   border-radius: 28px;
   box-shadow: 0 8px 32px rgba(27, 92, 243, 0.13), 0 2px 8px rgba(0,0,0,0.08);
   border: 1.5px solid #e3e8f0;
-  padding: 3rem 2.5rem 2.5rem 2.5rem;
+  padding: 3.5rem 3rem 2.5rem 3rem;
   margin: 3.5rem auto 3.5rem auto;
-  max-width: 900px;
+  max-width: 1100px;
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
 }
 
-.subscription-title {
+.subscription-title, .manage-subscription-title {
   font-size: 2.1rem;
   font-weight: 800;
-  margin-bottom: 2.5rem;
   text-align: center;
   color: #2c3e50;
   letter-spacing: -1px;
+  margin-bottom: 1.2rem;
+  margin-top: 0.5rem;
 }
 
 .subscription-content {
@@ -255,14 +256,13 @@
   100% { transform: rotate(360deg); }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .subscription-container {
-    padding: 2rem 1.2rem 1.2rem 1.2rem;
     max-width: 98vw;
+    padding: 2rem 1.2rem 1.2rem 1.2rem;
   }
 }
-
-@media (max-width: 700px) {
+@media (max-width: 900px) {
   .subscription-container {
     padding: 1.1rem 0.2rem 1.1rem 0.2rem;
     border-radius: 14px;
