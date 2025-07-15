@@ -11,8 +11,8 @@ const Avatar = ({
 }) => {
   const getInitials = () => {
     if (!firstName && !lastName) return '?';
-    const first = firstName ? firstName.charAt(0).toUpperCase() : '';
-    const last = lastName ? lastName.charAt(0).toUpperCase() : '';
+    const first = (firstName || '').charAt(0).toUpperCase();
+    const last = (lastName || '').charAt(0).toUpperCase();
     return first + last;
   };
 
@@ -22,7 +22,7 @@ const Avatar = ({
       '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F',
       '#BB8FCE', '#85C1E9', '#F8C471', '#82E0AA'
     ];
-    const name = (firstName + lastName).toLowerCase();
+    const name = ((firstName || '') + (lastName || '')).toLowerCase();
     let hash = 0;
     for (let i = 0; i < name.length; i++) {
       hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -44,7 +44,7 @@ const Avatar = ({
     <div 
       className={`avatar avatar-${size} avatar-initials ${className}`}
       style={{ backgroundColor: getBackgroundColor() }}
-      title={alt || `${firstName} ${lastName}`}
+      title={alt || `${firstName || ''} ${lastName || ''}`}
     >
       {getInitials()}
     </div>
