@@ -54,8 +54,8 @@ const Settings = ({ listing, onStatusChange }) => {
   return (
     <div className="settings-container">
       {loading && (
-        <div className="spinner-overlay">
-          <div className="spinner"></div>
+        <div className="settings-spinner-overlay">
+          <div className="settings-spinner"></div>
         </div>
       )}
       <div className="settings-sections-row">

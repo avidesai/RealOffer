@@ -1,6 +1,6 @@
 /* Analysis Tab Styles */
 .analysis-tab {
-  padding: 1.2rem 0.5rem 1.5rem 0.5rem;
+  padding: 0rem 0.5rem 1.5rem 0.5rem;
   background-color: #f8fafd;
   border-radius: 0 0 12px 12px;
 }
@@ -563,7 +563,7 @@
 
 @media (max-width: 768px) {
   .analysis-tab {
-    padding: 0.7rem 0.2rem 1rem 0.2rem;
+    padding: 0.3rem 0.2rem 1rem 0.2rem;
   }
 
   .analysis-header h2 {

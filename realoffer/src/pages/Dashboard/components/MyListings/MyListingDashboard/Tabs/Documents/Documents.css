@@ -1,7 +1,7 @@
 /* /Tabs/Documents.css */
 
 .docs-tab-documents-tab {
-  padding: 0.4rem 0.5rem 1.2rem 0.5rem;
+  padding: 0rem 0.5rem 1.2rem 0.5rem;
   background-color: #f8fafd;
   border-radius: 0 0 16px 16px;
 }
@@ -334,7 +334,7 @@
 
 @media (max-width: 767px) {
   .docs-tab-documents-tab {
-    padding: 0.5rem 0.3rem 1rem 0.3rem;
+    padding: 0.3rem 0.3rem 1rem 0.3rem;
   }
   
   .docs-tab-documents-header {

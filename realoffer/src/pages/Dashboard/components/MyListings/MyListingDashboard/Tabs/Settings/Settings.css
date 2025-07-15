@@ -1,101 +1,91 @@
 /* /Tabs/Settings/Settings.css */
 
 .settings-container {
-  padding: 2.2rem 1.5rem;
+  padding: 2.5rem;
   background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  max-width: 720px;
-  margin: 2.5rem auto 0 auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  max-width: 800px;
+  margin: 2rem auto;
   position: relative;
 }
 
 .settings-sections-row {
   display: flex;
-  flex-direction: row;
-  gap: 2.2rem;
+  gap: 3rem;
   width: 100%;
-  justify-content: center;
+  align-items: stretch;
 }
 
 .settings-section,
 .danger-zone {
-  width: 100%;
-  max-width: 340px;
-  margin: 0;
-  padding: 0 0.5rem;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 0;
+  margin: 0;
   background: none;
   border-radius: 0;
   box-shadow: none;
 }
 
 .settings-title {
-  font-size: 1.18rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #2c3e50;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   text-align: center;
 }
 
 .settings-description {
-  font-size: 0.97rem;
-  color: #7a8595;
-  margin-bottom: 1.1rem;
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 1.5rem;
   text-align: center;
+  line-height: 1.4;
+  max-width: 250px;
 }
 
 .archive-button,
 .settings-delete-button {
-  border-radius: 8px;
-  display: inline-block;
-  padding: 0.65rem 1.5rem;
-  font-size: 0.97rem;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
   font-weight: 600;
   text-align: center;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: all 0.2s ease;
   border: none;
-  margin-top: 0.2rem;
+  min-width: 140px;
+  white-space: nowrap;
 }
 
 .archive-button {
-  background: #f4f6f8;
-  color: #222;
-  border: 1.5px solid #e1e4e8;
-}
-.archive-button:hover {
-  background: #e1e4e8;
-  color: #007bff;
-  border-color: #007bff;
+  background: #f8f9fa;
+  color: #495057;
+  border: 1px solid #dee2e6;
 }
 
-.danger-zone {
-  border-top: none;
-  padding-top: 0;
-  margin-top: 0;
+.archive-button:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
 }
 
 .danger-zone .settings-title {
-  color: #c0392b;
-}
-.danger-zone .settings-delete-button {
-  background: #e74c3c;
-  color: #fff;
-  border: none;
-  margin-top: 0.5rem;
-}
-.danger-zone .settings-delete-button:hover {
-  background: #c0392b;
+  color: #dc3545;
 }
 
-.spinner-overlay {
+.danger-zone .settings-delete-button {
+  background: #dc3545;
+  color: #fff;
+}
+
+.danger-zone .settings-delete-button:hover {
+  background: #c82333;
+}
+
+.settings-spinner-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -108,7 +98,7 @@
   z-index: 1000;
 }
 
-.spinner {
+.settings-spinner {
   border: 8px solid rgba(0, 0, 0, 0.1);
   border-top: 8px solid #3498db;
   border-radius: 50%;
@@ -123,13 +113,17 @@
 }
 
 @media (max-width: 900px) {
+  .settings-container {
+    padding: 1.5rem;
+    margin: 1rem auto;
+  }
+  
   .settings-sections-row {
     flex-direction: column;
-    gap: 1.5rem;
-    align-items: stretch;
+    gap: 2rem;
   }
-  .settings-section,
-  .danger-zone {
+  
+  .settings-description {
     max-width: 100%;
   }
 }
