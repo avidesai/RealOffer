@@ -1,128 +1,171 @@
+/* ShareUrl Modal - Modern Design */
+
 .share-url-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(245, 247, 250, 0.65);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.share-url-content {
+  background: #fff;
+  border-radius: 22px;
+  width: 450px;
+  max-width: 98vw;
+  padding: 2.5rem 2.2rem 2.2rem 2.2rem;
+  position: relative;
+  animation: fadeIn 0.3s cubic-bezier(.4,1.4,.6,1);
+  box-shadow: 0 8px 32px rgba(27, 92, 243, 0.13), 0 2px 8px rgba(0,0,0,0.08);
+  border: 1px solid #e9ecef;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.share-url-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.share-url-header h2 {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #2c3e50;
+  letter-spacing: -0.5px;
+}
+
+.share-url-close-button {
+  position: absolute;
+  top: 1.3rem;
+  right: 1.3rem;
+  background: #fff;
+  border: 1.5px solid #e3e8f0;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.45em;
+  cursor: pointer;
+  color: #7b7e8c;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.share-url-close-button:hover {
+  color: #fff;
+  background: #e74c3c;
+  border-color: #e74c3c;
+  box-shadow: 0 6px 16px rgba(231, 76, 60, 0.13);
+}
+
+.share-url-close-button:before {
+  content: '×';
+  font-weight: 400;
+  display: inline-block;
+  margin-top: -0.1rem;
+  line-height: 1;
+}
+
+.share-url-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.share-url-input {
+  width: 100%;
+  padding: 1rem 1.2rem;
+  border: 1.5px solid #e3e8f0;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 1rem;
+  background: #f8fafd;
+  color: #2d3748;
+  transition: all 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  box-sizing: border-box;
+}
+
+.share-url-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0,123,255,0.09);
+  background: #fff;
+}
+
+.share-url-input:hover {
+  border-color: #007bff;
+  background: #fff;
+}
+
+.share-url-copy-button {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: #fff;
+  padding: 0.9rem 2.2rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,123,255,0.15);
+  letter-spacing: 0.02em;
+  min-width: 120px;
+}
+
+.share-url-copy-button:hover {
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,123,255,0.25);
+}
+
+.share-url-copy-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0,123,255,0.2);
+}
+
+.share-url-copy-button.copied {
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  box-shadow: 0 4px 12px rgba(46,204,113,0.15);
+}
+
+.share-url-copy-button.copied:hover {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  box-shadow: 0 6px 16px rgba(46,204,113,0.25);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
   .share-url-content {
-    background: white;
+    padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+    width: 95vw;
     border-radius: 16px;
-    width: 400px;
-    max-width: 90%;
-    padding: 2.5rem;
-    position: relative;
-    animation: fadeIn 0.3s ease;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-  
-  .share-url-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
   }
   
   .share-url-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #1a1a1a;
-    letter-spacing: -0.5px;
-  }
-  
-  .share-url-close-button {
-    position: absolute;
-    top: 2rem;
-    right: 2rem;
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 50%;
-    width: 42px;
-    height: 42px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.5em;
-    cursor: pointer;
-    color: #666;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  }
-  
-  .share-url-close-button:hover {
-    color: #ffffff;
-    background-color: #e74c3c;
-    box-shadow: 0 6px 16px rgba(231, 76, 60, 0.2);
-  }
-  
-  .share-url-close-button:before {
-    content: '×';
-    font-weight: 300;
-    display: inline-block;
-    line-height: 1;
-    margin-bottom: 2px;
-  }
-  
-  .share-url-body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    font-size: 1.3rem;
   }
   
   .share-url-input {
-    width: 100%;
-    padding: 1rem 1.25rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    font-size: 1.05rem;
-    background-color: #f8f9fa;
-    transition: all 0.2s ease;
-  }
-  
-  .share-url-input:focus {
-    outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-    background-color: #fff;
+    font-size: 0.95rem;
+    padding: 0.9rem 1rem;
   }
   
   .share-url-copy-button {
-    background-color: #3498db;
-    color: white;
-    padding: 0.875rem 2rem;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 0.5rem;
-    font-size: 1.05rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+    padding: 0.8rem 1.8rem;
+    font-size: 0.95rem;
   }
-  
-  .share-url-copy-button:hover {
-    background-color: #2980b9;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(52, 152, 219, 0.2);
-  }
+}
   

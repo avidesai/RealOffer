@@ -6,10 +6,22 @@ import './ShareUrl.css';
 const ShareUrl = ({ isOpen, onClose, url }) => {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   if (!isOpen) return null;
@@ -27,9 +39,13 @@ const ShareUrl = ({ isOpen, onClose, url }) => {
             value={url}
             readOnly
             className="share-url-input"
+            placeholder="Loading URL..."
           />
-          <button className="share-url-copy-button" onClick={handleCopy}>
-            {copied ? 'Copied!' : 'Copy'}
+          <button 
+            className={`share-url-copy-button ${copied ? 'copied' : ''}`} 
+            onClick={handleCopy}
+          >
+            {copied ? 'Copied!' : 'Copy URL'}
           </button>
         </div>
       </div>

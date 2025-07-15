@@ -1,19 +1,19 @@
 // MoreInfo.js
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import api from '../../../../../../../../../context/api';
 import Modal from 'react-modal';
+import InputMask from 'react-input-mask';
 import './MoreInfo.css';
 
 Modal.setAppElement('#root'); // Set the root element for accessibility
 
 const MoreInfo = ({ isOpen, onClose, listingId }) => {
   const [listing, setListing] = useState(null);
-  const [isEditing, setIsEditing] = useState(null);
-  const [newValue, setNewValue] = useState('');
-  const [originalValue, setOriginalValue] = useState('');
   const [loading, setLoading] = useState(false);
+  const [updating, setUpdating] = useState({});
   const [error, setError] = useState(null);
+  const debounceTimer = useRef({});
 
   const fetchListing = useCallback(async () => {
     if (!listingId) return;
@@ -47,95 +47,82 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
   useEffect(() => {
     if (isOpen) {
       fetchListing();
-    } else {
-      setIsEditing(null);
     }
   }, [isOpen, fetchListing]);
 
-  const handleEdit = (field, value) => {
-    setIsEditing(field);
-    setOriginalValue(value || '');
-    setNewValue(value || '');
-  };
-
-  const handleChange = (e) => {
-    setNewValue(e.target.value);
-  };
-
-  const handleCancel = () => {
-    setIsEditing(null);
-    setNewValue(originalValue);
-  };
-
-  const handleSubmit = async (field) => {
-    setLoading(true);
-    setError(null);
+  const handleInputChange = (e, field) => {
+    const { value } = e.target;
     
+    // Update local state immediately
     const [mainField, subField, nestedField] = field.split('.');
-    let updatedField = {};
-
-    // Handle nested fields (up to 3 levels deep)
     if (nestedField) {
-      // Handle fields like escrowInfo.company.name
-      updatedField = {
+      setListing(prevState => ({
+        ...prevState,
         [mainField]: {
-          ...listing[mainField],
+          ...prevState[mainField],
           [subField]: {
-            ...listing[mainField][subField],
-            [nestedField]: newValue
+            ...prevState[mainField][subField],
+            [nestedField]: value
           }
         }
-      };
+      }));
     } else if (subField) {
-      // Handle fields like homeCharacteristics.beds
-      updatedField = {
+      setListing(prevState => ({
+        ...prevState,
         [mainField]: {
-          ...listing[mainField],
-          [subField]: newValue
+          ...prevState[mainField],
+          [subField]: value
         }
-      };
+      }));
     } else {
-      // Handle top-level fields like description
-      updatedField = { [field]: newValue };
+      setListing(prevState => ({
+        ...prevState,
+        [field]: value
+      }));
     }
 
-    try {
-      await api.put(`/api/propertyListings/${listingId}`, updatedField);
-      
-      // Update local state with new value
+    // Clear existing timer for this field
+    if (debounceTimer.current[field]) {
+      clearTimeout(debounceTimer.current[field]);
+    }
+
+    // Set loading state for this field
+    setUpdating(prev => ({ ...prev, [field]: true }));
+
+    // Debounce the API call
+    debounceTimer.current[field] = setTimeout(async () => {
+      let updatedField = {};
+
       if (nestedField) {
-        setListing(prevState => ({
-          ...prevState,
+        updatedField = {
           [mainField]: {
-            ...prevState[mainField],
+            ...listing[mainField],
             [subField]: {
-              ...prevState[mainField][subField],
-              [nestedField]: newValue
+              ...listing[mainField][subField],
+              [nestedField]: value
             }
           }
-        }));
+        };
       } else if (subField) {
-        setListing(prevState => ({
-          ...prevState,
+        updatedField = {
           [mainField]: {
-            ...prevState[mainField],
-            [subField]: newValue
+            ...listing[mainField],
+            [subField]: value
           }
-        }));
+        };
       } else {
-        setListing(prevState => ({
-          ...prevState,
-          [field]: newValue
-        }));
+        updatedField = { [field]: value };
       }
-      
-      setIsEditing(null);
-    } catch (error) {
-      console.error('Error updating listing:', error);
-      setError('Failed to update property information. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+
+      try {
+        await api.put(`/api/propertyListings/${listingId}`, updatedField);
+      } catch (error) {
+        console.error('Error updating listing:', error);
+        setError('Failed to update property information. Please try again.');
+      } finally {
+        setUpdating(prev => ({ ...prev, [field]: false }));
+      }
+    }, 1000);
   };
 
   // Formatting helpers
@@ -163,45 +150,83 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
 
   const renderField = (label, field, value, formatter) => {
     const displayValue = formatter ? formatter(value) : value || 'Not specified';
+    const isNumber = ['homeCharacteristics.price','homeCharacteristics.beds','homeCharacteristics.baths','homeCharacteristics.squareFootage','homeCharacteristics.lotSize','homeCharacteristics.yearBuilt'].includes(field);
+    const isPhone = field === 'escrowInfo.company.phone';
+    
+    // Define realistic increments for different fields
+    const getFieldConfig = (fieldName) => {
+      switch (fieldName) {
+        case 'homeCharacteristics.price':
+          return { step: 1000, min: 0, max: 10000000 };
+        case 'homeCharacteristics.beds':
+          return { step: 1, min: 0, max: 20 };
+        case 'homeCharacteristics.baths':
+          return { step: 0.5, min: 0, max: 20 };
+        case 'homeCharacteristics.squareFootage':
+          return { step: 100, min: 0, max: 50000 };
+        case 'homeCharacteristics.lotSize':
+          return { step: 1000, min: 0, max: 1000000 };
+        case 'homeCharacteristics.yearBuilt':
+          return { step: 1, min: 1800, max: new Date().getFullYear() + 1 };
+        default:
+          return { step: 1, min: 0, max: 999999 };
+      }
+    };
+    
+    const fieldConfig = getFieldConfig(field);
     
     return (
       <div className="info-row" key={field}>
         <span className="info-label">{label}</span>
-        {isEditing === field ? (
-          <div className="edit-container">
-            {field === 'homeCharacteristics.propertyType' ? (
-              <select
-                name="propertyType"
-                value={newValue}
-                onChange={handleChange}
-                className="form-control"
-              >
-                <option value="">Select Property Type</option>
-                <option value="singleFamily">Single Family Home</option>
-                <option value="condo">Condominium</option>
-                <option value="townhouse">Townhouse</option>
-                <option value="multiFamily">Multi-Family Home</option>
-                <option value="land">Land</option>
-                <option value="commercial">Commercial</option>
-              </select>
-            ) : (
-              <input
-                type="text"
-                value={newValue}
-                onChange={handleChange}
-                className="form-control"
-                autoFocus
-              />
-            )}
-            <button className="submit-button" onClick={() => handleSubmit(field)}>Save</button>
-            <button className="cancel-button" onClick={handleCancel}>Cancel</button>
-          </div>
-        ) : (
-          <>
-            <span className="info-value">{displayValue}</span>
-            <button className="edit-button" onClick={() => handleEdit(field, value)}>Edit</button>
-          </>
-        )}
+        <div className="field-container">
+          {field === 'homeCharacteristics.propertyType' ? (
+            <select
+              name="propertyType"
+              value={value || ''}
+              onChange={(e) => handleInputChange(e, field)}
+              className="form-control"
+            >
+              <option value="">Select Property Type</option>
+              <option value="singleFamily">Single Family Home</option>
+              <option value="condo">Condominium</option>
+              <option value="townhouse">Townhouse</option>
+              <option value="multiFamily">Multi-Family Home</option>
+              <option value="land">Land</option>
+              <option value="commercial">Commercial</option>
+            </select>
+          ) : isNumber ? (
+            <input
+              type="number"
+              value={value || ''}
+              onChange={(e) => handleInputChange(e, field)}
+              className="form-control"
+              min={fieldConfig.min}
+              max={fieldConfig.max}
+              step={fieldConfig.step}
+            />
+          ) : isPhone ? (
+            <InputMask
+              mask="(999) 999-9999"
+              value={value || ''}
+              onChange={(e) => handleInputChange(e, field)}
+            >
+              {(inputProps) => (
+                <input
+                  {...inputProps}
+                  type="text"
+                  className="form-control"
+                />
+              )}
+            </InputMask>
+          ) : (
+            <input
+              type="text"
+              value={value || ''}
+              onChange={(e) => handleInputChange(e, field)}
+              className="form-control"
+            />
+          )}
+        </div>
       </div>
     );
   };
@@ -223,9 +248,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
         </div>
         
         {error && (
-          <div style={{ color: '#e74c3c', padding: '1rem', marginBottom: '1rem', backgroundColor: '#fdeaea', borderRadius: '6px' }}>
-            {error}
-          </div>
+          <div className="more-info-error">{error}</div>
         )}
         
         {loading && !listing ? (
@@ -263,30 +286,16 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
             
             <div className="info-section property-description-container">
               <h3 className="property-description-title">Property Description</h3>
-              {isEditing === 'description' ? (
-                <div className="description-edit-container">
-                  <textarea
-                    value={newValue}
-                    onChange={handleChange}
-                    className="form-control"
-                    placeholder="Enter property description..."
-                    autoFocus
-                  />
-                  <div className="edit-buttons">
-                    <button className="submit-button" onClick={() => handleSubmit('description')}>Save</button>
-                    <button className="cancel-button" onClick={handleCancel}>Cancel</button>
-                  </div>
-                </div>
-              ) : (
-                <div className="description-edit-container">
-                  <p className="listing-description">
-                    {listing.description || 'No description provided.'}
-                  </p>
-                  <button className="description-edit-button" onClick={() => handleEdit('description', listing.description || '')}>
-                    Edit Description
-                  </button>
-                </div>
-              )}
+              <div className="description-edit-container">
+                <textarea
+                  value={listing.description || ''}
+                  onChange={(e) => handleInputChange(e, 'description')}
+                  className="form-control"
+                  placeholder="Enter a detailed description of the property, including features, amenities, and highlights..."
+                  rows={14}
+                  style={{resize:'vertical',minHeight:180,maxHeight:500}}
+                />
+              </div>
             </div>
           </>
         ) : null}
