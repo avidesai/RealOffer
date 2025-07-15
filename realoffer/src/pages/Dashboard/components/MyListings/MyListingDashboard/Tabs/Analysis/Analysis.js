@@ -3,10 +3,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../../../../../context/AuthContext';
+import TabPaywall from '../../../../../../../components/TabPaywall/TabPaywall';
 import './Analysis.css';
 
 const Analysis = ({ listingId }) => {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [analysisData, setAnalysisData] = useState({
@@ -113,6 +114,15 @@ const Analysis = ({ listingId }) => {
             Try Again
           </button>
         </div>
+      </div>
+    );
+  }
+
+  // Check if user is pro - if not, show paywall
+  if (!user?.isPremium) {
+    return (
+      <div className="analysis-tab">
+        <TabPaywall feature="analysis" />
       </div>
     );
   }

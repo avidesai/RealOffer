@@ -7,7 +7,7 @@
 }
 
 .login-content-wrapper {
-  flex-grow: 1;
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;

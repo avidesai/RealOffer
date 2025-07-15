@@ -4,10 +4,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import ActivitySortBar from './components/ActivitySortBar/ActivitySortBar';
 import { useAuth } from '../../../../../../../context/AuthContext'; // Import useAuth hook
+import TabPaywall from '../../../../../../../components/TabPaywall/TabPaywall';
 import './Activity.css';
 
 const Activity = ({ listingId }) => {
-  const { token } = useAuth(); // Get the token from AuthContext
+  const { token, user } = useAuth(); // Get the token and user from AuthContext
   const [activities, setActivities] = useState([]);
   const [filteredActivities, setFilteredActivities] = useState([]);
   const [filter, setFilter] = useState('all');
@@ -119,6 +120,15 @@ const Activity = ({ listingId }) => {
         return null;
     }
   };
+
+  // Check if user is pro - if not, show paywall
+  if (!user?.isPremium) {
+    return (
+      <div className="activity-tab">
+        <TabPaywall feature="activity" />
+      </div>
+    );
+  }
 
   return (
     <div className="activity-tab">

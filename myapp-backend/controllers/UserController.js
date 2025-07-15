@@ -151,7 +151,8 @@ exports.loginUser = async (req, res) => {
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
-            role: user.role
+            role: user.role,
+            isPremium: user.isPremium
           },
           token 
         });
@@ -197,7 +198,8 @@ exports.verifyToken = async (req, res) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role
+        role: user.role,
+        isPremium: user.isPremium
       }
     });
   } catch (error) {

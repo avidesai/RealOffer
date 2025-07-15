@@ -298,7 +298,7 @@ function SignupForm() {
         </button>
       </form>
       <div className="sup-footer">
-        <p>Already have an account? <Link to="/login">Login</Link></p>
+        <p>Already have an account? <Link to="/login">Log In</Link></p>
       </div>
     </div>
   );

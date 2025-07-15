@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../../../../context/api';
 import CreateListingPackageForm from './CreateListingPackageForm';
 import { useAuth } from '../../../../../context/AuthContext';
+import PaywallOverlay from '../../../../../components/PaywallOverlay/PaywallOverlay';
+import { Users, Plus, TrendingUp, Crown } from 'lucide-react';
 import './CreateListingPackage.css';
 
 const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
@@ -38,6 +40,7 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [showListingLimitPaywall, setShowListingLimitPaywall] = useState(false);
 
   const handleNextStep = () => {
     const newErrors = {};
@@ -120,6 +123,8 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
       if (error.response?.status === 401) {
         setErrors({ submit: 'Your session has expired. Please log in again.' });
         navigate('/login');
+      } else if (error.response?.status === 403 && error.response?.data?.code === 'LISTING_LIMIT_REACHED') {
+        setShowListingLimitPaywall(true);
       } else {
         setErrors({
           submit: error.response?.data?.message || 'Failed to create listing. Please try again.'
@@ -129,6 +134,32 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
       setLoading(false);
     }
   };
+
+  // Show paywall modal when listing limit is reached
+  if (showListingLimitPaywall) {
+    const listingLimitBenefits = [
+      { icon: <Users size={18} />, text: "Create unlimited active listings" },
+      { icon: <Plus size={18} />, text: "No restrictions on property count" },
+      { icon: <TrendingUp size={18} />, text: "Scale your business without limits" },
+      { icon: <Crown size={18} />, text: "Premium features for professional agents" }
+    ];
+
+    return (
+      <div className="clp-modal">
+        <div className="clp-content">
+          <button className="clp-close-button" onClick={onClose}></button>
+          <PaywallOverlay
+            featureTitle="Listing Limit Reached"
+            featureDescription="You've reached the 5-listing limit for free accounts. Upgrade to Pro to create unlimited listings and access premium features."
+            featureIcon={<Users size={48} />}
+            benefits={listingLimitBenefits}
+            ctaText="Upgrade to Pro"
+            variant="inline"
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <CreateListingPackageForm

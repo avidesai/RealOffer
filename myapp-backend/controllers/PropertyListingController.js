@@ -128,8 +128,30 @@ exports.createListing = async (req, res) => {
   });
 
   try {
-    const savedListing = await newListing.save();
+    // Check user's subscription status and listing count
     const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if user has reached the listing limit for non-pro users
+    if (!user.isPremium) {
+      const activeListingsCount = await PropertyListing.countDocuments({ 
+        createdBy: req.user.id, 
+        status: 'active' 
+      });
+      
+      if (activeListingsCount >= 5) {
+        return res.status(403).json({ 
+          message: 'Listing limit reached. Upgrade to Pro for unlimited listings.',
+          code: 'LISTING_LIMIT_REACHED',
+          currentCount: activeListingsCount,
+          limit: 5
+        });
+      }
+    }
+
+    const savedListing = await newListing.save();
     user.listingPackages.push(savedListing._id);
     await user.save();
     res.status(201).json(savedListing);

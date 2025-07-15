@@ -51,10 +51,20 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('docusignConnected');
         api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
         
-        // Verify token validity
+        // Verify token validity and get updated user data
         try {
-          await api.get('/api/users/verify-token');
+          const response = await api.get('/api/users/verify-token');
           console.log('Token verified successfully');
+          
+          // Update user data with the response from server
+          if (response.data?.user) {
+            const updatedUserData = response.data.user;
+            updatedUserData._id = updatedUserData._id || updatedUserData.id;
+            
+            console.log('Updating user data with server response:', updatedUserData);
+            setUser(updatedUserData);
+            localStorage.setItem('user', JSON.stringify(updatedUserData));
+          }
         } catch (error) {
           console.error('Token verification failed:', error);
           // Clear invalid credentials using the ref

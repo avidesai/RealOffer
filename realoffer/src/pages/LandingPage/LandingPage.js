@@ -20,7 +20,7 @@ const LandingHeader = () => {
 
   useEffect(() => {
     // Use IntersectionObserver to detect if hero is in view
-    const hero = document.querySelector('.hero');
+    const hero = document.querySelector('.lp-hero');
     if (!hero) return;
     const observer = new window.IntersectionObserver(
       ([entry]) => {
@@ -46,51 +46,50 @@ const LandingHeader = () => {
   };
 
   return (
-    <header className={`landing-header ${isScrolled ? 'landing-header-scrolled' : ''}`}>
-      <div className="landing-header-container">
-        <Link to="/" className="landing-header-logo">
-          <img src={logo} alt="RealOffer" className="landing-header-logo-image" />
-          <span className="landing-header-logo-text">RealOffer</span>
+    <header className={`lp-landing-header ${isScrolled ? 'lp-landing-header-scrolled' : ''}`}>
+      <div className="lp-landing-header-container">
+        <Link to="/" className="lp-landing-header-logo">
+          <img src={logo} alt="RealOffer" className="lp-landing-header-logo-image" />
+          <span className="lp-landing-header-logo-text">RealOffer</span>
         </Link>
 
-        <nav className={`landing-header-nav ${isMobileMenuOpen ? 'landing-header-nav-open' : ''}`}>
-          <Link to="/features" className="landing-header-nav-link">Features</Link>
-          <Link to="/upgrade" className="landing-header-nav-link">Pricing</Link>
-          <Link to="/about" className="landing-header-nav-link">About</Link>
-
-          <div className="landing-header-mobile-actions">
-            <Link to="/login" className="landing-header-login" onClick={handleLoginClick}>
+        <nav className={`lp-landing-header-nav ${isMobileMenuOpen ? 'lp-landing-header-nav-open' : ''}`}>
+          {/* No Features link here anymore */}
+          <div className="lp-landing-header-mobile-actions">
+            <Link to="/login" className="lp-landing-header-login" onClick={handleLoginClick}>
               {user ? 'Dashboard' : 'Log In'}
             </Link>
             {user ? (
-              <button className="landing-header-signup" onClick={handleLogoutClick}>
+              <button className="lp-landing-header-signup" onClick={handleLogoutClick}>
                 Log Out
               </button>
             ) : (
-              <Link to="/signup" className="landing-header-signup">
+              <Link to="/signup" className="lp-landing-header-signup">
                 Get Started
               </Link>
             )}
           </div>
         </nav>
 
-        <div className="landing-header-actions">
-          <Link to="/login" className="landing-header-login" onClick={handleLoginClick}>
+        <div className="lp-landing-header-actions">
+          <Link to="/features" className="lp-landing-header-nav-link">Features</Link>
+          <span className="lp-landing-header-divider" />
+          <Link to="/login" className="lp-landing-header-login" onClick={handleLoginClick}>
             {user ? 'Dashboard' : 'Log In'}
           </Link>
           {user ? (
-            <button className="landing-header-signup" onClick={handleLogoutClick}>
+            <button className="lp-landing-header-signup" onClick={handleLogoutClick}>
               Log Out
             </button>
           ) : (
-            <Link to="/signup" className="landing-header-signup">
+            <Link to="/signup" className="lp-landing-header-signup">
               Get Started
             </Link>
           )}
         </div>
 
         <button 
-          className="landing-header-mobile-toggle"
+          className="lp-landing-header-mobile-toggle"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label="Toggle mobile menu"
         >
@@ -102,12 +101,12 @@ const LandingHeader = () => {
 };
 
 const Feature = ({ icon: Icon, title, description, highlight }) => (
-  <div className={`feature ${highlight ? 'feature-highlight' : ''}`}>
-    <div className="feature-icon-wrapper">
-      <Icon className="feature-icon" />
+  <div className={`lp-feature ${highlight ? 'lp-feature-highlight' : ''}`}>
+    <div className="lp-feature-icon-wrapper">
+      <Icon className="lp-feature-icon" />
     </div>
-    <h3 className="feature-title">{title}</h3>
-    <p className="feature-description">{description}</p>
+    <h3 className="lp-feature-title">{title}</h3>
+    <p className="lp-feature-description">{description}</p>
   </div>
 );
 
@@ -122,11 +121,11 @@ const Stat = ({ icon: Icon, value, suffix, description }) => {
         }
         
         return (
-          <div className="landing-stat">
-            <div className="landing-stat-icon-wrapper">
-              <Icon className="landing-stat-icon" />
+          <div className="lp-landing-stat">
+            <div className="lp-landing-stat-icon-wrapper">
+              <Icon className="lp-landing-stat-icon" />
             </div>
-            <div className="landing-stat-value-wrapper">
+            <div className="lp-landing-stat-value-wrapper">
               <CountUp 
                 start={0} 
                 end={hasAnimated ? value : 0} 
@@ -134,11 +133,11 @@ const Stat = ({ icon: Icon, value, suffix, description }) => {
                 redraw={false}
                 useEasing={true}
               >
-                {({ countUpRef }) => <span ref={countUpRef} className="landing-stat-value" />}
+                {({ countUpRef }) => <span ref={countUpRef} className="lp-landing-stat-value" />}
               </CountUp>
-              {suffix && <span className="landing-stat-suffix">{suffix}</span>}
+              {suffix && <span className="lp-landing-stat-suffix">{suffix}</span>}
             </div>
-            <p className="landing-stat-description">{description}</p>
+            <p className="lp-landing-stat-description">{description}</p>
           </div>
         );
       }}
@@ -147,42 +146,42 @@ const Stat = ({ icon: Icon, value, suffix, description }) => {
 };
 
 const Testimonial = ({ quote, author, role, company, rating }) => (
-  <div className="testimonial">
-    <div className="testimonial-rating">
+  <div className="lp-testimonial">
+    <div className="lp-testimonial-rating">
       {[...Array(rating)].map((_, i) => (
-        <Star key={i} className="testimonial-star" fill="currentColor" />
+        <Star key={i} className="lp-testimonial-star" fill="currentColor" />
       ))}
     </div>
-    <p className="testimonial-quote">"{quote}"</p>
-    <div className="testimonial-author">
-      <div className="testimonial-author-info">
-        <p className="testimonial-author-name">{author}</p>
-        <p className="testimonial-author-role">{role}, {company}</p>
+    <p className="lp-testimonial-quote">"{quote}"</p>
+    <div className="lp-testimonial-author">
+      <div className="lp-testimonial-author-info">
+        <p className="lp-testimonial-author-name">{author}</p>
+        <p className="lp-testimonial-author-role">{role}, {company}</p>
       </div>
     </div>
   </div>
 );
 
 const PricingCard = ({ title, price, period, features, highlighted, ctaText }) => (
-  <div className={`pricing-card ${highlighted ? 'pricing-card-highlighted' : ''}`}>
-    {highlighted && <div className="pricing-badge">Most Popular</div>}
-    <div className="pricing-header">
-      <h3 className="pricing-title">{title}</h3>
-      <div className="pricing-price">
-        <span className="pricing-currency">$</span>
-        <span className="pricing-amount">{price}</span>
-        <span className="pricing-period">/{period}</span>
+  <div className={`lp-pricing-card ${highlighted ? 'lp-pricing-card-highlighted' : ''}`}>
+    {highlighted && <div className="lp-pricing-badge">Most Popular</div>}
+    <div className="lp-pricing-header">
+      <h3 className="lp-pricing-title">{title}</h3>
+      <div className="lp-pricing-price">
+        <span className="lp-pricing-currency">$</span>
+        <span className="lp-pricing-amount">{price}</span>
+        <span className="lp-pricing-period">/{period}</span>
       </div>
     </div>
-    <ul className="pricing-features">
+    <ul className="lp-pricing-features">
       {features.map((feature, index) => (
-        <li key={index} className="pricing-feature">
-          <CheckCircle className="pricing-feature-icon" />
+        <li key={index} className="lp-pricing-feature">
+          <CheckCircle className="lp-pricing-feature-icon" />
           <span>{feature}</span>
         </li>
       ))}
     </ul>
-    <Link to="/signup" className={`pricing-cta ${highlighted ? 'pricing-cta-primary' : 'pricing-cta-secondary'}`}>
+    <Link to="/signup" className={`lp-pricing-cta ${highlighted ? 'lp-pricing-cta-primary' : 'lp-pricing-cta-secondary'}`}>
       {ctaText}
     </Link>
   </div>
@@ -227,62 +226,62 @@ const LandingPage = () => {
       <LandingHeader />
       <main className="landing-main">
         {/* Hero Section */}
-        <section className="hero">
-          <div className="hero-background">
-            <div className="hero-gradient-orb hero-gradient-orb-1"></div>
-            <div className="hero-gradient-orb hero-gradient-orb-2"></div>
-            <div className="hero-grid-pattern"></div>
+        <section className="lp-hero">
+          <div className="lp-hero-background">
+            <div className="lp-hero-gradient-orb lp-hero-gradient-orb-1"></div>
+            <div className="lp-hero-gradient-orb lp-hero-gradient-orb-2"></div>
+            <div className="lp-hero-grid-pattern"></div>
           </div>
-          <div className="hero-content">
-            <div className="hero-badge">
-              <Sparkles className="hero-badge-icon" />
+          <div className="lp-hero-content">
+            <div className="lp-hero-badge">
+              <Sparkles className="lp-hero-badge-icon" />
               <span>Trusted by 2,625+ Real Estate Professionals</span>
             </div>
-            <h1 className="hero-title">
+            <h1 className="lp-hero-title">
               Close More Deals with<br />
-              <span className="hero-title-gradient">Intelligent Real Estate Tools</span>
+              <span className="lp-hero-title-gradient">Intelligent Real Estate Tools</span>
             </h1>
-            <p className="hero-subtitle">
+            <p className="lp-hero-subtitle">
               The all-in-one platform that streamlines listings, offers, and transactions. 
               Save time, reduce errors, and deliver exceptional client experiences.
             </p>
-            <div className="hero-cta-group">
-              <Link to="/signup" className="hero-cta-primary">
+            <div className="lp-hero-cta-group">
+              <Link to="/signup" className="lp-hero-cta-primary">
                 Get Started For Free
-                <ArrowRight className="hero-cta-icon" />
+                <ArrowRight className="lp-hero-cta-icon" />
               </Link>
-              <button className="hero-cta-secondary">
-                <Play className="hero-play-icon" />
+              <button className="lp-hero-cta-secondary">
+                <Play className="lp-hero-play-icon" />
                 Watch Demo
               </button>
             </div>
-            <div className="hero-trust-badges">
-              <div className="hero-trust-badge">
-                <DollarSign className="hero-trust-icon" />
+            <div className="lp-hero-trust-badges">
+              <div className="lp-hero-trust-badge">
+                <DollarSign className="lp-hero-trust-icon" />
                 <span>Win More Listings</span>
               </div>
-              <div className="hero-trust-badge">
-                <Clock className="hero-trust-icon" />
+              <div className="lp-hero-trust-badge">
+                <Clock className="lp-hero-trust-icon" />
                 <span>Save Hours Per Deal</span>
               </div>
-              <div className="hero-trust-badge">
-                <Trophy className="hero-trust-icon" />
+              <div className="lp-hero-trust-badge">
+                <Trophy className="lp-hero-trust-icon" />
                 <span>Beat Other Offers</span>
               </div>
             </div>
           </div>
-          <div className="hero-visual">
-            <div className="hero-dashboard-preview">
-              <div className="hero-dashboard-window">
-                <div className="hero-dashboard-header">
-                  <div className="hero-dashboard-dots">
+          <div className="lp-hero-visual">
+            <div className="lp-hero-dashboard-preview">
+              <div className="lp-hero-dashboard-window">
+                <div className="lp-hero-dashboard-header">
+                  <div className="lp-hero-dashboard-dots">
                     <span></span>
                     <span></span>
                     <span></span>
                   </div>
                 </div>
-                <div className="hero-dashboard-content">
-                  <img src={heroDesktopImage} alt="RealOffer platform dashboard preview" className="hero-dashboard-image" />
+                <div className="lp-hero-dashboard-content">
+                  <img src={heroDesktopImage} alt="RealOffer platform dashboard preview" className="lp-hero-dashboard-image" />
                 </div>
               </div>
             </div>
@@ -290,53 +289,53 @@ const LandingPage = () => {
         </section>
 
         {/* Trust Bar */}
-        <section className="trust-bar">
-          <div className="trust-bar-content">
-            <p className="trust-bar-text">Trusted by leading brokerages</p>
-            <div className="trust-bar-logos">
-              <div className="trust-logo">Keller Williams</div>
-              <div className="trust-logo">RE/MAX</div>
-              <div className="trust-logo">Compass</div>
-              <div className="trust-logo">Coldwell Banker</div>
-              <div className="trust-logo">Century 21</div>
+        <section className="lp-trust-bar">
+          <div className="lp-trust-bar-content">
+            <p className="lp-trust-bar-text">Trusted by leading brokerages</p>
+            <div className="lp-trust-bar-logos">
+              <div className="lp-trust-logo">Keller Williams</div>
+              <div className="lp-trust-logo">RE/MAX</div>
+              <div className="lp-trust-logo">Compass</div>
+              <div className="lp-trust-logo">Coldwell Banker</div>
+              <div className="lp-trust-logo">Century 21</div>
             </div>
           </div>
         </section>
 
         {/* Features Section */}
-        <section className="features">
-          <div className="features-header">
-            <span className="section-badge">Features</span>
-            <h2 className="section-title">Everything You Need to Succeed</h2>
-            <p className="section-subtitle">
+        <section className="lp-features">
+          <div className="lp-features-header">
+            <span className="lp-section-badge">Features</span>
+            <h2 className="lp-section-title">Everything You Need to Succeed</h2>
+            <p className="lp-section-subtitle">
               Powerful tools designed by agents, for agents. Streamline every aspect of your real estate business.
             </p>
           </div>
-          <div className="features-grid">
+          <div className="lp-features-grid">
             <Feature
               icon={FileText}
               title="Smart Document Hub"
-              description="AI-powered document analysis identifies key terms, dates, and potential issues instantly."
+              description="Host disclosure documents and use AI to analyze reports instantly."
             />
             <Feature
               icon={Zap}
               title="Lightning-Fast Offers"
-              description="Create and submit professional offers in under 5 minutes with auto-filled forms."
+              description="Create and submit professional offers in under 5 minutes."
             />
             <Feature
               icon={Shield}
               title="Secure E-Signatures"
-              description="DocuSign integration with audit trails and automatic filing for complete compliance."
+              description="DocuSign integration allows you to e-sign offer documents and track progress."
             />
             <Feature
               icon={BarChart2}
-              title="Real-Time Analytics"
-              description="Track document views, offer activity, and buyer engagement with actionable insights."
+              title="Real Time Analytics"
+              description="Track document views, downloads, offers, and buyer engagement across your listings."
             />
             <Feature
               icon={Calculator}
               title="Market Intelligence"
-              description="Access property valuations, comps, and market trends to price competitively."
+              description="Simplify pricing with instant valuations, comps, and rental estimates for your listings."
             />
             <Feature
               icon={MessageCircle}
@@ -347,32 +346,32 @@ const LandingPage = () => {
         </section>
 
         {/* How It Works Section */}
-        <section className="how-it-works">
-          <div className="how-it-works-content">
-            <div className="how-it-works-header">
-              <span className="section-badge">Process</span>
-              <h2 className="section-title">Close Deals in 3 Simple Steps</h2>
+        <section className="lp-how-it-works">
+          <div className="lp-how-it-works-content">
+            <div className="lp-how-it-works-header">
+              <span className="lp-section-badge">Process</span>
+              <h2 className="lp-section-title">Close Deals in 3 Simple Steps</h2>
             </div>
-            <div className="how-it-works-steps">
-              <div className="how-step">
-                <div className="how-step-number">1</div>
-                <div className="how-step-content">
+            <div className="lp-how-it-works-steps">
+              <div className="lp-how-step">
+                <div className="lp-how-step-number">1</div>
+                <div className="lp-how-step-content">
                   <h3>Create Your Listing</h3>
                   <p>Upload documents, add property details, and publish your listing in minutes.</p>
                 </div>
               </div>
-              <div className="how-step-connector"></div>
-              <div className="how-step">
-                <div className="how-step-number">2</div>
-                <div className="how-step-content">
+              <div className="lp-how-step-connector"></div>
+              <div className="lp-how-step">
+                <div className="lp-how-step-number">2</div>
+                <div className="lp-how-step-content">
                   <h3>Manage Offers</h3>
                   <p>Receive, review, and respond to offers through our intuitive dashboard.</p>
                 </div>
               </div>
-              <div className="how-step-connector"></div>
-              <div className="how-step">
-                <div className="how-step-number">3</div>
-                <div className="how-step-content">
+              <div className="lp-how-step-connector"></div>
+              <div className="lp-how-step">
+                <div className="lp-how-step-number">3</div>
+                <div className="lp-how-step-content">
                   <h3>Close with Confidence</h3>
                   <p>E-sign documents, track progress, and close deals faster than ever.</p>
                 </div>
@@ -382,41 +381,41 @@ const LandingPage = () => {
         </section>
 
         {/* Benefits Section */}
-        <section className="benefits">
-          <div className="benefits-container">
-            <div className="benefits-header">
-              <span className="section-badge">Benefits</span>
-              <h2 className="section-title">Why Top Agents Choose RealOffer</h2>
+        <section className="lp-benefits">
+          <div className="lp-benefits-container">
+            <div className="lp-benefits-header">
+              <span className="lp-section-badge">Benefits</span>
+              <h2 className="lp-section-title">Why Top Agents Choose RealOffer</h2>
             </div>
-            <div className="benefits-grid">
-              <div className="benefit-card">
-                <div className="benefit-icon-wrapper">
-                  <TrendingUp className="benefit-icon" />
+            <div className="lp-benefits-grid">
+              <div className="lp-benefit-card">
+                <div className="lp-benefit-icon-wrapper">
+                  <TrendingUp className="lp-benefit-icon" />
                 </div>
-                <h3>40% Faster Transactions</h3>
-                <p>Streamlined workflows and automation reduce closing times significantly.</p>
-                <Link to="/features" className="benefit-link">
-                  Learn how <ArrowRight className="benefit-link-icon" />
+                <h3>Simplify Your Workflow</h3>
+                <p>RealOffer makes listing, managing, and making offers easier than ever—so you can focus on what matters most.</p>
+                <Link to="/features" className="lp-benefit-link">
+                  Learn how <ArrowRight className="lp-benefit-link-icon" />
                 </Link>
               </div>
-              <div className="benefit-card">
-                <div className="benefit-icon-wrapper">
-                  <Users className="benefit-icon" />
+              <div className="lp-benefit-card">
+                <div className="lp-benefit-icon-wrapper">
+                  <Users className="lp-benefit-icon" />
                 </div>
                 <h3>5-Star Client Experience</h3>
-                <p>Professional tools that impress clients and build lasting relationships.</p>
-                <Link to="/features" className="benefit-link">
-                  See features <ArrowRight className="benefit-link-icon" />
+                <p>Professional tools that impress clients and increase your business.</p>
+                <Link to="/features" className="lp-benefit-link">
+                  See features <ArrowRight className="lp-benefit-link-icon" />
                 </Link>
               </div>
-              <div className="benefit-card">
-                <div className="benefit-icon-wrapper">
-                  <DollarSign className="benefit-icon" />
+              <div className="lp-benefit-card">
+                <div className="lp-benefit-icon-wrapper">
+                  <DollarSign className="lp-benefit-icon" />
                 </div>
-                <h3>2x More Deals</h3>
-                <p>Handle multiple transactions simultaneously without dropping the ball.</p>
-                <Link to="/features" className="benefit-link">
-                  Get started <ArrowRight className="benefit-link-icon" />
+                <h3>Grow Your Deal Volume</h3>
+                <p>Unlock the ability to handle more clients and close more deals with less effort and fewer mistakes.</p>
+                <Link to="/features" className="lp-benefit-link">
+                  Get started <ArrowRight className="lp-benefit-link-icon" />
                 </Link>
               </div>
             </div>
@@ -424,8 +423,8 @@ const LandingPage = () => {
         </section>
 
         {/* Stats Section */}
-        <section className="landing-stats">
-          <div className="landing-stats-container">
+        <section className="lp-landing-stats">
+          <div className="lp-landing-stats-container">
             <Stat
               icon={Clock}
               value={4.8}
@@ -448,27 +447,27 @@ const LandingPage = () => {
         </section>
 
         {/* Testimonials Section */}
-        <section className="testimonials">
-          <div className="testimonials-container">
-            <div className="testimonials-header">
-              <span className="section-badge">Testimonials</span>
-              <h2 className="section-title">Loved by Real Estate Professionals</h2>
+        <section className="lp-testimonials">
+          <div className="lp-testimonials-container">
+            <div className="lp-testimonials-header">
+              <span className="lp-section-badge">Testimonials</span>
+              <h2 className="lp-section-title">Loved by Real Estate Professionals</h2>
             </div>
-            <div className="testimonials-slider">
+            <div className="lp-testimonials-slider">
               {testimonials.map((testimonial, index) => (
                 <div
                   key={index}
-                  className={`testimonial-slide ${index === activeTestimonial ? 'active' : ''}`}
+                  className={`lp-testimonial-slide ${index === activeTestimonial ? 'active' : ''}`}
                 >
                   <Testimonial {...testimonial} />
                 </div>
               ))}
             </div>
-            <div className="testimonials-dots">
+            <div className="lp-testimonials-dots">
               {testimonials.map((_, index) => (
                 <button
                   key={index}
-                  className={`testimonial-dot ${index === activeTestimonial ? 'active' : ''}`}
+                  className={`lp-testimonial-dot ${index === activeTestimonial ? 'active' : ''}`}
                   onClick={() => setActiveTestimonial(index)}
                 />
               ))}
@@ -477,14 +476,14 @@ const LandingPage = () => {
         </section>
 
         {/* Pricing Section */}
-        <section className="pricing">
-          <div className="pricing-container">
-            <div className="pricing-header">
-              <span className="section-badge">Pricing</span>
-              <h2 className="section-title">Simple, Transparent Pricing</h2>
-              <p className="section-subtitle">Choose the plan that fits your business. No hidden fees.</p>
+        <section className="lp-pricing">
+          <div className="lp-pricing-container">
+            <div className="lp-pricing-header">
+              <span className="lp-section-badge">Pricing</span>
+              <h2 className="lp-section-title">Simple, Transparent Pricing</h2>
+              <p className="lp-section-subtitle">Choose the plan that fits your business. No hidden fees.</p>
             </div>
-            <div className="pricing-grid">
+            <div className="lp-pricing-grid">
               <PricingCard
                 title="Starter"
                 price="0"
@@ -503,29 +502,28 @@ const LandingPage = () => {
                 period="month"
                 features={[
                   "Unlimited listings",
-                  "Detailed activity tracking",
-                  "Auto-fill offer documents",
+                  "Detailed activity tracking", 
                   "Comps and valuations",
                   "AI disclosure analysis",
                 ]}
                 highlighted={true}
-                ctaText="Start Free Trial"
+                ctaText="Get Started"
               />
             </div>
           </div>
         </section>
 
         {/* CTA Section */}
-        <section className="cta">
-          <div className="cta-content">
-            <h2 className="cta-title">Ready to Transform Your Business?</h2>
-            <p className="cta-subtitle">
+        <section className="lp-cta">
+          <div className="lp-cta-content">
+            <h2 className="lp-cta-title">Ready to Transform Your Business?</h2>
+            <p className="lp-cta-subtitle">
               Join thousands of successful agents closing more deals with RealOffer
             </p>
-            <div className="cta-buttons">
-              <Link to="/signup" className="hero-cta-primary">
+            <div className="lp-cta-buttons">
+              <Link to="/signup" className="lp-cta-button-primary">
                 Get Started For Free
-                <ArrowRight className="hero-cta-icon" />
+                <ArrowRight className="lp-cta-button-icon" />
               </Link>
             </div>
           </div>

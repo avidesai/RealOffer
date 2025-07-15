@@ -121,13 +121,13 @@ function LoginForm() {
       console.log('Login response:', userData);
       
       if (userData && (userData._id || userData.id)) {
-        setSuccessMessage('Login successful');
+        setSuccessMessage('Log In Successful');
         setTimeout(() => navigate('/dashboard'), 1500);
       } else {
         throw new Error('User data is incomplete');
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Log In Error:', error);
       
       const parsedError = parseAuthError(error);
       
@@ -160,7 +160,7 @@ function LoginForm() {
 
   return (
     <div className="log-form">
-      <h1 className="log-title">Login</h1>
+      <h1 className="log-title">Log In</h1>
       {successMessage && (
         <div className="log-alert log-alert-success">
           {successMessage}
@@ -209,7 +209,7 @@ function LoginForm() {
           {errors.password && <div className="log-error">{errors.password}</div>}
         </div>
         <button type="submit" className="log-button" disabled={isLoading}>
-          {isLoading ? 'Logging in...' : 'Login'}
+          {isLoading ? 'Logging in...' : 'Log In'}
         </button>
       </form>
       <div className="log-footer">

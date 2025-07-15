@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import api from '../../../../../../../../../context/api';
+import { useAuth } from '../../../../../../../../../context/AuthContext';
+import TabPaywall from '../../../../../../../../../components/TabPaywall/TabPaywall';
 import './AIAnalysisModal.css';
 
 const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
+  const { user } = useAuth();
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -119,6 +122,23 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
   };
 
   if (!isOpen) return null;
+
+  // Check if user is pro - if not, show paywall
+  if (!user?.isPremium) {
+    return (
+      <div className="ai-analysis-modal-overlay">
+        <div className="ai-analysis-modal">
+          <div className="ai-analysis-modal-header">
+            <h2>{getModalTitle()}</h2>
+            <button className="ai-analysis-close-button" onClick={onClose} aria-label="Close">×</button>
+          </div>
+          <div className="ai-analysis-modal-content">
+            <TabPaywall feature="ai-analysis" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="ai-analysis-modal-overlay">
