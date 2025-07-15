@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../../../../../../../../../../context/AuthContext';
 import axios from 'axios';
+import Avatar from '../../../../../../../../../../../components/Avatar/Avatar';
 import './Messages.css';
 
 const Messages = ({ offer }) => {
   const { user, token } = useAuth(); // Get both user and token from useAuth
-  const [agentImageUrl, setAgentImageUrl] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const formatDateTime = (isoString) => {
@@ -20,21 +21,20 @@ const Messages = ({ offer }) => {
   };
 
   useEffect(() => {
-    const fetchAgentImageUrl = async () => {
+    const fetchUserData = async () => {
       try {
         // Fetch user data to get profile photo URL, including the token in the request
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        const userData = response.data;
-        setAgentImageUrl(userData.profilePhotoUrl);
+        setUserData(response.data);
       } catch (error) {
-        console.error('Error fetching agent image URL:', error);
+        console.error('Error fetching user data:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchAgentImageUrl();
+    fetchUserData();
   }, [user._id, token]); // Include token in the dependency array
 
   const lastResponse = offer.responses && offer.responses.length > 0 ? offer.responses[offer.responses.length - 1] : null;
@@ -48,17 +48,21 @@ const Messages = ({ offer }) => {
       <h2 className="messages-section-title">Messages</h2>
       <div className="message-bubble buyer-message">
         <div className="agent-avatar-container">
-          {offer.presentedBy.agentImageUrl ? (
-            <img
-              src={offer.presentedBy.agentImageUrl}
-              alt={offer.presentedBy.name}
-              className="agent-avatar-img"
-            />
-          ) : (
-            <div className="agent-avatar" style={{ backgroundColor: offer.presentedBy.agentImageBackgroundColor || '#007bff' }}>
-              {offer.presentedBy.name ? offer.presentedBy.name[0] : 'N/A'}
-            </div>
-          )}
+          {(() => {
+            const nameParts = offer.presentedBy.name ? offer.presentedBy.name.split(' ') : ['', ''];
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.slice(1).join(' ') || '';
+            return (
+              <Avatar
+                src={offer.presentedBy.agentImageUrl}
+                firstName={firstName}
+                lastName={lastName}
+                size="small"
+                className="agent-avatar-img"
+                alt={offer.presentedBy.name}
+              />
+            );
+          })()}
         </div>
         <div className="message-content">
           <p>{offer.buyersAgentMessage ? offer.buyersAgentMessage : "No message included."}</p>
@@ -72,17 +76,14 @@ const Messages = ({ offer }) => {
             <div className="message-timestamp">{formatDateTime(lastResponse.respondedAt)}</div>
           </div>
           <div className="agent-avatar-container right-avatar">
-            {agentImageUrl ? (
-              <img
-                src={agentImageUrl}
-                alt="Agent"
-                className="agent-avatar-img"
-              />
-            ) : (
-              <div className="agent-avatar" style={{ backgroundColor: '#007bff' }}>
-                N/A
-              </div>
-            )}
+            <Avatar
+              src={userData?.profilePhotoUrl}
+              firstName={userData?.firstName}
+              lastName={userData?.lastName}
+              size="small"
+              className="agent-avatar-img"
+              alt="Agent"
+            />
           </div>
         </div>
       )}

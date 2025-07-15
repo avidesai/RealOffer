@@ -6,7 +6,7 @@ import axios from 'axios';
 import { useAuth } from '../../../../context/AuthContext';
 import './DashboardHeader.css';
 import logo from '../../../../assets/images/logo.svg';
-import avatar from '../../../../assets/images/avatar.svg';
+import Avatar from '../../../../components/Avatar/Avatar';
 
 function DashboardHeader({ activeTab, setActiveTab }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -98,7 +98,13 @@ function DashboardHeader({ activeTab, setActiveTab }) {
           </button>
         )}
         <div className="user-avatar" onClick={handleDropdown}>
-          <img src={userData.profilePhotoUrl || avatar} alt="User Avatar" />
+          <Avatar 
+            src={userData.profilePhotoUrl}
+            firstName={userData.firstName}
+            lastName={userData.lastName}
+            size="medium"
+            alt="User Avatar"
+          />
           {userData && (
             <div className="user-info">
               <span className="user-name">{userData.firstName}</span>

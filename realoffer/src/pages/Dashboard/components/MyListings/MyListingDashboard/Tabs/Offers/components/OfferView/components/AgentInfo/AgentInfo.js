@@ -1,6 +1,7 @@
 // AgentInfo.js
 
 import React from 'react';
+import Avatar from '../../../../../../../../../../../components/Avatar/Avatar';
 import './AgentInfo.css';
 
 const formatPhoneNumber = (phoneNumber) => {
@@ -43,27 +44,22 @@ const getStatusStyle = (status) => {
 const AgentInfo = ({ offer }) => {
   const statusStyle = getStatusStyle(offer.offerStatus);
 
-  const agentAvatarStyle = {
-    backgroundColor: offer.presentedBy.agentImageBackgroundColor || '#007bff',
-  };
+  // Extract first and last name from the full name
+  const nameParts = offer.presentedBy.name ? offer.presentedBy.name.split(' ') : ['', ''];
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || '';
 
   return (
     <div className="agent-info-section">
       <div className="agent-info-content">
-        <div
+        <Avatar 
+          src={offer.presentedBy.agentImageUrl}
+          firstName={firstName}
+          lastName={lastName}
+          size="large"
           className="agent-avatar"
-          style={offer.presentedBy.agentImageUrl ? {} : agentAvatarStyle}
-        >
-          {offer.presentedBy.agentImageUrl ? (
-            <img
-              src={offer.presentedBy.agentImageUrl}
-              alt={offer.presentedBy.name}
-              className="agent-avatar-img"
-            />
-          ) : (
-            offer.presentedBy.name ? offer.presentedBy.name[0] : 'N/A'
-          )}
-        </div>
+          alt={offer.presentedBy.name}
+        />
         <div className="agent-details">
           <h3>{offer.presentedBy.name}</h3>
           <p className="contact-info-value">{offer.presentedBy.email}</p>

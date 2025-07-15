@@ -1,28 +1,33 @@
+/* PublicFacingListing.css - Clean & Elegant Design */
+
 /* Main Container */
 .public-listing-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: #fafbfc;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
 .pfl-content {
   flex: 1;
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: .5rem 4rem;
-  width: 90%;
+  padding: 2rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Property Header */
 .pfl-property-header {
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
+  text-align: left;
 }
 
 .pfl-property-title {
   font-size: 2.5rem;
-  font-weight: 800;
-  color: #1a1a1a;
+  font-weight: 700;
+  color: #1a202c;
   margin-bottom: 0.5rem;
   line-height: 1.2;
 }
@@ -30,62 +35,58 @@
 .pfl-property-location {
   display: block;
   font-size: 1.25rem;
-  color: #4b5563;
+  color: #64748b;
   font-weight: 400;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
 /* Content Grid */
 .pfl-content-grid {
   display: grid;
-  grid-template-columns: 2.2fr 1fr;
-  gap: 2rem;
+  grid-template-columns: 2fr 1fr;
+  gap: 3rem;
+  align-items: start;
 }
 
 /* Main Content */
 .pfl-main-content {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 /* Property Details */
 .pfl-property-details {
   background: white;
   border-radius: 12px;
-  padding: 1.5rem 2rem;
+  padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
-}
-
-.pfl-property-details:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
 }
 
 .pfl-details-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 1.5rem;
-  align-items: start;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
 }
 
 .pfl-detail-item {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.25rem;
 }
 
 .pfl-detail-label {
-  font-size: 0.85rem;
-  color: #6b7280;
+  font-size: 0.75rem;
+  color: #64748b;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .pfl-detail-value {
-  font-size: 1.1rem;
-  color: #111827;
+  font-size: 1.125rem;
+  color: #1a202c;
   font-weight: 600;
 }
 
@@ -100,20 +101,14 @@
   overflow: hidden;
   background: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
-  margin-bottom: 2rem;
-}
-
-.pfl-gallery-container:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
 }
 
 .pfl-main-image {
   width: 100%;
   height: 450px;
   object-fit: cover;
-  transition: opacity 0.3s ease-in-out;
-  opacity: 1;
+  transition: opacity 0.3s ease;
 }
 
 .pfl-main-image.loading {
@@ -123,27 +118,26 @@
 /* Image Count */
 .pfl-image-count {
   position: absolute;
-  bottom: 1.25rem;
-  left: 1.25rem;
-  background: rgba(0, 0, 0, 0.85);
+  bottom: 1rem;
+  left: 1rem;
+  background: rgba(0, 0, 0, 0.75);
   color: white;
   padding: 0.5rem 0.75rem;
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 500;
-  backdrop-filter: blur(4px);
 }
 
 /* Price Overlay */
 .pfl-price-overlay {
   position: absolute;
-  top: 1.25rem;
-  left: 1.25rem;
-  background: rgba(0, 0, 0, 0.85);
+  top: 1rem;
+  left: 1rem;
+  background: #1b5cf3;
   color: white;
   padding: 0.75rem 1rem;
   border-radius: 8px;
-  backdrop-filter: blur(4px);
+  font-weight: 600;
 }
 
 .pfl-price-amount {
@@ -154,35 +148,29 @@
 /* Gallery Controls */
 .pfl-gallery-controls {
   position: absolute;
-  bottom: 1.25rem;
-  right: 1.25rem;
+  bottom: 1rem;
+  right: 1rem;
   display: flex;
   gap: 0.5rem;
-  backdrop-filter: blur(4px);
 }
 
 .pfl-gallery-button {
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.75);
   border: none;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: 1.125rem;
   color: white;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 
 .pfl-gallery-button:hover {
-  background: rgba(0, 0, 0, 0.95);
-  transform: scale(1.05);
-}
-
-.pfl-gallery-button:active {
-  transform: scale(0.95);
+  background: rgba(0, 0, 0, 0.9);
 }
 
 /* Contact Form */
@@ -190,30 +178,139 @@
   background: white;
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
   align-self: start;
   min-width: 320px;
-  transition: box-shadow 0.3s ease;
-}
-
-.pfl-contact-form:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .pfl-form-container {
-  padding: 1.75rem;
+  padding: 2rem;
 }
 
 .pfl-form-container h2 {
   font-size: 1.5rem;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 0.5rem;
 }
 
 .pfl-form-container p {
-  color: #4b5563;
+  color: #64748b;
   margin-bottom: 1.5rem;
   line-height: 1.5;
+}
+
+/* Benefits Section */
+.pfl-benefits-section {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+.pfl-benefits-section h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 0.75rem;
+}
+
+.pfl-benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pfl-benefits-list li {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.pfl-benefits-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* Error States */
+.pfl-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+/* Success States */
+.pfl-success-state {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.pfl-success-icon {
+  width: 60px;
+  height: 60px;
+  background: #10b981;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0 auto 1rem;
+}
+
+.pfl-success-state h2 {
+  color: #10b981;
+  margin-bottom: 0.5rem;
+}
+
+.pfl-next-steps {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  text-align: left;
+}
+
+.pfl-next-steps h4 {
+  color: #166534;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.pfl-next-steps ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pfl-next-steps li {
+  color: #166534;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.pfl-next-steps li:before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #10b981;
+}
+
+.pfl-redirect-message {
+  color: #64748b;
+  font-size: 0.875rem;
+  font-style: italic;
+  margin-top: 1rem;
 }
 
 .pfl-inquiry-form {
@@ -223,38 +320,45 @@
 }
 
 .pfl-form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.pfl-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .pfl-form-group label {
-  font-size: 0.9rem;
+  display: block;
+  margin-bottom: 0.5rem;
   font-weight: 500;
   color: #374151;
+  font-size: 0.875rem;
 }
 
 .pfl-form-group input,
 .pfl-form-group select {
   padding: 0.75rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 1rem;
-  transition: all 0.2s ease;
-  color: #1a1a1a;
+  transition: border-color 0.2s ease;
+  color: #1a202c;
   background-color: white;
 }
 
 .pfl-form-group input:hover,
 .pfl-form-group select:hover {
-  border-color: #d1d5db;
+  border-color: #9ca3af;
 }
 
 .pfl-form-group input:focus,
 .pfl-form-group select:focus {
-  border-color: #2563eb;
+  border-color: #1b5cf3;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px rgba(27, 92, 243, 0.1);
 }
 
 .pfl-form-group input::placeholder {
@@ -262,25 +366,25 @@
 }
 
 .pfl-request-button {
-  background: #2563eb;
+  background: #1b5cf3;
   color: white;
   border: none;
-  padding: 1rem;
+  padding: 0.875rem 1rem;
   border-radius: 8px;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
   width: 100%;
 }
 
-.pfl-request-button:hover {
-  background: #1d4ed8;
-  transform: translateY(-1px);
+.pfl-request-button:hover:not(:disabled) {
+  background: #1544b2;
 }
 
-.pfl-request-button:active {
-  transform: translateY(0);
+.pfl-request-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
 }
 
 /* Loading State */
@@ -294,17 +398,17 @@
 }
 
 .pfl-loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #2563eb;
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top: 3px solid #1b5cf3;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
 .pfl-loading-container p {
-  color: #4b5563;
-  font-size: 1.1rem;
+  color: #64748b;
+  font-size: 1rem;
 }
 
 @keyframes spin {
@@ -326,36 +430,29 @@
   background: white;
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
 }
 
 .pfl-error-message h2 {
   color: #dc2626;
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
+  font-weight: 600;
 }
 
 .pfl-error-message p {
-  color: #4b5563;
+  color: #64748b;
 }
 
 /* Responsive Design */
-@media (max-width: 1200px) {
-  .pfl-content {
-    padding: 1rem 3rem;
-  }
-
-  .pfl-details-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
 @media (max-width: 1024px) {
   .pfl-content {
-    padding: 1rem 2rem;
+    padding: 1.5rem;
   }
 
   .pfl-content-grid {
     grid-template-columns: 1fr;
+    gap: 2rem;
   }
 
   .pfl-contact-form {
@@ -364,10 +461,6 @@
 
   .pfl-main-image {
     height: 400px;
-  }
-
-  .pfl-property-details {
-    padding: 1.25rem;
   }
 }
 
@@ -382,36 +475,28 @@
 
   .pfl-details-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
   }
 
   .pfl-main-image {
     height: 300px;
   }
 
-  .pfl-price-overlay {
-    padding: 0.75rem;
-  }
-
-  .pfl-price-amount {
-    font-size: 1.25rem;
-  }
-
   .pfl-form-container {
-    padding: 1.25rem;
+    padding: 1.5rem;
+  }
+
+  .pfl-form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
   }
 }
 
 @media (max-width: 480px) {
   .pfl-details-grid {
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: 1fr;
   }
 
   .pfl-property-title {
     font-size: 1.75rem;
-  }
-
-  .pfl-property-location {
-    font-size: 1.1rem;
   }
 }

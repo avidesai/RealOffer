@@ -1,0 +1,19 @@
+/* BuyerPackageDashboard.css - Same as MyListingDashboard.css */
+
+.buyer-package-dashboard-content {
+  padding-left: 3rem;
+  padding-right: 3rem;
+  padding-top: 1.2rem;
+  flex: 1;
+  background-color: #f4f4f4;
+}
+
+.buyer-package-dashboard {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+footer {
+  margin-top: auto;
+} 

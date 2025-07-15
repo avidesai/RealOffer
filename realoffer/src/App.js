@@ -11,6 +11,7 @@ import PublicFacingListing from './pages/PublicFacingListing/PublicFacingListing
 import Dashboard from './pages/Dashboard/Dashboard';
 import Profile from './pages/Dashboard/pages/Profile/Profile';
 import MyListingDashboard from './pages/Dashboard/components/MyListings/MyListingDashboard/MyListingDashboard';
+import BuyerPackageDashboard from './pages/Dashboard/components/ForBuyers/BuyerPackageDashboard/BuyerPackageDashboard';
 import UpgradeToPro from './pages/Dashboard/pages/UpgradeToPro/UpgradeToPro';
 import ManageSubscription from './pages/Dashboard/pages/ManageSubscription/ManageSubscription';
 import { useAuth } from './context/AuthContext'; // Import useAuth hook
@@ -72,6 +73,7 @@ function App() {
           <Route path="/dashboard" element={<PrivateRoute element={Dashboard} />} />
           <Route path="/profile" element={<PrivateRoute element={Profile} />} />
           <Route path="/mylisting/:id" element={<PrivateRoute element={MyListingDashboard} />} />
+          <Route path="/buyerpackage/:id" element={<PrivateRoute element={BuyerPackageDashboard} />} />
           <Route path="/upgrade" element={<PrivateRoute element={UpgradeToPro} />} />
           <Route path="/dashboard/manage-subscription" element={<PrivateRoute element={ManageSubscription} />} />
           {/* DocuSign Callback Route */}

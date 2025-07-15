@@ -4,10 +4,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem; /* Increase horizontal padding */
+  padding: 1.2rem 2.5rem;
   background-color: #fff;
-  color: #141414; /* White text for contrast */
-  box-shadow: 0 -4px 6px rgba(0,0,0,0.1); /* Add box shadow to the top */
+  color: #141414;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
+  position: relative;
+  z-index: 100;
 }
 
 .footer-text {
@@ -43,4 +45,26 @@
 .footer-socials svg:hover {
   fill: #007bff;
   transform: scale(1.1); /* Slightly increase size on hover for a modern look */
+}
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 1rem 1.5rem;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .footer-text {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .footer-socials {
+    margin-top: 0.5rem;
+  }
+
+  .footer-text p {
+    display: none;
+  }
 }

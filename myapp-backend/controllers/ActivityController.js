@@ -2,10 +2,11 @@
 
 const Activity = require('../models/Activity');
 const PropertyListing = require('../models/PropertyListing');
+const BuyerPackage = require('../models/BuyerPackage');
 
 exports.getActivities = async (req, res) => {
   try {
-    const { listingId } = req.query;
+    const { listingId, buyerPackageId } = req.query;
     let query = {};
 
     if (listingId) {
@@ -14,8 +15,14 @@ exports.getActivities = async (req, res) => {
         return res.status(403).json({ message: 'Not authorized to view these activities' });
       }
       query.propertyListing = listingId;
+    } else if (buyerPackageId) {
+      const buyerPackage = await BuyerPackage.findById(buyerPackageId);
+      if (!buyerPackage || buyerPackage.user.toString() !== req.user.id) {
+        return res.status(403).json({ message: 'Not authorized to view these activities' });
+      }
+      query.buyerPackage = buyerPackageId;
     } else {
-      // If no specific listing, only show activities for listings the user created
+      // If no specific listing or buyer package, show activities for listings the user created
       const userListings = await PropertyListing.find({ createdBy: req.user.id });
       query.$or = [
         { propertyListing: { $in: userListings.map(l => l._id) } },
@@ -24,30 +31,50 @@ exports.getActivities = async (req, res) => {
     }
 
     const activities = await Activity.find(query)
-      .populate('user', 'name')
-      .populate('documentModified', 'title')
-      .populate('propertyListing', 'title');
+      .populate('user', 'firstName lastName email profilePhotoUrl')
+      .populate('documentModified', 'title url')
+      .populate('propertyListing', 'homeCharacteristics')
+      .populate('buyerPackage', 'userInfo')
+      .sort({ timestamp: -1 });
     
     res.status(200).json(activities);
   } catch (error) {
+    console.error('Error fetching activities:', error);
     res.status(500).json({ message: error.message });
   }
 };
 
 exports.createActivity = async (req, res) => {
-  const { action, type, documentModified, propertyListing } = req.body;
-  const newActivity = new Activity({
-    user: req.user.id,
-    action,
-    type,
-    documentModified,
-    propertyListing,
-  });
-
   try {
+    const { action, type, documentModified, propertyListing, buyerPackage, metadata } = req.body;
+    
+    const newActivity = new Activity({
+      user: req.user.id,
+      action,
+      type,
+      documentModified,
+      propertyListing,
+      buyerPackage,
+      metadata: {
+        ...metadata,
+        userRole: req.user.role,
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent')
+      }
+    });
+
     const savedActivity = await newActivity.save();
-    res.status(201).json(savedActivity);
+    
+    // Populate the saved activity for response
+    const populatedActivity = await Activity.findById(savedActivity._id)
+      .populate('user', 'firstName lastName email profilePhotoUrl')
+      .populate('documentModified', 'title url')
+      .populate('propertyListing', 'homeCharacteristics')
+      .populate('buyerPackage', 'userInfo');
+
+    res.status(201).json(populatedActivity);
   } catch (error) {
+    console.error('Error creating activity:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -61,6 +88,39 @@ exports.deleteActivity = async (req, res) => {
     await activity.remove();
     res.status(200).json({ message: 'Activity deleted' });
   } catch (error) {
+    console.error('Error deleting activity:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get activity statistics for a listing
+exports.getActivityStats = async (req, res) => {
+  try {
+    const { listingId } = req.params;
+
+    // Verify the user owns this property listing
+    const listing = await PropertyListing.findOne({
+      _id: listingId,
+      createdBy: req.user.id
+    });
+
+    if (!listing) {
+      return res.status(403).json({ message: 'Not authorized to view these statistics' });
+    }
+
+    const activities = await Activity.find({ propertyListing: listingId });
+
+    const stats = {
+      views: activities.filter(activity => activity.type === 'view').length,
+      downloads: activities.filter(activity => activity.type === 'download').length,
+      offers: activities.filter(activity => activity.type === 'offer').length,
+      buyerPackagesCreated: activities.filter(activity => activity.type === 'buyer_package_created').length,
+      totalActivities: activities.length
+    };
+
+    res.status(200).json(stats);
+  } catch (error) {
+    console.error('Error fetching activity stats:', error);
     res.status(500).json({ message: error.message });
   }
 };

@@ -1,0 +1,57 @@
+/* BuyerPackageActivitySortBar.css */
+
+.buyer-package-activity-sort-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  gap: 1rem;
+}
+
+.buyer-package-activity-sort-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.buyer-package-activity-sort-group label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.buyer-package-activity-select {
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  font-size: 0.9rem;
+  color: #374151;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.buyer-package-activity-select:hover {
+  border-color: #9ca3af;
+}
+
+.buyer-package-activity-select:focus {
+  outline: none;
+  border-color: #1b5cf3;
+  box-shadow: 0 0 0 3px rgba(27, 92, 243, 0.1);
+}
+
+@media (max-width: 768px) {
+  .buyer-package-activity-sort-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .buyer-package-activity-sort-group {
+    justify-content: space-between;
+  }
+} 

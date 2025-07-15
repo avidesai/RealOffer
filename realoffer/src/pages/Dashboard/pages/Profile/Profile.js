@@ -8,6 +8,7 @@ import ProfileHeader from './components/ProfileHeader/ProfileHeader';
 import Footer from '../../components/Footer/Footer';
 import ProfileSpinner from './components/ProfileSpinner/ProfileSpinner';
 import EditEmailModal from './components/EditEmailModal/EditEmailModal';
+import Avatar from '../../../../components/Avatar/Avatar';
 import './Profile.css';
 
 const Profile = () => {
@@ -51,7 +52,14 @@ const Profile = () => {
               <div className="form-group">
                 <label htmlFor="profilePhotoUrl" className='photo-text'>Profile Photo</label>
                 <div className="upload-area-profile">
-                  <img src={profileData.profilePhotoUrl} alt={`${profileData.firstName} ${profileData.lastName}`} className="profile-photo" />
+                  <Avatar 
+                    src={profileData.profilePhotoUrl}
+                    firstName={profileData.firstName}
+                    lastName={profileData.lastName}
+                    size="xlarge"
+                    className="profile-photo"
+                    alt={`${profileData.firstName} ${profileData.lastName}`}
+                  />
                   <label className="upload-label-profile" htmlFor="profilePhotoUrl">
                     Upload Photo
                     <input
@@ -211,7 +219,14 @@ const Profile = () => {
               <div className="form-group">
                 <label htmlFor="agencyImage" className='photo-text'>Agency Photo</label>
                 <div className="upload-area-profile">
-                  <img src={profileData.agencyImage} alt="" className="agency-photo" />
+                  <Avatar 
+                    src={profileData.agencyImage}
+                    firstName={profileData.agencyName}
+                    lastName=""
+                    size="xlarge"
+                    className="agency-photo"
+                    alt={profileData.agencyName || "Agency"}
+                  />
                   <label className="upload-label-profile" htmlFor="agencyImage">
                     Upload Photo
                     <input

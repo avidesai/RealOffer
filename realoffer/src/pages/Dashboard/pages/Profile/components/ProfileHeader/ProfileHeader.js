@@ -6,7 +6,7 @@ import axios from 'axios';
 import { useAuth } from '../../../../../../context/AuthContext';
 import './ProfileHeader.css';
 import logo from '../../../../../../../src/assets/images/logo.svg';
-import avatar from '../../../../../../../src/assets/images/avatar.svg';
+import Avatar from '../../../../../../components/Avatar/Avatar';
 
 function ProfileHeader({ backDestination = '/dashboard' }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -79,7 +79,13 @@ function ProfileHeader({ backDestination = '/dashboard' }) {
           </button>
         )}
         <div className="user-avatar" onClick={handleDropdown}>
-          <img src={userData.profilePhotoUrl || avatar} alt="User Avatar" />
+          <Avatar 
+            src={userData.profilePhotoUrl}
+            firstName={userData.firstName}
+            lastName={userData.lastName}
+            size="medium"
+            alt="User Avatar"
+          />
           {userData && (
             <div className="user-info">
               <span className="user-name">{userData.firstName}</span>

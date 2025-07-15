@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import DashboardHeader from './components/Header/DashboardHeader';
 import MyListings from './components/MyListings/MyListings';
+import ForBuyers from './components/ForBuyers/ForBuyers';
 import Footer from '../../components/Footer/Footer';
 import CreateListingPackageLogic from './components/MyListings/CreateListingPackage/CreateListingPackageLogic';
 import './Dashboard.css';
@@ -26,7 +27,7 @@ function Dashboard({ userId }) {
         {activeTab === 'listings' ? (
           <MyListings onCreatePackageClick={handleCreateListingClick} />
         ) : (
-          <div>ForBuyers</div>
+          <ForBuyers />
         )}
       </div>
       <div className="dashboard-footer">

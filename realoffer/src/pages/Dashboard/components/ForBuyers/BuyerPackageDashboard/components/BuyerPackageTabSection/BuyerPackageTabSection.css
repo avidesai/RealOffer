@@ -1,0 +1,103 @@
+/* BuyerPackageTabSection.css - Same as TabSection.css */
+
+.buyer-package-tab-section {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.buyer-package-tab-navigation {
+  display: flex;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.buyer-package-tab-navigation::-webkit-scrollbar {
+  display: none;
+}
+
+.buyer-package-tab-button {
+  background: none;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  position: relative;
+}
+
+.buyer-package-tab-button:hover {
+  color: #374151;
+  background: #f3f4f6;
+}
+
+.buyer-package-tab-button.active {
+  color: #1b5cf3;
+  background: white;
+  border-bottom-color: #1b5cf3;
+}
+
+.buyer-package-tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #1b5cf3;
+}
+
+.buyer-package-tab-content {
+  padding: 2rem;
+  min-height: 400px;
+}
+
+.spinner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #1b5cf3;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .buyer-package-tab-navigation {
+    padding: 0 0.5rem;
+  }
+
+  .buyer-package-tab-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .buyer-package-tab-content {
+    padding: 1rem;
+  }
+} 

@@ -6,7 +6,7 @@
   align-items: center;
   padding: 1rem 2.5rem;
   background-color: #fff;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
   position: relative;
   z-index: 1000;
 }

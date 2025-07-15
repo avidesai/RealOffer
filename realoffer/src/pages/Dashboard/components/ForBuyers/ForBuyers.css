@@ -1,0 +1,94 @@
+/* ForBuyers.css */
+
+.for-buyers {
+  padding: 0rem 2.5rem 2rem 2.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.for-buyers-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.for-buyers-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.for-buyers-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.for-buyers-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.for-buyers-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+}
+
+.for-buyers-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #1b5cf3;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.for-buyers-error {
+  padding: 1.5rem;
+  color: #e53e3e;
+  background-color: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 1rem 0;
+  box-shadow: 0 2px 8px rgba(229, 62, 62, 0.1);
+}
+
+.no-packages {
+  text-align: center;
+  color: #6b7280;
+  font-size: 1rem;
+  padding: 3rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px dashed #d1d5db;
+}
+
+@media (max-width: 768px) {
+  .for-buyers {
+    padding: 1rem 1rem 2rem 1rem;
+  }
+
+  .for-buyers-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .for-buyers-header h2 {
+    font-size: 1.5rem;
+  }
+} 

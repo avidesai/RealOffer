@@ -1,0 +1,224 @@
+/* BuyerPackageFilterSortBar.css - All styles are .lfsb- prefixed and specific */
+
+.lfsb-bar {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  padding: 1.2rem 2rem 1rem 2rem;
+  margin-bottom: 1.5rem;
+  border: 1.5px solid #e6e8ec;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-sizing: border-box;
+}
+
+.lfsb-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.lfsb-filter-sort-group {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.lfsb-filter-section, .lfsb-sort-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+}
+
+.lfsb-label {
+  color: #222;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+  display: block;
+  letter-spacing: 0.01em;
+}
+
+.lfsb-select {
+  min-width: 170px;
+  max-width: 220px;
+  padding: 0.6rem 2.2rem 0.6rem 1rem;
+  font-size: 1rem;
+  border-radius: 9px;
+  border: 1.5px solid #e1e4e8;
+  background-color: #f8fafd;
+  color: #222;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a8595' d='M6 8.825L1.175 4 2.05 3.125 6 7.075 9.95 3.125 10.825 4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+  background-size: 12px;
+  transition: border-color 0.2s, background-color 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  box-sizing: border-box;
+}
+
+.lfsb-select:hover {
+  border-color: #007bff;
+  background-color: #fff;
+}
+
+.lfsb-select:focus {
+  border-color: #007bff;
+  outline: none;
+  background-color: #fff;
+}
+
+.lfsb-search-section {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.lfsb-search-input {
+  padding: 0.6rem 1rem;
+  border-radius: 9px;
+  border: 1.5px solid #e1e4e8;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s ease;
+  background-color: #fff;
+  color: #222;
+  min-width: 180px;
+  width: 280px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  box-sizing: border-box;
+}
+
+.lfsb-search-input:focus {
+  border-color: #007bff;
+  background-color: #f8fafd;
+}
+
+/* Medium screens - better layout */
+@media (max-width: 1024px) and (min-width: 601px) {
+  .lfsb-bar {
+    padding: 1rem 1.5rem 0.9rem 1.5rem;
+  }
+  
+  .lfsb-top-row {
+    gap: 1.5rem;
+  }
+  
+  .lfsb-filter-sort-group {
+    gap: 1.5rem;
+  }
+  
+  .lfsb-search-input {
+    min-width: 150px;
+    width: 220px;
+  }
+}
+
+/* Tablet screens */
+@media (max-width: 768px) {
+  .lfsb-bar {
+    padding: 1rem 1rem 0.9rem 1rem;
+  }
+  
+  .lfsb-top-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .lfsb-filter-sort-group {
+    gap: 1rem;
+    width: 100%;
+  }
+  
+  .lfsb-filter-section, .lfsb-sort-section {
+    flex: 1;
+  }
+  
+  .lfsb-select {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .lfsb-search-section {
+    width: 100%;
+    margin-left: 0;
+  }
+  
+  .lfsb-search-input {
+    min-width: 0;
+    width: 100%;
+    flex: 1;
+  }
+}
+
+/* Mobile screens */
+@media (max-width: 600px) {
+  .lfsb-bar {
+    padding: 0.75rem 0.75rem 0.75rem 0.75rem;
+    border-radius: 10px;
+    margin-left: 0;
+    margin-right: 0;
+    box-sizing: border-box;
+  }
+  
+  .lfsb-top-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.8rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .lfsb-filter-sort-group {
+    flex-direction: column;
+    gap: 0.8rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .lfsb-filter-section, .lfsb-sort-section {
+    width: 100%;
+    gap: 0.3rem;
+    box-sizing: border-box;
+  }
+  
+  .lfsb-label {
+    font-size: 0.9rem;
+    margin-bottom: 0.2rem;
+  }
+  
+  .lfsb-select {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    font-size: 1rem;
+    padding: 0.65rem 2.2rem 0.65rem 1rem;
+    box-sizing: border-box;
+  }
+  
+  .lfsb-search-section {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 0.3rem;
+    box-sizing: border-box;
+  }
+  
+  .lfsb-search-input {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    padding: 0.65rem 1rem;
+    box-sizing: border-box;
+  }
+} 

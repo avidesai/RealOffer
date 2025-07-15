@@ -1,0 +1,176 @@
+/* BuyerPackageItem.css */
+
+.buyer-package-item {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.buyer-package-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #1b5cf3;
+}
+
+.buyer-package-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.buyer-package-item-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.3;
+}
+
+.buyer-package-item-location {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.buyer-package-item-price {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1b5cf3;
+  white-space: nowrap;
+}
+
+.buyer-package-item-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.buyer-package-item-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.buyer-package-item-detail-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.buyer-package-item-detail-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.buyer-package-item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.buyer-package-item-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.buyer-package-item-status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.buyer-package-item-status-indicator.archived {
+  background: #6b7280;
+}
+
+.buyer-package-item-status-text {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.buyer-package-item-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.buyer-package-item-action-btn {
+  background: none;
+  border: 1px solid #d1d5db;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.buyer-package-item-action-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.buyer-package-item-archive-btn {
+  color: #ef4444;
+  border-color: #fecaca;
+}
+
+.buyer-package-item-archive-btn:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+.buyer-package-item-archive-btn.confirming {
+  background: #ef4444;
+  color: white;
+  border-color: #ef4444;
+}
+
+.buyer-package-item-archive-btn.confirming:hover {
+  background: #dc2626;
+}
+
+@media (max-width: 768px) {
+  .buyer-package-item {
+    padding: 1rem;
+  }
+
+  .buyer-package-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .buyer-package-item-price {
+    font-size: 1.1rem;
+  }
+
+  .buyer-package-item-details {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .buyer-package-item-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .buyer-package-item-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+} 

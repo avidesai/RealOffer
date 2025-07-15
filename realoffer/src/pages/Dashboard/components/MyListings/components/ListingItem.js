@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../../../context/AuthContext';
+import Avatar from '../../../../../components/Avatar/Avatar';
 import './ListingItem.css';
 
 function ListingItem({ listing, onStatusChange, onShareListing }) {
@@ -119,12 +120,14 @@ function ListingItem({ listing, onStatusChange, onShareListing }) {
       <div className="listing-item-agents">
         {agents.length > 0 && <div className="listing-item-agents-label">Agents</div>}
         {agents.map(agent => (
-          <img 
+          <Avatar 
             key={agent._id} 
-            src={agent.profilePhotoUrl} 
-            alt={`${agent.firstName} ${agent.lastName}`} 
-            className="listing-item-agent-image" 
-            title={`${agent.firstName} ${agent.lastName}`}
+            src={agent.profilePhotoUrl}
+            firstName={agent.firstName}
+            lastName={agent.lastName}
+            size="small"
+            className="listing-item-agent-image"
+            alt={`${agent.firstName} ${agent.lastName}`}
           />
         ))}
       </div>

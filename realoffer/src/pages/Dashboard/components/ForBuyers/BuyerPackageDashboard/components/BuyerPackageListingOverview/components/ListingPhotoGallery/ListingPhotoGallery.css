@@ -1,0 +1,224 @@
+/* ListingPhotoGallery.css */
+
+.listing-photo-gallery-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.listing-photo-gallery-modal {
+  background: white;
+  border-radius: 16px;
+  max-width: 90vw;
+  max-height: 90vh;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.listing-photo-gallery-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: white;
+}
+
+.listing-photo-gallery-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.listing-photo-gallery-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.listing-photo-gallery-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.listing-photo-gallery-content {
+  display: flex;
+  flex-direction: column;
+  height: calc(90vh - 80px);
+}
+
+.listing-photo-gallery-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  position: relative;
+  background: #f9fafb;
+}
+
+.listing-photo-gallery-nav {
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  font-size: 2rem;
+  padding: 1rem 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  margin: 0 1rem;
+  min-width: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.listing-photo-gallery-nav:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.listing-photo-gallery-nav:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.listing-photo-gallery-image-container {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.listing-photo-gallery-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: opacity 0.3s ease;
+}
+
+.listing-photo-gallery-image.loading {
+  opacity: 0.5;
+}
+
+.listing-photo-gallery-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.listing-photo-gallery-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #1b5cf3;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.listing-photo-gallery-info {
+  padding: 1rem 1.5rem;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.listing-photo-gallery-counter {
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.listing-photo-gallery-thumbnails {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f3f4f6;
+}
+
+.listing-photo-gallery-thumbnails::-webkit-scrollbar {
+  height: 6px;
+}
+
+.listing-photo-gallery-thumbnails::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 3px;
+}
+
+.listing-photo-gallery-thumbnails::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.listing-photo-gallery-thumbnail {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+  flex-shrink: 0;
+}
+
+.listing-photo-gallery-thumbnail:hover {
+  transform: scale(1.05);
+}
+
+.listing-photo-gallery-thumbnail.active {
+  border-color: #1b5cf3;
+  box-shadow: 0 2px 8px rgba(27, 92, 243, 0.3);
+}
+
+@media (max-width: 768px) {
+  .listing-photo-gallery-overlay {
+    padding: 0;
+  }
+
+  .listing-photo-gallery-modal {
+    max-width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .listing-photo-gallery-content {
+    height: calc(100vh - 80px);
+  }
+
+  .listing-photo-gallery-nav {
+    margin: 0 0.5rem;
+    padding: 0.75rem 0.25rem;
+    font-size: 1.5rem;
+    min-width: 40px;
+  }
+
+  .listing-photo-gallery-thumbnail {
+    width: 60px;
+    height: 45px;
+  }
+} 
