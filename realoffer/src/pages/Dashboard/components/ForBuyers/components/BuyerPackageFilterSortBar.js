@@ -65,7 +65,7 @@ function BuyerPackageFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
           <input
             type="text"
             className="lfsb-search-input"
-            placeholder="Search Listings"
+            placeholder="Search Buyer Packages"
             value={searchQuery}
             onChange={handleSearchChange}
           />

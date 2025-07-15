@@ -24,7 +24,7 @@ function ForBuyers() {
     if ((user?._id || user?.id) && token) {
       setLoading(true);
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages?status=${filter}`, {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -39,7 +39,8 @@ function ForBuyers() {
           logout();
         } else {
           console.error('Failed to fetch buyer packages:', error);
-          setError('No buyer packages found or error fetching packages.');
+          // Don't set error for empty results, just set empty array
+          setBuyerPackages([]);
         }
       }
       setLoading(false);
@@ -47,7 +48,7 @@ function ForBuyers() {
       console.error('User ID or token is missing');
       setError('Authentication error. Please log in again.');
     }
-  }, [user, token, logout, filter]);
+  }, [user, token, logout]);
 
   useEffect(() => {
     fetchBuyerPackages();
@@ -55,15 +56,44 @@ function ForBuyers() {
 
   useEffect(() => {
     const filterAndSortPackages = () => {
-      let filteredPackages = [...buyerPackages];
+      let filteredPackages = buyerPackages;
+      
+      // Apply filter
+      if (filter === 'active') {
+        filteredPackages = buyerPackages.filter(pkg => pkg.status === 'active');
+      } else if (filter === 'archived') {
+        filteredPackages = buyerPackages.filter(pkg => pkg.status === 'archived');
+      }
 
-      // Filter by search query
-      if (searchQuery) {
-        filteredPackages = filteredPackages.filter(pkg => 
-          pkg.propertyListing.homeCharacteristics.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          pkg.propertyListing.homeCharacteristics.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          pkg.propertyListing.homeCharacteristics.state.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+      // Apply search
+      if (searchQuery.trim()) {
+        filteredPackages = filteredPackages.filter(pkg => {
+          const searchTerm = searchQuery.toLowerCase().trim();
+          
+          // Create a comprehensive search string that includes all address components
+          const fullAddress = [
+            pkg.propertyListing?.homeCharacteristics?.address,
+            pkg.propertyListing?.homeCharacteristics?.city,
+            pkg.propertyListing?.homeCharacteristics?.state,
+            pkg.propertyListing?.homeCharacteristics?.zip,
+            pkg.propertyListing?.homeCharacteristics?.county
+          ]
+            .filter(Boolean) // Remove null/undefined values
+            .join(' ')
+            .toLowerCase();
+          
+          // Search through individual fields and combined address
+          return (
+            pkg.propertyListing?.homeCharacteristics?.address?.toLowerCase().includes(searchTerm) ||
+            pkg.propertyListing?.homeCharacteristics?.city?.toLowerCase().includes(searchTerm) ||
+            pkg.propertyListing?.homeCharacteristics?.state?.toLowerCase().includes(searchTerm) ||
+            pkg.propertyListing?.homeCharacteristics?.zip?.toLowerCase().includes(searchTerm) ||
+            pkg.propertyListing?.homeCharacteristics?.county?.toLowerCase().includes(searchTerm) ||
+            fullAddress.includes(searchTerm) || // Search the combined address string
+            // Handle partial matches for addresses like "117 Panorama" matching "117 Panorama Way"
+            searchTerm.split(' ').every(word => fullAddress.includes(word))
+          );
+        });
       }
 
       // Sort packages
@@ -148,7 +178,7 @@ function ForBuyers() {
               buyerPackage={buyerPackage} 
               onStatusChange={handleStatusChange} 
             />
-          )) : <div className="no-packages">No buyer packages found.</div>}
+          )) : <div>No buyer packages found.</div>}
           {pageCount > 1 && (
             <Pagination
               currentPage={currentPage}

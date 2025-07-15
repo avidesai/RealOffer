@@ -70,11 +70,8 @@ exports.createBuyerPackage = async (req, res) => {
 // Get all buyer packages for a user
 exports.getUserBuyerPackages = async (req, res) => {
   try {
-    const { status = 'active' } = req.query;
-    
     const buyerPackages = await BuyerPackage.find({
-      user: req.user.id,
-      status
+      user: req.user.id
     })
     .populate('propertyListing', 'homeCharacteristics imagesUrls status publicUrl')
     .populate('user', 'firstName lastName email profilePhotoUrl')
