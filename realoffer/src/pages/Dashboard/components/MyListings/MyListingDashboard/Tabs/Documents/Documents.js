@@ -27,6 +27,8 @@ const Documents = ({ listingId }) => {
   const [showAIAnalysis, setShowAIAnalysis] = useState(false);
   const [selectedDocumentForAnalysis, setSelectedDocumentForAnalysis] = useState(null);
   const [isReorderMode, setIsReorderMode] = useState(false);
+  const [isRenameMode, setIsRenameMode] = useState(false);
+  const [documentTitles, setDocumentTitles] = useState({});
   const [draggedItem, setDraggedItem] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
 
@@ -114,7 +116,7 @@ const Documents = ({ listingId }) => {
   };
 
   const handleDocumentSelect = (id) => {
-    if (isReorderMode) return; // Disable selection during reorder mode
+    if (isReorderMode || isRenameMode) return; // Disable selection during reorder or rename mode
     
     setSelectedDocuments((prevSelected) =>
       prevSelected.includes(id)
@@ -172,7 +174,7 @@ const Documents = ({ listingId }) => {
   };
 
   const handleViewDocument = (doc) => {
-    if (isReorderMode) return; // Disable viewing during reorder mode
+    if (isReorderMode || isRenameMode) return; // Disable viewing during reorder or rename mode
     
     const documentUrlWithSAS = `${doc.thumbnailUrl}?${doc.sasToken}`;
     setCurrentFileUrl(documentUrlWithSAS);
@@ -182,7 +184,7 @@ const Documents = ({ listingId }) => {
   };
 
   const handleItemClick = (e, doc) => {
-    if (isReorderMode) return; // Disable clicking during reorder mode
+    if (isReorderMode || isRenameMode) return; // Disable clicking during reorder or rename mode
     
     if (
       !e.target.classList.contains('docs-tab-document-checkbox') &&
@@ -257,6 +259,53 @@ const Documents = ({ listingId }) => {
     setSelectedDocuments([]); // Clear selections when entering/exiting reorder mode
   };
 
+  const handleRenameToggle = async () => {
+    if (isRenameMode) {
+      // Save the updated titles to the backend
+      setLoading(true);
+      try {
+        const updatePromises = Object.entries(documentTitles).map(([docId, newTitle]) => {
+          if (newTitle && newTitle.trim()) {
+            return axios.put(
+              `${process.env.REACT_APP_BACKEND_URL}/api/documents/${docId}`,
+              { title: newTitle.trim() },
+              {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              }
+            );
+          }
+          return Promise.resolve();
+        });
+        
+        await Promise.all(updatePromises);
+        await fetchDocuments(documentOrder); // Refresh with updated titles
+        setDocumentTitles({}); // Clear the titles state
+      } catch (error) {
+        console.error('Error saving document titles:', error);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      // Initialize document titles with current titles when entering rename mode
+      const titles = {};
+      documents.forEach(doc => {
+        titles[doc._id] = doc.title || '';
+      });
+      setDocumentTitles(titles);
+    }
+    setIsRenameMode(!isRenameMode);
+    setSelectedDocuments([]); // Clear selections when entering/exiting rename mode
+  };
+
+  const handleTitleChange = (docId, newTitle) => {
+    setDocumentTitles(prev => ({
+      ...prev,
+      [docId]: newTitle
+    }));
+  };
+
   const handleDragStart = (e, index) => {
     setDraggedItem(index);
     e.dataTransfer.effectAllowed = 'move';
@@ -306,17 +355,20 @@ const Documents = ({ listingId }) => {
     <div className="docs-tab-documents-tab">
       <div className="docs-tab-documents-header">
         <div className="docs-tab-action-buttons">
-          <button className="docs-tab-add-documents-button" onClick={handleUploadClick} disabled={isReorderMode}>
+          <button className="docs-tab-add-documents-button" onClick={handleUploadClick} disabled={isReorderMode || isRenameMode}>
             Upload
           </button>
-          <button className="docs-tab-delete-button" onClick={handleReorderToggle}>
+          <button className="docs-tab-delete-button" onClick={handleRenameToggle} disabled={isReorderMode}>
+            {isRenameMode ? 'Save Document Names' : 'Rename'}
+          </button>
+          <button className="docs-tab-delete-button" onClick={handleReorderToggle} disabled={isRenameMode}>
             {isReorderMode ? 'Done Reordering' : 'Reorder'}
           </button>
-          <button className="docs-tab-delete-button" onClick={handleDeleteSelectedDocuments} disabled={isReorderMode}>
+          <button className="docs-tab-delete-button" onClick={handleDeleteSelectedDocuments} disabled={isReorderMode || isRenameMode}>
             Delete
           </button>
         </div>
-        <button className="docs-tab-signature-button" onClick={openSignaturePackageModal} disabled={isReorderMode}>
+        <button className="docs-tab-signature-button" onClick={openSignaturePackageModal} disabled={isReorderMode || isRenameMode}>
           {hasSignaturePackage ? "Update Disclosure Signature Packet" : "Create Disclosure Signature Packet"}
         </button>
       </div>
@@ -333,7 +385,7 @@ const Documents = ({ listingId }) => {
             documents.map((doc, index) => (
               <div
                 key={doc._id}
-                className={`docs-tab-document-item ${isSelected(doc._id) ? 'docs-tab-selected' : ''} ${doc.purpose === 'signature_package' ? 'docs-tab-signature-package' : ''} ${isReorderMode ? 'docs-tab-reorder-mode' : ''} ${draggedItem === index ? 'docs-tab-dragging' : ''} ${dragOverIndex === index ? 'docs-tab-drag-over' : ''}`}
+                className={`docs-tab-document-item ${isSelected(doc._id) ? 'docs-tab-selected' : ''} ${doc.purpose === 'signature_package' ? 'docs-tab-signature-package' : ''} ${isReorderMode ? 'docs-tab-reorder-mode' : ''} ${isRenameMode ? 'docs-tab-rename-mode' : ''} ${draggedItem === index ? 'docs-tab-dragging' : ''} ${dragOverIndex === index ? 'docs-tab-drag-over' : ''}`}
                 onClick={(e) => handleItemClick(e, doc)}
                 draggable={isReorderMode}
                 onDragStart={(e) => handleDragStart(e, index)}
@@ -356,17 +408,31 @@ const Documents = ({ listingId }) => {
                 )}
                 <div className="docs-tab-document-info">
                   <div className="docs-tab-document-details">
-                    <p className="docs-tab-document-title">
-                      {doc.purpose === 'signature_package' && <span className="docs-tab-signature-package-icon">✍🏼 </span>}
-                      {doc.title || 'Untitled'}
-                    </p>
+                    {isRenameMode ? (
+                      <div className="docs-tab-rename-input-container">
+                        {doc.purpose === 'signature_package' && <span className="docs-tab-signature-package-icon">✍🏼 </span>}
+                        <input
+                          type="text"
+                          className="docs-tab-rename-input"
+                          value={documentTitles[doc._id] || ''}
+                          onChange={(e) => handleTitleChange(doc._id, e.target.value)}
+                          placeholder="Enter document name"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    ) : (
+                      <p className="docs-tab-document-title">
+                        {doc.purpose === 'signature_package' && <span className="docs-tab-signature-package-icon">✍🏼 </span>}
+                        {doc.title || 'Untitled'}
+                      </p>
+                    )}
                     <p className="docs-tab-document-type">{doc.type || 'No type'}</p>
                     <p className="docs-tab-document-meta">
                       {doc.pages || 0} {doc.pages === 1 ? 'Page' : 'Pages'} <span className="docs-tab-meta-divider">•</span> {formatDate(doc.updatedAt)}
                     </p>
                   </div>
                 </div>
-                {!isReorderMode && (
+                {!isReorderMode && !isRenameMode && (
                   <div className="docs-tab-document-actions">
                     {(doc.type === 'Home Inspection Report' || doc.type === 'Pest Inspection Report') && (
                       <button 

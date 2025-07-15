@@ -139,25 +139,33 @@
 }
 
 .csp-create-button {
-  background-color: #1890ff;
-  color: white;
+  background-color: #4a90e2;
+  color: #ffffff;
   border: none;
-  padding: 0.7rem 1.5rem;
-  border-radius: 4px;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 500;
-  transition: background-color 0.2s;
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.045);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .csp-create-button:hover:not(:disabled) {
-  background-color: #40a9ff;
+  background-color: #357abd;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .csp-create-button:disabled {
   background-color: #d9d9d9;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .csp-spinner-overlay {

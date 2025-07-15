@@ -10,8 +10,14 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [orderedImages, setOrderedImages] = useState(images);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
   const thumbnailBarRef = useRef(null);
+  const mainPhotoRef = useRef(null);
   const { logout } = useAuth();
+
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50;
 
   useEffect(() => {
     setOrderedImages(images);
@@ -26,14 +32,55 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
   }, [orderedImages.length]);
 
   const handleKeyDown = useCallback((event) => {
-    if (event.key === 'ArrowLeft') {
-      handlePrev();
-    } else if (event.key === 'ArrowRight') {
-      handleNext();
-    } else if (event.key === 'Escape') {
-      onClose();
+    switch (event.key) {
+      case 'ArrowLeft':
+        event.preventDefault();
+        handlePrev();
+        break;
+      case 'ArrowRight':
+        event.preventDefault();
+        handleNext();
+        break;
+      case 'Escape':
+        event.preventDefault();
+        onClose();
+        break;
+      case 'Home':
+        event.preventDefault();
+        setCurrentIndex(0);
+        break;
+      case 'End':
+        event.preventDefault();
+        setCurrentIndex(orderedImages.length - 1);
+        break;
+      default:
+        break;
     }
-  }, [handlePrev, handleNext, onClose]);
+  }, [handlePrev, handleNext, onClose, orderedImages.length]);
+
+  // Touch handlers for swipe gestures
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      handleNext();
+    } else if (isRightSwipe) {
+      handlePrev();
+    }
+  };
 
   useEffect(() => {
     if (orderedImages.length > 0) {
@@ -48,10 +95,43 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
     if (thumbnailBarRef.current) {
       const activeThumb = thumbnailBarRef.current.querySelector('.thumbnail.active');
       if (activeThumb) {
-        activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        activeThumb.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'nearest', 
+          inline: 'center' 
+        });
       }
     }
   }, [currentIndex]);
+
+  // Auto-hide navigation buttons after inactivity
+  useEffect(() => {
+    let timeout;
+    const handleMouseMove = () => {
+      const navButtons = document.querySelectorAll('.nav-button');
+      navButtons.forEach(btn => {
+        btn.style.opacity = '1';
+        btn.style.transform = 'translateY(0)';
+      });
+      
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        navButtons.forEach(btn => {
+          btn.style.opacity = '0';
+          btn.style.transform = 'translateY(10px)';
+        });
+      }, 3000);
+    };
+
+    const photoContainer = document.querySelector('.photo-container');
+    if (photoContainer) {
+      photoContainer.addEventListener('mousemove', handleMouseMove);
+      return () => {
+        photoContainer.removeEventListener('mousemove', handleMouseMove);
+        clearTimeout(timeout);
+      };
+    }
+  }, []);
 
   const updatePhotoOrder = async (newOrder) => {
     try {
@@ -102,18 +182,59 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
     updatePhotoOrder(items);
   };
 
+  const handleThumbnailClick = (index) => {
+    setCurrentIndex(index);
+  };
+
+  const handleMainPhotoClick = (e) => {
+    // Prevent navigation when clicking on the main photo
+    e.stopPropagation();
+  };
+
   return (
     <div className="photo-gallery-modal" onClick={onClose}>
       <div className="photo-gallery-content" onClick={(e) => e.stopPropagation()}>
         <div className="photo-gallery-header">
           {isUpdating && <div className="photo-gallery-updating">Updating order...</div>}
-          <button className="photo-gallery-close-button" onClick={onClose}></button>
+          <button 
+            className="photo-gallery-close-button" 
+            onClick={onClose}
+            aria-label="Close gallery"
+          ></button>
         </div>
-        <div className="photo-container">
-          <button className="nav-button prev" onClick={handlePrev}>&#8249;</button>
-          <img src={orderedImages[currentIndex]} alt={`${currentIndex + 1}`} className="main-photo" />
-          <button className="nav-button next" onClick={handleNext}>&#8250;</button>
+        
+        <div 
+          className="photo-container"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
+          <button 
+            className="nav-button prev" 
+            onClick={handlePrev}
+            aria-label="Previous photo"
+          >
+            &#8249;
+          </button>
+          
+          <img 
+            ref={mainPhotoRef}
+            src={orderedImages[currentIndex]} 
+            alt={`Photo ${currentIndex + 1} of ${orderedImages.length}`} 
+            className="main-photo" 
+            onClick={handleMainPhotoClick}
+            draggable={false}
+          />
+          
+          <button 
+            className="nav-button next" 
+            onClick={handleNext}
+            aria-label="Next photo"
+          >
+            &#8250;
+          </button>
         </div>
+        
         <div className="thumbnail-bar-container">
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="thumbnail-list" direction="horizontal">
@@ -143,7 +264,8 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
                             src={image}
                             alt={`Thumbnail ${index + 1}`}
                             className={`thumbnail ${index === currentIndex ? 'active' : ''}`}
-                            onClick={() => setCurrentIndex(index)}
+                            onClick={() => handleThumbnailClick(index)}
+                            draggable={false}
                           />
                           <div className="thumbnail-order">{index + 1}</div>
                         </div>
