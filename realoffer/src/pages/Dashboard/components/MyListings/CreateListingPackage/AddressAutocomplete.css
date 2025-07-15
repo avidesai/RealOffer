@@ -8,21 +8,21 @@
 
 .address-autocomplete-input {
   width: 100%;
-  padding: 0.875rem 1.125rem;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 12px;
-  font-size: 0.95rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 1rem;
   font-family: 'Inter', sans-serif;
   box-sizing: border-box;
   background-color: #fff;
   transition: all 0.2s ease;
-  color: #2d3748;
+  color: #1a1a1a;
 }
 
 .address-autocomplete-input:focus {
   outline: none;
-  border-color: #1b5cf3;
-  box-shadow: 0 0 0 4px rgba(27, 92, 243, 0.1);
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
 }
 
 .address-autocomplete-input::placeholder {
@@ -35,8 +35,8 @@
   left: 0;
   right: 0;
   background-color: #fff;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   overflow-y: auto;
@@ -49,14 +49,14 @@
 }
 
 .address-autocomplete-suggestion {
-  padding: 0.875rem 1.125rem;
-  font-size: 0.95rem;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
   font-family: 'Inter', sans-serif;
   cursor: pointer;
   background-color: #fff;
   transition: all 0.2s ease;
-  color: #2d3748;
-  border-bottom: 1px solid #e2e8f0;
+  color: #1a1a1a;
+  border-bottom: 1px solid #eaeaea;
 }
 
 .address-autocomplete-suggestion:last-child {
@@ -64,8 +64,8 @@
 }
 
 .address-autocomplete-suggestion:hover {
-  background-color: #f8fafc;
-  color: #1b5cf3;
+  background-color: #f8f9fa;
+  color: #4a90e2;
 }
 
 .address-autocomplete-suggestion:active {
@@ -74,8 +74,8 @@
 
 .address-autocomplete-no-results {
   padding: 1rem;
-  font-size: 0.95rem;
-  color: #64748b;
+  font-size: 1rem;
+  color: #666;
   text-align: center;
   font-weight: 500;
 }
@@ -114,16 +114,16 @@
 @media (max-width: 768px) {
   .address-autocomplete-input {
     padding: 0.75rem 1rem;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 
   .address-autocomplete-suggestion {
     padding: 0.75rem 1rem;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 
   .address-autocomplete-no-results {
     padding: 0.875rem;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 }

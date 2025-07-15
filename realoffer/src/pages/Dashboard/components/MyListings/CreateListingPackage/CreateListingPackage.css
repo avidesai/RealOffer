@@ -19,21 +19,20 @@
 .clp-content {
   background: #ffffff;
   padding: 2.5rem;
-  border-radius: 24px;
-  width: 680px;
-  max-height: 85vh;
+  border-radius: 16px;
+  width: 800px;
+  max-width: 95%;
+  height: 90vh;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   position: relative;
   overflow-y: auto;
-  animation: fadeIn 0.3s ease;
-  display: flex;
-  flex-direction: column;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -53,20 +52,18 @@
 .clp-divider {
   border: none;
   height: 1px;
-  background-color: #e9ecef;
+  background-color: #eaeaea;
   margin: 1rem 0 2rem;
 }
 
 .clp-step {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  margin-bottom: 2rem;
 }
 
 .clp-step h2 {
   font-size: 1.35rem;
   margin-bottom: 1.75rem;
-  color: #2d3748;
+  color: #1a1a1a;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -87,6 +84,7 @@
 .clp-form-group {
   flex: 1;
   min-width: 0;
+  margin-bottom: 1.5rem;
 }
 
 .clp-form-group.full-width {
@@ -98,23 +96,24 @@
 .clp-input[type="number"] {
   width: 100%;
   height: 48px;
-  padding: 0 1.125rem;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 12px;
+  padding: 0 1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
   font-size: 1rem;
   font-family: 'Inter', sans-serif;
   box-sizing: border-box;
   transition: all 0.2s ease;
   background-color: #fff;
-  color: #2d3748;
+  color: #1a1a1a;
   line-height: 1.2;
+  margin-bottom: 0.25rem;
 }
 
 .clp-input:focus,
 .clp-select:focus {
   outline: none;
-  border-color: #1b5cf3;
-  box-shadow: 0 0 0 4px rgba(27, 92, 243, 0.1);
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
 }
 
 .clp-input::placeholder {
@@ -136,23 +135,30 @@
 
 .clp-textarea {
   width: 100%;
-  padding: 0.875rem 1.125rem;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 12px;
+  padding: 0.875rem 1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
   font-size: 1rem;
   font-family: 'Inter', sans-serif;
   box-sizing: border-box;
   transition: all 0.2s ease;
   background-color: #fff;
-  color: #2d3748;
+  color: #1a1a1a;
   resize: vertical;
   min-height: 120px;
   max-height: 240px;
   line-height: 1.5;
+  margin-bottom: 0.25rem;
+}
+
+.clp-textarea:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
 }
 
 .clp-select {
-  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill="%231b5cf3" d="M6.26 7.29L10 11l3.74-3.71a.75.75 0 0 1 1.07 1.05l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.05z"/></svg>');
+  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill="%234a90e2" d="M6.26 7.29L10 11l3.74-3.71a.75.75 0 0 1 1.07 1.05l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.05z"/></svg>');
   background-repeat: no-repeat;
   background-position: right 1rem center;
   background-size: 1rem;
@@ -163,63 +169,72 @@
 
 .clp-error {
   color: #e53e3e;
-  font-size: 0.85rem;
-  margin-top: 0.375rem;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.75rem;
   font-weight: 500;
+  line-height: 1.4;
+  display: block;
 }
 
 .clp-button-container {
   display: flex;
   justify-content: space-between;
+  margin-top: 2.5rem;
   gap: 1rem;
-  margin-top: 2rem;
-  padding: 1.25rem 0;
-  border-top: 1px solid #e9ecef;
+}
+
+.clp-button-container:has(.clp-next-button:only-child) {
+  justify-content: center;
 }
 
 .clp-back-button,
 .clp-next-button {
-  flex: 1;
-  padding: 0.875rem 1.5rem;
-  font-size: 0.95rem;
+  color: #ffffff;
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
   font-weight: 500;
   border: none;
-  border-radius: 12px;
-  cursor: pointer;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
+  width: 48%;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 8px;
+}
+
+.clp-next-button:only-child {
+  width: auto;
+  min-width: 120px;
 }
 
 .clp-back-button {
-  background-color: #f8fafc;
-  color: #475569;
-  border: 1.5px solid #e2e8f0;
+  background-color: #a0a4aa;
 }
 
 .clp-next-button {
-  background: linear-gradient(135deg, #1b5cf3 0%, #4078fb 100%);
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(27, 92, 243, 0.2);
+  background-color: #4a90e2;
 }
 
 .clp-back-button:hover {
-  background-color: #f1f5f9;
-  border-color: #cbd5e1;
+  background-color: #888b92;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .clp-next-button:hover {
-  background: linear-gradient(135deg, #1544b2 0%, #3460c8 100%);
+  background-color: #357abd;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(27, 92, 243, 0.3);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .clp-close-button {
   position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
+  top: 2rem;
+  right: 2rem;
   background: #ffffff;
   border: 1px solid #e0e0e0;
   width: 42px;
@@ -232,20 +247,22 @@
   color: #666;
   font-size: 1.5rem;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  z-index: 1005;
 }
 
 .clp-close-button:hover {
   color: #ffffff;
   background: #e74c3c;
   border-color: #e74c3c;
-  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
+  box-shadow: 0 6px 16px rgba(231, 76, 60, 0.2);
 }
 
 .clp-close-button:before {
   content: '×';
   font-weight: 300;
   line-height: 1;
+  margin-bottom: 2px;
 }
 
 .clp-input-suffix-wrapper {
@@ -255,7 +272,7 @@
 
 .clp-input-suffix {
   position: absolute;
-  right: 1.125rem;
+  right: 1rem;
   top: 50%;
   transform: translateY(-50%);
   color: #64748b;
@@ -282,14 +299,14 @@
   justify-content: center;
   align-items: center;
   z-index: 1001;
-  border-radius: 24px;
+  border-radius: 16px;
 }
 
 .clp-spinner {
   width: 40px;
   height: 40px;
   border: 3px solid #e2e8f0;
-  border-top: 3px solid #1b5cf3;
+  border-top: 3px solid #4a90e2;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -305,25 +322,27 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 2.5px dashed #1b5cf3;
-  background: #f8fafc;
-  border-radius: 16px;
+  border: 2px dashed #4a90e2;
+  background: #f8f9fa;
+  border-radius: 12px;
   padding: 2.5rem 1.5rem;
   margin-bottom: 1.5rem;
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
+  transition: all 0.2s ease;
   position: relative;
   text-align: center;
 }
 
 .clp-photo-upload-area:hover, .clp-photo-upload-area:focus {
-  border-color: #1544b2;
+  border-color: #357abd;
   background: #eff6ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.1);
 }
 
 .clp-photo-upload-icon {
   font-size: 2.5rem;
-  color: #1b5cf3;
+  color: #4a90e2;
   margin-bottom: 0.75rem;
   display: flex;
   align-items: center;
@@ -332,13 +351,14 @@
 
 .clp-photo-upload-text {
   font-size: 1.05rem;
-  color: #475569;
+  color: #1a1a1a;
   margin-bottom: 0.25rem;
+  font-weight: 500;
 }
 
 .clp-photo-upload-hint {
   font-size: 0.92rem;
-  color: #a0aec0;
+  color: #666;
 }
 
 .clp-photo-upload-input {
@@ -348,9 +368,9 @@
 .photo-preview-container {
   margin: 1.25rem 0;
   padding: 1.5rem;
-  background-color: #f8fafc;
-  border-radius: 16px;
-  border: 2px dashed #e2e8f0;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #eaeaea;
   transition: all 0.2s ease;
 }
 
@@ -433,31 +453,31 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 1.25rem;
-  background: #f8fafc;
-  border: 1.5px solid #e2e8f0;
+  background: #f8f9fa;
+  border: 1px solid #eaeaea;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   font-weight: 500;
-  color: #475569;
+  color: #1a1a1a;
 }
 
 .clp-radio-buttons-container label:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
+  background: #eff6ff;
+  border-color: #4a90e2;
 }
 
 .clp-radio-buttons-container input[type="radio"] {
   width: 20px;
   height: 20px;
   margin: 0;
-  accent-color: #1b5cf3;
+  accent-color: #4a90e2;
 }
 
 .clp-radio-buttons-container input[type="radio"]:checked + label {
   background: #eff6ff;
-  border-color: #1b5cf3;
-  color: #1b5cf3;
+  border-color: #4a90e2;
+  color: #4a90e2;
 }
 
 /* Scrollbar styles */
@@ -483,9 +503,9 @@
 @media (max-width: 768px) {
   .clp-content {
     width: 95%;
-    max-height: 90vh;
+    height: 90vh;
     padding: 1.5rem;
-    border-radius: 20px;
+    border-radius: 12px;
   }
 
   .clp-title {

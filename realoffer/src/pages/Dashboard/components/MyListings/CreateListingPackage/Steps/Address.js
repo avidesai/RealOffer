@@ -111,7 +111,6 @@ const Address = ({ formData, errors, handleChange, handleNextStep, handlePrevSte
       {errors.apn && <div className="clp-error">{errors.apn}</div>}
 
       <div className='clp-button-container'>
-        <button className="clp-back-button" onClick={handlePrevStep}>Back</button>
         <button className="clp-next-button" onClick={handleNextStep}>Next</button>
       </div>
     </div>

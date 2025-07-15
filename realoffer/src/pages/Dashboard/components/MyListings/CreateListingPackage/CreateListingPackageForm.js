@@ -2,7 +2,6 @@
 
 import React from 'react';
 import './CreateListingPackage.css';
-import Role from './Steps/Role';
 import Address from './Steps/Address';
 import PropertyFeatures from './Steps/PropertyFeatures';
 import ListingAgents from './Steps/ListingAgents';
@@ -31,14 +30,6 @@ const CreateListingPackageForm = ({
       <button className="clp-close-button" onClick={onClose}></button>
       <h1 className="clp-title">Create Listing Package</h1>
       <hr className="clp-divider" />
-      {step === 1 && (
-        <Role
-          formData={formData}
-          errors={errors}
-          handleChange={handleChange}
-          handleNextStep={handleNextStep}
-        />
-      )}
       {step === 2 && (
         <Address
           formData={formData}
