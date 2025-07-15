@@ -34,7 +34,7 @@ const UploadDocumentsModal = ({
         <div className="offer-upload-area">
           <div className="offer-drag-drop">
             <button className="offer-upload-button" onClick={handleUploadClick}>
-              Upload from your device
+              Select Files
             </button>
             <input
               type="file"
@@ -51,22 +51,16 @@ const UploadDocumentsModal = ({
           <div className="offer-file-list">
             {files.map((file, index) => (
               <div key={index} className="offer-file-item">
-                <div className="offer-file-quadrant offer-file-name">
-                  {file.file.name}
-                </div>
-                <div className="offer-file-quadrant offer-file-delete">
-                  <button className="offer-delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>
-                </div>
-                <div className="offer-file-quadrant offer-file-title">
+                <div className="offer-file-title">
                   <input
                     type="text"
-                    value={file.title}
+                    value={file.title || file.file.name}
                     onChange={(e) => handleFileTitleChange(index, e.target.value)}
                     placeholder="Document Title"
                     className="offer-file-title-input"
                   />
                 </div>
-                <div className="offer-file-quadrant offer-file-type">
+                <div className="offer-file-type">
                   <select
                     value={file.type}
                     onChange={(e) => handleFileTypeChange(index, e.target.value)}
@@ -87,12 +81,15 @@ const UploadDocumentsModal = ({
                     <option value="Other">Other</option>
                   </select>
                 </div>
+                <div className="offer-file-delete">
+                  <button className="offer-delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>
+                </div>
               </div>
             ))}
           </div>
         </div>
         <div className="offer-modal-footer">
-          <button className="offer-upload-files-button" onClick={handleUpload}>Add Documents</button>
+          <button className="offer-upload-files-button" onClick={handleUpload}>Upload Documents</button>
         </div>
       </div>
     </div>

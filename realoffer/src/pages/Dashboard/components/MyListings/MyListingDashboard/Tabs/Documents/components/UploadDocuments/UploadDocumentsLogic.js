@@ -16,6 +16,19 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
   const fileInputRef = useRef(null);
   const { user, token } = useAuth();
 
+  const validateAndClearErrors = (currentFiles) => {
+    const newErrors = [];
+    if (currentFiles.length === 0) {
+      newErrors.push('Please select at least one file.');
+    }
+    currentFiles.forEach((file, index) => {
+      if (!file.type) {
+        newErrors.push(`Please select a type for file ${index + 1}.`);
+      }
+    });
+    setErrors(newErrors);
+  };
+
   const handleDragOver = (e) => {
     e.preventDefault();
   };
@@ -23,18 +36,22 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
   const handleDrop = (e) => {
     e.preventDefault();
     const droppedFiles = Array.from(e.dataTransfer.files);
-    setFiles((prevFiles) => [
-      ...prevFiles,
+    const newFiles = [
+      ...files,
       ...droppedFiles.map((file) => ({ file, type: '', title: file.name, docType: getDocType(file) })),
-    ]);
+    ];
+    setFiles(newFiles);
+    validateAndClearErrors(newFiles);
   };
 
   const handleFileSelect = (e) => {
     const selectedFiles = Array.from(e.target.files);
-    setFiles((prevFiles) => [
-      ...prevFiles,
+    const newFiles = [
+      ...files,
       ...selectedFiles.map((file) => ({ file, type: '', title: file.name, docType: getDocType(file) })),
-    ]);
+    ];
+    setFiles(newFiles);
+    validateAndClearErrors(newFiles);
   };
 
   const handleUploadClick = () => {
@@ -42,19 +59,21 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
   };
 
   const handleDeleteFile = (index) => {
-    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+    const newFiles = files.filter((_, i) => i !== index);
+    setFiles(newFiles);
+    validateAndClearErrors(newFiles);
   };
 
   const handleFileTypeChange = (index, newType) => {
-    setFiles((prevFiles) =>
-      prevFiles.map((file, i) => (i === index ? { ...file, type: newType } : file))
-    );
+    const newFiles = files.map((file, i) => (i === index ? { ...file, type: newType } : file));
+    setFiles(newFiles);
+    validateAndClearErrors(newFiles);
   };
 
   const handleFileTitleChange = (index, newTitle) => {
-    setFiles((prevFiles) =>
-      prevFiles.map((file, i) => (i === index ? { ...file, title: newTitle } : file))
-    );
+    const newFiles = files.map((file, i) => (i === index ? { ...file, title: newTitle } : file));
+    setFiles(newFiles);
+    validateAndClearErrors(newFiles);
   };
 
   const getDocType = (file) => {

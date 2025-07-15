@@ -17,7 +17,7 @@
 
 .modal-content {
   background: #ffffff;
-  padding: 2.5rem;
+  padding: 2rem;
   border-radius: 16px;
   width: 700px;
   max-width: 95%;
@@ -40,20 +40,20 @@
 }
 
 .offer-modal-header {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .offer-modal-header h2 {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   color: #1a1a1a;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   font-weight: 600;
 }
 
 .offer-modal-header p {
   color: #666;
-  font-size: 1.1rem;
-  line-height: 1.5;
+  font-size: 1rem;
+  line-height: 1.4;
 }
 
 .offer-close-button {
@@ -91,18 +91,18 @@
 }
 
 .offer-upload-area {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .offer-drag-drop {
   border: 2px dashed #4a90e2;
   border-radius: 12px;
-  padding: 2rem 1.5rem;
+  padding: 1.5rem 1.25rem;
   text-align: center;
   background-color: #f8f9fa;
   transition: all 0.3s ease;
   cursor: pointer;
-  min-height: 120px;
+  min-height: 100px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -118,28 +118,28 @@
 }
 
 .offer-upload-button {
-  background-color: #4a90e2;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
   color: white;
   border: none;
-  padding: 0.875rem 1.5rem;
+  padding: 0.75rem 1.25rem;
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.25);
 }
 
 .offer-upload-button:hover {
-  background-color: #357abd;
+  background: linear-gradient(135deg, #357abd 0%, #2c5282 100%);
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.35);
 }
 
 .offer-file-list-container {
-  max-height: 400px;
+  max-height: 350px;
   overflow-y: auto;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   scrollbar-width: thin;
   scrollbar-color: #d1d5db #f8f9fa;
 }
@@ -168,7 +168,7 @@
   border: 1px solid #eaeaea;
   border-radius: 12px;
   padding: 1.25rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   transition: all 0.2s ease;
   position: relative;
   gap: 1rem;
@@ -180,25 +180,14 @@
   transform: translateY(-1px);
 }
 
-.offer-file-name {
-  font-weight: 600;
-  color: #1a1a1a;
-  font-size: 1rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1.2 1 0;
-  padding-right: 0.5rem;
-}
-
 .offer-file-title {
-  flex: 1.5 1 0;
-  min-width: 120px;
+  flex: 2 1 0;
+  min-width: 200px;
 }
 
 .offer-file-type {
-  flex: 1.2 1 0;
-  min-width: 120px;
+  flex: 1.5 1 0;
+  min-width: 150px;
 }
 
 .offer-file-delete {
@@ -219,6 +208,7 @@
   background: #fff;
   transition: all 0.2s ease;
   box-sizing: border-box;
+  height: 44px;
 }
 
 .offer-file-title-input:focus,
@@ -250,6 +240,7 @@
   background-position: right 1rem center;
   background-size: 1rem;
   padding-right: 2.5rem;
+  height: 44px;
 }
 
 .offer-file-type-select option {
@@ -260,12 +251,14 @@
   background-color: #e74c3c;
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
   transition: all 0.2s ease;
+  height: 44px;
+  min-width: 70px;
 }
 
 .offer-delete-file-button:hover {
@@ -276,11 +269,11 @@
 
 .offer-modal-footer {
   text-align: center;
-  margin-top: 1rem;
+  margin-top: 0.75rem;
 }
 
 .offer-upload-files-button {
-  background-color: #4a90e2;
+  background: linear-gradient(135deg, #1b5cf3 0%, #4078fb 100%);
   color: white;
   border: none;
   padding: 1rem 2rem;
@@ -293,7 +286,7 @@
 }
 
 .offer-upload-files-button:hover {
-  background-color: #357abd;
+  background: linear-gradient(135deg, #1544b2 0%, #3460c8 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -301,9 +294,9 @@
 .offer-upload-errors {
   background-color: #f8d7da;
   color: #721c24;
-  padding: 1.25rem 1.5rem;
+  padding: 1rem 1.25rem;
   border-radius: 12px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   border: 1px solid #f5c6cb;
 }
 
@@ -345,21 +338,21 @@
   .modal-content {
     max-width: 98%;
     width: 98%;
-    padding: 1.5rem;
+    padding: 1.25rem;
     border-radius: 12px;
   }
   
   .offer-modal-header h2 {
-    font-size: 1.5rem;
+    font-size: 1.35rem;
   }
   
   .offer-file-list-container {
-    max-height: 300px;
+    max-height: 280px;
   }
   
   .offer-drag-drop {
-    padding: 1.5rem 1rem;
-    min-height: 100px;
+    padding: 1.25rem 1rem;
+    min-height: 90px;
   }
   
   .offer-file-item {
@@ -369,13 +362,13 @@
     padding: 1rem;
   }
   
-  .offer-file-name, .offer-file-title, .offer-file-type, .offer-file-delete {
+  .offer-file-title, .offer-file-type, .offer-file-delete {
     min-width: 0;
     width: 100%;
   }
   
   .offer-upload-errors {
-    padding: 1rem;
-    font-size: 0.95rem;
+    padding: 0.875rem;
+    font-size: 0.9rem;
   }
 }
