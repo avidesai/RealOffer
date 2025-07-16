@@ -499,7 +499,7 @@ const PublicFacingListing = () => {
   }
 
   return (
-    <div className="public-listing-container">
+    <div className="pfl-container">
       <Header />
       <main className="pfl-content">
         <div className="pfl-property-header">
