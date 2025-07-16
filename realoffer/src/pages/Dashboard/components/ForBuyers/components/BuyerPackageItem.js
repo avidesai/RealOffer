@@ -1,7 +1,10 @@
 // BuyerPackageItem.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useAuth } from '../../../../../context/AuthContext';
+import Avatar from '../../../../../components/Avatar/Avatar';
 import './BuyerPackageItem.css';
 
 const formatPrice = (price) => {
@@ -17,9 +20,31 @@ const formatNumber = (num) => {
 };
 
 function BuyerPackageItem({ buyerPackage, onStatusChange }) {
+  const [agents, setAgents] = useState([]);
   const [isConfirmingArchive, setIsConfirmingArchive] = useState(false);
   const [confirmationTimeout, setConfirmationTimeout] = useState(null);
   const navigate = useNavigate();
+  const { token } = useAuth();
+
+  useEffect(() => {
+    const fetchAgents = async () => {
+      if (buyerPackage.propertyListing && buyerPackage.propertyListing.agentIds && buyerPackage.propertyListing.agentIds.length > 0) {
+        const agentDetails = await Promise.all(
+          buyerPackage.propertyListing.agentIds.map(async (id) => {
+            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+              },
+            });
+            return response.data;
+          })
+        );
+        setAgents(agentDetails);
+      }
+    };
+
+    fetchAgents();
+  }, [buyerPackage.propertyListing, token]);
 
   const handleClick = () => {
     navigate(`/buyerpackage/${buyerPackage._id}`);
@@ -47,14 +72,17 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
     }
   };
 
-  const handleStatusChange = (e) => {
+  const handleShareListing = (e) => {
     e.stopPropagation();
-    const newStatus = buyerPackage.status === 'active' ? 'archived' : 'active';
-    onStatusChange(buyerPackage._id, newStatus);
+    // For buyer packages, we could share the public URL or implement a different sharing mechanism
+    if (buyerPackage.publicUrl) {
+      navigator.clipboard.writeText(buyerPackage.publicUrl);
+      // You could add a toast notification here
+    }
   };
 
   // Cleanup timeout on unmount
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       if (confirmationTimeout) {
         clearTimeout(confirmationTimeout);
@@ -77,14 +105,11 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
           <p className="buyer-package-item-location">
             {propertyListing.homeCharacteristics.city}, {propertyListing.homeCharacteristics.state} {propertyListing.homeCharacteristics.zip}
           </p>
-          <div className="buyer-package-item-stats">
-            <span className="buyer-package-item-price">{formatPrice(propertyListing.homeCharacteristics.price)}</span>
-            <span className="buyer-package-item-details">
-              {propertyListing.homeCharacteristics.beds} beds • {propertyListing.homeCharacteristics.baths} baths • {formatNumber(propertyListing.homeCharacteristics.squareFootage)} sqft
-            </span>
-          </div>
         </div>
         <div className="buyer-package-item-action-buttons">
+          <button className="buyer-package-item-button share" onClick={handleShareListing}>
+            Share
+          </button>
           <button 
             className={`buyer-package-item-button ${isConfirmingArchive ? 'confirm-archive' : 'archive'}`} 
             onClick={handleArchivePackage}
@@ -96,15 +121,19 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
           </button>
         </div>
       </div>
-      <div className="buyer-package-item-status">
-        <span className={`status-badge ${buyerPackage.status}`}>
-          {buyerPackage.status === 'active' ? 'Active' : 'Archived'}
-        </span>
-        <div className="buyer-package-item-metrics">
-          <span className="metric">Views: {buyerPackage.viewCount}</span>
-          <span className="metric">Downloads: {buyerPackage.downloadCount}</span>
-          <span className="metric">Offers: {buyerPackage.offerCount}</span>
-        </div>
+      <div className="buyer-package-item-agents">
+        <div className="buyer-package-item-agents-label">Agents</div>
+        {agents.map(agent => (
+          <Avatar 
+            key={agent._id} 
+            src={agent.profilePhotoUrl}
+            firstName={agent.firstName}
+            lastName={agent.lastName}
+            size="small"
+            className="buyer-package-item-agent-image"
+            alt={`${agent.firstName} ${agent.lastName}`}
+          />
+        ))}
       </div>
     </div>
   );

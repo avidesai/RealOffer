@@ -73,7 +73,7 @@ exports.getUserBuyerPackages = async (req, res) => {
     const buyerPackages = await BuyerPackage.find({
       user: req.user.id
     })
-    .populate('propertyListing', 'homeCharacteristics imagesUrls status publicUrl')
+    .populate('propertyListing', 'homeCharacteristics imagesUrls status publicUrl agentIds')
     .populate('user', 'firstName lastName email profilePhotoUrl')
     .sort({ updatedAt: -1 });
 
