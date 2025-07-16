@@ -164,6 +164,10 @@ const PublicFacingListing = () => {
       const data = await response.json();
       
       if (response.ok) {
+        // Store authentication data in localStorage
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token);
+        
         await createBuyerPackage(data.user._id, data.token);
       } else {
         setError(data.message || 'Invalid email or password. Please try again.');
@@ -226,6 +230,10 @@ const PublicFacingListing = () => {
         const loginData = await loginResponse.json();
         
         if (loginResponse.ok) {
+          // Store authentication data in localStorage
+          localStorage.setItem('user', JSON.stringify(loginData.user));
+          localStorage.setItem('token', loginData.token);
+          
           await createBuyerPackage(loginData.user._id, loginData.token);
         } else {
           setError('Account created but login failed. Please try logging in.');
@@ -269,15 +277,15 @@ const PublicFacingListing = () => {
           title: "Welcome to RealOffer!",
           message: "Your buyer package has been created successfully.",
           nextSteps: [
-            "View property documents and disclosures",
-            "Access AI-powered market analysis", 
+            "View your buyer package in the 'For Buyers' section",
+            "Access property documents and disclosures",
             "Make offers when ready"
           ]
         });
         
         // Auto-redirect after 3 seconds
         setTimeout(() => {
-          window.location.href = `/buyerpackage/${buyerPackage._id}`;
+          window.location.href = `/dashboard`;
         }, 3000);
       } else {
         setError('Failed to create buyer package. Please try again.');
@@ -319,7 +327,7 @@ const PublicFacingListing = () => {
               </ul>
             </div>
             <p className="pfl-redirect-message">
-              Redirecting you to your buyer dashboard...
+              Redirecting you to your dashboard...
             </p>
           </div>
         </div>
