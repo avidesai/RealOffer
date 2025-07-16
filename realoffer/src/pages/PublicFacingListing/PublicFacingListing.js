@@ -69,6 +69,24 @@ const PublicFacingListing = () => {
     fetchListing();
   }, [token]);
 
+  // Keyboard navigation for image gallery
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (listing?.imagesUrls?.length > 1) {
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          previousImage();
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          nextImage();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [listing?.imagesUrls?.length]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -325,6 +343,7 @@ const PublicFacingListing = () => {
                 value={formData.password}
                 onChange={handleInputChange}
                 required
+                autoComplete="current-password"
               />
             </div>
             <button type="submit" className="pfl-request-button" disabled={isLoading}>
@@ -352,6 +371,8 @@ const PublicFacingListing = () => {
                 value={formData.password}
                 onChange={handleInputChange}
                 required
+                autoComplete="new-password"
+                minLength="6"
               />
             </div>
             <div className="pfl-form-group">
@@ -364,6 +385,8 @@ const PublicFacingListing = () => {
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 required
+                autoComplete="new-password"
+                minLength="6"
               />
             </div>
             <button type="submit" className="pfl-request-button" disabled={isLoading}>
@@ -383,10 +406,10 @@ const PublicFacingListing = () => {
         <div className="pfl-benefits-section">
           <h4>What you'll get access to:</h4>
           <ul className="pfl-benefits-list">
-            <li>✓ Property disclosures & documents</li>
-            <li>✓ AI-powered market analysis</li>
-            <li>✓ Make offers directly</li>
-            <li>✓ Track property updates</li>
+            <li>Property disclosures & documents</li>
+            <li>AI-powered market analysis</li>
+            <li>Make offers directly</li>
+            <li>Track property updates</li>
           </ul>
         </div>
 
@@ -404,6 +427,7 @@ const PublicFacingListing = () => {
                 value={formData.firstName}
                 onChange={handleInputChange}
                 required
+                autoComplete="given-name"
               />
             </div>
             <div className="pfl-form-group">
@@ -416,6 +440,7 @@ const PublicFacingListing = () => {
                 value={formData.lastName}
                 onChange={handleInputChange}
                 required
+                autoComplete="family-name"
               />
             </div>
           </div>
@@ -429,6 +454,7 @@ const PublicFacingListing = () => {
               value={formData.email}
               onChange={handleInputChange}
               required
+              autoComplete="email"
             />
           </div>
           <div className="pfl-form-group">
@@ -440,8 +466,8 @@ const PublicFacingListing = () => {
               onChange={handleInputChange}
               required
             >
-              <option value="agent">Agent</option>
-              <option value="buyer">Buyer</option>
+              <option value="agent">Real Estate Agent</option>
+              <option value="buyer">Home Buyer</option>
             </select>
           </div>
           <button type="submit" className="pfl-request-button" disabled={isLoading}>
