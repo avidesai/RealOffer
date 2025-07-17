@@ -1,103 +1,249 @@
-/* BuyerPackageTabSection.css - Same as TabSection.css */
-
-.buyer-package-tab-section {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+.tab-section {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  background: #fff;
+  box-shadow: 0 8px 32px rgba(27, 92, 243, 0.13), 0 2px 8px rgba(0,0,0,0.08);
+  border-radius: 20px;
+  border: 1.5px solid #e3e8f0;
+  padding: 0 0 1.5rem 0;
   overflow: hidden;
 }
 
-.buyer-package-tab-navigation {
+.tab-navigation {
   display: flex;
-  background: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
+  flex-direction: row;
   overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  overflow-y: hidden;
+  align-items: stretch;
+  background: linear-gradient(135deg, #f8fafd 0%, #f1f5f9 100%);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0;
+  min-height: 62px;
+  gap: 0;
 }
 
-.buyer-package-tab-navigation::-webkit-scrollbar {
-  display: none;
-}
-
-.buyer-package-tab-button {
-  background: none;
-  border: none;
-  padding: 1rem 1.5rem;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #6b7280;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  border-bottom: 2px solid transparent;
-  position: relative;
-}
-
-.buyer-package-tab-button:hover {
-  color: #374151;
-  background: #f3f4f6;
-}
-
-.buyer-package-tab-button.active {
-  color: #1b5cf3;
-  background: white;
-  border-bottom-color: #1b5cf3;
-}
-
-.buyer-package-tab-button.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #1b5cf3;
-}
-
-.buyer-package-tab-content {
-  padding: 2rem;
-  min-height: 400px;
-}
-
-.spinner-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+.tab-button {
+  flex: 1;
   background: rgba(255, 255, 255, 0.8);
+  color: #475569;
+  border: 1px solid transparent;
+  padding: 1rem 1.25rem 0.875rem 1.25rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 0;
+  position: relative;
+  outline: none;
+  height: 100%;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
+  gap: 0.5rem;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #1b5cf3;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+.tab-button.active {
+  background: #007bff;
+  color: #fff;
+  font-weight: 700;
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.25);
+  transform: translateY(-1px);
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.tab-button.active::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: #007bff;
+  border-radius: 1px 1px 0 0;
 }
 
-@media (max-width: 768px) {
-  .buyer-package-tab-navigation {
-    padding: 0 0.5rem;
+.tab-button:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.95);
+  color: #007bff;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.tab-button:focus-visible:not(.active) {
+  background: rgba(255, 255, 255, 0.95);
+  color: #007bff;
+  border-color: #007bff;
+  outline: none;
+}
+
+.tab-button:focus {
+  outline: none;
+}
+
+.tab-button:first-child {
+  border-top-left-radius: 20px;
+}
+
+.tab-button:last-child {
+  border-top-right-radius: 20px;
+}
+
+.tab-content {
+  background: #f8fafd;
+  border-radius: 0 0 20px 20px;
+  margin-top: -1px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+  padding: 1.25rem 1.75rem 1.75rem 1.75rem;
+}
+
+@media (max-width: 1200px) {
+  .tab-section {
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+    border-radius: 16px;
   }
-
-  .buyer-package-tab-button {
-    padding: 0.75rem 1rem;
+  
+  .tab-navigation {
+    border-radius: 16px 16px 0 0;
+    padding: 0;
+    min-height: 58px;
+  }
+  
+  .tab-button {
+    padding: 0.875rem 1rem 0.75rem 1rem;
     font-size: 0.9rem;
   }
+  
+  .tab-button:first-child {
+    border-top-left-radius: 16px;
+  }
+  
+  .tab-button:last-child {
+    border-top-right-radius: 16px;
+  }
+  
+  .tab-content {
+    padding: 1rem 1.25rem 1.25rem 1.25rem;
+    border-radius: 0 0 16px 16px;
+  }
+}
 
-  .buyer-package-tab-content {
-    padding: 1rem;
+@media (max-width: 900px) {
+  .tab-section {
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+    border-radius: 14px;
+    padding: 0 0 1.25rem 0;
+  }
+  
+  .tab-navigation {
+    border-radius: 14px 14px 0 0;
+    padding: 0;
+    min-height: 54px;
+    gap: 0;
+  }
+  
+  .tab-button {
+    padding: 0.75rem 0.875rem 0.625rem 0.875rem;
+    font-size: 0.85rem;
+    border-radius: 0;
+  }
+  
+  .tab-button:first-child {
+    border-top-left-radius: 14px;
+  }
+  
+  .tab-button:last-child {
+    border-top-right-radius: 14px;
+  }
+  
+  .tab-content {
+    padding: 0.875rem 1rem 1rem 1rem;
+    border-radius: 0 0 14px 14px;
+  }
+}
+
+@media (max-width: 767px) {
+  .tab-section {
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+    border-radius: 12px;
+    padding: 0 0 1rem 0;
+  }
+  
+  .tab-navigation {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    align-items: stretch;
+    border-radius: 12px 12px 0 0;
+    padding: 0;
+    min-height: 58px;
+    gap: 0;
+  }
+  
+  .tab-button {
+    min-width: 100px;
+    flex: 0 0 auto;
+    border-radius: 0;
+    font-size: 0.9rem;
+    padding: 0.875rem 0.875rem 0.75rem 0.875rem;
+    height: 100%;
+    box-sizing: border-box;
+    font-weight: 500;
+  }
+  
+  .tab-button:first-child {
+    border-top-left-radius: 12px;
+  }
+  
+  .tab-button:last-child {
+    border-top-right-radius: 12px;
+  }
+  
+  .tab-content {
+    padding: 0.75rem 1rem 1rem 1rem;
+    border-radius: 0 0 12px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tab-section {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 10px;
+  }
+  
+  .tab-navigation {
+    border-radius: 10px 10px 0 0;
+    padding: 0;
+    min-height: 54px;
+  }
+  
+  .tab-button {
+    min-width: 90px;
+    font-size: 0.85rem;
+    padding: 0.75rem 0.75rem 0.625rem 0.75rem;
+    border-radius: 0;
+  }
+  
+  .tab-button:first-child {
+    border-top-left-radius: 10px;
+  }
+  
+  .tab-button:last-child {
+    border-top-right-radius: 10px;
+  }
+  
+  .tab-content {
+    padding: 0.5rem 0.75rem 0.75rem 0.75rem;
+    border-radius: 0 0 10px 10px;
   }
 } 

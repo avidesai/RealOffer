@@ -145,12 +145,11 @@ function BuyerPackageListingOverview({ buyerPackage }) {
         </div>
         {showMoreInfo && (
           <BuyerPackageMoreInfo
-            isOpen={showMoreInfo}
+            buyerPackage={buyerPackage}
             onClose={() => {
               setShowMoreInfo(false);
               handleRefreshListing();
             }}
-            listingId={currentListing._id}
           />
         )}
         {showGallery && currentListing.imagesUrls && currentListing.imagesUrls.length > 0 && (

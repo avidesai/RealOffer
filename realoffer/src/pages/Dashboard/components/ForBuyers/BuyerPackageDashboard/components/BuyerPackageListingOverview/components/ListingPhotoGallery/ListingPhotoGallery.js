@@ -1,130 +1,210 @@
 // ListingPhotoGallery.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './ListingPhotoGallery.css';
 
-function ListingPhotoGallery({ images, onClose, listingId }) {
+const ListingPhotoGallery = ({ images, onClose, listingId }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isImageLoading, setIsImageLoading] = useState(false);
+  const [orderedImages, setOrderedImages] = useState(images);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const thumbnailBarRef = useRef(null);
+  const mainPhotoRef = useRef(null);
+
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50;
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        onClose();
-      } else if (e.key === 'ArrowLeft') {
-        previousImage();
-      } else if (e.key === 'ArrowRight') {
-        nextImage();
-      }
-    };
+    setOrderedImages(images);
+  }, [images]);
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+  const handlePrev = useCallback(() => {
+    setCurrentIndex((prevIndex) => (prevIndex === 0 ? orderedImages.length - 1 : prevIndex - 1));
+  }, [orderedImages.length]);
+
+  const handleNext = useCallback(() => {
+    setCurrentIndex((prevIndex) => (prevIndex === orderedImages.length - 1 ? 0 : prevIndex + 1));
+  }, [orderedImages.length]);
+
+  const handleKeyDown = useCallback((event) => {
+    switch (event.key) {
+      case 'ArrowLeft':
+        event.preventDefault();
+        handlePrev();
+        break;
+      case 'ArrowRight':
+        event.preventDefault();
+        handleNext();
+        break;
+      case 'Escape':
+        event.preventDefault();
+        onClose();
+        break;
+      case 'Home':
+        event.preventDefault();
+        setCurrentIndex(0);
+        break;
+      case 'End':
+        event.preventDefault();
+        setCurrentIndex(orderedImages.length - 1);
+        break;
+      default:
+        break;
+    }
+  }, [handlePrev, handleNext, onClose, orderedImages.length]);
+
+  // Touch handlers for swipe gestures
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      handleNext();
+    } else if (isRightSwipe) {
+      handlePrev();
+    }
+  };
+
+  useEffect(() => {
+    if (orderedImages.length > 0) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [orderedImages.length, handleKeyDown]);
+
+  useEffect(() => {
+    if (thumbnailBarRef.current) {
+      const activeThumb = thumbnailBarRef.current.querySelector('.thumbnail.active');
+      if (activeThumb) {
+        activeThumb.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'nearest', 
+          inline: 'center' 
+        });
+      }
+    }
   }, [currentIndex]);
 
-  const nextImage = () => {
-    if (images && images.length > 1) {
-      setIsImageLoading(true);
-      setCurrentIndex((prev) => (prev + 1) % images.length);
-    }
-  };
+  // Auto-hide navigation buttons after inactivity
+  useEffect(() => {
+    let timeout;
+    const handleMouseMove = () => {
+      const navButtons = document.querySelectorAll('.nav-button');
+      navButtons.forEach(btn => {
+        btn.style.opacity = '1';
+        btn.style.transform = 'translateY(0)';
+      });
+      
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        navButtons.forEach(btn => {
+          btn.style.opacity = '0';
+          btn.style.transform = 'translateY(10px)';
+        });
+      }, 3000);
+    };
 
-  const previousImage = () => {
-    if (images && images.length > 1) {
-      setIsImageLoading(true);
-      setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    const photoContainer = document.querySelector('.photo-container');
+    if (photoContainer) {
+      photoContainer.addEventListener('mousemove', handleMouseMove);
+      return () => {
+        photoContainer.removeEventListener('mousemove', handleMouseMove);
+        clearTimeout(timeout);
+      };
     }
-  };
+  }, []);
 
-  const goToImage = (index) => {
-    setIsImageLoading(true);
+  const handleThumbnailClick = (index) => {
     setCurrentIndex(index);
   };
 
-  if (!images || images.length === 0) {
-    return (
-      <div className="listing-photo-gallery-overlay" onClick={onClose}>
-        <div className="listing-photo-gallery-modal" onClick={(e) => e.stopPropagation()}>
-          <div className="listing-photo-gallery-header">
-            <h2>Photo Gallery</h2>
-            <button className="listing-photo-gallery-close" onClick={onClose}>
-              ×
-            </button>
-          </div>
-          <div className="listing-photo-gallery-content">
-            <p>No images available</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const handleMainPhotoClick = (e) => {
+    // Prevent navigation when clicking on the main photo
+    e.stopPropagation();
+  };
 
   return (
-    <div className="listing-photo-gallery-overlay" onClick={onClose}>
-      <div className="listing-photo-gallery-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="listing-photo-gallery-header">
-          <h2>Photo Gallery</h2>
-          <button className="listing-photo-gallery-close" onClick={onClose}>
-            ×
+    <div className="photo-gallery-modal" onClick={onClose}>
+      <div className="photo-gallery-content" onClick={(e) => e.stopPropagation()}>
+        <div className="photo-gallery-header">
+          <button 
+            className="photo-gallery-close-button" 
+            onClick={onClose}
+            aria-label="Close gallery"
+          ></button>
+        </div>
+        
+        <div 
+          className="photo-container"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
+          <button 
+            className="nav-button prev" 
+            onClick={handlePrev}
+            aria-label="Previous photo"
+          >
+            &#8249;
+          </button>
+          
+          <img 
+            ref={mainPhotoRef}
+            src={orderedImages[currentIndex]} 
+            alt={`${currentIndex + 1} of ${orderedImages.length}`} 
+            className="main-photo" 
+            onClick={handleMainPhotoClick}
+            draggable={false}
+          />
+          
+          <button 
+            className="nav-button next" 
+            onClick={handleNext}
+            aria-label="Next photo"
+          >
+            &#8250;
           </button>
         </div>
-
-        <div className="listing-photo-gallery-content">
-          <div className="listing-photo-gallery-main">
-            <button
-              className="listing-photo-gallery-nav listing-photo-gallery-prev"
-              onClick={previousImage}
-              disabled={images.length <= 1}
-            >
-              ‹
-            </button>
-
-            <div className="listing-photo-gallery-image-container">
-              <img
-                src={images[currentIndex]}
-                alt={`Property image ${currentIndex + 1}`}
-                className={`listing-photo-gallery-image ${isImageLoading ? 'loading' : ''}`}
-                onLoad={() => setIsImageLoading(false)}
-              />
-              {isImageLoading && (
-                <div className="listing-photo-gallery-loading">
-                  <div className="listing-photo-gallery-spinner"></div>
-                </div>
-              )}
-            </div>
-
-            <button
-              className="listing-photo-gallery-nav listing-photo-gallery-next"
-              onClick={nextImage}
-              disabled={images.length <= 1}
-            >
-              ›
-            </button>
-          </div>
-
-          <div className="listing-photo-gallery-info">
-            <span className="listing-photo-gallery-counter">
-              {currentIndex + 1} of {images.length}
-            </span>
-          </div>
-
-          {images.length > 1 && (
-            <div className="listing-photo-gallery-thumbnails">
-              {images.map((image, index) => (
+        
+        <div className="thumbnail-bar-container">
+          <div
+            ref={thumbnailBarRef}
+            className="thumbnail-bar"
+          >
+            {orderedImages.map((image, index) => (
+              <div
+                key={`${image}-${index}`}
+                className="thumbnail-wrapper"
+              >
                 <img
-                  key={index}
                   src={image}
-                  alt={`Thumbnail ${index + 1}`}
-                  className={`listing-photo-gallery-thumbnail ${index === currentIndex ? 'active' : ''}`}
-                  onClick={() => goToImage(index)}
+                  alt={`${index + 1}`}
+                  className={`thumbnail ${index === currentIndex ? 'active' : ''}`}
+                  onClick={() => handleThumbnailClick(index)}
+                  draggable={false}
                 />
-              ))}
-            </div>
-          )}
+                <div className="thumbnail-order">{index + 1}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default ListingPhotoGallery; 

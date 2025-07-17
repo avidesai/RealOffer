@@ -1,167 +1,310 @@
-/* BuyerPackageMoreInfo.css - Same as MoreInfo.css */
+/* MoreInfo.css */
 
-.buyer-package-more-info-overlay {
+/* --- Modal Overlay --- */
+.more-info-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(245, 247, 250, 0.65);
+  backdrop-filter: blur(6px);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   z-index: 1000;
-  padding: 1rem;
 }
 
-.buyer-package-more-info-modal {
-  background: white;
-  border-radius: 16px;
-  max-width: 800px;
-  width: 100%;
+.more-info-modal {
+  background: #fff;
+  border-radius: 22px;
+  width: 600px;
+  max-width: 98vw;
+  padding: 2.5rem 2.2rem 2.2rem 2.2rem;
+  box-shadow: 0 8px 32px rgba(27, 92, 243, 0.13), 0 2px 8px rgba(0,0,0,0.08);
+  position: relative;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s cubic-bezier(.4,1.4,.6,1);
+  display: flex;
+  flex-direction: column;
 }
 
-.buyer-package-more-info-header {
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.more-info-close-button {
+  position: absolute;
+  top: 1.3rem;
+  right: 1.3rem;
+  background: #fff;
+  border: 1.5px solid #e3e8f0;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.45em;
+  cursor: pointer;
+  color: #7b7e8c;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.more-info-close-button:hover {
+  color: #fff;
+  background: #e74c3c;
+  border-color: #e74c3c;
+  box-shadow: 0 6px 16px rgba(231, 76, 60, 0.13);
+}
+.more-info-close-button:before {
+  content: '×';
+  font-weight: 400;
+  display: inline-block;
+  margin-top: -0.1rem;
+  line-height: 1;
+}
+
+.more-info-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 2.2rem;
 }
-
-.buyer-package-more-info-header h2 {
+.more-info-header h2 {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #111827;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #2c3e50;
+  letter-spacing: -0.5px;
 }
 
-.buyer-package-more-info-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: #6b7280;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
-
-.buyer-package-more-info-close:hover {
-  background: #f3f4f6;
-  color: #374151;
-}
-
-.buyer-package-more-info-content {
-  padding: 2rem;
-}
-
-.buyer-package-more-info-section {
-  margin-bottom: 2rem;
-}
-
-.buyer-package-more-info-section:last-child {
-  margin-bottom: 0;
-}
-
-.buyer-package-more-info-section h3 {
-  margin: 0 0 1rem 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #111827;
-  border-bottom: 2px solid #e5e7eb;
-  padding-bottom: 0.5rem;
-}
-
-.buyer-package-more-info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-}
-
-.buyer-package-more-info-field {
+.info-section {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  margin-bottom: 1.7rem;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+.info-section h3 {
+  font-size: 1.08rem;
+  margin-bottom: 1.1rem;
+  color: #23272f;
+  font-weight: 700;
+  padding-bottom: 0.4rem;
+  border-bottom: 1.5px solid #e2e8f0;
+  letter-spacing: -0.5px;
 }
 
-.buyer-package-more-info-field label {
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.7rem;
+  padding: 0.3rem 0;
+  gap: 0.7rem;
+}
+.info-label {
+  font-weight: 500;
+  font-size: 0.97rem;
+  flex-basis: 38%;
+  color: #4a4a4a;
+}
+
+.field-container {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid #e3e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #f8fafd;
+  color: #2d3748;
+  transition: all 0.18s;
+  box-sizing: border-box;
+}
+.form-control:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0,123,255,0.09);
+  background: #fff;
+}
+
+/* Read-only styling for disabled inputs - BuyerPackageMoreInfo specific */
+.form-control:disabled {
+  background: transparent;
+  color: #2d3748;
+  cursor: default;
+  opacity: 1;
+  border: none;
+  padding: 0.8rem 0;
+  box-shadow: none;
+}
+
+.form-control:disabled:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.loading-spinner {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  border: 4px solid rgba(0, 123, 255, 0.1);
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  width: 38px; height: 38px;
+  animation: spin 1s linear infinite;
+  z-index: 10;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.listing-description {
+  white-space: pre-wrap;
+  font-size: 1.01rem;
+  line-height: 1.7;
+  margin-bottom: 0.7rem;
+  padding: 1.1rem 1.2rem;
+  background: #f8fafd;
+  border-radius: 10px;
+  border-left: 4px solid #007bff;
+  color: #2c3e50;
+  min-height: 90px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.property-description-container {
+  margin-bottom: 1.2rem;
+}
+
+/* Enhanced textarea styling for property description */
+.property-description-container .form-control {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #2c3e50;
+  background: #fff;
+  border: 1.5px solid #e3e8f0;
+  border-radius: 12px;
+  padding: 1.2rem 1.3rem;
+  min-height: 120px;
+  resize: vertical;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.property-description-container .form-control:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0,123,255,0.09), 0 4px 12px rgba(0,0,0,0.08);
+  background: #fff;
+}
+
+.property-description-container .form-control:hover {
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.property-description-container .form-control::placeholder {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* Read-only textarea styling for BuyerPackageMoreInfo */
+.property-description-container .form-control:disabled {
+  background: transparent;
+  color: #2c3e50;
+  cursor: default;
+  opacity: 1;
+  border: none;
+  padding: 1.2rem 0;
+  box-shadow: none;
+  resize: none;
+}
+
+.property-description-container .form-control:disabled:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.property-description-container .form-control:disabled:hover {
+  border: none;
+  box-shadow: none;
+}
+
+/* Character counter styling */
+.property-description-container .char-counter {
   font-size: 0.9rem;
   color: #6b7280;
   font-weight: 500;
-}
-
-.buyer-package-more-info-field span {
-  font-size: 1rem;
-  color: #111827;
-  font-weight: 500;
-  padding: 0.5rem;
-  background: #f9fafb;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-}
-
-.buyer-package-more-info-description {
-  margin: 0;
-  line-height: 1.6;
-  color: #374151;
-  padding: 1rem;
-  background: #f9fafb;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-}
-
-.buyer-package-more-info-footer {
-  padding: 1.5rem 2rem;
-  border-top: 1px solid #e5e7eb;
+  margin-top: 0.5rem;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 0.3rem;
 }
 
-.buyer-package-more-info-close-btn {
-  background: linear-gradient(135deg, #1b5cf3 0%, #4078fb 100%);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(27, 92, 243, 0.2);
+.property-description-container .char-counter::before {
+  content: '📝';
+  font-size: 0.8rem;
 }
 
-.buyer-package-more-info-close-btn:hover {
-  background: linear-gradient(135deg, #1544b2 0%, #3460c8 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(27, 92, 243, 0.3);
+/* Error alert */
+.more-info-error {
+  color: #e74c3c;
+  background: #fdeaea;
+  border-radius: 7px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.2rem;
+  font-size: 1rem;
+  border: 1.5px solid #f5c6cb;
 }
 
-@media (max-width: 768px) {
-  .buyer-package-more-info-overlay {
-    padding: 0.5rem;
+/* Responsive */
+@media (max-width: 700px) {
+  .more-info-modal {
+    padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+    width: 99vw;
+    min-width: 0;
+    border-radius: 12px;
   }
-
-  .buyer-package-more-info-modal {
-    max-height: 95vh;
+  .more-info-header {
+    margin-bottom: 1.1rem;
   }
-
-  .buyer-package-more-info-header {
-    padding: 1rem 1.5rem;
+  .info-section h3 {
+    font-size: 1rem;
+    margin-bottom: 0.7rem;
+    padding-bottom: 0.2rem;
   }
-
-  .buyer-package-more-info-content {
-    padding: 1.5rem;
+  .info-label {
+    font-size: 0.93rem;
   }
-
-  .buyer-package-more-info-grid {
-    grid-template-columns: 1fr;
+  .form-control {
+    font-size: 0.97rem;
+    padding: 0.7rem 0.7rem;
   }
-
-  .buyer-package-more-info-footer {
-    padding: 1rem 1.5rem;
+  .form-control:disabled {
+    padding: 0.7rem 0;
+  }
+  .listing-description {
+    font-size: 0.95rem;
+    padding: 0.8rem 0.7rem;
+    border-radius: 7px;
+  }
+  .property-description-container .form-control:disabled {
+    padding: 0.8rem 0;
   }
 } 

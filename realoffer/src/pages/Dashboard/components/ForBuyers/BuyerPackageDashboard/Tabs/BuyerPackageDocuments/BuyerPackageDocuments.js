@@ -1,4 +1,4 @@
-// BuyerPackageDocuments.js
+// /Tabs/Documents.js
 
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
@@ -13,6 +13,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
   const { token } = useAuth();
   const [documents, setDocuments] = useState([]);
   const [documentOrder, setDocumentOrder] = useState([]);
+  const [selectedDocuments, setSelectedDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPDFViewer, setShowPDFViewer] = useState(false);
   const [currentFileUrl, setCurrentFileUrl] = useState('');
@@ -20,200 +21,446 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
   const [currentDocType, setCurrentDocType] = useState('');
   const [showAIAnalysis, setShowAIAnalysis] = useState(false);
   const [selectedDocumentForAnalysis, setSelectedDocumentForAnalysis] = useState(null);
-  const [hasSignaturePackage, setHasSignaturePackage] = useState(false);
+  const [isReorderMode, setIsReorderMode] = useState(false);
+  const [isRenameMode, setIsRenameMode] = useState(false);
+  const [documentTitles, setDocumentTitles] = useState({});
+  const [draggedItem, setDraggedItem] = useState(null);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
 
-  const fetchDocuments = useCallback(async () => {
-    if (!buyerPackageId) return;
-
+  const fetchListingData = useCallback(async () => {
     try {
-      setLoading(true);
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/${buyerPackageId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-
-      // Get the property listing documents
+      
+      // Get the property listing from the buyer package
       const propertyListing = response.data.propertyListing;
-      if (propertyListing && propertyListing.documents) {
-        const documentsResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents?listingId=${propertyListing._id}`, {
+      if (propertyListing) {
+        return propertyListing.documentOrder || [];
+      }
+      return [];
+    } catch (error) {
+      console.error('Error fetching buyer package data:', error);
+      return [];
+    }
+  }, [buyerPackageId, token]);
+
+  const fetchDocuments = useCallback(async (storedOrder = []) => {
+    try {
+      // Use the new buyer package documents endpoint
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/buyerPackage/${buyerPackageId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      const listingDocuments = response.data.filter(doc => doc.purpose === 'listing' || doc.purpose === 'signature_package');
+      
+      // Sort documents according to stored order, or by creation date if no order exists
+      if (storedOrder.length > 0) {
+        const orderMap = new Map(storedOrder.map((id, index) => [id, index]));
+        listingDocuments.sort((a, b) => {
+          const orderA = orderMap.has(a._id) ? orderMap.get(a._id) : Number.MAX_SAFE_INTEGER;
+          const orderB = orderMap.has(b._id) ? orderMap.get(b._id) : Number.MAX_SAFE_INTEGER;
+          return orderA - orderB;
+        });
+        setDocumentOrder(storedOrder);
+      } else {
+        // If no stored order, create order from current document list
+        listingDocuments.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        const newOrder = listingDocuments.map(doc => doc._id);
+        setDocumentOrder(newOrder);
+      }
+      
+      setDocuments(listingDocuments);
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+    }
+  }, [buyerPackageId, token]);
+
+  useEffect(() => {
+    if (!token || !buyerPackageId) return;
+    
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const storedOrder = await fetchListingData();
+        await fetchDocuments(storedOrder);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadData();
+  }, [token, buyerPackageId, fetchListingData, fetchDocuments]);
+
+  const handleDocumentSelect = (id) => {
+    if (isReorderMode || isRenameMode) return; // Disable selection during reorder or rename mode
+    
+    setSelectedDocuments((prevSelected) =>
+      prevSelected.includes(id)
+        ? prevSelected.filter((docId) => docId !== id)
+        : [...prevSelected, id]
+    );
+  };
+
+  const isSelected = (id) => selectedDocuments.includes(id);
+
+  const handleDeleteDocument = async (id) => {
+    setLoading(true);
+    try {
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      // Remove from document order as well
+      setDocumentOrder(prevOrder => prevOrder.filter(docId => docId !== id));
+      
+      fetchDocuments(documentOrder.filter(docId => docId !== id));
+      fetchListingData();
+    } catch (error) {
+      console.error('Error deleting document:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteSelectedDocuments = async () => {
+    setLoading(true);
+    try {
+      await Promise.all(selectedDocuments.map((id) => 
+        axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+      ));
+      
+      // Remove from document order as well
+      const newOrder = documentOrder.filter(docId => !selectedDocuments.includes(docId));
+      setDocumentOrder(newOrder);
+      setSelectedDocuments([]);
+      
+      fetchDocuments(newOrder);
+      fetchListingData();
+    } catch (error) {
+      console.error('Error deleting selected documents:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewDocument = (doc) => {
+    if (isReorderMode || isRenameMode) return; // Disable viewing during reorder or rename mode
+    
+    const documentUrlWithSAS = `${doc.thumbnailUrl}?${doc.sasToken}`;
+    setCurrentFileUrl(documentUrlWithSAS);
+    setCurrentDocTitle(doc.title || 'Untitled');
+    setCurrentDocType(doc.type || 'No type');
+    setShowPDFViewer(true);
+  };
+
+  const handleItemClick = (e, doc) => {
+    if (isReorderMode || isRenameMode) return; // Disable clicking during reorder or rename mode
+    
+    if (
+      !e.target.classList.contains('docs-tab-document-checkbox') &&
+      !e.target.classList.contains('docs-tab-document-actions-button')
+    ) {
+      handleViewDocument(doc);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
+    return new Date(dateString).toLocaleDateString('en-US', options);
+  };
+
+  const handleAIAnalysis = (doc) => {
+    setSelectedDocumentForAnalysis(doc);
+    setShowAIAnalysis(true);
+  };
+
+  const closeAIAnalysis = () => {
+    setShowAIAnalysis(false);
+    setSelectedDocumentForAnalysis(null);
+  };
+
+  const handleReorderToggle = async () => {
+    if (isReorderMode) {
+      // Save the current order to the backend
+      setLoading(true);
+      try {
+        // Get the listing ID from the buyer package
+        const buyerPackageResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/${buyerPackageId}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
         
-        setDocuments(documentsResponse.data);
-        setDocumentOrder(propertyListing.documentOrder || []);
-        
-        // Check if there's a signature package
-        const hasSignature = documentsResponse.data.some(doc => doc.purpose === 'signature_package');
-        setHasSignaturePackage(hasSignature);
-      }
-    } catch (error) {
-      console.error('Error fetching documents:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [buyerPackageId, token]);
-
-  useEffect(() => {
-    fetchDocuments();
-  }, [fetchDocuments]);
-
-  const handleDocumentClick = (document) => {
-    setCurrentFileUrl(document.url);
-    setCurrentDocTitle(document.title);
-    setCurrentDocType(document.type);
-    setShowPDFViewer(true);
-  };
-
-  const handleClosePDFViewer = () => {
-    setShowPDFViewer(false);
-    setCurrentFileUrl('');
-    setCurrentDocTitle('');
-    setCurrentDocType('');
-  };
-
-  const handleAIAnalysisClick = (document) => {
-    setSelectedDocumentForAnalysis(document);
-    setShowAIAnalysis(true);
-  };
-
-  const handleCloseAIAnalysis = () => {
-    setShowAIAnalysis(false);
-    setSelectedDocumentForAnalysis(null);
-  };
-
-  const handleViewSignaturePackage = () => {
-    const signatureDoc = documents.find(doc => doc.purpose === 'signature_package');
-    if (signatureDoc) {
-      handleDocumentClick(signatureDoc);
-    }
-  };
-
-  const handleDownloadDocument = async (document) => {
-    try {
-      // Record the download activity
-      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/download`, {
-        buyerPackageId,
-        documentId: document._id,
-        documentTitle: document.title
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+        const propertyListing = buyerPackageResponse.data.propertyListing;
+        if (propertyListing) {
+          await axios.put(
+            `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${propertyListing._id}/documentOrder`,
+            { documentOrder },
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            }
+          );
+          await fetchDocuments(documentOrder); // Refresh with saved order
         }
+      } catch (error) {
+        console.error('Error saving document order:', error);
+        // If the specific endpoint doesn't exist, try the general listing update
+        try {
+          const buyerPackageResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/${buyerPackageId}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          const propertyListing = buyerPackageResponse.data.propertyListing;
+          if (propertyListing) {
+            await axios.put(
+              `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${propertyListing._id}`,
+              { documentOrder },
+              {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              }
+            );
+            await fetchDocuments(documentOrder);
+          }
+        } catch (fallbackError) {
+          console.error('Error saving document order (fallback):', fallbackError);
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
+    setIsReorderMode(!isReorderMode);
+    setSelectedDocuments([]); // Clear selections when entering/exiting reorder mode
+  };
+
+  const handleRenameToggle = async () => {
+    if (isRenameMode) {
+      // Save the updated titles to the backend
+      setLoading(true);
+      try {
+        const updatePromises = Object.entries(documentTitles).map(([docId, newTitle]) => {
+          if (newTitle && newTitle.trim()) {
+            return axios.put(
+              `${process.env.REACT_APP_BACKEND_URL}/api/documents/${docId}`,
+              { title: newTitle.trim() },
+              {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              }
+            );
+          }
+          return Promise.resolve();
+        });
+        
+        await Promise.all(updatePromises);
+        await fetchDocuments(documentOrder); // Refresh with updated titles
+        setDocumentTitles({}); // Clear the titles state
+      } catch (error) {
+        console.error('Error saving document titles:', error);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      // Initialize document titles with current titles when entering rename mode
+      const titles = {};
+      documents.forEach(doc => {
+        titles[doc._id] = doc.title || '';
       });
-
-      // Create a temporary link and trigger download
-      const link = document.createElement('a');
-      link.href = document.url;
-      link.download = document.title;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error('Error downloading document:', error);
+      setDocumentTitles(titles);
     }
+    setIsRenameMode(!isRenameMode);
+    setSelectedDocuments([]); // Clear selections when entering/exiting rename mode
   };
 
-  const getDocumentIcon = (type) => {
-    switch (type) {
-      case 'pdf':
-        return '📄';
-      case 'image':
-        return '🖼️';
-      case 'document':
-        return '📋';
-      default:
-        return '📄';
-    }
+  const handleTitleChange = (docId, newTitle) => {
+    setDocumentTitles(prev => ({
+      ...prev,
+      [docId]: newTitle
+    }));
   };
 
-  if (loading) {
-    return (
-      <div className="buyer-package-docs-tab-loading">
-        <div className="buyer-package-docs-tab-spinner"></div>
-        <p>Loading documents...</p>
-      </div>
-    );
-  }
+  const handleDragStart = (e, index) => {
+    setDraggedItem(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (e, dropIndex) => {
+    e.preventDefault();
+    
+    if (draggedItem === null || draggedItem === dropIndex) {
+      setDraggedItem(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    const newDocuments = [...documents];
+    const draggedDoc = newDocuments[draggedItem];
+    
+    // Remove the dragged item
+    newDocuments.splice(draggedItem, 1);
+    
+    // Insert it at the new position
+    newDocuments.splice(dropIndex, 0, draggedDoc);
+    
+    // Update both documents and document order
+    setDocuments(newDocuments);
+    setDocumentOrder(newDocuments.map(doc => doc._id));
+    setDraggedItem(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedItem(null);
+    setDragOverIndex(null);
+  };
 
   return (
-    <div className="buyer-package-docs-tab">
-      <div className="buyer-package-docs-tab-header">
-        <h2>Documents</h2>
-        <p>View and download property documents</p>
-        {hasSignaturePackage && (
-          <button 
-            className="buyer-package-view-signature-package-btn"
-            onClick={handleViewSignaturePackage}
-          >
-            View Disclosure Signature Packet
+    <div className="docs-tab-documents-tab">
+      <div className="docs-tab-documents-header">
+        <div className="docs-tab-action-buttons">
+          <button className="docs-tab-delete-button" onClick={handleRenameToggle} disabled={isReorderMode}>
+            {isRenameMode ? 'Save Document Names' : 'Rename'}
           </button>
-        )}
+          <button className="docs-tab-delete-button" onClick={handleReorderToggle} disabled={isRenameMode}>
+            {isReorderMode ? 'Done Reordering' : 'Reorder'}
+          </button>
+          <button className="docs-tab-delete-button" onClick={handleDeleteSelectedDocuments} disabled={isReorderMode || isRenameMode}>
+            Delete
+          </button>
+        </div>
       </div>
-
-      <div className="buyer-package-docs-tab-documents-list">
-        {documents.length === 0 ? (
-          <p className="buyer-package-docs-tab-no-documents-message">No documents available.</p>
-        ) : (
-          documents.map((doc) => (
-            <div
-              key={doc._id}
-              className={`buyer-package-docs-tab-document-item ${doc.purpose === 'signature_package' ? 'buyer-package-docs-tab-signature-package' : ''}`}
-            >
-              <div className="buyer-package-docs-tab-document-info" onClick={() => handleDocumentClick(doc)}>
-                <span className="buyer-package-docs-tab-document-icon">{getDocumentIcon(doc.type)}</span>
-                <div className="buyer-package-docs-tab-document-details">
-                  <h4 className="buyer-package-docs-tab-document-title">{doc.title}</h4>
-                  <p className="buyer-package-docs-tab-document-type">{doc.type.toUpperCase()}</p>
+      {loading ? (
+        <div className="docs-tab-loading">
+          <div className="docs-tab-spinner"></div>
+          <p>Loading documents...</p>
+        </div>
+      ) : (
+        <div className="docs-tab-documents-list">
+          {documents.length === 0 ? (
+            <p className="docs-tab-no-documents-message">No documents uploaded yet.</p>
+          ) : (
+            documents.map((doc, index) => (
+              <div
+                key={doc._id}
+                className={`docs-tab-document-item ${isSelected(doc._id) ? 'docs-tab-selected' : ''} ${doc.purpose === 'signature_package' ? 'docs-tab-signature-package' : ''} ${isReorderMode ? 'docs-tab-reorder-mode' : ''} ${isRenameMode ? 'docs-tab-rename-mode' : ''} ${draggedItem === index ? 'docs-tab-dragging' : ''} ${dragOverIndex === index ? 'docs-tab-drag-over' : ''}`}
+                onClick={(e) => handleItemClick(e, doc)}
+                draggable={isReorderMode}
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, index)}
+                onDragEnd={handleDragEnd}
+              >
+                {isReorderMode ? (
+                  <div className="docs-tab-drag-handle">
+                    <span className="docs-tab-drag-icon">≡</span>
+                  </div>
+                ) : (
+                  <input
+                    type="checkbox"
+                    className="docs-tab-document-checkbox"
+                    checked={isSelected(doc._id)}
+                    onChange={() => handleDocumentSelect(doc._id)}
+                  />
+                )}
+                <div className="docs-tab-document-info">
+                  <div className="docs-tab-document-details">
+                    {isRenameMode ? (
+                      <div className="docs-tab-rename-input-container">
+                        {doc.purpose === 'signature_package' && <span className="docs-tab-signature-package-icon">✍🏼 </span>}
+                        <input
+                          type="text"
+                          className="docs-tab-rename-input"
+                          value={documentTitles[doc._id] || ''}
+                          onChange={(e) => handleTitleChange(doc._id, e.target.value)}
+                          placeholder="Enter document name"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    ) : (
+                      <p className="docs-tab-document-title">
+                        {doc.purpose === 'signature_package' && <span className="docs-tab-signature-package-icon">✍🏼 </span>}
+                        {doc.title || 'Untitled'}
+                      </p>
+                    )}
+                    <p className="docs-tab-document-type">{doc.type || 'No type'}</p>
+                    <p className="docs-tab-document-meta">
+                      {doc.pages || 0} {doc.pages === 1 ? 'Page' : 'Pages'} <span className="docs-tab-meta-divider">•</span> {formatDate(doc.updatedAt)}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="buyer-package-docs-tab-document-actions">
-                <button
-                  className="buyer-package-docs-tab-action-btn buyer-package-docs-tab-view-btn"
-                  onClick={() => handleDocumentClick(doc)}
-                  title="View document"
-                >
-                  👁️ View
-                </button>
-                <button
-                  className="buyer-package-docs-tab-action-btn buyer-package-docs-tab-download-btn"
-                  onClick={() => handleDownloadDocument(doc)}
-                  title="Download document"
-                >
-                  ⬇️ Download
-                </button>
-                {doc.type === 'pdf' && (
-                  <button
-                    className="buyer-package-docs-tab-action-btn buyer-package-docs-tab-ai-btn"
-                    onClick={() => handleAIAnalysisClick(doc)}
-                    title="AI Analysis"
-                  >
-                    🤖 AI Analysis
-                  </button>
+                {!isReorderMode && !isRenameMode && (
+                  <div className="docs-tab-document-actions">
+                    {(doc.type === 'Home Inspection Report' || doc.type === 'Pest Inspection Report') && (
+                      <button 
+                        className="docs-tab-add-documents-button docs-tab-document-actions-button docs-tab-ai-analysis-ribbon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAIAnalysis(doc);
+                        }}
+                      >
+                        AI Analysis
+                      </button>
+                    )}
+                    <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
+                      <button className="docs-tab-delete-button docs-tab-document-actions-button">Download</button>
+                    </a>
+                    {doc.purpose !== 'signature_package' && (
+                      <button className="docs-tab-delete-button docs-tab-document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
+                        Delete
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
-            </div>
-          ))
-        )}
-      </div>
-
+            ))
+          )}
+        </div>
+      )}
       {showPDFViewer && (
         <PDFViewer
           fileUrl={currentFileUrl}
-          title={currentDocTitle}
-          onClose={handleClosePDFViewer}
-          buyerPackageId={buyerPackageId}
+          isOpen={showPDFViewer}
+          onClose={() => setShowPDFViewer(false)}
+          docTitle={currentDocTitle}
+          docType={currentDocType}
         />
       )}
-
       {showAIAnalysis && selectedDocumentForAnalysis && (
         <AIAnalysisModal
-          document={selectedDocumentForAnalysis}
-          onClose={handleCloseAIAnalysis}
-          isBuyerPackage={true}
+          isOpen={showAIAnalysis}
+          onClose={closeAIAnalysis}
+          documentId={selectedDocumentForAnalysis._id}
+          documentType={selectedDocumentForAnalysis.type}
         />
       )}
     </div>

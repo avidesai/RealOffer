@@ -4,6 +4,7 @@ import BuyerPackageDocuments from '../../Tabs/BuyerPackageDocuments/BuyerPackage
 import BuyerPackageActivity from '../../Tabs/BuyerPackageActivity/BuyerPackageActivity';
 import BuyerPackageOffers from '../../Tabs/BuyerPackageOffers/BuyerPackageOffers';
 import BuyerPackageAnalysis from '../../Tabs/BuyerPackageAnalysis/BuyerPackageAnalysis';
+import BuyerPackageSettings from '../../Tabs/BuyerPackageSettings/BuyerPackageSettings';
 import axios from 'axios';
 import './BuyerPackageTabSection.css';
 
@@ -27,7 +28,7 @@ const BuyerPackageTabSection = ({ buyerPackage }) => {
     setActiveTab(tab);
     // Scroll to top of tab content on mobile when switching tabs
     if (isMobile) {
-      const tabContent = document.querySelector('.buyer-package-tab-content');
+      const tabContent = document.querySelector('.tab-content');
       if (tabContent) {
         tabContent.scrollIntoView({ behavior: 'smooth' });
       }
@@ -54,21 +55,22 @@ const BuyerPackageTabSection = ({ buyerPackage }) => {
     { id: 'docs', label: 'Documents' },
     { id: 'analysis', label: 'Analysis' },
     { id: 'activity', label: 'Activity' },
-    { id: 'offers', label: 'Offers' }
+    { id: 'offers', label: 'Offers' },
+    { id: 'settings', label: 'Settings' }
   ];
 
   return (
-    <div className="buyer-package-tab-section">
+    <div className="tab-section">
       {loading && (
         <div className="spinner-overlay">
           <div className="spinner"></div>
         </div>
       )}
-      <div className="buyer-package-tab-navigation">
+      <div className="tab-navigation">
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            className={`buyer-package-tab-button ${activeTab === tab.id ? 'active' : ''}`}
+            className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
             onClick={() => handleTabClick(tab.id)}
             aria-label={`Switch to ${tab.label} tab`}
             role="tab"
@@ -78,11 +80,12 @@ const BuyerPackageTabSection = ({ buyerPackage }) => {
           </button>
         ))}
       </div>
-      <div className="buyer-package-tab-content" role="tabpanel">
+      <div className="tab-content" role="tabpanel">
         {activeTab === 'docs' && <BuyerPackageDocuments buyerPackageId={updatedBuyerPackage._id} />}
         {activeTab === 'analysis' && <BuyerPackageAnalysis buyerPackageId={updatedBuyerPackage._id} />}
         {activeTab === 'activity' && <BuyerPackageActivity buyerPackageId={updatedBuyerPackage._id} />}
         {activeTab === 'offers' && <BuyerPackageOffers buyerPackageId={updatedBuyerPackage._id} />}
+        {activeTab === 'settings' && <BuyerPackageSettings buyerPackage={updatedBuyerPackage} onBuyerPackageUpdate={handleBuyerPackageUpdate} />}
       </div>
     </div>
   );

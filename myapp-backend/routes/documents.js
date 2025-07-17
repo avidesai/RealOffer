@@ -31,6 +31,9 @@ router.put('/updateSignedStatus', DocumentController.updateDocumentSignedStatus)
 // Document download route (specific route before generic ones)
 router.get('/:id/download', DocumentController.downloadDocument);
 
+// Buyer package documents route (specific route before generic listing route)
+router.get('/buyerPackage/:buyerPackageId', DocumentController.getDocumentsForBuyerPackage);
+
 // Document routes with path parameters - GENERIC ROUTES LAST
 router.post('/propertyListing/:id', DocumentController.uploadDocuments, DocumentController.addDocumentToPropertyListing);
 router.get('/offer/:offerId', DocumentController.getDocumentsByOffer);

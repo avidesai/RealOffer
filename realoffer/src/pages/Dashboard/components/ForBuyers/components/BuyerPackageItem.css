@@ -193,13 +193,13 @@
     grid-template-columns: 1fr;
     gap: 1rem;
     padding: 1.25rem;
-  }
+}
 
   .buyer-package-item-image {
     width: 100%;
     height: 200px;
     order: -1;
-  }
+}
 
   .buyer-package-item-details {
     height: auto;
@@ -207,7 +207,7 @@
     padding-top: 0.5rem;
     padding-bottom: 1rem;
     justify-content: flex-start;
-  }
+}
 
   .buyer-package-item-info {
     margin-bottom: 1.25rem;
@@ -221,7 +221,7 @@
 
   .buyer-package-item-location {
     margin-bottom: 0;
-  }
+}
 
   .buyer-package-item-action-buttons {
     justify-content: center;
@@ -236,7 +236,7 @@
 
   .buyer-package-item-agents {
     display: none;
-  }
+}
 
   .buyer-package-item-agents-label {
     display: none;

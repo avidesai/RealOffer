@@ -505,6 +505,42 @@ exports.getDocumentsByOffer = async (req, res) => {
   }
 };
 
+exports.getDocumentsForBuyerPackage = async (req, res) => {
+  try {
+    const { buyerPackageId } = req.params;
+    
+    // First, get the buyer package to verify the user has access
+    const BuyerPackage = require('../models/BuyerPackage');
+    const buyerPackage = await BuyerPackage.findById(buyerPackageId);
+    
+    if (!buyerPackage) {
+      return res.status(404).json({ message: 'Buyer package not found' });
+    }
+    
+    // Check if the authenticated user is the buyer of this package
+    if (buyerPackage.buyer.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to view this buyer package' });
+    }
+    
+    // Get the property listing from the buyer package
+    const propertyListing = buyerPackage.propertyListing;
+    if (!propertyListing) {
+      return res.status(404).json({ message: 'Property listing not found in buyer package' });
+    }
+    
+    // Get documents for the property listing
+    const documents = await Document.find({ propertyListing: propertyListing });
+    const documentsWithSAS = documents.map(doc => ({
+      ...doc._doc,
+      sasToken: generateSASToken(doc.azureKey, doc.signed),
+    }));
+    
+    res.status(200).json(documentsWithSAS);
+  } catch (error) {
+    console.error('Error fetching documents for buyer package:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
 
 // Add this new function at the end of the file
 exports.deleteAllDocuments = async (req, res) => {
