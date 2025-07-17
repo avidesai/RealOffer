@@ -276,15 +276,15 @@ input[type="email"]:focus,
 }
 
 .profile-upgrade-btn {
-  background: linear-gradient(90deg, #1b5cf3 0%, #4078fb 100%);
+  background: linear-gradient(135deg, #9b2ae2 0%, #4078fb 100%);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(27, 92, 243, 0.13);
+  box-shadow: 0 4px 12px rgba(155, 42, 226, 0.2);
 }
 
 .profile-upgrade-btn:hover {
-  background: linear-gradient(90deg, #1544b2 0%, #3460c8 100%);
+  background: linear-gradient(135deg, #8423c1 0%, #3460c8 100%);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(27, 92, 243, 0.18);
+  box-shadow: 0 6px 16px rgba(155, 42, 226, 0.3);
 }
 
 .profile-manage-subscription-btn {
@@ -370,6 +370,7 @@ input[type="email"]:focus,
 .upload-area-profile {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 1.5rem;
   padding: 1.25rem 1.5rem;
   border: 2px dashed #cbd5e1;
@@ -391,7 +392,9 @@ input[type="email"]:focus,
 }
 
 .upload-area-profile .upload-label-profile {
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.75rem 1.25rem;
   background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
   color: #ffffff;
@@ -402,6 +405,9 @@ input[type="email"]:focus,
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(74, 144, 226, 0.18);
   border: none;
+  height: fit-content;
+  align-self: center;
+  margin-top: 0.5rem;
 }
 .upload-area-profile .upload-label-profile:hover {
   background: linear-gradient(135deg, #357abd 0%, #2c5282 100%);
