@@ -9,6 +9,65 @@ const PDFViewerLogic = ({ fileUrl, docTitle, docType, onClose }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Calculate responsive scale based on screen size
+  const calculateResponsiveScale = useCallback(() => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    
+    // Mobile devices (portrait)
+    if (width <= 768 && height > width) {
+      return 0.8;
+    }
+    // Mobile devices (landscape)
+    else if (width <= 1024 && height <= 768) {
+      return 1.0;
+    }
+    // Tablets
+    else if (width <= 1024) {
+      return 1.2;
+    }
+    // Small desktop
+    else if (width <= 1366) {
+      return 1.3;
+    }
+    // Medium desktop
+    else if (width <= 1920) {
+      return 1.5;
+    }
+    // Large desktop
+    else {
+      return 1.8;
+    }
+  }, []);
+
+  // Initialize scale based on screen size
+  useEffect(() => {
+    const initialScale = calculateResponsiveScale();
+    setScale(initialScale);
+  }, [calculateResponsiveScale]);
+
+  // Handle window resize for responsive zoom
+  useEffect(() => {
+    const handleResize = () => {
+      const newScale = calculateResponsiveScale();
+      setScale(newScale);
+    };
+
+    // Debounce resize events for better performance
+    let resizeTimeout;
+    const debouncedResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(handleResize, 250);
+    };
+
+    window.addEventListener('resize', debouncedResize);
+    
+    return () => {
+      window.removeEventListener('resize', debouncedResize);
+      clearTimeout(resizeTimeout);
+    };
+  }, [calculateResponsiveScale]);
+
   useEffect(() => {
     setCurrentPage(1);
     setIsLoading(true);
@@ -54,6 +113,12 @@ const PDFViewerLogic = ({ fileUrl, docTitle, docType, onClose }) => {
     });
   }, []);
 
+  // Reset zoom to responsive level
+  const resetZoom = useCallback(() => {
+    const responsiveScale = calculateResponsiveScale();
+    setScale(responsiveScale);
+  }, [calculateResponsiveScale]);
+
   const handleDownload = useCallback(() => {
     if (fileUrl) {
       const link = document.createElement('a');
@@ -77,6 +142,7 @@ const PDFViewerLogic = ({ fileUrl, docTitle, docType, onClose }) => {
     goToPage,
     zoomIn,
     zoomOut,
+    resetZoom,
     handleDownload,
     setCurrentPage,
     docTitle,

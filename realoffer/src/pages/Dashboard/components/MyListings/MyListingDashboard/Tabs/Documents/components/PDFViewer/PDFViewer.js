@@ -233,7 +233,7 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
           key={`page-${pageNumber}`}
           ref={pageRefs.current[pageNumber]}
           data-page={pageNumber}
-          className="pdf-page-container"
+          className="ml-pdf-page-container"
         >
           {visiblePages.includes(pageNumber) ? (
             <Page
@@ -241,7 +241,7 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
               scale={scale}
               renderTextLayer={false}
               renderAnnotationLayer={false}
-              loading={<div className="pdf-page-loading">Loading page {pageNumber}...</div>}
+              loading={<div className="ml-pdf-page-loading">Loading page {pageNumber}...</div>}
               onRenderSuccess={() => {
                 // After the first page renders, determine the visible page
                 if (pageNumber === 1) {
@@ -250,7 +250,7 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
               }}
             />
           ) : (
-            <div className="pdf-page-placeholder" style={{ height: `${scale * 792}px` }}>
+            <div className="ml-pdf-page-placeholder" style={{ height: `${scale * 792}px` }}>
               <span>Page {pageNumber}</span>
             </div>
           )}
@@ -275,35 +275,35 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
 
   return (
     <div 
-      className="pdf-viewer-modal"
+      className="ml-pdf-viewer-modal"
       onMouseMove={showToolbar}
       onClick={showToolbar}
     >
-      <div className="pdf-viewer-header">
-        <div className="pdf-title-container">
-          <h2 className="pdf-title">{docTitle}</h2>
-          <span className="pdf-type">{docType}</span>
+      <div className="ml-pdf-viewer-header">
+        <div className="ml-pdf-title-container">
+          <h2 className="ml-pdf-title">{docTitle}</h2>
+          <span className="ml-pdf-type">{docType}</span>
         </div>
-        <button className="pdfviewer-close-button" onClick={onClose}>
+        <button className="ml-pdfviewer-close-button" onClick={onClose}>
           <FiX />
         </button>
       </div>
       
       {error && (
-        <div className="pdf-error-message">
+        <div className="ml-pdf-error-message">
           {error}
         </div>
       )}
       
       <div 
-        className="pdf-viewer-container" 
+        className="ml-pdf-viewer-container" 
         ref={containerRef}
         onMouseEnter={showToolbar}
         onMouseLeave={hideToolbarWithDelay}
       >
         {isLoading && (
-          <div className="pdf-spinner-overlay">
-            <div className="pdf-spinner"></div>
+          <div className="ml-pdf-spinner-overlay">
+            <div className="ml-pdf-spinner"></div>
           </div>
         )}
         
@@ -317,12 +317,12 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
         </Document>
       </div>
       
-      <div className={`pdf-toolbar-container ${isToolbarVisible ? 'visible' : ''}`}>
-        <div className="pdf-toolbar">
+      <div className={`ml-pdf-toolbar-container ${isToolbarVisible ? 'visible' : ''}`}>
+        <div className="ml-pdf-toolbar">
           <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage <= 1}>
             <FiChevronLeft />
           </button>
-          <span className="page-info">
+          <span className="ml-page-info">
             {currentPage} / {numPages || '?'}
           </span>
           <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage >= numPages}>

@@ -233,7 +233,7 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
           key={`page-${pageNumber}`}
           ref={pageRefs.current[pageNumber]}
           data-page={pageNumber}
-          className="pdf-page-container"
+          className="ov-pdf-page-container"
         >
           {visiblePages.includes(pageNumber) ? (
             <Page
@@ -241,7 +241,7 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
               scale={scale}
               renderTextLayer={false}
               renderAnnotationLayer={false}
-              loading={<div className="pdf-page-loading">Loading page {pageNumber}...</div>}
+              loading={<div className="ov-pdf-page-loading">Loading page {pageNumber}...</div>}
               onRenderSuccess={() => {
                 // After the first page renders, determine the visible page
                 if (pageNumber === 1) {
@@ -250,7 +250,7 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
               }}
             />
           ) : (
-            <div className="pdf-page-placeholder">
+            <div className="ov-pdf-page-placeholder">
               Page {pageNumber}
             </div>
           )}
@@ -260,18 +260,18 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
   }, [numPages, visiblePages, scale, determineVisiblePage]);
 
   return (
-    <div className="pdf-viewer-modal">
-      <div className="pdf-viewer-header">
-        <div className="pdf-title-container">
-          <h2 className="pdf-title">{docTitle}</h2>
-          <p className="pdf-type">{docType}</p>
+    <div className="ov-pdf-viewer-modal">
+      <div className="ov-pdf-viewer-header">
+        <div className="ov-pdf-title-container">
+          <h2 className="ov-pdf-title">{docTitle}</h2>
+          <p className="ov-pdf-type">{docType}</p>
         </div>
-        <button className="pdfviewer-close-button" onClick={onClose}>
+        <button className="ov-pdfviewer-close-button" onClick={onClose}>
           <FiX />
         </button>
       </div>
       <div
-        className="pdf-viewer-container"
+        className="ov-pdf-viewer-container"
         ref={containerRef}
         onMouseMove={showToolbar}
         onMouseLeave={hideToolbarWithDelay}
@@ -285,26 +285,26 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
           {pageComponents}
         </Document>
         {isLoading && (
-          <div className="pdf-spinner-overlay">
-            <div className="pdf-spinner"></div>
+          <div className="ov-pdf-spinner-overlay">
+            <div className="ov-pdf-spinner"></div>
           </div>
         )}
         {error && (
-          <div className="pdf-error-message">
+          <div className="ov-pdf-error-message">
             {error}
           </div>
         )}
       </div>
       <div
-        className={`pdf-toolbar-container ${isToolbarVisible ? 'visible' : ''}`}
+        className={`ov-pdf-toolbar-container ${isToolbarVisible ? 'visible' : ''}`}
         onMouseEnter={showToolbar}
         onMouseLeave={hideToolbarWithDelay}
       >
-        <div className="pdf-toolbar">
+        <div className="ov-pdf-toolbar">
           <button onClick={() => changePage(-1)} disabled={currentPage <= 1}>
             <FiChevronLeft />
           </button>
-          <span className="page-info">
+          <span className="ov-page-info">
             {currentPage} / {numPages}
           </span>
           <button onClick={() => changePage(1)} disabled={currentPage >= numPages}>

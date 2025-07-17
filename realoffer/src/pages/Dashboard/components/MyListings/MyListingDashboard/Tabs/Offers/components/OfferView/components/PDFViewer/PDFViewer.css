@@ -1,6 +1,6 @@
 /* /src/pages/Dashboard/components/MyListings/MyListingDashboard/Tabs/Offers/components/OfferView/components/PDFViewer/PDFViewer.css */
 
-.pdf-viewer-modal {
+.ov-pdf-viewer-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -13,7 +13,7 @@
   overflow: hidden;
 }
 
-.pdf-viewer-header {
+.ov-pdf-viewer-header {
   position: absolute;
   top: 0;
   left: 0;
@@ -21,99 +21,85 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 10;
+  padding: 0.75rem 1rem;
+  background-color: rgba(26, 26, 26, 0.9);
   color: white;
-  height: 60px;
+  z-index: 1002;
 }
 
-.pdf-title-container {
+.ov-pdf-title-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 80%;
 }
 
-.pdf-title {
-  font-size: 1.2rem;
+.ov-pdf-title {
   margin: 0;
-  text-align: center;
+  font-size: 1.3rem;
 }
 
-.pdf-type {
-  font-size: 0.9rem;
-  margin: 0.25rem 0 0;
-  opacity: 0.8;
+.ov-pdf-type {
+  margin: 0;
+  font-size: 1rem;
+  color: #bbb;
 }
 
-.pdfviewer-close-button {
+.ov-pdfviewer-close-button {
   position: absolute;
   right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
   background: none;
   border: none;
   color: white;
   font-size: 1.5rem;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: color 0.3s ease;
 }
 
-.pdfviewer-close-button:hover {
-  opacity: 0.8;
+.ov-pdfviewer-close-button:hover {
+  color: #ff4444;
 }
 
-.pdf-viewer-container {
+.ov-pdf-viewer-container {
   flex: 1;
-  overflow-y: auto;
-  margin-top: 60px;
-  padding: 1rem;
+  overflow: auto;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 5rem 1rem 1rem;
   position: relative;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
 
-.react-pdf__Document {
+.ov-pdf-viewer-container .react-pdf__Document {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
-  min-height: 100%;
 }
 
-.react-pdf__Page {
-  margin: 0 auto;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+.ov-pdf-viewer-container .react-pdf__Page {
+  position: relative;
   background-color: white;
-  position: relative;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  margin-bottom: 1rem;
 }
 
-.react-pdf__Page__canvas {
+.ov-pdf-viewer-container .react-pdf__Page__canvas {
   display: block;
-  user-select: none;
-  margin: 0 auto;
 }
 
-.react-pdf__Page__textContent {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+.ov-pdf-viewer-container .react-pdf__Page__textContent {
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
   overflow: hidden;
-  opacity: 0.25;
-  line-height: 1.5;
+  opacity: 0.2;
+  line-height: 1;
   user-select: text;
-  pointer-events: none;
+  cursor: text;
 }
 
-.react-pdf__Page__textContent span {
+.ov-pdf-viewer-container .react-pdf__Page__textContent span {
   color: transparent;
   position: absolute;
   white-space: pre;
@@ -121,25 +107,24 @@
   transform-origin: 0% 0%;
 }
 
-.react-pdf__Page__annotations {
+.ov-pdf-viewer-container .react-pdf__Page__annotations {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
   bottom: 0;
-  overflow: hidden;
+  right: 0;
   pointer-events: none;
 }
 
-::selection {
-  background: rgba(0, 0, 255, 0.3);
+.ov-pdf-viewer-container ::selection {
+  background: rgba(0, 123, 255, 0.3);
 }
 
-::-moz-selection {
-  background: rgba(0, 0, 255, 0.3);
+.ov-pdf-viewer-container ::-moz-selection {
+  background: rgba(0, 123, 255, 0.3);
 }
 
-.pdf-toolbar-container {
+.ov-pdf-toolbar-container {
   position: fixed;
   bottom: 0;
   left: 0;
@@ -148,18 +133,18 @@
   justify-content: center;
   padding: 1rem;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 10;
+  z-index: 1001;
   opacity: 0;
   transform: translateY(100%);
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.pdf-toolbar-container.visible {
+.ov-pdf-toolbar-container.visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-.pdf-toolbar {
+.ov-pdf-toolbar {
   display: flex;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.7);
@@ -168,8 +153,8 @@
   gap: 0.5rem;
 }
 
-.pdf-toolbar button,
-.pdf-toolbar .page-info {
+.ov-pdf-toolbar button,
+.ov-pdf-toolbar .ov-page-info {
   background: none;
   border: none;
   color: white;
@@ -182,22 +167,22 @@
   border-radius: 4px;
 }
 
-.pdf-toolbar button:hover {
+.ov-pdf-toolbar button:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-.pdf-toolbar button:disabled {
+.ov-pdf-toolbar button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.page-info {
+.ov-page-info {
   margin: 0 0.5rem;
   font-size: 0.9rem;
   user-select: none;
 }
 
-.pdf-spinner-overlay {
+.ov-pdf-spinner-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -207,66 +192,132 @@
   justify-content: center;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 5;
+  z-index: 1003;
 }
 
-.pdf-spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid rgba(255, 255, 255, 0.3);
+.ov-pdf-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
   border-radius: 50%;
-  border-top-color: white;
-  animation: spin 1s ease-in-out infinite;
+  width: 40px;
+  height: 40px;
+  animation: ov-spin 1s linear infinite;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+@keyframes ov-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.pdf-page-container {
-  margin: 1rem 0;
+.ov-pdf-page-container {
   position: relative;
-  display: flex;
-  justify-content: center;
 }
 
-.pdf-page-loading {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #666;
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
-}
-
-.pdf-page-placeholder {
-  width: 595px;
-  height: 842px;
-  background-color: #f0f0f0;
+.ov-pdf-page-placeholder {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  border: 2px dashed #ccc;
   color: #666;
   font-size: 1rem;
-  border-radius: 4px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  margin-bottom: 1rem;
+  min-height: 200px;
 }
 
-.pdf-error-message {
+.ov-pdf-error-message {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: rgba(255, 0, 0, 0.1);
-  color: white;
-  padding: 1rem;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 0, 0, 0.3);
-  max-width: 80%;
+  color: #ff4444;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  border: 1px solid #ff4444;
+  z-index: 1004;
   text-align: center;
+  max-width: 80%;
+}
+
+/* Responsive Design for Mobile Devices */
+@media (max-width: 768px) {
+  .ov-pdf-viewer-header {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .ov-pdf-title {
+    font-size: 1.1rem;
+  }
+  
+  .ov-pdf-type {
+    font-size: 0.9rem;
+  }
+  
+  .ov-pdfviewer-close-button {
+    right: 0.75rem;
+    font-size: 1.3rem;
+  }
+  
+  .ov-pdf-viewer-container {
+    padding: 4rem 0.5rem 1rem;
+  }
+  
+  .ov-pdf-toolbar-container {
+    padding: 0.75rem;
+  }
+  
+  .ov-pdf-toolbar {
+    padding: 0.6rem;
+    gap: 0.4rem;
+    min-width: 280px;
+  }
+  
+  .ov-pdf-toolbar button {
+    min-width: 48px;
+    min-height: 48px;
+    font-size: 1.1rem;
+    padding: 0.6rem;
+  }
+  
+  .ov-page-info {
+    margin: 0 0.4rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+    min-width: 60px;
+    text-align: center;
+  }
+}
+
+/* Responsive Design for Tablets */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .ov-pdf-viewer-container {
+    padding: 4.5rem 0.75rem 1rem;
+  }
+  
+  .ov-pdf-toolbar {
+    gap: 0.4rem;
+  }
+  
+  .ov-pdf-toolbar button,
+  .ov-pdf-toolbar .ov-page-info {
+    padding: 0.45rem;
+  }
+}
+
+/* Touch-friendly improvements for mobile */
+@media (hover: none) and (pointer: coarse) {
+  .ov-pdf-toolbar button {
+    min-width: 48px;
+    min-height: 48px;
+  }
+  
+  .ov-pdfviewer-close-button {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
