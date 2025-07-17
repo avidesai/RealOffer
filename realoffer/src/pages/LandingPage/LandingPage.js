@@ -242,7 +242,7 @@ const LandingPage = () => {
               <span className="lp-hero-title-gradient">Intelligent Real Estate Tools</span>
             </h1>
             <p className="lp-hero-subtitle">
-              The all-in-one platform that streamlines listings, offers, and transactions. 
+              The all-in-one platform that streamlines listings, analysis, offers, and transactions. 
               Save time, reduce errors, and deliver exceptional client experiences.
             </p>
             <div className="lp-hero-cta-group">
@@ -297,7 +297,7 @@ const LandingPage = () => {
               <div className="lp-trust-logo">RE/MAX</div>
               <div className="lp-trust-logo">Compass</div>
               <div className="lp-trust-logo">Coldwell Banker</div>
-              <div className="lp-trust-logo">Century 21</div>
+              <div className="lp-trust-logo">Intero</div>
             </div>
           </div>
         </section>
