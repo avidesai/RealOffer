@@ -191,7 +191,7 @@
   .listing-item-details {
     height: auto;
     padding-right: 0;
-    padding-top: 0.5rem;
+    padding-top: 0.3rem;
     padding-bottom: 1rem;
     justify-content: flex-start;
   }
@@ -207,7 +207,7 @@
   }
 
   .listing-item-location {
-    margin-bottom: 0;
+    margin-bottom: 0.5rem;
   }
 
   .listing-item-action-buttons {
@@ -253,12 +253,12 @@
 
   .listing-item-title {
     font-size: 1.1rem;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0rem;
   }
 
   .listing-item-location {
     font-size: 0.9rem;
-    margin-bottom: 0;
+    margin-bottom: 1rem;
   }
 
   .listing-item-button {

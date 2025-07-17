@@ -204,7 +204,7 @@
   .buyer-package-item-details {
     height: auto;
     padding-right: 0;
-    padding-top: 0.5rem;
+    padding-top: 0.3rem;
     padding-bottom: 1rem;
     justify-content: flex-start;
 }
@@ -220,7 +220,7 @@
   }
 
   .buyer-package-item-location {
-    margin-bottom: 0;
+    margin-bottom: 0.5rem;
 }
 
   .buyer-package-item-action-buttons {
@@ -265,7 +265,11 @@
 
   .buyer-package-item-title {
     font-size: 1.1rem;
-    margin-bottom: 0.15rem;
+    margin-bottom: 0rem;
+  }
+
+  .buyer-package-item-location {
+    margin-bottom: 1rem;
   }
 
   .buyer-package-item-button {
