@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import api from '../../../../../../../context/api';
+import Avatar from '../../../../../../../components/Avatar/Avatar';
 import MoreInfo from './components/MoreInfo/MoreInfo';
 import ListingPhotoGallery from './components/ListingPhotoGallery/ListingPhotoGallery';
 import ShareUrl from './components/ShareUrl/ShareUrl'; // Import ShareUrl component
@@ -133,10 +134,13 @@ function ListingOverview({ listing }) {
           <div className="overview-agents">
             {agents.map(agent => (
               <div key={agent._id} className="listing-overview-agent-info">
-                <img 
-                  src={agent.profilePhotoUrl || 'https://via.placeholder.com/32x32?text=Agent'} 
-                  alt={agent.firstName} 
-                  className="listing-overview-agent-image" 
+                <Avatar 
+                  src={agent.profilePhotoUrl}
+                  firstName={agent.firstName}
+                  lastName={agent.lastName}
+                  size="small"
+                  className="listing-overview-agent-image"
+                  alt={`${agent.firstName} ${agent.lastName}`}
                 />
                 <p>{agent.firstName} {agent.lastName}</p>
               </div>

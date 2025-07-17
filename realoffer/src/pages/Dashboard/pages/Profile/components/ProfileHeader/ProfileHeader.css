@@ -93,12 +93,13 @@
 }
 
 .user-avatar img {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
   object-fit: cover;
   border: 2px solid #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  aspect-ratio: 1 / 1;
 }
 
 .user-info {

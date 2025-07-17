@@ -175,16 +175,7 @@ input[type="email"]:focus,
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
 }
 
-.profile-photo,
-.agency-photo {
-  width: 100px !important;
-  height: 100px !important;
-  border-radius: 12px !important;
-  object-fit: cover;
-  border: 3px solid #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s ease;
-}
+/* Avatar component handles its own styling - no overrides needed */
 
 .profile-checkbox-label {
   display: flex;
@@ -392,15 +383,11 @@ input[type="email"]:focus,
   background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
 }
 
-.upload-area-profile .profile-photo,
-.upload-area-profile .agency-photo {
-  width: 90px !important;
-  height: 90px !important;
-  border-radius: 10px !important;
-  object-fit: cover;
-  border: 2.5px solid #e3e8f0;
-  box-shadow: 0 2px 8px rgba(27, 92, 243, 0.08);
-  background: #fff;
+/* Avatar component handles its own styling in upload areas */
+.upload-area-profile .avatar-upload {
+  width: 70px !important;
+  height: 70px !important;
+  font-size: 24px !important;
 }
 
 .upload-area-profile .upload-label-profile {

@@ -216,7 +216,7 @@
 
   .buyer-package-item-title {
     font-size: 1.2rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.2rem;
   }
 
   .buyer-package-item-location {
@@ -265,6 +265,7 @@
 
   .buyer-package-item-title {
     font-size: 1.1rem;
+    margin-bottom: 0.15rem;
   }
 
   .buyer-package-item-button {

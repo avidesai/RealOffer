@@ -56,7 +56,7 @@ const Profile = () => {
                     src={profileData.profilePhotoUrl}
                     firstName={profileData.firstName}
                     lastName={profileData.lastName}
-                    size="xlarge"
+                    size="upload"
                     className="profile-photo"
                     alt={`${profileData.firstName} ${profileData.lastName}`}
                   />
@@ -223,7 +223,7 @@ const Profile = () => {
                     src={profileData.agencyImage}
                     firstName={profileData.agencyName}
                     lastName=""
-                    size="xlarge"
+                    size="upload"
                     className="agency-photo"
                     alt={profileData.agencyName || "Agency"}
                   />

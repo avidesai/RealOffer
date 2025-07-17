@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Avatar from '../../../../../../../../../components/Avatar/Avatar';
 import { useAuth } from '../../../../../../../../../context/AuthContext';
 import './RespondToOfferModal.css';
 
@@ -58,9 +59,7 @@ function RespondToOfferModal({ isOpen, onClose, offer, propertyListing }) {
     }
   };
 
-  const agentAvatarStyle = {
-    backgroundColor: offer.presentedBy.agentImageUrl ? 'transparent' : (offer.presentedBy.agentImageBackgroundColor || '#007bff'),
-  };
+
 
   return (
     <div className="respond-to-offer-modal-overlay">
@@ -71,19 +70,22 @@ function RespondToOfferModal({ isOpen, onClose, offer, propertyListing }) {
         </div>
         <div className="respond-to-offer-modal-body">
           <div className="respond-to-offer-modal-recipient-info">
-            <div
-              className="respond-to-offer-modal-recipient-avatar"
-              style={agentAvatarStyle}
-            >
-              {offer.presentedBy.agentImageUrl ? (
-                <img
-                  src={offer.presentedBy.agentImageUrl}
-                  alt={offer.presentedBy.name}
-                  className="respond-to-offer-modal-avatar-img"
-                />
-              ) : (
-                offer.presentedBy.name ? offer.presentedBy.name[0] : 'N/A'
-              )}
+            <div className="respond-to-offer-modal-recipient-avatar">
+              {(() => {
+                const nameParts = offer.presentedBy.name ? offer.presentedBy.name.split(' ') : ['', ''];
+                const firstName = nameParts[0] || '';
+                const lastName = nameParts.slice(1).join(' ') || '';
+                return (
+                  <Avatar
+                    src={offer.presentedBy.agentImageUrl}
+                    firstName={firstName}
+                    lastName={lastName}
+                    size="small"
+                    className="respond-to-offer-modal-avatar-img"
+                    alt={offer.presentedBy.name}
+                  />
+                );
+              })()}
             </div>
             <div className="respond-to-offer-modal-recipient-details">
               <h3>{offer.presentedBy.name}</h3>

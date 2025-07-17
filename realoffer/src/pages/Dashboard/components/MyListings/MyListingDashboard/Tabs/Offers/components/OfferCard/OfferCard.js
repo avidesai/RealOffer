@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import './OfferCard.css';
 import axios from 'axios';
+import Avatar from '../../../../../../../../../components/Avatar/Avatar';
 import { useAuth } from '../../../../../../../../../context/AuthContext'; // Import the useAuth hook
 import { useDebounce } from './useDebounce'; // Import the custom debounce hook
 
@@ -109,10 +110,6 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
 
   const statusStyle = getStatusStyle(status);
 
-  const agentAvatarStyle = {
-    backgroundColor: offer.presentedBy.agentImageBackgroundColor || '#007bff',
-  };
-
   const formatContingency = (contingencyDays) => {
     return contingencyDays >= 1 ? `${contingencyDays} Days` : 'Waived';
   };
@@ -120,19 +117,22 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
   return (
     <div className="offer-card">
       <div className="offer-card-header">
-        <div
-          className="offer-avatar"
-          style={offer.presentedBy.agentImageUrl ? {} : agentAvatarStyle}
-        >
-          {offer.presentedBy.agentImageUrl ? (
-            <img
-              src={offer.presentedBy.agentImageUrl}
-              alt={offer.presentedBy.name}
-              className="offer-avatar-img"
-            />
-          ) : (
-            offer.presentedBy.name ? offer.presentedBy.name[0] : 'N/A'
-          )}
+        <div className="offer-avatar">
+          {(() => {
+            const nameParts = offer.presentedBy.name ? offer.presentedBy.name.split(' ') : ['', ''];
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.slice(1).join(' ') || '';
+            return (
+              <Avatar
+                src={offer.presentedBy.agentImageUrl}
+                firstName={firstName}
+                lastName={lastName}
+                size="small"
+                className="offer-avatar-img"
+                alt={offer.presentedBy.name}
+              />
+            );
+          })()}
         </div>
         <div className="offer-agent-info">
           <p className="offer-agent-name">{offer.presentedBy.name}</p>
