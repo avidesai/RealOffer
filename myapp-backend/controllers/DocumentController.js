@@ -518,7 +518,7 @@ exports.getDocumentsForBuyerPackage = async (req, res) => {
     }
     
     // Check if the authenticated user is the buyer of this package
-    if (buyerPackage.buyer.toString() !== req.user.id) {
+    if (buyerPackage.user.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to view this buyer package' });
     }
     
