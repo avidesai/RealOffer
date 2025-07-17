@@ -181,6 +181,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
           onClose={() => setShowPDFViewer(false)}
           docTitle={currentDocTitle}
           docType={currentDocType}
+          buyerPackageId={buyerPackageId}
         />
       )}
       {showAIAnalysis && selectedDocumentForAnalysis && (
