@@ -74,6 +74,12 @@
   border: 1px solid rgba(255, 193, 7, 0.15);
 }
 
+.stat-icon.buyer-package {
+  background: linear-gradient(135deg, rgba(111, 66, 193, 0.12) 0%, rgba(88, 53, 154, 0.08) 100%);
+  color: #6f42c1;
+  border: 1px solid rgba(111, 66, 193, 0.15);
+}
+
 .stat-number {
   font-size: 2.2rem;
   font-weight: 700;

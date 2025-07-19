@@ -88,6 +88,7 @@ exports.getUserBuyerPackages = async (req, res) => {
 exports.getBuyerPackage = async (req, res) => {
   try {
     const { id } = req.params;
+    const { trackView } = req.query; // Only track view if explicitly requested
     
     const buyerPackage = await BuyerPackage.findOne({
       _id: id,
@@ -100,25 +101,28 @@ exports.getBuyerPackage = async (req, res) => {
       return res.status(404).json({ message: 'Buyer package not found' });
     }
 
-    // Update view count and last viewed
-    buyerPackage.viewCount += 1;
-    buyerPackage.lastViewed = new Date();
-    await buyerPackage.save();
+    // Only track view if explicitly requested (from my listings dashboard)
+    if (trackView === 'true') {
+      // Update view count and last viewed
+      buyerPackage.viewCount += 1;
+      buyerPackage.lastViewed = new Date();
+      await buyerPackage.save();
 
-    // Create view activity
-    const activity = new Activity({
-      user: req.user.id,
-      action: 'viewed the listing',
-      type: 'view',
-      propertyListing: buyerPackage.propertyListing._id,
-      buyerPackage: buyerPackage._id,
-      metadata: {
-        userRole: buyerPackage.userRole,
-        documentTitle: buyerPackage.propertyListing.homeCharacteristics.address
-      }
-    });
+      // Create view activity
+      const activity = new Activity({
+        user: req.user.id,
+        action: 'viewed the listing',
+        type: 'view',
+        propertyListing: buyerPackage.propertyListing._id,
+        buyerPackage: buyerPackage._id,
+        metadata: {
+          userRole: buyerPackage.userRole,
+          documentTitle: buyerPackage.propertyListing.homeCharacteristics.address
+        }
+      });
 
-    await activity.save();
+      await activity.save();
+    }
 
     res.status(200).json(buyerPackage);
   } catch (error) {

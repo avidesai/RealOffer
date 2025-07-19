@@ -28,7 +28,8 @@ function BuyerPackageDashboard() {
       }
 
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/${id}`, {
+        // Track view when accessing from ForBuyers section (buyer accessing their own package)
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/${id}?trackView=true`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

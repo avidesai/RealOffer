@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Offer = require('../models/Offer');
 const PropertyListing = require('../models/PropertyListing');
 const Document = require('../models/Document');
+const Activity = require('../models/Activity');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const { offerDocumentsContainerClient } = require('../config/azureStorage');
@@ -57,6 +58,22 @@ exports.createOffer = async (req, res) => {
       propertyListingId,
       { $push: { offers: offer._id } }
     );
+
+    // Create activity record for the offer
+    const activity = new Activity({
+      user: req.user.id,
+      action: `made an offer of $${req.body.purchasePrice?.toLocaleString() || 'N/A'} for ${propertyListing.homeCharacteristics.address}`,
+      type: 'offer',
+      propertyListing: propertyListingId,
+      metadata: {
+        offerAmount: req.body.purchasePrice,
+        offerStatus: 'submitted',
+        userRole: req.user.role || 'buyer',
+        documentTitle: propertyListing.homeCharacteristics.address
+      }
+    });
+
+    await activity.save();
 
     // Update the documents with the new offer ID
     const documentIds = req.body.documents || [];

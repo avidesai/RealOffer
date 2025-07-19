@@ -24,7 +24,7 @@ const BuyerPackageAnalysis = ({ buyerPackageId }) => {
 
       // First get the buyer package to find the property listing
       const buyerPackageResponse = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/${buyerPackageId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/${buyerPackageId}?trackView=false`,
         {
           headers: {
             'Authorization': `Bearer ${token}`

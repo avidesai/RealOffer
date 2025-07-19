@@ -720,9 +720,10 @@ exports.downloadDocument = async (req, res) => {
     }
     
     // Check authorization based on the document's purpose and ownership
+    let propertyListing = null;
     if (document.propertyListing) {
       // For listing documents, check if user owns the listing
-      const propertyListing = await PropertyListing.findById(document.propertyListing);
+      propertyListing = await PropertyListing.findById(document.propertyListing);
       if (!propertyListing || propertyListing.createdBy.toString() !== req.user.id) {
         return res.status(403).json({ message: 'Not authorized to access this document' });
       }
@@ -732,6 +733,7 @@ exports.downloadDocument = async (req, res) => {
       if (!offer || !offer.propertyListing || offer.propertyListing.createdBy.toString() !== req.user.id) {
         return res.status(403).json({ message: 'Not authorized to access this document' });
       }
+      propertyListing = offer.propertyListing;
     } else {
       // Document has no associated listing or offer
       return res.status(403).json({ message: 'Not authorized to access this document' });
@@ -746,6 +748,26 @@ exports.downloadDocument = async (req, res) => {
     res.setHeader('Content-Type', properties.contentType || 'application/octet-stream');
     res.setHeader('Content-Length', properties.contentLength);
     res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(document.title)}"`);
+    
+    // Create activity record for the download
+    const Activity = require('../models/Activity');
+    const activity = new Activity({
+      user: req.user.id,
+      action: `downloaded ${document.title}`,
+      type: 'download',
+      documentModified: document._id,
+      propertyListing: propertyListing?._id,
+      metadata: {
+        documentTitle: document.title,
+        documentType: document.type,
+        userRole: req.user.role || 'user'
+      }
+    });
+
+    // Save activity asynchronously (don't wait for it)
+    activity.save().catch(error => {
+      console.error('Error saving download activity:', error);
+    });
     
     // Download and stream the blob
     const downloadResponse = await blockBlobClient.download(0);

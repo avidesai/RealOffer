@@ -14,7 +14,16 @@ exports.getActivities = async (req, res) => {
       if (!listing || listing.createdBy.toString() !== req.user.id) {
         return res.status(403).json({ message: 'Not authorized to view these activities' });
       }
-      query.propertyListing = listingId;
+      
+      // Get all buyer packages for this listing
+      const buyerPackages = await BuyerPackage.find({ propertyListing: listingId });
+      const buyerPackageIds = buyerPackages.map(bp => bp._id);
+      
+      // Include both direct listing activities and buyer package activities for this listing
+      query.$or = [
+        { propertyListing: listingId },
+        { buyerPackage: { $in: buyerPackageIds } }
+      ];
     } else if (buyerPackageId) {
       const buyerPackage = await BuyerPackage.findById(buyerPackageId);
       if (!buyerPackage || buyerPackage.user.toString() !== req.user.id) {

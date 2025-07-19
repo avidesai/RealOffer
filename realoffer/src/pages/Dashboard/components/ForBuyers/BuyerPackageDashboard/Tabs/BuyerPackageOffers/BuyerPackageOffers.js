@@ -19,14 +19,18 @@ const BuyerPackageOffers = ({ buyerPackageId }) => {
 
     try {
       setLoading(true);
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/${buyerPackageId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      // First get the buyer package to find the property listing
+      const buyerPackageResponse = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/${buyerPackageId}?trackView=false`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         }
-      });
+      );
 
       // Get the property listing offers
-      const propertyListing = response.data.propertyListing;
+      const propertyListing = buyerPackageResponse.data.propertyListing;
       if (propertyListing && propertyListing._id) {
         const offersResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/offers?listingId=${propertyListing._id}`, {
           headers: {

@@ -23,7 +23,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
 
   const fetchListingData = useCallback(async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/${buyerPackageId}`, {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/${buyerPackageId}?trackView=false`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

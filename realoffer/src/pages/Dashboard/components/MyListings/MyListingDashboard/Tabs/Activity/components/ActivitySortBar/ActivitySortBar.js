@@ -59,6 +59,12 @@ function ActivitySortBar({ onFilterChange, onSortChange, onSearch }) {
             >
               Offers
             </button>
+            <button
+              className={`filter-pill ${filter === 'buyer_package_created' ? 'active' : ''}`}
+              onClick={() => handleFilterChange('buyer_package_created')}
+            >
+              Packages
+            </button>
           </div>
           <div className="activity-sort-section">
             <select id="sort" value={sort} onChange={handleSortChange}>
