@@ -12,6 +12,8 @@ const Activity = ({ listingId }) => {
   const { token, user } = useAuth(); // Get the token and user from AuthContext
   const [activities, setActivities] = useState([]);
   const [filteredActivities, setFilteredActivities] = useState([]);
+  const [expandedUsers, setExpandedUsers] = useState(new Set());
+  const [userGroups, setUserGroups] = useState([]);
   const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('most-recent');
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,41 +52,83 @@ const Activity = ({ listingId }) => {
     fetchActivities();
   }, [fetchActivities]);
 
-  // Group similar activities within a time window
-  const groupActivities = useCallback((activities) => {
-    const grouped = [];
+  // Group activities by user first, then by activity type
+  const groupActivitiesByUser = useCallback((activities) => {
+    const userGroups = {};
     const timeWindow = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
 
     activities.forEach(activity => {
-      const existingGroup = grouped.find(group => {
-        const firstActivity = group[0];
-        return (
-          firstActivity.user._id === activity.user._id &&
-          firstActivity.type === activity.type &&
-          Math.abs(new Date(firstActivity.timestamp) - new Date(activity.timestamp)) < timeWindow
-        );
-      });
-
-      if (existingGroup) {
-        existingGroup.push(activity);
-      } else {
-        grouped.push([activity]);
+      const userId = activity.user._id;
+      if (!userGroups[userId]) {
+        userGroups[userId] = [];
       }
+      userGroups[userId].push(activity);
     });
 
-    return grouped.map(group => {
-      if (group.length === 1) {
-        return group[0];
+    // For each user, group their activities by type
+    const processedUserGroups = Object.entries(userGroups).map(([userId, userActivities]) => {
+      const grouped = [];
+      
+      userActivities.forEach(activity => {
+        const existingGroup = grouped.find(group => {
+          const firstActivity = group[0];
+          const sameType = firstActivity.type === activity.type;
+          const withinTimeWindow = Math.abs(new Date(firstActivity.timestamp) - new Date(activity.timestamp)) < timeWindow;
+          
+          // For downloads, also check if it's the same document
+          if (activity.type === 'download') {
+            const sameDocument = firstActivity.documentModified?._id === activity.documentModified?._id;
+            return sameType && sameDocument && withinTimeWindow;
+          }
+          
+          // For other activities, use the original logic
+          return sameType && withinTimeWindow;
+        });
+
+        if (existingGroup) {
+          existingGroup.push(activity);
+        } else {
+          grouped.push([activity]);
+        }
+      });
+
+      const processedActivities = grouped.map(group => {
+        if (group.length === 1) {
+          return group[0];
+        } else {
+          const mostRecent = group.reduce((latest, current) => 
+            new Date(current.timestamp) > new Date(latest.timestamp) ? current : latest
+          );
+          return {
+            ...mostRecent,
+            _groupedCount: group.length
+          };
+        }
+      });
+
+      return {
+        userId,
+        user: userActivities[0].user,
+        activities: processedActivities,
+        totalActivities: userActivities.length,
+        lastActivity: processedActivities[0] // Most recent activity
+      };
+    });
+
+    return processedUserGroups.sort((a, b) => 
+      new Date(b.lastActivity.timestamp) - new Date(a.lastActivity.timestamp)
+    );
+  }, []);
+
+  const toggleUserExpansion = useCallback((userId) => {
+    setExpandedUsers(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(userId)) {
+        newSet.delete(userId);
       } else {
-        // Return the most recent activity with a count
-        const mostRecent = group.reduce((latest, current) => 
-          new Date(current.timestamp) > new Date(latest.timestamp) ? current : latest
-        );
-        return {
-          ...mostRecent,
-          _groupedCount: group.length
-        };
+        newSet.add(userId);
       }
+      return newSet;
     });
   }, []);
 
@@ -109,9 +153,17 @@ const Activity = ({ listingId }) => {
     );
 
     // Group similar activities
-    const groupedActivities = groupActivities(filtered);
-    setFilteredActivities(groupedActivities);
-  }, [filter, sort, searchQuery, activities, groupActivities]);
+    const groupedActivities = groupActivitiesByUser(filtered);
+    
+    // Sort user groups based on sort selection
+    const sortedUserGroups = groupedActivities.sort((a, b) => {
+      const dateA = new Date(a.lastActivity.timestamp);
+      const dateB = new Date(b.lastActivity.timestamp);
+      return sort === 'most-recent' ? dateB - dateA : dateA - dateB;
+    });
+    
+    setUserGroups(sortedUserGroups);
+  }, [filter, sort, searchQuery, activities, groupActivitiesByUser]);
 
   const getUserName = (user) => {
     if (!user) return 'Unknown User';
@@ -249,7 +301,7 @@ const Activity = ({ listingId }) => {
             <div className="activity-tab-spinner"></div>
             <p>Loading activity data...</p>
           </div>
-        ) : filteredActivities.length === 0 ? (
+        ) : userGroups.length === 0 ? (
           <div className="no-activities">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -259,36 +311,78 @@ const Activity = ({ listingId }) => {
             <p>No activities found</p>
           </div>
         ) : (
-          filteredActivities.map((activity, index) => (
-            <div key={index} className="activity-item">
-              <div className="activity-avatar">
+          userGroups.map((userGroup, index) => (
+            <div key={index} className="activity-user-group">
+              <div 
+                className="activity-user-header"
+                onClick={() => toggleUserExpansion(userGroup.userId)}
+              >
                 <Avatar 
-                  src={activity.user?.profilePhotoUrl}
-                  firstName={activity.user?.firstName}
-                  lastName={activity.user?.lastName}
-                  alt={getUserName(activity.user)}
+                  src={userGroup.user?.profilePhotoUrl}
+                  firstName={userGroup.user?.firstName}
+                  lastName={userGroup.user?.lastName}
+                  alt={getUserName(userGroup.user)}
                   size="activity"
                 />
-              </div>
-              <div className="activity-info">
-                <div className="activity-header">
-                  <p className="activity-user">
-                    <strong>{getUserName(activity.user)}</strong>
-                    <span className="activity-action">
-                      {getActivityIcon(activity.type)}
-                      {getActionText(activity)}
-                    </span>
-                  </p>
-                  <p className="activity-date">
-                    {new Date(activity.timestamp).toLocaleString()}
-                  </p>
+                <div className="user-info">
+                  <h3>{getUserName(userGroup.user)}</h3>
+                  <p>{userGroup.totalActivities} activities</p>
                 </div>
-                {activity.documentModified && (
-                  <a href={activity.documentModified.url} className="activity-document">
-                    {activity.documentModified.title}
-                  </a>
-                )}
+                <div className="expand-arrow">
+                  <svg 
+                    width="16" 
+                    height="16" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={expandedUsers.has(userGroup.userId) ? 'expanded' : ''}
+                  >
+                    <path 
+                      d="M6 9L12 15L18 9" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
               </div>
+              {expandedUsers.has(userGroup.userId) && (
+                <div className="activity-user-activities">
+                  {userGroup.activities.map((activity, activityIndex) => (
+                    <div key={activityIndex} className="activity-item">
+                      <div className={`activity-icon ${activity.type === 'buyer_package_created' ? 'buyer-package' : activity.type}`}>
+                        {getActivityIcon(activity.type)}
+                      </div>
+                      <div className="activity-content">
+                        <div className="activity-header">
+                          <div className="activity-user">
+                            <strong>{getUserName(activity.user)}</strong>
+                            <span className="activity-action">
+                              {getActionText(activity)}
+                            </span>
+                          </div>
+                          <p className="activity-date">
+                            {new Date(activity.timestamp).toLocaleString('en-US', {
+                              month: 'numeric',
+                              day: 'numeric',
+                              year: 'numeric',
+                              hour: 'numeric',
+                              minute: '2-digit',
+                              hour12: true
+                            })}
+                          </p>
+                        </div>
+                        {activity.documentModified && activity.type !== 'download' && (
+                          <a href={activity.documentModified.url} className="activity-document">
+                            {activity.documentModified.title}
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))
         )}

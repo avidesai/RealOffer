@@ -236,6 +236,320 @@
   margin: 0;
 }
 
+/* User Grouping Styles */
+.activity-user-group {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 1rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.activity-user-group:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.activity-user-header {
+  display: flex;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.activity-user-header:hover {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+.activity-user-header .activity-avatar {
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.user-info h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-info p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.expand-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: #64748b;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.expand-arrow svg {
+  transition: transform 0.2s ease;
+}
+
+.expand-arrow svg.expanded {
+  transform: rotate(180deg);
+}
+
+.activity-user-activities {
+  background: #fff;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+  }
+}
+
+.activity-user-activities .activity-item {
+  border-bottom: 1px solid #f1f5f9;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 1rem 1.5rem;
+  background: #fff;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.activity-user-activities .activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-user-activities .activity-item:hover {
+  background: #f8fafc;
+  transform: none;
+  box-shadow: none;
+}
+
+.activity-user-activities .activity-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+/* Activity icon colors matching stats */
+.activity-user-activities .activity-icon.view {
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.12) 0%, rgba(0, 86, 179, 0.08) 100%);
+  color: #007bff;
+  border: 1px solid rgba(0, 123, 255, 0.15);
+}
+
+.activity-user-activities .activity-icon.download {
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.12) 0%, rgba(30, 126, 52, 0.08) 100%);
+  color: #28a745;
+  border: 1px solid rgba(40, 167, 69, 0.15);
+}
+
+.activity-user-activities .activity-icon.offer {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.12) 0%, rgba(255, 152, 0, 0.08) 100%);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.15);
+}
+
+.activity-user-activities .activity-icon.buyer-package {
+  background: linear-gradient(135deg, rgba(111, 66, 193, 0.12) 0%, rgba(88, 53, 154, 0.08) 100%);
+  color: #6f42c1;
+  border: 1px solid rgba(111, 66, 193, 0.15);
+}
+
+.activity-user-activities .activity-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.activity-user-activities .activity-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-user-activities .activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.activity-user-activities .activity-user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-user-activities .activity-user strong {
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activity-user-activities .activity-action {
+  color: #64748b;
+  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-user-activities .activity-date {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #94a3b8;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.activity-user-activities .activity-document {
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.activity-user-activities .activity-document:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .activity-user-header {
+    padding: 1rem;
+    position: relative;
+  }
+  
+  .activity-user-header .activity-avatar {
+    margin-right: 0;
+    margin-bottom: 0.5rem;
+  }
+  
+  .user-info {
+    width: 100%;
+  }
+  
+  .expand-arrow {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+  
+  .activity-user-activities .activity-item {
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .activity-user-activities .activity-icon {
+    width: 36px;
+    height: 36px;
+    align-self: flex-start;
+  }
+  
+  .activity-user-activities .activity-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .activity-user-activities .activity-content {
+    width: 100%;
+  }
+  
+  .activity-user-activities .activity-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  
+  .activity-user-activities .activity-user {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    width: 100%;
+  }
+  
+  .activity-user-activities .activity-action {
+    width: 100%;
+  }
+  
+  .activity-user-activities .activity-date {
+    align-self: flex-start;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .activity-user-activities .activity-item {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .activity-user-activities .activity-icon {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .activity-user-activities .activity-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .activity-user-activities .activity-user strong {
+    font-size: 0.9rem;
+  }
+  
+  .activity-user-activities .activity-action {
+    font-size: 0.85rem;
+  }
+  
+  .activity-user-activities .activity-date {
+    font-size: 0.75rem;
+  }
+}
 
 
 /* Responsive Design */
