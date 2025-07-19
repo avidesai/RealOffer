@@ -277,7 +277,7 @@
     transform: translateY(-100%);
     opacity: 0;
     visibility: hidden;
-    transition: all var(--transition-slow);
+    transition: transform var(--transition-base), opacity var(--transition-base), visibility 0s var(--transition-base);
     z-index: 2000;
   }
   
@@ -286,6 +286,7 @@
     opacity: 1;
     visibility: visible;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    transition: transform var(--transition-base), opacity var(--transition-base), visibility 0s;
   }
   
   .lp-landing-header-nav-link {
@@ -319,7 +320,7 @@
     cursor: pointer;
     padding: 0.75rem;
     border-radius: 12px;
-    transition: all var(--transition-base);
+    transition: background var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base);
     position: static;
     width: auto;
     height: auto;
@@ -330,8 +331,8 @@
   
   .lp-landing-header-mobile-toggle:hover {
     background: rgba(255, 255, 255, 1);
-    border-color: rgba(0, 0, 0, 0.12);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    border-color: rgba(27, 92, 243, 0.2);
+    box-shadow: 0 4px 12px rgba(27, 92, 243, 0.12);
     transform: translateY(-1px);
   }
   
@@ -359,15 +360,28 @@
   .lp-landing-header-nav-open .lp-landing-header-mobile-actions {
     display: flex;
     flex-direction: column;
-    gap: 0.875rem;
-    margin-top: 1.5rem;
+    gap: 1rem;
+    margin-top: 2rem;
     width: 100%;
     align-items: center;
+    padding: 0 0.5rem;
+    position: relative;
+  }
+  
+  .lp-landing-header-nav-open .lp-landing-header-mobile-actions::before {
+    content: '';
+    position: absolute;
+    top: -1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
   }
   
   .lp-landing-header-mobile-actions .lp-landing-header-login {
     color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.9);
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 12px;
     font-weight: 600;
@@ -377,7 +391,7 @@
     padding: 1rem 1.5rem;
     margin-bottom: 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    transition: all var(--transition-base);
+    transition: background-color var(--transition-base), border-color var(--transition-base), color var(--transition-base), transform var(--transition-base), box-shadow var(--transition-base);
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -387,10 +401,10 @@
   
   .lp-landing-header-mobile-actions .lp-landing-header-login:hover {
     background: rgba(255, 255, 255, 1);
-    border-color: rgba(0, 0, 0, 0.12);
+    border-color: rgba(27, 92, 243, 0.2);
     color: var(--primary-blue);
     transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 16px rgba(27, 92, 243, 0.1);
   }
   
   .lp-landing-header-mobile-actions .lp-landing-header-signup {
@@ -405,7 +419,7 @@
     border: none;
     text-align: center;
     margin-top: 0;
-    transition: all var(--transition-base);
+    transition: background var(--transition-base), transform var(--transition-base), box-shadow var(--transition-base);
     text-decoration: none;
     display: flex;
     align-items: center;
