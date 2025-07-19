@@ -126,13 +126,13 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
   // Check if user is pro - if not, show paywall
   if (!user?.isPremium) {
     return (
-      <div className="ai-analysis-modal-overlay">
-        <div className="ai-analysis-modal">
-          <div className="ai-analysis-modal-header">
+      <div className="aam-overlay">
+        <div className="aam-modal">
+          <div className="aam-header">
             <h2>{getModalTitle()}</h2>
-            <button className="ai-analysis-close-button" onClick={onClose} aria-label="Close">×</button>
+            <button className="aam-close-button" onClick={onClose} aria-label="Close">×</button>
           </div>
-          <div className="ai-analysis-modal-content">
+          <div className="aam-content">
             <TabPaywall feature="ai-analysis" />
           </div>
         </div>
@@ -141,32 +141,32 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
   }
 
   return (
-    <div className="ai-analysis-modal-overlay">
-      <div className="ai-analysis-modal">
-        <div className="ai-analysis-modal-header">
+    <div className="aam-overlay">
+      <div className="aam-modal">
+        <div className="aam-header">
           <h2>{getModalTitle()}</h2>
-          <button className="ai-analysis-close-button" onClick={onClose} aria-label="Close">×</button>
+          <button className="aam-close-button" onClick={onClose} aria-label="Close">×</button>
         </div>
-        <div className="ai-analysis-modal-content">
+        <div className="aam-content">
           {loading && (
-            <div className="ai-analysis-loading">
-              <div className="ai-analysis-progress">
+            <div className="aam-loading">
+              <div className="aam-progress">
                 <div 
-                  className="ai-analysis-progress-bar"
+                  className="aam-progress-bar"
                   style={{ width: `${analysis?.progress?.percentage || 0}%` }}
                 />
               </div>
-              <p className="ai-analysis-status">
+              <p className="aam-status">
                 {getProgressMessage(analysis?.progress)}
               </p>
             </div>
           )}
 
           {error && (
-            <div className="ai-analysis-error">
+            <div className="aam-error">
               <p>{error}</p>
               <button 
-                className="ai-analysis-retry-button"
+                className="aam-retry-button"
                 onClick={handleRefreshAnalysis}
               >
                 Retry Analysis
@@ -176,7 +176,7 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
 
           {!loading && !error && analysis?.result && (
             <>
-              <div className="ai-analysis-result">
+              <div className="aam-result">
                 <ReactMarkdown 
                   components={{
                     h2: ({ node, children, ...props }) => {
@@ -208,16 +208,16 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
                   {analysis.result}
                 </ReactMarkdown>
               </div>
-              <div className="ai-analysis-footer">
-                <button className="ai-analysis-close-button" onClick={onClose} aria-label="Close">
+              <div className="aam-footer">
+                <button className="aam-close-button" onClick={onClose} aria-label="Close">
                   ×
                 </button>
               </div>
-              <div className="ai-analysis-actions">
-                <button className="ai-analysis-download-button" onClick={handleDownload}>
+              <div className="aam-actions">
+                <button className="aam-download-button" onClick={handleDownload}>
                   Download Analysis
                 </button>
-                <button className="ai-analysis-refresh-button" onClick={handleRefreshAnalysis}>
+                <button className="aam-refresh-button" onClick={handleRefreshAnalysis}>
                   Refresh Analysis
                 </button>
               </div>
