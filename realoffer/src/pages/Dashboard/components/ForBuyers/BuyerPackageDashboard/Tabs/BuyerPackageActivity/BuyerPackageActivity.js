@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useAuth } from '../../../../../../../context/AuthContext';
 import BuyerPackageActivitySortBar from './components/BuyerPackageActivitySortBar/BuyerPackageActivitySortBar';
 import TabPaywall from '../../../../../../../components/TabPaywall/TabPaywall';
+import Avatar from '../../../../../../../components/Avatar/Avatar';
 import './BuyerPackageActivity.css';
 
 const BuyerPackageActivity = ({ buyerPackageId }) => {
@@ -52,7 +53,7 @@ const BuyerPackageActivity = ({ buyerPackageId }) => {
   // Group similar activities within a time window
   const groupActivities = useCallback((activities) => {
     const grouped = [];
-    const timeWindow = 5 * 60 * 1000; // 5 minutes in milliseconds
+    const timeWindow = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
 
     activities.forEach(activity => {
       const existingGroup = grouped.find(group => {
@@ -147,20 +148,6 @@ const BuyerPackageActivity = ({ buyerPackageId }) => {
     return baseText;
   }, []);
 
-  const getInitials = (user) => {
-    if (!user) return 'U';
-    
-    const name = getUserName(user);
-    if (!name || name === 'Unknown User') return 'U';
-    
-    return name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   const getActivityIcon = (type) => {
     switch (type) {
       case 'view':
@@ -215,6 +202,16 @@ const BuyerPackageActivity = ({ buyerPackageId }) => {
       />
       <div className="activity-stats">
         <div className="activity-stat">
+          <div className="stat-icon buyer-package">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 7L10 17L5 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <span className="stat-number">{metrics.buyerPackages}</span>
+          <span className="stat-label">Packages</span>
+        </div>
+        <div className="activity-stat">
           <div className="stat-icon view">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -245,16 +242,6 @@ const BuyerPackageActivity = ({ buyerPackageId }) => {
           <span className="stat-number">{metrics.offers}</span>
           <span className="stat-label">Offers</span>
         </div>
-        <div className="activity-stat">
-          <div className="stat-icon buyer-package">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20 7L10 17L5 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
-          <span className="stat-number">{metrics.buyerPackages}</span>
-          <span className="stat-label">Packages</span>
-        </div>
       </div>
       <div className="activity-list">
         {loading ? (
@@ -275,11 +262,13 @@ const BuyerPackageActivity = ({ buyerPackageId }) => {
           filteredActivities.map((activity, index) => (
             <div key={index} className="activity-item">
               <div className="activity-avatar">
-                {activity.user?.profilePhotoUrl ? (
-                  <img src={activity.user.profilePhotoUrl} alt={getUserName(activity.user)} />
-                ) : (
-                  <div className="avatar-initials">{getInitials(activity.user)}</div>
-                )}
+                <Avatar 
+                  src={activity.user?.profilePhotoUrl}
+                  firstName={activity.user?.firstName}
+                  lastName={activity.user?.lastName}
+                  alt={getUserName(activity.user)}
+                  size="activity"
+                />
               </div>
               <div className="activity-info">
                 <div className="activity-header">

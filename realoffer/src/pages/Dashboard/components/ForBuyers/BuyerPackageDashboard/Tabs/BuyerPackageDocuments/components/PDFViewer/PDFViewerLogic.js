@@ -144,7 +144,25 @@ const PDFViewerLogic = ({ fileUrl, docTitle, docType, onClose, buyerPackageId })
     setScale(responsiveScale);
   }, [calculateResponsiveScale]);
 
-  const handleDownload = useCallback(() => {
+  const handleDownload = useCallback(async () => {
+    if (fileUrl && buyerPackageId) {
+      try {
+        // Record the download activity
+        await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/download`, {
+          buyerPackageId,
+          documentTitle: docTitle || 'Untitled',
+          // Note: We don't have documentId here, but the backend can handle it
+        }, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      } catch (error) {
+        console.error('Error recording download:', error);
+      }
+    }
+
+    // Actually download the file
     if (fileUrl) {
       const link = document.createElement('a');
       link.href = fileUrl;
@@ -153,7 +171,7 @@ const PDFViewerLogic = ({ fileUrl, docTitle, docType, onClose, buyerPackageId })
       link.click();
       document.body.removeChild(link);
     }
-  }, [fileUrl, docTitle]);
+  }, [fileUrl, docTitle, buyerPackageId, token]);
 
   return {
     numPages,

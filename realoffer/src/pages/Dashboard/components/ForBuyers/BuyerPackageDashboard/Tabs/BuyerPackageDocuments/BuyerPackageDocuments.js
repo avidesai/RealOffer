@@ -108,6 +108,45 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
     }
   };
 
+  const handleDownload = async (e, doc) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    try {
+      // Record the download activity
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/download`, {
+        buyerPackageId,
+        documentId: doc._id,
+        documentTitle: doc.title || 'Untitled'
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      // Actually download the file
+      const link = document.createElement('a');
+      link.href = `${doc.thumbnailUrl}?${doc.sasToken}`;
+      link.download = doc.title || 'document.pdf';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error recording download:', error);
+      // Still download the file even if tracking fails
+      const link = document.createElement('a');
+      link.href = `${doc.thumbnailUrl}?${doc.sasToken}`;
+      link.download = doc.title || 'document.pdf';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
     return new Date(dateString).toLocaleDateString('en-US', options);
@@ -165,9 +204,12 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
                       AI Analysis
                     </button>
                   )}
-                  <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
-                    <button className="docs-tab-delete-button docs-tab-document-actions-button">Download</button>
-                  </a>
+                  <button 
+                    className="docs-tab-delete-button docs-tab-document-actions-button"
+                    onClick={(e) => handleDownload(e, doc)}
+                  >
+                    Download
+                  </button>
                 </div>
               </div>
             ))
