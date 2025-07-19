@@ -20,7 +20,26 @@ const Activity = ({ listingId }) => {
   const [metrics, setMetrics] = useState({ views: 0, downloads: 0, offers: 0, buyerPackages: 0 });
   const [loading, setLoading] = useState(true);
 
+  const fetchActivityStats = useCallback(async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/activities/stats/${listingId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      setMetrics({
+        views: response.data.views,
+        downloads: response.data.downloads,
+        offers: response.data.offers,
+        buyerPackages: response.data.buyerPackagesCreated
+      });
+    } catch (error) {
+      console.error('Error fetching activity stats:', error);
+    }
+  }, [listingId, token]);
+
   const calculateMetrics = useCallback((activitiesData) => {
+    // This function is now only used for fallback if stats endpoint fails
     const newMetrics = {
       views: activitiesData.filter(activity => activity.type === 'view').length,
       downloads: activitiesData.filter(activity => activity.type === 'download').length,
@@ -35,22 +54,33 @@ const Activity = ({ listingId }) => {
       setLoading(true);
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/activities?listingId=${listingId}`, {
         headers: {
-          'Authorization': `Bearer ${token}` // Include the token in the header
+          'Authorization': `Bearer ${token}`
         }
       });
       const activitiesData = response.data;
       setActivities(activitiesData);
-      calculateMetrics(activitiesData);
+      // Don't calculate metrics from activities anymore, use the stats endpoint
     } catch (error) {
       console.error('Error fetching activities:', error);
     } finally {
       setLoading(false);
     }
-  }, [calculateMetrics, listingId, token]); // Add token to dependency array
+  }, [listingId, token]);
 
   useEffect(() => {
-    fetchActivities();
-  }, [fetchActivities]);
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([fetchActivities(), fetchActivityStats()]);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadData();
+  }, [fetchActivities, fetchActivityStats]);
 
   // Group activities by user first, then by activity type
   const groupActivitiesByUser = useCallback((activities) => {

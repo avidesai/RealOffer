@@ -8,6 +8,7 @@ const authMiddleware = require('../middleware/auth');
 router.use(authMiddleware);
 
 router.get('/', ActivityController.getActivities);
+router.get('/stats/:listingId', ActivityController.getActivityStats);
 router.post('/', ActivityController.createActivity);
 router.delete('/:id', ActivityController.deleteActivity);
 

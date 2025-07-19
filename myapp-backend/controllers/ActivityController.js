@@ -3,6 +3,7 @@
 const Activity = require('../models/Activity');
 const PropertyListing = require('../models/PropertyListing');
 const BuyerPackage = require('../models/BuyerPackage');
+const Offer = require('../models/Offer');
 
 exports.getActivities = async (req, res) => {
   try {
@@ -118,11 +119,14 @@ exports.getActivityStats = async (req, res) => {
     }
 
     const activities = await Activity.find({ propertyListing: listingId });
+    
+    // Get actual offers count from the Offer collection
+    const offersCount = await Offer.countDocuments({ propertyListing: listingId });
 
     const stats = {
       views: activities.filter(activity => activity.type === 'view').length,
       downloads: activities.filter(activity => activity.type === 'download').length,
-      offers: activities.filter(activity => activity.type === 'offer').length,
+      offers: offersCount, // Use actual offers count instead of activity records
       buyerPackagesCreated: activities.filter(activity => activity.type === 'buyer_package_created').length,
       totalActivities: activities.length
     };
