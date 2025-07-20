@@ -1,165 +1,135 @@
-/* BuyerPackageOffers.css */
+/* Offers.css */
 
-.buyer-package-offers {
+.offers-tab {
+  padding: 0rem 0.5rem 1.2rem 0.5rem;
+  background-color: #f8fafd;
+  border-radius: 0 0 12px 12px;
+}
+
+.offers-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.1rem;
+  margin-top: 0.5rem;
+}
+
+.no-offers-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+  font-size: 1rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.offer-item {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-}
-
-.buyer-package-offers-header {
-  display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
-.buyer-package-offers-header h2 {
+.offer-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.offer-title {
+  font-weight: bold;
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #111827;
+  color: #333;
 }
 
-.buyer-package-offers-header p {
+.offer-price {
   margin: 0;
-  color: #6b7280;
-  font-size: 0.95rem;
+  color: #666;
 }
 
-.buyer-package-offers-loading {
+.offer-agent {
+  margin: 0;
+  color: #888;
+}
+
+.offer-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.view-button,
+.respond-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.view-button:hover,
+.respond-button:hover {
+  background-color: #0056b3;
+}
+
+.offers-tab-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
-  gap: 1rem;
+  padding: 3rem 1rem;
+  color: #6c757d;
+  text-align: center;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  margin: 1rem;
+  grid-column: 1 / -1;
 }
 
-.buyer-package-offers-spinner {
+.offers-tab-spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #1b5cf3;
+  border: 3px solid #f1f3f5;
+  border-top: 3px solid #007bff;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: offers-tab-spin 1s linear infinite;
+  margin-bottom: 1rem;
 }
 
-@keyframes spin {
+@keyframes offers-tab-spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-.buyer-package-offers-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.buyer-package-offer-item {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 1.5rem;
-  transition: all 0.2s ease;
-}
-
-.buyer-package-offer-item:hover {
-  background: #f3f4f6;
-  border-color: #d1d5db;
-}
-
-.buyer-package-offer-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1rem;
-}
-
-.buyer-package-offer-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.buyer-package-offer-price {
+.offers-tab-loading p {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1b5cf3;
-}
-
-.buyer-package-offer-status {
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.buyer-package-offer-date {
-  font-size: 0.85rem;
-  color: #6b7280;
-}
-
-.buyer-package-offer-agent {
-  margin-bottom: 1rem;
-}
-
-.buyer-package-offer-agent p {
-  margin: 0.25rem 0;
-  font-size: 0.9rem;
-  color: #374151;
-}
-
-.buyer-package-offer-notes {
-  margin-bottom: 1rem;
-}
-
-.buyer-package-offer-notes p {
-  margin: 0.25rem 0;
-  font-size: 0.9rem;
-  color: #374151;
-  line-height: 1.5;
-}
-
-.buyer-package-counter-offer {
-  background: #fef3c7;
-  border: 1px solid #f59e0b;
-  border-radius: 6px;
-  padding: 1rem;
-  margin-top: 1rem;
-}
-
-.buyer-package-counter-offer p {
-  margin: 0.25rem 0;
-  font-size: 0.9rem;
-  color: #92400e;
-  line-height: 1.5;
-}
-
-.buyer-package-offers-empty {
-  text-align: center;
-  color: #6b7280;
   font-size: 1rem;
-  padding: 2rem;
-  background: #f9fafb;
-  border-radius: 8px;
-  border: 1px dashed #d1d5db;
+  font-weight: 500;
+  color: #6c757d;
+}
+
+@media (max-width: 1200px) {
+  .offers-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
-  .buyer-package-offers-header {
-    flex-direction: column;
-    align-items: flex-start;
+  .offers-tab {
+    padding: 0.3rem 0.2rem 1rem 0.2rem;
   }
-
-  .buyer-package-offer-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .buyer-package-offer-price {
-    font-size: 1.25rem;
+  .offers-list {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 0.5rem;
   }
 } 

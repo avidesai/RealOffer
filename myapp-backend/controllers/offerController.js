@@ -48,7 +48,8 @@ exports.createOffer = async (req, res) => {
       sellerRentBack: req.body.sellerRentBack,
       sellerRentBackDays: req.body.sellerRentBackDays,
       'buyerDetails.buyerName': req.body.buyerName,
-      documentWorkflow: documentWorkflow
+      documentWorkflow: documentWorkflow,
+      buyerPackage: req.body.buyerPackage // Add buyer package ID
     };
 
     const offer = new Offer(offerData);
@@ -59,12 +60,13 @@ exports.createOffer = async (req, res) => {
       { $push: { offers: offer._id } }
     );
 
-    // Create activity record for the offer
+    // Create activity record for the offer - link to both property listing and buyer package
     const activity = new Activity({
       user: req.user.id,
       action: `made an offer of $${req.body.purchasePrice?.toLocaleString() || 'N/A'} for ${propertyListing.homeCharacteristics.address}`,
       type: 'offer',
       propertyListing: propertyListingId,
+      buyerPackage: req.body.buyerPackage, // Link to buyer package
       metadata: {
         offerAmount: req.body.purchasePrice,
         offerStatus: 'submitted',

@@ -108,14 +108,28 @@ exports.getActivityStats = async (req, res) => {
   try {
     const { listingId } = req.params;
 
-    // Verify the user owns this property listing
-    const listing = await PropertyListing.findOne({
+    // First check if the user owns this property listing (for sellers)
+    let listing = await PropertyListing.findOne({
       _id: listingId,
       createdBy: req.user.id
     });
 
+    // If user doesn't own the listing, check if they have a buyer package for it (for buyers)
     if (!listing) {
-      return res.status(403).json({ message: 'Not authorized to view these statistics' });
+      const buyerPackage = await BuyerPackage.findOne({
+        propertyListing: listingId,
+        user: req.user.id
+      });
+
+      if (!buyerPackage) {
+        return res.status(403).json({ message: 'Not authorized to view these statistics' });
+      }
+
+      // Get the listing for reference
+      listing = await PropertyListing.findById(listingId);
+      if (!listing) {
+        return res.status(404).json({ message: 'Property listing not found' });
+      }
     }
 
     const activities = await Activity.find({ propertyListing: listingId });

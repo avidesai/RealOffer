@@ -1,0 +1,255 @@
+/* OfferCard.css */
+
+.offer-card {
+  background-color: #fff;
+  border: 1.5px solid #e1e4e8;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  margin-bottom: 1rem;
+  padding: 1.1rem 1.1rem 1.2rem 1.1rem;
+  transition: all 0.2s ease;
+}
+
+.offer-card:hover {
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0,123,255,0.1);
+  transform: translateY(-1px);
+}
+
+.offer-card-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.offer-avatar {
+  background-color: #007bff;
+  color: #ffffff;
+  border-radius: 50%;
+  min-width: 48px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  margin-right: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.offer-avatar-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.offer-agent-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.offer-agent-name {
+  font-weight: 600;
+  margin: 0;
+  font-size: 1rem;
+  color: #2c3e50;
+}
+
+.offer-agent-email,
+.offer-agent-phone {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.offer-card-body {
+  margin-bottom: 1rem;
+}
+
+.offer-price {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.offer-price h3 {
+  margin: 0;
+  font-size: 1.75rem;
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+.offer-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  margin: 1.1rem 0 1.1rem 0;
+}
+
+.view-offer-button,
+.respond-offer-button {
+  padding: 0.65rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0;
+}
+
+.view-offer-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+}
+
+.respond-offer-button {
+  background-color: #fff;
+  color: #262626;
+  border: 1.5px solid #e1e4e8;
+}
+
+.view-offer-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+}
+
+.respond-offer-button:hover {
+  background-color: #f8fafd;
+  border-color: #007bff;
+  color: #007bff;
+  transform: translateY(-1px);
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: #e1e4e8;
+  margin: 1rem 0;
+}
+
+.offer-details {
+  margin-top: 1.5rem;
+}
+
+.offer-details p {
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #2c3e50;
+}
+
+.offer-details strong {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+/* Private Notes Section */
+.offer-card-footer {
+  margin-top: 1.1rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.offer-card-footer p {
+  margin: 0.75rem 0 0.5rem 0;
+  font-size: 0.95rem;
+  color: #2c3e50;
+  font-weight: 600;
+  text-align: left;
+  width: 95%;
+  max-width: 420px;
+}
+
+.team-notes {
+  width: 95%;
+  max-width: 420px;
+  min-height: 100px;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  border: 1.5px solid #e1e4e8;
+  font-size: 0.92rem;
+  font-family: inherit;
+  margin-top: 0.2rem;
+  margin-bottom: 0.7rem;
+  resize: vertical;
+  background: #fafbfc;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.team-notes:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0,123,255,0.08);
+  background: #fff;
+}
+
+.team-notes::placeholder {
+  color: #adb5bd;
+}
+
+/* Status Styles */
+.status-box {
+  padding: 0.35rem 0.75rem;
+  font-weight: 500;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  display: inline-block;
+}
+
+.status-submitted {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.status-under-review {
+  background-color: #6f42c1;
+  color: #fff;
+}
+
+.status-countered {
+  background-color: #fd7e14;
+  color: #fff;
+}
+
+.status-accepted {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.status-rejected {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .offer-card {
+    padding: 0.9rem;
+  }
+  .offer-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0.8rem 0 0.8rem 0;
+  }
+  .view-offer-button,
+  .respond-offer-button {
+    width: 100%;
+  }
+  .offer-card-footer {
+    margin-top: 0.7rem;
+    margin-bottom: 0.3rem;
+  }
+  .team-notes {
+    margin-top: 0.3rem;
+    margin-bottom: 0.3rem;
+  }
+}
