@@ -11,7 +11,6 @@ import './BuyerPackageActivity.css';
 const BuyerPackageActivity = ({ buyerPackageId, listingId }) => {
   const { token, user } = useAuth();
   const [activities, setActivities] = useState([]);
-  const [filteredActivities, setFilteredActivities] = useState([]);
   const [expandedUsers, setExpandedUsers] = useState(new Set());
   const [userGroups, setUserGroups] = useState([]);
   const [filter, setFilter] = useState('all');
@@ -52,16 +51,7 @@ const BuyerPackageActivity = ({ buyerPackageId, listingId }) => {
     }
   }, [listingId, token]);
 
-  const calculateMetrics = useCallback((activitiesData) => {
-    // This function is now only used for fallback if stats endpoint fails
-    const newMetrics = {
-      views: activitiesData.filter(activity => activity.type === 'view').length,
-      downloads: activitiesData.filter(activity => activity.type === 'download').length,
-      offers: activitiesData.filter(activity => activity.type === 'offer').length,
-      buyerPackages: activitiesData.filter(activity => activity.type === 'buyer_package_created').length,
-    };
-    setMetrics(newMetrics);
-  }, []);
+
 
   const fetchActivities = useCallback(async () => {
     try {
@@ -282,14 +272,7 @@ const BuyerPackageActivity = ({ buyerPackageId, listingId }) => {
     }
   };
 
-  // Check if user is pro - if not, show paywall
-  if (!user?.isPremium) {
-    return (
-      <div className="activity-tab">
-        <TabPaywall feature="activity" />
-      </div>
-    );
-  }
+
 
   return (
     <div className="activity-tab">
@@ -347,7 +330,9 @@ const BuyerPackageActivity = ({ buyerPackageId, listingId }) => {
         </div>
       </div>
       <div className="activity-list">
-        {loading ? (
+        {!user?.isPremium ? (
+          <TabPaywall feature="activity" />
+        ) : loading ? (
           <div className="activity-tab-loading">
             <div className="activity-tab-spinner"></div>
             <p>Loading activity data...</p>

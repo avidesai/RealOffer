@@ -71,14 +71,7 @@ const PDFViewerLogic = ({ fileUrl, docTitle, docType, onClose, buyerPackageId })
     };
   }, [calculateResponsiveScale]);
 
-  // Activity tracking for buyer packages
-  useEffect(() => {
-    if (fileUrl && buyerPackageId) {
-      recordView();
-    }
-  }, [fileUrl, buyerPackageId]);
-
-  const recordView = async () => {
+  const recordView = useCallback(async () => {
     if (!buyerPackageId) return;
 
     try {
@@ -97,7 +90,14 @@ const PDFViewerLogic = ({ fileUrl, docTitle, docType, onClose, buyerPackageId })
     } catch (error) {
       console.error('Error recording view:', error);
     }
-  };
+  }, [buyerPackageId, docTitle, token]);
+
+  // Activity tracking for buyer packages
+  useEffect(() => {
+    if (fileUrl && buyerPackageId) {
+      recordView();
+    }
+  }, [fileUrl, buyerPackageId, recordView]);
 
   const onDocumentLoadSuccess = useCallback(({ numPages }) => {
     setNumPages(numPages);

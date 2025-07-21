@@ -11,7 +11,6 @@ import './Activity.css';
 const Activity = ({ listingId }) => {
   const { token, user } = useAuth(); // Get the token and user from AuthContext
   const [activities, setActivities] = useState([]);
-  const [filteredActivities, setFilteredActivities] = useState([]);
   const [expandedUsers, setExpandedUsers] = useState(new Set());
   const [userGroups, setUserGroups] = useState([]);
   const [filter, setFilter] = useState('all');
@@ -38,16 +37,7 @@ const Activity = ({ listingId }) => {
     }
   }, [listingId, token]);
 
-  const calculateMetrics = useCallback((activitiesData) => {
-    // This function is now only used for fallback if stats endpoint fails
-    const newMetrics = {
-      views: activitiesData.filter(activity => activity.type === 'view').length,
-      downloads: activitiesData.filter(activity => activity.type === 'download').length,
-      offers: activitiesData.filter(activity => activity.type === 'offer').length,
-      buyerPackages: activitiesData.filter(activity => activity.type === 'buyer_package_created').length,
-    };
-    setMetrics(newMetrics);
-  }, []);
+
 
   const fetchActivities = useCallback(async () => {
     try {

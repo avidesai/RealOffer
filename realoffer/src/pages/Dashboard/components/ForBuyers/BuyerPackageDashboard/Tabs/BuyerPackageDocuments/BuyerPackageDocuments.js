@@ -12,7 +12,6 @@ axios.defaults.withCredentials = true;
 const BuyerPackageDocuments = ({ buyerPackageId }) => {
   const { token } = useAuth();
   const [documents, setDocuments] = useState([]);
-  const [documentOrder, setDocumentOrder] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPDFViewer, setShowPDFViewer] = useState(false);
   const [currentFileUrl, setCurrentFileUrl] = useState('');
@@ -60,12 +59,9 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
           const orderB = orderMap.has(b._id) ? orderMap.get(b._id) : Number.MAX_SAFE_INTEGER;
           return orderA - orderB;
         });
-        setDocumentOrder(storedOrder);
       } else {
-        // If no stored order, create order from current document list
+        // If no stored order, sort by creation date
         listingDocuments.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-        const newOrder = listingDocuments.map(doc => doc._id);
-        setDocumentOrder(newOrder);
       }
       
       setDocuments(listingDocuments);

@@ -7,7 +7,7 @@ import { useAuth } from '../../../../../../../../../context/AuthContext';
 import TabPaywall from '../../../../../../../../../components/TabPaywall/TabPaywall';
 import './AIAnalysisModal.css';
 
-const AIAnalysisModal = ({ document, onClose, isBuyerPackage = false }) => {
+const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, isBuyerPackage = false }) => {
   const { user } = useAuth();
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,7 +18,7 @@ const AIAnalysisModal = ({ document, onClose, isBuyerPackage = false }) => {
   const POLLING_INTERVAL = 5000; // 5 seconds
 
   const getModalTitle = () => {
-    if (document.type && document.type.toLowerCase().includes('pest')) {
+    if (documentType && documentType.toLowerCase().includes('pest')) {
       return 'Pest Inspection Report Analysis';
     }
     return 'Home Inspection Report Analysis';
@@ -47,7 +47,7 @@ const AIAnalysisModal = ({ document, onClose, isBuyerPackage = false }) => {
   const fetchAnalysis = useCallback(async () => {
     try {
       const response = await api.post('/api/document-analysis/analyze', {
-        documentId: document._id,
+        documentId: documentId,
         forceRefresh: false // Only generate new analysis if one doesn't exist
       });
 
@@ -73,10 +73,10 @@ const AIAnalysisModal = ({ document, onClose, isBuyerPackage = false }) => {
       setLoading(false);
       stopPolling();
     }
-  }, [document._id, stopPolling]);
+  }, [documentId, stopPolling]);
 
   useEffect(() => {
-    if (document._id) {
+    if (isOpen) {
       isInitialRequestRef.current = true;
       setLoading(true);
       setError(null);
@@ -85,7 +85,7 @@ const AIAnalysisModal = ({ document, onClose, isBuyerPackage = false }) => {
     return () => {
       stopPolling();
     };
-  }, [document._id, fetchAnalysis, stopPolling]);
+  }, [isOpen, fetchAnalysis, stopPolling]);
 
   const handleDownload = () => {
     if (!analysis?.result) return;
@@ -93,7 +93,7 @@ const AIAnalysisModal = ({ document, onClose, isBuyerPackage = false }) => {
     const element = document.createElement('a');
     const file = new Blob([analysis.result], { type: 'text/plain' });
     element.href = URL.createObjectURL(file);
-    element.download = `${document.type} Analysis.txt`;
+    element.download = `${documentType} Analysis.txt`;
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
@@ -151,7 +151,7 @@ const AIAnalysisModal = ({ document, onClose, isBuyerPackage = false }) => {
                   components={{
                     h2: ({ node, children, ...props }) => {
                       // Only show score bubble for Home Inspection Reports with a score in the heading
-                      const isHomeInspection = document.type && document.type.toLowerCase().includes('home');
+                      const isHomeInspection = documentType && documentType.toLowerCase().includes('home');
                       let headingText = '';
                       if (Array.isArray(children)) {
                         headingText = children.join('');
