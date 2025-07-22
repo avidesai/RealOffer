@@ -282,7 +282,16 @@ const BuyerPackageActivity = ({ buyerPackageId, listingId }) => {
     }
   };
 
-
+  if (loading) {
+    return (
+      <div className="activity-tab">
+        <div className="activity-loading">
+          <div className="spinner"></div>
+          <p>Loading activities</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="activity-tab">
@@ -342,11 +351,6 @@ const BuyerPackageActivity = ({ buyerPackageId, listingId }) => {
       <div className="activity-list">
         {!user?.isPremium ? (
           <TabPaywall feature="activity" />
-        ) : loading ? (
-          <div className="activity-tab-loading">
-            <div className="activity-tab-spinner"></div>
-            <p>Loading activity data...</p>
-          </div>
         ) : userGroups.length === 0 ? (
           <div className="no-activities">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

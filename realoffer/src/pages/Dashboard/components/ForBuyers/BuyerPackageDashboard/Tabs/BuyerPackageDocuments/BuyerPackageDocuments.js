@@ -158,60 +158,64 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
     setSelectedDocumentForAnalysis(null);
   };
 
+  if (loading) {
+    return (
+      <div className="docs-tab-documents-tab">
+        <div className="docs-loading">
+          <div className="spinner"></div>
+          <p>Loading documents</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="docs-tab-documents-tab">
-      {loading ? (
-        <div className="docs-tab-loading">
-          <div className="docs-tab-spinner"></div>
-          <p>Loading documents...</p>
-        </div>
-      ) : (
-        <div className="docs-tab-documents-list">
-          {documents.length === 0 ? (
-            <p className="docs-tab-no-documents-message">No documents uploaded yet.</p>
-          ) : (
-            documents.map((doc, index) => (
-              <div
-                key={doc._id}
-                className={`docs-tab-document-item ${doc.purpose === 'signature_package' ? 'docs-tab-signature-package' : ''}`}
-                onClick={(e) => handleItemClick(e, doc)}
-              >
-                <div className="docs-tab-document-info">
-                  <div className="docs-tab-document-details">
-                    <p className="docs-tab-document-title">
-                      {doc.purpose === 'signature_package' && <span className="docs-tab-signature-package-icon">✍🏼 </span>}
-                      {doc.title || 'Untitled'}
-                    </p>
-                    <p className="docs-tab-document-type">{doc.type || 'No type'}</p>
-                    <p className="docs-tab-document-meta">
-                      {doc.pages || 0} {doc.pages === 1 ? 'Page' : 'Pages'} <span className="docs-tab-meta-divider">•</span> {formatDate(doc.updatedAt)}
-                    </p>
-                  </div>
-                </div>
-                <div className="docs-tab-document-actions">
-                  {(doc.type === 'Home Inspection Report' || doc.type === 'Pest Inspection Report') && (
-                    <button 
-                      className="docs-tab-add-documents-button docs-tab-document-actions-button docs-tab-ai-analysis-ribbon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAIAnalysis(doc);
-                      }}
-                    >
-                      AI Analysis
-                    </button>
-                  )}
-                  <button 
-                    className="docs-tab-delete-button docs-tab-document-actions-button"
-                    onClick={(e) => handleDownload(e, doc)}
-                  >
-                    Download
-                  </button>
+      <div className="docs-tab-documents-list">
+        {documents.length === 0 ? (
+          <p className="docs-tab-no-documents-message">No documents uploaded yet.</p>
+        ) : (
+          documents.map((doc, index) => (
+            <div
+              key={doc._id}
+              className={`docs-tab-document-item ${doc.purpose === 'signature_package' ? 'docs-tab-signature-package' : ''}`}
+              onClick={(e) => handleItemClick(e, doc)}
+            >
+              <div className="docs-tab-document-info">
+                <div className="docs-tab-document-details">
+                  <p className="docs-tab-document-title">
+                    {doc.purpose === 'signature_package' && <span className="docs-tab-signature-package-icon">✍🏼 </span>}
+                    {doc.title || 'Untitled'}
+                  </p>
+                  <p className="docs-tab-document-type">{doc.type || 'No type'}</p>
+                  <p className="docs-tab-document-meta">
+                    {doc.pages || 0} {doc.pages === 1 ? 'Page' : 'Pages'} <span className="docs-tab-meta-divider">•</span> {formatDate(doc.updatedAt)}
+                  </p>
                 </div>
               </div>
-            ))
-          )}
-        </div>
-      )}
+              <div className="docs-tab-document-actions">
+                {(doc.type === 'Home Inspection Report' || doc.type === 'Pest Inspection Report') && (
+                  <button 
+                    className="docs-tab-add-documents-button docs-tab-document-actions-button docs-tab-ai-analysis-ribbon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAIAnalysis(doc);
+                    }}
+                  >
+                    AI Analysis
+                  </button>
+                )}
+                <button 
+                  className="docs-tab-delete-button docs-tab-document-actions-button"
+                  onClick={(e) => handleDownload(e, doc)}
+                >
+                  Download
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
       {showPDFViewer && (
         <PDFViewer
           fileUrl={currentFileUrl}

@@ -351,6 +351,17 @@ const Documents = ({ listingId }) => {
     setDragOverIndex(null);
   };
 
+  if (loading) {
+    return (
+      <div className="docs-tab-documents-tab">
+        <div className="docs-loading">
+          <div className="spinner"></div>
+          <p>Loading documents</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="docs-tab-documents-tab">
       <div className="docs-tab-documents-header">
@@ -372,94 +383,87 @@ const Documents = ({ listingId }) => {
           {hasSignaturePackage ? "Update Disclosure Signature Packet" : "Create Disclosure Signature Packet"}
         </button>
       </div>
-      {loading ? (
-        <div className="docs-tab-loading">
-          <div className="docs-tab-spinner"></div>
-          <p>Loading documents...</p>
-        </div>
-      ) : (
-        <div className="docs-tab-documents-list">
-          {documents.length === 0 ? (
-            <p className="docs-tab-no-documents-message">No documents uploaded yet.</p>
-          ) : (
-            documents.map((doc, index) => (
-              <div
-                key={doc._id}
-                className={`docs-tab-document-item ${isSelected(doc._id) ? 'docs-tab-selected' : ''} ${doc.purpose === 'signature_package' ? 'docs-tab-signature-package' : ''} ${isReorderMode ? 'docs-tab-reorder-mode' : ''} ${isRenameMode ? 'docs-tab-rename-mode' : ''} ${draggedItem === index ? 'docs-tab-dragging' : ''} ${dragOverIndex === index ? 'docs-tab-drag-over' : ''}`}
-                onClick={(e) => handleItemClick(e, doc)}
-                draggable={isReorderMode}
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDragOver={(e) => handleDragOver(e, index)}
-                onDragLeave={handleDragLeave}
-                onDrop={(e) => handleDrop(e, index)}
-                onDragEnd={handleDragEnd}
-              >
-                {isReorderMode ? (
-                  <div className="docs-tab-drag-handle">
-                    <span className="docs-tab-drag-icon">≡</span>
-                  </div>
-                ) : (
-                  <input
-                    type="checkbox"
-                    className="docs-tab-document-checkbox"
-                    checked={isSelected(doc._id)}
-                    onChange={() => handleDocumentSelect(doc._id)}
-                  />
-                )}
-                <div className="docs-tab-document-info">
-                  <div className="docs-tab-document-details">
-                    {isRenameMode ? (
-                      <div className="docs-tab-rename-input-container">
-                        {doc.purpose === 'signature_package' && <span className="docs-tab-signature-package-icon">✍🏼 </span>}
-                        <input
-                          type="text"
-                          className="docs-tab-rename-input"
-                          value={documentTitles[doc._id] || ''}
-                          onChange={(e) => handleTitleChange(doc._id, e.target.value)}
-                          placeholder="Enter document name"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </div>
-                    ) : (
-                      <p className="docs-tab-document-title">
-                        {doc.purpose === 'signature_package' && <span className="docs-tab-signature-package-icon">✍🏼 </span>}
-                        {doc.title || 'Untitled'}
-                      </p>
-                    )}
-                    <p className="docs-tab-document-type">{doc.type || 'No type'}</p>
-                    <p className="docs-tab-document-meta">
-                      {doc.pages || 0} {doc.pages === 1 ? 'Page' : 'Pages'} <span className="docs-tab-meta-divider">•</span> {formatDate(doc.updatedAt)}
-                    </p>
-                  </div>
+      <div className="docs-tab-documents-list">
+        {documents.length === 0 ? (
+          <p className="docs-tab-no-documents-message">No documents uploaded yet.</p>
+        ) : (
+          documents.map((doc, index) => (
+            <div
+              key={doc._id}
+              className={`docs-tab-document-item ${isSelected(doc._id) ? 'docs-tab-selected' : ''} ${doc.purpose === 'signature_package' ? 'docs-tab-signature-package' : ''} ${isReorderMode ? 'docs-tab-reorder-mode' : ''} ${isRenameMode ? 'docs-tab-rename-mode' : ''} ${draggedItem === index ? 'docs-tab-dragging' : ''} ${dragOverIndex === index ? 'docs-tab-drag-over' : ''}`}
+              onClick={(e) => handleItemClick(e, doc)}
+              draggable={isReorderMode}
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, index)}
+              onDragEnd={handleDragEnd}
+            >
+              {isReorderMode ? (
+                <div className="docs-tab-drag-handle">
+                  <span className="docs-tab-drag-icon">≡</span>
                 </div>
-                {!isReorderMode && !isRenameMode && (
-                  <div className="docs-tab-document-actions">
-                    {(doc.type === 'Home Inspection Report' || doc.type === 'Pest Inspection Report') && (
-                      <button 
-                        className="docs-tab-add-documents-button docs-tab-document-actions-button docs-tab-ai-analysis-ribbon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAIAnalysis(doc);
-                        }}
-                      >
-                        AI Analysis
-                      </button>
-                    )}
-                    <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
-                      <button className="docs-tab-delete-button docs-tab-document-actions-button">Download</button>
-                    </a>
-                    {doc.purpose !== 'signature_package' && (
-                      <button className="docs-tab-delete-button docs-tab-document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
-                        Delete
-                      </button>
-                    )}
-                  </div>
-                )}
+              ) : (
+                <input
+                  type="checkbox"
+                  className="docs-tab-document-checkbox"
+                  checked={isSelected(doc._id)}
+                  onChange={() => handleDocumentSelect(doc._id)}
+                />
+              )}
+              <div className="docs-tab-document-info">
+                <div className="docs-tab-document-details">
+                  {isRenameMode ? (
+                    <div className="docs-tab-rename-input-container">
+                      {doc.purpose === 'signature_package' && <span className="docs-tab-signature-package-icon">✍🏼 </span>}
+                      <input
+                        type="text"
+                        className="docs-tab-rename-input"
+                        value={documentTitles[doc._id] || ''}
+                        onChange={(e) => handleTitleChange(doc._id, e.target.value)}
+                        placeholder="Enter document name"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                  ) : (
+                    <p className="docs-tab-document-title">
+                      {doc.purpose === 'signature_package' && <span className="docs-tab-signature-package-icon">✍🏼 </span>}
+                      {doc.title || 'Untitled'}
+                    </p>
+                  )}
+                  <p className="docs-tab-document-type">{doc.type || 'No type'}</p>
+                  <p className="docs-tab-document-meta">
+                    {doc.pages || 0} {doc.pages === 1 ? 'Page' : 'Pages'} <span className="docs-tab-meta-divider">•</span> {formatDate(doc.updatedAt)}
+                  </p>
+                </div>
               </div>
-            ))
-          )}
-        </div>
-      )}
+              {!isReorderMode && !isRenameMode && (
+                <div className="docs-tab-document-actions">
+                  {(doc.type === 'Home Inspection Report' || doc.type === 'Pest Inspection Report') && (
+                    <button 
+                      className="docs-tab-add-documents-button docs-tab-document-actions-button docs-tab-ai-analysis-ribbon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAIAnalysis(doc);
+                      }}
+                    >
+                      AI Analysis
+                    </button>
+                  )}
+                  <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
+                    <button className="docs-tab-delete-button docs-tab-document-actions-button">Download</button>
+                  </a>
+                  {doc.purpose !== 'signature_package' && (
+                    <button className="docs-tab-delete-button docs-tab-document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
+                      Delete
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
       {showUploadModal && (
         <UploadDocumentsLogic
           onClose={closeUploadModal}

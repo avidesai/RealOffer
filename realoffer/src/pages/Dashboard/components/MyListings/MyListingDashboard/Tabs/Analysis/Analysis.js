@@ -96,7 +96,7 @@ const Analysis = ({ listingId }) => {
       <div className="analysis-tab">
         <div className="analysis-loading">
           <div className="spinner"></div>
-          <p>Loading analysis data...</p>
+          <p>Loading analysis</p>
         </div>
       </div>
     );

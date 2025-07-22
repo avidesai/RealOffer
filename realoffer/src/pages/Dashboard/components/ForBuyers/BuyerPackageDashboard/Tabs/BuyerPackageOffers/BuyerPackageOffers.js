@@ -145,6 +145,17 @@ const BuyerPackageOffers = ({ buyerPackageId }) => {
     accepted: offers.filter(o => o.offerStatus === 'accepted').length,
   };
 
+  if (loading) {
+    return (
+      <div className="offers-tab">
+        <div className="offers-loading">
+          <div className="spinner"></div>
+          <p>Loading offers</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="offers-tab">
       {selectedOffer ? (
@@ -161,12 +172,6 @@ const BuyerPackageOffers = ({ buyerPackageId }) => {
             statusCounts={statusCounts}
           />
           <div className="offers-list">
-            {loading && (
-              <div className="offers-tab-loading">
-                <div className="offers-tab-spinner"></div>
-                <p>Loading offers...</p>
-              </div>
-            )}
             {paginatedOffers.length === 0 ? (
               <p className="no-offers-message">No offers found.</p>
             ) : (
