@@ -311,7 +311,7 @@ const BuyerPackageActivity = ({ buyerPackageId, listingId }) => {
             </svg>
           </div>
           <span className="stat-number">{metrics.buyerPackages}</span>
-          <span className="stat-label">Buyer Parties</span>
+          <span className="stat-label">{metrics.buyerPackages === 1 ? 'Buyer Party' : 'Buyer Parties'}</span>
         </div>
         <div className="activity-stat">
           <div className="stat-icon view">
@@ -321,7 +321,7 @@ const BuyerPackageActivity = ({ buyerPackageId, listingId }) => {
             </svg>
           </div>
           <span className="stat-number">{metrics.views}</span>
-          <span className="stat-label">Views</span>
+          <span className="stat-label">{metrics.views === 1 ? 'View' : 'Views'}</span>
         </div>
         <div className="activity-stat">
           <div className="stat-icon download">
@@ -332,7 +332,7 @@ const BuyerPackageActivity = ({ buyerPackageId, listingId }) => {
             </svg>
           </div>
           <span className="stat-number">{metrics.downloads}</span>
-          <span className="stat-label">Downloads</span>
+          <span className="stat-label">{metrics.downloads === 1 ? 'Download' : 'Downloads'}</span>
         </div>
         <div className="activity-stat">
           <div className="stat-icon offer">
@@ -345,7 +345,7 @@ const BuyerPackageActivity = ({ buyerPackageId, listingId }) => {
             </svg>
           </div>
           <span className="stat-number">{metrics.offers}</span>
-          <span className="stat-label">Offers</span>
+          <span className="stat-label">{metrics.offers === 1 ? 'Offer' : 'Offers'}</span>
         </div>
       </div>
       <div className="activity-list">
