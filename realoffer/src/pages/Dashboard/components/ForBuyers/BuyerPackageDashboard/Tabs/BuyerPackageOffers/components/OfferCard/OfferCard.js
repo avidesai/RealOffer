@@ -127,7 +127,7 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
                 src={offer.presentedBy.agentImageUrl}
                 firstName={firstName}
                 lastName={lastName}
-                size="small"
+                size="medium"
                 className="offer-avatar-img"
                 alt={offer.presentedBy.name}
               />

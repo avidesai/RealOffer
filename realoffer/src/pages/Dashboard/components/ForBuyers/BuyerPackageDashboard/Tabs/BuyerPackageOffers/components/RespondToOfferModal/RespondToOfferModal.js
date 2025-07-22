@@ -80,7 +80,7 @@ function RespondToOfferModal({ isOpen, onClose, offer, propertyListing }) {
                     src={offer.presentedBy.agentImageUrl}
                     firstName={firstName}
                     lastName={lastName}
-                    size="small"
+                    size="medium"
                     className="respond-to-offer-modal-avatar-img"
                     alt={offer.presentedBy.name}
                   />
@@ -90,7 +90,13 @@ function RespondToOfferModal({ isOpen, onClose, offer, propertyListing }) {
             <div className="respond-to-offer-modal-recipient-details">
               <h3>{offer.presentedBy.name}</h3>
               <p>{offer.presentedBy.email}</p>
-              <p>{`$${offer.purchasePrice.toLocaleString()} | ${offer.financeType} | ${offer.percentDown}% Down`}</p>
+              <p className="offer-details-line">
+                ${offer.purchasePrice.toLocaleString()}
+                <span className="separator">•</span>
+                {offer.financeType}
+                <span className="separator">•</span>
+                {offer.percentDown}% Down
+              </p>
             </div>
           </div>
           <div className="respond-to-offer-modal-response-options">

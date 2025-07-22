@@ -302,15 +302,54 @@
   font-weight: 500;
 }
 
+.user-activity-counts {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.25rem;
+}
+
+.activity-count-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.activity-count-item svg {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.activity-count-item span {
+  white-space: nowrap;
+}
+
 .expand-arrow {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  gap: 0.5rem;
   color: #64748b;
   transition: all 0.2s ease;
   flex-shrink: 0;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.expand-arrow:hover {
+  background-color: rgba(100, 116, 139, 0.1);
+  color: #475569;
+}
+
+.expand-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: inherit;
+  white-space: nowrap;
 }
 
 .expand-arrow svg {

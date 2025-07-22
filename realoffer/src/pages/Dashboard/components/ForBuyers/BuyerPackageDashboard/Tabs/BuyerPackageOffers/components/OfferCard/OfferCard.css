@@ -25,22 +25,13 @@
 }
 
 .offer-avatar {
-  background-color: #007bff;
-  color: #ffffff;
-  border-radius: 50%;
-  min-width: 48px;
-  min-height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
   margin-right: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .offer-avatar-img {
-  width: 48px;
-  height: 48px;
   border-radius: 50%;
   object-fit: cover;
 }
