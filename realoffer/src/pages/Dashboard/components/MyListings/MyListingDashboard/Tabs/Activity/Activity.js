@@ -18,6 +18,8 @@ const Activity = ({ listingId }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [metrics, setMetrics] = useState({ views: 0, downloads: 0, offers: 0, buyerPackages: 0 });
   const [loading, setLoading] = useState(true);
+  const [activitiesLoaded, setActivitiesLoaded] = useState(false);
+  const [statsLoaded, setStatsLoaded] = useState(false);
 
   const fetchActivityStats = useCallback(async () => {
     try {
@@ -32,16 +34,15 @@ const Activity = ({ listingId }) => {
         offers: response.data.offers,
         buyerPackages: response.data.buyerPackagesCreated
       });
+      setStatsLoaded(true);
     } catch (error) {
       console.error('Error fetching activity stats:', error);
+      setStatsLoaded(true); // Mark as loaded even on error to prevent infinite loading
     }
   }, [listingId, token]);
 
-
-
   const fetchActivities = useCallback(async () => {
     try {
-      setLoading(true);
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/activities?listingId=${listingId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -49,28 +50,36 @@ const Activity = ({ listingId }) => {
       });
       const activitiesData = response.data;
       setActivities(activitiesData);
-      // Don't calculate metrics from activities anymore, use the stats endpoint
+      setActivitiesLoaded(true);
     } catch (error) {
       console.error('Error fetching activities:', error);
-    } finally {
-      setLoading(false);
+      setActivitiesLoaded(true); // Mark as loaded even on error to prevent infinite loading
     }
   }, [listingId, token]);
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
+      setActivitiesLoaded(false);
+      setStatsLoaded(false);
+      
       try {
+        // Fetch both activities and stats in parallel
         await Promise.all([fetchActivities(), fetchActivityStats()]);
       } catch (error) {
         console.error('Error loading data:', error);
-      } finally {
-        setLoading(false);
       }
     };
     
     loadData();
   }, [fetchActivities, fetchActivityStats]);
+
+  // End loading state only when both activities and stats are loaded
+  useEffect(() => {
+    if (activitiesLoaded && statsLoaded) {
+      setLoading(false);
+    }
+  }, [activitiesLoaded, statsLoaded]);
 
   // Group activities by user first, then by activity type
   const groupActivitiesByUser = useCallback((activities) => {

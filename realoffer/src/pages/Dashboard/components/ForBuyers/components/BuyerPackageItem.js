@@ -7,39 +7,34 @@ import { useAuth } from '../../../../../context/AuthContext';
 import Avatar from '../../../../../components/Avatar/Avatar';
 import './BuyerPackageItem.css';
 
-const formatPrice = (price) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-  }).format(price);
-};
-
-const formatNumber = (num) => {
-  return num?.toLocaleString() || '-';
-};
-
 function BuyerPackageItem({ buyerPackage, onStatusChange }) {
   const [agents, setAgents] = useState([]);
   const [isConfirmingArchive, setIsConfirmingArchive] = useState(false);
   const [confirmationTimeout, setConfirmationTimeout] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const { token } = useAuth();
 
   useEffect(() => {
     const fetchAgents = async () => {
       if (buyerPackage.propertyListing && buyerPackage.propertyListing.agentIds && buyerPackage.propertyListing.agentIds.length > 0) {
-        const agentDetails = await Promise.all(
-          buyerPackage.propertyListing.agentIds.map(async (id) => {
-            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`, {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-              },
-            });
-            return response.data;
-          })
-        );
-        setAgents(agentDetails);
+        try {
+          const agentDetails = await Promise.all(
+            buyerPackage.propertyListing.agentIds.map(async (id) => {
+              const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`, {
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                },
+              });
+              return response.data;
+            })
+          );
+          setAgents(agentDetails);
+        } catch (error) {
+          console.error('Failed to fetch agents:', error);
+          setError('Failed to load agent information.');
+        }
       }
     };
 
@@ -50,20 +45,34 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
     navigate(`/buyerpackage/${buyerPackage._id}`);
   };
 
-  const handleArchivePackage = (e) => {
+  const handleArchivePackage = async (e) => {
     e.stopPropagation();
     
     if (isConfirmingArchive) {
       // Confirm archive
-      onStatusChange(buyerPackage._id, buyerPackage.status === 'active' ? 'archived' : 'active');
-      setIsConfirmingArchive(false);
-      if (confirmationTimeout) {
-        clearTimeout(confirmationTimeout);
-        setConfirmationTimeout(null);
+      setLoading(true);
+      setError('');
+      try {
+        await onStatusChange(buyerPackage._id, buyerPackage.status === 'active' ? 'archived' : 'active');
+        setIsConfirmingArchive(false);
+        if (confirmationTimeout) {
+          clearTimeout(confirmationTimeout);
+          setConfirmationTimeout(null);
+        }
+      } catch (error) {
+        console.error('Failed to update buyer package status:', error);
+        setError('Failed to update package status. Please try again.');
+        setIsConfirmingArchive(false);
+        if (confirmationTimeout) {
+          clearTimeout(confirmationTimeout);
+          setConfirmationTimeout(null);
+        }
       }
+      setLoading(false);
     } else {
       // Start confirmation process
       setIsConfirmingArchive(true);
+      setError('');
       const timeout = setTimeout(() => {
         setIsConfirmingArchive(false);
         setConfirmationTimeout(null);
@@ -94,6 +103,16 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
 
   return (
     <div className="buyer-package-item" onClick={handleClick}>
+      {loading && (
+        <div className="buyer-package-item-spinner-overlay">
+          <div className="buyer-package-item-spinner"></div>
+        </div>
+      )}
+      {error && (
+        <div className="buyer-package-item-error">
+          {error}
+        </div>
+      )}
       <img 
         src={propertyListing.imagesUrls[0]} 
         alt={`${propertyListing.homeCharacteristics.address} view`} 
@@ -113,6 +132,7 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
           <button 
             className={`buyer-package-item-button ${isConfirmingArchive ? 'confirm-archive' : 'archive'}`} 
             onClick={handleArchivePackage}
+            disabled={loading}
           >
             {isConfirmingArchive 
               ? (buyerPackage.status === 'active' ? 'Confirm Archive?' : 'Confirm Unarchive?')

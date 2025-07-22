@@ -95,6 +95,26 @@
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
+.archive-button.confirm-archive {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white;
+  border-color: #e74c3c;
+  animation: pulse 1s infinite;
+}
+
+.archive-button.confirm-archive:hover {
+  background: linear-gradient(135deg, #c0392b 0%, #a71e2a 100%);
+  border-color: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+}
+
+.archive-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .danger-zone .settings-title {
   color: #dc3545;
 }
@@ -115,6 +135,45 @@
 .danger-zone .settings-delete-button:active {
   transform: translateY(0);
   box-shadow: 0 2px 6px rgba(220,53,69,0.2);
+}
+
+.danger-zone .settings-delete-button.confirm-delete {
+  background: linear-gradient(135deg, #dc3545 0%, #a71e2a 100%);
+  color: white;
+  border-color: #dc3545;
+  animation: pulse 1s infinite;
+}
+
+.danger-zone .settings-delete-button.confirm-delete:hover {
+  background: linear-gradient(135deg, #a71e2a 0%, #8c1a1a 100%);
+  border-color: #a71e2a;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(220,53,69,0.4);
+}
+
+.danger-zone .settings-delete-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+.settings-error {
+  padding: 1rem 1.5rem;
+  color: #e53e3e;
+  background-color: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 1rem 0;
+  box-shadow: 0 2px 8px rgba(229, 62, 62, 0.1);
+  text-align: center;
 }
 
 .settings-spinner-overlay {
