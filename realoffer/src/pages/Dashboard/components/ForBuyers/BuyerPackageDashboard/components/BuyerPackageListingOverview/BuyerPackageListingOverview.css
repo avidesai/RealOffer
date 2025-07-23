@@ -350,6 +350,8 @@
   .overview-buttons {
     gap: 0.8rem;
     margin-top: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .overview-btn,
@@ -358,6 +360,7 @@
     font-size: 0.85rem;
     min-width: 80px;
     border-radius: 8px;
+    flex: 0 0 auto;
   }
 }
 
@@ -388,21 +391,39 @@
   }
   
   .overview-buttons {
-    gap: 0.7rem;
+    gap: 0.6rem;
     margin-top: 1.3rem;
-    justify-content: space-between;
-    max-width: 280px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    max-width: 320px;
     margin-left: auto;
     margin-right: auto;
   }
   
   .overview-btn,
   .overview-btn-share-package {
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 0.8rem;
     font-size: 0.8rem;
-    min-width: 75px;
     border-radius: 8px;
-    flex: 1;
-    max-width: 85px;
+    width: 100%;
+    min-width: unset;
+    max-width: unset;
+    flex: unset;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.2;
+    font-weight: 600;
+  }
+  
+  /* Make Share button span full width on its own row if it's the only button in that row */
+  .overview-btn-share-package {
+    grid-column: 1 / -1;
+  }
+  
+  /* Make More Info button span full width when there are 4 buttons */
+  .overview-btn:last-child {
+    grid-column: 1 / -1;
   }
 } 

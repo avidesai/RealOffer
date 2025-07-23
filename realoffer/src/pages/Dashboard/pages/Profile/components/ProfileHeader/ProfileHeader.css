@@ -170,14 +170,42 @@
   }
 
   .header-upgrade-btn {
-    display: none;
+    display: none !important;
   }
 
-  .user-info {
-    display: none;
+  .dashboard-header .user-info {
+    display: none !important;
   }
 
   .user-avatar {
     margin-left: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-header {
+    padding: 0.8rem 1rem;
+  }
+
+  .header-upgrade-btn {
+    display: none !important;
+  }
+
+  .dashboard-header .user-info {
+    display: none !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .dashboard-header {
+    padding: 0.7rem 0.8rem;
+  }
+
+  .header-upgrade-btn {
+    display: none !important;
+  }
+
+  .dashboard-header .user-info {
+    display: none !important;
   }
 }
