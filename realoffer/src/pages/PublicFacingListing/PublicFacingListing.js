@@ -293,18 +293,18 @@ const PublicFacingListing = () => {
   };
 
   const nextImage = useCallback(() => {
-    if (listing.imagesUrls && listing.imagesUrls.length > 1) {
+    if (listing?.imagesUrls && listing.imagesUrls.length > 1) {
       setIsImageLoading(true);
       setCurrentImageIndex((prev) => (prev + 1) % listing.imagesUrls.length);
     }
-  }, [listing.imagesUrls]);
+  }, [listing?.imagesUrls]);
 
   const previousImage = useCallback(() => {
-    if (listing.imagesUrls && listing.imagesUrls.length > 1) {
+    if (listing?.imagesUrls && listing.imagesUrls.length > 1) {
       setIsImageLoading(true);
       setCurrentImageIndex((prev) => (prev === 0 ? listing.imagesUrls.length - 1 : prev - 1));
     }
-  }, [listing.imagesUrls]);
+  }, [listing?.imagesUrls]);
 
   // Keyboard navigation for image gallery
   useEffect(() => {
