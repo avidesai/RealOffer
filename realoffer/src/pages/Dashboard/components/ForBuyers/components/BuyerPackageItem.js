@@ -7,7 +7,7 @@ import { useAuth } from '../../../../../context/AuthContext';
 import Avatar from '../../../../../components/Avatar/Avatar';
 import './BuyerPackageItem.css';
 
-function BuyerPackageItem({ buyerPackage, onStatusChange }) {
+function BuyerPackageItem({ buyerPackage, onStatusChange, onShareListing }) {
   const [agents, setAgents] = useState([]);
   const [isConfirmingArchive, setIsConfirmingArchive] = useState(false);
   const [confirmationTimeout, setConfirmationTimeout] = useState(null);
@@ -75,11 +75,8 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
 
   const handleShareListing = (e) => {
     e.stopPropagation();
-    
-    // For buyer packages, we could share the public URL or implement a different sharing mechanism
-    if (buyerPackage.propertyListing?.publicUrl) {
-      navigator.clipboard.writeText(buyerPackage.propertyListing.publicUrl);
-      // You could add a toast notification here
+    if (onShareListing) {
+      onShareListing(buyerPackage);
     }
   };
 
@@ -118,11 +115,6 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
               : 'Location not available'
             }
           </p>
-          {propertyListing.homeCharacteristics?.price && (
-            <p className="buyer-package-item-price">
-              ${propertyListing.homeCharacteristics.price.toLocaleString()}
-            </p>
-          )}
         </div>
         <div className="buyer-package-item-action-buttons">
           <button 

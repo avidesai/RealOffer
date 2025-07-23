@@ -6,6 +6,7 @@ import { useAuth } from '../../../../context/AuthContext';
 import BuyerPackageFilterSortBar from './components/BuyerPackageFilterSortBar';
 import BuyerPackageItem from './components/BuyerPackageItem';
 import Pagination from '../MyListings/components/Pagination';
+import ShareUrl from '../MyListings/MyListingDashboard/components/ListingOverview/components/ShareUrl/ShareUrl';
 import './ForBuyers.css';
 
 const BUYER_PACKAGES_PER_PAGE = 10;
@@ -19,6 +20,8 @@ function ForBuyers() {
   const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('recent');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareListingUrl, setShareListingUrl] = useState('');
 
   const { user, token, logout } = useAuth();
 
@@ -192,6 +195,11 @@ function ForBuyers() {
     }
   };
 
+  const handleShareListing = (buyerPackage) => {
+    setShareListingUrl(buyerPackage.propertyListing.publicUrl);
+    setShowShareModal(true);
+  };
+
   const pageCount = Math.ceil(filteredAndSortedPackages.length / BUYER_PACKAGES_PER_PAGE);
   const startIndex = (currentPage - 1) * BUYER_PACKAGES_PER_PAGE;
   const currentPackages = filteredAndSortedPackages.slice(startIndex, startIndex + BUYER_PACKAGES_PER_PAGE);
@@ -234,6 +242,7 @@ function ForBuyers() {
               key={buyerPackage._id} 
               buyerPackage={buyerPackage} 
               onStatusChange={handleStatusChange}
+              onShareListing={handleShareListing}
             />
           ))}
           
@@ -265,6 +274,14 @@ function ForBuyers() {
             </>
           )}
         </div>
+      )}
+      
+      {showShareModal && (
+        <ShareUrl
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          url={shareListingUrl}
+        />
       )}
     </div>
   );
