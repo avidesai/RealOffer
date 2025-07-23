@@ -102,6 +102,15 @@
   background-color: #f8fafd;
 }
 
+.lfsb-results-info {
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.5rem 0;
+  border-top: 1px solid #e6e8ec;
+  margin-top: 0.5rem;
+}
+
 /* Medium screens - better layout */
 @media (max-width: 1024px) and (min-width: 601px) {
   .lfsb-bar {

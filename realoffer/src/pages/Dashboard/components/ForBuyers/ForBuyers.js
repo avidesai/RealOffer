@@ -3,52 +3,72 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../../context/AuthContext';
-import BuyerPackageItem from './components/BuyerPackageItem';
 import BuyerPackageFilterSortBar from './components/BuyerPackageFilterSortBar';
+import BuyerPackageItem from './components/BuyerPackageItem';
 import Pagination from '../MyListings/components/Pagination';
 import './ForBuyers.css';
 
+const BUYER_PACKAGES_PER_PAGE = 10;
+
 function ForBuyers() {
-  const { user, token, logout } = useAuth();
-  const BUYER_PACKAGES_PER_PAGE = 5;
-  const [currentPage, setCurrentPage] = useState(1);
   const [buyerPackages, setBuyerPackages] = useState([]);
   const [filteredAndSortedPackages, setFilteredAndSortedPackages] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [filter, setFilter] = useState('active');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('recent');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const { user, token, logout } = useAuth();
 
   const fetchBuyerPackages = useCallback(async () => {
     if ((user?._id || user?.id) && token) {
       setLoading(true);
+      setError('');
+      
       try {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
         });
+        
         console.log('Fetched buyer packages:', response.data);
         setBuyerPackages(response.data);
         setError('');
       } catch (error) {
-        if (error.response && error.response.status === 401) {
-          console.error('Failed to fetch buyer packages. Unauthorized:', error);
-          setError('Unauthorized. Logging out.');
+        console.error('Failed to fetch buyer packages:', error);
+        
+        if (error.response?.status === 401) {
+          setError('Your session has expired. Please log in again.');
           logout();
+        } else if (error.response?.status === 403) {
+          setError('You do not have permission to access buyer packages.');
+        } else if (error.response?.status === 404) {
+          setError('Buyer packages service not found.');
+        } else if (error.response?.status >= 500) {
+          setError('Server error. Please try again later.');
+        } else if (error.code === 'NETWORK_ERROR') {
+          setError('Network error. Please check your connection and try again.');
         } else {
-          console.error('Failed to fetch buyer packages:', error);
-          // Don't set error for empty results, just set empty array
+          setError('Failed to load buyer packages. Please try again.');
+        }
+        
+        // Don't clear existing packages on error, just show the error message
+        if (buyerPackages.length === 0) {
           setBuyerPackages([]);
         }
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     } else {
       console.error('User ID or token is missing');
       setError('Authentication error. Please log in again.');
+      setBuyerPackages([]);
+      setLoading(false);
     }
-  }, [user, token, logout]);
+  }, [user, token, logout, buyerPackages.length]);
 
   useEffect(() => {
     fetchBuyerPackages();
@@ -102,9 +122,13 @@ function ForBuyers() {
       } else if (sort === 'oldest') {
         filteredPackages = filteredPackages.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
       } else if (sort === 'price-high') {
-        filteredPackages = filteredPackages.sort((a, b) => b.propertyListing.homeCharacteristics.price - a.propertyListing.homeCharacteristics.price);
+        filteredPackages = filteredPackages.sort((a, b) => 
+          (b.propertyListing?.homeCharacteristics?.price || 0) - (a.propertyListing?.homeCharacteristics?.price || 0)
+        );
       } else if (sort === 'price-low') {
-        filteredPackages = filteredPackages.sort((a, b) => a.propertyListing.homeCharacteristics.price - b.propertyListing.homeCharacteristics.price);
+        filteredPackages = filteredPackages.sort((a, b) => 
+          (a.propertyListing?.homeCharacteristics?.price || 0) - (b.propertyListing?.homeCharacteristics?.price || 0)
+        );
       }
 
       setFilteredAndSortedPackages(filteredPackages);
@@ -115,21 +139,25 @@ function ForBuyers() {
 
   const handleFilterChange = (newFilter) => {
     setFilter(newFilter);
+    setCurrentPage(1); // Reset to first page when filter changes
   };
 
   const handleSortChange = (newSort) => {
     setSort(newSort);
+    setCurrentPage(1); // Reset to first page when sort changes
   };
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    setCurrentPage(1);
+    setCurrentPage(1); // Reset to first page when search changes
   };
 
   const handleStatusChange = async (packageId, newStatus) => {
-    setLoading(true);
+    setError('');
+    
     try {
-      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/${packageId}/status`, 
+      const response = await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/${packageId}/status`, 
         { status: newStatus },
         {
           headers: {
@@ -137,12 +165,31 @@ function ForBuyers() {
           },
         }
       );
-      await fetchBuyerPackages();
+      
+      if (response.data) {
+        // Update the local state to reflect the change immediately
+        setBuyerPackages(prevPackages => 
+          prevPackages.map(pkg => 
+            pkg._id === packageId 
+              ? { ...pkg, status: newStatus }
+              : pkg
+          )
+        );
+      }
     } catch (error) {
       console.error('Failed to update buyer package status:', error);
-      setError('Failed to update buyer package status. Please try again.');
+      
+      if (error.response?.status === 401) {
+        setError('Your session has expired. Please log in again.');
+        logout();
+      } else if (error.response?.status === 403) {
+        setError('You do not have permission to update this buyer package.');
+      } else if (error.response?.status === 404) {
+        setError('Buyer package not found. It may have been deleted.');
+      } else {
+        setError('Failed to update buyer package status. Please try again.');
+      }
     }
-    setLoading(false);
   };
 
   const pageCount = Math.ceil(filteredAndSortedPackages.length / BUYER_PACKAGES_PER_PAGE);
@@ -155,30 +202,41 @@ function ForBuyers() {
 
   if (loading) {
     return (
-      <div className="spinner-container">
-        <div className="spinner"></div>
+      <div className="for-buyers">
+        <div className="for-buyers-loading">
+          <div className="spinner"></div>
+          <p>Loading your buyer packages...</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="for-buyers">
-      {error ? (
-        <div className="for-buyers-error">{error}</div>
-      ) : (
+      {error && (
+        <div className="for-buyers-error">
+          <p>{error}</p>
+        </div>
+      )}
+      
+      <BuyerPackageFilterSortBar
+        onFilterChange={handleFilterChange}
+        onSortChange={handleSortChange}
+        onSearch={handleSearch}
+        totalPackages={buyerPackages.length}
+        filteredCount={filteredAndSortedPackages.length}
+      />
+      
+      {currentPackages.length > 0 ? (
         <>
-          <BuyerPackageFilterSortBar
-            onFilterChange={handleFilterChange}
-            onSortChange={handleSortChange}
-            onSearch={handleSearch}
-          />
-          {currentPackages.length > 0 ? currentPackages.map(buyerPackage => (
+          {currentPackages.map(buyerPackage => (
             <BuyerPackageItem 
               key={buyerPackage._id} 
               buyerPackage={buyerPackage} 
-              onStatusChange={handleStatusChange} 
+              onStatusChange={handleStatusChange}
             />
-          )) : <div>No buyer packages found.</div>}
+          ))}
+          
           {pageCount > 1 && (
             <Pagination
               currentPage={currentPage}
@@ -187,6 +245,26 @@ function ForBuyers() {
             />
           )}
         </>
+      ) : (
+        <div className="for-buyers-empty">
+          {searchQuery || filter !== 'all' ? (
+            <>
+              <p>No buyer packages match your current filters.</p>
+              <button onClick={() => {
+                setSearchQuery('');
+                setFilter('all');
+                setCurrentPage(1);
+              }}>
+                Clear Filters
+              </button>
+            </>
+          ) : (
+            <>
+              <p>You don't have any buyer packages yet.</p>
+              <p>Browse public listings to create your first buyer package.</p>
+            </>
+          )}
+        </div>
       )}
     </div>
   );

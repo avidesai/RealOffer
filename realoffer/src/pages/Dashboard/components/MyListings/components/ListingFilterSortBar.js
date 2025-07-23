@@ -3,8 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import './ListingFilterSortBar.css';
 
-function ListingFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
-  const [filter, setFilter] = useState('active');
+function ListingFilterSortBar({ 
+  onFilterChange, 
+  onSortChange, 
+  onSearch, 
+  totalListings = 0,
+  filteredCount = 0
+}) {
+  const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('recent');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -42,9 +48,9 @@ function ListingFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
               value={filter}
               onChange={handleFilterChange}
             >
+              <option value="all">All Listings ({totalListings})</option>
               <option value="active">Active</option>
               <option value="archived">Archived</option>
-              <option value="all">All Listings</option>
             </select>
           </div>
           <div className="lfsb-sort-section">
@@ -56,6 +62,8 @@ function ListingFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
             >
               <option value="recent">Most Recent</option>
               <option value="oldest">Oldest</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="price-low">Price: Low to High</option>
             </select>
           </div>
         </div>
@@ -69,6 +77,11 @@ function ListingFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
           />
         </div>
       </div>
+      {filteredCount !== totalListings && (
+        <div className="lfsb-results-info">
+          Showing {filteredCount} of {totalListings} listings
+        </div>
+      )}
     </div>
   );
 }

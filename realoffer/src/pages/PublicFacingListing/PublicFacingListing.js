@@ -59,9 +59,16 @@ const PublicFacingListing = () => {
       try {
         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/public/${token}`);
         const data = await response.json();
-        setListing(data);
+        
+        if (response.ok) {
+          setListing(data);
+        } else {
+          console.error('Error fetching listing:', data.message);
+          setError('This listing is no longer available or has expired.');
+        }
       } catch (error) {
         console.error('Error fetching listing:', error);
+        setError('Unable to load property details. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -87,6 +94,11 @@ const PublicFacingListing = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
+      
+      if (!response.ok) {
+        throw new Error('Failed to check email');
+      }
+      
       const data = await response.json();
       return data;
     } catch (error) {
@@ -100,6 +112,13 @@ const PublicFacingListing = () => {
     
     if (!formData.firstName || !formData.lastName || !formData.email || !formData.role) {
       setError('Please fill in all required fields.');
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email address.');
       return;
     }
 
@@ -117,7 +136,7 @@ const PublicFacingListing = () => {
         setFormStep('signup');
       }
     } catch (error) {
-      setError('Something went wrong. Please try again.');
+      setError('Unable to verify your email. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -147,15 +166,22 @@ const PublicFacingListing = () => {
       const data = await response.json();
       
       if (response.ok) {
+        // Ensure consistent user ID handling
+        const userId = data.user._id || data.user.id;
+        if (!userId) {
+          throw new Error('Invalid user data received');
+        }
+
         // Store authentication data in localStorage
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
         
-        await createBuyerPackage(data.user._id, data.token);
+        await createBuyerPackage(userId, data.token);
       } else {
         setError(data.message || 'Invalid email or password. Please try again.');
       }
     } catch (error) {
+      console.error('Login error:', error);
       setError('Login failed. Please try again.');
     } finally {
       setIsLoading(false);
@@ -220,18 +246,26 @@ const PublicFacingListing = () => {
         const loginData = await loginResponse.json();
         
         if (loginResponse.ok) {
+          // Ensure consistent user ID handling
+          const userId = loginData.user._id || loginData.user.id;
+          if (!userId) {
+            throw new Error('Invalid user data received after signup');
+          }
+
           // Store authentication data in localStorage
           localStorage.setItem('user', JSON.stringify(loginData.user));
           localStorage.setItem('token', loginData.token);
           
-          await createBuyerPackage(loginData.user._id, loginData.token);
+          await createBuyerPackage(userId, loginData.token);
         } else {
           setError('Account created but login failed. Please try logging in.');
+          setFormStep('login');
         }
       } else {
         setError(signupData.message || 'Signup failed. Please try again.');
       }
     } catch (error) {
+      console.error('Signup error:', error);
       setError('Signup failed. Please try again.');
     } finally {
       setIsLoading(false);
@@ -240,6 +274,11 @@ const PublicFacingListing = () => {
 
   const createBuyerPackage = async (userId, token) => {
     try {
+      // Validate that listing still exists and is accessible
+      if (!listing || !listing._id) {
+        throw new Error('Property listing is no longer available');
+      }
+
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages`, {
         method: 'POST',
         headers: { 
@@ -259,7 +298,7 @@ const PublicFacingListing = () => {
       });
       
       if (response.ok) {
-        await response.json(); // Remove unused variable assignment
+        await response.json(); // Consume the response
         
         // Show success state
         setFormStep('success');
@@ -278,11 +317,22 @@ const PublicFacingListing = () => {
           window.location.href = `/dashboard`;
         }, 3000);
       } else {
-        setError('Failed to create buyer package. Please try again.');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create buyer package');
       }
     } catch (error) {
       console.error('Error creating buyer package:', error);
-      setError('Failed to create buyer package. Please try again.');
+      
+      // Provide specific error messages based on the error type
+      if (error.message.includes('Property listing is no longer available')) {
+        setError('This property is no longer available. Please contact the listing agent.');
+      } else if (error.message.includes('already has a buyer package')) {
+        setError('You already have access to this property. Check your buyer packages.');
+      } else {
+        setError('Failed to create buyer package. Please try again or contact support.');
+      }
+      
+      // Don't redirect on error - let user try again
     }
   };
 

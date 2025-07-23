@@ -3,8 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import './BuyerPackageFilterSortBar.css';
 
-function BuyerPackageFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
-  const [filter, setFilter] = useState('active');
+function BuyerPackageFilterSortBar({ 
+  onFilterChange, 
+  onSortChange, 
+  onSearch, 
+  totalPackages = 0,
+  filteredCount = 0
+}) {
+  const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('recent');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -42,9 +48,9 @@ function BuyerPackageFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
               value={filter}
               onChange={handleFilterChange}
             >
+              <option value="all">All Packages ({totalPackages})</option>
               <option value="active">Active</option>
               <option value="archived">Archived</option>
-              <option value="all">All Packages</option>
             </select>
           </div>
           <div className="lfsb-sort-section">
@@ -71,6 +77,11 @@ function BuyerPackageFilterSortBar({ onFilterChange, onSortChange, onSearch }) {
           />
         </div>
       </div>
+      {filteredCount !== totalPackages && (
+        <div className="lfsb-results-info">
+          Showing {filteredCount} of {totalPackages} buyer packages
+        </div>
+      )}
     </div>
   );
 }

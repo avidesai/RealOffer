@@ -22,12 +22,23 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
         try {
           const agentDetails = await Promise.all(
             buyerPackage.propertyListing.agentIds.map(async (id) => {
-              const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`, {
-                headers: {
-                  'Authorization': `Bearer ${token}`,
-                },
-              });
-              return response.data;
+              try {
+                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`, {
+                  headers: {
+                    'Authorization': `Bearer ${token}`,
+                  },
+                });
+                return response.data;
+              } catch (error) {
+                console.error(`Failed to fetch agent ${id}:`, error);
+                // Return a placeholder for failed agent fetches
+                return {
+                  _id: id,
+                  firstName: 'Unknown',
+                  lastName: 'Agent',
+                  profilePhotoUrl: ''
+                };
+              }
             })
           );
           setAgents(agentDetails);
@@ -42,11 +53,17 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
   }, [buyerPackage.propertyListing, token]);
 
   const handleClick = () => {
-    navigate(`/buyerpackage/${buyerPackage._id}`);
+    if (!loading) {
+      navigate(`/buyerpackage/${buyerPackage._id}`);
+    }
   };
 
   const handleArchivePackage = async (e) => {
     e.stopPropagation();
+    
+    if (loading) {
+      return; // Prevent action during loading
+    }
     
     if (isConfirmingArchive) {
       // Confirm archive
@@ -83,9 +100,14 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
 
   const handleShareListing = (e) => {
     e.stopPropagation();
+    
+    if (loading) {
+      return; // Prevent action during loading
+    }
+    
     // For buyer packages, we could share the public URL or implement a different sharing mechanism
-    if (buyerPackage.publicUrl) {
-      navigator.clipboard.writeText(buyerPackage.publicUrl);
+    if (buyerPackage.propertyListing?.publicUrl) {
+      navigator.clipboard.writeText(buyerPackage.propertyListing.publicUrl);
       // You could add a toast notification here
     }
   };
@@ -101,8 +123,19 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
 
   const { propertyListing } = buyerPackage;
 
+  // Don't render if property listing is missing
+  if (!propertyListing) {
+    return (
+      <div className="buyer-package-item error">
+        <div className="buyer-package-item-error">
+          <p>Property listing not found or has been removed.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="buyer-package-item" onClick={handleClick}>
+    <div className={`buyer-package-item ${loading ? 'loading' : ''}`} onClick={handleClick}>
       {loading && (
         <div className="buyer-package-item-spinner-overlay">
           <div className="buyer-package-item-spinner"></div>
@@ -113,20 +146,44 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
           {error}
         </div>
       )}
-      <img 
-        src={propertyListing.imagesUrls[0]} 
-        alt={`${propertyListing.homeCharacteristics.address} view`} 
-        className="buyer-package-item-image" 
-      />
+      {propertyListing.imagesUrls && propertyListing.imagesUrls.length > 0 ? (
+        <img 
+          src={propertyListing.imagesUrls[0]} 
+          alt={`${propertyListing.homeCharacteristics.address} view`} 
+          className="buyer-package-item-image" 
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.nextSibling.style.display = 'block';
+          }}
+        />
+      ) : (
+        <div className="buyer-package-item-image-placeholder">
+          <span>No Image</span>
+        </div>
+      )}
       <div className="buyer-package-item-details">
         <div className="buyer-package-item-info">
-          <h3 className="buyer-package-item-title">{propertyListing.homeCharacteristics.address}</h3>
+          <h3 className="buyer-package-item-title">
+            {propertyListing.homeCharacteristics?.address || 'Address not available'}
+          </h3>
           <p className="buyer-package-item-location">
-            {propertyListing.homeCharacteristics.city}, {propertyListing.homeCharacteristics.state} {propertyListing.homeCharacteristics.zip}
+            {propertyListing.homeCharacteristics?.city && propertyListing.homeCharacteristics?.state && propertyListing.homeCharacteristics?.zip 
+              ? `${propertyListing.homeCharacteristics.city}, ${propertyListing.homeCharacteristics.state} ${propertyListing.homeCharacteristics.zip}`
+              : 'Location not available'
+            }
           </p>
+          {propertyListing.homeCharacteristics?.price && (
+            <p className="buyer-package-item-price">
+              ${propertyListing.homeCharacteristics.price.toLocaleString()}
+            </p>
+          )}
         </div>
         <div className="buyer-package-item-action-buttons">
-          <button className="buyer-package-item-button share" onClick={handleShareListing}>
+          <button 
+            className="buyer-package-item-button share" 
+            onClick={handleShareListing}
+            disabled={loading}
+          >
             Share
           </button>
           <button 
@@ -143,17 +200,21 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
       </div>
       <div className="buyer-package-item-agents">
         <div className="buyer-package-item-agents-label">Agents</div>
-        {agents.map(agent => (
-          <Avatar 
-            key={agent._id} 
-            src={agent.profilePhotoUrl}
-            firstName={agent.firstName}
-            lastName={agent.lastName}
-            size="small"
-            className="buyer-package-item-agent-image"
-            alt={`${agent.firstName} ${agent.lastName}`}
-          />
-        ))}
+        {agents.length > 0 ? (
+          agents.map(agent => (
+            <Avatar 
+              key={agent._id} 
+              src={agent.profilePhotoUrl}
+              firstName={agent.firstName}
+              lastName={agent.lastName}
+              size="small"
+              className="buyer-package-item-agent-image"
+              alt={`${agent.firstName} ${agent.lastName}`}
+            />
+          ))
+        ) : (
+          <span className="buyer-package-item-no-agents">No agents listed</span>
+        )}
       </div>
     </div>
   );

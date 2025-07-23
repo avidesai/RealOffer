@@ -11,15 +11,15 @@ import ShareUrl from './MyListingDashboard/components/ListingOverview/components
 import './MyListings.css';
 
 function MyListings() {
-  const { user, token, logout } = useAuth(); // Added logout to handle 401 errors
-  const LISTINGS_PER_PAGE = 5;
+  const { user, token, logout } = useAuth();
+  const LISTINGS_PER_PAGE = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const [listings, setListings] = useState([]);
   const [filteredAndSortedListings, setFilteredAndSortedListings] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showCreateListingModal, setShowCreateListingModal] = useState(false);
-  const [filter, setFilter] = useState('active');
+  const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('recent');
   const [searchQuery, setSearchQuery] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
@@ -28,32 +28,49 @@ function MyListings() {
   const fetchUserDetails = useCallback(async () => {
     if ((user?._id || user?.id) && token) {
       setLoading(true);
+      setError('');
+      
       try {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
         });
-        console.log('Fetched listings:', response.data); // Debug log
+        console.log('Fetched listings:', response.data);
         setListings(response.data);
         setError('');
       } catch (error) {
-        if (error.response && error.response.status === 401) {
-          // If token is invalid, log out the user and redirect to login
-          console.error('Failed to fetch user listings. Unauthorized:', error);
-          setError('Unauthorized. Logging out.');
-          logout(); // Logout the user if token is invalid
+        console.error('Failed to fetch user listings:', error);
+        
+        if (error.response?.status === 401) {
+          setError('Your session has expired. Please log in again.');
+          logout();
+        } else if (error.response?.status === 403) {
+          setError('You do not have permission to access listings.');
+        } else if (error.response?.status === 404) {
+          setError('Listings service not found.');
+        } else if (error.response?.status >= 500) {
+          setError('Server error. Please try again later.');
+        } else if (error.code === 'NETWORK_ERROR') {
+          setError('Network error. Please check your connection and try again.');
         } else {
-          console.error('Failed to fetch user listings:', error);
-          setError('No listings found or error fetching listings.');
+          setError('Failed to load listings. Please try again.');
         }
+        
+        // Don't clear existing listings on error, just show the error message
+        if (listings.length === 0) {
+          setListings([]);
+        }
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     } else {
       console.error('User ID or token is missing');
       setError('Authentication error. Please log in again.');
+      setListings([]);
+      setLoading(false);
     }
-  }, [user, token, logout]);
+  }, [user, token, logout, listings.length]);
 
   useEffect(() => {
     fetchUserDetails();
@@ -103,11 +120,19 @@ function MyListings() {
         });
       }
 
-      // Sort by updatedAt
+      // Sort listings
       if (sort === 'recent') {
         filteredListings = filteredListings.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
       } else if (sort === 'oldest') {
         filteredListings = filteredListings.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
+      } else if (sort === 'price-high') {
+        filteredListings = filteredListings.sort((a, b) => 
+          (b.homeCharacteristics?.price || 0) - (a.homeCharacteristics?.price || 0)
+        );
+      } else if (sort === 'price-low') {
+        filteredListings = filteredListings.sort((a, b) => 
+          (a.homeCharacteristics?.price || 0) - (b.homeCharacteristics?.price || 0)
+        );
       }
 
       setFilteredAndSortedListings(filteredListings);
@@ -138,21 +163,25 @@ function MyListings() {
 
   const handleFilterChange = (newFilter) => {
     setFilter(newFilter);
+    setCurrentPage(1); // Reset to first page when filter changes
   };
 
   const handleSortChange = (newSort) => {
     setSort(newSort);
+    setCurrentPage(1); // Reset to first page when sort changes
   };
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1); // Reset to first page when search changes
   };
 
   const handleStatusChange = async (listingId, newStatus) => {
-    setLoading(true);
+    setError('');
+    
     try {
-      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, 
+      const response = await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, 
         { status: newStatus },
         {
           headers: {
@@ -160,12 +189,31 @@ function MyListings() {
           },
         }
       );
-      await fetchUserDetails();
+      
+      if (response.data) {
+        // Update the local state to reflect the change immediately
+        setListings(prevListings => 
+          prevListings.map(listing => 
+            listing._id === listingId 
+              ? { ...listing, status: newStatus }
+              : listing
+          )
+        );
+      }
     } catch (error) {
       console.error('Failed to update listing status:', error);
-      setError('Failed to update listing status. Please try again.');
+      
+      if (error.response?.status === 401) {
+        setError('Your session has expired. Please log in again.');
+        logout();
+      } else if (error.response?.status === 403) {
+        setError('You do not have permission to update this listing.');
+      } else if (error.response?.status === 404) {
+        setError('Listing not found. It may have been deleted.');
+      } else {
+        setError('Failed to update listing status. Please try again.');
+      }
     }
-    setLoading(false);
   };
 
   const handleShareListing = (listing) => {
@@ -175,8 +223,11 @@ function MyListings() {
 
   if (loading) {
     return (
-      <div className="spinner-container">
-        <div className="spinner"></div>
+      <div className="my-listings">
+        <div className="my-listings-loading">
+          <div className="spinner"></div>
+          <p>Loading your listings...</p>
+        </div>
       </div>
     );
   }
@@ -188,18 +239,32 @@ function MyListings() {
           Create New Listing
         </button>
       </div>
-      {error ? (
-        <div className="mylistings">{error}</div>
-      ) : (
+      
+      {error && (
+        <div className="my-listings-error">
+          <p>{error}</p>
+        </div>
+      )}
+      
+      <ListingFilterSortBar
+        onFilterChange={handleFilterChange}
+        onSortChange={handleSortChange}
+        onSearch={handleSearch}
+        totalListings={listings.length}
+        filteredCount={filteredAndSortedListings.length}
+      />
+      
+      {currentListings.length > 0 ? (
         <>
-          <ListingFilterSortBar
-            onFilterChange={handleFilterChange}
-            onSortChange={handleSortChange}
-            onSearch={handleSearch}
-          />
-          {currentListings.length > 0 ? currentListings.map(listing => (
-            <ListingItem key={listing._id} listing={listing} onStatusChange={handleStatusChange} onShareListing={handleShareListing} />
-          )) : <div>No listings found.</div>}
+          {currentListings.map(listing => (
+            <ListingItem 
+              key={listing._id} 
+              listing={listing} 
+              onStatusChange={handleStatusChange} 
+              onShareListing={handleShareListing} 
+            />
+          ))}
+          
           {pageCount > 1 && (
             <Pagination
               currentPage={currentPage}
@@ -208,7 +273,28 @@ function MyListings() {
             />
           )}
         </>
+      ) : (
+        <div className="my-listings-empty">
+          {searchQuery || filter !== 'all' ? (
+            <>
+              <p>No listings match your current filters.</p>
+              <button onClick={() => {
+                setSearchQuery('');
+                setFilter('all');
+                setCurrentPage(1);
+              }}>
+                Clear Filters
+              </button>
+            </>
+          ) : (
+            <>
+              <p>You don't have any listings yet.</p>
+              <p>Create your first listing to get started.</p>
+            </>
+          )}
+        </div>
       )}
+      
       {showCreateListingModal && (
         <CreateListingPackageLogic onClose={handleCloseModal} addNewListing={addNewListing} />
       )}

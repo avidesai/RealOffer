@@ -10,6 +10,20 @@ exports.createBuyerPackage = async (req, res) => {
   try {
     const { propertyListingId, publicUrl, userRole, userInfo } = req.body;
     
+    // Validate required fields
+    if (!propertyListingId || !publicUrl || !userRole) {
+      return res.status(400).json({ 
+        message: 'Missing required fields: propertyListingId, publicUrl, and userRole are required' 
+      });
+    }
+
+    // Validate userRole
+    if (!['buyer', 'agent'].includes(userRole)) {
+      return res.status(400).json({ 
+        message: 'Invalid userRole. Must be either "buyer" or "agent"' 
+      });
+    }
+
     // Verify the property listing exists and is accessible via the public URL
     const propertyListing = await PropertyListing.findOne({ 
       _id: propertyListingId, 
@@ -17,7 +31,16 @@ exports.createBuyerPackage = async (req, res) => {
     });
     
     if (!propertyListing) {
-      return res.status(404).json({ message: 'Property listing not found' });
+      return res.status(404).json({ 
+        message: 'Property listing not found or no longer accessible via this URL' 
+      });
+    }
+
+    // Check if the listing is still active
+    if (propertyListing.status !== 'active') {
+      return res.status(400).json({ 
+        message: 'This property listing is no longer active and cannot be accessed' 
+      });
     }
 
     // Check if user already has a buyer package for this listing
@@ -27,7 +50,10 @@ exports.createBuyerPackage = async (req, res) => {
     });
 
     if (existingPackage) {
-      return res.status(200).json(existingPackage);
+      return res.status(200).json({
+        message: 'You already have access to this property',
+        buyerPackage: existingPackage
+      });
     }
 
     // Create new buyer package
@@ -60,10 +86,31 @@ exports.createBuyerPackage = async (req, res) => {
 
     await activity.save();
 
-    res.status(201).json(savedPackage);
+    res.status(201).json({
+      message: 'Buyer package created successfully',
+      buyerPackage: savedPackage
+    });
   } catch (error) {
     console.error('Error creating buyer package:', error);
-    res.status(500).json({ message: error.message });
+    
+    // Handle specific database errors
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ 
+        message: 'Invalid data provided for buyer package creation',
+        details: Object.values(error.errors).map(err => err.message)
+      });
+    }
+    
+    if (error.name === 'CastError') {
+      return res.status(400).json({ 
+        message: 'Invalid property listing ID format' 
+      });
+    }
+    
+    res.status(500).json({ 
+      message: 'Internal server error while creating buyer package',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
+    });
   }
 };
 

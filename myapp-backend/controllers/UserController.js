@@ -62,14 +62,59 @@ exports.getUserWithListingPackages = async (req, res) => {
 
 exports.createUser = async (req, res) => {
     const { firstName, lastName, email, password, role, agentLicenseNumber } = req.body;
+    
     try {
+        // Validate required fields
+        if (!firstName || !lastName || !email || !password || !role) {
+            return res.status(400).json({ 
+                message: 'Missing required fields: firstName, lastName, email, password, and role are required' 
+            });
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ 
+                message: 'Invalid email format' 
+            });
+        }
+
+        // Validate password strength
+        if (password.length < 6) {
+            return res.status(400).json({ 
+                message: 'Password must be at least 6 characters long' 
+            });
+        }
+
+        // Validate role
+        if (!['agent', 'buyer', 'seller', 'admin'].includes(role)) {
+            return res.status(400).json({ 
+                message: 'Invalid role. Must be one of: agent, buyer, seller, admin' 
+            });
+        }
+
+        // Validate agent license number if role is agent
+        if (role === 'agent' && (!agentLicenseNumber || agentLicenseNumber.trim() === '')) {
+            return res.status(400).json({ 
+                message: 'License number is required for real estate agents' 
+            });
+        }
+
+        // Check if user already exists
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
+        if (existingUser) {
+            return res.status(409).json({ 
+                message: 'A user with this email address already exists' 
+            });
+        }
+
         const newUser = new User({
-            firstName,
-            lastName,
-            email,
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            email: email.toLowerCase().trim(),
             password,
             role,
-            agentLicenseNumber: agentLicenseNumber || '',
+            agentLicenseNumber: agentLicenseNumber ? agentLicenseNumber.trim() : '',
             profilePhotoUrl: '',
             isActive: false,
             emailConfirmed: false,
@@ -99,10 +144,46 @@ exports.createUser = async (req, res) => {
             contacts: [],
             listingPackages: []
         });
+        
         const savedUser = await newUser.save();
-        res.status(201).json(savedUser);
+        
+        // Return user data without password and ensure consistent ID field
+        const userResponse = {
+            _id: savedUser._id,
+            id: savedUser._id, // Include both for compatibility
+            firstName: savedUser.firstName,
+            lastName: savedUser.lastName,
+            email: savedUser.email,
+            role: savedUser.role,
+            isPremium: savedUser.isPremium,
+            createdAt: savedUser.createdAt
+        };
+        
+        res.status(201).json({
+            message: 'User created successfully',
+            user: userResponse
+        });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        console.error('Error creating user:', error);
+        
+        // Handle specific database errors
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ 
+                message: 'Invalid data provided for user creation',
+                details: Object.values(error.errors).map(err => err.message)
+            });
+        }
+        
+        if (error.code === 11000) {
+            return res.status(409).json({ 
+                message: 'A user with this email address already exists' 
+            });
+        }
+        
+        res.status(500).json({ 
+            message: 'Internal server error while creating user',
+            error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
+        });
     }
 };
 
@@ -133,49 +214,118 @@ exports.deleteUser = async (req, res) => {
 
 exports.loginUser = async (req, res) => {
     const { email, password } = req.body;
+    
     try {
-      const user = await User.findOne({ email });
-      if (user && await bcrypt.compare(password, user.password)) {
+        // Validate required fields
+        if (!email || !password) {
+            return res.status(400).json({ 
+                message: 'Email and password are required' 
+            });
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ 
+                message: 'Invalid email format' 
+            });
+        }
+
+        const user = await User.findOne({ email: email.toLowerCase() });
+        
+        if (!user) {
+            return res.status(401).json({ 
+                message: 'Invalid email or password' 
+            });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        
+        if (!isPasswordValid) {
+            return res.status(401).json({ 
+                message: 'Invalid email or password' 
+            });
+        }
+
+        // Check if user account is active
+        if (!user.isActive) {
+            return res.status(403).json({ 
+                message: 'Your account is not active. Please contact support.' 
+            });
+        }
+
         const payload = {
-          user: {
-            id: user._id,
-            email: user.email,
-            role: user.role
-          }
+            user: {
+                id: user._id,
+                email: user.email,
+                role: user.role
+            }
         };
+        
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.status(200).json({ 
-          message: 'Login successful', 
-          user: {
-            id: user._id,
+        
+        // Update last login
+        user.lastLogin = new Date();
+        await user.save();
+        
+        // Return user data with consistent ID field
+        const userResponse = {
+            _id: user._id,
+            id: user._id, // Include both for compatibility
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
             role: user.role,
-            isPremium: user.isPremium
-          },
-          token 
+            isPremium: user.isPremium,
+            lastLogin: user.lastLogin
+        };
+        
+        res.status(200).json({ 
+            message: 'Login successful', 
+            user: userResponse,
+            token 
         });
-      } else {
-        res.status(401).json({ message: 'Invalid credentials' });
-      }
     } catch (error) {
-      console.error('Login error:', error);
-      res.status(500).json({ message: 'Server error', error: error.message });
+        console.error('Login error:', error);
+        res.status(500).json({ 
+            message: 'Server error during login',
+            error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
+        });
     }
-  };
+};
 
   // In UserController.js
 exports.checkEmailExists = async (req, res) => {
   const { email } = req.body;
+  
   try {
-    const user = await User.findOne({ email });
-    if (user) {
-      return res.status(200).json({ exists: true });
+    // Validate email parameter
+    if (!email) {
+      return res.status(400).json({ 
+        message: 'Email parameter is required' 
+      });
     }
-    res.status(200).json({ exists: false });
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ 
+        message: 'Invalid email format' 
+      });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    
+    res.status(200).json({ 
+      exists: !!user,
+      message: user ? 'User found' : 'User not found'
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error checking email existence:', error);
+    res.status(500).json({ 
+      message: 'Server error while checking email',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
+    });
   }
 };
 
