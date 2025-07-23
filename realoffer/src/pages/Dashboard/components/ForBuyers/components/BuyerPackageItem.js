@@ -11,8 +11,6 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
   const [agents, setAgents] = useState([]);
   const [isConfirmingArchive, setIsConfirmingArchive] = useState(false);
   const [confirmationTimeout, setConfirmationTimeout] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
   const { token } = useAuth();
 
@@ -22,29 +20,17 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
         try {
           const agentDetails = await Promise.all(
             buyerPackage.propertyListing.agentIds.map(async (id) => {
-              try {
-                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`, {
-                  headers: {
-                    'Authorization': `Bearer ${token}`,
-                  },
-                });
-                return response.data;
-              } catch (error) {
-                console.error(`Failed to fetch agent ${id}:`, error);
-                // Return a placeholder for failed agent fetches
-                return {
-                  _id: id,
-                  firstName: 'Unknown',
-                  lastName: 'Agent',
-                  profilePhotoUrl: ''
-                };
-              }
+              const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`, {
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                },
+              });
+              return response.data;
             })
           );
           setAgents(agentDetails);
         } catch (error) {
           console.error('Failed to fetch agents:', error);
-          setError('Failed to load agent information.');
         }
       }
     };
@@ -53,22 +39,14 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
   }, [buyerPackage.propertyListing, token]);
 
   const handleClick = () => {
-    if (!loading) {
-      navigate(`/buyerpackage/${buyerPackage._id}`);
-    }
+    navigate(`/buyerpackage/${buyerPackage._id}`);
   };
 
   const handleArchivePackage = async (e) => {
     e.stopPropagation();
     
-    if (loading) {
-      return; // Prevent action during loading
-    }
-    
     if (isConfirmingArchive) {
       // Confirm archive
-      setLoading(true);
-      setError('');
       try {
         await onStatusChange(buyerPackage._id, buyerPackage.status === 'active' ? 'archived' : 'active');
         setIsConfirmingArchive(false);
@@ -78,18 +56,15 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
         }
       } catch (error) {
         console.error('Failed to update buyer package status:', error);
-        setError('Failed to update package status. Please try again.');
         setIsConfirmingArchive(false);
         if (confirmationTimeout) {
           clearTimeout(confirmationTimeout);
           setConfirmationTimeout(null);
         }
       }
-      setLoading(false);
     } else {
       // Start confirmation process
       setIsConfirmingArchive(true);
-      setError('');
       const timeout = setTimeout(() => {
         setIsConfirmingArchive(false);
         setConfirmationTimeout(null);
@@ -100,10 +75,6 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
 
   const handleShareListing = (e) => {
     e.stopPropagation();
-    
-    if (loading) {
-      return; // Prevent action during loading
-    }
     
     // For buyer packages, we could share the public URL or implement a different sharing mechanism
     if (buyerPackage.propertyListing?.publicUrl) {
@@ -123,38 +94,13 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
 
   const { propertyListing } = buyerPackage;
 
-  // Don't render if property listing is missing
-  if (!propertyListing) {
-    return (
-      <div className="buyer-package-item error">
-        <div className="buyer-package-item-error">
-          <p>Property listing not found or has been removed.</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className={`buyer-package-item ${loading ? 'loading' : ''}`} onClick={handleClick}>
-      {loading && (
-        <div className="buyer-package-item-spinner-overlay">
-          <div className="buyer-package-item-spinner"></div>
-        </div>
-      )}
-      {error && (
-        <div className="buyer-package-item-error">
-          {error}
-        </div>
-      )}
+    <div className="buyer-package-item" onClick={handleClick}>
       {propertyListing.imagesUrls && propertyListing.imagesUrls.length > 0 ? (
         <img 
           src={propertyListing.imagesUrls[0]} 
           alt={`${propertyListing.homeCharacteristics.address} view`} 
           className="buyer-package-item-image" 
-          onError={(e) => {
-            e.target.style.display = 'none';
-            e.target.nextSibling.style.display = 'block';
-          }}
         />
       ) : (
         <div className="buyer-package-item-image-placeholder">
@@ -182,14 +128,12 @@ function BuyerPackageItem({ buyerPackage, onStatusChange }) {
           <button 
             className="buyer-package-item-button share" 
             onClick={handleShareListing}
-            disabled={loading}
           >
             Share
           </button>
           <button 
             className={`buyer-package-item-button ${isConfirmingArchive ? 'confirm-archive' : 'archive'}`} 
             onClick={handleArchivePackage}
-            disabled={loading}
           >
             {isConfirmingArchive 
               ? (buyerPackage.status === 'active' ? 'Confirm Archive?' : 'Confirm Unarchive?')
