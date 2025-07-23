@@ -14,7 +14,8 @@ function SignupForm() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: ''
+    role: '',
+    agentLicenseNumber: '', // Add license number field
   });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -79,6 +80,11 @@ function SignupForm() {
     
     if (!formData.role) {
       newErrors.role = 'Please select a role';
+    }
+
+    // Validate license number for agents
+    if (formData.role === 'agent' && !formData.agentLicenseNumber.trim()) {
+      newErrors.agentLicenseNumber = 'License number is required for real estate agents';
     }
 
     setErrors(newErrors);
@@ -293,6 +299,21 @@ function SignupForm() {
           </select>
           {errors.role && <div className="sup-error">{errors.role}</div>}
         </div>
+        {formData.role === 'agent' && (
+          <div className="sup-form-group">
+            <label htmlFor="agentLicenseNumber" className="sup-label">License Number</label>
+            <input
+              type="text"
+              id="agentLicenseNumber"
+              name="agentLicenseNumber"
+              value={formData.agentLicenseNumber}
+              onChange={handleChange}
+              className={`sup-input ${errors.agentLicenseNumber ? 'sup-input-invalid' : ''}`}
+              placeholder="Enter your real estate license number"
+            />
+            {errors.agentLicenseNumber && <div className="sup-error">{errors.agentLicenseNumber}</div>}
+          </div>
+        )}
         <button type="submit" className="sup-button" disabled={isLoading}>
           {isLoading ? 'Creating Account...' : 'Create Account'}
         </button>

@@ -61,7 +61,7 @@ exports.getUserWithListingPackages = async (req, res) => {
 };
 
 exports.createUser = async (req, res) => {
-    const { firstName, lastName, email, password, role } = req.body;
+    const { firstName, lastName, email, password, role, agentLicenseNumber } = req.body;
     try {
         const newUser = new User({
             firstName,
@@ -69,6 +69,7 @@ exports.createUser = async (req, res) => {
             email,
             password,
             role,
+            agentLicenseNumber: agentLicenseNumber || '',
             profilePhotoUrl: '',
             isActive: false,
             emailConfirmed: false,
@@ -80,7 +81,6 @@ exports.createUser = async (req, res) => {
             addressLine1: '',
             addressLine2: '',
             homepage: '',
-            agentLicenseNumber: '',
             brokerageLicenseNumber: '',
             agencyName: '',
             agencyWebsite: '',

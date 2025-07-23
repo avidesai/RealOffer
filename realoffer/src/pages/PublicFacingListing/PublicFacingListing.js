@@ -1,6 +1,6 @@
 // PublicFacingListing.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
@@ -45,6 +45,7 @@ const PublicFacingListing = () => {
     role: 'agent', // Default to agent as requested
     password: '',
     confirmPassword: '',
+    agentLicenseNumber: '', // Add license number field
   });
   
   // UI state
@@ -68,24 +69,6 @@ const PublicFacingListing = () => {
 
     fetchListing();
   }, [token]);
-
-  // Keyboard navigation for image gallery
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (listing?.imagesUrls?.length > 1) {
-        if (e.key === 'ArrowLeft') {
-          e.preventDefault();
-          previousImage();
-        } else if (e.key === 'ArrowRight') {
-          e.preventDefault();
-          nextImage();
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [listing?.imagesUrls?.length]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -117,6 +100,12 @@ const PublicFacingListing = () => {
     
     if (!formData.firstName || !formData.lastName || !formData.email || !formData.role) {
       setError('Please fill in all required fields.');
+      return;
+    }
+
+    // Validate license number for agents
+    if (formData.role === 'agent' && !formData.agentLicenseNumber.trim()) {
+      setError('License number is required for real estate agents.');
       return;
     }
 
@@ -187,6 +176,12 @@ const PublicFacingListing = () => {
       return;
     }
 
+    // Validate license number for agents
+    if (formData.role === 'agent' && !formData.agentLicenseNumber.trim()) {
+      setError('License number is required for real estate agents.');
+      return;
+    }
+
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters long.');
       return;
@@ -211,6 +206,7 @@ const PublicFacingListing = () => {
           email: formData.email,
           password: formData.password,
           role: formData.role,
+          agentLicenseNumber: formData.role === 'agent' ? formData.agentLicenseNumber : '',
         }),
       });
       
@@ -269,7 +265,7 @@ const PublicFacingListing = () => {
       });
       
       if (response.ok) {
-        const buyerPackage = await response.json();
+        await response.json(); // Remove unused variable assignment
         
         // Show success state
         setFormStep('success');
@@ -296,19 +292,37 @@ const PublicFacingListing = () => {
     }
   };
 
-  const nextImage = () => {
+  const nextImage = useCallback(() => {
     if (listing.imagesUrls && listing.imagesUrls.length > 1) {
       setIsImageLoading(true);
       setCurrentImageIndex((prev) => (prev + 1) % listing.imagesUrls.length);
     }
-  };
+  }, [listing.imagesUrls]);
 
-  const previousImage = () => {
+  const previousImage = useCallback(() => {
     if (listing.imagesUrls && listing.imagesUrls.length > 1) {
       setIsImageLoading(true);
       setCurrentImageIndex((prev) => (prev === 0 ? listing.imagesUrls.length - 1 : prev - 1));
     }
-  };
+  }, [listing.imagesUrls]);
+
+  // Keyboard navigation for image gallery
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (listing?.imagesUrls?.length > 1) {
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          previousImage();
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          nextImage();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [listing?.imagesUrls?.length, nextImage, previousImage]);
 
   const renderForm = () => {
     if (formStep === 'success') {
@@ -478,6 +492,21 @@ const PublicFacingListing = () => {
               <option value="buyer">Home Buyer</option>
             </select>
           </div>
+          {formData.role === 'agent' && (
+            <div className="pfl-form-group">
+              <label htmlFor="agentLicenseNumber">License Number</label>
+              <input
+                type="text"
+                id="agentLicenseNumber"
+                name="agentLicenseNumber"
+                placeholder="Enter your real estate license number"
+                value={formData.agentLicenseNumber}
+                onChange={handleInputChange}
+                required
+                autoComplete="off"
+              />
+            </div>
+          )}
           <button type="submit" className="pfl-request-button" disabled={isLoading}>
             {isLoading ? 'Checking...' : 'Continue'}
           </button>
