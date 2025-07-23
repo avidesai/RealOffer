@@ -162,13 +162,68 @@
   }
 }
 
+/* Tablet screens */
+@media (max-width: 1024px) {
+  .dashboard-header {
+    padding: 1rem 2rem;
+  }
+
+  .header-left {
+    gap: 1.5rem;
+  }
+
+  .header-logo {
+    height: 42px;
+    padding-right: 1rem;
+    padding-left: 0.5rem;
+  }
+
+  .back-to-dashboard {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  .header-actions {
+    gap: 1.5rem;
+  }
+
+  .user-info {
+    margin-left: 1rem;
+  }
+
+  .user-name {
+    font-size: 0.9rem;
+  }
+
+  .user-email {
+    font-size: 0.8rem;
+  }
+}
+
+/* Mobile screens */
 @media (max-width: 768px) {
   .dashboard-header {
     padding: 0.75rem 1.5rem;
   }
 
+  .header-left {
+    gap: 1rem;
+  }
+
+  .header-logo {
+    height: 36px;
+    padding-right: 0.5rem;
+    padding-left: 0;
+  }
+
+  .back-to-dashboard {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+
   .header-actions {
     margin-left: auto;
+    gap: 1rem;
   }
 
   .header-upgrade-btn {
@@ -181,5 +236,44 @@
 
   .user-avatar {
     margin-left: auto;
+    padding: 0.3rem;
+  }
+
+  .user-avatar img {
+    width: 40px !important;
+    height: 40px !important;
+  }
+}
+
+/* Small mobile screens */
+@media (max-width: 480px) {
+  .dashboard-header {
+    padding: 0.5rem 1rem;
+  }
+
+  .header-left {
+    gap: 0.5rem;
+  }
+
+  .header-logo {
+    height: 32px;
+  }
+
+  .back-to-dashboard {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .header-actions {
+    gap: 0.5rem;
+  }
+
+  .user-avatar {
+    padding: 0.2rem;
+  }
+
+  .user-avatar img {
+    width: 36px !important;
+    height: 36px !important;
   }
 } 

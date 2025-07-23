@@ -270,7 +270,7 @@ function ForBuyers() {
           ) : (
             <>
               <p>You don't have any buyer packages yet.</p>
-              <p>Browse public listings to create your first buyer package.</p>
+              <p>Browse public listings to join a buyer package.</p>
             </>
           )}
         </div>
