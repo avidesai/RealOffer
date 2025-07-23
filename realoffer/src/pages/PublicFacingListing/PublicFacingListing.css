@@ -74,7 +74,8 @@
 
 /* Property Header - Enhanced styling */
 .pfl-property-header {
-  margin-bottom: var(--pfl-space-lg);
+  margin-top: var(--pfl-space-md);
+  margin-bottom: var(--pfl-space-xl);
   padding-bottom: var(--pfl-space-md);
 }
 
@@ -148,7 +149,7 @@
   flex-direction: column;
   gap: var(--pfl-space-md);
   text-align: center;
-  padding: var(--pfl-space-xl);
+  padding: var(--pfl-space-lg);
   background: var(--pfl-bg-accent);
   border-radius: var(--pfl-radius-lg);
   border: 1px solid var(--pfl-border-color);
@@ -165,7 +166,7 @@
 }
 
 .pfl-detail-value {
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   color: var(--pfl-text-primary);
   font-weight: 700;
 }
@@ -175,20 +176,31 @@
   position: relative;
 }
 
-/* Image Gallery - Enhanced for better visual hierarchy */
+/* Image Gallery - Fixed height and smooth transitions */
 .pfl-gallery-container {
   position: relative;
-  height: 400px; /* Reduced from 500px */
+  height: 400px; /* Fixed height */
   border-radius: var(--pfl-radius-lg);
   overflow: hidden;
   box-shadow: var(--pfl-shadow-lg);
+  background: var(--pfl-bg-secondary); /* Background for loading state */
 }
 
 .pfl-main-image {
   width: 100%;
-  height: 400px; /* Reduced from 500px */
+  height: 400px; /* Fixed height to match container */
   object-fit: cover;
+  object-position: center;
   display: block;
+  transition: opacity 0.3s ease-in-out; /* Smooth opacity transition */
+}
+
+.pfl-main-image.loading {
+  opacity: 0.7;
+}
+
+.pfl-main-image.loaded {
+  opacity: 1;
 }
 
 /* Price Overlay - Less prominent */
@@ -208,7 +220,7 @@
 
 .pfl-price-amount {
   display: block;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 800;
 }
 
@@ -278,6 +290,7 @@
 
 .pfl-form-container {
   padding: var(--pfl-space-2xl);
+  padding-top: var(--pfl-space-md);
 }
 
 .pfl-form-container h2 {
@@ -320,6 +333,7 @@
   font-size: 0.875rem; /* Reduced from 1rem */
   font-weight: 700;
   color: var(--pfl-text-primary);
+  margin-top: var(--pfl-space-sm);
   margin-bottom: var(--pfl-space-md); /* Reduced from var(--pfl-space-lg) */
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -656,11 +670,11 @@
   }
   
   .pfl-main-image {
-    height: 350px;
+    height: 350px; /* Fixed height for 1200px breakpoint */
   }
   
   .pfl-gallery-container {
-    height: 350px;
+    height: 350px; /* Fixed height for 1200px breakpoint */
   }
   
   .pfl-form-container {
@@ -713,11 +727,11 @@
   }
   
   .pfl-main-image {
-    height: 320px;
+    height: 320px; /* Fixed height for 900px breakpoint */
   }
   
   .pfl-gallery-container {
-    height: 320px;
+    height: 320px; /* Fixed height for 900px breakpoint */
   }
 }
 

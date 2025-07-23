@@ -449,8 +449,8 @@ const PublicFacingListing = () => {
     // Initial form
     return (
       <div className="pfl-form-container">
-        <h2>View Listing Details</h2>
-        <p>Get access to disclosures, make offers, and more.</p>
+        <h2>Access Listing</h2>
+        <p>View disclosures, make offers, and more.</p>
         
         <div className="pfl-benefits-section">
           <h4>What you'll get access to:</h4>
