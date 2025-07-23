@@ -35,6 +35,7 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
     officerPhone: '',
     officerEmail: '',
     officerNumber: '',
+    scheduleShowingUrl: '',
     propertyImages: [],
   });
   const [errors, setErrors] = useState({});

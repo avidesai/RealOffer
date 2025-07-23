@@ -11,7 +11,6 @@ Modal.setAppElement('#root'); // Set the root element for accessibility
 const MoreInfo = ({ isOpen, onClose, listingId }) => {
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [updating, setUpdating] = useState({});
   const [error, setError] = useState(null);
   const debounceTimer = useRef({});
 
@@ -87,7 +86,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     }
 
     // Set loading state for this field
-    setUpdating(prev => ({ ...prev, [field]: true }));
+    // setUpdating(prev => ({ ...prev, [field]: true })); // This line was removed
 
     // Debounce the API call
     debounceTimer.current[field] = setTimeout(async () => {
@@ -120,7 +119,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
         console.error('Error updating listing:', error);
         setError('Failed to update property information. Please try again.');
       } finally {
-        setUpdating(prev => ({ ...prev, [field]: false }));
+        // setUpdating(prev => ({ ...prev, [field]: false })); // This line was removed
       }
     }, 1000);
   };
@@ -149,7 +148,6 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
   };
 
   const renderField = (label, field, value, formatter) => {
-    const displayValue = formatter ? formatter(value) : value || 'Not specified';
     const isNumber = ['homeCharacteristics.price','homeCharacteristics.beds','homeCharacteristics.baths','homeCharacteristics.squareFootage','homeCharacteristics.lotSize','homeCharacteristics.yearBuilt'].includes(field);
     const isPhone = field === 'escrowInfo.company.phone';
     
@@ -194,6 +192,14 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
               <option value="land">Land</option>
               <option value="commercial">Commercial</option>
             </select>
+          ) : field === 'scheduleShowingUrl' ? (
+            <input
+              type="url"
+              value={value || ''}
+              onChange={(e) => handleInputChange(e, field)}
+              className="form-control"
+              placeholder="https://example.com/schedule-showing"
+            />
           ) : isNumber ? (
             <input
               type="number"
@@ -282,6 +288,11 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
               {renderField('Company Name', 'escrowInfo.company.name', listing.escrowInfo.company.name)}
               {renderField('Phone', 'escrowInfo.company.phone', listing.escrowInfo.company.phone, formatPhone)}
               {renderField('Email', 'escrowInfo.company.email', listing.escrowInfo.company.email)}
+            </div>
+            
+            <div className="info-section">
+              <h3>Showing Information</h3>
+              {renderField('Schedule Showing Link', 'scheduleShowingUrl', listing.scheduleShowingUrl)}
             </div>
             
             <div className="info-section property-description-container">

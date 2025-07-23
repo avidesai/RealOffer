@@ -32,6 +32,7 @@ const listingTemplateSchema = new mongoose.Schema({
             email: String
         }
     },
+    scheduleShowingUrl: String, // URL for scheduling showings
     agentIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 }, { timestamps: true });
 

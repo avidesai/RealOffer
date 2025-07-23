@@ -129,6 +129,14 @@ function BuyerPackageListingOverview({ buyerPackage }) {
               <button className="overview-btn-share-package" onClick={() => setShowShareModal(true)}>Share</button>
               <button className="overview-btn" onClick={() => setShowGallery(true)}>Images</button>
               <button className="overview-btn" onClick={() => setShowMoreInfo(true)}>More Info</button>
+              {currentListing.scheduleShowingUrl && (
+                <button 
+                  className="overview-btn" 
+                  onClick={() => window.open(currentListing.scheduleShowingUrl, '_blank')}
+                >
+                  Schedule Showing
+                </button>
+              )}
             </div>
           </div>
           <div className="overview-agents">
