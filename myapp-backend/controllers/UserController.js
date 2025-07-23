@@ -247,13 +247,6 @@ exports.loginUser = async (req, res) => {
             });
         }
 
-        // Check if user account is active
-        if (!user.isActive) {
-            return res.status(403).json({ 
-                message: 'Your account is not active. Please contact support.' 
-            });
-        }
-
         const payload = {
             user: {
                 id: user._id,
