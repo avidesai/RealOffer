@@ -63,13 +63,25 @@ const BuyerPackageMoreInfo = ({ buyerPackage, onClose }) => {
       <div className="info-row" key={field}>
         <span className="info-label">{label}</span>
         <div className="field-container">
-          <input
-            type="text"
-            value={displayValue}
-            className="form-control"
-            readOnly
-            disabled
-          />
+          {field === 'scheduleShowingUrl' && value ? (
+            <a 
+              href={value} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="form-control"
+              style={{ color: '#007bff', textDecoration: 'underline', cursor: 'pointer' }}
+            >
+              {value}
+            </a>
+          ) : (
+            <input
+              type="text"
+              value={displayValue}
+              className="form-control"
+              readOnly
+              disabled
+            />
+          )}
         </div>
       </div>
     );
@@ -117,6 +129,13 @@ const BuyerPackageMoreInfo = ({ buyerPackage, onClose }) => {
           {renderField('Phone', 'escrowInfo.company.phone', listing.escrowInfo?.company?.phone, formatPhone)}
           {renderField('Email', 'escrowInfo.company.email', listing.escrowInfo?.company?.email)}
         </div>
+        
+        {listing.scheduleShowingUrl && (
+          <div className="info-section">
+            <h3>Showing Information</h3>
+            {renderField('Schedule Showing Link', 'scheduleShowingUrl', listing.scheduleShowingUrl)}
+          </div>
+        )}
         
         {listing.description && (
           <div className="info-section property-description-container">

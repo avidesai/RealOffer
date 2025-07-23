@@ -304,8 +304,8 @@
 
 .user-activity-counts {
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  align-items: flex-start;
+  gap: 1.5rem;
   margin-top: 0.25rem;
 }
 
@@ -316,11 +316,17 @@
   color: #64748b;
   font-size: 0.875rem;
   font-weight: 500;
+  min-width: 0;
+  flex-shrink: 0;
 }
 
 .activity-count-item svg {
   color: #94a3b8;
   flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  display: block;
 }
 
 .activity-count-item span {
@@ -335,25 +341,29 @@
   color: #64748b;
   transition: all 0.2s ease;
   flex-shrink: 0;
-  padding: 0.5rem;
-  border-radius: 6px;
+  padding: 0.75rem;
+  border-radius: 8px;
   cursor: pointer;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  min-width: 60px;
 }
 
 .expand-arrow:hover {
-  background-color: rgba(100, 116, 139, 0.1);
+  background-color: #e9ecef;
   color: #475569;
 }
 
 .expand-text {
   font-size: 0.875rem;
   font-weight: 500;
-  color: inherit;
-  white-space: nowrap;
+  color: #6c757d;
 }
 
 .expand-arrow svg {
-  transition: transform 0.2s ease;
+  width: 16px;
+  height: 16px;
+  margin-left: 0.25rem;
 }
 
 .expand-arrow svg.expanded {
@@ -503,23 +513,76 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .activity-user-header {
-    padding: 1rem;
+    padding: 1.5rem 1rem;
     position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 0.75rem 1rem;
+    align-items: center;
   }
   
   .activity-user-header .activity-avatar {
-    margin-right: 0;
-    margin-bottom: 0.5rem;
+    grid-row: 1 / 3;
+    grid-column: 1;
+    margin: 0;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
   }
   
   .user-info {
-    width: 100%;
+    grid-row: 1 / 3;
+    grid-column: 2;
+    min-width: 0;
+  }
+  
+  .user-info h3 {
+    font-size: 1.1rem;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.2;
+  }
+  
+  .user-activity-counts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin: 0;
+  }
+  
+  .activity-count-item {
+    font-size: 0.85rem;
+    gap: 0.4rem;
+    display: flex;
+    align-items: center;
   }
   
   .expand-arrow {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
+    grid-row: 1 / 3;
+    grid-column: 3;
+    position: static;
+    margin: 0;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    min-width: 60px;
+    height: fit-content;
+  }
+  
+  .expand-text {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #6c757d;
+  }
+  
+  .expand-arrow svg {
+    width: 16px;
+    height: 16px;
+    margin-left: 0.25rem;
   }
   
   .activity-user-activities .activity-item {
@@ -569,6 +632,45 @@
 }
 
 @media (max-width: 480px) {
+  .activity-user-header {
+    padding: 1.25rem 0.75rem;
+    gap: 0.5rem 0.75rem;
+  }
+  
+  .activity-user-header .activity-avatar {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .user-info h3 {
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+  }
+  
+  .user-activity-counts {
+    gap: 0.2rem;
+  }
+  
+  .activity-count-item {
+    font-size: 0.8rem;
+    gap: 0.3rem;
+  }
+  
+  .expand-arrow {
+    padding: 0.6rem;
+    min-width: 55px;
+  }
+  
+  .expand-text {
+    font-size: 0.75rem;
+  }
+  
+  .expand-arrow svg {
+    width: 14px;
+    height: 14px;
+    margin-left: 0.2rem;
+  }
+  
   .activity-user-activities .activity-item {
     padding: 0.5rem 0.75rem;
   }

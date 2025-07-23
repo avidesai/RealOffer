@@ -76,6 +76,20 @@ function DashboardHeader({ activeTab, setActiveTab }) {
           className="header-logo"
           onClick={() => handleTabClick('listings')}
         />
+        <nav className="header-nav-mobile">
+          <button
+            onClick={() => handleTabClick('listings')}
+            className={`header-nav-btn ${activeTab === 'listings' ? 'active' : ''}`}
+          >
+            My{'\n'}Listings
+          </button>
+          <button
+            onClick={() => handleTabClick('buyers')}
+            className={`header-nav-btn ${activeTab === 'buyers' ? 'active' : ''}`}
+          >
+            For{'\n'}Buyers
+          </button>
+        </nav>
       </div>
       <nav className="header-nav">
         <button

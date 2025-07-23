@@ -37,6 +37,7 @@ const propertyListingSchema = new mongoose.Schema(
         email: String,
       },
     },
+    scheduleShowingUrl: String, // URL for scheduling showings
     agentIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     documents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Document' }],
     offers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Offer' }],
