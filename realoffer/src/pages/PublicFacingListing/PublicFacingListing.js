@@ -103,12 +103,6 @@ const PublicFacingListing = () => {
       return;
     }
 
-    // Validate license number for agents
-    if (formData.role === 'agent' && !formData.agentLicenseNumber.trim()) {
-      setError('License number is required for real estate agents.');
-      return;
-    }
-
     setIsLoading(true);
     setError('');
 
@@ -351,6 +345,15 @@ const PublicFacingListing = () => {
     if (formStep === 'login') {
       return (
         <div className="pfl-form-container">
+          <div className="pfl-back-button-container">
+            <button 
+              type="button" 
+              onClick={() => setFormStep('initial')}
+              className="pfl-back-button"
+            >
+              ← Back
+            </button>
+          </div>
           <h2>Welcome back!</h2>
           <p>Please enter your password to access this listing.</p>
           {error && <p className="pfl-error">{error}</p>}
@@ -379,6 +382,15 @@ const PublicFacingListing = () => {
     if (formStep === 'signup') {
       return (
         <div className="pfl-form-container">
+          <div className="pfl-back-button-container">
+            <button 
+              type="button" 
+              onClick={() => setFormStep('initial')}
+              className="pfl-back-button"
+            >
+              ← Back
+            </button>
+          </div>
           <h2>Create your account</h2>
           <p>Complete your registration to access this listing.</p>
           {error && <p className="pfl-error">{error}</p>}
@@ -411,6 +423,21 @@ const PublicFacingListing = () => {
                 minLength="6"
               />
             </div>
+            {formData.role === 'agent' && (
+              <div className="pfl-form-group">
+                <label htmlFor="agentLicenseNumber">License Number</label>
+                <input
+                  type="text"
+                  id="agentLicenseNumber"
+                  name="agentLicenseNumber"
+                  placeholder="Enter your real estate license number"
+                  value={formData.agentLicenseNumber}
+                  onChange={handleInputChange}
+                  required
+                  autoComplete="off"
+                />
+              </div>
+            )}
             <button type="submit" className="pfl-request-button" disabled={isLoading}>
               {isLoading ? 'Creating account...' : 'Sign Up & View Listing'}
             </button>
@@ -422,16 +449,15 @@ const PublicFacingListing = () => {
     // Initial form
     return (
       <div className="pfl-form-container">
-        <h2>View Listing Information</h2>
+        <h2>View Listing Details</h2>
         <p>Get access to disclosures, make offers, and more.</p>
         
         <div className="pfl-benefits-section">
           <h4>What you'll get access to:</h4>
           <ul className="pfl-benefits-list">
             <li>Property disclosures & documents</li>
-            <li>AI-powered market analysis</li>
+            <li>AI-powered valuation analysis</li>
             <li>Make offers directly</li>
-            <li>Track property updates</li>
           </ul>
         </div>
 
@@ -492,21 +518,6 @@ const PublicFacingListing = () => {
               <option value="buyer">Home Buyer</option>
             </select>
           </div>
-          {formData.role === 'agent' && (
-            <div className="pfl-form-group">
-              <label htmlFor="agentLicenseNumber">License Number</label>
-              <input
-                type="text"
-                id="agentLicenseNumber"
-                name="agentLicenseNumber"
-                placeholder="Enter your real estate license number"
-                value={formData.agentLicenseNumber}
-                onChange={handleInputChange}
-                required
-                autoComplete="off"
-              />
-            </div>
-          )}
           <button type="submit" className="pfl-request-button" disabled={isLoading}>
             {isLoading ? 'Checking...' : 'Continue'}
           </button>
@@ -550,34 +561,6 @@ const PublicFacingListing = () => {
         </div>
         <div className="pfl-content-grid">
           <div className="pfl-main-content">
-            <div className="pfl-property-details">
-              <div className="pfl-details-grid">
-                <div className="pfl-detail-item">
-                  <span className="pfl-detail-label">Bedrooms</span>
-                  <span className="pfl-detail-value">{listing.homeCharacteristics.beds}</span>
-                </div>
-                <div className="pfl-detail-item">
-                  <span className="pfl-detail-label">Bathrooms</span>
-                  <span className="pfl-detail-value">{listing.homeCharacteristics.baths}</span>
-                </div>
-                <div className="pfl-detail-item">
-                  <span className="pfl-detail-label">Square Feet</span>
-                  <span className="pfl-detail-value">{formatNumber(listing.homeCharacteristics.squareFootage)}</span>
-                </div>
-                <div className="pfl-detail-item">
-                  <span className="pfl-detail-label">Lot Size</span>
-                  <span className="pfl-detail-value">{formatNumber(listing.homeCharacteristics.lotSize)}</span>
-                </div>
-                <div className="pfl-detail-item">
-                  <span className="pfl-detail-label">Year Built</span>
-                  <span className="pfl-detail-value">{listing.homeCharacteristics.yearBuilt || '-'}</span>
-                </div>
-                <div className="pfl-detail-item">
-                  <span className="pfl-detail-label">Type</span>
-                  <span className="pfl-detail-value">{getPropertyTypeText(listing.homeCharacteristics.propertyType)}</span>
-                </div>
-              </div>
-            </div>
             <div className="pfl-gallery-section">
               <div className="pfl-gallery-container">
                 {listing.imagesUrls && listing.imagesUrls.length > 0 && (
@@ -614,6 +597,34 @@ const PublicFacingListing = () => {
                     )}
                   </>
                 )}
+              </div>
+            </div>
+            <div className="pfl-property-details">
+              <div className="pfl-details-grid">
+                <div className="pfl-detail-item">
+                  <span className="pfl-detail-label">Bedrooms</span>
+                  <span className="pfl-detail-value">{listing.homeCharacteristics.beds}</span>
+                </div>
+                <div className="pfl-detail-item">
+                  <span className="pfl-detail-label">Bathrooms</span>
+                  <span className="pfl-detail-value">{listing.homeCharacteristics.baths}</span>
+                </div>
+                <div className="pfl-detail-item">
+                  <span className="pfl-detail-label">Square Feet</span>
+                  <span className="pfl-detail-value">{formatNumber(listing.homeCharacteristics.squareFootage)}</span>
+                </div>
+                <div className="pfl-detail-item">
+                  <span className="pfl-detail-label">Lot Size</span>
+                  <span className="pfl-detail-value">{formatNumber(listing.homeCharacteristics.lotSize)}</span>
+                </div>
+                <div className="pfl-detail-item">
+                  <span className="pfl-detail-label">Year Built</span>
+                  <span className="pfl-detail-value">{listing.homeCharacteristics.yearBuilt || '-'}</span>
+                </div>
+                <div className="pfl-detail-item">
+                  <span className="pfl-detail-label">Type</span>
+                  <span className="pfl-detail-value">{getPropertyTypeText(listing.homeCharacteristics.propertyType)}</span>
+                </div>
               </div>
             </div>
           </div>
