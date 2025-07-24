@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
+import { useAuth } from '../../context/AuthContext';
 import './PublicFacingListing.css';
 
 const getPropertyTypeText = (value) => {
@@ -32,6 +33,7 @@ const formatNumber = (num) => {
 
 const PublicFacingListing = () => {
   const { token } = useParams();
+  const { user } = useAuth();
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -39,10 +41,10 @@ const PublicFacingListing = () => {
   
   // Form state management
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    role: 'agent', // Default to agent as requested
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    email: user?.email || '',
+    role: user?.role || 'agent', // Default to agent as requested
     password: '',
     confirmPassword: '',
     agentLicenseNumber: '', // Add license number field
@@ -54,6 +56,19 @@ const PublicFacingListing = () => {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState(null);
 
+  // Update form data when user changes
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        role: user.role || 'agent'
+      }));
+    }
+  }, [user]);
+
   useEffect(() => {
     const fetchListing = async () => {
       try {
@@ -62,6 +77,43 @@ const PublicFacingListing = () => {
         
         if (response.ok) {
           setListing(data);
+          
+          // If user is already logged in, check their relationship to this listing
+          if (user && user._id) {
+            // First, check if user is the listing agent (owner of the listing)
+            if (data.createdBy === user._id) {
+              // User is the listing agent, redirect to MyListings dashboard
+              window.location.href = `/mylisting/${data._id}`;
+              return;
+            }
+            
+            // If not the listing agent, check if they have a buyer package
+            try {
+              const buyerPackageResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/check-access`, {
+                method: 'POST',
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                  propertyListingId: data._id,
+                  userId: user._id
+                }),
+              });
+              
+              if (buyerPackageResponse.ok) {
+                const buyerPackageData = await buyerPackageResponse.json();
+                if (buyerPackageData.hasAccess && buyerPackageData.buyerPackageId) {
+                  // User already has access, redirect to buyer package dashboard
+                  window.location.href = `/buyerpackage/${buyerPackageData.buyerPackageId}`;
+                  return;
+                }
+              }
+            } catch (error) {
+              console.error('Error checking buyer package access:', error);
+              // Continue with normal flow if check fails
+            }
+          }
         } else {
           console.error('Error fetching listing:', data.message);
           setError('This listing is no longer available or has expired.');
@@ -75,7 +127,7 @@ const PublicFacingListing = () => {
     };
 
     fetchListing();
-  }, [token]);
+  }, [token, user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -109,6 +161,19 @@ const PublicFacingListing = () => {
 
   const handleInitialSubmit = async (e) => {
     e.preventDefault();
+    
+    // If user is already logged in, check if they're the listing agent
+    if (user) {
+      if (listing && listing.createdBy === user._id) {
+        // User is the listing agent, redirect to MyListings dashboard
+        window.location.href = `/mylisting/${listing._id}`;
+        return;
+      } else {
+        // User is not the listing agent, proceed with buyer package creation
+        handleDirectAccess();
+        return;
+      }
+    }
     
     if (!formData.firstName || !formData.lastName || !formData.email || !formData.role) {
       setError('Please fill in all required fields.');
@@ -176,6 +241,14 @@ const PublicFacingListing = () => {
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
         
+        // Check if the logged-in user is the listing agent
+        if (listing && listing.createdBy === userId) {
+          // User is the listing agent, redirect to MyListings dashboard
+          window.location.href = `/mylisting/${listing._id}`;
+          return;
+        }
+        
+        // User is not the listing agent, create buyer package
         await createBuyerPackage(userId, data.token);
       } else {
         setError(data.message || 'Invalid email or password. Please try again.');
@@ -256,6 +329,14 @@ const PublicFacingListing = () => {
           localStorage.setItem('user', JSON.stringify(loginData.user));
           localStorage.setItem('token', loginData.token);
           
+          // Check if the newly created user is the listing agent
+          if (listing && listing.createdBy === userId) {
+            // User is the listing agent, redirect to MyListings dashboard
+            window.location.href = `/mylisting/${listing._id}`;
+            return;
+          }
+          
+          // User is not the listing agent, create buyer package
           await createBuyerPackage(userId, loginData.token);
         } else {
           setError('Account created but login failed. Please try logging in.');
@@ -267,6 +348,80 @@ const PublicFacingListing = () => {
     } catch (error) {
       console.error('Signup error:', error);
       setError('Signup failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDirectAccess = async () => {
+    if (!user || !listing) {
+      setError('Unable to create access. Please try again.');
+      return;
+    }
+
+    // Check if user is the listing agent
+    if (listing.createdBy === user._id) {
+      // User is the listing agent, redirect to MyListings dashboard
+      window.location.href = `/mylisting/${listing._id}`;
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          propertyListingId: listing._id,
+          publicUrl: window.location.href,
+          userRole: user.role || 'buyer', // Default to buyer if role not set
+          userInfo: {
+            name: `${user.firstName} ${user.lastName}`,
+            email: user.email,
+            role: user.role || 'buyer'
+          }
+        }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Show success state
+        setFormStep('success');
+        setSuccessMessage({
+          title: "Access Granted!",
+          message: "Your buyer package has been created successfully.",
+          nextSteps: [
+            "View your buyer package in the 'For Buyers' section",
+            "Access property documents and disclosures",
+            "Make offers when ready"
+          ]
+        });
+        
+        // Auto-redirect after 3 seconds
+        setTimeout(() => {
+          window.location.href = `/dashboard`;
+        }, 3000);
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create buyer package');
+      }
+    } catch (error) {
+      console.error('Error creating buyer package:', error);
+      
+      // Provide specific error messages based on the error type
+      if (error.message.includes('Property listing is no longer available')) {
+        setError('This property is no longer available. Please contact the listing agent.');
+      } else if (error.message.includes('already has a buyer package')) {
+        setError('You already have access to this property. Check your buyer packages.');
+      } else {
+        setError('Failed to create buyer package. Please try again or contact support.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -369,6 +524,67 @@ const PublicFacingListing = () => {
   }, [listing?.imagesUrls?.length, nextImage, previousImage]);
 
   const renderForm = () => {
+    // If user is already logged in but doesn't have access, show appropriate action
+    if (user && !formStep) {
+      // Check if user is the listing agent
+      const isListingAgent = listing && listing.createdBy === user._id;
+      
+      if (isListingAgent) {
+        return (
+          <div className="pfl-form-container">
+            <h2>Manage Your Listing</h2>
+            <p>You're the listing agent for this property. Click below to manage your listing.</p>
+            
+            <div className="pfl-benefits-section">
+              <h4>What you can do:</h4>
+              <ul className="pfl-benefits-list">
+                <li>View and manage offers</li>
+                <li>Track buyer activity</li>
+                <li>Update listing details</li>
+                <li>Manage documents and disclosures</li>
+              </ul>
+            </div>
+
+            {error && <p className="pfl-error">{error}</p>}
+            
+            <button 
+              className="pfl-request-button" 
+              onClick={() => window.location.href = `/mylisting/${listing._id}`}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Redirecting...' : 'Manage Listing'}
+            </button>
+          </div>
+        );
+      } else {
+        return (
+          <div className="pfl-form-container">
+            <h2>Access Listing</h2>
+            <p>You're already logged in. Click below to get access to this property.</p>
+            
+            <div className="pfl-benefits-section">
+              <h4>What you'll get access to:</h4>
+              <ul className="pfl-benefits-list">
+                <li>Property disclosures & documents</li>
+                <li>AI-powered valuation analysis</li>
+                <li>Make offers directly</li>
+              </ul>
+            </div>
+
+            {error && <p className="pfl-error">{error}</p>}
+            
+            <button 
+              className="pfl-request-button" 
+              onClick={handleDirectAccess}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Creating access...' : 'Get Access Now'}
+            </button>
+          </div>
+        );
+      }
+    }
+
     if (formStep === 'success') {
       return (
         <div className="pfl-form-container">
@@ -497,17 +713,30 @@ const PublicFacingListing = () => {
     }
 
     // Initial form
+    const isListingAgent = user && listing && listing.createdBy === user._id;
+    
     return (
       <div className="pfl-form-container">
-        <h2>Access Listing</h2>
-        <p>View disclosures, make offers, and more.</p>
+        <h2>{isListingAgent ? 'Manage Your Listing' : 'Access Listing'}</h2>
+        <p>{isListingAgent ? 'Manage your property listing, view offers, and track buyer activity.' : 'View disclosures, make offers, and more.'}</p>
         
         <div className="pfl-benefits-section">
-          <h4>What you'll get access to:</h4>
+          <h4>{isListingAgent ? 'What you can do:' : 'What you\'ll get access to:'}</h4>
           <ul className="pfl-benefits-list">
-            <li>Property disclosures & documents</li>
-            <li>AI-powered valuation analysis</li>
-            <li>Make offers directly</li>
+            {isListingAgent ? (
+              <>
+                <li>View and manage offers</li>
+                <li>Track buyer activity</li>
+                <li>Update listing details</li>
+                <li>Manage documents and disclosures</li>
+              </>
+            ) : (
+              <>
+                <li>Property disclosures & documents</li>
+                <li>AI-powered valuation analysis</li>
+                <li>Make offers directly</li>
+              </>
+            )}
           </ul>
         </div>
 
@@ -524,8 +753,9 @@ const PublicFacingListing = () => {
                 placeholder="Enter your first name"
                 value={formData.firstName}
                 onChange={handleInputChange}
-                required
+                required={!user}
                 autoComplete="given-name"
+                disabled={!!user}
               />
             </div>
             <div className="pfl-form-group">
@@ -537,8 +767,9 @@ const PublicFacingListing = () => {
                 placeholder="Enter your last name"
                 value={formData.lastName}
                 onChange={handleInputChange}
-                required
+                required={!user}
                 autoComplete="family-name"
+                disabled={!!user}
               />
             </div>
           </div>
@@ -551,8 +782,9 @@ const PublicFacingListing = () => {
               placeholder="Enter your email address"
               value={formData.email}
               onChange={handleInputChange}
-              required
+              required={!user}
               autoComplete="email"
+              disabled={!!user}
             />
           </div>
           <div className="pfl-form-group">
@@ -562,14 +794,15 @@ const PublicFacingListing = () => {
               name="role"
               value={formData.role}
               onChange={handleInputChange}
-              required
+              required={!user}
+              disabled={!!user}
             >
               <option value="agent">Real Estate Agent</option>
               <option value="buyer">Home Buyer</option>
             </select>
           </div>
           <button type="submit" className="pfl-request-button" disabled={isLoading}>
-            {isLoading ? 'Checking...' : 'Continue'}
+            {isLoading ? 'Checking...' : (user ? (listing && listing.createdBy === user._id ? 'Manage Listing' : 'Get Access Now') : 'Continue')}
           </button>
         </form>
       </div>

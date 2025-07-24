@@ -275,4 +275,43 @@ exports.recordDocumentDownload = async (req, res) => {
     console.error('Error recording document download:', error);
     res.status(500).json({ message: error.message });
   }
+};
+
+// Check if user has access to a property listing
+exports.checkAccess = async (req, res) => {
+  try {
+    const { propertyListingId, userId } = req.body;
+
+    // Validate required fields
+    if (!propertyListingId || !userId) {
+      return res.status(400).json({ 
+        message: 'Missing required fields: propertyListingId and userId are required' 
+      });
+    }
+
+    // Check if user has a buyer package for this listing
+    const buyerPackage = await BuyerPackage.findOne({
+      user: userId,
+      propertyListing: propertyListingId
+    });
+
+    if (buyerPackage) {
+      return res.status(200).json({
+        hasAccess: true,
+        buyerPackageId: buyerPackage._id,
+        message: 'User has access to this property listing'
+      });
+    } else {
+      return res.status(200).json({
+        hasAccess: false,
+        message: 'User does not have access to this property listing'
+      });
+    }
+  } catch (error) {
+    console.error('Error checking buyer package access:', error);
+    res.status(500).json({ 
+      message: 'Internal server error while checking access',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
+    });
+  }
 }; 

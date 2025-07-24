@@ -23,7 +23,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
     }
     currentFiles.forEach((file, index) => {
       if (!file.type) {
-        newErrors.push(`Please select a type for file ${index + 1}.`);
+        newErrors.push(`Please select a type for "${file.title || file.file.name}".`);
       }
     });
     setErrors(newErrors);
@@ -41,7 +41,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
       ...droppedFiles.map((file) => ({ file, type: '', title: file.name, docType: getDocType(file) })),
     ];
     setFiles(newFiles);
-    validateAndClearErrors(newFiles);
+    setErrors([]); // Clear any existing errors when new files are added
   };
 
   const handleFileSelect = (e) => {
@@ -51,7 +51,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
       ...selectedFiles.map((file) => ({ file, type: '', title: file.name, docType: getDocType(file) })),
     ];
     setFiles(newFiles);
-    validateAndClearErrors(newFiles);
+    setErrors([]); // Clear any existing errors when new files are added
   };
 
   const handleUploadClick = () => {
@@ -61,19 +61,32 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
   const handleDeleteFile = (index) => {
     const newFiles = files.filter((_, i) => i !== index);
     setFiles(newFiles);
-    validateAndClearErrors(newFiles);
+    setErrors([]); // Clear errors when files are removed
   };
 
   const handleFileTypeChange = (index, newType) => {
     const newFiles = files.map((file, i) => (i === index ? { ...file, type: newType } : file));
     setFiles(newFiles);
-    validateAndClearErrors(newFiles);
+    // Clear all errors when a type is selected, then regenerate if needed
+    if (newType) {
+      setErrors([]);
+    }
   };
 
   const handleFileTitleChange = (index, newTitle) => {
     const newFiles = files.map((file, i) => (i === index ? { ...file, title: newTitle } : file));
     setFiles(newFiles);
-    validateAndClearErrors(newFiles);
+    // No need to validate on title change
+  };
+
+  const handleDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const items = Array.from(files);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setFiles(items);
   };
 
   const getDocType = (file) => {
@@ -87,7 +100,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
     }
     files.forEach((file, index) => {
       if (!file.type) {
-        newErrors.push(`Please select a type for file ${index + 1}.`);
+        newErrors.push(`Please select a type for "${file.title || file.file.name}".`);
       }
     });
     if (newErrors.length > 0) {
@@ -106,12 +119,47 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
       formData.append('purpose', 'listing');
       formData.append('uploadedBy', user.id);
       formData.append('propertyListingId', listingId);
-      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formData, {
+      
+      // Upload documents
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`
         },
       });
+      
+      // Get the uploaded document IDs in the order they were uploaded
+      const uploadedDocumentIds = response.data.map(doc => doc._id);
+      
+      // Update the document order in the property listing
+      try {
+        await axios.put(
+          `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}/documentOrder`,
+          { documentOrder: uploadedDocumentIds },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+      } catch (orderError) {
+        console.warn('Could not update document order:', orderError);
+        // If the specific endpoint doesn't exist, try the general listing update
+        try {
+          await axios.put(
+            `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`,
+            { documentOrder: uploadedDocumentIds },
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            }
+          );
+        } catch (fallbackError) {
+          console.warn('Could not update document order (fallback):', fallbackError);
+        }
+      }
+      
       setUploading(false);
       setShowCSPPrompt(true);
     } catch (error) {
@@ -173,6 +221,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
       handleDeleteFile={handleDeleteFile}
       handleFileTypeChange={handleFileTypeChange}
       handleFileTitleChange={handleFileTitleChange}
+      handleDragEnd={handleDragEnd}
       handleUpload={handleUpload}
     />
   );

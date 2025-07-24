@@ -13,6 +13,7 @@ router.get('/', BuyerPackageController.getUserBuyerPackages);
 router.get('/:id', BuyerPackageController.getBuyerPackage);
 router.put('/:id/status', BuyerPackageController.updateBuyerPackageStatus);
 router.post('/download', BuyerPackageController.recordDocumentDownload);
+router.post('/check-access', BuyerPackageController.checkAccess);
 
 // Statistics route (for listing agents)
 router.get('/stats/:propertyListingId', BuyerPackageController.getBuyerPackageStats);

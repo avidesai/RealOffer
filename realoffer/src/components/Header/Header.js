@@ -1,7 +1,7 @@
 // src/components/Header/Header.js
 
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './Header.css';
 import logo from '../../assets/images/logo.svg';
 import { useAuth } from '../../context/AuthContext';
@@ -9,9 +9,11 @@ import { useAuth } from '../../context/AuthContext';
 function Header() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLoginClick = (e) => {
-    if (user) {
+    // Don't redirect if user is on public facing listing page
+    if (user && !location.pathname.includes('/listings/public/')) {
       e.preventDefault();
       navigate('/dashboard');
     }

@@ -137,7 +137,8 @@
 }
 
 .offer-file-list-container {
-  max-height: 350px;
+  max-height: 1200px;
+  min-height: 200px;
   overflow-y: auto;
   margin-bottom: 1.5rem;
   scrollbar-width: thin;
@@ -159,6 +160,7 @@
 
 .offer-file-list {
   width: 100%;
+  position: relative;
 }
 
 .offer-file-item {
@@ -169,15 +171,65 @@
   border-radius: 12px;
   padding: 1.25rem;
   margin-bottom: 0.75rem;
-  transition: all 0.2s ease;
   position: relative;
   gap: 1rem;
   min-height: 80px;
+  cursor: grab;
+}
+
+.offer-file-item.dragging {
+  background-color: #e3f2fd;
+  border-color: #4a90e2;
+  box-shadow: 0 8px 25px rgba(74, 144, 226, 0.15);
+  transform: scale(1.02);
+  z-index: 1000;
+  transition: none;
+}
+
+.offer-file-item:active {
+  cursor: grabbing;
+  transition: none;
+}
+
+.offer-file-drag-handle {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  cursor: grab;
+  color: #9ca3af;
+  transition: color 0.2s ease;
+}
+
+.offer-file-drag-handle:hover {
+  color: #4a90e2;
+}
+
+.drag-icon {
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1;
+  user-select: none;
 }
 
 .offer-file-item:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transform: translateY(-1px);
+}
+
+/* Smooth transitions for drag and drop reordering */
+.offer-file-item {
+  transition: box-shadow 0.15s ease,
+              background-color 0.15s ease,
+              border-color 0.15s ease;
+  will-change: transform;
+}
+
+/* Ensure smooth animations during drag operations */
+.offer-file-list [data-rbd-draggable-context-id] {
+  transition: none;
 }
 
 .offer-file-title {
@@ -347,7 +399,8 @@
   }
   
   .offer-file-list-container {
-    max-height: 280px;
+    max-height: 1200px;
+    min-height: 150px;
   }
   
   .offer-drag-drop {
@@ -360,6 +413,11 @@
     align-items: stretch;
     gap: 0.75rem;
     padding: 1rem;
+  }
+  
+  .offer-file-drag-handle {
+    align-self: flex-start;
+    margin-bottom: 0.5rem;
   }
   
   .offer-file-title, .offer-file-type, .offer-file-delete {
