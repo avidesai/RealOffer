@@ -378,7 +378,7 @@ const PublicFacingListing = () => {
         },
         body: JSON.stringify({
           propertyListingId: listing._id,
-          publicUrl: window.location.href,
+          publicUrl: `${window.location.origin}/listings/public/${token}`,
           userRole: user.role || 'buyer', // Default to buyer if role not set
           userInfo: {
             name: `${user.firstName} ${user.lastName}`,
@@ -442,7 +442,7 @@ const PublicFacingListing = () => {
         },
         body: JSON.stringify({
           propertyListingId: listing._id,
-          publicUrl: window.location.href,
+          publicUrl: `${window.location.origin}/listings/public/${token}`,
           userRole: formData.role,
           userInfo: {
             name: `${formData.firstName} ${formData.lastName}`,
