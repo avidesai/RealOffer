@@ -33,24 +33,28 @@ const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, hand
     <div className="clp-step">
       <h2>Property Features</h2>
       <div className="clp-form-section">
-        <select
-          name="propertyType"
-          value={formData.propertyType}
-          onChange={handleChange}
-          className="clp-select"
-        >
-          <option value="">Select Property Type</option>
-          <option value="singleFamily">Single Family Home</option>
-          <option value="condo">Condominium</option>
-          <option value="townhouse">Townhouse</option>
-          <option value="multiFamily">Multi-Family Home</option>
-          <option value="land">Land</option>
-          <option value="commercial">Commercial</option>
-        </select>
-        {errors.propertyType && <div className="clp-error">{errors.propertyType}</div>}
+        <div className="clp-form-row">
+          <div className="clp-form-group full-width">
+            <select
+              name="propertyType"
+              value={formData.propertyType}
+              onChange={handleChange}
+              className="clp-select"
+            >
+              <option value="">Select Property Type</option>
+              <option value="singleFamily">Single Family Home</option>
+              <option value="condo">Condominium</option>
+              <option value="townhouse">Townhouse</option>
+              <option value="multiFamily">Multi-Family Home</option>
+              <option value="land">Land</option>
+              <option value="commercial">Commercial</option>
+            </select>
+            {errors.propertyType && <div className="clp-error">{errors.propertyType}</div>}
+          </div>
+        </div>
 
         <div className="clp-form-row">
-          <div className="clp-form-group">
+          <div className="clp-form-group full-width">
             <input
               type="text"
               name="askingPrice"
@@ -90,7 +94,7 @@ const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, hand
         </div>
 
         <div className="clp-form-row">
-          <div className="clp-form-group">
+          <div className="clp-form-group full-width">
             <input
               type="number"
               name="yearBuilt"

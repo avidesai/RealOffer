@@ -72,19 +72,17 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 .clp-form-row {
   display: flex;
   gap: 1.25rem;
-  margin-bottom: 0.5rem;
 }
 
 .clp-form-group {
   flex: 1;
   min-width: 0;
-  margin-bottom: 1.5rem;
 }
 
 .clp-form-group.full-width {
@@ -438,6 +436,33 @@
   font-size: 0.8rem;
   font-weight: 600;
   backdrop-filter: blur(4px);
+}
+
+.photo-preview-delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: rgba(231, 76, 60, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  z-index: 10;
+}
+
+.photo-preview-delete:hover {
+  background-color: rgba(231, 76, 60, 1);
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
 }
 
 /* Radio button styles */

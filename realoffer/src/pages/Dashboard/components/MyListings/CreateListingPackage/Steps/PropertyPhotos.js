@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-const PropertyPhotos = ({ handleFileChange, handleSubmit, handlePrevStep, loading, formData }) => {
+const PropertyPhotos = ({ handleFileChange, handleRemovePhoto, handleSubmit, handlePrevStep, loading, formData }) => {
   const [previews, setPreviews] = useState([]);
   const fileInputRef = useRef();
 
@@ -105,6 +105,17 @@ const PropertyPhotos = ({ handleFileChange, handleSubmit, handlePrevStep, loadin
                         >
                           <img src={preview} alt={`Preview ${index + 1}`} />
                           <div className="photo-preview-order">{index + 1}</div>
+                          <button
+                            type="button"
+                            className="photo-preview-delete"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemovePhoto(index);
+                            }}
+                            aria-label={`Remove photo ${index + 1}`}
+                          >
+                            ×
+                          </button>
                         </div>
                       )}
                     </Draggable>

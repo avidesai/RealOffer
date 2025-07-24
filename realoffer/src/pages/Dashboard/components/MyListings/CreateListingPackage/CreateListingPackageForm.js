@@ -16,6 +16,7 @@ const CreateListingPackageForm = ({
   handlePrevStep,
   handleChange,
   handleFileChange,
+  handleRemovePhoto,
   handleSubmit,
   loading, // Add loading prop
   onClose
@@ -68,6 +69,7 @@ const CreateListingPackageForm = ({
       {step === 6 && (
         <PropertyPhotos
           handleFileChange={handleFileChange}
+          handleRemovePhoto={handleRemovePhoto}
           handleSubmit={handleSubmit}
           handlePrevStep={handlePrevStep}
           loading={loading}

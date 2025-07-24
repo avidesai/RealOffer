@@ -61,7 +61,9 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
       if (!formData.sqFootage) newErrors.sqFootage = 'Square Footage is required';
       if (!formData.lotSize) newErrors.lotSize = 'Lot Size is required';
     }
-    if (step === 4) newErrors.agent1 = 'At least one agent is required'; // Listing Agents step (previously step 4, now step 4)
+    if (step === 4) { // Listing Agents step
+      if (!formData.agent1) newErrors.agent1 = 'At least one agent is required';
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -80,10 +82,17 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
   };
 
   const handleFileChange = (e) => {
-    const files = e.target.files ? Array.from(e.target.files) : e.target.files;
+    const newFiles = e.target.files ? Array.from(e.target.files) : e.target.files;
     setFormData((prevData) => ({
       ...prevData,
-      propertyImages: files || [],
+      propertyImages: [...(prevData.propertyImages || []), ...(newFiles || [])],
+    }));
+  };
+
+  const handleRemovePhoto = (indexToRemove) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      propertyImages: prevData.propertyImages.filter((_, index) => index !== indexToRemove),
     }));
   };
 
@@ -170,6 +179,7 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
       handlePrevStep={handlePrevStep}
       handleChange={handleChange}
       handleFileChange={handleFileChange}
+      handleRemovePhoto={handleRemovePhoto}
       handleSubmit={handleSubmit}
       onClose={onClose}
       loading={loading}
