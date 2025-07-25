@@ -252,6 +252,7 @@ function MyListings() {
         onSearch={handleSearch}
         totalListings={listings.length}
         filteredCount={filteredAndSortedListings.length}
+        searchQuery={searchQuery}
       />
       
       {currentListings.length > 0 ? (

@@ -233,6 +233,7 @@ function ForBuyers() {
         onSearch={handleSearch}
         totalPackages={buyerPackages.length}
         filteredCount={filteredAndSortedPackages.length}
+        searchQuery={searchQuery}
       />
       
       {currentPackages.length > 0 ? (

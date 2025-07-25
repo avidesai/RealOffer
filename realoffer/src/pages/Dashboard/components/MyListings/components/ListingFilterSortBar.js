@@ -8,20 +8,26 @@ function ListingFilterSortBar({
   onSortChange, 
   onSearch, 
   totalListings = 0,
-  filteredCount = 0
+  filteredCount = 0,
+  searchQuery = ''
 }) {
   const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('recent');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [localSearchQuery, setLocalSearchQuery] = useState('');
+
+  // Sync local search query with prop
+  useEffect(() => {
+    setLocalSearchQuery(searchQuery);
+  }, [searchQuery]);
 
   // Debounce search to avoid too many calls
   useEffect(() => {
     const timer = setTimeout(() => {
-      onSearch(searchQuery);
+      onSearch(localSearchQuery);
     }, 300); // 300ms debounce
 
     return () => clearTimeout(timer);
-  }, [searchQuery, onSearch]);
+  }, [localSearchQuery, onSearch]);
 
   const handleFilterChange = (e) => {
     setFilter(e.target.value);
@@ -34,7 +40,7 @@ function ListingFilterSortBar({
   };
 
   const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
+    setLocalSearchQuery(e.target.value);
   };
 
   return (
@@ -72,7 +78,7 @@ function ListingFilterSortBar({
             type="text"
             className="lfsb-search-input"
             placeholder="Search Listings"
-            value={searchQuery}
+            value={localSearchQuery}
             onChange={handleSearchChange}
           />
         </div>
