@@ -34,6 +34,11 @@ const formatNumber = (num) => {
 const PublicFacingListing = () => {
   const { token } = useParams();
   const { user } = useAuth();
+  
+  // Debug: Log the token from URL params
+  console.log('Token from URL params:', token);
+  console.log('Token length:', token?.length);
+  console.log('Is JWT token:', token?.includes('.'));
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -370,10 +375,12 @@ const PublicFacingListing = () => {
     setError('');
 
     try {
-      const publicUrl = `${window.location.origin}/listings/public/${token}`;
+      // Use the publicUrl from the listing data instead of constructing it
+      const publicUrl = listing.publicUrl || `${window.location.origin}/listings/public/${token}`;
       console.log('Sending buyer package request with:', {
         propertyListingId: listing._id,
         publicUrl: publicUrl,
+        listingPublicUrl: listing.publicUrl,
         windowLocationOrigin: window.location.origin,
         token: token
       });
@@ -442,10 +449,12 @@ const PublicFacingListing = () => {
         throw new Error('Property listing is no longer available');
       }
 
-      const publicUrl = `${window.location.origin}/listings/public/${token}`;
+      // Use the publicUrl from the listing data instead of constructing it
+      const publicUrl = listing.publicUrl || `${window.location.origin}/listings/public/${token}`;
       console.log('Sending buyer package request (createBuyerPackage) with:', {
         propertyListingId: listing._id,
         publicUrl: publicUrl,
+        listingPublicUrl: listing.publicUrl,
         windowLocationOrigin: window.location.origin,
         token: token
       });

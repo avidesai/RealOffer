@@ -51,13 +51,25 @@ const BuyerPackageTabSection = ({ buyerPackage }) => {
     setLoading(false);
   };
 
-  const tabs = [
+  // Filter tabs based on user role - hide offers tab for buyers
+  const allTabs = [
     { id: 'docs', label: 'Documents' },
     { id: 'analysis', label: 'Analysis' },
     { id: 'activity', label: 'Activity' },
     { id: 'offers', label: 'Offers' },
     { id: 'settings', label: 'Settings' }
   ];
+
+  const tabs = buyerPackage?.userRole === 'buyer' 
+    ? allTabs.filter(tab => tab.id !== 'offers')
+    : allTabs;
+
+  // If current active tab is 'offers' but user is a buyer (offers tab is hidden), switch to 'docs'
+  useEffect(() => {
+    if (buyerPackage?.userRole === 'buyer' && activeTab === 'offers') {
+      setActiveTab('docs');
+    }
+  }, [buyerPackage?.userRole, activeTab]);
 
   return (
     <div className="tab-section">
@@ -84,7 +96,7 @@ const BuyerPackageTabSection = ({ buyerPackage }) => {
         {activeTab === 'docs' && <BuyerPackageDocuments buyerPackageId={updatedBuyerPackage._id} />}
         {activeTab === 'analysis' && <BuyerPackageAnalysis buyerPackageId={updatedBuyerPackage._id} />}
         {activeTab === 'activity' && <BuyerPackageActivity buyerPackageId={updatedBuyerPackage._id} listingId={updatedBuyerPackage.propertyListing} />}
-        {activeTab === 'offers' && <BuyerPackageOffers buyerPackageId={updatedBuyerPackage._id} />}
+        {activeTab === 'offers' && buyerPackage?.userRole !== 'buyer' && <BuyerPackageOffers buyerPackageId={updatedBuyerPackage._id} />}
         {activeTab === 'settings' && <BuyerPackageSettings buyerPackage={updatedBuyerPackage} onBuyerPackageUpdate={handleBuyerPackageUpdate} />}
       </div>
     </div>

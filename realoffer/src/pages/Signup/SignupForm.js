@@ -295,7 +295,6 @@ function SignupForm() {
             <option value="">Select your role</option>
             <option value="agent">Real Estate Agent</option>
             <option value="buyer">Buyer</option>
-            <option value="seller">Seller</option>
           </select>
           {errors.role && <div className="sup-error">{errors.role}</div>}
         </div>
