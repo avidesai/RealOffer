@@ -223,21 +223,8 @@ const UpgradeToProContent = () => {
             onError={handlePaymentError}
             couponCode={couponStatus === 'success' ? coupon : ''}
             termsAccepted={termsAccepted}
+            onTermsChange={handleTermsChange}
           />
-          <div className="upgrade-terms-row">
-            <label className="upgrade-terms-label">
-              <input type="checkbox" checked={termsAccepted} onChange={handleTermsChange} />
-              <span>I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a></span>
-            </label>
-          </div>
-          <div className="upgrade-summary">
-            <h3>{isBuyer ? "What's Included for Homebuyers" : "What's Included"}</h3>
-            <ul>
-              {proFeatures.map((f, i) => (
-                <li key={i}><CheckCircle className="upgrade-summary-check" size={16} /> {f.title}</li>
-              ))}
-            </ul>
-          </div>
         </div>
       </div>
       <Footer />

@@ -8,7 +8,8 @@ const StripePaymentForm = ({
   onSuccess, 
   onError, 
   couponCode, 
-  termsAccepted 
+  termsAccepted,
+  onTermsChange
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -171,6 +172,17 @@ const StripePaymentForm = ({
             className="upgrade-input"
             required
           />
+        </div>
+      </div>
+
+      <div className="upgrade-terms-row">
+        <div className="upgrade-terms-label">
+          <input 
+            type="checkbox" 
+            checked={termsAccepted} 
+            onChange={onTermsChange} 
+          />
+          <span>I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a></span>
         </div>
       </div>
 

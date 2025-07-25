@@ -267,15 +267,6 @@ const Activity = ({ listingId }) => {
     }
   };
 
-  // Check if user is pro - if not, show paywall
-  if (!user?.isPremium) {
-    return (
-      <div className="activity-tab">
-        <TabPaywall feature="activity" />
-      </div>
-    );
-  }
-
   if (loading) {
     return (
       <div className="activity-tab">
@@ -283,6 +274,15 @@ const Activity = ({ listingId }) => {
           <div className="spinner"></div>
           <p>Loading activities</p>
         </div>
+      </div>
+    );
+  }
+
+  // Check if user is pro - if not, show paywall
+  if (!user?.isPremium) {
+    return (
+      <div className="activity-tab">
+        <TabPaywall feature="activity" />
       </div>
     );
   }
