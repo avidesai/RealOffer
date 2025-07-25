@@ -20,7 +20,8 @@ const useProfileLogic = () => {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}`);
         setProfileData(response.data);
         setLoading(false);
-        setNoLicense(!response.data.agentLicenseNumber);
+        // Set noLicense to true for buyers, or if no license number for agents
+        setNoLicense(response.data.role === 'buyer' || !response.data.agentLicenseNumber);
       } catch (error) {
         console.error('Error fetching user data:', error);
       }

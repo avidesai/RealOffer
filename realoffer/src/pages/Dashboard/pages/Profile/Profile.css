@@ -90,6 +90,24 @@
   min-width: 0;
 }
 
+/* Single column layout for buyers (when brokerage info is hidden) */
+.profile-content.buyer-only .profile-column {
+  flex: 1 1 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Mobile spacing for buyer-only layout */
+@media (max-width: 768px) {
+  .profile-content.buyer-only .profile-column {
+    padding: 0 1rem;
+  }
+  
+  .profile-content.buyer-only {
+    padding: 0 0.5rem;
+  }
+}
+
 .profile-section {
   width: 100%;
   padding: 0;

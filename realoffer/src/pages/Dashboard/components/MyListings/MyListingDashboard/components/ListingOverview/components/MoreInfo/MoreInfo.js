@@ -12,6 +12,8 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [originalListing, setOriginalListing] = useState(null);
   const debounceTimer = useRef({});
 
   const fetchListing = useCallback(async () => {
@@ -35,6 +37,8 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
       }
       
       setListing(listingData);
+      setOriginalListing(JSON.parse(JSON.stringify(listingData))); // Deep copy for comparison
+      setHasChanges(false);
     } catch (error) {
       console.error('Error fetching listing:', error);
       setError('Failed to load property information. Please try again.');
@@ -80,6 +84,9 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
       }));
     }
 
+    // Mark that changes have been made
+    setHasChanges(true);
+
     // Clear existing timer for this field
     if (debounceTimer.current[field]) {
       clearTimeout(debounceTimer.current[field]);
@@ -122,6 +129,10 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
         // setUpdating(prev => ({ ...prev, [field]: false })); // This line was removed
       }
     }, 1000);
+  };
+
+  const handleClose = () => {
+    onClose(hasChanges);
   };
 
   // Formatting helpers
@@ -242,7 +253,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
   return (
     <Modal 
       isOpen={isOpen} 
-      onRequestClose={onClose} 
+      onRequestClose={handleClose} 
       className="more-info-modal" 
       overlayClassName="more-info-overlay"
       closeTimeoutMS={300}
@@ -250,7 +261,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
       <div className="more-info-content">
         <div className="more-info-header">
           <h2>Property Information</h2>
-          <button className="more-info-close-button" onClick={onClose}></button>
+          <button className="more-info-close-button" onClick={handleClose}></button>
         </div>
         
         {error && (

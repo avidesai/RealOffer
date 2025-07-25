@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../../context/AuthContext';
 import UpgradeHeader from './components/UpgradeHeader';
 import Footer from './components/Footer';
 import StripeWrapper from './components/StripeWrapper';
@@ -8,12 +9,19 @@ import api from '../../../../context/api';
 import './UpgradeToPro.css';
 import { CheckCircle, BarChart2, Brain, TrendingUp, Users } from 'lucide-react';
 
-// Remove Premium Communication and Priority Support features
-const proFeatures = [
+// Agent features (includes unlimited listings)
+const agentProFeatures = [
   { icon: <BarChart2 size={24} />, title: 'Advanced Analytics & Insights', desc: 'Track buyer engagement, document views, and offer activity in real time.' },
-  { icon: <Brain size={24} />, title: 'AI-Powered Document Analysis', desc: 'Instantly review disclosures and reports for key risks and insights.' },
+  { icon: <Brain size={24} />, title: 'AI Document Analysis', desc: 'Instantly review disclosures and reports for key risks and insights.' },
   { icon: <TrendingUp size={24} />, title: 'Market Intelligence & Comps', desc: 'Access up-to-date property valuations and comparable sales data.' },
   { icon: <Users size={24} />, title: 'Unlimited Active Listings', desc: 'Manage as many listings as you need—no limits, ever.' },
+];
+
+// Buyer features (no unlimited listings, more buyer-focused)
+const buyerProFeatures = [
+  { icon: <BarChart2 size={24} />, title: 'Track Buyer Activity', desc: 'Track buyer interest, document views, and offer activity on properties.' },
+  { icon: <Brain size={24} />, title: 'AI Document Analysis', desc: 'Instantly review disclosures and reports for key risks and insights.' },
+  { icon: <TrendingUp size={24} />, title: 'Market Intelligence & Comps', desc: 'Access up-to-date property valuations and comparable sales data.' },
 ];
 
 const ANNUAL_PRICE = 199;
@@ -22,6 +30,7 @@ const ANNUAL_MONTHLY_EQUIV = (ANNUAL_PRICE / 12).toFixed(2);
 const ANNUAL_SAVINGS = Math.round((1 - (ANNUAL_PRICE / (MONTHLY_PRICE * 12))) * 100); // e.g. 13%
 
 const UpgradeToProContent = () => {
+  const { user } = useAuth();
   const [plan, setPlan] = useState('annual');
   const [coupon, setCoupon] = useState('');
   const [couponStatus, setCouponStatus] = useState(null);
@@ -31,6 +40,12 @@ const UpgradeToProContent = () => {
   const [paymentError, setPaymentError] = useState('');
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const navigate = useNavigate();
+
+  // Determine if user is a buyer
+  const isBuyer = user?.role === 'buyer';
+  
+  // Select appropriate features based on user role
+  const proFeatures = isBuyer ? buyerProFeatures : agentProFeatures;
 
   const handleCouponChange = (event) => {
     setCoupon(event.target.value);
@@ -105,14 +120,21 @@ const UpgradeToProContent = () => {
     <div className="upgrade-page">
       <UpgradeHeader />
       <div className="upgrade-hero">
-        <h1 className="upgrade-hero-title">Scale You Real Estate Business</h1>
+        <h1 className="upgrade-hero-title">
+          {isBuyer ? 'Find Your Dream Home Faster' : 'Scale Your Real Estate Business'}
+        </h1>
         <p className="upgrade-hero-subtitle">
-          Supercharge your business with next level tools and insights—built for top agents.
+          {isBuyer 
+            ? 'Get exclusive access to advanced search tools and market insights—designed for serious homebuyers.'
+            : 'Supercharge your business with next level tools and insights—built for top agents.'
+          }
         </p>
       </div>
       <div className="upgrade-main-content">
         <div className="upgrade-features-card">
-          <h2 className="upgrade-features-title">Everything in Pro</h2>
+          <h2 className="upgrade-features-title">
+            {isBuyer ? 'Everything in Pro for Homebuyers' : 'Everything in Pro'}
+          </h2>
           <div className="upgrade-features-grid">
             {proFeatures.map((f, i) => (
               <div className="upgrade-feature-item" key={i}>
@@ -163,7 +185,7 @@ const UpgradeToProContent = () => {
           <div className="upgrade-coupon-row">
             <input 
               type="text" 
-              placeholder="Promo Code (Try: FREE2MONTHS)" 
+              placeholder="Promo Code" 
               value={coupon} 
               onChange={handleCouponChange} 
               className="upgrade-input coupon-input" 
@@ -209,7 +231,7 @@ const UpgradeToProContent = () => {
             </label>
           </div>
           <div className="upgrade-summary">
-            <h3>What’s Included</h3>
+            <h3>{isBuyer ? "What's Included for Homebuyers" : "What's Included"}</h3>
             <ul>
               {proFeatures.map((f, i) => (
                 <li key={i}><CheckCircle className="upgrade-summary-check" size={16} /> {f.title}</li>

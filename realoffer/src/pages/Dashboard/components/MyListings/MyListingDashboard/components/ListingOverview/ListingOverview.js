@@ -125,7 +125,7 @@ function ListingOverview({ listing }) {
             <h1 className="property-address">{currentListing.homeCharacteristics.address}</h1>
             <p className="property-location">{currentListing.homeCharacteristics.city}, {currentListing.homeCharacteristics.state} {currentListing.homeCharacteristics.zip}</p>
             <p className="property-price">${formatPrice(currentListing.homeCharacteristics.price)}<span className='space'>•</span>{currentListing.homeCharacteristics.beds} Bed, {currentListing.homeCharacteristics.baths} Bath</p>
-            <div className="overview-buttons">
+            <div className={`overview-buttons ${!currentListing.scheduleShowingUrl ? 'three-buttons' : ''}`}>
               <button className="overview-btn-share-package" onClick={() => setShowShareModal(true)}>Share</button>
               <button className="overview-btn" onClick={() => setShowGallery(true)}>Images</button>
               {currentListing.scheduleShowingUrl && (
@@ -158,9 +158,11 @@ function ListingOverview({ listing }) {
         {showMoreInfo && (
           <MoreInfo
             isOpen={showMoreInfo}
-            onClose={() => {
+            onClose={(hasChanges) => {
               setShowMoreInfo(false);
-              handleRefreshListing();
+              if (hasChanges) {
+                handleRefreshListing();
+              }
             }}
             listingId={currentListing._id}
           />

@@ -74,36 +74,48 @@ function DashboardHeader({ activeTab, setActiveTab }) {
           src={logo}
           alt="RealOffer Logo"
           className="header-logo"
-          onClick={() => handleTabClick('listings')}
+          onClick={() => {
+            if (userData?.role !== 'buyer') {
+              handleTabClick('listings');
+            }
+          }}
         />
         <nav className="header-nav-mobile">
+          {userData?.role !== 'buyer' && (
+            <button
+              onClick={() => handleTabClick('listings')}
+              className={`header-nav-btn ${activeTab === 'listings' ? 'active' : ''}`}
+            >
+              My{'\n'}Listings
+            </button>
+          )}
+          {userData?.role !== 'buyer' && (
+            <button
+              onClick={() => handleTabClick('buyers')}
+              className={`header-nav-btn ${activeTab === 'buyers' ? 'active' : ''}`}
+            >
+              For{'\n'}Buyers
+            </button>
+          )}
+        </nav>
+      </div>
+      <nav className="header-nav">
+        {userData?.role !== 'buyer' && (
           <button
             onClick={() => handleTabClick('listings')}
             className={`header-nav-btn ${activeTab === 'listings' ? 'active' : ''}`}
           >
-            My{'\n'}Listings
+            My Listings
           </button>
+        )}
+        {userData?.role !== 'buyer' && (
           <button
             onClick={() => handleTabClick('buyers')}
             className={`header-nav-btn ${activeTab === 'buyers' ? 'active' : ''}`}
           >
-            For{'\n'}Buyers
+            For Buyers
           </button>
-        </nav>
-      </div>
-      <nav className="header-nav">
-        <button
-          onClick={() => handleTabClick('listings')}
-          className={`header-nav-btn ${activeTab === 'listings' ? 'active' : ''}`}
-        >
-          My Listings
-        </button>
-        <button
-          onClick={() => handleTabClick('buyers')}
-          className={`header-nav-btn ${activeTab === 'buyers' ? 'active' : ''}`}
-        >
-          For Buyers
-        </button>
+        )}
       </nav>
       <div className="header-actions">
         {userData && !userData.isPremium && (

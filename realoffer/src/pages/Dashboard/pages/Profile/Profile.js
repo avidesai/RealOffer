@@ -44,10 +44,10 @@ const Profile = () => {
       <div className="profile-background">
         <div className="profile-container">
           <h2 className="profile-title">Profile</h2>
-          <div className="profile-content">
+          <div className={`profile-content ${profileData.role === 'buyer' ? 'buyer-only' : ''}`}>
             {/* Agent Information Column */}
             <div className="profile-column agent-info">
-              <h3>Agent Information</h3>
+              <h3>{profileData.role === 'buyer' ? 'Buyer Information' : 'Agent Information'}</h3>
               {/* Profile Photo */}
               <div className="form-group">
                 <label htmlFor="profilePhotoUrl" className='photo-text'>Profile Photo</label>
@@ -135,27 +135,29 @@ const Profile = () => {
                 </div>
                 {updating.email && <div className="input-spinner"></div>}
               </div>
-              {/* Agent License Number */}
-              <div className="form-group">
-                <label htmlFor="agentLicenseNumber">License Number</label>
-                <input
-                  type="text"
-                  id="agentLicenseNumber"
-                  value={profileData.agentLicenseNumber || ''}
-                  onChange={handleInputChange}
-                  disabled={noLicense}
-                  className="form-control"
-                />
-                {updating.agentLicenseNumber && <div className="input-spinner"></div>}
-                <label className="profile-checkbox-label">
+              {/* Agent License Number - Hidden for buyers */}
+              {profileData.role !== 'buyer' && (
+                <div className="form-group">
+                  <label htmlFor="agentLicenseNumber">License Number</label>
                   <input
-                    type="checkbox"
-                    checked={noLicense}
-                    onChange={handleCheckboxChange}
+                    type="text"
+                    id="agentLicenseNumber"
+                    value={profileData.agentLicenseNumber || ''}
+                    onChange={handleInputChange}
+                    disabled={noLicense}
+                    className="form-control"
                   />
-                  I do not have a real estate license number
-                </label>
-              </div>
+                  {updating.agentLicenseNumber && <div className="input-spinner"></div>}
+                  <label className="profile-checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={noLicense}
+                      onChange={handleCheckboxChange}
+                    />
+                    I do not have a real estate license number
+                  </label>
+                </div>
+              )}
               {/* Phone Number */}
               <div className="form-group">
                 <label htmlFor="phone">Phone Number</label>
@@ -212,9 +214,10 @@ const Profile = () => {
                 {updating.homepage && <div className="input-spinner"></div>}
               </div>
             </div>
-            {/* Brokerage Information Column */}
-            <div className="profile-column brokerage-info">
-              <h3>Brokerage Information</h3>
+            {/* Brokerage Information Column - Hidden for buyers */}
+            {profileData.role !== 'buyer' && (
+              <div className="profile-column brokerage-info">
+                <h3>Brokerage Information</h3>
               {/* Agency Photo */}
               <div className="form-group">
                 <label htmlFor="agencyImage" className='photo-text'>Agency Photo</label>
@@ -319,6 +322,7 @@ const Profile = () => {
                 {updating.agencyWebsite && <div className="input-spinner"></div>}
               </div>
             </div>
+            )}
           </div>
           <EditEmailModal isOpen={isEmailModalOpen} onClose={() => setEmailModalOpen(false)} />
         </div>
