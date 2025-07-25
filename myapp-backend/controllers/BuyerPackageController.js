@@ -25,10 +25,33 @@ exports.createBuyerPackage = async (req, res) => {
     }
 
     // Verify the property listing exists and is accessible via the public URL
-    const propertyListing = await PropertyListing.findOne({ 
+    console.log('Looking for property listing with:', { propertyListingId, publicUrl });
+    console.log('FRONTEND_URL env var:', process.env.FRONTEND_URL);
+    
+    // First try to find by ID and publicUrl
+    let propertyListing = await PropertyListing.findOne({ 
       _id: propertyListingId, 
       publicUrl: publicUrl 
     });
+    
+    // If not found, try to find by ID only and check if the URL format matches
+    if (!propertyListing) {
+      console.log('Property listing not found with exact URL match. Trying to find by ID only...');
+      const listingById = await PropertyListing.findOne({ _id: propertyListingId });
+      if (listingById) {
+        console.log('Listing exists but URL mismatch. Stored URL:', listingById.publicUrl);
+        console.log('Requested URL:', publicUrl);
+        
+        // Extract the token from both URLs and compare
+        const storedToken = listingById.publicUrl.split('/').pop();
+        const requestedToken = publicUrl.split('/').pop();
+        
+        if (storedToken === requestedToken) {
+          console.log('Tokens match, accepting the request despite URL format difference');
+          propertyListing = listingById;
+        }
+      }
+    }
     
     if (!propertyListing) {
       return res.status(404).json({ 

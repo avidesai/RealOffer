@@ -370,6 +370,14 @@ const PublicFacingListing = () => {
     setError('');
 
     try {
+      const publicUrl = `${window.location.origin}/listings/public/${token}`;
+      console.log('Sending buyer package request with:', {
+        propertyListingId: listing._id,
+        publicUrl: publicUrl,
+        windowLocationOrigin: window.location.origin,
+        token: token
+      });
+      
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages`, {
         method: 'POST',
         headers: { 
@@ -378,7 +386,7 @@ const PublicFacingListing = () => {
         },
         body: JSON.stringify({
           propertyListingId: listing._id,
-          publicUrl: `${window.location.origin}/listings/public/${token}`,
+          publicUrl: publicUrl,
           userRole: user.role || 'buyer', // Default to buyer if role not set
           userInfo: {
             name: `${user.firstName} ${user.lastName}`,
@@ -434,6 +442,14 @@ const PublicFacingListing = () => {
         throw new Error('Property listing is no longer available');
       }
 
+      const publicUrl = `${window.location.origin}/listings/public/${token}`;
+      console.log('Sending buyer package request (createBuyerPackage) with:', {
+        propertyListingId: listing._id,
+        publicUrl: publicUrl,
+        windowLocationOrigin: window.location.origin,
+        token: token
+      });
+      
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages`, {
         method: 'POST',
         headers: { 
@@ -442,7 +458,7 @@ const PublicFacingListing = () => {
         },
         body: JSON.stringify({
           propertyListingId: listing._id,
-          publicUrl: `${window.location.origin}/listings/public/${token}`,
+          publicUrl: publicUrl,
           userRole: formData.role,
           userInfo: {
             name: `${formData.firstName} ${formData.lastName}`,
