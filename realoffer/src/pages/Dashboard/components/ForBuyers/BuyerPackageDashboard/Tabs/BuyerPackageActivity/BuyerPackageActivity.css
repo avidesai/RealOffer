@@ -371,6 +371,54 @@
   transform: rotate(180deg);
 }
 
+.user-role-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+.role-badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.role-badge:hover {
+  opacity: 1;
+}
+
+.role-badge.agent {
+  background: rgba(0, 123, 255, 0.08);
+  color: #007bff;
+  border: 1px solid rgba(0, 123, 255, 0.12);
+}
+
+.role-badge.buyer {
+  background: rgba(40, 167, 69, 0.08);
+  color: #28a745;
+  border: 1px solid rgba(40, 167, 69, 0.12);
+}
+
+.role-badge.seller {
+  background: rgba(255, 193, 7, 0.08);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.12);
+}
+
+.role-badge.admin {
+  background: rgba(220, 53, 69, 0.08);
+  color: #dc3545;
+  border: 1px solid rgba(220, 53, 69, 0.12);
+}
+
 .activity-user-activities {
   background: #fff;
   animation: slideDown 0.3s ease-out;
@@ -517,9 +565,9 @@
     padding: 1.5rem 1rem;
     position: relative;
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr auto auto;
     grid-template-rows: auto auto;
-    gap: 0.75rem 1rem;
+    gap: 0.5rem 0.75rem; /* Reduced from 0.75rem 1rem */
     align-items: center;
   }
   
@@ -536,6 +584,7 @@
     grid-row: 1 / 3;
     grid-column: 2;
     min-width: 0;
+    margin-left: 0; /* Remove any left margin */
   }
   
   .user-info h3 {
@@ -558,9 +607,20 @@
     align-items: center;
   }
   
-  .expand-arrow {
+  .user-role-indicator {
     grid-row: 1 / 3;
     grid-column: 3;
+    margin-right: 0.25rem; /* Reduced from 0.5rem */
+  }
+  
+  .role-badge {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.4rem;
+  }
+  
+  .expand-arrow {
+    grid-row: 1 / 3;
+    grid-column: 4;
     position: static;
     margin: 0;
     padding: 0.75rem;
@@ -635,7 +695,7 @@
 @media (max-width: 480px) {
   .activity-user-header {
     padding: 1.25rem 0.75rem;
-    gap: 0.5rem 0.75rem;
+    gap: 0.4rem 0.5rem; /* Reduced from 0.5rem 0.75rem */
   }
   
   .activity-user-header .activity-avatar {
@@ -660,6 +720,15 @@
   .expand-arrow {
     padding: 0.6rem;
     min-width: 55px;
+  }
+  
+  .user-role-indicator {
+    margin-right: 0.2rem; /* Reduced from 0.4rem */
+  }
+  
+  .role-badge {
+    font-size: 0.6rem;
+    padding: 0.15rem 0.3rem;
   }
   
   .expand-text {
