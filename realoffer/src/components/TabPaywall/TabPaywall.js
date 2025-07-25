@@ -18,21 +18,19 @@ const TabPaywall = ({ feature, variant = 'analysis' }) => {
           icon: <TrendingUp size={32} />,
           benefits: [
             { icon: <TrendingUp size={16} />, text: "Real-time property valuations and market analysis" },
-            { icon: <BarChart2 size={16} />, text: "Comprehensive comparable sales data and insights" },
-            { icon: <Calculator size={16} />, text: "Rental income estimates and investment analysis" },
-            { icon: <DollarSign size={16} />, text: "Price range analysis and market trends" }
+            { icon: <BarChart2 size={16} />, text: "Comparable sales data and insights" },
+            { icon: <Calculator size={16} />, text: "Rental income estimates for investment analysis" },
           ]
         };
       case 'activity':
         return {
           title: "Advanced Activity Tracking",
-          description: "Monitor buyer engagement, document views, and listing activity to understand interest levels.",
+          description: "Get real-time insights into listing activity and buyer interest to make informed decisions.",
           icon: <ActivityIcon size={32} />,
           benefits: [
-            { icon: <Eye size={16} />, text: "Track who views listings and when" },
-            { icon: <Download size={16} />, text: "Monitor document downloads and engagement" },
-            { icon: <MessageSquare size={16} />, text: "See buyer interest and communication patterns" },
-            { icon: <BarChart3 size={16} />, text: "Analyze listing performance and optimize strategy" }
+            { icon: <Eye size={16} />, text: "See who is viewing your listings and track viewing patterns" },
+            { icon: <Download size={16} />, text: "Monitor document downloads and offer activity" },
+            { icon: <BarChart3 size={16} />, text: "Analyze listing performance and optimize your strategy" }
           ]
         };
       case 'ai-analysis':

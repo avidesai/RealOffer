@@ -60,7 +60,7 @@
   font-size: 1.1rem;
   font-weight: 600;
   color: #1a1a1a;
-  margin: 0 0 1.25rem 0;
+  margin: 0 0 1.5rem 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -69,43 +69,59 @@
 
 .tab-paywall-benefits-title::before {
   content: "✨";
-  font-size: 1rem;
+  font-size: 1.2rem;
 }
 
 .tab-paywall-benefits-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .tab-paywall-benefit {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: #f8fafd;
-  border-radius: 8px;
-  border: 1px solid #e7e7e7;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #f8fafd 0%, #f1f5f9 100%);
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
   text-align: left;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.tab-paywall-benefit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
 }
 
 .tab-paywall-benefit-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: #1b5cf3;
-  border-radius: 6px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #1b5cf3 0%, #4078fb 100%);
+  border-radius: 10px;
   color: white;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(27, 92, 243, 0.25);
+  transition: all 0.2s ease;
+}
+
+.tab-paywall-benefit:hover .tab-paywall-benefit-icon {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(27, 92, 243, 0.35);
 }
 
 .tab-paywall-benefit-text {
-  font-size: 0.9rem;
-  color: #333;
-  line-height: 1.4;
+  font-size: 0.95rem;
+  color: #374151;
+  line-height: 1.5;
   font-weight: 500;
+  flex: 1;
 }
 
 .tab-paywall-cta {
@@ -113,7 +129,7 @@
 }
 
 .tab-paywall-button {
-  background: linear-gradient(135deg, #1b5cf3 0%, #4078fb 100%);
+  background: linear-gradient(135deg, #9b2ae2 0%, #4078fb 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -126,6 +142,7 @@
 }
 
 .tab-paywall-button:hover {
+  background: linear-gradient(135deg, #8423c1 0%, #3460c8 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(27, 92, 243, 0.4);
 }

@@ -31,7 +31,7 @@ const ANNUAL_SAVINGS = Math.round((1 - (ANNUAL_PRICE / (MONTHLY_PRICE * 12))) * 
 
 const UpgradeToProContent = () => {
   const { user } = useAuth();
-  const [plan, setPlan] = useState('annual');
+  const [plan, setPlan] = useState(user?.role === 'buyer' ? 'monthly' : 'annual');
   const [coupon, setCoupon] = useState('');
   const [couponStatus, setCouponStatus] = useState(null);
   const [couponLoading, setCouponLoading] = useState(false);
@@ -121,11 +121,11 @@ const UpgradeToProContent = () => {
       <UpgradeHeader />
       <div className="upgrade-hero">
         <h1 className="upgrade-hero-title">
-          {isBuyer ? 'Find Your Dream Home Faster' : 'Scale Your Real Estate Business'}
+          {isBuyer ? 'Get Your Dream Home Faster' : 'Scale Your Real Estate Business'}
         </h1>
         <p className="upgrade-hero-subtitle">
           {isBuyer 
-            ? 'Get exclusive access to advanced search tools and market insights—designed for serious homebuyers.'
+            ? 'Get exclusive access to advanced tools and listing insights—designed for serious homebuyers.'
             : 'Supercharge your business with next level tools and insights—built for top agents.'
           }
         </p>

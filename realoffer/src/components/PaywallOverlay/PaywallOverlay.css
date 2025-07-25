@@ -173,7 +173,7 @@
 }
 
 .paywall-upgrade-button {
-  background: linear-gradient(135deg, #1b5cf3 0%, #4078fb 100%);
+  background: linear-gradient(135deg, #9b2ae2 0%, #4078fb 100%);
   color: white;
   border: none;
   padding: 1rem 2rem;
@@ -204,6 +204,7 @@
 }
 
 .paywall-upgrade-button:hover {
+  background: linear-gradient(135deg, #8423c1 0%, #3460c8 100%);
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(27, 92, 243, 0.4);
 }
