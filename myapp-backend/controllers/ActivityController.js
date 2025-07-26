@@ -4,6 +4,7 @@ const Activity = require('../models/Activity');
 const PropertyListing = require('../models/PropertyListing');
 const BuyerPackage = require('../models/BuyerPackage');
 const Offer = require('../models/Offer');
+const User = require('../models/User');
 
 exports.getActivities = async (req, res) => {
   try {
@@ -41,13 +42,23 @@ exports.getActivities = async (req, res) => {
     }
 
     const activities = await Activity.find(query)
-      .populate('user', 'firstName lastName email profilePhotoUrl role phone agentLicenseNumber brokerageLicenseNumber agencyName agencyAddressLine1 agencyAddressLine2')
       .populate('documentModified', 'title url')
       .populate('propertyListing', 'homeCharacteristics')
       .populate('buyerPackage', 'userInfo')
       .sort({ timestamp: -1 });
+
+    // Get fresh user data for each activity to ensure we have the latest profile information
+    const activitiesWithFreshUserData = await Promise.all(
+      activities.map(async (activity) => {
+        const freshUserData = await User.findById(activity.user, 'firstName lastName email profilePhotoUrl role phone agentLicenseNumber brokerageLicenseNumber agencyName agencyAddressLine1 agencyAddressLine2');
+        return {
+          ...activity.toObject(),
+          user: freshUserData
+        };
+      })
+    );
     
-    res.status(200).json(activities);
+    res.status(200).json(activitiesWithFreshUserData);
   } catch (error) {
     console.error('Error fetching activities:', error);
     res.status(500).json({ message: error.message });
