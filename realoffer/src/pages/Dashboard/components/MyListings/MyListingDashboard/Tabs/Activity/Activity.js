@@ -417,13 +417,14 @@ const Activity = ({ listingId }) => {
                     })()}
                   </div>
                 </div>
-                {userGroup.user?.role && (
-                  <div className="user-role-indicator">
-                    <span className={`role-badge ${userGroup.user.role}`}>
-                      {userGroup.user.role === 'agent' ? 'Agent' : 'Buyer'}
-                    </span>
-                  </div>
-                )}
+                {/* Debug: Always show badge and log user data */}
+                <div className="user-role-indicator">
+                  <span className={`role-badge ${userGroup.user?.role || 'buyer'}`}>
+                    {userGroup.user?.role === 'agent' ? 'Agent' : 'Buyer'}
+                  </span>
+                </div>
+                {/* Debug: Log user data */}
+                {console.log('User data:', userGroup.user)}
                 <div className="expand-arrow">
                   <span className="expand-text">
                     {expandedUsers.has(userGroup.userId) ? 'Collapse' : 'Expand'}

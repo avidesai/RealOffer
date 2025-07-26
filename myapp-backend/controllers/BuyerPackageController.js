@@ -144,7 +144,7 @@ exports.getUserBuyerPackages = async (req, res) => {
       user: req.user.id
     })
     .populate('propertyListing', 'homeCharacteristics imagesUrls status publicUrl agentIds')
-    .populate('user', 'firstName lastName email profilePhotoUrl')
+    .populate('user', 'firstName lastName email profilePhotoUrl role')
     .sort({ updatedAt: -1 });
 
     res.status(200).json(buyerPackages);
@@ -165,7 +165,7 @@ exports.getBuyerPackage = async (req, res) => {
       user: req.user.id
     })
     .populate('propertyListing')
-    .populate('user', 'firstName lastName email profilePhotoUrl');
+    .populate('user', 'firstName lastName email profilePhotoUrl role');
 
     if (!buyerPackage) {
       return res.status(404).json({ message: 'Buyer package not found' });
