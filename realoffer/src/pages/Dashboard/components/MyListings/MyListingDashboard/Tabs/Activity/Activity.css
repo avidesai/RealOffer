@@ -345,7 +345,7 @@
   padding: 0.75rem;
   border-radius: 8px;
   cursor: pointer;
-  background: #f8f9fa;
+  background: #ffffff;
   border: 1px solid #e9ecef;
   min-width: 60px;
 }
@@ -428,7 +428,7 @@
   padding: 0.75rem;
   border: 1px solid #e9ecef;
   border-radius: 8px;
-  background: #f8f9fa;
+  background: #ffffff;
   color: #6c757d;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -771,7 +771,7 @@
     padding: 0.75rem;
     border: 1px solid #e9ecef;
     border-radius: 8px;
-    background: #f8f9fa;
+    background: #ffffff;
     color: #6c757d;
     min-width: 60px;
     width: 100%;
@@ -830,7 +830,7 @@
     padding: 0.5rem;
     border: 1px solid #e9ecef;
     border-radius: 8px;
-    background: #f8f9fa;
+    background: #ffffff;
     color: #6c757d;
     min-width: 50px;
     width: 100%;

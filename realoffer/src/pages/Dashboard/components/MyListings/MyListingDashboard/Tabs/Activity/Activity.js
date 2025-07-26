@@ -436,13 +436,13 @@ const Activity = ({ listingId }) => {
                 </div>
                 <div className="user-role-indicator">
                   {userGroup.user?.role === 'agent' && (
-                    <button 
-                      className="contact-info-button"
-                      onClick={(e) => handleContactInfoClick(e, userGroup.user)}
-                      title="View contact information"
-                    >
-                      Contact
-                    </button>
+                                <button
+              className="contact-info-button"
+              onClick={(e) => handleContactInfoClick(e, userGroup.user)}
+              title="View contact information"
+            >
+              Contact Info
+            </button>
                   )}
                 </div>
                 <div className="expand-arrow">
