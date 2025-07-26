@@ -1,35 +1,37 @@
 /* ContactInfoModal.css */
 
-.contact-info-modal-overlay {
+.cim-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
   backdrop-filter: blur(4px);
+  padding: 1rem;
 }
 
-.contact-info-modal-content {
-  background: white;
-  border-radius: 16px;
-  width: 480px;
-  max-width: 90%;
+.cim-content {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 500px;
+  max-width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   position: relative;
-  animation: modalFadeIn 0.3s ease;
+  animation: cimSlideIn 0.3s ease-out;
+  border: 1px solid #e2e8f0;
 }
 
-@keyframes modalFadeIn {
+@keyframes cimSlideIn {
   from {
     opacity: 0;
-    transform: scale(0.95) translateY(10px);
+    transform: scale(0.95) translateY(-20px);
   }
   to {
     opacity: 1;
@@ -37,24 +39,26 @@
   }
 }
 
-.contact-info-modal-header {
+.cim-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-  padding: 2rem 2rem 0 2rem;
+  padding: 1.5rem 1.5rem 1.5rem 1.5rem;
+  margin-bottom: 0;
+  position: relative;
 }
 
-.contact-info-modal-header h2 {
+.cim-header h2 {
   margin: 0;
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 600;
-  color: #2d3748;
+  color: #1e293b;
+  letter-spacing: -0.025em;
 }
 
-.contact-info-close-button {
+.cim-close-button {
   position: absolute;
-  top: 1.5rem;
+  top: 1rem;
   right: 1.5rem;
   background: #ffffff;
   border: 1px solid #e0e0e0;
@@ -69,15 +73,16 @@
   color: #666;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  z-index: 10;
 }
 
-.contact-info-close-button:hover {
+.cim-close-button:hover {
   color: #ffffff;
   background-color: #e74c3c;
   box-shadow: 0 6px 16px rgba(231, 76, 60, 0.2);
 }
 
-.contact-info-close-button:before {
+.cim-close-button:before {
   content: '×';
   font-weight: 300;
   display: inline-block;
@@ -85,130 +90,140 @@
   line-height: 1;
 }
 
-.contact-info-modal-body {
-  padding: 0 2rem 1.5rem 2rem;
+.cim-body {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+  margin-top: 0;
 }
 
-.agent-info-section {
+.cim-agent-section {
   display: flex;
   gap: 1.5rem;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 1rem;
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }
 
-.agent-avatar-section {
+.cim-avatar-section {
   flex-shrink: 0;
 }
 
-.agent-avatar {
+.cim-avatar {
   width: 80px;
   height: 80px;
-  border-radius: 50%;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 2rem;
   color: white;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+  border: 2px solid #ffffff;
 }
 
-.agent-avatar img {
+.cim-avatar img {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
+  border-radius: 12px;
   object-fit: cover;
 }
 
-.agent-details-section {
+.cim-details-section {
   flex: 1;
   min-width: 0;
 }
 
-.agent-name {
+.cim-agent-name {
   margin: 0 0 1rem 0;
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   font-weight: 600;
-  color: #2d3748;
+  color: #1e293b;
+  line-height: 1.4;
 }
 
-.contact-info-item {
+.cim-info-item {
   display: flex;
   flex-direction: column;
   margin-bottom: 0.75rem;
 }
 
-.contact-label {
-  font-size: 0.875rem;
+.cim-info-item:last-child {
+  margin-bottom: 0;
+}
+
+.cim-label {
+  font-size: 0.75rem;
   font-weight: 500;
-  color: #6c757d;
+  color: #64748b;
   margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.contact-value {
-  font-size: 1rem;
-  color: #2d3748;
+.cim-value {
+  font-size: 0.875rem;
+  color: #1e293b;
   font-weight: 500;
+  line-height: 1.4;
+  word-break: break-word;
 }
 
-.agency-info-section {
-  padding-top: 0.5rem;
-}
-
-.agency-name {
-  margin: 0 0 1rem 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #2d3748;
-}
-
-.contact-info-modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  padding: 1.5rem 2rem 2rem 2rem;
-  border-top: 1px solid #e2e8f0;
-}
-
-.contact-info-close-btn {
-  background-color: #4299e1;
-  color: white;
-  padding: 0.625rem 1.75rem;
-  border: none;
+.cim-agency-section {
+  padding: 1.5rem;
+  background: #f8fafc;
   border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  border: 1px solid #e2e8f0;
 }
 
-.contact-info-close-btn:hover {
-  background-color: #3182ce;
-  transform: translateY(-1px);
+.cim-agency-name {
+  margin: 0 0 1rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.4;
 }
 
 /* Responsive adjustments */
 @media (max-width: 640px) {
-  .contact-info-modal-content {
-    width: 95%;
-    margin: 1rem;
+  .cim-overlay {
+    padding: 0.5rem;
   }
   
-  .agent-info-section {
+  .cim-content {
+    width: 100%;
+    max-height: 95vh;
+  }
+  
+  .cim-agent-section {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    gap: 1rem;
   }
   
-  .agent-avatar {
+  .cim-avatar {
     width: 70px;
     height: 70px;
     font-size: 1.75rem;
   }
   
-  .contact-info-modal-header,
-  .contact-info-modal-body,
-  .contact-info-modal-footer {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+  .cim-header,
+  .cim-body {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  
+  .cim-header h2 {
+    font-size: 1.125rem;
+  }
+  
+  .cim-agent-name {
+    font-size: 1rem;
+  }
+  
+  .cim-agency-name {
+    font-size: 0.875rem;
   }
 } 

@@ -22,56 +22,56 @@ const ContactInfoModal = ({ isOpen, onClose, agent }) => {
   const agencyAddress = [agent.agencyAddressLine1, agent.agencyAddressLine2].filter(Boolean).join(', ');
 
   return (
-    <div className="contact-info-modal-overlay">
-      <div className="contact-info-modal-content">
-        <div className="contact-info-modal-header">
+    <div className="cim-overlay">
+      <div className="cim-content">
+        <div className="cim-header">
           <h2>Contact Information</h2>
-          <button className="contact-info-close-button" onClick={onClose}></button>
+          <button className="cim-close-button" onClick={onClose}></button>
         </div>
-        <div className="contact-info-modal-body">
-          <div className="agent-info-section">
-            <div className="agent-avatar-section">
+        <div className="cim-body">
+          <div className="cim-agent-section">
+            <div className="cim-avatar-section">
               <Avatar 
                 src={agent.profilePhotoUrl}
                 firstName={agent.firstName}
                 lastName={agent.lastName}
                 size="large"
-                className="agent-avatar"
+                className="cim-avatar"
                 alt={fullName}
               />
             </div>
-            <div className="agent-details-section">
-              <h3 className="agent-name">{fullName}</h3>
-              <div className="contact-info-item">
-                <span className="contact-label">Email:</span>
-                <span className="contact-value">{agent.email}</span>
+            <div className="cim-details-section">
+              <h3 className="cim-agent-name">{fullName}</h3>
+              <div className="cim-info-item">
+                <span className="cim-label">Email:</span>
+                <span className="cim-value">{agent.email}</span>
               </div>
               {agent.phone && (
-                <div className="contact-info-item">
-                  <span className="contact-label">Phone:</span>
-                  <span className="contact-value">{formatPhoneNumber(agent.phone)}</span>
+                <div className="cim-info-item">
+                  <span className="cim-label">Phone:</span>
+                  <span className="cim-value">{formatPhoneNumber(agent.phone)}</span>
                 </div>
               )}
               {agent.agentLicenseNumber && (
-                <div className="contact-info-item">
-                  <span className="contact-label">Agent License:</span>
-                  <span className="contact-value">{agent.agentLicenseNumber}</span>
+                <div className="cim-info-item">
+                  <span className="cim-label">Agent License:</span>
+                  <span className="cim-value">{agent.agentLicenseNumber}</span>
                 </div>
               )}
             </div>
           </div>
-          <div className="agency-info-section">
-            <h4 className="agency-name">{agencyName}</h4>
+          <div className="cim-agency-section">
+            <h4 className="cim-agency-name">{agencyName}</h4>
             {agencyAddress && (
-              <div className="contact-info-item">
-                <span className="contact-label">Address:</span>
-                <span className="contact-value">{agencyAddress}</span>
+              <div className="cim-info-item">
+                <span className="cim-label">Address:</span>
+                <span className="cim-value">{agencyAddress}</span>
               </div>
             )}
             {agent.brokerageLicenseNumber && (
-              <div className="contact-info-item">
-                <span className="contact-label">Broker License:</span>
-                <span className="contact-value">{agent.brokerageLicenseNumber}</span>
+              <div className="cim-info-item">
+                <span className="cim-label">Broker License:</span>
+                <span className="cim-value">{agent.brokerageLicenseNumber}</span>
               </div>
             )}
           </div>

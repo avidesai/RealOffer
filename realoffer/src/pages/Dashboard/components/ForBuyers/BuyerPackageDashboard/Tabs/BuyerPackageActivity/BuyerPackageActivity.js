@@ -159,9 +159,7 @@ const BuyerPackageActivity = ({ buyerPackageId, listingId }) => {
       };
     });
 
-    return processedUserGroups.sort((a, b) => 
-      new Date(b.lastActivity.timestamp) - new Date(a.lastActivity.timestamp)
-    );
+    return processedUserGroups;
   }, []);
 
   const toggleUserExpansion = useCallback((userId) => {
