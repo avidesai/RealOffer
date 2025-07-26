@@ -6,6 +6,7 @@ import { useAuth } from '../../../../../../../context/AuthContext';
 import ActivitySortBar from './components/ActivitySortBar/ActivitySortBar';
 import TabPaywall from '../../../../../../../components/TabPaywall/TabPaywall';
 import Avatar from '../../../../../../../components/Avatar/Avatar';
+import ContactInfoModal from './components/ContactInfoModal/ContactInfoModal';
 import './Activity.css';
 
 const Activity = ({ listingId }) => {
@@ -20,6 +21,8 @@ const Activity = ({ listingId }) => {
   const [loading, setLoading] = useState(true);
   const [activitiesLoaded, setActivitiesLoaded] = useState(false);
   const [statsLoaded, setStatsLoaded] = useState(false);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState(null);
 
   const fetchActivityStats = useCallback(async () => {
     try {
@@ -49,6 +52,7 @@ const Activity = ({ listingId }) => {
         }
       });
       const activitiesData = response.data;
+      console.log('Activities data received:', activitiesData);
       setActivities(activitiesData);
       setActivitiesLoaded(true);
     } catch (error) {
@@ -159,6 +163,18 @@ const Activity = ({ listingId }) => {
       }
       return newSet;
     });
+  }, []);
+
+  const handleContactInfoClick = useCallback((e, agent) => {
+    e.stopPropagation(); // Prevent triggering the expand/collapse
+    console.log('Agent data when opening modal:', agent);
+    setSelectedAgent(agent);
+    setContactModalOpen(true);
+  }, []);
+
+  const handleCloseContactModal = useCallback(() => {
+    setContactModalOpen(false);
+    setSelectedAgent(null);
   }, []);
 
   useEffect(() => {
@@ -417,14 +433,20 @@ const Activity = ({ listingId }) => {
                     })()}
                   </div>
                 </div>
-                {/* Debug: Always show badge and log user data */}
                 <div className="user-role-indicator">
                   <span className={`role-badge ${userGroup.user?.role || 'buyer'}`}>
                     {userGroup.user?.role === 'agent' ? 'Agent' : 'Buyer'}
                   </span>
+                  {userGroup.user?.role === 'agent' && (
+                    <button 
+                      className="contact-info-button"
+                      onClick={(e) => handleContactInfoClick(e, userGroup.user)}
+                      title="View contact information"
+                    >
+                      Contact
+                    </button>
+                  )}
                 </div>
-                {/* Debug: Log user data */}
-                {console.log('User data:', userGroup.user)}
                 <div className="expand-arrow">
                   <span className="expand-text">
                     {expandedUsers.has(userGroup.userId) ? 'Collapse' : 'Expand'}
@@ -487,6 +509,11 @@ const Activity = ({ listingId }) => {
           ))
         )}
       </div>
+      <ContactInfoModal 
+        isOpen={contactModalOpen}
+        onClose={handleCloseContactModal}
+        agent={selectedAgent}
+      />
     </div>
   );
 };

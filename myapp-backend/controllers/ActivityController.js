@@ -41,7 +41,7 @@ exports.getActivities = async (req, res) => {
     }
 
     const activities = await Activity.find(query)
-      .populate('user', 'firstName lastName email profilePhotoUrl role')
+      .populate('user', 'firstName lastName email profilePhotoUrl role phone agentLicenseNumber brokerageLicenseNumber agencyName agencyAddressLine1 agencyAddressLine2')
       .populate('documentModified', 'title url')
       .populate('propertyListing', 'homeCharacteristics')
       .populate('buyerPackage', 'userInfo')
@@ -77,7 +77,7 @@ exports.createActivity = async (req, res) => {
     
     // Populate the saved activity for response
     const populatedActivity = await Activity.findById(savedActivity._id)
-      .populate('user', 'firstName lastName email profilePhotoUrl role')
+      .populate('user', 'firstName lastName email profilePhotoUrl role phone agentLicenseNumber brokerageLicenseNumber agencyName agencyAddressLine1 agencyAddressLine2')
       .populate('documentModified', 'title url')
       .populate('propertyListing', 'homeCharacteristics')
       .populate('buyerPackage', 'userInfo');

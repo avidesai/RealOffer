@@ -203,6 +203,7 @@ input[type="email"]:focus,
   color: #495057;
   cursor: pointer;
   user-select: none;
+  margin-top: 0.75rem;
 }
 
 .profile-checkbox-label input[type="checkbox"] {
