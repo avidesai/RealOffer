@@ -248,7 +248,7 @@
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   overflow: hidden;
   transition: all 0.3s ease;
 }
@@ -286,14 +286,11 @@
 }
 
 .user-info h3 {
-  margin: 0;
+  margin: 0 0 0.25rem 0;
   font-size: 1.1rem;
   font-weight: 600;
   color: #1e293b;
   line-height: 1.3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .user-info p {
@@ -301,6 +298,10 @@
   font-size: 0.875rem;
   color: #64748b;
   font-weight: 500;
+}
+
+.role-badge-container {
+  margin-bottom: 0.25rem;
 }
 
 .user-activity-counts {
@@ -380,15 +381,16 @@
 }
 
 .role-badge {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 500;
-  padding: 0.25rem 0.5rem;
-  border-radius: 6px;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.02em;
   white-space: nowrap;
   opacity: 0.8;
   transition: opacity 0.2s ease;
+  flex-shrink: 0;
 }
 
 .role-badge:hover {
@@ -567,7 +569,7 @@
     display: grid;
     grid-template-columns: auto 1fr auto auto;
     grid-template-rows: auto auto;
-    gap: 0.5rem 0.75rem; /* Reduced from 0.75rem 1rem */
+    gap: 0.5rem 1.25rem; /* Increased horizontal gap even more */
     align-items: center;
   }
   
@@ -589,7 +591,7 @@
   
   .user-info h3 {
     font-size: 1.1rem;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.25rem 0;
     line-height: 1.2;
   }
   
@@ -597,7 +599,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    margin: 0;
+    margin: 0.25rem 0 0 0;
   }
   
   .activity-count-item {
@@ -611,6 +613,8 @@
     grid-row: 1 / 3;
     grid-column: 3;
     margin-right: 0.25rem; /* Reduced from 0.5rem */
+    display: flex;
+    align-items: center;
   }
   
   .role-badge {
@@ -692,38 +696,75 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .activity-user-header {
-    padding: 1.25rem 0.75rem;
-    gap: 0.4rem 0.5rem; /* Reduced from 0.5rem 0.75rem */
+    flex-wrap: wrap;
+    padding: 1rem;
+    gap: 0.75rem;
   }
   
-  .activity-user-header .activity-avatar {
-    width: 44px;
-    height: 44px;
+  .user-info {
+    flex: 1;
+    min-width: 0;
   }
   
   .user-info h3 {
     font-size: 1rem;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
+    gap: 0.4rem;
   }
   
   .user-activity-counts {
-    gap: 0.2rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .activity-count-item {
+    font-size: 0.85rem;
+  }
+  
+  .expand-arrow {
+    order: 2;
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .activity-user-header {
+    padding: 1rem 0.75rem;
+    gap: 0.5rem;
+  }
+  
+  .activity-user-header .activity-avatar {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .user-info h3 {
+    font-size: 0.95rem;
+    margin-bottom: 0.4rem;
+    gap: 0.3rem;
+  }
+  
+  .user-activity-counts {
+    gap: 0.4rem;
   }
   
   .activity-count-item {
     font-size: 0.8rem;
-    gap: 0.3rem;
+    gap: 0.25rem;
+  }
+  
+  .activity-count-item svg {
+    width: 10px;
+    height: 10px;
   }
   
   .expand-arrow {
-    padding: 0.6rem;
-    min-width: 55px;
-  }
-  
-  .user-role-indicator {
-    margin-right: 0.2rem; /* Reduced from 0.4rem */
+    padding: 0.5rem;
+    min-width: 50px;
   }
   
   .role-badge {
@@ -732,12 +773,12 @@
   }
   
   .expand-text {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
   }
   
   .expand-arrow svg {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     margin-left: 0.2rem;
   }
   
@@ -797,53 +838,86 @@
 
 @media (max-width: 767px) {
   .activity-tab {
-    padding: 0rem 0.25rem 1rem 0.25rem;
+    padding: 0.5rem 0.25rem 1rem 0.25rem;
   }
 
   .activity-stats {
     flex-direction: column;
     gap: 1rem;
-    padding: 1.5rem 1rem;
+    padding: 1.25rem 1rem;
+    border-radius: 12px;
   }
 
   .activity-stat {
+    min-width: auto;
+    padding: 1rem;
     flex-direction: row;
     justify-content: flex-start;
-    text-align: left;
     gap: 1rem;
-    min-width: auto;
+    text-align: left;
   }
 
   .stat-icon {
     width: 40px;
     height: 40px;
+    border-radius: 10px;
     margin-bottom: 0;
+    flex-shrink: 0;
   }
 
   .stat-number {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     margin-bottom: 0;
   }
 
   .stat-label {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+    text-transform: none;
+    font-weight: 500;
   }
 
   .activity-list {
-    padding: 1rem;
+    padding: 0.75rem;
+  }
+
+  .activity-user-group {
+    margin-bottom: 1rem;
   }
 
   .activity-item {
     padding: 0.75rem;
+    margin-bottom: 0.5rem;
   }
 
   .activity-header {
     flex-direction: column;
+    gap: 0.5rem;
     align-items: flex-start;
-    gap: 0.25rem;
+  }
+  
+  .activity-date {
+    margin-left: 0;
+    font-size: 0.8rem;
+    color: #666;
   }
 
-  .activity-date {
-    font-size: 0.8rem;
+  .activity-user-activities {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .activity-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .activity-icon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .activity-content {
+    flex: 1;
+    min-width: 0;
   }
 } 

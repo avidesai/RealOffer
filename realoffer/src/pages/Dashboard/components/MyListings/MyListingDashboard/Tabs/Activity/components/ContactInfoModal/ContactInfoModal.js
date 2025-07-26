@@ -17,9 +17,6 @@ const formatPhoneNumber = (phoneNumber) => {
 const ContactInfoModal = ({ isOpen, onClose, agent }) => {
   if (!isOpen || !agent) return null;
 
-  // Debug: Log the agent data to see what's available
-  console.log('Agent data in modal:', agent);
-
   const fullName = `${agent.firstName || ''} ${agent.lastName || ''}`.trim();
   const agencyName = agent.agencyName || 'Independent Agent';
   const agencyAddress = [agent.agencyAddressLine1, agent.agencyAddressLine2].filter(Boolean).join(', ');

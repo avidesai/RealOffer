@@ -383,6 +383,13 @@ const BuyerPackageActivity = ({ buyerPackageId, listingId }) => {
                 />
                 <div className="user-info">
                   <h3>{getUserName(userGroup.user)}</h3>
+                  <div className="role-badge-container">
+                    {userGroup.user?.role && (
+                      <span className={`role-badge ${userGroup.user.role}`}>
+                        {userGroup.user.role === 'agent' ? 'Agent' : 'Buyer'}
+                      </span>
+                    )}
+                  </div>
                   <div className="user-activity-counts">
                     {(() => {
                       const viewCount = userGroup.activities
@@ -432,13 +439,7 @@ const BuyerPackageActivity = ({ buyerPackageId, listingId }) => {
                     })()}
                   </div>
                 </div>
-                {userGroup.user?.role && (
-                  <div className="user-role-indicator">
-                    <span className={`role-badge ${userGroup.user.role}`}>
-                      {userGroup.user.role === 'agent' ? 'Agent' : 'Buyer'}
-                    </span>
-                  </div>
-                )}
+
                 <div className="expand-arrow">
                   <span className="expand-text">
                     {expandedUsers.has(userGroup.userId) ? 'Collapse' : 'Expand'}

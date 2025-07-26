@@ -52,7 +52,6 @@ const Activity = ({ listingId }) => {
         }
       });
       const activitiesData = response.data;
-      console.log('Activities data received:', activitiesData);
       setActivities(activitiesData);
       setActivitiesLoaded(true);
     } catch (error) {
@@ -167,7 +166,6 @@ const Activity = ({ listingId }) => {
 
   const handleContactInfoClick = useCallback((e, agent) => {
     e.stopPropagation(); // Prevent triggering the expand/collapse
-    console.log('Agent data when opening modal:', agent);
     setSelectedAgent(agent);
     setContactModalOpen(true);
   }, []);
@@ -384,6 +382,11 @@ const Activity = ({ listingId }) => {
                 />
                 <div className="user-info">
                   <h3>{getUserName(userGroup.user)}</h3>
+                  <div className="role-badge-container">
+                    <span className={`role-badge ${userGroup.user?.role || 'buyer'}`}>
+                      {userGroup.user?.role === 'agent' ? 'Agent' : 'Buyer'}
+                    </span>
+                  </div>
                   <div className="user-activity-counts">
                     {(() => {
                       const viewCount = userGroup.activities
@@ -434,9 +437,6 @@ const Activity = ({ listingId }) => {
                   </div>
                 </div>
                 <div className="user-role-indicator">
-                  <span className={`role-badge ${userGroup.user?.role || 'buyer'}`}>
-                    {userGroup.user?.role === 'agent' ? 'Agent' : 'Buyer'}
-                  </span>
                   {userGroup.user?.role === 'agent' && (
                     <button 
                       className="contact-info-button"
