@@ -58,7 +58,18 @@ const BuyerPackageActivity = ({ buyerPackageId, listingId }) => {
 
   const fetchActivities = useCallback(async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/activities?buyerPackageId=${buyerPackageId}`, {
+      // Extract the listing ID - it could be either a string ID or an object with _id
+      const actualListingId = typeof listingId === 'string' ? listingId : listingId?._id;
+      
+      if (!actualListingId) {
+        console.error('No listing ID available for activities');
+        setActivitiesLoaded(true); // Mark as loaded to prevent infinite loading
+        return;
+      }
+
+      console.log('Fetching activities for listingId:', actualListingId);
+
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/activities?listingId=${actualListingId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -70,7 +81,7 @@ const BuyerPackageActivity = ({ buyerPackageId, listingId }) => {
       console.error('Error fetching activities:', error);
       setActivitiesLoaded(true); // Mark as loaded even on error to prevent infinite loading
     }
-  }, [buyerPackageId, token]);
+  }, [listingId, token]);
 
   useEffect(() => {
     const loadData = async () => {
