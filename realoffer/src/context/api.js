@@ -58,13 +58,18 @@ api.interceptors.response.use(
         url: error.config.url
       });
       
-      // Handle 401 errors
+      // Handle 401 errors - but don't redirect for login attempts
       if (error.response.status === 401) {
         console.error('Unauthorized - Token may be invalid or expired');
-        // You might want to trigger a logout here
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        
+        // Only redirect if this is not a login request
+        const isLoginRequest = error.config.url?.includes('/api/users/login');
+        if (!isLoginRequest) {
+          // You might want to trigger a logout here
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        }
       }
     } else if (error.request) {
       console.error('Request error - No response received:', error.request);
