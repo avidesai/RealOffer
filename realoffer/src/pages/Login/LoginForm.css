@@ -94,11 +94,13 @@
 
 .log-input-invalid {
   border-color: #dc3545;
+  background-color: #fff5f5;
 }
 
 .log-input-invalid:focus {
   border-color: #dc3545;
   box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+  background-color: #fff5f5;
 }
 
 .log-error {
@@ -106,6 +108,15 @@
   font-size: 0.875rem;
   margin-top: 0.5rem;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.log-error::before {
+  content: "⚠";
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 .log-button {
@@ -140,6 +151,21 @@
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+}
+
+.log-help-text {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid #6c757d;
+}
+
+.log-help-text p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #6c757d;
+  line-height: 1.4;
 }
 
 .log-password-field {

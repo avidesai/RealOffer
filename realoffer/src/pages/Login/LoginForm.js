@@ -26,10 +26,11 @@ function LoginForm() {
       [name]: value
     }));
     // Clear specific field errors and general error when user starts typing
-    setErrors(prevErrors => ({
-      ...prevErrors,
-      [name]: ''
-    }));
+    clearErrors();
+  };
+
+  const clearErrors = () => {
+    setErrors({});
     setGeneralError('');
   };
 
@@ -64,6 +65,24 @@ function LoginForm() {
     const errorMessage = error.response.data?.message?.toLowerCase() || '';
 
     switch (status) {
+      case 400:
+        // Bad request - validation errors
+        if (errorMessage.includes('email') && errorMessage.includes('required')) {
+          return {
+            type: 'email',
+            message: 'Email address is required'
+          };
+        } else if (errorMessage.includes('password') && errorMessage.includes('required')) {
+          return {
+            type: 'password',
+            message: 'Password is required'
+          };
+        } else {
+          return {
+            type: 'validation',
+            message: 'Please check your information and try again'
+          };
+        }
       case 401:
         // Unauthorized - could be invalid credentials
         if (errorMessage.includes('email') || errorMessage.includes('user not found')) {
@@ -110,6 +129,8 @@ function LoginForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    
     if (!validateForm()) return;
     
     setIsLoading(true);
@@ -158,6 +179,13 @@ function LoginForm() {
     }
   };
 
+  const handleKeyDown = (e) => {
+    // Prevent form submission on Enter if there are validation errors
+    if (e.key === 'Enter' && (Object.keys(errors).length > 0 || generalError)) {
+      e.preventDefault();
+    }
+  };
+
   return (
     <div className="log-form">
       <h1 className="log-title">Log In</h1>
@@ -171,7 +199,7 @@ function LoginForm() {
           {generalError}
         </div>
       )}
-      <form onSubmit={handleSubmit} className="log-form-inner">
+      <form onSubmit={handleSubmit} className="log-form-inner" onKeyDown={handleKeyDown}>
         <div className="log-form-group">
           <label htmlFor="email" className="log-label">Email</label>
           <input
@@ -211,6 +239,11 @@ function LoginForm() {
         <button type="submit" className="log-button" disabled={isLoading}>
           {isLoading ? 'Logging in...' : 'Log In'}
         </button>
+        {(Object.keys(errors).length > 0 || generalError) && (
+          <div className="log-help-text">
+            <p>Having trouble logging in? Check that your email and password are correct, and that Caps Lock is off.</p>
+          </div>
+        )}
       </form>
       <div className="log-footer">
         <p>Need an account? <Link to="/signup">Sign Up</Link></p>

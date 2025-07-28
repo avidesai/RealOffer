@@ -33,10 +33,11 @@ function SignupForm() {
       [name]: type === 'radio' ? checked : value
     }));
     // Clear specific field errors and general error when user starts typing
-    setErrors(prevErrors => ({
-      ...prevErrors,
-      [name]: ''
-    }));
+    clearErrors();
+  };
+
+  const clearErrors = () => {
+    setErrors({});
     setGeneralError('');
   };
 
@@ -155,6 +156,8 @@ function SignupForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    
     if (!validateForm()) return;
 
     setIsLoading(true);
@@ -198,6 +201,13 @@ function SignupForm() {
     }
   };
 
+  const handleKeyDown = (e) => {
+    // Prevent form submission on Enter if there are validation errors
+    if (e.key === 'Enter' && (Object.keys(errors).length > 0 || generalError)) {
+      e.preventDefault();
+    }
+  };
+
   return (
     <div className="sup-form">
       <h1 className="sup-title">Create Account</h1>
@@ -211,7 +221,7 @@ function SignupForm() {
           {generalError}
         </div>
       )}
-      <form onSubmit={handleSubmit} className="sup-form-inner">
+      <form onSubmit={handleSubmit} className="sup-form-inner" onKeyDown={handleKeyDown}>
         <div className="sup-form-row">
           <div className="sup-form-group">
             <label htmlFor="firstName" className="sup-label">First Name</label>

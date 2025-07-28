@@ -106,7 +106,14 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Login error:', error.response?.data || error.message);
-      throw new Error(error.response?.data?.message || 'Login failed. Please try again.');
+      
+      // Create a more detailed error object for better handling
+      const enhancedError = new Error();
+      enhancedError.message = error.response?.data?.message || 'Login failed. Please try again.';
+      enhancedError.response = error.response;
+      enhancedError.status = error.response?.status;
+      
+      throw enhancedError;
     }
   };
 

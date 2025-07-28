@@ -145,6 +145,13 @@ const PublicFacingListing = () => {
     if (error) setError('');
   };
 
+  const handleKeyDown = (e) => {
+    // Prevent form submission on Enter if there are validation errors
+    if (e.key === 'Enter' && error) {
+      e.preventDefault();
+    }
+  };
+
   const checkUserExists = async (email) => {
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/check-email`, {
@@ -167,6 +174,7 @@ const PublicFacingListing = () => {
 
   const handleInitialSubmit = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
     
     // If user is already logged in, check if they're the listing agent
     if (user) {
@@ -215,6 +223,7 @@ const PublicFacingListing = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
     
     if (!formData.password) {
       setError('Please enter your password.');
@@ -257,11 +266,42 @@ const PublicFacingListing = () => {
         // User is not the listing agent, create buyer package
         await createBuyerPackage(userId, data.token);
       } else {
-        setError(data.message || 'Invalid email or password. Please try again.');
+        // Parse error message for better user experience
+        const errorMessage = data.message?.toLowerCase() || '';
+        
+        if (response.status === 400) {
+          if (errorMessage.includes('email') && errorMessage.includes('required')) {
+            setError('Email address is required');
+          } else if (errorMessage.includes('password') && errorMessage.includes('required')) {
+            setError('Password is required');
+          } else {
+            setError('Please check your information and try again');
+          }
+        } else if (response.status === 401) {
+          if (errorMessage.includes('email') || errorMessage.includes('user not found')) {
+            setError('No account found with this email address');
+          } else if (errorMessage.includes('password') || errorMessage.includes('invalid credentials')) {
+            setError('Incorrect password. Please try again.');
+          } else {
+            setError('Invalid email or password. Please check your credentials and try again.');
+          }
+        } else if (response.status === 429) {
+          setError('Too many login attempts. Please wait a few minutes and try again.');
+        } else if (response.status === 500) {
+          setError('Server error. Please try again later.');
+        } else {
+          setError(data.message || 'Login failed. Please try again.');
+        }
       }
     } catch (error) {
       console.error('Login error:', error);
-      setError('Login failed. Please try again.');
+      
+      // Handle network errors
+      if (!error.response) {
+        setError('Unable to connect to server. Please check your internet connection and try again.');
+      } else {
+        setError('Login failed. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -269,6 +309,7 @@ const PublicFacingListing = () => {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
     
     if (!formData.firstName || !formData.lastName || !formData.password || !formData.confirmPassword) {
       setError('Please fill in all required fields.');
@@ -656,7 +697,7 @@ const PublicFacingListing = () => {
           <h2>Welcome back!</h2>
           <p>Please enter your password to access this listing.</p>
           {error && <p className="pfl-error">{error}</p>}
-          <form className="pfl-inquiry-form" onSubmit={handleLogin}>
+          <form className="pfl-inquiry-form" onSubmit={handleLogin} onKeyDown={handleKeyDown}>
             <div className="pfl-form-group">
               <label htmlFor="password">Password</label>
               <input
@@ -693,7 +734,7 @@ const PublicFacingListing = () => {
           <h2>Create your account</h2>
           <p>Complete your registration to access this listing.</p>
           {error && <p className="pfl-error">{error}</p>}
-          <form className="pfl-inquiry-form" onSubmit={handleSignup}>
+          <form className="pfl-inquiry-form" onSubmit={handleSignup} onKeyDown={handleKeyDown}>
             <div className="pfl-form-group">
               <label htmlFor="password">Password</label>
               <input
@@ -806,7 +847,7 @@ const PublicFacingListing = () => {
 
         {error && <p className="pfl-error">{error}</p>}
         
-        <form className="pfl-inquiry-form" onSubmit={handleInitialSubmit}>
+        <form className="pfl-inquiry-form" onSubmit={handleInitialSubmit} onKeyDown={handleKeyDown}>
           <div className="pfl-form-row">
             <div className="pfl-form-group">
               <label htmlFor="firstName">First Name</label>
