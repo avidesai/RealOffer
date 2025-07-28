@@ -85,12 +85,20 @@ function LoginForm() {
         }
       case 401:
         // Unauthorized - could be invalid credentials
-        if (errorMessage.includes('email') || errorMessage.includes('user not found')) {
+        // Handle generic "Invalid email or password" messages
+        if (errorMessage.includes('invalid email or password') || 
+            errorMessage.includes('invalid credentials') ||
+            errorMessage.includes('email or password')) {
+          return {
+            type: 'credentials',
+            message: 'Invalid email or password. Please check your credentials and try again.'
+          };
+        } else if (errorMessage.includes('email') && errorMessage.includes('not found')) {
           return {
             type: 'email',
             message: 'No account found with this email address'
           };
-        } else if (errorMessage.includes('password') || errorMessage.includes('invalid credentials')) {
+        } else if (errorMessage.includes('password') && !errorMessage.includes('email')) {
           return {
             type: 'password',
             message: 'Incorrect password. Please try again.'
@@ -142,7 +150,7 @@ function LoginForm() {
       console.log('Login response:', userData);
       
       if (userData && (userData._id || userData.id)) {
-        setSuccessMessage('Log In Successful');
+        setSuccessMessage('Logged in successfully');
         setTimeout(() => navigate('/dashboard'), 1500);
       } else {
         throw new Error('User data is incomplete');
@@ -160,10 +168,7 @@ function LoginForm() {
           setErrors({ password: parsedError.message });
           break;
         case 'credentials':
-          setErrors({ 
-            email: 'Please check your email address',
-            password: 'Please check your password'
-          });
+          setGeneralError(parsedError.message);
           break;
         case 'network':
         case 'server':
@@ -239,11 +244,6 @@ function LoginForm() {
         <button type="submit" className="log-button" disabled={isLoading}>
           {isLoading ? 'Logging in...' : 'Log In'}
         </button>
-        {(Object.keys(errors).length > 0 || generalError) && (
-          <div className="log-help-text">
-            <p>Having trouble logging in? Check that your email and password are correct, and that Caps Lock is off.</p>
-          </div>
-        )}
       </form>
       <div className="log-footer">
         <p>Need an account? <Link to="/signup">Sign Up</Link></p>
