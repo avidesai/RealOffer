@@ -162,14 +162,9 @@ const PDFViewerLogic = ({ fileUrl, docTitle, docType, onClose, buyerPackageId })
       }
     }
 
-    // Actually download the file
+    // Open the document in a new tab
     if (fileUrl) {
-      const link = document.createElement('a');
-      link.href = fileUrl;
-      link.download = docTitle || 'document.pdf';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      window.open(fileUrl, '_blank', 'noopener,noreferrer');
     }
   }, [fileUrl, docTitle, buyerPackageId, token]);
 

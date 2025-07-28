@@ -120,26 +120,12 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
         }
       });
 
-      // Actually download the file
-      const link = document.createElement('a');
-      link.href = `${doc.thumbnailUrl}?${doc.sasToken}`;
-      link.download = doc.title || 'document.pdf';
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Open the document in a new tab
+      window.open(`${doc.thumbnailUrl}?${doc.sasToken}`, '_blank', 'noopener,noreferrer');
     } catch (error) {
       console.error('Error recording download:', error);
-      // Still download the file even if tracking fails
-      const link = document.createElement('a');
-      link.href = `${doc.thumbnailUrl}?${doc.sasToken}`;
-      link.download = doc.title || 'document.pdf';
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Still open the file even if tracking fails
+      window.open(`${doc.thumbnailUrl}?${doc.sasToken}`, '_blank', 'noopener,noreferrer');
     }
   };
 
