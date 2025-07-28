@@ -53,6 +53,7 @@ const PublicFacingListing = () => {
     password: '',
     confirmPassword: '',
     agentLicenseNumber: '', // Add license number field
+    hasAgent: null, // Add hasAgent field for buyers
   });
   
   // UI state
@@ -135,10 +136,10 @@ const PublicFacingListing = () => {
   }, [token, user]);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === 'radio' ? checked : value,
     }));
     // Clear error when user starts typing
     if (error) setError('');
@@ -280,6 +281,12 @@ const PublicFacingListing = () => {
       return;
     }
 
+    // Validate hasAgent for buyers
+    if (formData.role === 'buyer' && formData.hasAgent === null) {
+      setError('Please indicate whether you have an agent or not.');
+      return;
+    }
+
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters long.');
       return;
@@ -305,6 +312,7 @@ const PublicFacingListing = () => {
           password: formData.password,
           role: formData.role,
           agentLicenseNumber: formData.role === 'agent' ? formData.agentLicenseNumber : '',
+          hasAgent: formData.role === 'buyer' ? formData.hasAgent : null,
         }),
       });
       
@@ -404,7 +412,7 @@ const PublicFacingListing = () => {
       });
       
       if (response.ok) {
-        const data = await response.json();
+        await response.json(); // Consume the response
         
         // Show success state
         setFormStep('success');
@@ -727,6 +735,37 @@ const PublicFacingListing = () => {
                   required
                   autoComplete="off"
                 />
+              </div>
+            )}
+            {formData.role === 'buyer' && (
+              <div className="pfl-form-group">
+                <label>Do you have a real estate agent?</label>
+                <div className="pfl-radio-group">
+                  <label className="pfl-radio-label">
+                    <input
+                      type="radio"
+                      name="hasAgent"
+                      value="true"
+                      checked={formData.hasAgent === true}
+                      onChange={handleInputChange}
+                      className="pfl-radio-input"
+                    />
+                    <span className="pfl-radio-custom"></span>
+                    <span className="pfl-radio-text">Yes, I have an agent</span>
+                  </label>
+                  <label className="pfl-radio-label">
+                    <input
+                      type="radio"
+                      name="hasAgent"
+                      value="false"
+                      checked={formData.hasAgent === false}
+                      onChange={handleInputChange}
+                      className="pfl-radio-input"
+                    />
+                    <span className="pfl-radio-custom"></span>
+                    <span className="pfl-radio-text">No, I don't have an agent</span>
+                  </label>
+                </div>
               </div>
             )}
             <button type="submit" className="pfl-request-button" disabled={isLoading}>

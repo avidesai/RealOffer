@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema({
     receiveMarketingMaterials: { type: Boolean, default: false },
     isPremium: { type: Boolean, default: false },
     premiumPlan: { type: String, default: '' },
+    hasAgent: { type: Boolean, default: null }, // New field for buyers to indicate if they have an agent
     templates: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ListingTemplate', default: [] }],
     contacts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
     listingPackages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'PropertyListing', default: [] }],

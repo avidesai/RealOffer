@@ -102,6 +102,15 @@ const Profile = () => {
                   {capitalize(profileData.role)}
                 </div>
               </div>
+              {/* Agent Status for Buyers */}
+              {profileData.role === 'buyer' && profileData.hasAgent !== null && (
+                <div className="form-group">
+                  <label>Agent Status</label>
+                  <div className="role-display">
+                    {profileData.hasAgent ? 'I have an agent' : 'I don\'t have an agent'}
+                  </div>
+                </div>
+              )}
               {/* First Name */}
               <div className="form-group">
                 <label htmlFor="firstName">First Name</label>

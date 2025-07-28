@@ -16,6 +16,7 @@ function SignupForm() {
     confirmPassword: '',
     role: '',
     agentLicenseNumber: '', // Add license number field
+    hasAgent: null, // Add hasAgent field for buyers
   });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -26,10 +27,10 @@ function SignupForm() {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: value
+      [name]: type === 'radio' ? checked : value
     }));
     // Clear specific field errors and general error when user starts typing
     setErrors(prevErrors => ({
@@ -85,6 +86,11 @@ function SignupForm() {
     // Validate license number for agents
     if (formData.role === 'agent' && !formData.agentLicenseNumber.trim()) {
       newErrors.agentLicenseNumber = 'License number is required for real estate agents';
+    }
+
+    // Validate hasAgent for buyers
+    if (formData.role === 'buyer' && formData.hasAgent === null) {
+      newErrors.hasAgent = 'Please indicate whether you have an agent or not';
     }
 
     setErrors(newErrors);
@@ -311,6 +317,38 @@ function SignupForm() {
               placeholder="Enter your real estate license number"
             />
             {errors.agentLicenseNumber && <div className="sup-error">{errors.agentLicenseNumber}</div>}
+          </div>
+        )}
+        {formData.role === 'buyer' && (
+          <div className="sup-form-group">
+            <label className="sup-label">Do you have a real estate agent?</label>
+            <div className="sup-radio-group">
+              <label className="sup-radio-label">
+                <input
+                  type="radio"
+                  name="hasAgent"
+                  value="true"
+                  checked={formData.hasAgent === true}
+                  onChange={handleChange}
+                  className="sup-radio-input"
+                />
+                <span className="sup-radio-custom"></span>
+                <span className="sup-radio-text">Yes, I have an agent</span>
+              </label>
+              <label className="sup-radio-label">
+                <input
+                  type="radio"
+                  name="hasAgent"
+                  value="false"
+                  checked={formData.hasAgent === false}
+                  onChange={handleChange}
+                  className="sup-radio-input"
+                />
+                <span className="sup-radio-custom"></span>
+                <span className="sup-radio-text">No, I don't have an agent</span>
+              </label>
+            </div>
+            {errors.hasAgent && <div className="sup-error">{errors.hasAgent}</div>}
           </div>
         )}
         <button type="submit" className="sup-button" disabled={isLoading}>

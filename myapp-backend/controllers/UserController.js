@@ -61,7 +61,7 @@ exports.getUserWithListingPackages = async (req, res) => {
 };
 
 exports.createUser = async (req, res) => {
-    const { firstName, lastName, email, password, role, agentLicenseNumber } = req.body;
+    const { firstName, lastName, email, password, role, agentLicenseNumber, hasAgent } = req.body;
     
     try {
         // Validate required fields
@@ -100,6 +100,13 @@ exports.createUser = async (req, res) => {
             });
         }
 
+        // Validate hasAgent field for buyers
+        if (role === 'buyer' && hasAgent === undefined) {
+            return res.status(400).json({ 
+                message: 'Please indicate whether you have an agent or not' 
+            });
+        }
+
         // Check if user already exists
         const existingUser = await User.findOne({ email: email.toLowerCase() });
         if (existingUser) {
@@ -115,6 +122,7 @@ exports.createUser = async (req, res) => {
             password,
             role,
             agentLicenseNumber: agentLicenseNumber ? agentLicenseNumber.trim() : '',
+            hasAgent: role === 'buyer' ? hasAgent : null, // Only set hasAgent for buyers
             profilePhotoUrl: '',
             isActive: false,
             emailConfirmed: false,
@@ -155,6 +163,7 @@ exports.createUser = async (req, res) => {
             lastName: savedUser.lastName,
             email: savedUser.email,
             role: savedUser.role,
+            hasAgent: savedUser.hasAgent,
             isPremium: savedUser.isPremium,
             createdAt: savedUser.createdAt
         };
