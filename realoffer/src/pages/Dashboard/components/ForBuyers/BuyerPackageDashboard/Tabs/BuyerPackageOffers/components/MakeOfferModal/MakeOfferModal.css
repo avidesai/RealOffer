@@ -98,97 +98,178 @@
 
 .offer-modal-header p {
   color: #666;
-  font-size: 1.1rem;
+  font-size: 1rem;
   line-height: 1.5;
+  margin: 0;
 }
 
 .modal-step {
-  margin-bottom: 2rem;
+  padding: 0;
 }
 
 .form-group {
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.5rem;
 }
 
 .form-group label {
   display: block;
+  margin-bottom: 0.5rem;
   font-weight: 500;
-  margin-bottom: 0.75rem;
-  color: #333;
-  font-size: 1rem;
+  color: #1a1a1a;
+  font-size: 0.95rem;
 }
 
 .form-group input,
-.form-group textarea,
 .form-group select {
   width: 100%;
-  padding: 0.875rem 1rem;
-  border: 1px solid #dee2e6;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 1rem;
-  box-sizing: border-box;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease;
   background-color: #fff;
 }
 
 .form-group input:focus,
-.form-group textarea:focus,
 .form-group select:focus {
-  border-color: #4a90e2;
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
   outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  min-height: 100px;
   resize: vertical;
-  min-height: 120px;
-  max-height: 300px;
-  line-height: 1.5;
+  font-family: inherit;
+}
+
+/* Amount Input Styles */
+.amount-input {
+  margin-bottom: 1.5rem;
+}
+
+.amount-input-container {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.amount-input-container:focus-within {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.amount-input-field {
+  flex: 1;
+}
+
+.amount-input-field input {
+  border: none;
+  border-radius: 0;
+  padding: 0.75rem;
+  font-size: 1rem;
+  width: 100%;
+  background-color: #fff;
+}
+
+.amount-input-field input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.amount-input-toggle {
+  display: flex;
+  border-left: 1px solid #ddd;
+}
+
+.toggle-btn {
+  padding: 0.75rem 1rem;
+  border: none;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-btn:hover {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.toggle-btn.active {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.toggle-btn:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.toggle-btn:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.amount-preview {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-style: italic;
 }
 
 .button-container {
   display: flex;
   justify-content: space-between;
-  margin-top: 2.5rem;
+  align-items: center;
+  margin-top: 2rem;
   gap: 1rem;
 }
 
 .step-back-button,
 .next-button {
-  color: #ffffff;
-  padding: 1rem 1.5rem;
-  font-size: 1.1rem;
-  font-weight: 500;
+  padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
-  width: 48%;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  transition: all 0.2s ease;
+  min-width: 100px;
 }
 
 .step-back-button {
-  background-color: #a0a4aa;
+  background-color: #f8f9fa;
+  color: #6c757d;
 }
 
 .next-button {
-  background-color: #4a90e2;
+  background-color: #007bff;
+  color: #fff;
 }
 
 .step-back-button:hover {
-  background-color: #888b92;
+  background-color: #e9ecef;
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .next-button:hover {
-  background-color: #357abd;
+  background-color: #0056b3;
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .offer-close-button {
@@ -226,94 +307,104 @@
 }
 
 .calculated-values {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  border: 1px solid #eaeaea;
-  border-radius: 12px;
   background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-top: 1.5rem;
+  border-left: 4px solid #007bff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .calculated-values p {
   margin: 0.75rem 0;
   color: #495057;
-  font-size: 1rem;
-  line-height: 1.5;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.calculated-values p:first-child {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e9ecef;
 }
 
 .calculated-values strong {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 1.1rem;
   color: #1a1a1a;
+  font-weight: 600;
+  font-size: 1.1rem;
 }
 
 .special-terms {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  line-height: 1.6;
+  margin-top: 1rem;
 }
 
 .contingency {
-  font-weight: 600;
-  color: #1a1a1a;
+  margin-bottom: 1rem;
 }
 
 .form-group-horizontal {
   display: flex;
-  align-items: center;
   gap: 1rem;
+  align-items: end;
 }
 
 .form-input-left {
-  width: 35%;
+  flex: 2;
 }
 
 .form-select-right {
-  width: 65%;
+  flex: 1;
 }
 
 .summary-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
 }
 
 .summary-item {
-  background-color: #f8f9fa;
-  padding: 1.5rem;
-  border-radius: 12px;
-  border: 1px solid #eaeaea;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
 }
 
 .summary-item h3 {
-  font-size: 1.25rem;
-  margin-bottom: 1.25rem;
+  font-size: 1rem;
   color: #1a1a1a;
+  margin-bottom: 0.5rem;
   font-weight: 600;
 }
 
 .summary-item p {
-  margin: 0.75rem 0;
-  color: #495057;
-  line-height: 1.5;
+  color: #666;
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
 }
 
 .summary-item ul {
-  list-style-type: none;
-  padding-left: 0;
-  margin: 0;
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
 }
 
 .summary-item ul li {
-  background-color: #ffffff;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  margin-bottom: 0.75rem;
-  border: 1px solid #eaeaea;
-  color: #495057;
+  color: #666;
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
 }
 
 .description-label {
-  font-weight: 500;
-  color: #1a1a1a;
-  margin-right: 0.5rem;
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+  font-style: italic;
 }
