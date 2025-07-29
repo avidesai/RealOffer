@@ -11,7 +11,6 @@ import './BuyerPackageTabSection.css';
 const BuyerPackageTabSection = ({ buyerPackage }) => {
   const { token } = useAuth();
   const [activeTab, setActiveTab] = useState('docs');
-  const [loading, setLoading] = useState(false);
   const [updatedBuyerPackage, setUpdatedBuyerPackage] = useState(buyerPackage);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -36,7 +35,6 @@ const BuyerPackageTabSection = ({ buyerPackage }) => {
   };
 
   const handleBuyerPackageUpdate = async (buyerPackageId) => {
-    setLoading(true);
     try {
       // Fetch the updated buyer package with authentication - don't track view on refresh
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/${buyerPackageId}?trackView=false`, {
@@ -48,7 +46,6 @@ const BuyerPackageTabSection = ({ buyerPackage }) => {
     } catch (error) {
       console.error('Error fetching updated buyer package:', error);
     }
-    setLoading(false);
   };
 
   // Filter tabs based on user role - hide offers tab for buyers
@@ -73,11 +70,6 @@ const BuyerPackageTabSection = ({ buyerPackage }) => {
 
   return (
     <div className="tab-section">
-      {loading && (
-        <div className="spinner-overlay">
-          <div className="spinner"></div>
-        </div>
-      )}
       <div className="tab-navigation">
         {tabs.map((tab) => (
           <button

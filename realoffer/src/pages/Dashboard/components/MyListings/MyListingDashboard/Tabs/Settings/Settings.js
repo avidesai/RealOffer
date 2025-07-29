@@ -7,14 +7,12 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../../../../../context/AuthContext'; // Import useAuth hook
 
 const Settings = ({ listing, onStatusChange }) => {
-  const [loading, setLoading] = useState(false);
   const [isConfirmingArchive, setIsConfirmingArchive] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [confirmationTimeout, setConfirmationTimeout] = useState(null);
   const [error, setError] = useState('');
   const [showActivityStatsToBuyers, setShowActivityStatsToBuyers] = useState(false);
   const [showActivityDetailsToBuyers, setShowActivityDetailsToBuyers] = useState(false);
-  const [activitySettingsLoading, setActivitySettingsLoading] = useState(false);
   const navigate = useNavigate();
   const { token } = useAuth(); // Get the token from AuthContext
 
@@ -27,7 +25,6 @@ const Settings = ({ listing, onStatusChange }) => {
   }, [listing]);
 
   const handleActivitySettingsUpdate = async (newStatsSetting, newDetailsSetting) => {
-    setActivitySettingsLoading(true);
     setError('');
     try {
       await axios.put(
@@ -43,6 +40,11 @@ const Settings = ({ listing, onStatusChange }) => {
         }
       );
       console.log('Activity settings updated');
+      
+      // Notify parent component to refresh listing data
+      if (onStatusChange) {
+        await onStatusChange(listing._id, listing.status);
+      }
     } catch (error) {
       console.error('Error updating activity settings:', error);
       setError('Failed to update activity settings. Please try again.');
@@ -50,7 +52,6 @@ const Settings = ({ listing, onStatusChange }) => {
       setShowActivityStatsToBuyers(listing.showActivityStatsToBuyers || false);
       setShowActivityDetailsToBuyers(listing.showActivityDetailsToBuyers || false);
     }
-    setActivitySettingsLoading(false);
   };
 
   const handleStatsToggle = async (checked) => {
@@ -68,7 +69,6 @@ const Settings = ({ listing, onStatusChange }) => {
   const handleArchivePackage = async () => {
     if (isConfirmingArchive) {
       // Confirm archive
-      setLoading(true);
       setError('');
       try {
         const newStatus = listing.status === 'active' ? 'archived' : 'active';
@@ -97,7 +97,6 @@ const Settings = ({ listing, onStatusChange }) => {
           setConfirmationTimeout(null);
         }
       }
-      setLoading(false);
     } else {
       // Start confirmation process
       setIsConfirmingArchive(true);
@@ -113,7 +112,6 @@ const Settings = ({ listing, onStatusChange }) => {
   const handleDeletePackage = async () => {
     if (isConfirmingDelete) {
       // Confirm delete
-      setLoading(true);
       setError('');
       try {
         await axios.delete(
@@ -135,7 +133,6 @@ const Settings = ({ listing, onStatusChange }) => {
           setConfirmationTimeout(null);
         }
       }
-      setLoading(false);
     } else {
       // Start confirmation process
       setIsConfirmingDelete(true);
@@ -159,11 +156,6 @@ const Settings = ({ listing, onStatusChange }) => {
 
   return (
     <div className="settings-container">
-      {loading && (
-        <div className="settings-spinner-overlay">
-          <div className="settings-spinner"></div>
-        </div>
-      )}
       {error && (
         <div className="settings-error">
           {error}
@@ -186,7 +178,6 @@ const Settings = ({ listing, onStatusChange }) => {
                 type="checkbox"
                 checked={showActivityStatsToBuyers}
                 onChange={(e) => handleStatsToggle(e.target.checked)}
-                disabled={activitySettingsLoading}
               />
               <span className="toggle-slider"></span>
             </label>
@@ -202,19 +193,12 @@ const Settings = ({ listing, onStatusChange }) => {
                 type="checkbox"
                 checked={showActivityDetailsToBuyers}
                 onChange={(e) => handleDetailsToggle(e.target.checked)}
-                disabled={activitySettingsLoading}
               />
               <span className="toggle-slider"></span>
             </label>
           </div>
         </div>
         
-        {activitySettingsLoading && (
-          <div className="activity-settings-saving">
-            <div className="saving-spinner"></div>
-            <span>Saving settings...</span>
-          </div>
-        )}
       </div>
 
       <div className="settings-sections-row">
@@ -224,7 +208,6 @@ const Settings = ({ listing, onStatusChange }) => {
           <button 
             className={`archive-button ${isConfirmingArchive ? 'confirm-archive' : ''}`} 
             onClick={handleArchivePackage}
-            disabled={loading}
           >
             {isConfirmingArchive 
               ? (listing.status === 'active' ? 'Confirm Archive?' : 'Confirm Unarchive?')
@@ -238,7 +221,6 @@ const Settings = ({ listing, onStatusChange }) => {
           <button 
             className={`settings-delete-button ${isConfirmingDelete ? 'confirm-delete' : ''}`} 
             onClick={handleDeletePackage}
-            disabled={loading}
           >
             {isConfirmingDelete ? 'Confirm Delete?' : 'Delete Package'}
           </button>

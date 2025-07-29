@@ -6,7 +6,6 @@ import axios from 'axios';
 import { useAuth } from '../../../../../../../context/AuthContext'; // Import useAuth hook
 
 const BuyerPackageSettings = ({ buyerPackage, onBuyerPackageUpdate }) => {
-  const [loading, setLoading] = useState(false);
   const [isConfirmingArchive, setIsConfirmingArchive] = useState(false);
   const [confirmationTimeout, setConfirmationTimeout] = useState(null);
   const [error, setError] = useState('');
@@ -15,7 +14,6 @@ const BuyerPackageSettings = ({ buyerPackage, onBuyerPackageUpdate }) => {
   const handleArchivePackage = async () => {
     if (isConfirmingArchive) {
       // Confirm archive
-      setLoading(true);
       setError('');
       try {
         const newStatus = buyerPackage.status === 'active' ? 'archived' : 'active';
@@ -44,7 +42,6 @@ const BuyerPackageSettings = ({ buyerPackage, onBuyerPackageUpdate }) => {
           setConfirmationTimeout(null);
         }
       }
-      setLoading(false);
     } else {
       // Start confirmation process
       setIsConfirmingArchive(true);
@@ -68,11 +65,6 @@ const BuyerPackageSettings = ({ buyerPackage, onBuyerPackageUpdate }) => {
 
   return (
     <div className="settings-container">
-      {loading && (
-        <div className="settings-spinner-overlay">
-          <div className="settings-spinner"></div>
-        </div>
-      )}
       {error && (
         <div className="settings-error">
           {error}
@@ -85,7 +77,6 @@ const BuyerPackageSettings = ({ buyerPackage, onBuyerPackageUpdate }) => {
           <button 
             className={`archive-button ${isConfirmingArchive ? 'confirm-archive' : ''}`} 
             onClick={handleArchivePackage}
-            disabled={loading}
           >
             {isConfirmingArchive 
               ? (buyerPackage.status === 'active' ? 'Confirm Archive?' : 'Confirm Unarchive?')
