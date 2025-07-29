@@ -2,12 +2,14 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../../../../../../../../context/AuthContext';
+import { useOffer } from '../../../../../../../../../../context/OfferContext';
 import axios from 'axios';
 import './AgentInformation.css';
 
 const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handlePrevStep }) => {
   const { user, token } = useAuth(); // Get the token from AuthContext
-  const [isAgent, setIsAgent] = useState(false);
+  const { offerData, updateOfferData } = useOffer();
+  const isAgent = offerData.isAgentInTransaction || false;
 
   const getRandomColor = useCallback(() => {
     const vibrantColors = [
@@ -85,20 +87,20 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
         <label className="agent-info-checkbox">
           <input
             type="checkbox"
-            name="agentOptionOther"
-            checked={!isAgent}
-            onChange={() => setIsAgent(false)}
+            name="agentOption"
+            checked={isAgent}
+            onChange={() => updateOfferData({ isAgentInTransaction: !isAgent })}
           />
-          Enter agent / broker information
+          I am the agent in this transaction
         </label>
         <label className="agent-info-checkbox">
           <input
             type="checkbox"
-            name="agentOption"
-            checked={isAgent}
-            onChange={() => setIsAgent(!isAgent)}
+            name="agentOptionOther"
+            checked={!isAgent}
+            onChange={() => updateOfferData({ isAgentInTransaction: false })}
           />
-          I am the agent in this transaction
+          Enter agent / broker information
         </label>
       </div>
       <div className="agent-info-form-group">

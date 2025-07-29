@@ -85,6 +85,7 @@ const MakeOfferModal = ({ onClose, listingId, buyerPackageId }) => {
       propertyListing: listingId,
       offerExpiryDate: '',
       uploadedBy: '',
+      isAgentInTransaction: true, // Reset agent choice (default to true)
       presentedBy: {
         name: '',
         licenseNumber: '',

@@ -135,12 +135,63 @@ exports.handleCallback = async (req, res) => {
       user.docusignTokenExpiry = new Date(Date.now() + (tokenData.expires_in * 1000));
       await user.save();
 
-      // Send success message to frontend
+      // Send success message to frontend with better UX
       res.send(`
-        <script>
-          window.opener.postMessage({ type: 'DOCUSIGN_OAUTH_CALLBACK' }, '*');
-          window.close();
-        </script>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>DocuSign Connected</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              margin: 0;
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              color: white;
+            }
+            .success-container {
+              text-align: center;
+              padding: 2rem;
+              background: rgba(255, 255, 255, 0.1);
+              border-radius: 10px;
+              backdrop-filter: blur(10px);
+            }
+            .success-icon {
+              font-size: 3rem;
+              margin-bottom: 1rem;
+            }
+            .success-message {
+              font-size: 1.2rem;
+              margin-bottom: 1rem;
+            }
+            .closing-message {
+              font-size: 0.9rem;
+              opacity: 0.8;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="success-container">
+            <div class="success-icon">✅</div>
+            <div class="success-message">DocuSign Connected Successfully!</div>
+            <div class="closing-message">This window will close automatically...</div>
+          </div>
+          <script>
+            // Send message to parent window
+            if (window.opener) {
+              window.opener.postMessage({ type: 'DOCUSIGN_OAUTH_CALLBACK' }, '*');
+            }
+            
+            // Close window after a short delay
+            setTimeout(() => {
+              window.close();
+            }, 2000);
+          </script>
+        </body>
+        </html>
       `);
     } catch (tokenError) {
       console.error('DocuSign token exchange error:', tokenError);

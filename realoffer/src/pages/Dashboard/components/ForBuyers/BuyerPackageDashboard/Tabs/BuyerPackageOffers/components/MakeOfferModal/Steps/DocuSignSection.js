@@ -76,8 +76,18 @@ const DocuSignSection = ({
       
       if (event.data?.type === 'DOCUSIGN_OAUTH_CALLBACK') {
         console.log('DocuSign OAuth callback received');
-        // Re-check connection status after successful OAuth
-        setTimeout(async () => {
+        // Immediately update UI to show connecting state
+        updateDocumentWorkflow(prev => ({
+          ...prev,
+          signing: {
+            ...prev.signing,
+            docuSignConnected: false,
+            status: 'connecting'
+          }
+        }));
+        
+        // Re-check connection status after successful OAuth with retries
+        const checkConnectionWithRetry = async (retryCount = 0) => {
           try {
             const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/status`, {
               headers: { 'Authorization': `Bearer ${token}` }
@@ -85,18 +95,52 @@ const DocuSignSection = ({
             const data = await response.json();
             const isConnected = typeof data?.isConnected === 'boolean' ? data.isConnected : false;
             
-            updateDocumentWorkflow(prev => ({
-              ...prev,
-              signing: {
-                ...prev.signing,
-                docuSignConnected: isConnected,
-                status: isConnected ? 'ready' : 'not_configured'
-              }
-            }));
+            if (isConnected) {
+              // Success - update UI
+              updateDocumentWorkflow(prev => ({
+                ...prev,
+                signing: {
+                  ...prev.signing,
+                  docuSignConnected: true,
+                  status: 'ready'
+                }
+              }));
+              setError(null);
+            } else if (retryCount < 3) {
+              // Retry after a delay
+              setTimeout(() => checkConnectionWithRetry(retryCount + 1), 2000);
+            } else {
+              // Max retries reached
+              updateDocumentWorkflow(prev => ({
+                ...prev,
+                signing: {
+                  ...prev.signing,
+                  docuSignConnected: false,
+                  status: 'not_configured'
+                }
+              }));
+              setError('Failed to verify DocuSign connection. Please try again.');
+            }
           } catch (error) {
             console.error('Error re-checking DocuSign connection:', error);
+            if (retryCount < 3) {
+              setTimeout(() => checkConnectionWithRetry(retryCount + 1), 2000);
+            } else {
+              updateDocumentWorkflow(prev => ({
+                ...prev,
+                signing: {
+                  ...prev.signing,
+                  docuSignConnected: false,
+                  status: 'not_configured'
+                }
+              }));
+              setError('Failed to verify DocuSign connection. Please try again.');
+            }
           }
-        }, 1000); // Give the backend time to process the callback
+        };
+        
+        // Start checking after a short delay
+        setTimeout(() => checkConnectionWithRetry(), 1000);
       }
     };
 
@@ -147,6 +191,39 @@ const DocuSignSection = ({
     }
   ]);
 
+  // Auto-populate recipients with buyer and agent information
+  useEffect(() => {
+    if (offerData && recipients.length > 0) {
+      const updatedRecipients = recipients.map(recipient => {
+        if (recipient.id === 'buyer-agent') {
+          // Populate agent information from offerData.presentedBy
+          return {
+            ...recipient,
+            name: offerData.presentedBy?.name || '',
+            email: offerData.presentedBy?.email || ''
+          };
+        } else if (recipient.id === 'primary-buyer') {
+          // Populate buyer information from offerData.buyerName
+          return {
+            ...recipient,
+            name: offerData.buyerName || ''
+          };
+        }
+        return recipient;
+      });
+      
+      // Only update if there are actual changes to avoid infinite loops
+      const hasChanges = updatedRecipients.some((updated, index) => {
+        const original = recipients[index];
+        return updated.name !== original.name || updated.email !== original.email;
+      });
+      
+      if (hasChanges) {
+        setRecipients(updatedRecipients);
+      }
+    }
+  }, [offerData, recipients.length]);
+
   const addBuyer = () => {
     const newOrder = recipients.length + 1;
     setRecipients(prev => [...prev, {
@@ -161,7 +238,16 @@ const DocuSignSection = ({
   };
 
   const removeBuyer = (id) => {
-    setRecipients(prev => prev.filter(r => r.id !== id));
+    setRecipients(prev => {
+      // Filter out the recipient to be removed
+      const filteredRecipients = prev.filter(r => r.id !== id);
+      
+      // Reorder the remaining recipients to have sequential order numbers
+      return filteredRecipients.map((recipient, index) => ({
+        ...recipient,
+        order: index + 1
+      }));
+    });
   };
 
   const updateRecipient = (id, field, value) => {
@@ -197,6 +283,8 @@ const DocuSignSection = ({
   // Connect to DocuSign
   const handleDocuSignConnect = async () => {
     setDocuSignLoading(true);
+    setError(null);
+    
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/auth-url`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -222,13 +310,48 @@ const DocuSignSection = ({
         throw new Error('Failed to open popup. Please check your popup blocker settings.');
       }
       
-      // Monitor popup closure
+      // Monitor popup closure and handle timeout
+      let popupClosed = false;
       const checkClosed = setInterval(() => {
         if (popup.closed) {
           clearInterval(checkClosed);
+          popupClosed = true;
           setDocuSignLoading(false);
+          
+          // If popup closed without callback, check connection status
+          if (!popupClosed) {
+            setTimeout(async () => {
+              try {
+                const statusResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/status`, {
+                  headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const statusData = await statusResponse.json();
+                const isConnected = typeof statusData?.isConnected === 'boolean' ? statusData.isConnected : false;
+                
+                updateDocumentWorkflow(prev => ({
+                  ...prev,
+                  signing: {
+                    ...prev.signing,
+                    docuSignConnected: isConnected,
+                    status: isConnected ? 'ready' : 'not_configured'
+                  }
+                }));
+              } catch (error) {
+                console.error('Error checking DocuSign status after popup close:', error);
+              }
+            }, 2000);
+          }
         }
       }, 1000);
+      
+      // Set a timeout to close popup if it takes too long
+      setTimeout(() => {
+        if (!popup.closed) {
+          popup.close();
+          setDocuSignLoading(false);
+          setError('DocuSign authentication timed out. Please try again.');
+        }
+      }, 300000); // 5 minutes timeout
       
     } catch (error) {
       console.error('Error connecting to DocuSign:', error);
@@ -264,6 +387,12 @@ const DocuSignSection = ({
                 <span className="ds-status-icon">✅</span>
                 <span className="ds-status-text">Connected to DocuSign</span>
               </div>
+            ) : documentWorkflow.signing?.status === 'connecting' ? (
+              <div className="ds-status-connecting">
+                <span className="ds-status-icon">⏳</span>
+                <span className="ds-status-text">Connecting to DocuSign...</span>
+                <div className="ds-loading-spinner"></div>
+              </div>
             ) : (
               <div className="ds-status-disconnected">
                 <span className="ds-status-icon">❌</span>
@@ -273,7 +402,7 @@ const DocuSignSection = ({
                   onClick={handleDocuSignConnect}
                   disabled={docuSignLoading}
                 >
-                  {docuSignLoading ? 'Connecting...' : 'Connect'}
+                  {docuSignLoading ? 'Opening DocuSign...' : 'Connect'}
                 </button>
               </div>
             )}

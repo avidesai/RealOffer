@@ -35,6 +35,7 @@ const initialOfferState = {
   propertyListing: '',
   offerExpiryDate: '',
   uploadedBy: '',
+  isAgentInTransaction: true, // Track whether user is the agent (default to true)
   presentedBy: {
     name: '',
     licenseNumber: '',
@@ -180,27 +181,15 @@ export const OfferProvider = ({ children }) => {
   // Document-specific validation (for Add Documents step)
   const validateDocuments = useCallback(() => {
     const validation = {
-      documentsComplete: false,
+      documentsComplete: true, // Always allow proceeding - no required documents
       issues: [],
       warnings: []
     };
 
-    // Purchase Agreement validation
-    const hasPurchaseAgreement = documentWorkflow.documents.some(doc => 
-      doc.type === 'Purchase Agreement' || doc.type === 'purchase_agreement'
-    );
-    
-    if (!hasPurchaseAgreement) {
-      validation.issues.push('Purchase agreement is required');
-    }
-
-    // Additional validation warnings
+    // Optional warning if no documents are included
     if (documentWorkflow.documents.length === 0) {
       validation.warnings.push('No documents included with this offer');
     }
-
-    // Document completion validation
-    validation.documentsComplete = hasPurchaseAgreement;
 
     return validation;
   }, [documentWorkflow]);
@@ -250,6 +239,12 @@ export const OfferProvider = ({ children }) => {
     localStorage.removeItem('documentWorkflow');
   }, []);
 
+  // Reset offer data (for new offers)
+  const resetOfferData = useCallback(() => {
+    setOfferData(initialOfferState);
+    localStorage.removeItem('offerData');
+  }, []);
+
   return (
     <OfferContext.Provider value={{ 
       offerData, 
@@ -261,7 +256,8 @@ export const OfferProvider = ({ children }) => {
       validateDocumentWorkflow,
       validateDocuments,
       validateSigning,
-      resetDocumentWorkflow
+      resetDocumentWorkflow,
+      resetOfferData
     }}>
       {children}
     </OfferContext.Provider>

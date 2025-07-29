@@ -20,6 +20,8 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
   const [uploadLoading, setUploadLoading] = useState(false);
   const [error, setError] = useState(null);
   const [validation, setValidation] = useState({});
+  const [signaturePacketExists, setSignaturePacketExists] = useState(false);
+  const [signaturePacketDeleted, setSignaturePacketDeleted] = useState(false);
 
   // Document type options for dropdown
   const documentTypes = [
@@ -50,7 +52,10 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
         );
         
         if (signaturePacket) {
-          // Add to documents if not already present
+          setSignaturePacketExists(true);
+          setSignaturePacketDeleted(false);
+          
+          // Always add the signature packet to documents (it should be included automatically)
           updateDocumentWorkflow(prev => {
             const existingDoc = prev.documents.find(doc => doc.id === signaturePacket._id);
             if (!existingDoc) {
@@ -71,6 +76,8 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
             }
             return prev;
           });
+        } else {
+          setSignaturePacketExists(false);
         }
       } catch (error) {
         console.error('Error fetching signature packet:', error);
@@ -154,6 +161,10 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
   // Handle document removal
   const handleRemoveDocument = useCallback(async (documentId) => {
     try {
+      // Check if this is a signature packet being removed
+      const documentToRemove = documentWorkflow.documents.find(doc => doc.id === documentId);
+      const isSignaturePacket = documentToRemove?.type === 'Disclosure Signature Packet';
+      
       await api.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${documentId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -162,11 +173,16 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
         ...prev,
         documents: prev.documents.filter(doc => doc.id !== documentId)
       }));
+      
+      // If signature packet was removed and it existed, mark it as deleted
+      if (isSignaturePacket && signaturePacketExists) {
+        setSignaturePacketDeleted(true);
+      }
     } catch (error) {
       console.error('Error removing document:', error);
       setError('Failed to remove document');
     }
-  }, [updateDocumentWorkflow, token]);
+  }, [updateDocumentWorkflow, token, signaturePacketExists]);
 
   // Handle file input change
   const handleFileChange = (event) => {
@@ -178,12 +194,51 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
     event.target.value = '';
   };
 
-  // Handle next step with validation
-  const handleNext = () => {
-    if (!validation.documentsComplete) {
-      setError('Please upload at least a purchase agreement before proceeding.');
-      return;
+  // Handle restoring signature packet
+  const handleRestoreSignaturePacket = async () => {
+    setUploadLoading(true);
+    setError(null);
+    
+    try {
+      const response = await api.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`);
+      const documents = response.data;
+      
+      // Find the signature packet document
+      const signaturePacket = documents.find(doc => 
+        doc.title === 'To Be Signed by Buyer (For Offer)' && 
+        doc.purpose === 'signature_package'
+      );
+      
+      if (signaturePacket) {
+        const newSignatureDoc = {
+          id: signaturePacket._id,
+          title: signaturePacket.title,
+          type: 'Disclosure Signature Packet',
+          size: signaturePacket.size,
+          pages: signaturePacket.pages,
+          sendForSigning: true,
+          status: 'uploaded'
+        };
+        
+        updateDocumentWorkflow(prev => ({
+          ...prev,
+          documents: [...prev.documents, newSignatureDoc]
+        }));
+        
+        setSignaturePacketDeleted(false);
+      } else {
+        setError('Signature packet not found');
+      }
+    } catch (error) {
+      console.error('Error restoring signature packet:', error);
+      setError('Failed to restore signature packet');
+    } finally {
+      setUploadLoading(false);
     }
+  };
+
+  // Handle next step
+  const handleNext = () => {
     handleNextStep();
   };
 
@@ -200,18 +255,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
         </div>
       )}
 
-      {/* Validation Messages */}
-      {validation.issues && validation.issues.length > 0 && (
-        <div className="ds-validation-warning">
-          <h4>Required Documents Missing:</h4>
-          <ul>
-            {validation.issues.map((issue, index) => (
-              <li key={index}>{issue}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
+      {/* Optional Recommendations */}
       {validation.warnings && validation.warnings.length > 0 && (
         <div className="ds-validation-info">
           <h4>Recommendations:</h4>
@@ -248,7 +292,18 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
           {/* Uploaded Documents List */}
           {documentWorkflow.documents.length > 0 && (
             <div className="ds-uploaded-documents">
-              <h4>Uploaded Documents</h4>
+              <div className="ds-uploaded-documents-header">
+                <h4>Uploaded Documents</h4>
+                {signaturePacketExists && signaturePacketDeleted && (
+                  <button
+                    className="ds-restore-signature-packet-btn"
+                    onClick={handleRestoreSignaturePacket}
+                    disabled={uploadLoading}
+                  >
+                    Add Disclosure Signature Packet
+                  </button>
+                )}
+              </div>
               {documentWorkflow.documents.map((doc) => (
                 <div key={doc.id} className="ds-uploaded-document">
                   <div className="ds-document-info">
@@ -298,7 +353,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
         <button
           className="ds-next-button"
           onClick={handleNext}
-          disabled={uploadLoading || !validation.documentsComplete}
+          disabled={uploadLoading}
         >
           Next
         </button>
