@@ -41,10 +41,31 @@ exports.getAllListings = async (req, res) => {
 // Get a single listing by ID for the logged-in user
 exports.getListingById = async (req, res) => {
   try {
-    const listing = await PropertyListing.findOne({ _id: req.params.id, createdBy: req.user.id })
+    // First try to find the listing by ID
+    const listing = await PropertyListing.findOne({ _id: req.params.id })
       .populate('offers')
       .populate('signaturePackage');
-    if (!listing) return res.status(404).json({ message: "Listing not found" });
+    
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+
+    // Check if user is the listing creator
+    const isOwner = listing.createdBy.toString() === req.user.id;
+    
+    // If not the owner, check if user has a buyer package for this listing
+    if (!isOwner) {
+      const BuyerPackage = require('../models/BuyerPackage');
+      const buyerPackage = await BuyerPackage.findOne({
+        propertyListing: req.params.id,
+        user: req.user.id
+      });
+      
+      if (!buyerPackage) {
+        return res.status(403).json({ message: "Not authorized to access this listing" });
+      }
+    }
+
     res.status(200).json(listing);
   } catch (error) {
     res.status(500).json({ message: error.message });
