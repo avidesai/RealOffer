@@ -97,13 +97,18 @@ const Analysis = ({ listingId }) => {
 
   const handleEditValue = () => {
     const currentValue = analysisData.valuation?.estimatedValue || 0;
-    setEditValue(currentValue.toLocaleString('en-US'));
+    setEditValue(formatCurrencyInput(currentValue));
     setEditingValue(true);
   };
 
+  const formatCurrencyInput = (value) => {
+    if (!value) return '';
+    return '$' + value.toLocaleString('en-US');
+  };
+
   const handleSaveValue = async () => {
-    // Remove commas and convert to number
-    const numericValue = parseFloat(editValue.replace(/,/g, ''));
+    // Remove dollar sign and commas, then convert to number
+    const numericValue = parseFloat(editValue.replace(/[$,]/g, ''));
     if (!editValue || isNaN(numericValue) || numericValue <= 0) {
       return;
     }
@@ -187,28 +192,27 @@ const Analysis = ({ listingId }) => {
   const handleInputChange = (e) => {
     let value = e.target.value;
     
-    // Remove all non-numeric characters except commas
-    value = value.replace(/[^\d,]/g, '');
+    // Remove all non-numeric characters except dollar sign and commas
+    value = value.replace(/[^\d$,]/g, '');
     
-    // Remove leading commas
-    value = value.replace(/^,+/g, '');
+    // Remove leading dollar signs (keep only the first one)
+    value = value.replace(/^\$+/, '$');
     
-    // Only allow commas in proper positions (every 3 digits from right)
-    const parts = value.split(',');
-    if (parts.length > 1) {
-      // Check if commas are in correct positions
-      const isValid = parts.every((part, index) => {
-        if (index === 0) return part.length <= 3;
-        return part.length === 3;
-      });
-      
-      if (!isValid) {
-        // Reformat with proper comma placement
-        const numericValue = value.replace(/,/g, '');
-        if (numericValue.length > 0) {
-          value = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        }
-      }
+    // If no dollar sign at the beginning, add one
+    if (!value.startsWith('$')) {
+      value = '$' + value;
+    }
+    
+    // Remove all commas first
+    value = value.replace(/,/g, '');
+    
+    // Remove the dollar sign temporarily for processing
+    const numericPart = value.substring(1);
+    
+    // Add commas in the correct positions
+    if (numericPart.length > 0) {
+      const formattedNumeric = numericPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      value = '$' + formattedNumeric;
     }
     
     setEditValue(value);
@@ -292,7 +296,7 @@ const Analysis = ({ listingId }) => {
                         <div className="value-edit-actions">
                           <button
                             onClick={handleSaveValue}
-                            disabled={savingValue || !editValue || isNaN(parseFloat(editValue.replace(/,/g, ''))) || parseFloat(editValue.replace(/,/g, '')) <= 0}
+                            disabled={savingValue || !editValue || isNaN(parseFloat(editValue.replace(/[$,]/g, ''))) || parseFloat(editValue.replace(/[$,]/g, '')) <= 0}
                             className="value-edit-save"
                           >
                             {savingValue ? 'Saving...' : 'Save'}
@@ -304,6 +308,16 @@ const Analysis = ({ listingId }) => {
                           >
                             Cancel
                           </button>
+                          {analysisData.valuation?.isCustomValue && (
+                            <button
+                              onClick={handleRevertValue}
+                              disabled={savingValue}
+                              className="value-revert-button"
+                              title="Revert to original API value"
+                            >
+                              Reset Value
+                            </button>
+                          )}
                         </div>
                       </div>
                     ) : (
@@ -319,44 +333,28 @@ const Analysis = ({ listingId }) => {
                             <path d="M18.5 2.50023C18.8978 2.10243 19.4374 1.87891 20 1.87891C20.5626 1.87891 21.1022 2.10243 21.5 2.50023C21.8978 2.89804 22.1213 3.43762 22.1213 4.00023C22.1213 4.56284 21.8978 5.10243 21.5 5.50023L12 15.0002L8 16.0002L9 12.0002L18.5 2.50023Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>
                         </button>
-                        {analysisData.valuation?.isCustomValue && (
-                          <button
-                            onClick={handleRevertValue}
-                            disabled={savingValue}
-                            className="value-revert-button"
-                            title="Revert to original API value"
-                          >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z" stroke="currentColor" strokeWidth="2"/>
-                              <path d="M12 7V12L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                          </button>
-                        )}
                       </div>
                     )}
                     <div className="value-label">
                       Estimated Property Value
                       {analysisData.valuation?.isCustomValue && (
-                        <>
-                          <span className="custom-value-indicator"> (Custom)</span>
-                          <div className="info-tooltip-container">
-                            <svg 
-                              className="info-icon" 
-                              width="16" 
-                              height="16" 
-                              viewBox="0 0 24 24" 
-                              fill="none" 
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                              <path d="M12 16V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                              <path d="M12 8H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                            <div className="info-tooltip">
-                              This is a custom valuation set by the listing agent
-                            </div>
+                        <div className="info-tooltip-container">
+                          <svg 
+                            className="info-icon" 
+                            width="16" 
+                            height="16" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                            <path d="M12 16V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M12 8H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          <div className="info-tooltip">
+                            This is a custom valuation set by the listing agent
                           </div>
-                        </>
+                        </div>
                       )}
                     </div>
                   </div>
