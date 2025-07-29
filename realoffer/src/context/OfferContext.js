@@ -9,10 +9,12 @@ export const useOffer = () => useContext(OfferContext);
 const initialOfferState = {
   purchasePrice: '',
   initialDeposit: '',
+  initialDepositPercent: '3.00', // Default to 3.00%
   financeType: 'LOAN',
   loanAmount: '',
   percentDown: '',
   downPayment: '',
+  downPaymentPercent: '20.00', // Default to 20.00%
   balanceOfDownPayment: '',
   financeContingency: '',
   financeContingencyDays: '',

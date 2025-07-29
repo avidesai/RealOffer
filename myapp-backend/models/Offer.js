@@ -13,10 +13,12 @@ const ResponseSchema = new Schema({
 const OfferSchema = new Schema({
   purchasePrice: { type: Number, required: true },
   initialDeposit: { type: Number, required: true },
+  initialDepositPercent: { type: Number, required: false }, // New field for percentage input
   financeType: { type: String, required: true },
   loanAmount: { type: Number, required: true },
   percentDown: { type: Number, required: true },
   downPayment: { type: Number, required: true },
+  downPaymentPercent: { type: Number, required: false }, // New field for percentage input
   balanceOfDownPayment: { type: Number, required: false },
   financeContingency: { type: String, required: false },
   financeContingencyDays: { type: Number, required: false },

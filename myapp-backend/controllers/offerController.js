@@ -49,7 +49,10 @@ exports.createOffer = async (req, res) => {
       sellerRentBackDays: req.body.sellerRentBackDays,
       'buyerDetails.buyerName': req.body.buyerName,
       documentWorkflow: documentWorkflow,
-      buyerPackage: req.body.buyerPackage // Add buyer package ID
+      buyerPackage: req.body.buyerPackage, // Add buyer package ID
+      // Handle percentage fields - convert to numbers if they exist
+      initialDepositPercent: req.body.initialDepositPercent ? parseFloat(req.body.initialDepositPercent) : undefined,
+      downPaymentPercent: req.body.downPaymentPercent ? parseFloat(req.body.downPaymentPercent) : undefined
     };
 
     const offer = new Offer(offerData);
