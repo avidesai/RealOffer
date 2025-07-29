@@ -26,15 +26,15 @@ const Settings = ({ listing, onStatusChange }) => {
     }
   }, [listing]);
 
-  const handleActivitySettingsUpdate = async () => {
+  const handleActivitySettingsUpdate = async (newStatsSetting, newDetailsSetting) => {
     setActivitySettingsLoading(true);
     setError('');
     try {
       await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listing._id}`,
         {
-          showActivityStatsToBuyers,
-          showActivityDetailsToBuyers
+          showActivityStatsToBuyers: newStatsSetting,
+          showActivityDetailsToBuyers: newDetailsSetting
         },
         {
           headers: {
@@ -46,8 +46,23 @@ const Settings = ({ listing, onStatusChange }) => {
     } catch (error) {
       console.error('Error updating activity settings:', error);
       setError('Failed to update activity settings. Please try again.');
+      // Revert the state on error
+      setShowActivityStatsToBuyers(listing.showActivityStatsToBuyers || false);
+      setShowActivityDetailsToBuyers(listing.showActivityDetailsToBuyers || false);
     }
     setActivitySettingsLoading(false);
+  };
+
+  const handleStatsToggle = async (checked) => {
+    const newStatsSetting = checked;
+    setShowActivityStatsToBuyers(newStatsSetting);
+    await handleActivitySettingsUpdate(newStatsSetting, showActivityDetailsToBuyers);
+  };
+
+  const handleDetailsToggle = async (checked) => {
+    const newDetailsSetting = checked;
+    setShowActivityDetailsToBuyers(newDetailsSetting);
+    await handleActivitySettingsUpdate(showActivityStatsToBuyers, newDetailsSetting);
   };
 
   const handleArchivePackage = async () => {
@@ -170,7 +185,7 @@ const Settings = ({ listing, onStatusChange }) => {
               <input
                 type="checkbox"
                 checked={showActivityStatsToBuyers}
-                onChange={(e) => setShowActivityStatsToBuyers(e.target.checked)}
+                onChange={(e) => handleStatsToggle(e.target.checked)}
                 disabled={activitySettingsLoading}
               />
               <span className="toggle-slider"></span>
@@ -180,13 +195,13 @@ const Settings = ({ listing, onStatusChange }) => {
           <div className="toggle-setting">
             <div className="toggle-label">
               <span className="toggle-title">Show listing activity details to buyer parties</span>
-              <span className="toggle-description">Display detailed activity information and allow filtering/searching</span>
+              <span className="toggle-description">Display detailed activity information like names, activity types, and dates</span>
             </div>
             <label className="toggle-switch">
               <input
                 type="checkbox"
                 checked={showActivityDetailsToBuyers}
-                onChange={(e) => setShowActivityDetailsToBuyers(e.target.checked)}
+                onChange={(e) => handleDetailsToggle(e.target.checked)}
                 disabled={activitySettingsLoading}
               />
               <span className="toggle-slider"></span>
@@ -194,13 +209,12 @@ const Settings = ({ listing, onStatusChange }) => {
           </div>
         </div>
         
-        <button 
-          className="save-activity-settings-button"
-          onClick={handleActivitySettingsUpdate}
-          disabled={activitySettingsLoading}
-        >
-          {activitySettingsLoading ? 'Saving...' : 'Save Activity Settings'}
-        </button>
+        {activitySettingsLoading && (
+          <div className="activity-settings-saving">
+            <div className="saving-spinner"></div>
+            <span>Saving settings...</span>
+          </div>
+        )}
       </div>
 
       <div className="settings-sections-row">
