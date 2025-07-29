@@ -12,8 +12,43 @@ const Settings = ({ listing, onStatusChange }) => {
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [confirmationTimeout, setConfirmationTimeout] = useState(null);
   const [error, setError] = useState('');
+  const [showActivityStatsToBuyers, setShowActivityStatsToBuyers] = useState(false);
+  const [showActivityDetailsToBuyers, setShowActivityDetailsToBuyers] = useState(false);
+  const [activitySettingsLoading, setActivitySettingsLoading] = useState(false);
   const navigate = useNavigate();
   const { token } = useAuth(); // Get the token from AuthContext
+
+  // Initialize activity settings from listing
+  useEffect(() => {
+    if (listing) {
+      setShowActivityStatsToBuyers(listing.showActivityStatsToBuyers || false);
+      setShowActivityDetailsToBuyers(listing.showActivityDetailsToBuyers || false);
+    }
+  }, [listing]);
+
+  const handleActivitySettingsUpdate = async () => {
+    setActivitySettingsLoading(true);
+    setError('');
+    try {
+      await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listing._id}`,
+        {
+          showActivityStatsToBuyers,
+          showActivityDetailsToBuyers
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        }
+      );
+      console.log('Activity settings updated');
+    } catch (error) {
+      console.error('Error updating activity settings:', error);
+      setError('Failed to update activity settings. Please try again.');
+    }
+    setActivitySettingsLoading(false);
+  };
 
   const handleArchivePackage = async () => {
     if (isConfirmingArchive) {
@@ -119,6 +154,55 @@ const Settings = ({ listing, onStatusChange }) => {
           {error}
         </div>
       )}
+      
+      {/* Activity Visibility Settings */}
+      <div className="settings-section activity-visibility-section">
+        <h2 className="settings-title">Activity Visibility</h2>
+        <p className="settings-description">Control what buyer parties can see in the activity tab.</p>
+        
+        <div className="toggle-settings">
+          <div className="toggle-setting">
+            <div className="toggle-label">
+              <span className="toggle-title">Show listing activity statistics to buyer parties</span>
+              <span className="toggle-description">Display activity counts (views, downloads, offers, etc.) to buyer parties</span>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={showActivityStatsToBuyers}
+                onChange={(e) => setShowActivityStatsToBuyers(e.target.checked)}
+                disabled={activitySettingsLoading}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+          
+          <div className="toggle-setting">
+            <div className="toggle-label">
+              <span className="toggle-title">Show listing activity details to buyer parties</span>
+              <span className="toggle-description">Display detailed activity information and allow filtering/searching</span>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={showActivityDetailsToBuyers}
+                onChange={(e) => setShowActivityDetailsToBuyers(e.target.checked)}
+                disabled={activitySettingsLoading}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        
+        <button 
+          className="save-activity-settings-button"
+          onClick={handleActivitySettingsUpdate}
+          disabled={activitySettingsLoading}
+        >
+          {activitySettingsLoading ? 'Saving...' : 'Save Activity Settings'}
+        </button>
+      </div>
+
       <div className="settings-sections-row">
         <div className="settings-section">
           <h2 className="settings-title">Archive Package</h2>
