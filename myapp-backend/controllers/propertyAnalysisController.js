@@ -84,30 +84,41 @@ const fetchFreshAnalysisData = async (property) => {
   ]);
 
   // Format valuation comparables with consistent field names
-  const comparables = (valuationResponse.data.comparables || []).map(comp => ({
-    id: comp.id,
-    formattedAddress: comp.formattedAddress,
-    address: comp.formattedAddress,
-    price: comp.price,
-    beds: comp.bedrooms,
-    baths: comp.bathrooms,
-    sqft: comp.squareFootage,
-    yearBuilt: comp.yearBuilt,
-    distance: comp.distance,
-    propertyType: comp.propertyType,
-    lotSize: comp.lotSize,
-    listingType: comp.listingType,
-    listedDate: comp.listedDate,
-    removedDate: comp.removedDate,
-    daysOnMarket: comp.daysOnMarket,
-    daysOld: comp.daysOld,
-    correlation: comp.correlation,
-    pricePerSqFt: comp.squareFootage ? Math.round(comp.price / comp.squareFootage) : null,
-    priceDifference: comp.price - homeCharacteristics.price,
-    priceDifferencePercent: homeCharacteristics.price
-      ? ((comp.price - homeCharacteristics.price) / homeCharacteristics.price * 100).toFixed(1)
-      : null
-  }));
+  const comparables = (valuationResponse.data.comparables || [])
+    // Filter out properties that are still for sale (no removedDate)
+    .filter(comp => comp.removedDate)
+    .map(comp => {
+      // Determine the correct price to use
+      // For sold properties, use soldPrice if available, otherwise use price
+      const displayPrice = comp.soldPrice || comp.price;
+      
+      return {
+        id: comp.id,
+        formattedAddress: comp.formattedAddress,
+        address: comp.formattedAddress,
+        price: comp.price, // Keep original listing price for reference
+        soldPrice: comp.soldPrice, // Add sold price field
+        displayPrice: displayPrice, // Add display price field
+        beds: comp.bedrooms,
+        baths: comp.bathrooms,
+        sqft: comp.squareFootage,
+        yearBuilt: comp.yearBuilt,
+        distance: comp.distance,
+        propertyType: comp.propertyType,
+        lotSize: comp.lotSize,
+        listingType: comp.listingType,
+        listedDate: comp.listedDate,
+        removedDate: comp.removedDate,
+        daysOnMarket: comp.daysOnMarket,
+        daysOld: comp.daysOld,
+        correlation: comp.correlation,
+        pricePerSqFt: comp.squareFootage ? Math.round(displayPrice / comp.squareFootage) : null,
+        priceDifference: displayPrice - homeCharacteristics.price,
+        priceDifferencePercent: homeCharacteristics.price
+          ? ((displayPrice - homeCharacteristics.price) / homeCharacteristics.price * 100).toFixed(1)
+          : null
+      };
+    });
 
   // Format rental comparables
   const rentalComps = (rentResponse.data.comparables || [])
@@ -172,19 +183,44 @@ exports.getPropertyAnalysis = async (req, res) => {
     if (!analysis || isAnalysisStale(analysis.lastUpdated) || forceRefresh) {
       const freshData = await fetchFreshAnalysisData(property);
       
+      // Preserve custom value if it exists
+      let customValueData = {};
+      if (analysis && analysis.valuation && analysis.valuation.isCustomValue) {
+        customValueData = {
+          'valuation.customValue': analysis.valuation.customValue,
+          'valuation.originalValue': analysis.valuation.originalValue,
+          'valuation.isCustomValue': true
+        };
+      } else {
+        // Store the original API value when first fetched
+        customValueData = {
+          'valuation.originalValue': freshData.valuation.estimatedValue,
+          'valuation.isCustomValue': false
+        };
+      }
+      
       // Create or update analysis document
       analysis = await PropertyAnalysis.findOneAndUpdate(
         { propertyId },
         {
           ...freshData,
+          ...customValueData,
           lastUpdated: new Date()
         },
         { upsert: true, new: true }
       );
     }
 
+    // Determine which value to return (custom or API)
+    const displayValue = analysis.valuation.isCustomValue 
+      ? analysis.valuation.customValue 
+      : analysis.valuation.estimatedValue;
+
     res.json({
-      valuation: analysis.valuation,
+      valuation: {
+        ...analysis.valuation.toObject(),
+        estimatedValue: displayValue
+      },
       rentEstimate: analysis.rentEstimate,
       subjectProperty: analysis.subjectProperty,
       lastUpdated: analysis.lastUpdated
@@ -194,6 +230,74 @@ exports.getPropertyAnalysis = async (req, res) => {
     res.status(500).json({
       message: 'Error fetching property analysis',
       error: error.response?.data?.message || error.message
+    });
+  }
+};
+
+// Update custom property value
+exports.updateCustomValue = async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+    const { customValue, revertToOriginal } = req.body;
+
+    // Get property details to verify ownership
+    const property = await PropertyListing.findById(propertyId);
+    if (!property) {
+      return res.status(404).json({ message: 'Property not found' });
+    }
+
+    // Check if user owns this property
+    if (property.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to modify this property' });
+    }
+
+    // Find or create analysis document
+    let analysis = await PropertyAnalysis.findOne({ propertyId });
+    
+    if (!analysis) {
+      return res.status(404).json({ message: 'Property analysis not found' });
+    }
+
+    if (revertToOriginal) {
+      // Revert to original API value
+      analysis.valuation.isCustomValue = false;
+      analysis.valuation.customValue = null;
+    } else {
+      // Set custom value
+      if (typeof customValue !== 'number' || customValue <= 0) {
+        return res.status(400).json({ message: 'Custom value must be a positive number' });
+      }
+      
+      analysis.valuation.isCustomValue = true;
+      analysis.valuation.customValue = customValue;
+      
+      // Store original value if not already stored
+      if (!analysis.valuation.originalValue) {
+        analysis.valuation.originalValue = analysis.valuation.estimatedValue;
+      }
+    }
+
+    await analysis.save();
+
+    // Return updated analysis data
+    const displayValue = analysis.valuation.isCustomValue 
+      ? analysis.valuation.customValue 
+      : analysis.valuation.estimatedValue;
+
+    res.json({
+      valuation: {
+        ...analysis.valuation.toObject(),
+        estimatedValue: displayValue
+      },
+      rentEstimate: analysis.rentEstimate,
+      subjectProperty: analysis.subjectProperty,
+      lastUpdated: analysis.lastUpdated
+    });
+  } catch (error) {
+    console.error('Error updating custom value:', error);
+    res.status(500).json({
+      message: 'Error updating custom value',
+      error: error.message
     });
   }
 };
@@ -235,31 +339,42 @@ exports.getComparableProperties = async (req, res) => {
     });
 
     // Format the comparables with additional comparison metrics
-    const comps = (response.data.comparables || []).map(comp => ({
-      id: comp.id,
-      formattedAddress: comp.formattedAddress,
-      address: comp.formattedAddress,
-      price: comp.price,
-      beds: comp.bedrooms,
-      baths: comp.bathrooms,
-      sqft: comp.squareFootage,
-      yearBuilt: comp.yearBuilt,
-      distance: comp.distance,
-      propertyType: comp.propertyType,
-      lotSize: comp.lotSize,
-      // Additional fields from RentCast API
-      pricePerSqFt: comp.squareFootage ? Math.round(comp.price / comp.squareFootage) : null,
-      listingType: comp.listingType,
-      listedDate: comp.listedDate,
-      removedDate: comp.removedDate,
-      daysOnMarket: comp.daysOnMarket,
-      daysOld: comp.daysOld,
-      correlation: comp.correlation,
-      // Add price difference from subject property
-      priceDifference: comp.price - homeCharacteristics.price,
-      priceDifferencePercent: homeCharacteristics.price ? 
-        ((comp.price - homeCharacteristics.price) / homeCharacteristics.price * 100).toFixed(1) : null
-    }));
+    const comps = (response.data.comparables || [])
+      // Filter out properties that are still for sale (no removedDate)
+      .filter(comp => comp.removedDate)
+      .map(comp => {
+        // Determine the correct price to use
+        // For sold properties, use soldPrice if available, otherwise use price
+        const displayPrice = comp.soldPrice || comp.price;
+        
+        return {
+          id: comp.id,
+          formattedAddress: comp.formattedAddress,
+          address: comp.formattedAddress,
+          price: comp.price, // Keep original listing price for reference
+          soldPrice: comp.soldPrice, // Add sold price field
+          displayPrice: displayPrice, // Add display price field
+          beds: comp.bedrooms,
+          baths: comp.bathrooms,
+          sqft: comp.squareFootage,
+          yearBuilt: comp.yearBuilt,
+          distance: comp.distance,
+          propertyType: comp.propertyType,
+          lotSize: comp.lotSize,
+          // Additional fields from RentCast API
+          pricePerSqFt: comp.squareFootage ? Math.round(displayPrice / comp.squareFootage) : null,
+          listingType: comp.listingType,
+          listedDate: comp.listedDate,
+          removedDate: comp.removedDate,
+          daysOnMarket: comp.daysOnMarket,
+          daysOld: comp.daysOld,
+          correlation: comp.correlation,
+          // Add price difference from subject property
+          priceDifference: displayPrice - homeCharacteristics.price,
+          priceDifferencePercent: homeCharacteristics.price ? 
+            ((displayPrice - homeCharacteristics.price) / homeCharacteristics.price * 100).toFixed(1) : null
+        };
+      });
 
     res.json({ 
       comps,

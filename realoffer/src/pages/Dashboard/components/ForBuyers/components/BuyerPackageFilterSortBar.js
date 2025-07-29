@@ -8,10 +8,12 @@ function BuyerPackageFilterSortBar({
   onSortChange, 
   onSearch, 
   totalPackages = 0,
+  activePackagesCount = 0,
+  archivedPackagesCount = 0,
   filteredCount = 0,
   searchQuery = ''
 }) {
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState('active');
   const [sort, setSort] = useState('recent');
   const [localSearchQuery, setLocalSearchQuery] = useState('');
 
@@ -19,6 +21,11 @@ function BuyerPackageFilterSortBar({
   useEffect(() => {
     setLocalSearchQuery(searchQuery);
   }, [searchQuery]);
+
+  // Trigger initial filter change to notify parent of default 'active' state
+  useEffect(() => {
+    onFilterChange('active');
+  }, [onFilterChange]); // Include onFilterChange in dependency array
 
   // Debounce search to avoid too many calls
   useEffect(() => {
@@ -55,8 +62,8 @@ function BuyerPackageFilterSortBar({
               onChange={handleFilterChange}
             >
               <option value="all">All Packages ({totalPackages})</option>
-              <option value="active">Active</option>
-              <option value="archived">Archived</option>
+              <option value="active">Active ({activePackagesCount})</option>
+              <option value="archived">Archived ({archivedPackagesCount})</option>
             </select>
           </div>
           <div className="lfsb-sort-section">
@@ -83,11 +90,6 @@ function BuyerPackageFilterSortBar({
           />
         </div>
       </div>
-      {filteredCount !== totalPackages && (
-        <div className="lfsb-results-info">
-          Showing {filteredCount} of {totalPackages} buyer packages
-        </div>
-      )}
     </div>
   );
 }

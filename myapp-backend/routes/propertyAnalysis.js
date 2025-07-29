@@ -8,4 +8,7 @@ const authMiddleware = require('../middleware/auth');
 // Get all property analysis data in one call
 router.get('/:propertyId', authMiddleware, propertyAnalysisController.getPropertyAnalysis);
 
+// Update custom property value
+router.put('/:propertyId/custom-value', authMiddleware, propertyAnalysisController.updateCustomValue);
+
 module.exports = router; 

@@ -6,7 +6,9 @@ const comparableSchema = new mongoose.Schema({
   id: String,
   formattedAddress: String,
   address: String,
-  price: Number,
+  price: Number, // This will be the listing price
+  soldPrice: Number, // This will be the actual sold price
+  displayPrice: Number, // This will be the price to display (soldPrice || price)
   beds: Number,
   baths: Number,
   sqft: Number,
@@ -45,7 +47,11 @@ const propertyAnalysisSchema = new mongoose.Schema({
     pricePerSqFt: Number,
     latitude: Number,
     longitude: Number,
-    comparables: [comparableSchema]
+    comparables: [comparableSchema],
+    // Custom value fields for user editing
+    customValue: Number,
+    originalValue: Number, // Store the original API value
+    isCustomValue: { type: Boolean, default: false }
   },
   rentEstimate: {
     rent: Number,

@@ -288,13 +288,20 @@
 }
 
 .comparable-sales h3 {
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 0.5rem 0;
   color: #2c3e50;
   font-size: 1.2rem;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.section-description {
+  margin: 0 0 1.5rem 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 /* Comparables Grid */
@@ -355,6 +362,20 @@
   font-weight: 700;
   color: #2c3e50;
   margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.price-type-indicator {
+  background: #28a745;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .price-difference {
@@ -661,6 +682,19 @@
 
   .comparable-sales h3 {
     font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .price-main {
+    font-size: 1.25rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .price-type-indicator {
+    font-size: 0.6rem;
+    padding: 0.15rem 0.4rem;
   }
 }
 

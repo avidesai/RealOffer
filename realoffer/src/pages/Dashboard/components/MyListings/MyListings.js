@@ -19,11 +19,15 @@ function MyListings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showCreateListingModal, setShowCreateListingModal] = useState(false);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState('active');
   const [sort, setSort] = useState('recent');
   const [searchQuery, setSearchQuery] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareListingUrl, setShareListingUrl] = useState('');
+
+  // Calculate counts for different statuses
+  const activeListingsCount = listings.filter(listing => listing.status === 'active').length;
+  const archivedListingsCount = listings.filter(listing => listing.status === 'archived').length;
 
   const fetchUserDetails = useCallback(async () => {
     if ((user?._id || user?.id) && token) {
@@ -161,20 +165,20 @@ function MyListings() {
     setShowCreateListingModal(false);
   };
 
-  const handleFilterChange = (newFilter) => {
+  const handleFilterChange = useCallback((newFilter) => {
     setFilter(newFilter);
     setCurrentPage(1); // Reset to first page when filter changes
-  };
+  }, []);
 
-  const handleSortChange = (newSort) => {
+  const handleSortChange = useCallback((newSort) => {
     setSort(newSort);
     setCurrentPage(1); // Reset to first page when sort changes
-  };
+  }, []);
 
-  const handleSearch = (query) => {
+  const handleSearch = useCallback((query) => {
     setSearchQuery(query);
     setCurrentPage(1); // Reset to first page when search changes
-  };
+  }, []);
 
   const handleStatusChange = async (listingId, newStatus) => {
     setError('');
@@ -251,6 +255,8 @@ function MyListings() {
         onSortChange={handleSortChange}
         onSearch={handleSearch}
         totalListings={listings.length}
+        activeListingsCount={activeListingsCount}
+        archivedListingsCount={archivedListingsCount}
         filteredCount={filteredAndSortedListings.length}
         searchQuery={searchQuery}
       />

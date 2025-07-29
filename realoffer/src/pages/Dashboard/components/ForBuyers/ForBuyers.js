@@ -17,11 +17,15 @@ function ForBuyers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState('active');
   const [sort, setSort] = useState('recent');
   const [searchQuery, setSearchQuery] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareListingUrl, setShareListingUrl] = useState('');
+
+  // Calculate counts for different statuses
+  const activePackagesCount = buyerPackages.filter(pkg => pkg.status === 'active').length;
+  const archivedPackagesCount = buyerPackages.filter(pkg => pkg.status === 'archived').length;
 
   const { user, token, logout } = useAuth();
 
@@ -140,20 +144,20 @@ function ForBuyers() {
     filterAndSortPackages();
   }, [buyerPackages, filter, sort, searchQuery]);
 
-  const handleFilterChange = (newFilter) => {
+  const handleFilterChange = useCallback((newFilter) => {
     setFilter(newFilter);
     setCurrentPage(1); // Reset to first page when filter changes
-  };
+  }, []);
 
-  const handleSortChange = (newSort) => {
+  const handleSortChange = useCallback((newSort) => {
     setSort(newSort);
     setCurrentPage(1); // Reset to first page when sort changes
-  };
+  }, []);
 
-  const handleSearch = (query) => {
+  const handleSearch = useCallback((query) => {
     setSearchQuery(query);
     setCurrentPage(1); // Reset to first page when search changes
-  };
+  }, []);
 
   const handleStatusChange = async (packageId, newStatus) => {
     setError('');
@@ -232,6 +236,8 @@ function ForBuyers() {
         onSortChange={handleSortChange}
         onSearch={handleSearch}
         totalPackages={buyerPackages.length}
+        activePackagesCount={activePackagesCount}
+        archivedPackagesCount={archivedPackagesCount}
         filteredCount={filteredAndSortedPackages.length}
         searchQuery={searchQuery}
       />

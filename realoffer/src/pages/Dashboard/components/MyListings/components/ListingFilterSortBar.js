@@ -8,10 +8,12 @@ function ListingFilterSortBar({
   onSortChange, 
   onSearch, 
   totalListings = 0,
+  activeListingsCount = 0,
+  archivedListingsCount = 0,
   filteredCount = 0,
   searchQuery = ''
 }) {
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState('active');
   const [sort, setSort] = useState('recent');
   const [localSearchQuery, setLocalSearchQuery] = useState('');
 
@@ -19,6 +21,11 @@ function ListingFilterSortBar({
   useEffect(() => {
     setLocalSearchQuery(searchQuery);
   }, [searchQuery]);
+
+  // Trigger initial filter change to notify parent of default 'active' state
+  useEffect(() => {
+    onFilterChange('active');
+  }, [onFilterChange]); // Include onFilterChange in dependency array
 
   // Debounce search to avoid too many calls
   useEffect(() => {
@@ -55,8 +62,8 @@ function ListingFilterSortBar({
               onChange={handleFilterChange}
             >
               <option value="all">All Listings ({totalListings})</option>
-              <option value="active">Active</option>
-              <option value="archived">Archived</option>
+              <option value="active">Active ({activeListingsCount})</option>
+              <option value="archived">Archived ({archivedListingsCount})</option>
             </select>
           </div>
           <div className="lfsb-sort-section">
@@ -83,11 +90,6 @@ function ListingFilterSortBar({
           />
         </div>
       </div>
-      {filteredCount !== totalListings && (
-        <div className="lfsb-results-info">
-          Showing {filteredCount} of {totalListings} listings
-        </div>
-      )}
     </div>
   );
 }
