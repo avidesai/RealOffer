@@ -53,20 +53,7 @@ const initialOfferState = {
 
 // Enhanced document workflow state
 const initialDocumentWorkflow = {
-  purchaseAgreement: {
-    choice: 'upload', // Changed from 'auto_generate' to 'upload' as default
-    document: null,
-    status: 'pending', // 'pending' | 'ready' | 'signed'
-    canRegenerate: false
-  },
-  requirements: {
-    documents: [],
-    allSatisfied: false
-  },
-  additional: {
-    documents: [],
-    count: 0
-  },
+  documents: [], // Single array for all documents
   signing: {
     isConfigured: false,
     selectedDocuments: [],
@@ -190,68 +177,72 @@ export const OfferProvider = ({ children }) => {
     return requirements;
   }, [offerData]);
 
-  // Enhanced document workflow validation with detailed feedback
-  const validateDocumentWorkflow = useCallback(() => {
+  // Document-specific validation (for Add Documents step)
+  const validateDocuments = useCallback(() => {
     const validation = {
       documentsComplete: false,
-      signingReady: false,
-      canProceedToReview: false,
       issues: [],
       warnings: []
     };
 
     // Purchase Agreement validation
-    const hasPurchaseAgreement = documentWorkflow.purchaseAgreement.status === 'ready' || 
-                                 documentWorkflow.purchaseAgreement.choice === 'skip_for_now';
+    const hasPurchaseAgreement = documentWorkflow.documents.some(doc => 
+      doc.type === 'Purchase Agreement' || doc.type === 'purchase_agreement'
+    );
     
-    if (!hasPurchaseAgreement && documentWorkflow.purchaseAgreement.choice === 'auto_generate') {
-      validation.issues.push('Purchase agreement auto-generation is incomplete');
-    }
-
-    // Required documents validation
-    const requiredDocs = documentWorkflow.requirements.documents.filter(doc => doc.required);
-    const missingRequired = requiredDocs.filter(doc => doc.status !== 'uploaded');
-    
-    if (missingRequired.length > 0) {
-      missingRequired.forEach(doc => {
-        validation.issues.push(`Missing required document: ${doc.title}`);
-      });
-    }
-
-    const requiredDocsSatisfied = requiredDocs.every(doc => doc.status === 'uploaded');
-
-    // Signing validation
-    const signingReady = documentWorkflow.signing.selectedDocuments.length === 0 || 
-                        (documentWorkflow.signing.recipients.length > 0 && 
-                         documentWorkflow.signing.recipients.every(s => s.name && s.email));
-
-    if (documentWorkflow.signing.selectedDocuments.length > 0) {
-      if (documentWorkflow.signing.recipients.length === 0) {
-        validation.warnings.push('Documents selected for signing but no recipients configured');
-      } else {
-        const invalidRecipients = documentWorkflow.signing.recipients.filter(s => !s.name || !s.email);
-        if (invalidRecipients.length > 0) {
-          validation.warnings.push(`${invalidRecipients.length} recipient(s) missing name or email`);
-        }
-      }
+    if (!hasPurchaseAgreement) {
+      validation.issues.push('Purchase agreement is required');
     }
 
     // Additional validation warnings
-    if (documentWorkflow.purchaseAgreement.choice === 'skip_for_now') {
-      validation.warnings.push('No purchase agreement included - you may need to provide one separately');
+    if (documentWorkflow.documents.length === 0) {
+      validation.warnings.push('No documents included with this offer');
     }
 
-    if (documentWorkflow.additional.documents.length === 0 && requiredDocs.length === 0) {
-      validation.warnings.push('No supporting documents included with this offer');
-    }
-
-    // Comprehensive validation
-    validation.documentsComplete = hasPurchaseAgreement && requiredDocsSatisfied;
-    validation.signingReady = signingReady;
-    validation.canProceedToReview = validation.documentsComplete && validation.issues.length === 0;
+    // Document completion validation
+    validation.documentsComplete = hasPurchaseAgreement;
 
     return validation;
   }, [documentWorkflow]);
+
+  // Signing-specific validation (for Electronic Signatures step)
+  const validateSigning = useCallback(() => {
+    const validation = {
+      signingReady: false,
+      issues: [],
+      warnings: []
+    };
+
+    // Signing validation
+    const signingReady = documentWorkflow.signing.recipients.length > 0 && 
+                        documentWorkflow.signing.recipients.every(s => s.name && s.email);
+
+    if (documentWorkflow.signing.recipients.length === 0) {
+      validation.warnings.push('No signing recipients configured');
+    } else {
+      const invalidRecipients = documentWorkflow.signing.recipients.filter(s => !s.name || !s.email);
+      if (invalidRecipients.length > 0) {
+        validation.warnings.push(`${invalidRecipients.length} recipient(s) missing name or email`);
+      }
+    }
+
+    validation.signingReady = signingReady;
+    return validation;
+  }, [documentWorkflow]);
+
+  // Enhanced document workflow validation with detailed feedback (for overall workflow)
+  const validateDocumentWorkflow = useCallback(() => {
+    const documentValidation = validateDocuments();
+    const signingValidation = validateSigning();
+    
+    return {
+      documentsComplete: documentValidation.documentsComplete,
+      signingReady: signingValidation.signingReady,
+      canProceedToReview: documentValidation.documentsComplete && documentValidation.issues.length === 0,
+      issues: [...documentValidation.issues, ...signingValidation.issues],
+      warnings: [...documentValidation.warnings, ...signingValidation.warnings]
+    };
+  }, [validateDocuments, validateSigning]);
 
   // Reset workflow (for new offers)
   const resetDocumentWorkflow = useCallback(() => {
@@ -268,6 +259,8 @@ export const OfferProvider = ({ children }) => {
       updateDocumentWorkflow,
       getDocumentRequirements,
       validateDocumentWorkflow,
+      validateDocuments,
+      validateSigning,
       resetDocumentWorkflow
     }}>
       {children}

@@ -7,7 +7,7 @@ import StripeWrapper from './components/StripeWrapper';
 import StripePaymentForm from './components/StripePaymentForm';
 import api from '../../../../context/api';
 import './UpgradeToPro.css';
-import { CheckCircle, BarChart2, Brain, TrendingUp, Users } from 'lucide-react';
+import { BarChart2, Brain, TrendingUp, Users } from 'lucide-react';
 
 // Agent features (includes unlimited listings)
 const agentProFeatures = [

@@ -48,7 +48,7 @@ function MyListings() {
         
         if (error.response?.status === 401) {
           setError('Your session has expired. Please log in again.');
-          logout();
+          await logout();
         } else if (error.response?.status === 403) {
           setError('You do not have permission to access listings.');
         } else if (error.response?.status === 404) {
@@ -209,7 +209,7 @@ function MyListings() {
       
       if (error.response?.status === 401) {
         setError('Your session has expired. Please log in again.');
-        logout();
+        await logout();
       } else if (error.response?.status === 403) {
         setError('You do not have permission to update this listing.');
       } else if (error.response?.status === 404) {

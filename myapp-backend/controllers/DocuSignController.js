@@ -705,6 +705,37 @@ const handleEnvelopeVoided = async (envelopeData) => {
   }
 };
 
+
+
+// Disconnect DocuSign (manual disconnect)
+exports.disconnectDocuSign = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Clear DocuSign tokens and related data
+    user.docusignAccessToken = undefined;
+    user.docusignRefreshToken = undefined;
+    user.docusignTokenExpiry = undefined;
+    user.docusignAccountId = undefined;
+    user.docusignUserId = undefined;
+    
+    await user.save();
+    
+    console.log('DocuSign disconnected for user:', req.user.id);
+    
+    res.status(200).json({ 
+      message: 'DocuSign disconnected successfully',
+      isConnected: false
+    });
+  } catch (error) {
+    console.error('Error disconnecting DocuSign:', error);
+    res.status(500).json({ message: 'Error disconnecting DocuSign' });
+  }
+};
+
 // Helper function to convert stream to buffer
 const streamToBuffer = async (stream) => {
   const chunks = [];

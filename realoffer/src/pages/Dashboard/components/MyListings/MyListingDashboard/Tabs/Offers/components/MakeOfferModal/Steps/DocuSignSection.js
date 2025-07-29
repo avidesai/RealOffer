@@ -1,372 +1,416 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useAuth } from '../../../../../../../../../../../src/context/AuthContext';
+import { useOffer } from '../../../../../../../../../../../src/context/OfferContext';
 
 const DocuSignSection = ({ 
-  allDocuments, 
-  signableDocuments, 
   documentWorkflow, 
-  toggleDocumentSigning, 
   loading, 
-  handleDocuSignConnect,
   offerData,
-  updateDocumentWorkflow
+  updateDocumentWorkflow,
+  handleNextStep,
+  handlePrevStep
 }) => {
-  const [recipients, setRecipients] = useState(documentWorkflow.signing?.recipients || []);
-  const [recipientErrors, setRecipientErrors] = useState({});
+  const { token } = useAuth();
+  const { validateSigning } = useOffer();
+  
+  // Local state
+  const [docuSignLoading, setDocuSignLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [validation, setValidation] = useState({});
 
-  // Initialize recipients with offer data
+  // Check DocuSign connection status
   useEffect(() => {
-    if (documentWorkflow.signing?.recipients) {
-      // If recipients array is empty, initialize with default recipients
-      if (documentWorkflow.signing.recipients.length === 0) {
-        const defaultRecipients = [
-          {
-            id: 'buyer-agent',
-            type: 'buyer-agent',
-            role: 'agent', // Agent role for field setup
-            name: offerData.presentedBy?.name || '',
-            email: offerData.presentedBy?.email || '',
-            required: true,
-            order: 1
-          },
-          {
-            id: 'primary-buyer',
-            type: 'buyer',
-            role: 'signer', // Signer role for signing only
-            name: offerData.buyerName || '',
-            email: '',
-            required: true,
-            order: 2
-          }
-        ];
+    const checkConnection = async () => {
+      if (!token) return;
+      
+      try {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/status`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
         
-        console.log('Initializing default recipients:', defaultRecipients);
-        setRecipients(defaultRecipients);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        const isConnected = typeof data?.isConnected === 'boolean' ? data.isConnected : false;
         
         updateDocumentWorkflow(prev => ({
           ...prev,
           signing: {
             ...prev.signing,
-            recipients: defaultRecipients
+            docuSignConnected: isConnected
           }
         }));
+      } catch (error) {
+        console.error('Error checking DocuSign connection:', error);
+        
+        // If it's a 401 error, the token is invalid
+        if (error.response?.status === 401) {
+          console.warn('DocuSign token invalid - marking as disconnected');
+        }
+        
+        updateDocumentWorkflow(prev => ({
+          ...prev,
+          signing: {
+            ...prev.signing,
+            docuSignConnected: false,
+            status: 'not_configured'
+          }
+        }));
+      }
+    };
+    
+    checkConnection();
+  }, [token, updateDocumentWorkflow]);
+
+  // Listen for DocuSign OAuth callback messages
+  useEffect(() => {
+    const handleMessage = (event) => {
+      // Verify origin for security
+      if (event.origin !== 'https://account-d.docusign.com' && 
+          event.origin !== 'https://demo.docusign.net' &&
+          !event.origin.includes('docusign.com')) {
         return;
       }
       
-      // Update existing recipients with offer data
-      const updatedRecipients = documentWorkflow.signing.recipients.map(recipient => {
-        if (recipient.type === 'buyer-agent' && offerData.presentedBy) {
-          return {
-            ...recipient,
-            role: recipient.role || 'agent', // Ensure buyer's agent has agent role
-            name: recipient.name || offerData.presentedBy.name || '',
-            email: recipient.email || offerData.presentedBy.email || ''
-          };
-        }
-        if (recipient.type === 'buyer' && recipient.id === 'primary-buyer') {
-          return {
-            ...recipient,
-            role: recipient.role || 'signer', // Ensure buyers have signer role
-            name: recipient.name || offerData.buyerName || ''
-          };
-        }
-        return {
-          ...recipient,
-          role: recipient.role || 'signer' // Default to signer for any other recipients
-        };
-      });
-      
-      // Only update if there are actual changes
-      const hasChanges = updatedRecipients.some((recipient, index) => {
-        const original = documentWorkflow.signing.recipients[index];
-        return recipient.name !== original.name || recipient.email !== original.email;
-      });
-      
-      if (hasChanges) {
-        console.log('DocuSign Recipients updated:', updatedRecipients);
-        setRecipients(updatedRecipients);
-        
-        // Update context with initialized data
-        updateDocumentWorkflow(prev => ({
-          ...prev,
-          signing: {
-            ...prev.signing,
-            recipients: updatedRecipients
+      if (event.data?.type === 'DOCUSIGN_OAUTH_CALLBACK') {
+        console.log('DocuSign OAuth callback received');
+        // Re-check connection status after successful OAuth
+        setTimeout(async () => {
+          try {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/status`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            const isConnected = typeof data?.isConnected === 'boolean' ? data.isConnected : false;
+            
+            updateDocumentWorkflow(prev => ({
+              ...prev,
+              signing: {
+                ...prev.signing,
+                docuSignConnected: isConnected,
+                status: isConnected ? 'ready' : 'not_configured'
+              }
+            }));
+          } catch (error) {
+            console.error('Error re-checking DocuSign connection:', error);
           }
-        }));
-      } else {
-        // Just sync the local state with context if no changes needed
-        setRecipients(documentWorkflow.signing.recipients);
+        }, 1000); // Give the backend time to process the callback
       }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [token, updateDocumentWorkflow]);
+
+  // Get all documents and signable documents
+  const allDocuments = useMemo(() => {
+    return documentWorkflow.documents || [];
+  }, [documentWorkflow.documents]);
+
+  const signableDocuments = useMemo(() => {
+    return allDocuments; // Include all documents, including signature packet
+  }, [allDocuments]);
+
+  // Toggle document signing
+  const toggleDocumentSigning = useCallback((documentId) => {
+    updateDocumentWorkflow(prev => ({
+      ...prev,
+      documents: prev.documents.map(doc =>
+        doc.id === documentId
+          ? { ...doc, sendForSigning: !doc.sendForSigning }
+          : doc
+      )
+    }));
+  }, [updateDocumentWorkflow]);
+
+  // Recipients management
+  const [recipients, setRecipients] = useState([
+    {
+      id: 'buyer-agent',
+      type: 'buyer-agent',
+      role: 'agent',
+      name: '',
+      email: '',
+      required: true,
+      order: 1
+    },
+    {
+      id: 'primary-buyer',
+      type: 'buyer',
+      role: 'signer',
+      name: '',
+      email: '',
+      required: true,
+      order: 2
     }
-  }, [offerData.presentedBy, offerData.buyerName, updateDocumentWorkflow, documentWorkflow.signing?.recipients]);
+  ]);
 
   const addBuyer = () => {
-    const newBuyer = {
+    const newOrder = recipients.length + 1;
+    setRecipients(prev => [...prev, {
       id: `buyer-${Date.now()}`,
       type: 'buyer',
-      role: 'signer', // New buyers are always signers
+      role: 'signer',
       name: '',
       email: '',
       required: false,
-      order: recipients.length + 1
-    };
-    const updatedRecipients = [...recipients, newBuyer];
-    setRecipients(updatedRecipients);
-    
-    // Update context
-    updateDocumentWorkflow(prev => ({
-      ...prev,
-      signing: {
-        ...prev.signing,
-        recipients: updatedRecipients
-      }
-    }));
+      order: newOrder
+    }]);
   };
 
   const removeBuyer = (id) => {
-    if (recipients.find(r => r.id === id)?.required) return;
-    const updatedRecipients = recipients.filter(r => r.id !== id);
-    setRecipients(updatedRecipients);
-    
-    // Update context
-    updateDocumentWorkflow(prev => ({
-      ...prev,
-      signing: {
-        ...prev.signing,
-        recipients: updatedRecipients
-      }
-    }));
+    setRecipients(prev => prev.filter(r => r.id !== id));
   };
 
   const updateRecipient = (id, field, value) => {
-    const updatedRecipients = recipients.map(r => 
+    setRecipients(prev => prev.map(r => 
       r.id === id ? { ...r, [field]: value } : r
-    );
-    setRecipients(updatedRecipients);
-    
-    // Update context
+    ));
+  };
+
+  const hasValidRecipients = () => {
+    return recipients.every(r => r.name && r.email);
+  };
+
+  // Update document workflow with recipients when they change
+  useEffect(() => {
     updateDocumentWorkflow(prev => ({
       ...prev,
       signing: {
         ...prev.signing,
-        recipients: updatedRecipients
+        recipients: recipients
       }
     }));
-    
-    // Clear error when user starts typing
-    if (recipientErrors[`${id}-${field}`]) {
-      setRecipientErrors({
-        ...recipientErrors,
-        [`${id}-${field}`]: null
+  }, [recipients, updateDocumentWorkflow]);
+
+  // Validate signing and update validation state
+  useEffect(() => {
+    const validationResult = validateSigning();
+    setValidation(validationResult);
+  }, [documentWorkflow, validateSigning]);
+
+  // Check if any documents are selected for signing
+  const hasSelectedDocuments = signableDocuments.some(doc => doc.sendForSigning);
+
+  // Connect to DocuSign
+  const handleDocuSignConnect = async () => {
+    setDocuSignLoading(true);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/auth-url`, {
+        headers: { 'Authorization': `Bearer ${token}` }
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      if (!data.authUrl) {
+        throw new Error('No authorization URL received from server');
+      }
+      
+      // Open DocuSign auth URL in popup
+      const popup = window.open(
+        data.authUrl, 
+        'docusign-auth', 
+        'width=600,height=600,scrollbars=yes,resizable=yes'
+      );
+      
+      if (!popup) {
+        throw new Error('Failed to open popup. Please check your popup blocker settings.');
+      }
+      
+      // Monitor popup closure
+      const checkClosed = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(checkClosed);
+          setDocuSignLoading(false);
+        }
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Error connecting to DocuSign:', error);
+      setError(`Failed to connect to DocuSign: ${error.message}`);
+      setDocuSignLoading(false);
     }
   };
 
-
-
-  const hasValidRecipients = () => {
-    return recipients.every(r => r.name.trim() && r.email.trim() && /\S+@\S+\.\S+/.test(r.email));
-  };
-
   return (
-    <div className="ds-document-section">
-      <div className="ds-section-header">
-        <h3>4. Electronic Signatures</h3>
-        <p>Configure document signing via DocuSign</p>
+    <div className="ds-modal-step">
+      <div className="ds-offer-modal-header">
+        <h2>Electronic Signatures</h2>
+        <p>Set up electronic signatures for your documents</p>
       </div>
-      <div className="ds-section-content">
-        {/* DocuSign Connection Status - Compact */}
-        <div className="ds-docusign-status-compact">
-          {documentWorkflow.signing?.docuSignConnected ? (
-            <div className="ds-status-connected">
-              <span className="ds-status-icon">✓</span>
-              <span className="ds-status-text">DocuSign Connected</span>
-            </div>
-          ) : (
-            <div className="ds-status-disconnected">
-              <span className="ds-status-icon">○</span>
-              <span className="ds-status-text">DocuSign Not Connected</span>
-              <button
-                type="button"
-                onClick={handleDocuSignConnect}
-                className="ds-connect-button-small"
-                disabled={loading}
-              >
-                {loading ? 'Connecting...' : 'Connect'}
-              </button>
-            </div>
-          )}
-        </div>
 
-        {/* Document Selection */}
-        {allDocuments.length > 0 && (
-          <div className="ds-document-summary">
-            <h4>Documents Ready for Signature ({allDocuments.length})</h4>
-            <p className="ds-summary-description">
-              Choose which documents to send for electronic signature. The buyer's agent will set up signature fields in DocuSign before sending to all recipients:
-            </p>
-            <div className="ds-documents-list">
-              {allDocuments.map((doc, index) => (
-                <div key={doc.documentKey || `doc-${doc.id || index}`} className="ds-summary-document">
-                  <span className="ds-doc-name">📄 {doc.title}</span>
-                  <span className="ds-doc-category">{doc.category}</span>
-                  <label className="ds-signable-toggle">
-                    <input
-                      type="checkbox"
-                      checked={doc.signable}
-                      onChange={() => toggleDocumentSigning(doc.documentKey, doc.requirementType, doc.additionalIndex)}
-                      disabled={loading}
-                    />
-                    <span className="ds-toggle-label">Send for Signature</span>
-                  </label>
-                </div>
-              ))}
-            </div>
-            
-            {/* Summary Info */}
+      {error && (
+        <div className="ds-error-message">
+          {error}
+        </div>
+      )}
+
+      <div className="ds-document-section">
+        <div className="ds-section-header">
+          <h3>DocuSign Connection</h3>
+          <p>Connect to DocuSign to enable electronic signatures</p>
+        </div>
+        
+        <div className="ds-section-content">
+          {/* DocuSign Connection Status */}
+          <div className="ds-docusign-status-compact">
+            {documentWorkflow.signing?.docuSignConnected ? (
+              <div className="ds-status-connected">
+                <span className="ds-status-icon">✅</span>
+                <span className="ds-status-text">Connected to DocuSign</span>
+              </div>
+            ) : (
+              <div className="ds-status-disconnected">
+                <span className="ds-status-icon">❌</span>
+                <span className="ds-status-text">Not connected to DocuSign</span>
+                <button
+                  className="ds-connect-button-small"
+                  onClick={handleDocuSignConnect}
+                  disabled={docuSignLoading}
+                >
+                  {docuSignLoading ? 'Connecting...' : 'Connect'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Document Selection */}
+      {allDocuments.length > 0 && (
+        <div className="ds-document-section">
+          <div className="ds-section-header">
+            <h3>Select Documents for Signing</h3>
+            <p>Choose which documents to include in the electronic signature process</p>
+          </div>
+          
+          <div className="ds-section-content">
             <div className="ds-signing-summary">
-              {signableDocuments.length > 0 ? (
-                <p className="ds-signing-info">
-                  <strong>{signableDocuments.length} document{signableDocuments.length === 1 ? '' : 's'}</strong> selected for electronic signature.
-                  The buyer's agent will receive these documents first to set up signature fields in DocuSign.
-                </p>
-              ) : (
-                <p className="ds-signing-info">
-                  No documents selected for electronic signature. Documents will be sent as attachments only.
-                </p>
+              <div className="ds-documents-list">
+                {signableDocuments.map((doc) => (
+                  <div key={doc.id} className="ds-summary-document">
+                    <div className="ds-doc-info">
+                      <div className="ds-doc-name">{doc.title}</div>
+                      <div className="ds-doc-category">{doc.type}</div>
+                    </div>
+                    <label className="ds-signable-toggle">
+                      <input
+                        type="checkbox"
+                        checked={doc.sendForSigning || false}
+                        onChange={() => toggleDocumentSigning(doc.id)}
+                        disabled={!documentWorkflow.signing?.docuSignConnected}
+                      />
+                      <span className="ds-toggle-label">Send for signing</span>
+                    </label>
+                  </div>
+                ))}
+              </div>
+
+              {signableDocuments.length === 0 && (
+                <div className="ds-no-documents">
+                  <p>No documents available for signing. Please upload documents in the previous step.</p>
+                </div>
               )}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Recipients Section */}
-        {signableDocuments.length > 0 && (
-          <div className="ds-recipients-section">
-            <h4>Signing Recipients</h4>
-            <p className="ds-recipients-description">
-              {documentWorkflow.signing?.docuSignConnected 
-                ? "The buyer's agent will receive the documents first as an Agent to set up signature fields. Once configured, all recipients will receive signing invitations in order."
-                : "The buyer's agent will handle field setup in DocuSign before sending to all recipients for signing. Configure recipient order and information below."
-              }
-            </p>
-            
-            <div className="ds-recipients-list">
-              {console.log('Current recipients being rendered:', recipients)}
-              {recipients.map((recipient, index) => (
-                <div key={recipient.id} className="ds-recipient-card">
-                  <div className="ds-recipient-header">
-                    <span className="ds-recipient-type">
-                      {recipient.type === 'buyer-agent' ? '👤 Buyer\'s Agent' : `👤 Buyer ${recipient.type === 'buyer' && index > 1 ? index : ''}`}
-                      {recipient.role === 'agent' && <span className="ds-role-badge agent"> - Field Setup</span>}
-                      {recipient.role === 'signer' && <span className="ds-role-badge signer"> - Signer</span>}
-                    </span>
-                    <span className="ds-signing-order">Order {index + 1}</span>
-                    {!recipient.required && (
-                      <button
-                        type="button"
-                        onClick={() => removeBuyer(recipient.id)}
-                        className="ds-remove-recipient-btn"
-                        title="Remove buyer"
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
-                  
-                  <div className="ds-recipient-form">
-                    <div className="ds-form-group">
-                      <label>Full Name *</label>
-                      <input
-                        type="text"
-                        value={recipient.name}
-                        onChange={(e) => updateRecipient(recipient.id, 'name', e.target.value)}
-                        className={`docs-clp-input ${recipientErrors[`${recipient.id}-name`] ? 'error' : ''}`}
-                        placeholder="Enter full legal name"
-                      />
-                      {recipientErrors[`${recipient.id}-name`] && (
-                        <div className="docs-clp-error">{recipientErrors[`${recipient.id}-name`]}</div>
+      {/* Recipients Setup */}
+      {documentWorkflow.signing?.docuSignConnected && hasSelectedDocuments && (
+        <div className="ds-document-section">
+          <div className="ds-section-header">
+            <h3>Signing Recipients</h3>
+            <p>Configure who will sign the selected documents</p>
+          </div>
+          
+          <div className="ds-section-content">
+            <div className="ds-recipients-section">
+              <div className="ds-recipients-list">
+                {recipients.map((recipient) => (
+                  <div key={recipient.id} className="ds-recipient-card">
+                    <div className="ds-recipient-header">
+                      <div className="ds-recipient-type">
+                        <span className={`ds-role-badge ${recipient.role}`}>
+                          {recipient.role === 'agent' ? 'Agent' : 'Signer'}
+                        </span>
+                        <span className="ds-signing-order">Order: {recipient.order}</span>
+                      </div>
+                      {recipient.type === 'buyer' && recipients.length > 2 && (
+                        <button
+                          className="ds-remove-recipient-btn"
+                          onClick={() => removeBuyer(recipient.id)}
+                        >
+                          Remove
+                        </button>
                       )}
                     </div>
                     
-                    <div className="ds-form-group">
-                      <label>Email Address *</label>
-                      <input
-                        type="email"
-                        value={recipient.email}
-                        onChange={(e) => updateRecipient(recipient.id, 'email', e.target.value)}
-                        className={`docs-clp-input ${recipientErrors[`${recipient.id}-email`] ? 'error' : ''}`}
-                        placeholder="Enter email address"
-                      />
-                      {recipientErrors[`${recipient.id}-email`] && (
-                        <div className="docs-clp-error">{recipientErrors[`${recipient.id}-email`]}</div>
-                      )}
+                    <div className="ds-recipient-form">
+                      <div className="ds-form-group">
+                        <label>Name *</label>
+                        <input
+                          type="text"
+                          value={recipient.name}
+                          onChange={(e) => updateRecipient(recipient.id, 'name', e.target.value)}
+                          placeholder="Enter full name"
+                          className="ds-recipient-input"
+                        />
+                      </div>
+                      <div className="ds-form-group">
+                        <label>Email *</label>
+                        <input
+                          type="email"
+                          value={recipient.email}
+                          onChange={(e) => updateRecipient(recipient.id, 'email', e.target.value)}
+                          placeholder="Enter email address"
+                          className="ds-recipient-input"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-            
-            <div className="ds-recipients-actions">
-              <button
-                type="button"
-                onClick={addBuyer}
-                className="ds-upload-label"
-              >
-                + Add Additional Buyer
-              </button>
-              
-              <div className="ds-recipients-validation">
-                {hasValidRecipients() ? (
-                  <div className="ds-recipients-validation-success">
-                    <span className="ds-validation-icon">✓</span>
-                    <span className="ds-validation-text">Ready to send for signatures</span>
-                  </div>
-                ) : (
-                  <div className="ds-recipients-validation-warning">
-                    <span className="ds-validation-icon">⚠</span>
-                    <span className="ds-validation-text">Please complete all recipient information</span>
+                ))}
+              </div>
+
+              <div className="ds-recipients-actions">
+                <button
+                  className="ds-add-recipient-btn"
+                  onClick={addBuyer}
+                >
+                  + Add Another Signer
+                </button>
+                {!hasValidRecipients() && (
+                  <div className="ds-recipients-validation-inline">
+                    <span className="ds-validation-icon">⚠️</span>
+                    <span className="ds-validation-text">
+                      {validation.warnings && validation.warnings.length > 0 
+                        ? validation.warnings[0] 
+                        : 'Please fill in all required recipient information'
+                      }
+                    </span>
                   </div>
                 )}
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Final Status */}
-        {signableDocuments.length > 0 && documentWorkflow.signing?.docuSignConnected && hasValidRecipients() && (
-          <div className="ds-docusign-ready">
-            <div className="ds-success-indicator">✓ Ready for Electronic Signatures</div>
-            <div style={{ textAlign: 'left', marginTop: '0.75rem' }}>
-              <p style={{ margin: '0 0 0.75rem 0', fontWeight: '500', color: '#065f46' }}>
-                Signature workflow for {signableDocuments.length} document{signableDocuments.length === 1 ? '' : 's'}:
-              </p>
-              <ul style={{ margin: '0', paddingLeft: '1.25rem', color: '#065f46', fontSize: '0.95rem', lineHeight: '1.5' }}>
-                <li>Buyer's agent receives documents first to set up signature fields</li>
-                <li>All {recipients.length} recipient{recipients.length === 1 ? '' : 's'} receive signing invitations in order</li>
-                <li>Offer status: "pending-signatures" → "pending-review" when complete</li>
-              </ul>
-            </div>
-          </div>
-        )}
-        
-        {/* Show recipients setup status when DocuSign not connected */}
-        {signableDocuments.length > 0 && !documentWorkflow.signing?.docuSignConnected && (
-          <div className="ds-recipients-setup-status">
-            <div className="ds-recipients-validation">
-              {hasValidRecipients() ? (
-                <div className="ds-recipients-validation-success">
-                  <span className="ds-validation-icon">✓</span>
-                  <span className="ds-validation-text">Recipients configured. Connect DocuSign above to enable the electronic signature workflow with field setup.</span>
-                </div>
-              ) : (
-                <div className="ds-recipients-validation-warning">
-                  <span className="ds-validation-icon">⚠</span>
-                  <span className="ds-validation-text">Please complete recipient information, then connect DocuSign to enable the signature workflow.</span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+      <div className="ds-button-container">
+        <button className="ds-step-back-button" onClick={handlePrevStep}>
+          Back
+        </button>
+        <button
+          className="ds-next-button"
+          onClick={handleNextStep}
+        >
+          Next
+        </button>
       </div>
     </div>
   );

@@ -19,8 +19,8 @@ function ProfileHeader({ backDestination = '/dashboard' }) {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 

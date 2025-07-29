@@ -39,9 +39,9 @@ const LandingHeader = () => {
     }
   };
 
-  const handleLogoutClick = (e) => {
+  const handleLogoutClick = async (e) => {
     e.preventDefault();
-    logout();
+    await logout();
     navigate('/');
   };
 

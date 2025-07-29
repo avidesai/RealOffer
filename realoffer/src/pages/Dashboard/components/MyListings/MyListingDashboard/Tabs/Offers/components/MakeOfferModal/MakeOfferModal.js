@@ -10,6 +10,7 @@ import Contingencies from './Steps/Contingencies';
 import AgentInformation from './Steps/AgentInformation';
 import OfferDetails from './Steps/OfferDetails';
 import DocumentsAndSigning from './Steps/DocumentsAndSigning';
+import DocuSignSection from './Steps/DocuSignSection';
 import FinalReview from './Steps/FinalReview';
 import axios from 'axios';
 
@@ -332,17 +333,25 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       handleNextStep={handleNextStep}
       handlePrevStep={handlePrevStep}
     />,
-    documentsAndSigning: <DocumentsAndSigning
+    documents: <DocumentsAndSigning
       handleNextStep={handleNextStep}
       handlePrevStep={handlePrevStep}
       listingId={listingId}
+    />,
+    electronicSignatures: <DocuSignSection
+      documentWorkflow={documentWorkflow}
+      loading={false}
+      offerData={offerData}
+      updateDocumentWorkflow={updateDocumentWorkflow}
+      handleNextStep={handleNextStep}
+      handlePrevStep={handlePrevStep}
     />,
     finalReview: <FinalReview
       formData={offerData}
       handlePrevStep={handlePrevStep}
       handleSubmit={handleSubmit}
     />
-  }), [offerData, handleChange, handleFinanceTypeChange, handleNextStep, handlePrevStep, handleNestedChange, listingId, handleSubmit]);
+  }), [offerData, handleChange, handleFinanceTypeChange, handleNextStep, handlePrevStep, handleNestedChange, listingId, handleSubmit, documentWorkflow, updateDocumentWorkflow]);
 
   return (
     <div className="make-offer-modal">
@@ -361,8 +370,9 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         {step === 2 && memoizedComponents.contingencies}
         {step === 3 && memoizedComponents.agentInformation}
         {step === 4 && memoizedComponents.offerDetails}
-        {step === 5 && memoizedComponents.documentsAndSigning}
-        {step === 6 && memoizedComponents.finalReview}
+        {step === 5 && memoizedComponents.documents}
+        {step === 6 && memoizedComponents.electronicSignatures}
+        {step === 7 && memoizedComponents.finalReview}
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ const authMiddleware = require('../middleware/auth');
 router.get('/status', authMiddleware, DocuSignController.getConnectionStatus);
 router.get('/auth-url', authMiddleware, DocuSignController.getAuthUrl);
 router.post('/send', authMiddleware, DocuSignController.sendDocumentsForSigning);
+router.post('/disconnect', authMiddleware, DocuSignController.disconnectDocuSign);
 
 // Do NOT protect the callback route
 router.get('/callback', DocuSignController.handleCallback);

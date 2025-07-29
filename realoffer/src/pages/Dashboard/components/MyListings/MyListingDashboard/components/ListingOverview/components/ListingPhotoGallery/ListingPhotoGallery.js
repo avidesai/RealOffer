@@ -143,7 +143,7 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
     } catch (error) {
       if (error.response && error.response.status === 401) {
         console.error('Authentication failed, token may be expired. Logging out.');
-        logout();
+        await logout();
       } else {
         console.error('Error updating photo order:', error);
         // Revert to original order on error
@@ -220,7 +220,7 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
           <img 
             ref={mainPhotoRef}
             src={orderedImages[currentIndex]} 
-            alt={`Photo ${currentIndex + 1} of ${orderedImages.length}`} 
+            alt={`${currentIndex + 1} of ${orderedImages.length}`} 
             className="main-photo" 
             onClick={handleMainPhotoClick}
             draggable={false}
@@ -262,7 +262,7 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
                         >
                           <img
                             src={image}
-                            alt={`Thumbnail ${index + 1}`}
+                            alt={`${index + 1}`}
                             className={`thumbnail ${index === currentIndex ? 'active' : ''}`}
                             onClick={() => handleThumbnailClick(index)}
                             draggable={false}

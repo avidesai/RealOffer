@@ -13,7 +13,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hasChanges, setHasChanges] = useState(false);
-  const [originalListing, setOriginalListing] = useState(null);
+  // Removed unused originalListing state
   const debounceTimer = useRef({});
 
   const fetchListing = useCallback(async () => {
@@ -37,7 +37,6 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
       }
       
       setListing(listingData);
-      setOriginalListing(JSON.parse(JSON.stringify(listingData))); // Deep copy for comparison
       setHasChanges(false);
     } catch (error) {
       console.error('Error fetching listing:', error);

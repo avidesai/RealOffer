@@ -49,7 +49,7 @@ function ForBuyers() {
         
         if (error.response?.status === 401) {
           setError('Your session has expired. Please log in again.');
-          logout();
+          await logout();
         } else if (error.response?.status === 403) {
           setError('You do not have permission to access buyer packages.');
         } else if (error.response?.status === 404) {
@@ -188,7 +188,7 @@ function ForBuyers() {
       
       if (error.response?.status === 401) {
         setError('Your session has expired. Please log in again.');
-        logout();
+        await logout();
       } else if (error.response?.status === 403) {
         setError('You do not have permission to update this buyer package.');
       } else if (error.response?.status === 404) {

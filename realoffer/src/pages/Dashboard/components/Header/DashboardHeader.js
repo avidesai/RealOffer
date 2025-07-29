@@ -20,8 +20,8 @@ function DashboardHeader({ activeTab, setActiveTab }) {
     setIsDropdownOpen(prev => !prev);
   }, []);
 
-  const handleLogout = useCallback(() => {
-    logout();
+  const handleLogout = useCallback(async () => {
+    await logout();
     navigate('/login');
   }, [logout, navigate]);
 

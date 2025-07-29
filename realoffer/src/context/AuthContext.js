@@ -17,8 +17,22 @@ export const AuthProvider = ({ children }) => {
   const logoutRef = useRef(null);
 
   // Define logout function
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
     console.log('Logging out...');
+    
+    // Call backend logout endpoint to clear DocuSign tokens
+    const currentToken = localStorage.getItem('token');
+    if (currentToken) {
+      try {
+        await api.post('/api/users/logout');
+        console.log('Backend logout successful - DocuSign tokens cleared');
+      } catch (error) {
+        console.error('Backend logout failed:', error);
+        // Continue with frontend logout even if backend fails
+      }
+    }
+    
+    // Clear frontend state
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     localStorage.removeItem('docusignConnected');
@@ -152,6 +166,26 @@ export const AuthProvider = ({ children }) => {
     console.log('DocuSign status cleared.');
   }, []);
 
+  const disconnectDocuSign = useCallback(async () => {
+    if (!token) {
+      console.log('No token available for DocuSign disconnect');
+      return false;
+    }
+
+    try {
+      await api.post('/api/docusign/disconnect');
+      console.log('DocuSign disconnected successfully');
+      
+      setDocusignConnected(false);
+      localStorage.removeItem('docusignConnected');
+      
+      return true;
+    } catch (error) {
+      console.error('Error disconnecting DocuSign:', error);
+      return false;
+    }
+  }, [token]);
+
   const value = {
     user,
     token,
@@ -162,6 +196,7 @@ export const AuthProvider = ({ children }) => {
     checkDocusignConnection,
     setDocusignConnected,
     clearDocusignStatus,
+    disconnectDocuSign,
   };
 
   return (

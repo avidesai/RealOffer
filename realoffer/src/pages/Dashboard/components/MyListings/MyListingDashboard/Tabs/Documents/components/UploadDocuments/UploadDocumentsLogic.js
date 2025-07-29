@@ -16,18 +16,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
   const fileInputRef = useRef(null);
   const { user, token } = useAuth();
 
-  const validateAndClearErrors = (currentFiles) => {
-    const newErrors = [];
-    if (currentFiles.length === 0) {
-      newErrors.push('Please select at least one file.');
-    }
-    currentFiles.forEach((file, index) => {
-      if (!file.type) {
-        newErrors.push(`Please select a type for "${file.title || file.file.name}".`);
-      }
-    });
-    setErrors(newErrors);
-  };
+  // Removed unused validateAndClearErrors function
 
   const handleDragOver = (e) => {
     e.preventDefault();

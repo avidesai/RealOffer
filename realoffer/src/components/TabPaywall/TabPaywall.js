@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, BarChart2, Calculator, DollarSign, Activity as ActivityIcon, Eye, Download, MessageSquare, BarChart3, Brain, FileText, Search, Shield } from 'lucide-react';
+import { TrendingUp, BarChart2, Calculator, Activity as ActivityIcon, Eye, Download, BarChart3, Brain, FileText, Search, Shield } from 'lucide-react';
 import './TabPaywall.css';
 
 const TabPaywall = ({ feature, variant = 'analysis' }) => {
