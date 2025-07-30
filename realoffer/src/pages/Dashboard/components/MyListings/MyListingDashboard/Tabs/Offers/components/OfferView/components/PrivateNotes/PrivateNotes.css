@@ -1,6 +1,6 @@
 /* PrivateNotes.css */
 
-.private-notes-section {
+.odv-private-notes-section {
   background-color: #ffffff;
   border-radius: 16px;
   margin-bottom: 1.5rem;
@@ -10,11 +10,11 @@
   transition: all 0.2s ease;
 }
 
-.private-notes-section:hover {
+.odv-private-notes-section:hover {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
-.section-title {
+.odv-section-title {
   font-size: 1.3rem;
   font-weight: 700;
   color: #2c3e50;
@@ -24,11 +24,11 @@
   border-bottom: 2px solid #f1f3f5;
 }
 
-.private-notes-content {
+.odv-private-notes-content {
   padding: 0;
 }
 
-.private-notes-content textarea {
+.odv-private-notes-content textarea {
   width: 100%;
   height: 200px;
   border: 2px solid #e9ecef;
@@ -46,25 +46,25 @@
   max-height: 400px;
 }
 
-.private-notes-content textarea:focus {
+.odv-private-notes-content textarea:focus {
   outline: none;
   border-color: #007bff;
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
   background-color: #fafbfc;
 }
 
-.private-notes-content textarea::placeholder {
+.odv-private-notes-content textarea::placeholder {
   color: #8e9aaf;
   font-style: italic;
   opacity: 0.8;
 }
 
-.private-notes-content textarea:hover {
+.odv-private-notes-content textarea:hover {
   border-color: #007bff;
 }
 
 /* Character count indicator */
-.character-count {
+.odv-character-count {
   display: flex;
   justify-content: flex-end;
   margin-top: 0.5rem;
@@ -74,7 +74,7 @@
 }
 
 /* Auto-save indicator */
-.save-status {
+.odv-save-status {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -83,37 +83,37 @@
   color: #6c757d;
 }
 
-.save-status.saving {
+.odv-save-status.saving {
   color: #ffc107;
 }
 
-.save-status.saved {
+.odv-save-status.saved {
   color: #28a745;
 }
 
-.save-status.error {
+.odv-save-status.error {
   color: #dc3545;
 }
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
-  .private-notes-section {
+  .odv-private-notes-section {
     padding: 1.5rem;
   }
 
-  .section-title {
+  .odv-section-title {
     font-size: 1.2rem;
     margin-bottom: 1.25rem;
   }
 
-  .private-notes-content textarea {
+  .odv-private-notes-content textarea {
     height: 160px;
     font-size: 0.9rem;
     padding: 0.85rem;
   }
 
-  .character-count,
-  .save-status {
+  .odv-character-count,
+  .odv-save-status {
     font-size: 0.75rem;
   }
 }

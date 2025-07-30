@@ -35,7 +35,7 @@
 .odv-offer-content {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.5rem;
+  gap: 1rem;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -43,7 +43,7 @@
 .odv-middle-section {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .odv-spinner-container {
@@ -86,11 +86,11 @@
 @media (min-width: 992px) {
   .odv-offer-content {
     grid-template-columns: 1fr 2fr 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
   }
 
   .odv-middle-section {
-    gap: 2rem;
+    gap: 1.5rem;
   }
 }
 
@@ -98,32 +98,53 @@
 @media (min-width: 768px) and (max-width: 991px) {
   .odv-offer-content {
     grid-template-columns: 1fr 1fr;
-    gap: 1.75rem;
+    gap: 1.25rem;
   }
 
   .odv-middle-section {
-    gap: 1.75rem;
+    gap: 1.25rem;
   }
 }
 
 /* Mobile Layout */
 @media (max-width: 767px) {
   .odv-offer-details-view {
-    padding: 1rem 0.75rem 2rem 0.75rem;
+    padding: 1rem 0.5rem 1.5rem 0.5rem;
   }
 
   .odv-offer-back-button {
     padding: 0.6rem 1.5rem;
     font-size: 0.9rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
   }
 
   .odv-offer-content {
-    gap: 1.25rem;
+    gap: 1rem;
   }
 
   .odv-middle-section {
-    gap: 1.25rem;
+    gap: 1rem;
+  }
+}
+
+/* Small Mobile Layout */
+@media (max-width: 480px) {
+  .odv-offer-details-view {
+    padding: 0.75rem 0.25rem 1.25rem 0.25rem;
+  }
+
+  .odv-offer-back-button {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+
+  .odv-offer-content {
+    gap: 0.75rem;
+  }
+
+  .odv-middle-section {
+    gap: 0.75rem;
   }
 }
   

@@ -40,14 +40,14 @@ const Messages = ({ offer }) => {
   const lastResponse = offer.responses && offer.responses.length > 0 ? offer.responses[offer.responses.length - 1] : null;
 
   if (loading) {
-    return <div className="spinner-container"><div className="spinner"></div></div>;
+    return <div className="odv-spinner-container"><div className="odv-spinner"></div></div>;
   }
 
   return (
-    <div className="messages-section">
-      <h2 className="messages-section-title">Messages</h2>
-      <div className="message-bubble buyer-message">
-        <div className="agent-avatar-container">
+    <div className="odv-messages-section">
+      <h2 className="odv-messages-section-title">Messages</h2>
+      <div className="odv-message-bubble odv-buyer-message">
+        <div className="odv-agent-avatar-container">
           {(() => {
             const nameParts = offer.presentedBy.name ? offer.presentedBy.name.split(' ') : ['', ''];
             const firstName = nameParts[0] || '';
@@ -58,30 +58,30 @@ const Messages = ({ offer }) => {
                 firstName={firstName}
                 lastName={lastName}
                 size="small"
-                className="agent-avatar-img"
+                className="odv-agent-avatar-img"
                 alt={offer.presentedBy.name}
               />
             );
           })()}
         </div>
-        <div className="message-content">
+        <div className="odv-message-content">
           <p>{offer.buyersAgentMessage ? offer.buyersAgentMessage : "No message included."}</p>
-          <div className="message-timestamp">{formatDateTime(offer.submittedOn)}</div>
+          <div className="odv-message-timestamp">{formatDateTime(offer.submittedOn)}</div>
         </div>
       </div>
       {lastResponse && (
-        <div className="message-bubble response-message">
-          <div className="message-content">
+        <div className="odv-message-bubble odv-response-message">
+          <div className="odv-message-content">
             <p>{lastResponse.message}</p>
-            <div className="message-timestamp">{formatDateTime(lastResponse.respondedAt)}</div>
+            <div className="odv-message-timestamp">{formatDateTime(lastResponse.respondedAt)}</div>
           </div>
-          <div className="agent-avatar-container right-avatar">
+          <div className="odv-agent-avatar-container right-avatar">
             <Avatar
               src={userData?.profilePhotoUrl}
               firstName={userData?.firstName}
               lastName={userData?.lastName}
               size="small"
-              className="agent-avatar-img"
+              className="odv-agent-avatar-img"
               alt="Agent"
             />
           </div>

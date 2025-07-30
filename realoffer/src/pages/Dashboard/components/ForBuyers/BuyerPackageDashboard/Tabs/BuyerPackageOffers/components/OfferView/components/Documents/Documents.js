@@ -26,26 +26,26 @@ const Documents = ({ documents }) => {
   };
 
   return (
-    <div className="offer-details-documents-section">
-      <h2 className="offer-details-section-title">Documents</h2>
-      <div className="offer-details-documents-content">
+    <div className="odv-offer-details-documents-section">
+      <h2 className="odv-offer-details-section-title">Documents</h2>
+      <div className="odv-offer-details-documents-content">
         {documents.length === 0 ? (
-          <p className="offer-details-no-documents">No documents included.</p>
+          <p className="odv-offer-details-no-documents">No documents included.</p>
         ) : (
-          <div className="offer-details-documents-list">
+          <div className="odv-offer-details-documents-list">
             {documents.map(doc => (
-              <div key={doc._id} className="offer-details-document-item" onClick={() => handleViewDocument(doc)}>
-                <div className="offer-details-document-info">
-                  <div className="offer-details-document-details">
-                    <p className="offer-details-document-title">{doc.title || 'Untitled'}</p>
-                    <p className="offer-details-document-type">{doc.type || 'No type'}</p>
-                    <p className="offer-details-document-meta">
-                      {doc.pages || 0} {doc.pages === 1 ? 'Page' : 'Pages'} <span className="offer-details-meta-divider">•</span> {formatDate(doc.updatedAt)}
+              <div key={doc._id} className="odv-offer-details-document-item" onClick={() => handleViewDocument(doc)}>
+                <div className="odv-offer-details-document-info">
+                  <div className="odv-offer-details-document-details">
+                    <p className="odv-offer-details-document-title">{doc.title || 'Untitled'}</p>
+                    <p className="odv-offer-details-document-type">{doc.type || 'No type'}</p>
+                    <p className="odv-offer-details-document-meta">
+                      {doc.pages || 0} {doc.pages === 1 ? 'Page' : 'Pages'} <span className="odv-offer-details-meta-divider">•</span> {formatDate(doc.updatedAt)}
                     </p>
                   </div>
                 </div>
-                <div className="offer-details-document-actions">
-                  <a href={`${doc.thumbnailUrl}?${doc.sasToken}&token=${token}`} target="_blank" rel="noopener noreferrer" className="offer-details-download-action-button offer-details-document-actions-button">Download</a>
+                <div className="odv-offer-details-document-actions">
+                  <a href={`${doc.thumbnailUrl}?${doc.sasToken}&token=${token}`} target="_blank" rel="noopener noreferrer" className="odv-offer-details-download-action-button odv-offer-details-document-actions-button">Download</a>
                 </div>
               </div>
             ))}

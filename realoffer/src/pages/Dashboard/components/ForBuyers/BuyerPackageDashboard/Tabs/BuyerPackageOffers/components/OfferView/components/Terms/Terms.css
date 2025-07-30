@@ -7,12 +7,7 @@
   margin-bottom: 1.5rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   border: 1px solid #e9ecef;
-  padding: 2rem;
-  transition: all 0.2s ease;
-}
-
-.terms-section:hover {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  padding: 0rem 2rem 2rem 2rem;
 }
 
 .terms-section h3 {
@@ -29,25 +24,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 0;
+  padding: 0.5rem 0;
   border-bottom: 1px solid #f8fafc;
-  transition: background-color 0.2s ease;
-}
-
-.term:hover {
-  background-color: #f8fafc;
-  margin: 0 -1rem;
-  padding: 1rem;
-  border-radius: 8px;
 }
 
 .term.centered {
   justify-content: center;
   flex-direction: column;
   text-align: center;
-  padding: 1.5rem 0;
-  background: linear-gradient(135deg, #f8fafd 0%, #f1f5f9 100%);
-  margin: 0 -2rem 1rem -2rem;
+  padding: 0.75rem 0;
+  margin: 0 -2rem 0.5rem -2rem;
   border-radius: 0;
   border-bottom: 2px solid #e9ecef;
 }
@@ -59,10 +45,10 @@
 .purchase-price-value {
   font-size: 2rem;
   font-weight: 700;
-  color: #2c3e50;
+  color: #28a745;
   text-align: center;
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #007bff, #0056b3);
+  background: linear-gradient(135deg, #28a745, #1e7e34);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -87,11 +73,8 @@
 .special-terms {
   display: block;
   text-align: left;
-  padding: 1.5rem 0 1rem 0;
-  background: #f8fafc;
-  margin: 1rem -2rem -1rem -2rem;
-  padding: 1.5rem 2rem;
-  border-radius: 0 0 16px 16px;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f8fafc;
 }
 
 .special-terms .label {
@@ -110,16 +93,12 @@
   color: #495057;
   font-size: 0.95rem;
   line-height: 1.6;
-  background: #fff;
-  padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
 }
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   .terms-section {
-    padding: 1.5rem;
+    padding: 0.75rem 1.5rem 1.5rem 1.5rem;
     margin-bottom: 1.25rem;
   }
 
@@ -132,17 +111,12 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
-    padding: 0.75rem 0;
-  }
-
-  .term:hover {
-    margin: 0 -1.5rem;
-    padding: 0.75rem 1.5rem;
+    padding: 0.4rem 0;
   }
 
   .term.centered {
-    margin: 0 -1.5rem 1rem -1.5rem;
-    padding: 1.25rem 1.5rem;
+    margin: 0 -1.5rem 0.5rem -1.5rem;
+    padding: 0.6rem 1.5rem;
   }
 
   .purchase-price-value {
@@ -165,8 +139,7 @@
   }
 
   .special-terms {
-    margin: 1rem -1.5rem -1.5rem -1.5rem;
-    padding: 1.25rem 1.5rem;
+    padding: 0.4rem 0;
   }
 
   .special-terms .label {
