@@ -169,27 +169,8 @@ const DocuSignSection = ({
     }));
   }, [updateDocumentWorkflow]);
 
-  // Recipients management
-  const [recipients, setRecipients] = useState([
-    {
-      id: 'buyer-agent',
-      type: 'buyer-agent',
-      role: 'agent',
-      name: '',
-      email: '',
-      required: true,
-      order: 1
-    },
-    {
-      id: 'primary-buyer',
-      type: 'buyer',
-      role: 'signer',
-      name: '',
-      email: '',
-      required: true,
-      order: 2
-    }
-  ]);
+  // Get recipients from document workflow
+  const recipients = useMemo(() => documentWorkflow.signing.recipients || [], [documentWorkflow.signing.recipients]);
 
   // Auto-populate recipients with buyer and agent information
   useEffect(() => {
@@ -219,14 +200,20 @@ const DocuSignSection = ({
       });
       
       if (hasChanges) {
-        setRecipients(updatedRecipients);
+        updateDocumentWorkflow(prev => ({
+          ...prev,
+          signing: {
+            ...prev.signing,
+            recipients: updatedRecipients
+          }
+        }));
       }
     }
-  }, [offerData, recipients.length]);
+  }, [offerData, recipients, updateDocumentWorkflow]);
 
   const addBuyer = () => {
     const newOrder = recipients.length + 1;
-    setRecipients(prev => [...prev, {
+    const newRecipient = {
       id: `buyer-${Date.now()}`,
       type: 'buyer',
       role: 'signer',
@@ -234,42 +221,55 @@ const DocuSignSection = ({
       email: '',
       required: false,
       order: newOrder
-    }]);
+    };
+    
+    updateDocumentWorkflow(prev => ({
+      ...prev,
+      signing: {
+        ...prev.signing,
+        recipients: [...prev.signing.recipients, newRecipient]
+      }
+    }));
   };
 
   const removeBuyer = (id) => {
-    setRecipients(prev => {
+    updateDocumentWorkflow(prev => {
       // Filter out the recipient to be removed
-      const filteredRecipients = prev.filter(r => r.id !== id);
+      const filteredRecipients = prev.signing.recipients.filter(r => r.id !== id);
       
       // Reorder the remaining recipients to have sequential order numbers
-      return filteredRecipients.map((recipient, index) => ({
+      const reorderedRecipients = filteredRecipients.map((recipient, index) => ({
         ...recipient,
         order: index + 1
       }));
+      
+      return {
+        ...prev,
+        signing: {
+          ...prev.signing,
+          recipients: reorderedRecipients
+        }
+      };
     });
   };
 
   const updateRecipient = (id, field, value) => {
-    setRecipients(prev => prev.map(r => 
-      r.id === id ? { ...r, [field]: value } : r
-    ));
+    updateDocumentWorkflow(prev => ({
+      ...prev,
+      signing: {
+        ...prev.signing,
+        recipients: prev.signing.recipients.map(r => 
+          r.id === id ? { ...r, [field]: value } : r
+        )
+      }
+    }));
   };
 
   const hasValidRecipients = () => {
     return recipients.every(r => r.name && r.email);
   };
 
-  // Update document workflow with recipients when they change
-  useEffect(() => {
-    updateDocumentWorkflow(prev => ({
-      ...prev,
-      signing: {
-        ...prev.signing,
-        recipients: recipients
-      }
-    }));
-  }, [recipients, updateDocumentWorkflow]);
+
 
   // Validate signing and update validation state
   useEffect(() => {
@@ -363,8 +363,8 @@ const DocuSignSection = ({
   return (
     <div className="ds-modal-step">
       <div className="ds-offer-modal-header">
-        <h2>Electronic Signatures</h2>
-        <p>Set up electronic signatures for your documents</p>
+        <h2>Sign Documents</h2>
+        <p>Send documents for signature through DocuSign (optional)</p>
       </div>
 
       {error && (

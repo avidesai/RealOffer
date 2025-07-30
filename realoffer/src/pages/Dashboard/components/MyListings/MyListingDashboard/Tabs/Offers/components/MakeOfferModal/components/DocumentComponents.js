@@ -97,11 +97,8 @@ export const DocumentPreview = ({
 
 
   const getDocumentIcon = (document) => {
-    if (document.type?.toLowerCase().includes('pdf')) return '📄';
-    if (document.type?.toLowerCase().includes('image')) return '🖼️';
-    if (document.type?.toLowerCase().includes('agreement')) return '📋';
-    if (document.type?.toLowerCase().includes('signature')) return '✍️';
-    return '📄';
+    // Return empty string to remove emoji icons
+    return '';
   };
 
   if (compact) {

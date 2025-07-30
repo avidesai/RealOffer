@@ -3,7 +3,7 @@
 
 import React, { useMemo, useState, useCallback } from 'react';
 import { useOffer } from '../../../../../../../../../../../src/context/OfferContext';
-import { DocumentPreview, StatusBadge } from '../components/DocumentComponents';
+import { DocumentPreview } from '../components/DocumentComponents';
 import './FinalReview.css';
 
 const formatNumber = (value) => {
@@ -28,14 +28,60 @@ const getContingencyDisplay = (contingency, days) => {
 const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
   const { documentWorkflow } = useOffer();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [validationExpanded, setValidationExpanded] = useState(false);
 
-  // Format financial values
+  // Parse number helper function
+  const parseNumber = (value) => {
+    return parseFloat(value.replace(/,/g, '')) || 0;
+  };
+
+  // Parse percentage helper function
+  const parsePercentage = (value) => {
+    return parseFloat(value.replace(/[^0-9.-]+/g, '')) || 0;
+  };
+
+  // Calculate financial values using the same logic as PurchasePrice component
+  const calculatedFinancialValues = useMemo(() => {
+    const purchasePrice = parseNumber(formData.purchasePrice);
+    
+    // Calculate down payment dollar amount (either from direct input or percentage)
+    let downPaymentDollar;
+    if (formData.downPaymentPercent) {
+      const downPaymentPercent = parsePercentage(formData.downPaymentPercent || '0');
+      downPaymentDollar = (purchasePrice * downPaymentPercent / 100);
+    } else {
+      downPaymentDollar = parseNumber(formData.downPayment);
+    }
+    
+    // Calculate initial deposit dollar amount (either from direct input or percentage)
+    let initialDepositDollar;
+    if (formData.initialDepositPercent) {
+      const initialDepositPercent = parsePercentage(formData.initialDepositPercent || '0');
+      initialDepositDollar = (purchasePrice * initialDepositPercent / 100);
+    } else {
+      initialDepositDollar = parseNumber(formData.initialDeposit);
+    }
+    
+    const loanAmount = purchasePrice - downPaymentDollar;
+    const percentDown = purchasePrice > 0 ? ((downPaymentDollar / purchasePrice) * 100).toFixed(2) : '0.00';
+    const percentInitialDeposit = purchasePrice > 0 ? ((initialDepositDollar / purchasePrice) * 100).toFixed(2) : '0.00';
+    const balanceOfDownPayment = downPaymentDollar - initialDepositDollar;
+    
+    return {
+      loanAmount: isNaN(loanAmount) || loanAmount < 0 ? 0 : loanAmount,
+      percentDown: isNaN(percentDown) ? '0.00' : percentDown,
+      percentInitialDeposit: isNaN(percentInitialDeposit) ? '0.00' : percentInitialDeposit,
+      downPaymentDollar: isNaN(downPaymentDollar) ? 0 : downPaymentDollar,
+      initialDepositDollar: isNaN(initialDepositDollar) ? 0 : initialDepositDollar,
+      balanceOfDownPayment: isNaN(balanceOfDownPayment) || balanceOfDownPayment < 0 ? 0 : balanceOfDownPayment,
+    };
+  }, [formData.purchasePrice, formData.downPayment, formData.initialDeposit, formData.downPaymentPercent, formData.initialDepositPercent]);
+
+  // Format financial values using calculated values
   const formattedPurchasePrice = useMemo(() => formatNumber(formData.purchasePrice), [formData.purchasePrice]);
-  const formattedInitialDeposit = useMemo(() => formatNumber(formData.initialDeposit), [formData.initialDeposit]);
-  const formattedLoanAmount = useMemo(() => formatNumber(formData.loanAmount), [formData.loanAmount]);
-  const formattedDownPayment = useMemo(() => formatNumber(formData.downPayment), [formData.downPayment]);
-  const formattedBalanceOfDownPayment = useMemo(() => formatNumber(formData.balanceOfDownPayment), [formData.balanceOfDownPayment]);
+  const formattedInitialDeposit = useMemo(() => formatNumber(calculatedFinancialValues.initialDepositDollar), [calculatedFinancialValues.initialDepositDollar]);
+  const formattedLoanAmount = useMemo(() => formatNumber(calculatedFinancialValues.loanAmount), [calculatedFinancialValues.loanAmount]);
+  const formattedDownPayment = useMemo(() => formatNumber(calculatedFinancialValues.downPaymentDollar), [calculatedFinancialValues.downPaymentDollar]);
+  const formattedBalanceOfDownPayment = useMemo(() => formatNumber(calculatedFinancialValues.balanceOfDownPayment), [calculatedFinancialValues.balanceOfDownPayment]);
   const formattedSubmittedOn = useMemo(() => formatDate(formData.submittedOn), [formData.submittedOn]);
   const formattedOfferExpiryDate = useMemo(() => formatDate(formData.offerExpiryDate), [formData.offerExpiryDate]);
 
@@ -43,37 +89,17 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
   const documentAnalysis = useMemo(() => {
     const allDocuments = [];
     
-    // Purchase Agreement
-    if (documentWorkflow.purchaseAgreement.document) {
-      allDocuments.push({
-        ...documentWorkflow.purchaseAgreement.document,
-        category: 'Purchase Agreement',
-        status: documentWorkflow.purchaseAgreement.status,
-        critical: true,
-        sendForSigning: documentWorkflow.purchaseAgreement.sendForSigning !== false
-      });
-    }
-
-    // Required Documents
-    documentWorkflow.requirements.documents.forEach(req => {
-      if (req.document) {
-        allDocuments.push({
-          ...req.document,
-          category: 'Required',
-          status: req.status,
-          critical: req.required,
-          sendForSigning: req.sendForSigning !== false
-        });
-      }
-    });
-
-    // Additional Documents
-    documentWorkflow.additional.documents.forEach(doc => {
+    // Process all documents from the unified documents array
+    documentWorkflow.documents.forEach(doc => {
+      const isPurchaseAgreement = doc.type === 'Purchase Agreement' || doc.type === 'purchase_agreement';
+      const isSignaturePacket = doc.type === 'Disclosure Signature Packet';
+      
       allDocuments.push({
         ...doc,
-        category: 'Additional',
-        status: 'uploaded',
-        critical: false,
+        category: isPurchaseAgreement ? 'Purchase Agreement' : 
+                  isSignaturePacket ? 'Signature Packet' : 'Additional',
+        status: doc.status || 'uploaded',
+        critical: isPurchaseAgreement || isSignaturePacket,
         sendForSigning: doc.sendForSigning === true
       });
     });
@@ -89,7 +115,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
       optionalDocuments: optionalDocuments.length,
       categorized: {
         agreement: allDocuments.filter(doc => doc.category === 'Purchase Agreement'),
-        required: allDocuments.filter(doc => doc.category === 'Required'),
+        signaturePacket: allDocuments.filter(doc => doc.category === 'Signature Packet'),
         additional: allDocuments.filter(doc => doc.category === 'Additional')
       }
     };
@@ -115,23 +141,16 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
     }
 
     // Document validation
-    if (documentWorkflow.purchaseAgreement.choice === 'skip') {
+    const purchaseAgreements = documentWorkflow.documents.filter(doc => 
+      doc.type === 'Purchase Agreement' || doc.type === 'purchase_agreement'
+    );
+    
+    if (purchaseAgreements.length === 0) {
       warnings.push('No purchase agreement included - you may need to provide one separately');
     }
-    
-    const missingRequired = documentWorkflow.requirements.documents.filter(req => 
-      req.required && !req.document
-    );
-    missingRequired.forEach(req => {
-      issues.push(`Missing required document: ${req.title}`);
-    });
 
     // DocuSign validation
-    const signableDocuments = [
-      ...(documentWorkflow.purchaseAgreement.document && documentWorkflow.purchaseAgreement.sendForSigning ? [1] : []),
-      ...documentWorkflow.requirements.documents.filter(req => req.document && req.sendForSigning),
-      ...documentWorkflow.additional.documents.filter(doc => doc.sendForSigning)
-    ];
+    const signableDocuments = documentWorkflow.documents.filter(doc => doc.sendForSigning === true);
 
     if (signableDocuments.length > 0 && documentWorkflow.signing?.docuSignConnected) {
       // Check if recipients are configured
@@ -160,11 +179,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
     formData.offerExpiryDate,
     formData.presentedBy?.name,
     formData.presentedBy?.email,
-    documentWorkflow.purchaseAgreement.choice,
-    documentWorkflow.purchaseAgreement.document,
-    documentWorkflow.purchaseAgreement.sendForSigning,
-    documentWorkflow.requirements.documents,
-    documentWorkflow.additional.documents,
+    documentWorkflow.documents,
     documentWorkflow.signing?.docuSignConnected,
     documentWorkflow.signing?.recipients,
     documentAnalysis.totalDocuments
@@ -172,7 +187,6 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
 
   const handleSubmitWithValidation = useCallback(async () => {
     if (!validationAnalysis.canSubmit) {
-      setValidationExpanded(true);
       return;
     }
 
@@ -193,63 +207,6 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
         <p>Review all details before submitting your offer</p>
       </div>
 
-      {/* Validation Status */}
-      <div className="ds-document-section">
-        <div className="ds-section-header">
-          <h3>
-            {validationAnalysis.canSubmit ? 'Ready to Submit' : 'Issues Need Attention'}
-          </h3>
-          <p>
-            {validationAnalysis.canSubmit 
-              ? 'Your offer is ready for submission'
-              : `${validationAnalysis.issues.length} issue(s) must be resolved before submitting`
-            }
-          </p>
-        </div>
-        <div className="ds-section-content">
-          <div 
-            className={`ds-validation-panel ${validationAnalysis.canSubmit ? 'ready' : 'has-issues'}`}
-            onClick={() => setValidationExpanded(!validationExpanded)}
-          >
-            <div className="ds-validation-header">
-              <StatusBadge status={validationAnalysis.canSubmit ? 'ready' : 'error'} />
-              <span className="ds-validation-title">
-                {validationAnalysis.canSubmit ? 'All checks passed' : 'Click to view issues'}
-              </span>
-              <span className="ds-validation-toggle">
-                {validationExpanded ? '▼' : '▶'}
-              </span>
-            </div>
-            
-            {validationExpanded && (
-              <div className="ds-validation-details">
-                {validationAnalysis.issues.length > 0 && (
-                  <div className="ds-validation-issues">
-                    <h4>❌ Issues (Must Fix)</h4>
-                    <ul>
-                      {validationAnalysis.issues.map((issue, index) => (
-                        <li key={`issue-${index}`} className="ds-validation-issue">{issue}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                
-                {validationAnalysis.warnings.length > 0 && (
-                  <div className="ds-validation-warnings">
-                    <h4>⚠️ Important Notes</h4>
-                    <ul>
-                      {validationAnalysis.warnings.map((warning, index) => (
-                        <li key={`warning-${index}`} className="ds-validation-warning">{warning}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
       {/* Document Summary */}
       <div className="ds-document-section">
         <div className="ds-section-header">
@@ -263,55 +220,15 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
               <p>Your offer will be submitted without supporting documents.</p>
             </div>
           ) : (
-            <div className="ds-documents-overview">
-              {/* Document Categories */}
-              {documentAnalysis.categorized.agreement.length > 0 && (
-                <div className="ds-document-category">
-                  <h4>📋 Purchase Agreement</h4>
-                  <div className="ds-document-list">
-                    {documentAnalysis.categorized.agreement.map(doc => (
-                      <DocumentPreview
-                        key={`agreement-${doc.id || doc.title}`}
-                        document={doc}
-                        showStatus={true}
-                        compact={true}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {documentAnalysis.categorized.required.length > 0 && (
-                <div className="ds-document-category">
-                  <h4>📄 Required Documents</h4>
-                  <div className="ds-document-list">
-                    {documentAnalysis.categorized.required.map(doc => (
-                      <DocumentPreview
-                        key={`required-${doc.id || doc.title}`}
-                        document={doc}
-                        showStatus={true}
-                        compact={true}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {documentAnalysis.categorized.additional.length > 0 && (
-                <div className="ds-document-category">
-                  <h4>📎 Additional Supporting Documents</h4>
-                  <div className="ds-document-list">
-                    {documentAnalysis.categorized.additional.map(doc => (
-                      <DocumentPreview
-                        key={`additional-${doc.id || doc.title}`}
-                        document={doc}
-                        showStatus={true}
-                        compact={true}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+            <div className="ds-document-list">
+              {documentAnalysis.allDocuments.map(doc => (
+                <DocumentPreview
+                  key={`doc-${doc.id || doc.title}`}
+                  document={doc}
+                  showStatus={true}
+                  compact={true}
+                />
+              ))}
             </div>
           )}
         </div>
@@ -329,20 +246,20 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
               <span className="ds-summary-value primary">${formattedPurchasePrice}</span>
             </div>
             <div className="ds-summary-item">
-              <span className="ds-summary-label">Initial Deposit</span>
-              <span className="ds-summary-value">${formattedInitialDeposit}</span>
+              <span className="ds-summary-label">Down Payment</span>
+              <span className="ds-summary-value">${formattedDownPayment} ({calculatedFinancialValues.percentDown}%)</span>
             </div>
             <div className="ds-summary-item">
-              <span className="ds-summary-label">Finance Type</span>
-              <span className="ds-summary-value">{formData.financeType}</span>
+              <span className="ds-summary-label">Initial Deposit</span>
+              <span className="ds-summary-value">${formattedInitialDeposit} ({calculatedFinancialValues.percentInitialDeposit}%)</span>
             </div>
             <div className="ds-summary-item">
               <span className="ds-summary-label">Loan Amount</span>
               <span className="ds-summary-value">${formattedLoanAmount}</span>
             </div>
             <div className="ds-summary-item">
-              <span className="ds-summary-label">Down Payment</span>
-              <span className="ds-summary-value">${formattedDownPayment} ({formData.percentDown}%)</span>
+              <span className="ds-summary-label">Finance Type</span>
+              <span className="ds-summary-value">{formData.financeType}</span>
             </div>
             <div className="ds-summary-item">
               <span className="ds-summary-label">Down Payment Balance</span>
@@ -360,6 +277,10 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
         <div className="ds-section-content">
           <div className="ds-summary-grid">
             <div className="ds-summary-item">
+              <span className="ds-summary-label">Close of Escrow</span>
+              <span className="ds-summary-value">{formData.closeOfEscrow} Days</span>
+            </div>
+            <div className="ds-summary-item">
               <span className="ds-summary-label">Finance Contingency</span>
               <span className="ds-summary-value">{getContingencyDisplay(formData.financeContingency, formData.financeContingencyDays)}</span>
             </div>
@@ -376,12 +297,8 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
               <span className="ds-summary-value">{formData.homeSaleContingency}</span>
             </div>
             <div className="ds-summary-item">
-              <span className="ds-summary-label">Close of Escrow</span>
-              <span className="ds-summary-value">{formData.closeOfEscrow} Days</span>
-            </div>
-            <div className="ds-summary-item">
               <span className="ds-summary-label">Seller Rent Back</span>
-              <span className="ds-summary-value">{formData.sellerRentBack} Days</span>
+              <span className="ds-summary-value">{formData.sellerRentBack === 'Waived' ? 'Waived' : `${formData.sellerRentBack} Days`}</span>
             </div>
           </div>
         </div>
@@ -403,16 +320,16 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
               <span className="ds-summary-value">{formData.presentedBy.name}</span>
             </div>
             <div className="ds-summary-item">
-              <span className="ds-summary-label">Agent License</span>
-              <span className="ds-summary-value">{formData.presentedBy.licenseNumber}</span>
-            </div>
-            <div className="ds-summary-item">
               <span className="ds-summary-label">Agent Email</span>
               <span className="ds-summary-value">{formData.presentedBy.email}</span>
             </div>
             <div className="ds-summary-item">
               <span className="ds-summary-label">Agent Phone</span>
               <span className="ds-summary-value">{formData.presentedBy.phoneNumber}</span>
+            </div>
+            <div className="ds-summary-item">
+              <span className="ds-summary-label">Agent License</span>
+              <span className="ds-summary-value">{formData.presentedBy.licenseNumber}</span>
             </div>
             <div className="ds-summary-item">
               <span className="ds-summary-label">Commission</span>

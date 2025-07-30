@@ -1,6 +1,6 @@
 // AgentInformation.js
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useAuth } from '../../../../../../../../../../context/AuthContext';
 import { useOffer } from '../../../../../../../../../../context/OfferContext';
 import axios from 'axios';

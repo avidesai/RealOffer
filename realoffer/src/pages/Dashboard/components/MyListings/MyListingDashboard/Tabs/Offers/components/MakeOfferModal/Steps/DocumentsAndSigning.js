@@ -182,7 +182,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
       console.error('Error removing document:', error);
       setError('Failed to remove document');
     }
-  }, [updateDocumentWorkflow, token, signaturePacketExists]);
+  }, [updateDocumentWorkflow, token, signaturePacketExists, documentWorkflow.documents]);
 
   // Handle file input change
   const handleFileChange = (event) => {
