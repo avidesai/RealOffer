@@ -278,8 +278,16 @@ Output Format
 -----------------
 
 ## Grand Total (if listed in the report)
-Look for phrases like "Grand Total," "Total Estimated Cost," or similar.  
-If found, present exactly as written, e.g. **Total Repair Cost: $13,025**  
+Search the ENTIRE report for any cost information. Look for:
+- "Grand Total"
+- "Total Estimated Cost" 
+- "Total Amount"
+- "Total Cost"
+- "Estimated Total"
+- "Final Cost"
+- Any dollar amounts in summary sections
+
+If found, present exactly as written, e.g. **Total Repair Cost: $13,025**
 If not found, write *"No overall cost listed in report."*
 
 ---
@@ -291,7 +299,7 @@ Reference whether Section 1 items were found.
 
 ---
 
-## Active Infestations & Damage  (High Priority)
+## Active Infestations & Damage (High Priority)
 List every Section 1 finding the report calls out.  
 For each bullet include:
 - **Type** (e.g., drywood termites, subterranean termites, fungus/dry-rot)  
@@ -300,7 +308,7 @@ For each bullet include:
 
 ---
 
-## Conditions Likely to Lead to Infestation  (Medium Priority)
+## Conditions Likely to Lead to Infestation (Medium Priority)
 Bullet each Section 2 item (exposed wood, moisture, peeling paint, etc.).  
 State briefly why it creates future risk and the recommended preventive step.
 
@@ -320,7 +328,7 @@ For each treatment the report recommends (fumigation, local treatment, wood repl
 
 ---
 
-Write clearly and helpfully.  Remember: buyers and agents must be able to skim this summary and instantly understand what's urgent, what can wait, and what actions come next.
+Write clearly and helpfully. Remember: buyers and agents must be able to skim this summary and instantly understand what's urgent, what can wait, and what actions come next.
 
 Report content:
 ${text}`;
@@ -369,10 +377,17 @@ ${text}`;
         analysisResult = analysisResult.replace(/## Overall Condition\s*(\d+)\/10/, '## Overall Condition: $1/10');
       }
     } else if (document.type === 'Pest Inspection Report') {
-      // Ensure cost formatting is preserved
+      // Fix cost formatting and remove placeholders
+      analysisResult = analysisResult.replace(/\$\\1/g, 'No overall cost listed in report');
+      analysisResult = analysisResult.replace(/\*\*Total Repair Cost:\s*\$\\1\*\*/g, '*No overall cost listed in report.*');
+      
+      // Ensure cost formatting is preserved for actual amounts
       if (analysisResult.includes('Total Repair Cost:')) {
         analysisResult = analysisResult.replace(/\*\*Total Repair Cost:\s*\$([\d,]+)\*\*/g, '**Total Repair Cost: $\\1**');
       }
+      
+      // Clean up any malformed cost displays
+      analysisResult = analysisResult.replace(/\*\*Total Repair Cost:\s*\$[^0-9]*\*\*/g, '*No overall cost listed in report.*');
     }
 
     // Save analysis results

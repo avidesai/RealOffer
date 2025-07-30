@@ -218,6 +218,14 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
                         return <strong {...props} className={`urgency-tag urgency-${text.toLowerCase()}`}>{children}</strong>;
                       }
                       
+                      // Style structured labels in pest inspection reports
+                      if (documentType && documentType.toLowerCase().includes('pest')) {
+                        const labels = ['Type:', 'Location / component:', 'Risk:', 'Treatment:', 'Urgency:', 'Expected Outcome:', 'Recommendation:'];
+                        if (labels.some(label => text.includes(label))) {
+                          return <strong {...props} className="structured-label">{children}</strong>;
+                        }
+                      }
+                      
                       return <strong {...props}>{children}</strong>;
                     },
                     // Style bullet points with visual indicators
@@ -235,11 +243,26 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
                         }
                       }
                       
+                      // Style pest inspection structured items
+                      if (documentType && documentType.toLowerCase().includes('pest')) {
+                        if (text.includes('Type:') || text.includes('Treatment:')) {
+                          return <li {...props} className="pest-item-main">{children}</li>;
+                        } else if (text.includes('Location / component:') || text.includes('Urgency:') || text.includes('Expected Outcome:')) {
+                          return <li {...props} className="pest-item-detail">{children}</li>;
+                        } else if (text.includes('Risk:') || text.includes('Recommendation:')) {
+                          return <li {...props} className="pest-item-risk">{children}</li>;
+                        }
+                      }
+                      
                       return <li {...props}>{children}</li>;
                     },
                     // Style section dividers
                     hr: ({ node, ...props }) => {
                       return <hr {...props} className="section-divider" />;
+                    },
+                    // Handle paragraph spacing for better readability
+                    p: ({ node, children, ...props }) => {
+                      return <p {...props} className="analysis-paragraph">{children}</p>;
                     }
                   }}
                 >
