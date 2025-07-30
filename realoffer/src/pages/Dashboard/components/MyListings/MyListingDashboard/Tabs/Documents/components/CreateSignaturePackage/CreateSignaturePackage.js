@@ -24,20 +24,23 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
 
   const fetchListingData = useCallback(async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
+      const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      setSignaturePackage(response.data.signaturePackage);
+      setSignaturePackage(res.data.signaturePackage);
       
       // If the listing has a stored document order, use it
-      if (response.data.documentOrder && response.data.documentOrder.length > 0) {
-        setDocumentOrder(response.data.documentOrder);
+      if (res.data.documentOrder && res.data.documentOrder.length > 0) {
+        setDocumentOrder(res.data.documentOrder);
       }
+      // Return the listing data so callers can access documentOrder
+      return res.data;
     } catch (error) {
       console.error('Error fetching listing data:', error);
       setError('Failed to load listing data. Please try again.');
+      return null;
     }
   }, [listingId, token]);
 
@@ -83,8 +86,8 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
       setIsLoading(true);
       setError(null);
       try {
-        const listingResponse = await fetchListingData();
-        await fetchDocuments(listingResponse?.data?.documentOrder || []);
+        const listingData = await fetchListingData();
+        await fetchDocuments(listingData?.documentOrder || []);
       } catch (error) {
         console.error('Error fetching data:', error);
       }

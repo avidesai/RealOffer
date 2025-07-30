@@ -136,6 +136,18 @@ const MakeOfferModal = ({ onClose, listingId, buyerPackageId }) => {
       }
     });
 
+    // Add generic uploaded documents (documentWorkflow.documents)
+    if (Array.isArray(documentWorkflow.documents)) {
+      documentWorkflow.documents.forEach(doc => {
+        if (doc.id) {
+          allDocuments.push({ id: doc.id });
+          if (doc.sendForSigning) {
+            documentsForSigning.push(doc.id);
+          }
+        }
+      });
+    }
+
     const signingDocuments = [];
     if (purchaseAgreement.document && purchaseAgreement.sendForSigning) {
       signingDocuments.push({ documentId: purchaseAgreement.document.id, sendForSigning: true });
@@ -150,6 +162,15 @@ const MakeOfferModal = ({ onClose, listingId, buyerPackageId }) => {
         signingDocuments.push({ documentId: doc.id, sendForSigning: true });
       }
     });
+
+    // Include signing preferences for generic uploaded documents
+    if (Array.isArray(documentWorkflow.documents)) {
+      documentWorkflow.documents.forEach(doc => {
+        if (doc.sendForSigning) {
+          signingDocuments.push({ documentId: doc.id, sendForSigning: true });
+        }
+      });
+    }
 
     const formDataToSend = new FormData();
     for (const key in offerData) {
