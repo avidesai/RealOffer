@@ -211,72 +211,116 @@ exports.analyzeDocument = async (req, res) => {
     // Prepare prompt based on document type
     await updateAnalysisProgress(analysis._id, 'analyzing', 50, 'Preparing analysis...');
     const prompt = document.type === 'Home Inspection Report'
-      ? `You are an expert real estate advisor. Your job is to read a home inspection report and produce a clear, useful summary that helps a home buyer and their real estate agent quickly understand the condition of the property.
+      ? `You are an expert home inspector and real-estate advisor. Read the home-inspection report below and produce a plain-language summary for buyers and agents.
 
-Structure your response as follows:
+• **No technical jargon.**  
+• **No dollar estimates.**  
+• **Every bullet point should be 1–2 sentences** so readers understand why it matters.
 
-## Overall Condition 6/10
+Format your response exactly like this:
 
-Provide a condition score from 1 to 10 based on the overall state of the home. A 10 means excellent condition with very few or no issues. A 5 means there are moderate issues. A 1 means the home requires major repairs.
+## Overall Condition: X/10
+Give a score from 1–10:
+- 9–10 = Excellent (very few issues)  
+- 7–8 = Good (minor wear)  
+- 5–6 = Fair (some important repairs)  
+- 3–4 = Poor (many issues)  
+- 1–2 = Major concerns (not move-in ready)
 
-Justify the score in 2–3 sentences, summarizing the general condition of the property and highlighting any major strengths or concerns.
+Write 3–4 sentences summarizing the home's general state and biggest strengths or weaknesses.
 
-## Urgent Issues (Must Fix Before Move-In)
+---
 
-List all critical problems that affect safety, habitability, or are likely to be very costly (e.g., foundation cracks, roof replacement, electrical panel upgrades).
+## Key System Highlights
+Label each system with ✅ Good, ⚠️ Needs attention, or ❌ Problem found.  
+If ⚠️ or ❌, add 1–2 sentences explaining why.
 
-For each issue, briefly explain why it's urgent and whether it could be expensive to fix.
+**Roof**:  
+**Foundation**:  
+**Plumbing**:  
+**Electrical**:  
+**HVAC**:  
+**Water Heater**:  
 
-## Recommended Repairs (Fix Soon)
+---
 
-Include important but non-urgent issues that should be fixed in the near future (e.g., HVAC tune-up, minor leaks, window seals).
+## Must-Know Issues (Safety or Urgent)
+Bullet each serious problem.  
+For every bullet, give 1–2 sentences that explain the risk or consequence if left unfixed.
 
-Indicate if the repair is likely low, moderate, or high cost.
+---
 
-## Optional or Cosmetic Fixes
+## Should Fix Soon (Important but Not Urgent)
+List problems that don't block move-in but should be addressed within the next 6–12 months.  
+Provide 1–2 explanatory sentences per bullet.
 
-List minor issues that are cosmetic or convenience-related (e.g., door alignment, worn paint, cracked tiles).
+---
 
-Keep the tone professional, clear, and helpful. Avoid overly technical language. This summary will be shown to both buyers and real estate agents.
+## Cosmetic or Minor Notes
+List low-priority or purely cosmetic items.  
+Include a 1-sentence explanation if useful (max 2 sentences).
+
+---
+
+Write clearly and helpfully. Avoid dollar figures. This summary should let regular buyers and agents quickly grasp what matters most.
 
 Report content:
 ${text}`
-      : `You are a licensed pest inspector and real estate advisor. Your job is to read a pest inspection report and provide a clear, helpful summary for both home buyers and real estate agents.
+      : `You are a licensed pest-inspection specialist and real-estate advisor. Analyze the pest / termite inspection report below and create a clear, plain-language summary for home buyers and agents.
 
-Structure your response as follows:
+Guidelines
+- Avoid technical jargon; use everyday language.
+- Bullet points must be 1–2 concise sentences each.
+- Do NOT guess at repair costs. Only display the inspector's own total if it exists.
+- Preserve the logical order buyers care about: (1) Urgent risks, (2) Future risks, (3) Next actions.
 
-## Total Estimated Repair Cost
+Output Format
+-----------------
 
-Search the report for the "total amount," "grand total," or any final estimate of repair and treatment costs. This is usually found on the last page or summary section.
+## Grand Total (if listed in the report)
+Look for phrases like "Grand Total," "Total Estimated Cost," or similar.  
+If found, present exactly as written, e.g. **Total Repair Cost: $13,025**  
+If not found, write *"No overall cost listed in report."*
 
-Present this total clearly, e.g., **Estimated Total Cost: $4,750**.
+---
 
-## Summary for Buyers
+## Overall Finding
+Write 2–3 sentences that answer:  
+"Is the property free of major pest issues, facing moderate concerns, or dealing with serious active infestations that must be fixed before close of escrow?"  
+Reference whether Section 1 items were found.
 
-Write 2–3 sentences giving the buyer a high-level overview of the report's findings.
+---
 
-Mention whether the property has no major pest issues, some moderate concerns, or serious infestations requiring attention.
+## Active Infestations & Damage  (High Priority)
+List every Section 1 finding the report calls out.  
+For each bullet include:
+- **Type** (e.g., drywood termites, subterranean termites, fungus/dry-rot)  
+- **Location / component** (e.g., fascia on south side, rafter tails, sub-area)  
+- **Risk** in plain language (why it matters if ignored)
 
-## Active Infestations
+---
 
-List any active signs of termites, wood-destroying organisms, or other pests.
+## Conditions Likely to Lead to Infestation  (Medium Priority)
+Bullet each Section 2 item (exposed wood, moisture, peeling paint, etc.).  
+State briefly why it creates future risk and the recommended preventive step.
 
-- Specify the type (subterranean termites, drywood termites, fungus, etc.).
-- Indicate where the infestation was found and whether it is considered minor, moderate, or severe.
+---
 
-## Areas of Damage
+## Further Inspection Items
+List any areas the inspector marked "Further Inspection" because they were inaccessible.  
+Explain what must be opened up and why a follow-up matters.
 
-Summarize any physical damage caused by pests, including wood rot, structural weakening, or other deterioration.
+---
 
-Indicate whether the damage is structural or surface-level and where it is located.
+## Recommended Treatments
+For each treatment the report recommends (fumigation, local treatment, wood replacement, moisture correction):
+- **Treatment name**  
+- **Urgency tag**: Urgent / Recommended / Preventative (use the report's own wording if given)  
+- 1-sentence expected outcome
 
-## Treatment Recommendations
+---
 
-List each recommended treatment (e.g., fumigation, local treatment, wood replacement, moisture correction).
-
-Label each one as **urgent**, **recommended**, or **preventative** based on the report's language.
-
-Write clearly and use bullet points wherever possible. Avoid overly technical or inspection-specific jargon. This analysis should be useful to both real estate agents and everyday home buyers who are not experts in construction or pest management.
+Write clearly and helpfully.  Remember: buyers and agents must be able to skim this summary and instantly understand what's urgent, what can wait, and what actions come next.
 
 Report content:
 ${text}`;
@@ -285,7 +329,7 @@ ${text}`;
     await updateAnalysisProgress(analysis._id, 'analyzing', 70, 'Analyzing document content...');
     const claudeResponse = await axios.post('https://api.anthropic.com/v1/messages', {
       model: 'claude-3-haiku-20240307',
-      max_tokens: 1000,
+      max_tokens: 1500, // Increased for more detailed analysis
       messages: [
         {
           role: 'user',
@@ -300,9 +344,40 @@ ${text}`;
       }
     });
 
+    // Validate and clean the response
+    let analysisResult = claudeResponse.data.content[0].text;
+    
+    // Remove any introductory phrases that might be added by Claude
+    const introPhrases = [
+      'Here is a structured summary',
+      'Based on the home inspection report',
+      'Here is my analysis',
+      'Here is the analysis'
+    ];
+    
+    for (const phrase of introPhrases) {
+      if (analysisResult.toLowerCase().includes(phrase.toLowerCase())) {
+        analysisResult = analysisResult.replace(new RegExp(`^.*?${phrase}[^\\n]*\\n+`, 'i'), '');
+        break;
+      }
+    }
+    
+    // Ensure proper formatting for the new structure
+    if (document.type === 'Home Inspection Report') {
+      // Ensure score format is correct
+      if (!analysisResult.includes('Overall Condition:')) {
+        analysisResult = analysisResult.replace(/## Overall Condition\s*(\d+)\/10/, '## Overall Condition: $1/10');
+      }
+    } else if (document.type === 'Pest Inspection Report') {
+      // Ensure cost formatting is preserved
+      if (analysisResult.includes('Total Repair Cost:')) {
+        analysisResult = analysisResult.replace(/\*\*Total Repair Cost:\s*\$([\d,]+)\*\*/g, '**Total Repair Cost: $\\1**');
+      }
+    }
+
     // Save analysis results
     await updateAnalysisProgress(analysis._id, 'saving', 90, 'Saving analysis results...');
-    analysis.analysisResult = claudeResponse.data.content[0].text;
+    analysis.analysisResult = analysisResult;
     analysis.status = 'completed';
     analysis.progress = {
       currentStep: 'completed',
@@ -325,20 +400,32 @@ ${text}`;
   } catch (error) {
     console.error('Error analyzing document:', error);
     
+    // Provide more specific error messages
+    let errorMessage = 'Error analyzing document';
+    if (error.response?.status === 429) {
+      errorMessage = 'Rate limit exceeded. Please try again in a few minutes.';
+    } else if (error.response?.status === 401) {
+      errorMessage = 'Authentication error. Please refresh and try again.';
+    } else if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT') {
+      errorMessage = 'Connection timeout. Please check your internet connection and try again.';
+    } else if (error.message?.includes('CLAUDE_API_KEY')) {
+      errorMessage = 'AI service configuration error. Please contact support.';
+    }
+    
     // Update analysis with error if it exists
     if (analysis) {
       analysis.status = 'failed';
-      analysis.error = error.message;
+      analysis.error = errorMessage;
       analysis.progress = {
         currentStep: 'failed',
         percentage: 0,
-        message: `Analysis failed: ${error.message}`
+        message: `Analysis failed: ${errorMessage}`
       };
       await analysis.save();
     }
 
     return res.status(500).json({
-      message: 'Error analyzing document',
+      message: errorMessage,
       error: error.message,
       progress: analysis?.progress
     });

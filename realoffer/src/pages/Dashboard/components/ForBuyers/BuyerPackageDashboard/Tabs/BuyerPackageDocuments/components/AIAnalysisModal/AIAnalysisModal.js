@@ -29,7 +29,7 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, isBuyerPac
       initializing: 'Initializing analysis...',
       extracting_text: 'Extracting text from document...',
       performing_ocr: 'Performing OCR on document...',
-      analyzing: 'Analyzing document content...',
+      analyzing: 'Analyzing document content with AI...',
       saving: 'Saving analysis results...',
       completed: 'Analysis completed',
       failed: 'Analysis failed'
@@ -172,6 +172,44 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, isBuyerPac
                       }
                       // For all other cases, render h2 as-is (no bubble, no data-score)
                       return <h2 {...props}>{children}</h2>;
+                    },
+                    // Enhanced styling for new prompt structure
+                    strong: ({ node, children, ...props }) => {
+                      const text = Array.isArray(children) ? children.join('') : children;
+                      
+                      // Style cost amounts in pest inspection reports
+                      if (documentType && documentType.toLowerCase().includes('pest') && 
+                          text.includes('$') && text.match(/\$\d+/)) {
+                        return <strong {...props} className="cost-highlight">{children}</strong>;
+                      }
+                      
+                      // Style urgency tags
+                      if (text === 'Urgent' || text === 'Recommended' || text === 'Preventative') {
+                        return <strong {...props} className={`urgency-tag urgency-${text.toLowerCase()}`}>{children}</strong>;
+                      }
+                      
+                      return <strong {...props}>{children}</strong>;
+                    },
+                    // Style bullet points with visual indicators
+                    li: ({ node, children, ...props }) => {
+                      const text = Array.isArray(children) ? children.join('') : children;
+                      
+                      // Add visual indicators for system status in home inspection
+                      if (documentType && documentType.toLowerCase().includes('home')) {
+                        if (text.includes('✅')) {
+                          return <li {...props} className="status-good">{children}</li>;
+                        } else if (text.includes('⚠️')) {
+                          return <li {...props} className="status-warning">{children}</li>;
+                        } else if (text.includes('❌')) {
+                          return <li {...props} className="status-problem">{children}</li>;
+                        }
+                      }
+                      
+                      return <li {...props}>{children}</li>;
+                    },
+                    // Style section dividers
+                    hr: ({ node, ...props }) => {
+                      return <hr {...props} className="section-divider" />;
                     }
                   }}
                 >
