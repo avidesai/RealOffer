@@ -121,7 +121,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId, buyerP
 
       // Get the uploaded document ID and fetch complete details
       const documentId = response.data[0]._id;
-      const documentDetails = await api.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/single/${documentId}`, {
+      const documentDetails = await api.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/buyerPackage/${buyerPackageId}/single/${documentId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 

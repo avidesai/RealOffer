@@ -209,6 +209,11 @@ exports.deleteDocument = async (req, res) => {
     if (!document) {
       return res.status(404).json({ message: 'Document not found' });
     }
+    // Allow the user who originally uploaded the document to delete it
+    if (document.uploadedBy && document.uploadedBy.toString() === req.user.id) {
+      await Document.deleteOne({ _id: req.params.id });
+      return res.status(200).json({ message: 'Document deleted' });
+    }
 
     const propertyListing = await PropertyListing.findById(document.propertyListing);
     if (!propertyListing || propertyListing.createdBy.toString() !== req.user.id) {
@@ -850,5 +855,49 @@ exports.uploadDocumentForBuyerPackage = async (req, res) => {
   } catch (error) {
     console.error('Error uploading document for buyer package:', error);
     res.status(500).json({ message: error.message });
+  }
+};
+
+// Get single document for buyer package (buyer context)
+exports.getSingleDocumentForBuyerPackage = async (req, res) => {
+  try {
+    const { buyerPackageId, documentId } = req.params;
+    
+    // Get the buyer package to verify the user has access
+    const BuyerPackage = require('../models/BuyerPackage');
+    const buyerPackage = await BuyerPackage.findById(buyerPackageId);
+    
+    if (!buyerPackage) {
+      return res.status(404).json({ message: 'Buyer package not found' });
+    }
+    
+    // Check if the authenticated user is the buyer of this package
+    if (buyerPackage.user.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to access this buyer package' });
+    }
+    
+    // Get the document
+    const document = await Document.findById(documentId);
+    
+    if (!document) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+    
+    // Verify the document is associated with the property listing from the buyer package
+    if (document.propertyListing.toString() !== buyerPackage.propertyListing.toString()) {
+      return res.status(403).json({ message: 'Not authorized to access this document' });
+    }
+    
+    // Generate SAS token for the document
+    const sasToken = generateSASToken(document.azureKey);
+    const documentWithSasToken = {
+      ...document._doc,
+      sasToken: sasToken
+    };
+    
+    res.json(documentWithSasToken);
+  } catch (error) {
+    console.error('Error fetching document for buyer package:', error);
+    res.status(500).json({ message: 'Error fetching document', error: error.message });
   }
 };
