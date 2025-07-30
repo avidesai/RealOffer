@@ -230,10 +230,14 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
       const documentToRemove = documentWorkflow.documents.find(doc => doc.id === documentId);
       const isSignaturePacket = documentToRemove?.type === 'Disclosure Signature Packet';
       
-      await api.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${documentId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      if (!isSignaturePacket) {
+        // Only delete from server if it's NOT the disclosure signature packet
+        await api.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${documentId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      }
 
+      // Update local state regardless of whether the API deletion was called
       updateDocumentWorkflow(prev => ({
         ...prev,
         documents: prev.documents.filter(doc => doc.id !== documentId)
