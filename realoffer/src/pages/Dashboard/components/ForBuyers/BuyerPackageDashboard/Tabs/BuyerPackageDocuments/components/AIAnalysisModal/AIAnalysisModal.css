@@ -343,6 +343,7 @@
   border: 1px solid #fecaca;
 }
 
+/* Enhanced urgency tag styling */
 .urgency-tag {
   padding: 0.2rem 0.6rem;
   border-radius: 12px;
@@ -350,6 +351,8 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  display: inline-block;
+  margin-left: 0.5rem;
 }
 
 .urgency-urgent {
@@ -435,24 +438,28 @@
 }
 
 .pest-item-main {
-  margin-bottom: 0.8rem;
-  padding: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.8rem;
   background-color: #f8fafc;
-  border-radius: 6px;
-  border-left: 3px solid #2563eb;
+  border-radius: 8px;
+  border-left: 4px solid #2563eb;
+  font-weight: 600;
+  color: #1f2937;
 }
 
 .pest-item-detail {
-  margin-left: 1rem;
-  margin-bottom: 0.3rem;
+  margin-left: 1.5rem;
+  margin-bottom: 0.5rem;
   color: #4b5563;
+  padding-left: 0.5rem;
 }
 
 .pest-item-risk {
-  margin-left: 1rem;
-  margin-bottom: 0.8rem;
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
   color: #dc2626;
   font-style: italic;
+  padding-left: 0.5rem;
 }
 
 /* Fix for cost display issues */

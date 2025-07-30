@@ -301,10 +301,10 @@ Reference whether Section 1 items were found.
 
 ## Active Infestations & Damage (High Priority)
 List every Section 1 finding the report calls out.  
-For each bullet include:
-- **Type** (e.g., drywood termites, subterranean termites, fungus/dry-rot)  
-- **Location / component** (e.g., fascia on south side, rafter tails, sub-area)  
-- **Risk** in plain language (why it matters if ignored)
+For each main bullet point:
+- **Main bullet**: The type of infestation (e.g., Drywood termites, Fungus/dry-rot)
+- **Sub-bullet**: **Location** - where it was found (e.g., fascia on south side, rafter tails, sub-area)
+- **Sub-bullet**: **Risk** - why it matters if ignored (in plain language)
 
 ---
 
@@ -322,9 +322,9 @@ Explain what must be opened up and why a follow-up matters.
 
 ## Recommended Treatments
 For each treatment the report recommends (fumigation, local treatment, wood replacement, moisture correction):
-- **Treatment name**  
-- **Urgency tag**: Urgent / Recommended / Preventative (use the report's own wording if given)  
-- 1-sentence expected outcome
+- **Main bullet**: The treatment name (e.g., Fumigation for drywood termite eradication)
+- **Sub-bullet**: **Urgency** - Urgent / Recommended / Preventative (use the report's own wording if given)
+- **Sub-bullet**: **Expected Outcome** - 1-sentence expected outcome
 
 ---
 
