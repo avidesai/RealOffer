@@ -213,14 +213,13 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
           {validationAnalysis.issues.length > 0 && (
             <div className="ds-validation-issues-box">
               <div className="ds-validation-header">
-                <h3>⚠️ Issues to Resolve</h3>
+                <h3>Issues to Resolve</h3>
                 <p>Please fix these issues before submitting your offer</p>
               </div>
               <div className="ds-validation-content">
                 {validationAnalysis.issues.map((issue, index) => (
                   <div key={index} className="ds-validation-issue-item">
-                    <span className="ds-validation-icon">•</span>
-                    <span className="ds-validation-text">{issue}</span>
+                    {issue}
                   </div>
                 ))}
               </div>
@@ -230,14 +229,13 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
           {validationAnalysis.warnings.length > 0 && (
             <div className="ds-validation-warnings-box">
               <div className="ds-validation-header">
-                <h3>ℹ️ Warnings</h3>
+                <h3>Warnings</h3>
                 <p>Please review these warnings before submitting</p>
               </div>
               <div className="ds-validation-content">
                 {validationAnalysis.warnings.map((warning, index) => (
                   <div key={index} className="ds-validation-warning-item">
-                    <span className="ds-validation-icon">•</span>
-                    <span className="ds-validation-text">{warning}</span>
+                    {warning}
                   </div>
                 ))}
               </div>

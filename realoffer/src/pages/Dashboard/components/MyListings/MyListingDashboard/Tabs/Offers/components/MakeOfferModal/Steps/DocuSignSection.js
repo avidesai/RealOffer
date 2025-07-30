@@ -438,7 +438,7 @@ const DocuSignSection = ({
             type="button"
             onClick={handleSkipSigning}
           >
-            Skip Electronic Signatures
+            Skip Signing Documents
           </button>
         </div>
       </div>
