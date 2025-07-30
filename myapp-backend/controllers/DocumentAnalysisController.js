@@ -277,21 +277,13 @@ Guidelines
 Output Format
 -----------------
 
-## Grand Total (if listed in the report)
+## Total Cost
 Search the ENTIRE report thoroughly for any cost information. Look for:
 - "Grand Total"
-- "Total Estimated Cost" 
-- "Total Amount"
+- "Total Estimated Cost"
 - "Total Cost"
-- "Estimated Total"
-- "Final Cost"
-- "Total Repair Cost"
-- "Total Treatment Cost"
-- Any dollar amounts in summary sections, final pages, or conclusion areas
-- Look in headers, footers, and any summary boxes
 
-If found, present exactly as written, e.g. **Total Repair Cost: $13,025**
-If not found, write *"No overall cost listed in report."*
+If found, write it exactly as written, e.g. **Total Repair Cost: $13,025***
 
 ---
 
