@@ -116,10 +116,6 @@ exports.createUser = async (req, res) => {
             });
         }
 
-        // Generate email verification token
-        const emailVerificationToken = emailService.generateEmailVerificationToken();
-        const emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
         const newUser = new User({
             firstName: firstName.trim(),
             lastName: lastName.trim(),
@@ -129,10 +125,8 @@ exports.createUser = async (req, res) => {
             agentLicenseNumber: agentLicenseNumber ? agentLicenseNumber.trim() : '',
             hasAgent: role === 'buyer' ? hasAgent : null, // Only set hasAgent for buyers
             profilePhotoUrl: '',
-            isActive: false,
-            emailConfirmed: false,
-            emailVerificationToken,
-            emailVerificationExpires,
+            isActive: true, // Set to true so users can log in immediately
+            emailConfirmed: true, // Set to true so users can log in immediately
             lastLogin: null,
             twoFactorAuthenticationEnabled: false,
             notificationSettings: '',
@@ -162,14 +156,6 @@ exports.createUser = async (req, res) => {
         
         const savedUser = await newUser.save();
         
-        // Send email verification
-        try {
-            await emailService.sendEmailVerification(savedUser.email, emailVerificationToken, savedUser.firstName);
-        } catch (emailError) {
-            console.error('Failed to send email verification:', emailError);
-            // Don't fail the user creation if email fails
-        }
-        
         // Return user data without password and ensure consistent ID field
         const userResponse = {
             _id: savedUser._id,
@@ -184,7 +170,7 @@ exports.createUser = async (req, res) => {
         };
         
         res.status(201).json({
-            message: 'User created successfully. Please check your email to verify your account.',
+            message: 'User created successfully.',
             user: userResponse
         });
     } catch (error) {
@@ -271,13 +257,13 @@ exports.loginUser = async (req, res) => {
             });
         }
 
-        // Check if email is verified
-        if (!user.emailConfirmed) {
-            return res.status(401).json({ 
-                message: 'Please verify your email address before logging in. Check your inbox for a verification link.',
-                emailNotVerified: true
-            });
-        }
+        // Email verification check removed for now
+        // if (!user.emailConfirmed) {
+        //     return res.status(401).json({ 
+        //         message: 'Please verify your email address before logging in. Check your inbox for a verification link.',
+        //         emailNotVerified: true
+        //     });
+        // }
 
         const payload = {
             user: {
