@@ -205,7 +205,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         for (const nestedKey in offerData[key]) {
           formDataToSend.append(`${key}.${nestedKey}`, offerData[key][nestedKey]);
         }
-      } else if (!['propertyListing','initialDeposit','initialDepositPercent','downPayment','downPaymentPercent'].includes(key)) {
+      } else if (!['propertyListing','initialDeposit','initialDepositPercent','downPayment','downPaymentPercent','percentDown','balanceOfDownPayment'].includes(key)) {
         formDataToSend.append(key, offerData[key]);
       }
     }
@@ -235,6 +235,10 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     formDataToSend.append('initialDepositPercent', initialDepositPercentVal || '0');
     formDataToSend.append('downPayment', downPaymentVal || '0');
     formDataToSend.append('downPaymentPercent', downPaymentPercentVal || '0');
+    
+    // Explicitly include calculated fields
+    formDataToSend.append('percentDown', offerData.percentDown || '0');
+    formDataToSend.append('balanceOfDownPayment', offerData.balanceOfDownPayment || '0');
 
     // Add document workflow data
     formDataToSend.append('documentWorkflow', JSON.stringify({

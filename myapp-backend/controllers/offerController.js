@@ -26,6 +26,8 @@ exports.uploadOfferDocuments = upload.array('documents', 10);
 exports.createOffer = async (req, res) => {
   try {
     console.log('Request Body:', req.body); // Debugging
+    console.log('percentDown from request:', req.body.percentDown);
+    console.log('balanceOfDownPayment from request:', req.body.balanceOfDownPayment);
 
     const propertyListingId = req.body.propertyListing;
     if (!mongoose.Types.ObjectId.isValid(propertyListingId)) {
@@ -58,7 +60,10 @@ exports.createOffer = async (req, res) => {
       buyerPackage: req.body.buyerPackage, // Add buyer package ID
       // Handle percentage fields - convert to numbers if they exist
       initialDepositPercent: req.body.initialDepositPercent ? parseFloat(req.body.initialDepositPercent) : undefined,
-      downPaymentPercent: req.body.downPaymentPercent ? parseFloat(req.body.downPaymentPercent) : undefined
+      downPaymentPercent: req.body.downPaymentPercent ? parseFloat(req.body.downPaymentPercent) : undefined,
+      // Ensure calculated fields are properly converted to numbers
+      percentDown: req.body.percentDown ? parseFloat(req.body.percentDown) : undefined,
+      balanceOfDownPayment: req.body.balanceOfDownPayment ? parseFloat(req.body.balanceOfDownPayment) : undefined
     };
 
     // Set the buyersAgent (creator of the offer) to the currently authenticated user
@@ -81,6 +86,8 @@ exports.createOffer = async (req, res) => {
 
     const offer = new Offer(offerData);
     await offer.save();
+    console.log('Saved offer percentDown:', offer.percentDown);
+    console.log('Saved offer balanceOfDownPayment:', offer.balanceOfDownPayment);
 
     // Attach offer ID to each referenced document
     if (documentIds.length > 0) {

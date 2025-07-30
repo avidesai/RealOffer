@@ -16,7 +16,7 @@ const OfferSchema = new Schema({
   initialDepositPercent: { type: Number, required: false }, // New field for percentage input
   financeType: { type: String, required: true },
   loanAmount: { type: Number, required: true },
-  percentDown: { type: Number, required: true },
+  percentDown: { type: Number, required: false },
   downPayment: { type: Number, required: true },
   downPaymentPercent: { type: Number, required: false }, // New field for percentage input
   balanceOfDownPayment: { type: Number, required: false },
