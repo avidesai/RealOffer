@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useAuth } from '../../../../../../../../../../../src/context/AuthContext';
 import { useOffer } from '../../../../../../../../../../../src/context/OfferContext';
 
@@ -11,6 +11,9 @@ const DocuSignSection = ({
   handlePrevStep
 }) => {
   const { token } = useAuth();
+  // Reference to popup window and callback state
+  const popupRef = useRef(null);
+  const callbackReceivedRef = useRef(false);
   const { validateSigning } = useOffer();
   
   // Local state
@@ -68,14 +71,29 @@ const DocuSignSection = ({
   useEffect(() => {
     const handleMessage = (event) => {
       // Verify origin for security
-      if (event.origin !== 'https://account-d.docusign.com' && 
-          event.origin !== 'https://demo.docusign.net' &&
-          !event.origin.includes('docusign.com')) {
-        return;
+      // Allow messages from DocuSign or our own backend/frontend origins
+      const allowedOrigins = [
+        'https://account-d.docusign.com',
+        'https://demo.docusign.net',
+        window.location.origin
+      ];
+      const backendOrigin = (() => {
+        try { return new URL(process.env.REACT_APP_BACKEND_URL).origin; } catch { return null; }
+      })();
+      if (backendOrigin) allowedOrigins.push(backendOrigin);
+      if (!allowedOrigins.some(origin => event.origin.startsWith(origin))) {
+        if (event.data?.type !== 'DOCUSIGN_OAUTH_CALLBACK') {
+          return;
+        }
       }
       
       if (event.data?.type === 'DOCUSIGN_OAUTH_CALLBACK') {
         console.log('DocuSign OAuth callback received');
+        // Mark callback received and close popup if still open
+        callbackReceivedRef.current = true;
+        if (popupRef.current && !popupRef.current.closed) {
+          popupRef.current.close();
+        }
         // Immediately update UI to show connecting state
         updateDocumentWorkflow(prev => ({
           ...prev,
@@ -301,10 +319,13 @@ const DocuSignSection = ({
       
       // Open DocuSign auth URL in popup
       const popup = window.open(
-        data.authUrl, 
-        'docusign-auth', 
+        data.authUrl,
+        'docusign-auth',
         'width=600,height=600,scrollbars=yes,resizable=yes'
       );
+      // Store popup reference and reset callback flag
+      popupRef.current = popup;
+      callbackReceivedRef.current = false;
       
       if (!popup) {
         throw new Error('Failed to open popup. Please check your popup blocker settings.');
@@ -318,8 +339,8 @@ const DocuSignSection = ({
           popupClosed = true;
           setDocuSignLoading(false);
           
-          // If popup closed without callback, check connection status
-          if (!popupClosed) {
+          // If popup closed without successful OAuth callback, check connection status
+          if (!callbackReceivedRef.current) {
             setTimeout(async () => {
               try {
                 const statusResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/status`, {
