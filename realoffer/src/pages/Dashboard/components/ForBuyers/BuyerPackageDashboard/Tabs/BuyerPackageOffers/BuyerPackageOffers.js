@@ -10,7 +10,7 @@ import OfferDetailsView from './components/OfferView/OfferDetailsView';
 import RespondToOfferModal from './components/RespondToOfferModal/RespondToOfferModal';
 import './BuyerPackageOffers.css';
 
-const BuyerPackageOffers = ({ buyerPackageId }) => {
+const BuyerPackageOffers = ({ buyerPackageId, listingId }) => {
   const { token, user } = useAuth();
   const [offers, setOffers] = useState([]);
   const [propertyListing, setPropertyListing] = useState(null);
@@ -24,40 +24,29 @@ const BuyerPackageOffers = ({ buyerPackageId }) => {
   const [respondToOffer, setRespondToOffer] = useState(null);
 
   const fetchOffers = useCallback(async () => {
-    if (!buyerPackageId) return;
+    if (!buyerPackageId || !listingId) return;
     
     setLoading(true);
     try {
-      // First get the buyer package to find the property listing
-      const buyerPackageResponse = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/${buyerPackageId}?trackView=false`,
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
+      // Get all offers for this listing
+      const offersResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/offers?listingId=${listingId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Filter to only show offers created by the current user
+      const userOffers = offersResponse.data.filter(offer => 
+        offer.buyersAgent && offer.buyersAgent._id === user._id
       );
-
-      const propertyListing = buyerPackageResponse.data.propertyListing;
-      if (propertyListing && propertyListing._id) {
-        // Get all offers for this listing
-        const offersResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/offers?listingId=${propertyListing._id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        // Filter to only show offers created by the current user
-        const userOffers = offersResponse.data.filter(offer => 
-          offer.buyersAgent && offer.buyersAgent._id === user._id
-        );
-        
-        setOffers(userOffers);
-        setPropertyListing(propertyListing);
-        setTotalPages(Math.ceil(userOffers.length / 4));
-      }
+      
+      setOffers(userOffers);
+      setPropertyListing({ _id: listingId }); // Set a minimal property listing object
+      setTotalPages(Math.ceil(userOffers.length / 4));
     } catch (error) {
       console.error('Error fetching offers:', error);
     } finally {
       setLoading(false);
     }
-  }, [buyerPackageId, token, user._id]);
+  }, [buyerPackageId, listingId, token, user._id]);
 
   useEffect(() => {
     fetchOffers();
@@ -76,6 +65,10 @@ const BuyerPackageOffers = ({ buyerPackageId }) => {
   };
 
   const handleAddOffer = () => {
+    if (!listingId) {
+      console.error('Cannot create offer: Property listing not available');
+      return;
+    }
     setShowModal(true);
   };
 
@@ -186,7 +179,7 @@ const BuyerPackageOffers = ({ buyerPackageId }) => {
               ))
             )}
           </div>
-          {showModal && <MakeOfferModal onClose={handleCloseModal} listingId={propertyListing?._id} buyerPackageId={buyerPackageId} />}
+          {showModal && <MakeOfferModal onClose={handleCloseModal} listingId={listingId} buyerPackageId={buyerPackageId} />}
           {respondToOffer && (
             <RespondToOfferModal
               isOpen={!!respondToOffer}

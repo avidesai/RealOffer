@@ -56,6 +56,10 @@ const Offers = ({ listingId }) => {
   };
 
   const handleAddOffer = () => {
+    if (!listingId) {
+      console.error('Cannot create offer: Property listing not available');
+      return;
+    }
     setShowModal(true);
   };
 

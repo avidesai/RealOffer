@@ -41,6 +41,10 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
   // Add useEffect to fetch signature packet document
   useEffect(() => {
     const fetchSignaturePacket = async () => {
+      if (!listingId) {
+        return; // Don't fetch if listingId is not available
+      }
+      
       try {
         const response = await api.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`);
         const documents = response.data;
@@ -95,6 +99,12 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
     const maxSize = 10 * 1024 * 1024; // 10MB in bytes
     if (file.size > maxSize) {
       setError('File size must be less than 10MB');
+      return;
+    }
+    
+    // Validate that listingId is available
+    if (!listingId) {
+      setError('Cannot upload document: Property listing not available');
       return;
     }
     
@@ -196,6 +206,11 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
 
   // Handle restoring signature packet
   const handleRestoreSignaturePacket = async () => {
+    if (!listingId) {
+      setError('Cannot restore signature packet: Property listing not available');
+      return;
+    }
+    
     setUploadLoading(true);
     setError(null);
     

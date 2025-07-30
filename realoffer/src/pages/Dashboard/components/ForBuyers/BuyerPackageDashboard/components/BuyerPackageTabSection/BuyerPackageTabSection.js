@@ -88,7 +88,7 @@ const BuyerPackageTabSection = ({ buyerPackage }) => {
         {activeTab === 'docs' && <BuyerPackageDocuments buyerPackageId={updatedBuyerPackage._id} />}
         {activeTab === 'analysis' && <BuyerPackageAnalysis buyerPackageId={updatedBuyerPackage._id} />}
         {activeTab === 'activity' && <BuyerPackageActivity buyerPackageId={updatedBuyerPackage._id} listingId={updatedBuyerPackage.propertyListing} />}
-        {activeTab === 'offers' && buyerPackage?.userRole !== 'buyer' && <BuyerPackageOffers buyerPackageId={updatedBuyerPackage._id} />}
+        {activeTab === 'offers' && buyerPackage?.userRole !== 'buyer' && <BuyerPackageOffers buyerPackageId={updatedBuyerPackage._id} listingId={updatedBuyerPackage.propertyListing} />}
         {activeTab === 'settings' && <BuyerPackageSettings buyerPackage={updatedBuyerPackage} onBuyerPackageUpdate={handleBuyerPackageUpdate} />}
       </div>
     </div>

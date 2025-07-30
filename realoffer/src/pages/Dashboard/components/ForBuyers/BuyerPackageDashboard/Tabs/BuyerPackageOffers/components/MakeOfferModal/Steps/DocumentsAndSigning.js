@@ -98,6 +98,8 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
       return;
     }
     
+
+    
     setUploadLoading(true);
     setError(null);
 
