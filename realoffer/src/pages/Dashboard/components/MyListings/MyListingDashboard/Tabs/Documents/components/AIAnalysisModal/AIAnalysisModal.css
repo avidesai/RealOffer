@@ -460,6 +460,29 @@
   padding-left: 0.5rem;
 }
 
+/* Key System Highlights formatting */
+.aam-result h2:contains("Key System Highlights") + ul li,
+.aam-result h2:contains("Key System Highlights") + ol li {
+  display: block;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.aam-result h2:contains("Key System Highlights") + ul li:last-child,
+.aam-result h2:contains("Key System Highlights") + ol li:last-child {
+  border-bottom: none;
+}
+
+/* Ensure system names are bold and on their own line */
+.aam-result h2:contains("Key System Highlights") + ul li strong,
+.aam-result h2:contains("Key System Highlights") + ol li strong {
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
 /* Pest Inspection Report Standard Styling (Original Format) */
 .pest-item-standard {
   margin-bottom: 0.8rem;
