@@ -207,6 +207,45 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
         <p>Review all details before submitting your offer</p>
       </div>
 
+      {/* Validation Issues and Warnings */}
+      {(validationAnalysis.issues.length > 0 || validationAnalysis.warnings.length > 0) && (
+        <>
+          {validationAnalysis.issues.length > 0 && (
+            <div className="ds-validation-issues-box">
+              <div className="ds-validation-header">
+                <h3>⚠️ Issues to Resolve</h3>
+                <p>Please fix these issues before submitting your offer</p>
+              </div>
+              <div className="ds-validation-content">
+                {validationAnalysis.issues.map((issue, index) => (
+                  <div key={index} className="ds-validation-issue-item">
+                    <span className="ds-validation-icon">•</span>
+                    <span className="ds-validation-text">{issue}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {validationAnalysis.warnings.length > 0 && (
+            <div className="ds-validation-warnings-box">
+              <div className="ds-validation-header">
+                <h3>ℹ️ Warnings</h3>
+                <p>Please review these warnings before submitting</p>
+              </div>
+              <div className="ds-validation-content">
+                {validationAnalysis.warnings.map((warning, index) => (
+                  <div key={index} className="ds-validation-warning-item">
+                    <span className="ds-validation-icon">•</span>
+                    <span className="ds-validation-text">{warning}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
       {/* Document Summary */}
       <div className="ds-document-section">
         <div className="ds-section-header">
@@ -406,11 +445,6 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
         </button>
         
         <div className="ds-submission-area">
-          {!validationAnalysis.canSubmit && (
-            <div className="ds-submission-warning">
-              <span>⚠️ Please resolve issues before submitting</span>
-            </div>
-          )}
           
           <button 
             className={`ds-submit-offer-button ${validationAnalysis.canSubmit ? 'ready' : 'disabled'}`}

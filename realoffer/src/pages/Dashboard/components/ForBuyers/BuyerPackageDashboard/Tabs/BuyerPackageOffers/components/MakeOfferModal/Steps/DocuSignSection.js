@@ -179,6 +179,13 @@ const DocuSignSection = ({
   const toggleDocumentSigning = useCallback((documentId) => {
     updateDocumentWorkflow(prev => ({
       ...prev,
+      signing: {
+        ...prev.signing,
+        skip: false
+      }
+    }));
+    updateDocumentWorkflow(prev => ({
+      ...prev,
       documents: prev.documents.map(doc =>
         doc.id === documentId
           ? { ...doc, sendForSigning: !doc.sendForSigning }
@@ -298,6 +305,20 @@ const DocuSignSection = ({
   // Check if any documents are selected for signing
   const hasSelectedDocuments = signableDocuments.some(doc => doc.sendForSigning);
 
+  const handleSkipSigning = () => {
+    updateDocumentWorkflow(prev => ({
+      ...prev,
+      documents: prev.documents.map(d => ({ ...d, sendForSigning: false })),
+      signing: {
+        ...prev.signing,
+        skip: true,
+        status: 'skipped'
+      }
+    }));
+    // Proceed to next step
+    handleNextStep();
+  };
+
   // Connect to DocuSign
   const handleDocuSignConnect = async () => {
     setDocuSignLoading(true);
@@ -341,6 +362,14 @@ const DocuSignSection = ({
           
           // If popup closed without successful OAuth callback, check connection status
           if (!callbackReceivedRef.current) {
+            // Show connecting state while we verify in background
+            updateDocumentWorkflow(prev => ({
+              ...prev,
+              signing: {
+                ...prev.signing,
+                status: 'connecting'
+              }
+            }));
             setTimeout(async () => {
               try {
                 const statusResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/status`, {
@@ -394,6 +423,23 @@ const DocuSignSection = ({
         </div>
       )}
 
+      {/* Skip Signing Option */}
+      <div className="ds-skip-section">
+        <div className="ds-skip-header">
+          <h3>Skip Signing</h3>
+          <p>If you don't need to sign any documents, you can skip this step.</p>
+        </div>
+        <div className="ds-skip-content">
+          <button
+            className="ds-skip-signing-btn"
+            type="button"
+            onClick={handleSkipSigning}
+          >
+            Skip Electronic Signatures
+          </button>
+        </div>
+      </div>
+
       <div className="ds-document-section">
         <div className="ds-section-header">
           <h3>DocuSign Connection</h3>
@@ -431,8 +477,8 @@ const DocuSignSection = ({
         </div>
       </div>
 
-      {/* Document Selection */}
-      {allDocuments.length > 0 && (
+      {/* Document Selection - Only show if DocuSign is connected */}
+      {allDocuments.length > 0 && documentWorkflow.signing?.docuSignConnected && (
         <div className="ds-document-section">
           <div className="ds-section-header">
             <h3>Select Documents for Signing</h3>
@@ -453,7 +499,7 @@ const DocuSignSection = ({
                         type="checkbox"
                         checked={doc.sendForSigning || false}
                         onChange={() => toggleDocumentSigning(doc.id)}
-                        disabled={!documentWorkflow.signing?.docuSignConnected}
+                        
                       />
                       <span className="ds-toggle-label">Send for signing</span>
                     </label>
@@ -466,6 +512,7 @@ const DocuSignSection = ({
                   <p>No documents available for signing. Please upload documents in the previous step.</p>
                 </div>
               )}
+
             </div>
           </div>
         </div>

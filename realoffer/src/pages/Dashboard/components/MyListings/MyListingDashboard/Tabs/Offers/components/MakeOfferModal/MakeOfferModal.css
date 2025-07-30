@@ -32,6 +32,153 @@
   50% { opacity: 0.8; }
 }
 
+/* Skip Signing Section */
+.ds-skip-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+}
+
+.ds-skip-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 0.5rem 0;
+}
+
+.ds-skip-header p {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin: 0 0 1rem 0;
+}
+
+.ds-skip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ds-skip-signing-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: flex-start;
+}
+
+.ds-skip-signing-btn:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+.ds-skip-signing-btn:active {
+  transform: translateY(0);
+}
+
+.ds-skip-description {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Validation Messages */
+.ds-validation-issues-box,
+.ds-validation-warnings-box {
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ds-validation-issues-box {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.ds-validation-warnings-box {
+  background: #fffbeb;
+  border: 1px solid #fed7aa;
+}
+
+.ds-validation-header {
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.ds-validation-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+}
+
+.ds-validation-issues-box .ds-validation-header h3 {
+  color: #dc2626;
+}
+
+.ds-validation-warnings-box .ds-validation-header h3 {
+  color: #d97706;
+}
+
+.ds-validation-header p {
+  font-size: 0.85rem;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.ds-validation-issues-box .ds-validation-header p {
+  color: #dc2626;
+}
+
+.ds-validation-warnings-box .ds-validation-header p {
+  color: #d97706;
+}
+
+.ds-validation-content {
+  padding: 0.75rem 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ds-validation-issue-item,
+.ds-validation-warning-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.ds-validation-issue-item {
+  background: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+}
+
+.ds-validation-warning-item {
+  background: rgba(217, 119, 6, 0.1);
+  color: #d97706;
+}
+
+.ds-validation-icon {
+  font-size: 1.1rem;
+  font-weight: bold;
+  flex-shrink: 0;
+  margin-top: -0.05rem;
+}
+
+.ds-validation-text {
+  flex: 1;
+}
+
 .make-offer-modal {
   position: fixed;
   top: 0;

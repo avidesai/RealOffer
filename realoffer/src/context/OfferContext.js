@@ -79,7 +79,8 @@ const initialDocumentWorkflow = {
       }
     ],
     docuSignConnected: false, // Always default to false - will be checked from server
-    status: 'not_configured' // 'not_configured' | 'ready' | 'sent' | 'completed'
+    status: 'not_configured', // 'not_configured' | 'ready' | 'sent' | 'completed'
+    skip: false
   },
   validation: {
     documentsComplete: false,
@@ -196,6 +197,9 @@ export const OfferProvider = ({ children }) => {
 
   // Signing-specific validation (for Electronic Signatures step)
   const validateSigning = useCallback(() => {
+    if (documentWorkflow.signing.skip) {
+      return { signingReady: true, issues: [], warnings: [] };
+    }
     const validation = {
       signingReady: false,
       issues: [],
