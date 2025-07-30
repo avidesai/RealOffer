@@ -10,7 +10,13 @@ const { PDFDocument } = require('pdf-lib');
 
 // Configure multer for in-memory storage before uploading to Azure
 const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const upload = multer({ 
+  storage,
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB file size limit
+    files: 20 // Maximum number of files
+  }
+});
 
 exports.uploadDocuments = upload.array('documents', 20);
 

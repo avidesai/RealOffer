@@ -1,11 +1,78 @@
 // Contingencies.js
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 
 const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep }) => {
+  const [closeOfEscrowFocused, setCloseOfEscrowFocused] = useState(false);
+
   const handleInputChange = useCallback((e) => {
     handleChange(e);
   }, [handleChange]);
+
+  const handleDaysInputBlur = useCallback((e) => {
+    const { name, value } = e.target;
+    
+    // Check if the value is "0" and automatically switch to "Waived"
+    if (value === '0') {
+      // Determine which contingency this field belongs to
+      let contingencyField = '';
+      let daysField = name;
+      
+      if (name === 'financeContingencyDays') {
+        contingencyField = 'financeContingency';
+      } else if (name === 'appraisalContingencyDays') {
+        contingencyField = 'appraisalContingency';
+      } else if (name === 'inspectionContingencyDays') {
+        contingencyField = 'inspectionContingency';
+      } else if (name === 'sellerRentBackDays') {
+        contingencyField = 'sellerRentBack';
+      }
+      
+      if (contingencyField) {
+        // Create synthetic events to update both the days field and the contingency field
+        const daysEvent = {
+          target: {
+            name: daysField,
+            value: ''
+          }
+        };
+        
+        const contingencyEvent = {
+          target: {
+            name: contingencyField,
+            value: 'Waived'
+          }
+        };
+        
+        // Update both fields
+        handleChange(daysEvent);
+        handleChange(contingencyEvent);
+      }
+    }
+  }, [handleChange]);
+
+  const handleCloseOfEscrowChange = useCallback((e) => {
+    const { value } = e.target;
+    // Only allow numbers
+    const numericValue = value.replace(/[^0-9]/g, '');
+    
+    const event = {
+      target: {
+        name: 'closeOfEscrow',
+        value: numericValue
+      }
+    };
+    
+    handleChange(event);
+  }, [handleChange]);
+
+  const handleCloseOfEscrowFocus = useCallback(() => {
+    setCloseOfEscrowFocused(true);
+  }, []);
+
+  const handleCloseOfEscrowBlur = useCallback(() => {
+    setCloseOfEscrowFocused(false);
+  }, []);
 
   return (
     <div className="modal-step">
@@ -22,6 +89,7 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
             placeholder="Number of days"
             value={formData.financeContingencyDays || ''}
             onChange={handleInputChange}
+            onBlur={handleDaysInputBlur}
             disabled={formData.financeContingency === 'Waived'}
             className="form-input-left"
           />
@@ -45,6 +113,7 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
             placeholder="Number of days"
             value={formData.appraisalContingencyDays || ''}
             onChange={handleInputChange}
+            onBlur={handleDaysInputBlur}
             disabled={formData.appraisalContingency === 'Waived'}
             className="form-input-left"
           />
@@ -68,6 +137,7 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
             placeholder="Number of days"
             value={formData.inspectionContingencyDays || ''}
             onChange={handleInputChange}
+            onBlur={handleDaysInputBlur}
             disabled={formData.inspectionContingency === 'Waived'}
             className="form-input-left"
           />
@@ -102,6 +172,7 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
             placeholder="Number of days"
             value={formData.sellerRentBackDays || ''}
             onChange={handleInputChange}
+            onBlur={handleDaysInputBlur}
             disabled={formData.sellerRentBack === 'Waived'}
             className="form-input-left"
           />
@@ -118,13 +189,18 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
       </div>
       <div className="form-group">
         <label>Close of Escrow</label>
-        <input
-          type="number"
-          name="closeOfEscrow"
-          placeholder="Number of days"
-          value={formData.closeOfEscrow || ''}
-          onChange={handleInputChange}
-        />
+        <div className="close-of-escrow-container">
+          <input
+            type="text"
+            name="closeOfEscrow"
+            placeholder="Number of days"
+            value={closeOfEscrowFocused ? (formData.closeOfEscrow || '') : (formData.closeOfEscrow ? `${formData.closeOfEscrow} days` : '')}
+            onChange={handleCloseOfEscrowChange}
+            onFocus={handleCloseOfEscrowFocus}
+            onBlur={handleCloseOfEscrowBlur}
+            className="form-input"
+          />
+        </div>
       </div>
       <div className="mom-button-container">
         <button className="mom-step-back-button" onClick={handlePrevStep}>

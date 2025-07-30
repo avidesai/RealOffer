@@ -7,6 +7,58 @@ import { useAuth } from '../../../../../../../../../../../src/context/AuthContex
 import api from '../../../../../../../../../../../src/context/api';
 import './DocumentsAndSigning.css';
 
+// Utility function to intelligently determine document type based on filename
+const getDocumentTypeFromFilename = (filename) => {
+  const lowerFilename = filename.toLowerCase();
+  
+  // Define keyword patterns for each document type with confidence scores
+  const patterns = {
+    'Purchase Agreement': {
+      keywords: ['purchase', 'agreement', 'contract', 'offer', 'buy', 'sale', 'purchase agreement', 'sales contract', 'buyer agreement'],
+      score: 0
+    },
+    'Pre-Approval Letter': {
+      keywords: ['pre-approval', 'preapproval', 'pre approval', 'loan approval', 'mortgage approval', 'lender approval', 'pre-approval letter', 'loan pre-approval', 'mortgage pre-approval'],
+      score: 0
+    },
+    'Proof of Funds': {
+      keywords: ['proof of funds', 'proof of fund', 'pof', 'bank statement', 'bank statements', 'account statement', 'account statements', 'financial statement', 'financial statements', 'funds proof', 'cash proof', 'liquidity proof'],
+      score: 0
+    },
+    'Disclosure Signature Packet': {
+      keywords: ['disclosure', 'signature', 'packet', 'disclosure packet', 'signature packet', 'disclosure signature', 'disclosure signature packet', 'disclosures', 'signatures', 'disclosure form', 'signature form'],
+      score: 0
+    }
+  };
+  
+  // Calculate scores for each document type
+  Object.keys(patterns).forEach(docType => {
+    patterns[docType].keywords.forEach(keyword => {
+      if (lowerFilename.includes(keyword)) {
+        patterns[docType].score += 1;
+        // Bonus points for exact matches or longer keywords
+        if (lowerFilename === keyword || keyword.length > 3) {
+          patterns[docType].score += 0.5;
+        }
+      }
+    });
+  });
+  
+  // Find the document type with the highest score
+  let bestMatch = 'Supporting Document'; // Default fallback
+  let highestScore = 0;
+  
+  Object.keys(patterns).forEach(docType => {
+    if (patterns[docType].score > highestScore) {
+      highestScore = patterns[docType].score;
+      bestMatch = docType;
+    }
+  });
+  
+  // Only return a specific type if we have a reasonable confidence (score > 0.5)
+  return highestScore > 0.5 ? bestMatch : 'Supporting Document';
+};
+
 const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
   const { 
     documentWorkflow, 
@@ -95,10 +147,10 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
   const handleDocumentUpload = async (file) => {
     if (!file) return;
     
-    // Validate file size (10MB limit)
-    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    // Validate file size (50MB limit)
+    const maxSize = 50 * 1024 * 1024; // 50MB in bytes
     if (file.size > maxSize) {
-      setError('File size must be less than 10MB');
+      setError('File size must be less than 50MB');
       return;
     }
     
@@ -112,9 +164,12 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
     setError(null);
 
     try {
+      // Auto-determine document type based on filename
+      const autoDetectedType = getDocumentTypeFromFilename(file.name);
+      
       const formData = new FormData();
       formData.append('documents', file);
-      formData.append('type[]', 'Supporting Document'); // Default type, will be updated after upload
+      formData.append('type[]', autoDetectedType); // Use auto-detected type
       formData.append('title[]', file.name);
       formData.append('purpose', 'offer');
       formData.append('uploadedBy', user._id);
@@ -136,7 +191,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
       const uploadedDocument = {
         id: documentId,
         title: file.name,
-        type: 'Supporting Document', // Default type
+        type: autoDetectedType, // Use auto-detected type
         size: file.size,
         pages: documentDetails.data.pages || 'Unknown',
         sendForSigning: false, // Default to false, user can change
@@ -285,7 +340,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
       <div className="ds-document-section">
         <div className="ds-section-header">
           <h3>Upload Documents</h3>
-          <p>Upload your documents and select their type from the dropdown</p>
+          <p>Upload your documents and select their type from the dropdown. Document types will be auto-detected based on filename.</p>
         </div>
         
         <div className="ds-section-content">
@@ -300,7 +355,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
                 className="ds-file-input"
               />
               <span>Choose file or drag and drop</span>
-              <small>PDF, DOC, DOCX, JPG, PNG (max 10MB)</small>
+              <small>PDF, DOC, DOCX, JPG, PNG (max 50MB)</small>
             </label>
           </div>
 
@@ -322,7 +377,6 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
               {documentWorkflow.documents.map((doc) => (
                 <div key={doc.id} className="ds-uploaded-document">
                   <div className="ds-document-info">
-                    <div className="ds-document-icon">📄</div>
                     <div className="ds-document-name">{doc.title}</div>
                   </div>
                   <div className="ds-document-controls">

@@ -12,7 +12,13 @@ const { getPdfPageCount } = require('./DocumentController');
 
 // Configure multer for in-memory storage before uploading to Azure
 const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const upload = multer({ 
+  storage,
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB file size limit
+    files: 10 // Maximum number of files
+  }
+});
 
 exports.uploadOfferDocuments = upload.array('documents', 10);
 
