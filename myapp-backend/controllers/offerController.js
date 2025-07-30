@@ -64,9 +64,33 @@ exports.createOffer = async (req, res) => {
     // Set the buyersAgent (creator of the offer) to the currently authenticated user
     offerData.buyersAgent = req.user.id;
 
+    // Robust document ID extraction (support both 'documents' and 'documents[]' field names)
+    let documentIds = [];
+    if (req.body.documents) {
+      documentIds = Array.isArray(req.body.documents) ? req.body.documents : [req.body.documents];
+    }
+    if (req.body['documents[]']) {
+      const extraDocs = Array.isArray(req.body['documents[]']) ? req.body['documents[]'] : [req.body['documents[]']];
+      documentIds = [...documentIds, ...extraDocs];
+    }
+
+    // Remove potential duplicates
+    documentIds = [...new Set(documentIds)];
+
+    offerData.documents = documentIds;  // store on offer itself
+
     const offer = new Offer(offerData);
     await offer.save();
 
+    // Attach offer ID to each referenced document
+    if (documentIds.length > 0) {
+      await Document.updateMany(
+        { _id: { $in: documentIds } },
+        { $set: { offer: offer._id } }
+      );
+    }
+
+    // Also push the offer reference into the property listing for quick lookup
     await PropertyListing.findByIdAndUpdate(
       propertyListingId,
       { $push: { offers: offer._id } }
@@ -88,21 +112,6 @@ exports.createOffer = async (req, res) => {
     });
 
     await activity.save();
-
-    // Update the documents with the new offer ID
-    const documentIds = req.body.documents || [];
-    if (documentIds.length > 0) {
-      await Document.updateMany(
-        { _id: { $in: documentIds } },
-        { $set: { offer: offer._id } }
-      );
-      
-      // Update the offer with the document references
-      await Offer.findByIdAndUpdate(
-        offer._id,
-        { $set: { documents: documentIds } }
-      );
-    }
 
     // Fetch the complete offer with populated documents
     const populatedOffer = await Offer.findById(offer._id).populate('documents');
