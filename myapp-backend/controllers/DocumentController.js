@@ -778,3 +778,77 @@ exports.downloadDocument = async (req, res) => {
     res.status(500).json({ message: 'Error downloading document', error: error.message });
   }
 };
+
+// Upload document for buyer package (buyer context)
+exports.uploadDocumentForBuyerPackage = async (req, res) => {
+  const { visibility = 'public', purpose = 'offer' } = req.body;
+  const files = req.files;
+
+  if (!files || files.length === 0) {
+    return res.status(400).json({ message: 'No files uploaded' });
+  }
+
+  try {
+    // Get the buyer package to verify the user has access
+    const BuyerPackage = require('../models/BuyerPackage');
+    const buyerPackage = await BuyerPackage.findById(req.params.buyerPackageId);
+    
+    if (!buyerPackage) {
+      return res.status(404).json({ message: 'Buyer package not found' });
+    }
+    
+    // Check if the authenticated user is the buyer of this package
+    if (buyerPackage.user.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to upload documents to this buyer package' });
+    }
+    
+    // Get the property listing from the buyer package
+    const propertyListing = buyerPackage.propertyListing;
+    if (!propertyListing) {
+      return res.status(404).json({ message: 'Property listing not found in buyer package' });
+    }
+
+    const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
+    const types = Array.isArray(req.body.type) ? req.body.type : [req.body.type];
+
+    const documents = await Promise.all(files.map(async (file, index) => {
+      const title = titles[index];
+      const type = types[index];
+      const size = file.size;
+      const contentType = file.mimetype;
+      const docType = contentType === 'application/pdf' ? 'pdf' : 'image';
+
+      const blobName = `documents/${uuidv4()}-${file.originalname}`;
+      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+      await blockBlobClient.uploadData(file.buffer, {
+        blobHTTPHeaders: { blobContentType: contentType }
+      });
+
+      const pages = contentType === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
+
+      const newDocument = new Document({
+        title,
+        type,
+        size,
+        pages,
+        thumbnailUrl: blockBlobClient.url,
+        uploadedBy: req.user.id,
+        propertyListing: propertyListing,
+        azureKey: blobName,
+        visibility,
+        purpose,
+        docType,
+        signed: false
+      });
+
+      const savedDocument = await newDocument.save();
+      return savedDocument;
+    }));
+
+    res.status(201).json(documents);
+  } catch (error) {
+    console.error('Error uploading document for buyer package:', error);
+    res.status(500).json({ message: error.message });
+  }
+};

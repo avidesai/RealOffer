@@ -341,6 +341,7 @@ const MakeOfferModal = ({ onClose, listingId, buyerPackageId }) => {
       handleNextStep={handleNextStep}
       handlePrevStep={handlePrevStep}
       listingId={listingId}
+      buyerPackageId={buyerPackageId}
     />,
     electronicSignatures: <DocuSignSection
       documentWorkflow={documentWorkflow}
@@ -355,7 +356,7 @@ const MakeOfferModal = ({ onClose, listingId, buyerPackageId }) => {
       handlePrevStep={handlePrevStep}
       handleSubmit={handleSubmit}
     />
-  }), [offerData, handleChange, handleFinanceTypeChange, handleNextStep, handlePrevStep, handleNestedChange, listingId, handleSubmit, documentWorkflow, updateDocumentWorkflow]);
+  }), [offerData, handleChange, handleFinanceTypeChange, handleNextStep, handlePrevStep, handleNestedChange, listingId, buyerPackageId, handleSubmit, documentWorkflow, updateDocumentWorkflow]);
 
   return (
     <div className="make-offer-modal">

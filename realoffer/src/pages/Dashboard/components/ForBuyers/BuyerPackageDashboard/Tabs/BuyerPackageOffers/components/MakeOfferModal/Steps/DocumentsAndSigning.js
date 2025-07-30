@@ -7,7 +7,7 @@ import { useAuth } from '../../../../../../../../../../../src/context/AuthContex
 import api from '../../../../../../../../../../../src/context/api';
 import './DocumentsAndSigning.css';
 
-const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
+const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId, buyerPackageId }) => {
   const { 
     documentWorkflow, 
     updateDocumentWorkflow,
@@ -42,7 +42,8 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
   useEffect(() => {
     const fetchSignaturePacket = async () => {
       try {
-        const response = await api.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`);
+        // Use buyer package endpoint for buyer context
+        const response = await api.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/buyerPackage/${buyerPackageId}`);
         const documents = response.data;
         
         // Find the signature packet document
@@ -85,7 +86,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
     };
 
     fetchSignaturePacket();
-  }, [listingId, updateDocumentWorkflow]);
+  }, [buyerPackageId, updateDocumentWorkflow]);
 
   // Handle document upload
   const handleDocumentUpload = async (file) => {
@@ -110,9 +111,8 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
       formData.append('title[]', file.name);
       formData.append('purpose', 'offer');
       formData.append('uploadedBy', user._id);
-      formData.append('propertyListingId', listingId);
 
-      const response = await api.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formData, {
+      const response = await api.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents/buyerPackage/${buyerPackageId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`
@@ -202,7 +202,8 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
     setError(null);
     
     try {
-      const response = await api.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`);
+      // Use buyer package endpoint for buyer context
+      const response = await api.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/buyerPackage/${buyerPackageId}`);
       const documents = response.data;
       
       // Find the signature packet document

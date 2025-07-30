@@ -33,6 +33,7 @@ router.get('/:id/download', DocumentController.downloadDocument);
 
 // Buyer package documents route (specific route before generic listing route)
 router.get('/buyerPackage/:buyerPackageId', DocumentController.getDocumentsForBuyerPackage);
+router.post('/buyerPackage/:buyerPackageId', DocumentController.uploadDocuments, DocumentController.uploadDocumentForBuyerPackage);
 
 // Document routes with path parameters - GENERIC ROUTES LAST
 router.post('/propertyListing/:id', DocumentController.uploadDocuments, DocumentController.addDocumentToPropertyListing);

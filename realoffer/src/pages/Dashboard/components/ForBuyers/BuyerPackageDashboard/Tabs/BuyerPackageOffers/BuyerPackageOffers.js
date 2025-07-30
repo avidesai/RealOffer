@@ -26,10 +26,18 @@ const BuyerPackageOffers = ({ buyerPackageId, listingId }) => {
   const fetchOffers = useCallback(async () => {
     if (!buyerPackageId || !listingId) return;
     
+    // Extract the listing ID - it could be either a string ID or an object with _id
+    const actualListingId = typeof listingId === 'string' ? listingId : listingId?._id;
+    
+    if (!actualListingId) {
+      console.error('No listing ID available for offers');
+      return;
+    }
+    
     setLoading(true);
     try {
       // Get all offers for this listing
-      const offersResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/offers?listingId=${listingId}`, {
+      const offersResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/offers/property/${actualListingId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -39,7 +47,7 @@ const BuyerPackageOffers = ({ buyerPackageId, listingId }) => {
       );
       
       setOffers(userOffers);
-      setPropertyListing({ _id: listingId }); // Set a minimal property listing object
+      setPropertyListing({ _id: actualListingId }); // Set a minimal property listing object
       setTotalPages(Math.ceil(userOffers.length / 4));
     } catch (error) {
       console.error('Error fetching offers:', error);
@@ -65,7 +73,10 @@ const BuyerPackageOffers = ({ buyerPackageId, listingId }) => {
   };
 
   const handleAddOffer = () => {
-    if (!listingId) {
+    // Extract the listing ID - it could be either a string ID or an object with _id
+    const actualListingId = typeof listingId === 'string' ? listingId : listingId?._id;
+    
+    if (!actualListingId) {
       console.error('Cannot create offer: Property listing not available');
       return;
     }
@@ -179,7 +190,7 @@ const BuyerPackageOffers = ({ buyerPackageId, listingId }) => {
               ))
             )}
           </div>
-          {showModal && <MakeOfferModal onClose={handleCloseModal} listingId={listingId} buyerPackageId={buyerPackageId} />}
+          {showModal && <MakeOfferModal onClose={handleCloseModal} listingId={typeof listingId === 'string' ? listingId : listingId?._id} buyerPackageId={buyerPackageId} />}
           {respondToOffer && (
             <RespondToOfferModal
               isOpen={!!respondToOffer}
