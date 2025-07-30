@@ -188,8 +188,8 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, isBuyerPac
                         return <strong {...props} className={`urgency-tag urgency-${text.toLowerCase()}`}>{children}</strong>;
                       }
                       
-                      // Style structured labels in pest inspection reports (only for Location, Risk, Urgency, Expected Outcome)
-                      if (documentType && documentType.toLowerCase().includes('pest')) {
+                      // Style structured labels in home inspection reports (only for Location, Risk, Urgency, Expected Outcome)
+                      if (documentType && documentType.toLowerCase().includes('home')) {
                         const labels = ['Location', 'Risk', 'Urgency', 'Expected Outcome'];
                         if (labels.some(label => text === label)) {
                           return <strong {...props} className="structured-label">{children}</strong>;
@@ -211,23 +211,25 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, isBuyerPac
                         } else if (text.includes('❌')) {
                           return <li {...props} className="status-problem">{children}</li>;
                         }
-                      }
-                      
-                      // Style pest inspection structured items
-                      if (documentType && documentType.toLowerCase().includes('pest')) {
-                        // Main bullet points (infestation types or treatment names)
+                        
+                        // Style home inspection structured items
                         if (!text.includes('**Location**') && !text.includes('**Risk**') && 
                             !text.includes('**Urgency**') && !text.includes('**Expected Outcome**')) {
-                          return <li {...props} className="pest-item-main">{children}</li>;
+                          return <li {...props} className="home-item-main">{children}</li>;
                         }
                         // Sub-bullet points for details
                         else if (text.includes('**Location**') || text.includes('**Urgency**')) {
-                          return <li {...props} className="pest-item-detail">{children}</li>;
+                          return <li {...props} className="home-item-detail">{children}</li>;
                         }
                         // Risk items (should be styled differently)
                         else if (text.includes('**Risk**') || text.includes('**Expected Outcome**')) {
-                          return <li {...props} className="pest-item-risk">{children}</li>;
+                          return <li {...props} className="home-item-risk">{children}</li>;
                         }
+                      }
+                      
+                      // Style pest inspection items (original format)
+                      if (documentType && documentType.toLowerCase().includes('pest')) {
+                        return <li {...props} className="pest-item-standard">{children}</li>;
                       }
                       
                       return <li {...props}>{children}</li>;

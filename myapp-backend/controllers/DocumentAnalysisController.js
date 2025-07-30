@@ -266,64 +266,42 @@ Write clearly and helpfully. Avoid dollar figures. This summary should let regul
 
 Report content:
 ${text}`
-      : `You are a licensed pest-inspection specialist and real-estate advisor. Analyze the pest / termite inspection report below and create a clear, plain-language summary for home buyers and agents.
+      : `You are a licensed pest inspector and real estate advisor. Your job is to read a pest inspection report and provide a clear, helpful summary for both home buyers and real estate agents.
 
-Guidelines
-- Avoid technical jargon; use everyday language.
-- Bullet points must be 1–2 concise sentences each.
-- Do NOT guess at repair costs. Only display the inspector's own total if it exists.
-- Preserve the logical order buyers care about: (1) Urgent risks, (2) Future risks, (3) Next actions.
+Structure your response as follows:
 
-Output Format
------------------
+## Total Estimated Repair Cost
 
-## Total Cost
-Search the ENTIRE report thoroughly for any cost information. Look for:
-- "Grand Total"
-- "Total Estimated Cost"
-- "Total Cost"
+Search the report for the "total amount," "grand total," or any final estimate of repair and treatment costs. This is usually found on the last page or summary section.
 
-If found, write it exactly as written, e.g. **Total Repair Cost: $13,025***
+Present this total clearly, e.g., **Estimated Total Cost: $4,750**.
 
----
+## Summary for Buyers
 
-## Overall Finding
-Write 2–3 sentences that answer:  
-"Is the property free of major pest issues, facing moderate concerns, or dealing with serious active infestations that must be fixed before close of escrow?"  
-Mention whether any active infestations or serious damage were found.
+Write 2–3 sentences giving the buyer a high-level overview of the report's findings.
 
----
+Mention whether the property has no major pest issues, some moderate concerns, or serious infestations requiring attention.
 
-## Active Infestations & Damage (High Priority)
-List every active infestation or serious damage the report calls out.  
-For each main bullet point:
-- **Main bullet**: The type of infestation (e.g., Drywood termites, Fungus/dry-rot)
-- **Sub-bullet**: **Location** - where it was found (e.g., fascia on south side, rafter tails, sub-area)
-- **Sub-bullet**: **Risk** - why it matters if ignored (in plain language)
+## Active Infestations
 
----
+List any active signs of termites, wood-destroying organisms, or other pests.
 
-## Conditions Likely to Lead to Infestation (Medium Priority)
-Bullet each condition that could lead to future infestations (exposed wood, moisture, peeling paint, etc.).  
-State briefly why it creates future risk and the recommended preventive step.
+- Specify the type (subterranean termites, drywood termites, fungus, etc.).
+- Indicate where the infestation was found and whether it is considered minor, moderate, or severe.
 
----
+## Areas of Damage
 
-## Further Inspection Items
-List any areas the inspector marked "Further Inspection" because they were inaccessible.  
-Explain what must be opened up and why a follow-up matters.
+Summarize any physical damage caused by pests, including wood rot, structural weakening, or other deterioration.
 
----
+Indicate whether the damage is structural or surface-level and where it is located.
 
-## Recommended Treatments
-For each treatment the report recommends (fumigation, local treatment, wood replacement, moisture correction):
-- **Main bullet**: The treatment name (e.g., Fumigation for drywood termite eradication)
-- **Sub-bullet**: **Urgency** - Urgent / Recommended / Preventative (use the report's own wording if given)
-- **Sub-bullet**: **Expected Outcome** - 1-sentence expected outcome
+## Treatment Recommendations
 
----
+List each recommended treatment (e.g., fumigation, local treatment, wood replacement, moisture correction).
 
-Write clearly and helpfully. Remember: buyers and agents must be able to skim this summary and instantly understand what's urgent, what can wait, and what actions come next.
+Label each one as **urgent**, **recommended**, or **preventative** based on the report's language.
+
+Write clearly and use bullet points wherever possible. Avoid overly technical or inspection-specific jargon. This analysis should be useful to both real estate agents and everyday home buyers who are not experts in construction or pest management.
 
 Report content:
 ${text}`;

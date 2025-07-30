@@ -437,26 +437,61 @@
   margin-right: 0.5rem;
 }
 
-.pest-item-main {
+/* Home Inspection Report Specific Styling */
+.home-item-main {
   margin-bottom: 1rem;
   padding: 0.3rem 0;
   font-weight: 600;
   color: #1f2937;
 }
 
-.pest-item-detail {
+.home-item-detail {
   margin-left: 1.5rem;
   margin-bottom: 0.5rem;
   color: #4b5563;
   padding-left: 0.5rem;
 }
 
-.pest-item-risk {
+.home-item-risk {
   margin-left: 1.5rem;
   margin-bottom: 1rem;
   color: #dc2626;
   font-style: italic;
   padding-left: 0.5rem;
+}
+
+/* Pest Inspection Report Standard Styling (Original Format) */
+.pest-item-standard {
+  margin-bottom: 0.8rem;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+/* Enhanced urgency tag styling */
+.urgency-tag {
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+
+.urgency-urgent {
+  background-color: #dc2626;
+  color: white;
+}
+
+.urgency-recommended {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.urgency-preventative {
+  background-color: #10b981;
+  color: white;
 }
 
 /* Fix for cost display issues */
@@ -493,6 +528,31 @@
 .aam-result ol li.pest-item-risk {
   list-style-type: none;
   margin-bottom: 0.5rem;
+}
+
+/* Enhanced list styling for home inspection reports */
+.aam-result ul li.home-item-main,
+.aam-result ol li.home-item-main {
+  list-style-type: none;
+  margin-bottom: 1rem;
+}
+
+.aam-result ul li.home-item-detail,
+.aam-result ol li.home-item-detail {
+  list-style-type: none;
+  margin-bottom: 0.3rem;
+}
+
+.aam-result ul li.home-item-risk,
+.aam-result ol li.home-item-risk {
+  list-style-type: none;
+  margin-bottom: 0.5rem;
+}
+
+/* Enhanced list styling for pest inspection reports */
+.aam-result ul li.pest-item-standard,
+.aam-result ol li.pest-item-standard {
+  margin-bottom: 0.8rem;
 }
 
 .aam-footer {
