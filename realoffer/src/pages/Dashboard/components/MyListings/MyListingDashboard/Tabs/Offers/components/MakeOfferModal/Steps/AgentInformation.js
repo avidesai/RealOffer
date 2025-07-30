@@ -173,11 +173,11 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
           onChange={(e) => handleNestedChange(e, 'brokerageInfo')}
         />
       </div>
-      <div className="ds-button-container">
-        <button className="ds-step-back-button" onClick={handlePrevStep}>
+      <div className="mom-button-container">
+        <button className="mom-step-back-button" onClick={handlePrevStep}>
           Back
         </button>
-        <button className="ds-next-button" onClick={handleNextStep}>
+        <button className="mom-next-button" onClick={handleNextStep}>
           Next
         </button>
       </div>

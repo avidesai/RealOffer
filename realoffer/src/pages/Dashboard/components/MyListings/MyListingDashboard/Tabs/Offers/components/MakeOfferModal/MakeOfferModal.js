@@ -357,7 +357,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
   return (
     <div className="make-offer-modal">
       <div className="modal-content">
-        <button className="offer-close-button" onClick={onClose}></button>
+        <button className="mom-close-button" onClick={onClose}></button>
         <div className="modal-header">
           <button
             className="reset-offer-button"

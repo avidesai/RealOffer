@@ -362,7 +362,7 @@ const DocuSignSection = ({
 
   return (
     <div className="ds-modal-step">
-      <div className="ds-offer-modal-header">
+      <div className="offer-modal-header">
         <h2>Sign Documents</h2>
         <p>Send documents for signature through DocuSign (optional)</p>
       </div>
@@ -530,12 +530,12 @@ const DocuSignSection = ({
         </div>
       )}
 
-      <div className="ds-button-container">
-        <button className="ds-step-back-button" onClick={handlePrevStep}>
+      <div className="mom-button-container">
+        <button className="mom-step-back-button" onClick={handlePrevStep}>
           Back
         </button>
         <button
-          className="ds-next-button"
+          className="mom-next-button"
           onClick={handleNextStep}
         >
           Next

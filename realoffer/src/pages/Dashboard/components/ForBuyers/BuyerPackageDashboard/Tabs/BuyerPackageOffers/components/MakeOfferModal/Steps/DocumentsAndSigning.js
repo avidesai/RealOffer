@@ -244,7 +244,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
 
   return (
     <div className="ds-modal-step">
-      <div className="ds-offer-modal-header">
+      <div className="offer-modal-header">
         <h2>Add Documents</h2>
         <p>Upload purchase agreement, pre-approval, proof of funds, etc.</p>
       </div>
@@ -346,12 +346,12 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
         </div>
       </div>
 
-      <div className="ds-button-container">
-        <button className="ds-step-back-button" onClick={handlePrevStep} disabled={uploadLoading}>
+      <div className="mom-button-container">
+        <button className="mom-step-back-button" onClick={handlePrevStep} disabled={uploadLoading}>
           Back
         </button>
         <button
-          className="ds-next-button"
+          className="mom-next-button"
           onClick={handleNext}
           disabled={uploadLoading}
         >

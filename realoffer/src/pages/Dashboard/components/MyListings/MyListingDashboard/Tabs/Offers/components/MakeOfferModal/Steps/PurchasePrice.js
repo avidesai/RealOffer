@@ -316,11 +316,11 @@ const PurchasePrice = ({ handleNextStep }) => {
           {balanceOfDownPayment && <p><span>Balance of Down Payment:</span> <span>{balanceOfDownPayment}</span></p>}
         </div>
       )}
-      <div className="ds-button-container">
-        <button className="ds-step-back-button" disabled>
+      <div className="mom-button-container">
+        <button className="mom-step-back-button" disabled>
           Back
         </button>
-        <button className="ds-next-button" onClick={handleNextStep}>
+        <button className="mom-next-button" onClick={handleNextStep}>
           Next
         </button>
       </div>

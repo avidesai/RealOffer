@@ -397,11 +397,10 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
       </div>
 
       {/* Navigation */}
-      <div className="ds-button-container">
-        <button 
-          className="ds-step-back-button" 
+      <div className="mom-button-container">
+        <button
+          className="mom-step-back-button"
           onClick={handlePrevStep}
-          disabled={isSubmitting}
         >
           Back
         </button>

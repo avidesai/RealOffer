@@ -264,7 +264,7 @@
   font-style: italic;
 }
 
-.button-container {
+.mom-button-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -272,42 +272,51 @@
   gap: 1rem;
 }
 
-.step-back-button,
-.next-button {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
+.mom-step-back-button,
+.mom-next-button {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
   font-weight: 500;
-  cursor: pointer;
+  border-radius: 8px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s ease;
-  min-width: 100px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  gap: 8px;
+  cursor: pointer;
 }
 
-.step-back-button {
-  background-color: #f8f9fa;
-  color: #6c757d;
+.mom-step-back-button {
+  background-color: #a0a4aa;
+  color: #ffffff;
+  border: none;
 }
 
-.next-button {
-  background-color: #007bff;
-  color: #fff;
+.mom-next-button {
+  background-color: #4a90e2;
+  color: #ffffff;
+  border: none;
 }
 
-.step-back-button:hover {
-  background-color: #e9ecef;
+.mom-step-back-button:hover {
+  background-color: #888b92;
   transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.next-button:hover {
-  background-color: #0056b3;
+.mom-next-button:hover {
+  background-color: #357abd;
   transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.offer-close-button {
+.mom-close-button {
   position: absolute;
-  top: 2rem;
-  right: 2rem;
+  top: 1.5rem;
+  right: 1.5rem;
   background: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 50%;
@@ -324,13 +333,13 @@
   z-index: 1005;
 }
 
-.offer-close-button:hover {
+.mom-close-button:hover {
   color: #ffffff;
   background-color: #e74c3c;
   box-shadow: 0 6px 16px rgba(231, 76, 60, 0.2);
 }
 
-.offer-close-button:before {
+.mom-close-button:before {
   content: '×';
   font-weight: 300;
   display: inline-block;
@@ -439,4 +448,445 @@
   color: #6c757d;
   margin-top: 0.25rem;
   font-style: italic;
+}
+
+/* ===== MOBILE RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 100%;
+    height: 100vh;
+    max-width: 100%;
+    border-radius: 0;
+    padding: 1rem;
+    margin: 0;
+  }
+
+  .modal-header {
+    padding: 0.75rem 0 1rem 0;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: "reset title close";
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    margin-bottom: 1rem;
+    min-height: 60px;
+  }
+
+  .modal-title {
+    font-size: 1.25rem;
+    grid-area: title;
+    text-align: center;
+    margin: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .reset-offer-button {
+    grid-area: reset;
+    justify-self: start;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    min-height: 44px;
+    border-radius: 8px;
+    white-space: nowrap;
+    min-width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  .mom-close-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 44px;
+    height: 44px;
+    font-size: 1.25rem;
+    min-height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    z-index: 1010;
+  }
+
+  .offer-modal-header {
+    padding: 0.75rem 0;
+    margin-bottom: 0.65rem; /* Reduced spacing below header for mobile */
+  }
+
+  .offer-modal-header h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .offer-modal-header p {
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  .modal-step {
+    padding: 0.5rem 0;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-group label {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 1rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+  }
+
+  .form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+  }
+
+  /* Amount input improvements for mobile */
+  .amount-input-container {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .amount-input-field {
+    width: 100%;
+  }
+
+  .amount-input-toggle {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .toggle-btn {
+    flex: 1;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .amount-preview {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* Button container improvements */
+  .mom-button-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding: 0;
+  }
+
+  .mom-step-back-button,
+  .mom-next-button {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .mom-step-back-button {
+    background-color: #a0a4aa;
+    color: #ffffff;
+    border: none;
+  }
+
+  .mom-next-button {
+    background-color: #4a90e2;
+    color: #ffffff;
+    border: none;
+  }
+
+  .mom-step-back-button:hover {
+    background-color: #888b92;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .mom-next-button:hover {
+    background-color: #357abd;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Horizontal form groups stack on mobile */
+  .form-group-horizontal {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .form-input-left,
+  .form-select-right {
+    flex: none;
+    width: 100%;
+  }
+
+  /* Calculated values improvements */
+  .calculated-values {
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+
+  .calculated-values p {
+    font-size: 0.875rem;
+    padding: 0.5rem 0;
+  }
+
+  .calculated-values strong {
+    font-size: 1rem;
+  }
+
+  /* Summary section improvements */
+  .summary-section {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .summary-item {
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .summary-item h3 {
+    font-size: 0.875rem;
+  }
+
+  .summary-item p,
+  .summary-item ul li {
+    font-size: 0.8rem;
+  }
+
+  /* Special terms textarea */
+  .special-terms textarea {
+    min-height: 100px;
+  }
+
+  /* Contingency improvements */
+  .contingency {
+    margin-bottom: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 0.75rem;
+  }
+
+  .modal-header {
+    padding: 0.5rem 0 0.75rem 0;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    min-height: 50px;
+  }
+
+  .modal-title {
+    font-size: 1.125rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .reset-offer-button {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    min-height: 40px;
+    white-space: nowrap;
+    min-width: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  .mom-close-button {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 40px;
+    height: 40px;
+    font-size: 1.125rem;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    z-index: 1010;
+  }
+
+  .offer-modal-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .offer-modal-header p {
+    font-size: 0.8rem;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.625rem;
+  }
+
+  .toggle-btn {
+    padding: 0.625rem;
+    font-size: 0.8rem;
+  }
+
+  .mom-step-back-button,
+  .mom-next-button {
+    padding: 0.875rem;
+    font-size: 0.875rem;
+  }
+
+  .calculated-values {
+    padding: 0.75rem;
+  }
+
+  .calculated-values p {
+    font-size: 0.8rem;
+  }
+
+  .calculated-values strong {
+    font-size: 0.9rem;
+  }
+
+  .summary-section {
+    padding: 0.75rem;
+  }
+
+  .summary-item h3 {
+    font-size: 0.8rem;
+  }
+
+  .summary-item p,
+  .summary-item ul li {
+    font-size: 0.75rem;
+  }
+}
+
+/* ===== LANDSCAPE MOBILE OPTIMIZATIONS ===== */
+@media (max-width: 768px) and (orientation: landscape) {
+  .modal-content {
+    height: 100vh;
+    padding: 0.5rem;
+  }
+
+  .modal-header {
+    padding: 0.5rem 0;
+  }
+
+  .modal-title {
+    font-size: 1.125rem;
+  }
+
+  .offer-modal-header h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .offer-modal-header p {
+    font-size: 0.8rem;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .mom-button-container {
+    padding: 0.75rem 0;
+  }
+
+  .mom-step-back-button,
+  .mom-next-button {
+    padding: 0.75rem;
+  }
+}
+
+/* ===== TOUCH TARGET IMPROVEMENTS ===== */
+@media (max-width: 768px) {
+  .reset-offer-button,
+  .mom-step-back-button,
+  .mom-next-button,
+  .toggle-btn {
+    min-height: 44px; /* iOS minimum touch target */
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+  }
+
+  /* Prevent zoom on input focus for iOS */
+  .form-group input[type="text"],
+  .form-group input[type="number"],
+  .form-group input[type="email"],
+  .form-group input[type="tel"] {
+    font-size: 16px;
+  }
+}
+
+/* ===== ACCESSIBILITY IMPROVEMENTS ===== */
+@media (max-width: 768px) {
+  .modal-content {
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .modal-content {
+      border: 2px solid #000;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      border: 2px solid #000;
+    }
+
+    .mom-step-back-button,
+    .mom-next-button {
+      border: 2px solid #000;
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .modal-content {
+      animation: none;
+    }
+
+    .toggle-btn,
+    .mom-step-back-button,
+    .mom-next-button {
+      transition: none;
+    }
+  }
 }

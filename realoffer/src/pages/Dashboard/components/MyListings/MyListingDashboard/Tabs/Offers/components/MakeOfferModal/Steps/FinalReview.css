@@ -583,6 +583,7 @@
   .ds-submission-area {
     align-items: stretch;
     width: 100%;
+    flex: 1; /* Make submission area take equal space */
   }
 
   .ds-submit-offer-button {
@@ -885,10 +886,11 @@
   }
 
   .ds-step-back-button,
-  .ds-submit-button {
+  .ds-submit-offer-button {
     padding: 0.75rem 1rem;
     font-size: 0.9rem;
     min-height: 44px; /* Better touch target */
+    flex: 1; /* Make buttons equal width */
   }
 
   /* Section content mobile optimization */
