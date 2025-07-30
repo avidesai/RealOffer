@@ -106,21 +106,24 @@ const MakeOfferModal = ({ onClose, listingId }) => {
   }, [updateOfferData, resetDocumentWorkflow, listingId]);
 
   const handleSubmit = useCallback(async () => {
+    const purchaseAgreement = documentWorkflow.purchaseAgreement || {};
+    const requirements = documentWorkflow.requirements || { documents: [] };
+    const additional = documentWorkflow.additional || { documents: [] };
     
     // Collect all documents from documentWorkflow
     const allDocuments = [];
     const documentsForSigning = [];
     
     // Add purchase agreement document
-    if (documentWorkflow.purchaseAgreement.document) {
-      allDocuments.push({ id: documentWorkflow.purchaseAgreement.document.id });
-      if (documentWorkflow.purchaseAgreement.sendForSigning) {
-        documentsForSigning.push(documentWorkflow.purchaseAgreement.document.id);
+    if (purchaseAgreement.document) {
+      allDocuments.push({ id: purchaseAgreement.document.id });
+      if (purchaseAgreement.sendForSigning) {
+        documentsForSigning.push(purchaseAgreement.document.id);
       }
     }
     
     // Add required documents
-    documentWorkflow.requirements.documents.forEach(req => {
+    requirements.documents.forEach(req => {
       if (req.document) {
         allDocuments.push({ id: req.document.id });
         if (req.sendForSigning) {
@@ -130,26 +133,26 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     });
     
     // Add additional documents
-    documentWorkflow.additional.documents.forEach(doc => {
+    additional.documents.forEach(doc => {
       allDocuments.push({ id: doc.id });
       if (doc.sendForSigning) {
         documentsForSigning.push(doc.id);
       }
     });
-
+    
     // Prepare signing documents data
     const signingDocuments = [];
     
     // Purchase agreement signing preference
-    if (documentWorkflow.purchaseAgreement.document && documentWorkflow.purchaseAgreement.sendForSigning) {
+    if (purchaseAgreement.document && purchaseAgreement.sendForSigning) {
       signingDocuments.push({
-        documentId: documentWorkflow.purchaseAgreement.document.id,
+        documentId: purchaseAgreement.document.id,
         sendForSigning: true
       });
     }
     
     // Required documents signing preferences
-    documentWorkflow.requirements.documents.forEach(req => {
+    requirements.documents.forEach(req => {
       if (req.document && req.sendForSigning) {
         signingDocuments.push({
           documentId: req.document.id,
@@ -159,7 +162,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     });
     
     // Additional documents signing preferences
-    documentWorkflow.additional.documents.forEach(doc => {
+    additional.documents.forEach(doc => {
       if (doc.sendForSigning) {
         signingDocuments.push({
           documentId: doc.id,
@@ -167,11 +170,10 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         });
       }
     });
-
+    
     const formDataToSend = new FormData();
     for (const key in offerData) {
       if (key === 'documents') {
-        // Use documents from documentWorkflow instead of offerData.documents
         allDocuments.forEach(doc => {
           formDataToSend.append('documents[]', doc.id);
         });
@@ -179,7 +181,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         for (const nestedKey in offerData[key]) {
           formDataToSend.append(`${key}.${nestedKey}`, offerData[key][nestedKey]);
         }
-      } else {
+      } else if (key !== 'propertyListing') {
         formDataToSend.append(key, offerData[key]);
       }
     }
@@ -187,15 +189,14 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     // Add document workflow data
     formDataToSend.append('documentWorkflow', JSON.stringify({
       purchaseAgreement: {
-        choice: documentWorkflow.purchaseAgreement.choice,
-        sendForSigning: documentWorkflow.purchaseAgreement.sendForSigning !== false
+        sendForSigning: purchaseAgreement.sendForSigning || false
       },
-      signingDocuments: signingDocuments,
+      signingDocuments,
       docuSignConnected: documentWorkflow.signing?.docuSignConnected || false
     }));
+
+    formDataToSend.append('propertyListing', listingId);
     
-    formDataToSend.append('propertyListingId', listingId);
-  
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/offers`, formDataToSend, {
         headers: {

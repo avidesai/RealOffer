@@ -222,11 +222,14 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId, buyerP
       const documentToRemove = documentWorkflow.documents.find(doc => doc.id === documentId);
       const isSignaturePacket = documentToRemove?.type === 'Disclosure Signature Packet';
       
-      // Use buyer package endpoint for buyer context
-      await api.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/buyerPackage/${buyerPackageId}/${documentId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      if (!isSignaturePacket) {
+        // Delete the document via the normal endpoint (buyer-uploaded docs)
+        await api.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${documentId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      }
 
+      // Update local state regardless of whether API deletion occurred
       updateDocumentWorkflow(prev => ({
         ...prev,
         documents: prev.documents.filter(doc => doc.id !== documentId)
@@ -240,7 +243,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId, buyerP
       console.error('Error removing document:', error);
       setError('Failed to remove document');
     }
-  }, [updateDocumentWorkflow, token, signaturePacketExists, documentWorkflow.documents, buyerPackageId]);
+  }, [updateDocumentWorkflow, token, signaturePacketExists, documentWorkflow.documents]);
 
   // Handle file input change
   const handleFileChange = (event) => {

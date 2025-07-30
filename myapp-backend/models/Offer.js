@@ -50,7 +50,6 @@ const OfferSchema = new Schema({
   // Document workflow and signing preferences
   documentWorkflow: {
     purchaseAgreement: {
-      choice: { type: String, enum: ['upload', 'generate', 'skip'], default: 'upload' },
       sendForSigning: { type: Boolean, default: true }
     },
     signingDocuments: [{ 
