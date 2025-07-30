@@ -18,4 +18,10 @@ router.put('/:id', UserController.updateUser);
 router.put('/:id/upload-photo', UserController.uploadPhoto);
 router.delete('/:id', UserController.deleteUser);
 
+// Email verification and password reset routes
+router.get('/verify-email/:token', UserController.verifyEmail);
+router.post('/request-password-reset', UserController.requestPasswordReset);
+router.post('/reset-password', UserController.resetPassword);
+router.post('/resend-verification', UserController.resendEmailVerification);
+
 module.exports = router;

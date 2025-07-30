@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const { uploadFile } = require('../config/aws');
+const emailService = require('../utils/emailService');
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -115,6 +116,10 @@ exports.createUser = async (req, res) => {
             });
         }
 
+        // Generate email verification token
+        const emailVerificationToken = emailService.generateEmailVerificationToken();
+        const emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
         const newUser = new User({
             firstName: firstName.trim(),
             lastName: lastName.trim(),
@@ -126,6 +131,8 @@ exports.createUser = async (req, res) => {
             profilePhotoUrl: '',
             isActive: false,
             emailConfirmed: false,
+            emailVerificationToken,
+            emailVerificationExpires,
             lastLogin: null,
             twoFactorAuthenticationEnabled: false,
             notificationSettings: '',
@@ -155,6 +162,14 @@ exports.createUser = async (req, res) => {
         
         const savedUser = await newUser.save();
         
+        // Send email verification
+        try {
+            await emailService.sendEmailVerification(savedUser.email, emailVerificationToken, savedUser.firstName);
+        } catch (emailError) {
+            console.error('Failed to send email verification:', emailError);
+            // Don't fail the user creation if email fails
+        }
+        
         // Return user data without password and ensure consistent ID field
         const userResponse = {
             _id: savedUser._id,
@@ -169,7 +184,7 @@ exports.createUser = async (req, res) => {
         };
         
         res.status(201).json({
-            message: 'User created successfully',
+            message: 'User created successfully. Please check your email to verify your account.',
             user: userResponse
         });
     } catch (error) {
@@ -253,6 +268,14 @@ exports.loginUser = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(401).json({ 
                 message: 'Invalid email or password' 
+            });
+        }
+
+        // Check if email is verified
+        if (!user.emailConfirmed) {
+            return res.status(401).json({ 
+                message: 'Please verify your email address before logging in. Check your inbox for a verification link.',
+                emailNotVerified: true
             });
         }
 
@@ -389,6 +412,186 @@ exports.logout = async (req, res) => {
     console.error('Logout error:', error);
     res.status(500).json({ 
       message: 'Server error during logout',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
+    });
+  }
+};
+
+// Email verification endpoint
+exports.verifyEmail = async (req, res) => {
+  const { token } = req.params;
+  
+  try {
+    const user = await User.findOne({
+      emailVerificationToken: token,
+      emailVerificationExpires: { $gt: Date.now() }
+    });
+    
+    if (!user) {
+      return res.status(400).json({ 
+        message: 'Invalid or expired verification token' 
+      });
+    }
+    
+    // Update user to verified
+    user.emailConfirmed = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpires = undefined;
+    user.isActive = true;
+    
+    await user.save();
+    
+    res.status(200).json({ 
+      message: 'Email verified successfully. You can now log in to your account.' 
+    });
+  } catch (error) {
+    console.error('Email verification error:', error);
+    res.status(500).json({ 
+      message: 'Server error during email verification',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
+    });
+  }
+};
+
+// Request password reset
+exports.requestPasswordReset = async (req, res) => {
+  const { email } = req.body;
+  
+  try {
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+    
+    const user = await User.findOne({ email: email.toLowerCase() });
+    
+    if (!user) {
+      // Don't reveal if user exists or not for security
+      return res.status(200).json({ 
+        message: 'If an account with this email exists, a password reset link has been sent.' 
+      });
+    }
+    
+    // Generate password reset token
+    const passwordResetToken = emailService.generatePasswordResetToken();
+    const passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    
+    user.passwordResetToken = passwordResetToken;
+    user.passwordResetExpires = passwordResetExpires;
+    await user.save();
+    
+    // Send password reset email
+    try {
+      await emailService.sendPasswordReset(user.email, passwordResetToken, user.firstName);
+    } catch (emailError) {
+      console.error('Failed to send password reset email:', emailError);
+      return res.status(500).json({ 
+        message: 'Failed to send password reset email. Please try again later.' 
+      });
+    }
+    
+    res.status(200).json({ 
+      message: 'If an account with this email exists, a password reset link has been sent.' 
+    });
+  } catch (error) {
+    console.error('Password reset request error:', error);
+    res.status(500).json({ 
+      message: 'Server error during password reset request',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
+    });
+  }
+};
+
+// Reset password with token
+exports.resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+  
+  try {
+    if (!token || !newPassword) {
+      return res.status(400).json({ 
+        message: 'Token and new password are required' 
+      });
+    }
+    
+    if (newPassword.length < 6) {
+      return res.status(400).json({ 
+        message: 'Password must be at least 6 characters long' 
+      });
+    }
+    
+    const user = await User.findOne({
+      passwordResetToken: token,
+      passwordResetExpires: { $gt: Date.now() }
+    });
+    
+    if (!user) {
+      return res.status(400).json({ 
+        message: 'Invalid or expired reset token' 
+      });
+    }
+    
+    // Update password and clear reset token
+    user.password = newPassword;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    
+    await user.save();
+    
+    res.status(200).json({ 
+      message: 'Password reset successfully. You can now log in with your new password.' 
+    });
+  } catch (error) {
+    console.error('Password reset error:', error);
+    res.status(500).json({ 
+      message: 'Server error during password reset',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
+    });
+  }
+};
+
+// Resend email verification
+exports.resendEmailVerification = async (req, res) => {
+  const { email } = req.body;
+  
+  try {
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+    
+    const user = await User.findOne({ email: email.toLowerCase() });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    if (user.emailConfirmed) {
+      return res.status(400).json({ message: 'Email is already verified' });
+    }
+    
+    // Generate new verification token
+    const emailVerificationToken = emailService.generateEmailVerificationToken();
+    const emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    
+    user.emailVerificationToken = emailVerificationToken;
+    user.emailVerificationExpires = emailVerificationExpires;
+    await user.save();
+    
+    // Send new verification email
+    try {
+      await emailService.sendEmailVerification(user.email, emailVerificationToken, user.firstName);
+    } catch (emailError) {
+      console.error('Failed to send email verification:', emailError);
+      return res.status(500).json({ 
+        message: 'Failed to send verification email. Please try again later.' 
+      });
+    }
+    
+    res.status(200).json({ 
+      message: 'Verification email sent successfully. Please check your inbox.' 
+    });
+  } catch (error) {
+    console.error('Resend verification error:', error);
+    res.status(500).json({ 
+      message: 'Server error during email verification resend',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
     });
   }

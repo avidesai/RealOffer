@@ -8,6 +8,9 @@ import Login from './pages/Login/Login';
 import Signup from './pages/Signup/Signup';
 import FeaturesPage from './pages/Features/FeaturesPage';
 import PublicFacingListing from './pages/PublicFacingListing/PublicFacingListing';
+import EmailVerification from './pages/EmailVerification/EmailVerification';
+import PasswordReset from './pages/PasswordReset/PasswordReset';
+import ForgotPassword from './pages/ForgotPassword/ForgotPassword';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Profile from './pages/Dashboard/pages/Profile/Profile';
 import MyListingDashboard from './pages/Dashboard/components/MyListings/MyListingDashboard/MyListingDashboard';
@@ -69,6 +72,9 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/listings/public/:token" element={<PublicFacingListing />} />
+          <Route path="/verify-email" element={<EmailVerification />} />
+          <Route path="/reset-password" element={<PasswordReset />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           {/* Protected Routes */}
           <Route path="/dashboard" element={<PrivateRoute element={Dashboard} />} />
           <Route path="/profile" element={<PrivateRoute element={Profile} />} />

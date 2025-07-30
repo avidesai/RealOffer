@@ -103,6 +103,12 @@ function LoginForm() {
             type: 'password',
             message: 'Incorrect password. Please try again.'
           };
+        } else if (errorMessage.includes('verify your email') || error.response.data?.emailNotVerified) {
+          return {
+            type: 'email_verification',
+            message: 'Please verify your email address before logging in. Check your inbox for a verification link.',
+            emailNotVerified: true
+          };
         } else {
           return {
             type: 'credentials',
@@ -166,6 +172,9 @@ function LoginForm() {
           break;
         case 'password':
           setErrors({ password: parsedError.message });
+          break;
+        case 'email_verification':
+          setGeneralError(parsedError.message);
           break;
         case 'credentials':
           setGeneralError(parsedError.message);
@@ -247,7 +256,7 @@ function LoginForm() {
       </form>
       <div className="log-footer">
         <p>Need an account? <Link to="/signup">Sign Up</Link></p>
-        <p><Link to="/reset-password">Reset Password</Link></p>
+        <p><Link to="/forgot-password">Forgot Password?</Link></p>
       </div>
     </div>
   );

@@ -562,4 +562,9 @@
     width: 120px;
     height: 120px;
   }
+
+  .clp-close-button {
+    top: 1rem;
+    right: 1rem;
+  }
 }
