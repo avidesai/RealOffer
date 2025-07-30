@@ -278,14 +278,17 @@ Output Format
 -----------------
 
 ## Grand Total (if listed in the report)
-Search the ENTIRE report for any cost information. Look for:
+Search the ENTIRE report thoroughly for any cost information. Look for:
 - "Grand Total"
 - "Total Estimated Cost" 
 - "Total Amount"
 - "Total Cost"
 - "Estimated Total"
 - "Final Cost"
-- Any dollar amounts in summary sections
+- "Total Repair Cost"
+- "Total Treatment Cost"
+- Any dollar amounts in summary sections, final pages, or conclusion areas
+- Look in headers, footers, and any summary boxes
 
 If found, present exactly as written, e.g. **Total Repair Cost: $13,025**
 If not found, write *"No overall cost listed in report."*
@@ -295,12 +298,12 @@ If not found, write *"No overall cost listed in report."*
 ## Overall Finding
 Write 2–3 sentences that answer:  
 "Is the property free of major pest issues, facing moderate concerns, or dealing with serious active infestations that must be fixed before close of escrow?"  
-Reference whether Section 1 items were found.
+Mention whether any active infestations or serious damage were found.
 
 ---
 
 ## Active Infestations & Damage (High Priority)
-List every Section 1 finding the report calls out.  
+List every active infestation or serious damage the report calls out.  
 For each main bullet point:
 - **Main bullet**: The type of infestation (e.g., Drywood termites, Fungus/dry-rot)
 - **Sub-bullet**: **Location** - where it was found (e.g., fascia on south side, rafter tails, sub-area)
@@ -309,7 +312,7 @@ For each main bullet point:
 ---
 
 ## Conditions Likely to Lead to Infestation (Medium Priority)
-Bullet each Section 2 item (exposed wood, moisture, peeling paint, etc.).  
+Bullet each condition that could lead to future infestations (exposed wood, moisture, peeling paint, etc.).  
 State briefly why it creates future risk and the recommended preventive step.
 
 ---

@@ -439,10 +439,7 @@
 
 .pest-item-main {
   margin-bottom: 1rem;
-  padding: 0.8rem;
-  background-color: #f8fafc;
-  border-radius: 8px;
-  border-left: 4px solid #2563eb;
+  padding: 0.3rem 0;
   font-weight: 600;
   color: #1f2937;
 }
