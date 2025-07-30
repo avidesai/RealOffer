@@ -66,23 +66,23 @@ const OfferDetailsView = ({ offerId, onBack }) => {
   };
 
   if (loading) {
-    return <div className="spinner-container"><div className="spinner"></div></div>;
+    return <div className="odv-spinner-container"><div className="odv-spinner"></div></div>;
   }
 
   if (error) {
-    return <div className="error-message">{error}</div>;
+    return <div className="odv-error-message">{error}</div>;
   }
 
   if (!offer) {
-    return <div className="error-message">No offer data available.</div>;
+    return <div className="odv-error-message">No offer data available.</div>;
   }
 
   return (
-    <div className="offer-details-view">
-      <button className="offer-back-button" onClick={onBack}>&larr; Back to Offers</button>
-      <div className="offer-content">
+    <div className="odv-offer-details-view">
+      <button className="odv-offer-back-button" onClick={onBack}>&larr; Back to Offers</button>
+      <div className="odv-offer-content">
         <Terms offer={offer} />
-        <div className="middle-section">
+        <div className="odv-middle-section">
           <AgentInfo offer={offer} />
           <Messages offer={offer} />
           <Documents documents={documents} />

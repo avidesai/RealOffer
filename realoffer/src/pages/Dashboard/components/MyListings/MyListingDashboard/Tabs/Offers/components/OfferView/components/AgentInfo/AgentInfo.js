@@ -27,17 +27,17 @@ const formatDateTime = (isoString) => {
 const getStatusStyle = (status) => {
   switch (status) {
     case 'submitted':
-      return { text: 'Pending Review', className: 'status-submitted' };
+      return { text: 'Pending Review', className: 'odv-status-submitted' };
     case 'under review':
-      return { text: 'Under Review', className: 'status-under-review' };
+      return { text: 'Under Review', className: 'odv-status-under-review' };
     case 'countered':
-      return { text: 'Countered', className: 'status-countered' };
+      return { text: 'Countered', className: 'odv-status-countered' };
     case 'accepted':
-      return { text: 'Accepted', className: 'status-accepted' };
+      return { text: 'Accepted', className: 'odv-status-accepted' };
     case 'rejected':
-      return { text: 'Rejected', className: 'status-rejected' };
+      return { text: 'Rejected', className: 'odv-status-rejected' };
     default:
-      return { text: 'Pending Review', className: 'status-submitted' };
+      return { text: 'Pending Review', className: 'odv-status-submitted' };
   }
 };
 
@@ -50,43 +50,67 @@ const AgentInfo = ({ offer }) => {
   const lastName = nameParts.slice(1).join(' ') || '';
 
   return (
-    <div className="agent-info-section">
-      <div className="agent-info-content">
-        <Avatar 
-          src={offer.presentedBy.agentImageUrl}
-          firstName={firstName}
-          lastName={lastName}
-          size="large"
-          className="agent-avatar"
-          alt={offer.presentedBy.name}
-        />
-        <div className="agent-details">
-          <h3>{offer.presentedBy.name}</h3>
-          <p className="contact-info-value">{offer.presentedBy.email}</p>
-          <p className="contact-info-value">{formatPhoneNumber(offer.presentedBy.phoneNumber)}</p>
-          <div className="license-timestamp">
-            <div className="info-block">
-              <p className="license-label">Agent License</p>
-              <p className="license-value">{offer.presentedBy.licenseNumber}</p>
+    <div className="odv-agent-info-section">
+      <div className="odv-agent-info-content">
+        {/* Two Column Layout */}
+        <div className="odv-main-columns">
+          {/* Agent Information - Left Column */}
+          <div className="odv-agent-column">
+            <div className="odv-agent-header">
+              <Avatar 
+                src={offer.presentedBy.agentImageUrl}
+                firstName={firstName}
+                lastName={lastName}
+                size="large"
+                className="odv-agent-avatar"
+                alt={offer.presentedBy.name}
+              />
+              <div className="odv-agent-info">
+                <h3 className="odv-agent-name">{offer.presentedBy.name}</h3>
+                <div className="odv-contact-details">
+                  <p className="odv-contact-info-value">{offer.presentedBy.email}</p>
+                  <p className="odv-contact-info-value">{formatPhoneNumber(offer.presentedBy.phoneNumber)}</p>
+                </div>
+              </div>
             </div>
-            <div className="info-block">
-              <p className="timestamp-label">Submitted On</p>
-              <p className="timestamp-value">{formatDateTime(offer.submittedOn)}</p>
+            
+            <div className="odv-agent-meta">
+              <div className="odv-info-block">
+                <p className="odv-license-label">AGENT LICENSE</p>
+                <p className="odv-license-value">{offer.presentedBy.licenseNumber}</p>
+              </div>
+            </div>
+            
+            <div className="odv-agent-bottom">
+              <div className="odv-info-block">
+                <p className="odv-timestamp-label">SUBMITTED ON</p>
+                <p className="odv-timestamp-value">{formatDateTime(offer.submittedOn)}</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="brokerage-details">
-          <p className="brokerage-name"><strong>{offer.brokerageInfo.name}</strong></p>
-          <p className="address-value">{offer.brokerageInfo.addressLine1}</p>
-          <p className="address-value">{offer.brokerageInfo.addressLine2}</p>
-          <div className="license-status">
-            <div className="info-block">
-              <p className="license-label">Broker License</p>
-              <p className="license-value">{offer.brokerageInfo.licenseNumber}</p>
+
+          {/* Brokerage Information - Right Column */}
+          <div className="odv-brokerage-column">
+            <div className="odv-brokerage-header">
+              <h4 className="odv-brokerage-name">{offer.brokerageInfo.name}</h4>
+              <div className="odv-address-details">
+                <p className="odv-address-value">{offer.brokerageInfo.addressLine1}</p>
+                <p className="odv-address-value">{offer.brokerageInfo.addressLine2}</p>
+              </div>
             </div>
-            <div className="info-block">
-              <p className="status-label">Offer Status</p>
-              <p className="status-value"><span className={`status-box ${statusStyle.className}`}>{statusStyle.text}</span></p>
+            
+            <div className="odv-brokerage-meta">
+              <div className="odv-info-block">
+                <p className="odv-license-label">BROKER LICENSE</p>
+                <p className="odv-license-value">{offer.brokerageInfo.licenseNumber}</p>
+              </div>
+            </div>
+            
+            <div className="odv-brokerage-bottom">
+              <div className="odv-info-block">
+                <p className="odv-status-label">OFFER STATUS</p>
+                <span className={`odv-status-box ${statusStyle.className}`}>{statusStyle.text}</span>
+              </div>
             </div>
           </div>
         </div>

@@ -2,42 +2,118 @@
 
 .private-notes-section {
   background-color: #ffffff;
-  border-radius: 10px;
+  border-radius: 16px;
   margin-bottom: 1.5rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-  padding-top: 0.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+  padding: 2rem;
+  transition: all 0.2s ease;
+}
+
+.private-notes-section:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
 .section-title {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   font-weight: 700;
-  color: #333333;
-  margin-bottom: 1rem;
+  color: #2c3e50;
+  margin: 0 0 1.5rem 0;
   text-align: center;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f1f3f5;
 }
 
 .private-notes-content {
-  padding-top: 1rem;
-  padding: 0.5rem;
+  padding: 0;
 }
 
 .private-notes-content textarea {
   width: 100%;
-  height: 225px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-family: 'Helvetica Neue', sans-serif;
-  padding: 0.75em;
-  font-size: 1rem;
-  line-height: 1.5;
-  resize: none;
+  height: 200px;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  padding: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  resize: vertical;
   box-sizing: border-box;
   color: #2c3e50;
+  background-color: #fff;
+  transition: all 0.2s ease;
+  min-height: 120px;
+  max-height: 400px;
+}
+
+.private-notes-content textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  background-color: #fafbfc;
 }
 
 .private-notes-content textarea::placeholder {
-  color: #b0b0b0;
+  color: #8e9aaf;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.private-notes-content textarea:hover {
+  border-color: #007bff;
+}
+
+/* Character count indicator */
+.character-count {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #6c757d;
+  opacity: 0.8;
+}
+
+/* Auto-save indicator */
+.save-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.save-status.saving {
+  color: #ffc107;
+}
+
+.save-status.saved {
+  color: #28a745;
+}
+
+.save-status.error {
+  color: #dc3545;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .private-notes-section {
+    padding: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .private-notes-content textarea {
+    height: 160px;
+    font-size: 0.9rem;
+    padding: 0.85rem;
+  }
+
+  .character-count,
+  .save-status {
+    font-size: 0.75rem;
+  }
 }

@@ -1,116 +1,261 @@
 /* AgentInfo.css */
 
-.agent-info-section {
+.odv-agent-info-section {
   background-color: #fff;
-  border-radius: 10px;
-  overflow: hidden;
+  border-radius: 16px;
   margin-bottom: 1.5rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
-  padding-top: 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+  padding: 2rem;
+  transition: all 0.2s ease;
 }
 
-.agent-info-content {
+.odv-agent-info-section:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.odv-agent-info-content {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Two Column Layout */
+.odv-main-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+/* Agent Column - Left */
+.odv-agent-column {
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
 }
 
-.agent-avatar {
-  color: white;
-  border-radius: 50%;
-  width: 70px;
-  height: 70px;
+.odv-agent-header {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e9ecef;
 }
 
-.agent-avatar-img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
+.odv-agent-avatar {
+  flex-shrink: 0;
+  margin: 0;
 }
 
-.agent-details {
+.odv-agent-info {
   flex: 1;
-  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.brokerage-details {
-  flex: 1;
-  min-width: 200px;
+.odv-agent-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+  line-height: 1.2;
 }
 
-.status-details {
-  flex: 1;
-  min-width: 200px;
+.odv-contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
-.agent-details h3,
-.brokerage-details .brokerage-name {
-  margin: 0 0 0.65rem 0;
-  font-size: 1.2rem;
-  color: #2b2b2b;
-}
-
-.contact-info-value,
-.address-value,
-.license-value,
-.status-value,
-.timestamp-value {
+.odv-contact-info-value {
   font-size: 0.95rem;
-  color: #2b2b2b;
-  margin: 0.5rem 0;
-}
-
-.license-label,
-.status-label,
-.timestamp-label {
-  font-size: 0.95rem;
-  color: #6c757d;
-  margin: 0.5rem 0 0.25rem 0;
-}
-
-.info-block {
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.status-box {
-  padding: 0.25rem 0.75rem;
+  color: #495057;
+  margin: 0;
+  line-height: 1.4;
   font-weight: 500;
-  border-radius: 12px;
-  font-size: 0.85rem;
+}
+
+.odv-agent-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-left: calc(60px + 1rem); /* Avatar width (60px) + gap (1rem) */
+}
+
+.odv-agent-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-left: calc(60px + 1rem); /* Avatar width (60px) + gap (1rem) */
+}
+
+/* Brokerage Column - Right */
+.odv-brokerage-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.odv-brokerage-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.odv-brokerage-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.odv-address-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.odv-address-value {
+  font-size: 0.95rem;
+  color: #495057;
+  margin: 0;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.odv-brokerage-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.odv-brokerage-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Info Blocks */
+.odv-info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.odv-license-label,
+.odv-status-label,
+.odv-timestamp-label {
+  font-size: 0.7rem;
+  color: #6c757d;
+  margin: 0;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.odv-license-value,
+.odv-timestamp-value {
+  font-size: 0.95rem;
+  color: #2c3e50;
+  margin: 0;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+/* Status Box */
+.odv-status-box {
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  font-size: 0.8rem;
   text-align: center;
   display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  min-width: 120px;
+  margin-top: 0.25rem;
 }
 
-.status-submitted {
-  background-color: #e7e7e7;
-  color: #333;
+.odv-status-submitted {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  color: #495057;
+  border: 1px solid #dee2e6;
 }
 
-.status-under-review {
-  background-color: #6f42c1;
+.odv-status-under-review {
+  background: linear-gradient(135deg, #6f42c1, #5a2d91);
   color: #fff;
 }
 
-.status-countered {
-  background-color: #e78f37;
-  color: #ffffff;
-}
-
-.status-accepted {
-  background-color: #28a745;
+.odv-status-countered {
+  background: linear-gradient(135deg, #fd7e14, #e8590c);
   color: #fff;
 }
 
-.status-rejected {
-  background-color: #dc3545;
+.odv-status-accepted {
+  background: linear-gradient(135deg, #28a745, #1e7e34);
   color: #fff;
+}
+
+.odv-status-rejected {
+  background: linear-gradient(135deg, #dc3545, #bd2130);
+  color: #fff;
+}
+
+/* Tablet Layout */
+@media (min-width: 768px) and (max-width: 991px) {
+  .odv-main-columns {
+    gap: 2rem;
+  }
+}
+
+/* Mobile Layout */
+@media (max-width: 767px) {
+  .odv-agent-info-section {
+    padding: 1.5rem;
+  }
+
+  .odv-agent-info-content {
+    gap: 1.5rem;
+  }
+
+  .odv-main-columns {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .odv-agent-header,
+  .odv-brokerage-header {
+    gap: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .odv-agent-name,
+  .odv-brokerage-name {
+    font-size: 1.1rem;
+  }
+
+  .odv-contact-info-value,
+  .odv-address-value,
+  .odv-license-value,
+  .odv-timestamp-value {
+    font-size: 0.9rem;
+  }
+
+  .odv-agent-meta,
+  .odv-agent-bottom {
+    padding-left: calc(60px + 0.75rem); /* Avatar width (60px) + gap (0.75rem) */
+  }
+
+  .odv-status-box {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    min-width: 100px;
+  }
 }
