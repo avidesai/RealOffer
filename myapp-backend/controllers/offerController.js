@@ -61,6 +61,9 @@ exports.createOffer = async (req, res) => {
       downPaymentPercent: req.body.downPaymentPercent ? parseFloat(req.body.downPaymentPercent) : undefined
     };
 
+    // Set the buyersAgent (creator of the offer) to the currently authenticated user
+    offerData.buyersAgent = req.user.id;
+
     const offer = new Offer(offerData);
     await offer.save();
 

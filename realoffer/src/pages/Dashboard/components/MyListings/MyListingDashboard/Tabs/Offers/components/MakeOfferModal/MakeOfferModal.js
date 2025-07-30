@@ -181,11 +181,37 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         for (const nestedKey in offerData[key]) {
           formDataToSend.append(`${key}.${nestedKey}`, offerData[key][nestedKey]);
         }
-      } else if (key !== 'propertyListing') {
+      } else if (!['propertyListing','initialDeposit','initialDepositPercent','downPayment','downPaymentPercent'].includes(key)) {
         formDataToSend.append(key, offerData[key]);
       }
     }
     
+    // Ensure initialDeposit and downPayment are populated
+    const purchasePriceNumber = parseFloat(offerData.purchasePrice || '0');
+    let initialDepositVal = offerData.initialDeposit;
+    let initialDepositPercentVal = offerData.initialDepositPercent;
+    if (!initialDepositVal && initialDepositPercentVal && purchasePriceNumber) {
+      initialDepositVal = ((purchasePriceNumber * parseFloat(initialDepositPercentVal)) / 100).toFixed(0);
+    }
+    if (!initialDepositPercentVal && initialDepositVal && purchasePriceNumber) {
+      initialDepositPercentVal = ((parseFloat(initialDepositVal) / purchasePriceNumber) * 100).toFixed(2);
+    }
+
+    let downPaymentVal = offerData.downPayment;
+    let downPaymentPercentVal = offerData.downPaymentPercent;
+    if (!downPaymentVal && downPaymentPercentVal && purchasePriceNumber) {
+      downPaymentVal = ((purchasePriceNumber * parseFloat(downPaymentPercentVal)) / 100).toFixed(0);
+    }
+    if (!downPaymentPercentVal && downPaymentVal && purchasePriceNumber) {
+      downPaymentPercentVal = ((parseFloat(downPaymentVal) / purchasePriceNumber) * 100).toFixed(2);
+    }
+
+    // Append these ensured values first
+    formDataToSend.append('initialDeposit', initialDepositVal || '0');
+    formDataToSend.append('initialDepositPercent', initialDepositPercentVal || '0');
+    formDataToSend.append('downPayment', downPaymentVal || '0');
+    formDataToSend.append('downPaymentPercent', downPaymentPercentVal || '0');
+
     // Add document workflow data
     formDataToSend.append('documentWorkflow', JSON.stringify({
       purchaseAgreement: {
