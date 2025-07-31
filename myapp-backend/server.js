@@ -164,6 +164,7 @@ const documentAnalysisRouter = require('./routes/documentAnalysis');
 const propertyAnalysisRouter = require('./routes/propertyAnalysis');
 const stripeRouter = require('./routes/stripe');
 const buyerPackagesRouter = require('./routes/buyerPackages');
+const adminRouter = require('./routes/admin');
 
 // Route Usage
 app.use('/api/users', usersRouter);
@@ -178,6 +179,7 @@ app.use('/api/document-analysis', documentAnalysisRouter);
 app.use('/api/property-analysis', propertyAnalysisRouter);
 app.use('/api/stripe', stripeRouter);
 app.use('/api/buyerPackages', buyerPackagesRouter);
+app.use('/api/admin', adminRouter);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

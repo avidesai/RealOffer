@@ -6,7 +6,7 @@ import axios from 'axios';
 import { useAuth } from '../../../../../../../../../context/AuthContext';
 import Terms from './components/Terms/Terms';
 import AgentInfo from './components/AgentInfo/AgentInfo';
-import Messages from './components/Messages/Messages';
+import MessageThread from './components/MessageThread/MessageThread';
 import Documents from './components/Documents/Documents';
 import PrivateNotes from './components/PrivateNotes/PrivateNotes';
 
@@ -85,7 +85,7 @@ const OfferDetailsView = ({ offerId, onBack }) => {
         <div className="odv-middle-section">
           <AgentInfo offer={offer} />
           <Documents documents={documents} />
-          <Messages offer={offer} />
+          <MessageThread offer={offer} />
         </div>
         <PrivateNotes notes={notes} handleNotesChange={handleNotesChange} handleNotesBlur={handleNotesBlur} />
       </div>

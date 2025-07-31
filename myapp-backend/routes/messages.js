@@ -2,15 +2,28 @@
 
 const express = require('express');
 const router = express.Router();
-const MessageController = require('../controllers/MessageController');
+const messageController = require('../controllers/messageController');
 const authMiddleware = require('../middleware/auth');
 
-// Apply auth middleware to all routes
+// Apply authMiddleware to all routes
 router.use(authMiddleware);
 
-router.get('/', MessageController.getMessages);
-router.post('/', MessageController.createMessage);
-router.patch('/:id/read', MessageController.markAsRead);
-router.delete('/:id', MessageController.deleteMessage);
+// Get all messages for an offer
+router.get('/offers/:id', messageController.getMessagesByOffer);
+
+// Send a new message
+router.post('/offers/:id', messageController.sendMessage);
+
+// Mark a specific message as read
+router.put('/offers/:id/messages/:messageId/read', messageController.markMessageAsRead);
+
+// Mark all messages in an offer as read
+router.put('/offers/:id/read-all', messageController.markAllMessagesAsRead);
+
+// Get unread message count for an offer
+router.get('/offers/:id/unread-count', messageController.getUnreadCount);
+
+// Delete a message
+router.delete('/offers/:id/messages/:messageId', messageController.deleteMessage);
 
 module.exports = router;

@@ -5,6 +5,7 @@ const Offer = require('../models/Offer');
 const PropertyListing = require('../models/PropertyListing');
 const Document = require('../models/Document');
 const Activity = require('../models/Activity');
+const Message = require('../models/Message');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const { offerDocumentsContainerClient } = require('../config/azureStorage');
@@ -120,6 +121,18 @@ exports.createOffer = async (req, res) => {
 
     await activity.save();
 
+    // Create initial message if buyer included a message
+    if (req.body.buyersAgentMessage && req.body.buyersAgentMessage.trim()) {
+      const initialMessage = new Message({
+        offer: offer._id,
+        sender: req.user.id,
+        content: req.body.buyersAgentMessage,
+        messageType: 'offer_message',
+        subject: 'Initial Offer Message'
+      });
+      await initialMessage.save();
+    }
+
     // Fetch the complete offer with populated documents
     const populatedOffer = await Offer.findById(offer._id).populate('documents');
     res.status(201).json(populatedOffer);
@@ -224,6 +237,19 @@ exports.respondToOffer = async (req, res) => {
     const offer = await Offer.findById(id);
     if (!offer) return res.status(404).json({ message: 'Offer not found' });
 
+    // Create a new message in the conversation
+    const newMessage = new Message({
+      offer: id,
+      sender: req.user.id,
+      content: message,
+      subject: subject,
+      messageType: 'response',
+      responseType: responseType
+    });
+
+    await newMessage.save();
+
+    // Maintain backward compatibility by also adding to responses array
     const response = {
       responseType,
       subject,
@@ -241,7 +267,14 @@ exports.respondToOffer = async (req, res) => {
     }
 
     await offer.save();
-    res.status(200).json(offer);
+
+    // Populate sender info for response
+    await newMessage.populate('sender', 'firstName lastName email profilePhotoUrl');
+
+    res.status(200).json({
+      offer,
+      message: newMessage
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
