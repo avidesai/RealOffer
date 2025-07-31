@@ -626,7 +626,7 @@
   z-index: 2;
   max-width: 48rem;
   animation: fadeInUp 1s ease-out;
-  padding-top: 80px; /* Account for fixed header */
+  padding-top: 2rem;
 }
 
 @media (max-width: 768px) {
@@ -826,23 +826,33 @@
 
 .lp-hero-trust-badges {
   display: flex;
-  gap: var(--space-xl);
-  flex-wrap: wrap;
+  gap: var(--space-lg);
+  flex-wrap: nowrap;
   animation: fadeInUp 1s ease-out 0.6s backwards;
+  margin-top: var(--space-xl);
 }
 
 .lp-hero-trust-badge {
   display: flex;
   align-items: center;
   gap: var(--space-xs);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 0.875rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md);
   transition: all var(--transition-base);
+  white-space: nowrap;
 }
 
 .lp-hero-trust-badge:hover {
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(255, 255, 255, 1);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .lp-hero-trust-icon {
@@ -2253,6 +2263,36 @@
   .lp-cta-guarantee-icon {
     width: 18px;
     height: 18px;
+  }
+}
+
+/* Ultra-wide/4K monitor optimization */
+@media (min-width: 2560px) {
+  .lp-hero {
+    padding: 0 15%;
+  }
+  
+  .lp-hero-content {
+    max-width: 80rem;
+  }
+  
+  .lp-hero-title {
+    font-size: 5.5rem;
+  }
+  
+  .lp-hero-subtitle {
+    font-size: 2rem;
+    max-width: 75%;
+  }
+  
+  .lp-hero-visual {
+    right: -12%;
+    transform: translateY(-50%) scale(1.4);
+  }
+  
+  .lp-hero-dashboard-preview {
+    width: 1200px;
+    height: 780px;
   }
 }
 

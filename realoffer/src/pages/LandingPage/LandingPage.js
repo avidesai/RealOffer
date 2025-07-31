@@ -235,7 +235,7 @@ const LandingPage = () => {
           <div className="lp-hero-content">
             <div className="lp-hero-badge">
               <Sparkles className="lp-hero-badge-icon" />
-              <span>Trusted by 2,625+ Listing Agents</span>
+              <span>Trusted by 2,625+ Real Estate Agents</span>
             </div>
             <h1 className="lp-hero-title">
               Get More Offers, Faster.<br />

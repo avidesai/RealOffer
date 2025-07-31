@@ -5,119 +5,108 @@ import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import FeatureContent from './FeatureContent';
 import './FeaturesPage.css';
-import { FileText, Zap, BarChart2, Shield, Eye, Users, Search, MessageCircle } from 'lucide-react';
-
-// Import images
-import manageOffers from './manage-offers.png';
-import formFilling from './form-filling.png';
-import listingInformation from './listing-information.png';
-import buyerActivity from './buyer-activity.png';
+import { FileText, Zap, BarChart2, Shield, Eye, Users, Search, MessageCircle, DollarSign, Clock, TrendingUp, CheckCircle } from 'lucide-react';
 
 const featuresData = [
   {
-    category: 'For Listing Agents',
-    id: 'for-listing-agents',
-    features: [
-      {
-        id: 'smart-documentation',
-        buttonText: 'Smart Documentation',
-        title: 'AI-Powered Document Management',
-        image: formFilling,
-        description: 'Streamline your entire document workflow from creation to closing with our intelligent tools.',
-        points: [
-          { icon: <FileText size={20} />, text: 'Centralize all listing documents in one secure, cloud-based hub.' },
-          { icon: <Zap size={20} />, text: 'Utilize AI to analyze disclosures, identifying key terms and potential risks instantly.' },
-          { icon: <Shield size={20} />, text: 'Create and share secure Listing Information Packages with tracked viewership.' },
-        ],
-      },
-      {
-        id: 'offer-management',
-        buttonText: 'Offer Management',
-        title: 'Effortless Offer Review & Response',
-        image: manageOffers,
-        description: 'Receive and manage offers through a centralized, shareable dashboard.',
-        points: [
-          { icon: <BarChart2 size={20} />, text: 'Automatically organize and compare all offers side-by-side.' },
-          { icon: <Eye size={20} />, text: 'Share a beautiful offer comparison with your clients for transparent decision-making.' },
-          { icon: <Users size={20} />, text: 'Respond to agents and manage counter-offers all in one place.' },
-        ],
-      },
-      {
-        id: 'buyer-analytics',
-        buttonText: 'Buyer Analytics',
-        title: 'Actionable Buyer Interest Reports',
-        image: buyerActivity,
-        description: 'Make data-driven decisions with real-time insights into buyer engagement.',
-        points: [
-          { icon: <Eye size={20} />, text: "Track who's viewing, downloading, and interacting with your listing documents." },
-          { icon: <BarChart2 size={20} />, text: 'Identify the most interested buyers and focus your efforts effectively.' },
-          { icon: <MessageCircle size={20} />, text: 'Receive instant notifications for key activities on your listings.' },
-        ],
-      },
+    id: 'centralized-disclosures',
+    buttonText: 'Centralized Disclosures',
+    title: 'Upload Once, Buyers Access Everything',
+    description: 'Eliminate the back-and-forth of document requests. Upload all disclosures once and buyer agents get instant access to everything they need.',
+    points: [
+      { icon: <FileText size={20} />, text: 'Upload all disclosure documents in one organized hub' },
+      { icon: <Zap size={20} />, text: 'Buyer agents access everything instantly - no more waiting' },
+      { icon: <Shield size={20} />, text: 'Create signature packets to speed up offer preparation' },
     ],
+    outcome: 'Get more offers because buyers can analyze your property immediately'
   },
   {
-    category: "For Buyer's Agents",
-    id: 'for-buyers-agents',
-    features: [
-      {
-        id: 'instant-access',
-        buttonText: 'Instant Access',
-        title: '24/7 Access to Listing Packages',
-        image: listingInformation,
-        description: "Never wait for a listing agent again. Get instant, on-demand access to all the documents you need.",
-        points: [
-          { icon: <FileText size={20} />, text: 'Access complete and organized disclosure packages anytime, anywhere.' },
-          { icon: <Zap size={20} />, text: 'Download all documents with a single click.' },
-          { icon: <Search size={20} />, text: 'Easily search within documents to find the information you need fast.' },
-        ],
-      },
-      {
-        id: 'fast-offers',
-        buttonText: 'Lightning-Fast Offers',
-        title: 'Create & Submit Winning Offers',
-        image: formFilling, // Re-using image, can be replaced
-        description: 'Gain a competitive edge by submitting professional, complete offers in minutes.',
-        points: [
-          { icon: <Zap size={20} />, text: 'Auto-fill standard forms with property and buyer information.' },
-          { icon: <FileText size={20} />, text: 'Easily attach all necessary documents from the Listing Information Package.' },
-          { icon: <MessageCircle size={20} />, text: 'Submit and track your offer through a secure, professional platform.' },
-        ],
-      },
+    id: 'ai-summaries',
+    buttonText: 'AI Report Summaries',
+    title: 'Turn Complex Reports Into Clear Insights',
+    description: 'AI automatically summarizes dense inspection reports into buyer-friendly overviews that increase confidence and speed up decisions.',
+    points: [
+      { icon: <Zap size={20} />, text: 'AI analyzes inspection reports and highlights key findings' },
+      { icon: <Eye size={20} />, text: 'Buyers understand your property faster with clear summaries' },
+      { icon: <TrendingUp size={20} />, text: 'Reduce buyer questions and increase offer confidence' },
     ],
+    outcome: 'Faster buyer analysis leads to more offers per listing'
+  },
+  {
+    id: 'smart-valuations',
+    buttonText: 'Smart Valuations',
+    title: 'Instant Comps & Market Intelligence',
+    description: 'Provide buyer agents with suggested price ranges and comparable analysis so they can assess your property\'s value instantly.',
+    points: [
+      { icon: <BarChart2 size={20} />, text: 'AI-powered comparable analysis and market insights' },
+      { icon: <DollarSign size={20} />, text: 'Instant property valuations with detailed breakdowns' },
+      { icon: <Clock size={20} />, text: 'Buyers make faster decisions with clear value context' },
+    ],
+    outcome: 'Help buyers understand value quickly, leading to faster offers'
+  },
+  {
+    id: 'activity-tracking',
+    buttonText: 'Activity Tracking',
+    title: 'See Every Buyer Touchpoint',
+    description: 'Track how many buyer agents view your listing, download disclosures, or submit offers. Create urgency and keep sellers informed.',
+    points: [
+      { icon: <Eye size={20} />, text: 'Real-time tracking of buyer agent engagement with your listing' },
+      { icon: <Users size={20} />, text: 'Show sellers exactly how much interest their property is generating' },
+      { icon: <MessageCircle size={20} />, text: 'Identify the most interested buyers and focus your efforts' },
+    ],
+    outcome: 'Build seller confidence and create urgency for serious buyers'
+  },
+  {
+    id: 'offer-management',
+    buttonText: 'Offer Management',
+    title: 'Organize & Compare Every Offer',
+    description: 'Receive, review, and respond to offers through a structured dashboard with easy comparison and response tools.',
+    points: [
+      { icon: <BarChart2 size={20} />, text: 'Side-by-side offer comparison with key metrics highlighted' },
+      { icon: <CheckCircle size={20} />, text: 'Track offer status and respond to offers efficiently' },
+      { icon: <Users size={20} />, text: 'Share professional offer summaries with your sellers' },
+    ],
+    outcome: 'Close more deals with better offer management and seller communication'
+  },
+  {
+    id: 'communication-hub',
+    buttonText: 'Communication Hub',
+    title: 'Centralize All Conversations',
+    description: 'Keep all conversations with buyer agents organized in one place. No more missed inquiries or lost threads.',
+    points: [
+      { icon: <MessageCircle size={20} />, text: 'All buyer agent communications in one organized thread' },
+      { icon: <Search size={20} />, text: 'Quick search and filtering of past conversations' },
+      { icon: <Shield size={20} />, text: 'Professional communication platform that builds trust' },
+    ],
+    outcome: 'Never miss an opportunity and maintain professional relationships'
   },
 ];
 
 function FeaturesPage() {
-  // Flatten the features for easy lookup, and set the first feature as default
-  const allFeatures = featuresData.flatMap(category => category.features);
-  const [activeFeature, setActiveFeature] = useState(allFeatures[0]);
+  const [activeFeature, setActiveFeature] = useState(featuresData[0]);
 
   return (
     <div className="features-page-container">
       <Header />
       <main className="features-page-main">
         <div className="features-page-hero">
-          <h1 className="features-page-hero-title">Powerful Tools for Modern Agents</h1>
+          <h1 className="features-page-hero-title">Your Secret Weapon for More Offers</h1>
           <p className="features-page-hero-subtitle">
-            RealOffer is designed to streamline every step of your real estate transactions, saving you time and helping you close more deals.
+            Every feature exists to streamline the buyer's journey and improve your outcomes. 
+            We don't replace your listing process — we supercharge it.
           </p>
         </div>
         <div className="features-page-content">
           <aside className="features-page-sidebar">
-            {featuresData.map((category) => (
-              <div key={category.id} className="features-category">
-                <h3 className="features-category-title">{category.category}</h3>
-                {category.features.map((feature) => (
-                  <button
-                    key={feature.id}
-                    className={`features-page-menu-item ${activeFeature.id === feature.id ? 'active' : ''}`}
-                    onClick={() => setActiveFeature(feature)}
-                  >
-                    {feature.buttonText}
-                  </button>
-                ))}
-              </div>
+            <h3 className="features-category-title">Features</h3>
+            {featuresData.map((feature) => (
+              <button
+                key={feature.id}
+                className={`features-page-menu-item ${activeFeature.id === feature.id ? 'active' : ''}`}
+                onClick={() => setActiveFeature(feature)}
+              >
+                {feature.buttonText}
+              </button>
             ))}
           </aside>
           <section className="features-page-feature-display">
