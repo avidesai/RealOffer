@@ -13,17 +13,6 @@ const formatPhoneNumber = (phoneNumber) => {
   return phoneNumber;
 };
 
-const formatDateTime = (isoString) => {
-  const date = new Date(isoString);
-  return date.toLocaleString('en-US', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
-
 const getStatusStyle = (status) => {
   switch (status) {
     case 'submitted':
@@ -73,20 +62,6 @@ const AgentInfo = ({ offer }) => {
                 </div>
               </div>
             </div>
-            
-            <div className="odv-agent-meta">
-              <div className="odv-info-block">
-                <p className="odv-license-label">AGENT LICENSE</p>
-                <p className="odv-license-value">{offer.presentedBy.licenseNumber}</p>
-              </div>
-            </div>
-            
-            <div className="odv-agent-bottom">
-              <div className="odv-info-block">
-                <p className="odv-timestamp-label">SUBMITTED ON</p>
-                <p className="odv-timestamp-value">{formatDateTime(offer.submittedOn)}</p>
-              </div>
-            </div>
           </div>
 
           {/* Brokerage Information - Right Column */}
@@ -99,14 +74,7 @@ const AgentInfo = ({ offer }) => {
               </div>
             </div>
             
-            <div className="odv-brokerage-meta">
-              <div className="odv-info-block">
-                <p className="odv-license-label">BROKER LICENSE</p>
-                <p className="odv-license-value">{offer.brokerageInfo.licenseNumber}</p>
-              </div>
-            </div>
-            
-            <div className="odv-brokerage-bottom">
+            <div className="odv-status-section">
               <div className="odv-info-block">
                 <p className="odv-status-label">OFFER STATUS</p>
                 <span className={`odv-status-box ${statusStyle.className}`}>{statusStyle.text}</span>

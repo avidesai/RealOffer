@@ -84,8 +84,8 @@ const OfferDetailsView = ({ offerId, onBack }) => {
         <Terms offer={offer} />
         <div className="odv-middle-section">
           <AgentInfo offer={offer} />
-          <Messages offer={offer} />
           <Documents documents={documents} />
+          <Messages offer={offer} />
         </div>
         <PrivateNotes notes={notes} handleNotesChange={handleNotesChange} handleNotesBlur={handleNotesBlur} />
       </div>
