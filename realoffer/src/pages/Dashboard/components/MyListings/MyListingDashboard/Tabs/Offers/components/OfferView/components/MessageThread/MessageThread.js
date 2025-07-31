@@ -32,6 +32,13 @@ const MessageThread = ({ offer }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const scrollToBottomOfContainer = () => {
+    const messageContainer = document.querySelector('.message-thread-content');
+    if (messageContainer) {
+      messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
+  };
+
   const fetchUserData = useCallback(async () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}`, {
@@ -76,9 +83,12 @@ const MessageThread = ({ offer }) => {
     fetchMessages();
   }, [offer._id, fetchMessages]);
 
+  // Auto-scroll within the message container only
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (messages.length > 0 && !loading) {
+      scrollToBottomOfContainer();
+    }
+  }, [messages, loading]);
 
   const sendMessage = async (e) => {
     e.preventDefault();

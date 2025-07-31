@@ -9,8 +9,9 @@ import AgentInfo from './components/AgentInfo/AgentInfo';
 import MessageThread from './components/MessageThread/MessageThread';
 import Documents from './components/Documents/Documents';
 import PrivateNotes from './components/PrivateNotes/PrivateNotes';
+import OfferViewBar from './components/OfferViewBar/OfferViewBar';
 
-const OfferDetailsView = ({ offerId, onBack }) => {
+const OfferDetailsView = ({ offerId, offerData, onBack, onRespond }) => {
   const { token } = useAuth();
   const [offer, setOffer] = useState(null);
   const [documents, setDocuments] = useState([]);
@@ -79,7 +80,7 @@ const OfferDetailsView = ({ offerId, onBack }) => {
 
   return (
     <div className="odv-offer-details-view">
-      <button className="odv-offer-back-button" onClick={onBack}>&larr; Back to Offers</button>
+      <OfferViewBar onBack={onBack} onRespond={onRespond} offerData={offerData} />
       <div className="odv-offer-content">
         <Terms offer={offer} />
         <div className="odv-middle-section">

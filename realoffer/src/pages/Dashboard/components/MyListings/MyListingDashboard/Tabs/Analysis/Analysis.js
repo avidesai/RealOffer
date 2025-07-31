@@ -266,16 +266,6 @@ const Analysis = ({ listingId }) => {
               <h3>Property Value & Rent Estimate</h3>
               <div className="header-actions">
                 <span className="last-updated">Updated {formatLastUpdated(analysisData.lastUpdated)}</span>
-                <button 
-                  className="refresh-button"
-                  onClick={() => fetchAnalysisData(true)}
-                  disabled={loading}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M23 4V10H17M1 20V14H7M21.24 7.24C20.07 5.99 18.68 5.03 17.15 4.43C15.62 3.83 13.98 3.6 12.35 3.77C10.72 3.94 9.16 4.5 7.79 5.41C6.42 6.32 5.28 7.55 4.46 9.01L1 14M23 10L19.54 14.99C18.72 16.45 17.58 17.68 16.21 18.59C14.84 19.5 13.28 20.06 11.65 20.23C10.02 20.4 8.38 20.17 6.85 19.57C5.32 18.97 3.93 18.01 2.76 16.76L1 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  Refresh
-                </button>
               </div>
             </div>
             <div className="card-content">

@@ -44,7 +44,7 @@ const getStatusStyle = (status) => {
   }
 };
 
-const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
+const OfferCard = ({ offer, onClick, onUpdate }) => {
   const { token } = useAuth(); // Get the token from AuthContext
   const [notes, setNotes] = useState(offer.privateListingTeamNotes || '');
   const [status, setStatus] = useState(offer.offerStatus);
@@ -104,9 +104,7 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
     onClick(offer._id);
   };
 
-  const handleRespondClick = () => {
-    onRespond(offer);
-  };
+
 
   const statusStyle = getStatusStyle(status);
 
@@ -147,9 +145,6 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
         <div className="offer-actions">
           <button className="view-offer-button" onClick={handleViewClick}>
             View
-          </button>
-          <button className="respond-offer-button" onClick={handleRespondClick}>
-            Respond
           </button>
         </div>
         <div className="divider"></div>

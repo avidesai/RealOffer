@@ -140,10 +140,18 @@ const Offers = ({ listingId }) => {
     );
   }
 
+  // Find the selected offer data
+  const selectedOfferData = offers.find(offer => offer._id === selectedOffer);
+
   return (
     <div className="offers-tab">
       {selectedOffer ? (
-        <OfferDetailsView offerId={selectedOffer} onBack={handleBackToOffers} />
+        <OfferDetailsView 
+          offerId={selectedOffer} 
+          offerData={selectedOfferData}
+          onBack={handleBackToOffers}
+          onRespond={handleRespondToOffer}
+        />
       ) : (
         <>
           <OfferSortBar

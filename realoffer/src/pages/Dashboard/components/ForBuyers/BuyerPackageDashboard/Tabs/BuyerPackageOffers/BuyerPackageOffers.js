@@ -185,7 +185,6 @@ const BuyerPackageOffers = ({ buyerPackageId, listingId }) => {
                   offer={offer}
                   onClick={handleOfferClick}
                   onUpdate={handleUpdateOffer}
-                  onRespond={handleRespondToOffer}
                 />
               ))
             )}
