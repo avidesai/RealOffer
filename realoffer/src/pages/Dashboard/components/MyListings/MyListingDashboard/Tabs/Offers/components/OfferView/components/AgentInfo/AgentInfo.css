@@ -289,7 +289,7 @@
 /* Small Mobile Layout */
 @media (max-width: 480px) {
   .odv-agent-info-section {
-    padding: 1rem 1rem 0.8rem 1rem;
+    padding: 1.5rem 1.5rem 1.5rem 1.5rem;
     border-radius: 8px;
     margin-bottom: 0.75rem;
   }
