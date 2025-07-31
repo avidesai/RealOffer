@@ -2,29 +2,29 @@
 
 .odv-agent-info-section {
   background-color: #fff;
-  border-radius: 16px;
+  border-radius: 12px;
   margin-bottom: 1.5rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   border: 1px solid #e9ecef;
-  padding: 2rem;
+  padding: 1.5rem 2rem 1.2rem 2rem;
   transition: all 0.2s ease;
 }
 
 .odv-agent-info-section:hover {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
 .odv-agent-info-content {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 /* Two Column Layout */
 .odv-main-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3rem;
+  gap: 2rem;
   align-items: start;
 }
 
@@ -32,7 +32,7 @@
 .odv-agent-column {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .odv-agent-header {
@@ -56,11 +56,11 @@
 }
 
 .odv-agent-name {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #2c3e50;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.3;
 }
 
 .odv-contact-details {
@@ -70,7 +70,7 @@
 }
 
 .odv-contact-info-value {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: #495057;
   margin: 0;
   line-height: 1.4;
@@ -81,21 +81,21 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding-left: calc(60px + 1rem); /* Avatar width (60px) + gap (1rem) */
+  padding-left: calc(60px + 1rem);
 }
 
 .odv-agent-bottom {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding-left: calc(60px + 1rem); /* Avatar width (60px) + gap (1rem) */
+  padding-left: calc(60px + 1rem);
 }
 
 /* Brokerage Column - Right */
 .odv-brokerage-column {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .odv-brokerage-header {
@@ -107,11 +107,11 @@
 }
 
 .odv-brokerage-name {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #2c3e50;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.3;
 }
 
 .odv-address-details {
@@ -121,7 +121,7 @@
 }
 
 .odv-address-value {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: #495057;
   margin: 0;
   line-height: 1.4;
@@ -160,7 +160,7 @@
 
 .odv-license-value,
 .odv-timestamp-value {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: #2c3e50;
   margin: 0;
   line-height: 1.4;
@@ -211,23 +211,24 @@
 /* Tablet Layout */
 @media (min-width: 768px) and (max-width: 991px) {
   .odv-main-columns {
-    gap: 2rem;
+    gap: 1.5rem;
   }
 }
 
 /* Mobile Layout */
 @media (max-width: 767px) {
   .odv-agent-info-section {
-    padding: 1.5rem;
+    padding: 1.2rem 1.5rem 1rem 1.5rem;
+    border-radius: 10px;
   }
 
   .odv-agent-info-content {
-    gap: 1.5rem;
+    gap: 1.25rem;
   }
 
   .odv-main-columns {
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
   }
 
   .odv-agent-header,
@@ -238,24 +239,68 @@
 
   .odv-agent-name,
   .odv-brokerage-name {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
   .odv-contact-info-value,
   .odv-address-value,
   .odv-license-value,
   .odv-timestamp-value {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 
   .odv-agent-meta,
   .odv-agent-bottom {
-    padding-left: calc(60px + 0.75rem); /* Avatar width (60px) + gap (0.75rem) */
+    padding-left: calc(60px + 0.75rem);
   }
 
   .odv-status-box {
     padding: 0.4rem 0.8rem;
     font-size: 0.75rem;
     min-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .odv-agent-info-section {
+    padding: 1rem 1.25rem 0.8rem 1.25rem;
+    border-radius: 8px;
+  }
+
+  .odv-agent-info-content {
+    gap: 1rem;
+  }
+
+  .odv-main-columns {
+    gap: 1.25rem;
+  }
+
+  .odv-agent-header,
+  .odv-brokerage-header {
+    gap: 0.6rem;
+    padding-bottom: 0.6rem;
+  }
+
+  .odv-agent-name,
+  .odv-brokerage-name {
+    font-size: 0.95rem;
+  }
+
+  .odv-contact-info-value,
+  .odv-address-value,
+  .odv-license-value,
+  .odv-timestamp-value {
+    font-size: 0.8rem;
+  }
+
+  .odv-agent-meta,
+  .odv-agent-bottom {
+    padding-left: calc(60px + 0.6rem);
+  }
+
+  .odv-status-box {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.7rem;
+    min-width: 90px;
   }
 }

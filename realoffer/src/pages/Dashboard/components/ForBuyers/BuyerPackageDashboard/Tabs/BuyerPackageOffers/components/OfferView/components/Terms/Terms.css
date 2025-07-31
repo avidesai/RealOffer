@@ -1,152 +1,149 @@
 /* Terms.css */
 
-.terms-section {
-  flex: 1;
-  background-color: #ffffff;
-  border-radius: 16px;
+.odv-terms-section {
+  background-color: #fff;
+  border-radius: 12px;
   margin-bottom: 1.5rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   border: 1px solid #e9ecef;
-  padding: 0rem 2rem 2rem 2rem;
+  padding: 1.5rem 2rem 1.2rem 2rem;
+  transition: all 0.2s ease;
 }
 
-.terms-section h3 {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #2c3e50;
-  margin: 0 0 1.5rem 0;
-  text-align: center;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #f1f3f5;
+.odv-terms-section:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
-.term {
+.odv-term {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f8fafc;
-}
-
-.term.centered {
-  justify-content: center;
-  flex-direction: column;
-  text-align: center;
   padding: 0.75rem 0;
-  margin: 0 -2rem 0.5rem -2rem;
-  border-radius: 0;
-  border-bottom: 2px solid #e9ecef;
+  border-bottom: 1px solid #f1f3f5;
 }
 
-.term:last-child {
+.odv-term:last-child {
   border-bottom: none;
 }
 
-.purchase-price-value {
-  font-size: 2rem;
+.odv-term.odv-centered {
+  justify-content: center;
+  padding: 1rem 0;
+  border-bottom: 2px solid #e9ecef;
+  margin-bottom: 0.75rem;
+}
+
+.odv-term.odv-special-terms {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.odv-label {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+.odv-value {
+  font-size: 0.95rem;
+  color: #2c3e50;
+  font-weight: 600;
+  margin: 0;
+  text-align: right;
+}
+
+.odv-purchase-price-value {
+  font-size: 2.25rem;
   font-weight: 700;
   color: #28a745;
+  margin: 0;
   text-align: center;
-  margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #28a745, #1e7e34);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  line-height: 1.2;
 }
 
-.label {
-  font-weight: 600;
-  color: #2c3e50;
-  flex: 1.5;
-  font-size: 0.95rem;
-  letter-spacing: 0.02em;
-}
-
-.value {
-  font-size: 1rem;
+.odv-special-terms-value {
+  font-size: 0.9rem;
   color: #495057;
-  flex: 1;
-  text-align: right;
   font-weight: 500;
-}
-
-.special-terms {
-  display: block;
+  line-height: 1.5;
   text-align: left;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f8fafc;
+  width: 100%;
+  margin: 0;
 }
 
-.special-terms .label {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 1rem;
-  display: block;
-}
-
-.special-terms-value {
-  margin-top: 0.5rem;
-  text-align: left;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  color: #495057;
-  font-size: 0.95rem;
-  line-height: 1.6;
-}
-
-/* Mobile Responsiveness */
-@media (max-width: 768px) {
-  .terms-section {
-    padding: 0.75rem 1.5rem 1.5rem 1.5rem;
-    margin-bottom: 1.25rem;
+/* Mobile Layout */
+@media (max-width: 767px) {
+  .odv-terms-section {
+    padding: 1.2rem 1.5rem 1rem 1.5rem;
+    border-radius: 10px;
   }
 
-  .terms-section h3 {
-    font-size: 1.2rem;
-    margin-bottom: 1.25rem;
+  .odv-term {
+    padding: 0.6rem 0;
   }
 
-  .term {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    padding: 0.4rem 0;
+  .odv-term.odv-centered {
+    padding: 0.8rem 0;
   }
 
-  .term.centered {
-    margin: 0 -1.5rem 0.5rem -1.5rem;
-    padding: 0.6rem 1.5rem;
+  .odv-term.odv-special-terms {
+    padding: 0.6rem 0;
   }
 
-  .purchase-price-value {
+  .odv-label {
+    font-size: 0.8rem;
+  }
+
+  .odv-value {
+    font-size: 0.9rem;
+  }
+
+  .odv-purchase-price-value {
     font-size: 1.75rem;
   }
 
-  .label {
-    flex: none;
-    width: 100%;
-    font-size: 0.9rem;
+  .odv-special-terms-value {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .odv-terms-section {
+    padding: 1rem 1.25rem 0.8rem 1.25rem;
+    border-radius: 8px;
   }
 
-  .value {
-    flex: none;
-    width: 100%;
-    text-align: left;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #2c3e50;
+  .odv-term {
+    padding: 0.5rem 0;
   }
 
-  .special-terms {
-    padding: 0.4rem 0;
+  .odv-term.odv-centered {
+    padding: 0.7rem 0;
   }
 
-  .special-terms .label {
-    font-size: 1rem;
+  .odv-term.odv-special-terms {
+    padding: 0.5rem 0;
   }
 
-  .special-terms-value {
-    font-size: 0.9rem;
+  .odv-label {
+    font-size: 0.75rem;
+  }
+
+  .odv-value {
+    font-size: 0.85rem;
+  }
+
+  .odv-purchase-price-value {
+    font-size: 1.5rem;
+  }
+
+  .odv-special-terms-value {
+    font-size: 0.8rem;
   }
 }

@@ -19,73 +19,73 @@ const formatDateTime = (isoString) => {
 };
 
 const Terms = ({ offer }) => (
-  <div className="terms-section">
-    <div className="term centered">
-      <p className="purchase-price-value">${offer.purchasePrice.toLocaleString()}</p>
+  <div className="odv-terms-section">
+    <div className="odv-term odv-centered">
+      <p className="odv-purchase-price-value">${offer.purchasePrice.toLocaleString()}</p>
     </div>
-    <div className="term">
-      <p className="label">Deposit</p>
-      <p className="value">${offer.initialDeposit.toLocaleString()}</p>
+    <div className="odv-term">
+      <p className="odv-label">Deposit</p>
+      <p className="odv-value">${offer.initialDeposit.toLocaleString()}</p>
     </div>
-    <div className="term">
-      <p className="label">Finance Type</p>
-      <p className="value">{offer.financeType}</p>
+    <div className="odv-term">
+      <p className="odv-label">Finance Type</p>
+      <p className="odv-value">{offer.financeType}</p>
     </div>
-    <div className="term">
-      <p className="label">Loan Amount</p>
-      <p className="value">${offer.loanAmount.toLocaleString()}</p>
+    <div className="odv-term">
+      <p className="odv-label">Loan Amount</p>
+      <p className="odv-value">${offer.loanAmount.toLocaleString()}</p>
     </div>
-    <div className="term">
-      <p className="label">Percent Down</p>
-      <p className="value">{offer.percentDown}%</p>
+    <div className="odv-term">
+      <p className="odv-label">Percent Down</p>
+      <p className="odv-value">{offer.percentDown}%</p>
     </div>
-    <div className="term">
-      <p className="label">Down Payment</p>
-      <p className="value">${offer.downPayment.toLocaleString()}</p>
+    <div className="odv-term">
+      <p className="odv-label">Down Payment</p>
+      <p className="odv-value">${offer.downPayment.toLocaleString()}</p>
     </div>
-    <div className="term">
-      <p className="label">Down Payment Balance</p>
-      <p className="value">${offer.balanceOfDownPayment.toLocaleString()}</p>
+    <div className="odv-term">
+      <p className="odv-label">Down Payment Balance</p>
+      <p className="odv-value">${offer.balanceOfDownPayment.toLocaleString()}</p>
     </div>
-    <div className="term">
-      <p className="label">Finance Contingency</p>
-      <p className="value">{formatContingency(offer.financeContingencyDays)}</p>
+    <div className="odv-term">
+      <p className="odv-label">Finance Contingency</p>
+      <p className="odv-value">{formatContingency(offer.financeContingencyDays)}</p>
     </div>
-    <div className="term">
-      <p className="label">Appraisal Contingency</p>
-      <p className="value">{formatContingency(offer.appraisalContingencyDays)}</p>
+    <div className="odv-term">
+      <p className="odv-label">Appraisal Contingency</p>
+      <p className="odv-value">{formatContingency(offer.appraisalContingencyDays)}</p>
     </div>
-    <div className="term">
-      <p className="label">Inspection Contingency</p>
-      <p className="value">{formatContingency(offer.inspectionContingencyDays)}</p>
+    <div className="odv-term">
+      <p className="odv-label">Inspection Contingency</p>
+      <p className="odv-value">{formatContingency(offer.inspectionContingencyDays)}</p>
     </div>
-    <div className="term">
-      <p className="label">Home Sale Contingency</p>
-      <p className="value">{offer.homeSaleContingency}</p>
+    <div className="odv-term">
+      <p className="odv-label">Home Sale Contingency</p>
+      <p className="odv-value">{offer.homeSaleContingency}</p>
     </div>
-    <div className="term">
-      <p className="label">Seller Rent Back</p>
-      <p className="value">{formatContingency(offer.sellerRentBack)}</p>
+    <div className="odv-term">
+      <p className="odv-label">Seller Rent Back</p>
+      <p className="odv-value">{formatContingency(offer.sellerRentBack)}</p>
     </div>
-    <div className="term">
-      <p className="label">Close of Escrow</p>
-      <p className="value">{offer.closeOfEscrow} Days</p>
+    <div className="odv-term">
+      <p className="odv-label">Close of Escrow</p>
+      <p className="odv-value">{offer.closeOfEscrow} Days</p>
     </div>
-    <div className="term">
-      <p className="label">Submitted On</p>
-      <p className="value">{formatDateTime(offer.submittedOn)}</p>
+    <div className="odv-term">
+      <p className="odv-label">Submitted On</p>
+      <p className="odv-value">{formatDateTime(offer.submittedOn)}</p>
     </div>
-    <div className="term">
-      <p className="label">Expires On</p>
-      <p className="value">{formatDateTime(offer.offerExpiryDate)}</p>
+    <div className="odv-term">
+      <p className="odv-label">Expires On</p>
+      <p className="odv-value">{formatDateTime(offer.offerExpiryDate)}</p>
     </div>
-    <div className="term">
-      <p className="label">Agent Commission</p>
-      <p className="value">{offer.buyersAgentCommission}%</p>
+    <div className="odv-term">
+      <p className="odv-label">Agent Commission</p>
+      <p className="odv-value">{offer.buyersAgentCommission}%</p>
     </div>
-    <div className="term special-terms">
-      <p className="label">Special Terms</p>
-      <p className="value special-terms-value">{offer.specialTerms}</p>
+    <div className="odv-term odv-special-terms">
+      <p className="odv-label">Special Terms</p>
+      <p className="odv-value odv-special-terms-value">{offer.specialTerms}</p>
     </div>
   </div>
 );
