@@ -40,7 +40,7 @@ const Documents = ({ documents }) => {
                     <p className="odv-offer-details-document-title">{doc.title || 'Untitled'}</p>
                     <p className="odv-offer-details-document-type">{doc.type || 'No type'}</p>
                     <p className="odv-offer-details-document-meta">
-                      {doc.pages || 0} {doc.pages === 1 ? 'Page' : 'Pages'} <span className="odv-offer-details-meta-divider">•</span> {formatDate(doc.updatedAt)}
+                      {formatDate(doc.updatedAt)}
                     </p>
                   </div>
                 </div>
