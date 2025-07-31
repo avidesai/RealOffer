@@ -14,9 +14,7 @@ import DocuSignSection from './Steps/DocuSignSection';
 import FinalReview from './Steps/FinalReview';
 import axios from 'axios';
 
-const parseNumber = (value) => {
-  return parseFloat(value.replace(/,/g, '')) || 0;
-};
+
 
 const MakeOfferModal = ({ onClose, listingId, buyerPackageId }) => {
   const { offerData, documentWorkflow, updateOfferData, updateDocumentWorkflow, resetDocumentWorkflow } = useOffer();

@@ -1,6 +1,6 @@
 // MessageThread.js
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../../../../../../../../../../../context/AuthContext';
 import axios from 'axios';
 import Avatar from '../../../../../../../../../../../components/Avatar/Avatar';
@@ -32,19 +32,7 @@ const MessageThread = ({ offer }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  useEffect(() => {
-    fetchUserData();
-  }, []);
-
-  useEffect(() => {
-    fetchMessages();
-  }, [offer._id]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const fetchUserData = async () => {
+  const fetchUserData = useCallback(async () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -53,9 +41,9 @@ const MessageThread = ({ offer }) => {
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
-  };
+  }, [user._id, token]);
 
-  const fetchMessages = async (pageNum = 1) => {
+  const fetchMessages = useCallback(async (pageNum = 1) => {
     try {
       setLoading(true);
       const response = await axios.get(
@@ -78,7 +66,19 @@ const MessageThread = ({ offer }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [offer._id, token]);
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
+
+  useEffect(() => {
+    fetchMessages();
+  }, [offer._id, fetchMessages]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
