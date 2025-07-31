@@ -201,8 +201,8 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
   }, [validationAnalysis.canSubmit, handleSubmit]);
 
   return (
-    <div className="ds-modal-step">
-      <div className="ds-offer-modal-header">
+    <div className="modal-step">
+      <div className="offer-modal-header">
         <h2>Final Review</h2>
         <p>Review all details before submitting your offer</p>
       </div>
