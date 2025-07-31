@@ -192,21 +192,21 @@ const LandingPage = () => {
 
   const testimonials = [
     {
-      quote: "RealOffer has transformed how I manage my listings. The document management and offer tracking features save me hours every week.",
+      quote: "RealOffer has transformed my listings. I'm getting 3x more offers because buyer agents can analyze everything instantly. No more back-and-forth for documents.",
       author: "Sarah Chen",
       role: "Top Producer",
       company: "Keller Williams",
       rating: 5
     },
     {
-      quote: "The AI-powered document analysis caught issues I would have missed. It's like having a transaction coordinator available 24/7.",
+      quote: "The AI summaries of inspection reports are a game-changer. Buyers make decisions faster because they understand the property better. My close rate has increased 40%.",
       author: "Michael Rodriguez",
       role: "Broker",
       company: "RE/MAX",
       rating: 5
     },
     {
-      quote: "My clients love the professional experience. Being able to submit offers instantly gives us a competitive edge in hot markets.",
+      quote: "My sellers love seeing the activity tracking. They can see exactly how much interest their property is generating. It builds confidence and trust.",
       author: "Emily Thompson",
       role: "Luxury Specialist",
       company: "Compass",
@@ -235,15 +235,14 @@ const LandingPage = () => {
           <div className="lp-hero-content">
             <div className="lp-hero-badge">
               <Sparkles className="lp-hero-badge-icon" />
-              <span>Trusted by 2,625+ Real Estate Professionals</span>
+              <span>Trusted by 2,625+ Listing Agents</span>
             </div>
             <h1 className="lp-hero-title">
-              Close More Deals with<br />
-              <span className="lp-hero-title-gradient">Intelligent Real Estate Tools</span>
+              Get More Offers, Faster.<br />
+              <span className="lp-hero-title-gradient">Supercharge Your Listings.</span>
             </h1>
             <p className="lp-hero-subtitle">
-              The all-in-one platform that streamlines listings, analysis, offers, and transactions. 
-              Save time, reduce errors, and deliver exceptional client experiences.
+              We make it easier for buyers to understand and act on your listings, which leads to more offers for you.
             </p>
             <div className="lp-hero-cta-group">
               <Link to="/signup" className="lp-hero-cta-primary">
@@ -258,15 +257,15 @@ const LandingPage = () => {
             <div className="lp-hero-trust-badges">
               <div className="lp-hero-trust-badge">
                 <DollarSign className="lp-hero-trust-icon" />
-                <span>Win More Listings</span>
+                <span>More Offers Per Listing</span>
               </div>
               <div className="lp-hero-trust-badge">
                 <Clock className="lp-hero-trust-icon" />
-                <span>Save Hours Per Deal</span>
+                <span>Faster Buyer Decisions</span>
               </div>
               <div className="lp-hero-trust-badge">
                 <Trophy className="lp-hero-trust-icon" />
-                <span>Beat Other Offers</span>
+                <span>Higher Close Rates</span>
               </div>
             </div>
           </div>
@@ -306,41 +305,42 @@ const LandingPage = () => {
         <section className="lp-features">
           <div className="lp-features-header">
             <span className="lp-section-badge">Features</span>
-            <h2 className="lp-section-title">Everything You Need to Succeed</h2>
+            <h2 className="lp-section-title">Your Secret Weapon for More Offers</h2>
             <p className="lp-section-subtitle">
-              Powerful tools designed by agents, for agents. Streamline every aspect of your real estate business.
+              Every feature exists to streamline the buyer's journey and improve your outcomes. 
+              We don't replace your MLS process — we supercharge it.
             </p>
           </div>
           <div className="lp-features-grid">
             <Feature
               icon={FileText}
-              title="Smart Document Hub"
-              description="Host disclosure documents and use AI to analyze reports instantly."
+              title="Centralized Disclosure Hub"
+              description="Upload all disclosures in one place so buyer agents never ask 'where's the packet?' again."
             />
             <Feature
               icon={Zap}
-              title="Lightning-Fast Offers"
-              description="Create and submit professional offers in under 5 minutes."
+              title="AI-Powered Report Summaries"
+              description="Automatically summarize dense inspection reports into clear, buyer-friendly overviews that increase confidence."
             />
             <Feature
               icon={Shield}
-              title="Secure E-Signatures"
-              description="DocuSign integration allows you to e-sign offer documents and track progress."
+              title="Smart Valuation Tools"
+              description="Provide buyer agents with suggested price ranges and comps so they can assess value instantly."
             />
             <Feature
               icon={BarChart2}
-              title="Real Time Analytics"
-              description="Track document views, downloads, offers, and buyer engagement across your listings."
+              title="Activity Tracking"
+              description="See how many buyer agents view your listing, download disclosures, or submit offers — create urgency."
             />
             <Feature
               icon={Calculator}
-              title="Market Intelligence"
-              description="Simplify pricing with instant valuations, comps, and rental estimates for your listings."
+              title="Offer Management Dashboard"
+              description="Receive, review, and organize offers through a structured dashboard with easy comparison and response."
             />
             <Feature
               icon={MessageCircle}
-              title="Unified Communications"
-              description="Keep all parties connected with in-platform messaging and notifications."
+              title="Disclosure Signature Packets"
+              description="Select disclosure pages that need signatures and create packets. Reduce offer preparation time dramatically."
             />
           </div>
         </section>
@@ -350,30 +350,30 @@ const LandingPage = () => {
           <div className="lp-how-it-works-content">
             <div className="lp-how-it-works-header">
               <span className="lp-section-badge">Process</span>
-              <h2 className="lp-section-title">Close Deals in 3 Simple Steps</h2>
+              <h2 className="lp-section-title">Get More Offers in 3 Simple Steps</h2>
             </div>
             <div className="lp-how-it-works-steps">
               <div className="lp-how-step">
                 <div className="lp-how-step-number">1</div>
                 <div className="lp-how-step-content">
-                  <h3>Create Your Listing</h3>
-                  <p>Upload documents, add property details, and publish your listing in minutes.</p>
+                  <h3>Host Your Listing</h3>
+                  <p>Upload all disclosures and documents to RealOffer. Buyers get everything they need in one place.</p>
                 </div>
               </div>
               <div className="lp-how-step-connector"></div>
               <div className="lp-how-step">
                 <div className="lp-how-step-number">2</div>
                 <div className="lp-how-step-content">
-                  <h3>Manage Offers</h3>
-                  <p>Receive, review, and respond to offers through our intuitive dashboard.</p>
+                  <h3>Watch Offers Come In</h3>
+                  <p>Buyer agents can analyze your property faster and submit offers with confidence — no more delays.</p>
                 </div>
               </div>
               <div className="lp-how-step-connector"></div>
               <div className="lp-how-step">
                 <div className="lp-how-step-number">3</div>
                 <div className="lp-how-step-content">
-                  <h3>Close with Confidence</h3>
-                  <p>E-sign documents, track progress, and close deals faster than ever.</p>
+                  <h3>Close More Deals</h3>
+                  <p>Manage multiple offers through our dashboard and close deals faster than ever before.</p>
                 </div>
               </div>
             </div>
@@ -385,35 +385,35 @@ const LandingPage = () => {
           <div className="lp-benefits-container">
             <div className="lp-benefits-header">
               <span className="lp-section-badge">Benefits</span>
-              <h2 className="lp-section-title">Why Top Agents Choose RealOffer</h2>
+              <h2 className="lp-section-title">Why Top Listing Agents Choose RealOffer</h2>
             </div>
             <div className="lp-benefits-grid">
               <div className="lp-benefit-card">
                 <div className="lp-benefit-icon-wrapper">
                   <TrendingUp className="lp-benefit-icon" />
                 </div>
-                <h3>Simplify Your Workflow</h3>
-                <p>RealOffer makes listing, managing, and making offers easier than ever—so you can focus on what matters most.</p>
+                <h3>Get More Offers Per Listing</h3>
+                <p>By making your property easier to evaluate, serious buyers act faster and submit more offers.</p>
                 <Link to="/features" className="lp-benefit-link">
-                  Learn how <ArrowRight className="lp-benefit-link-icon" />
+                  See how it works <ArrowRight className="lp-benefit-link-icon" />
                 </Link>
               </div>
               <div className="lp-benefit-card">
                 <div className="lp-benefit-icon-wrapper">
                   <Users className="lp-benefit-icon" />
                 </div>
-                <h3>5-Star Client Experience</h3>
-                <p>Professional tools that impress clients and increase your business.</p>
+                <h3>Faster Buyer Decisions</h3>
+                <p>AI-powered summaries and instant valuations help buyer agents understand your property quickly, leading to faster offers.</p>
                 <Link to="/features" className="lp-benefit-link">
-                  See features <ArrowRight className="lp-benefit-link-icon" />
+                  Learn more <ArrowRight className="lp-benefit-link-icon" />
                 </Link>
               </div>
               <div className="lp-benefit-card">
                 <div className="lp-benefit-icon-wrapper">
                   <DollarSign className="lp-benefit-icon" />
                 </div>
-                <h3>Grow Your Deal Volume</h3>
-                <p>Unlock the ability to handle more clients and close more deals with less effort and fewer mistakes.</p>
+                <h3>Better Client Relationships</h3>
+                <p>Give your sellers real-time insights into buyer interest, so they feel confident and informed.</p>
                 <Link to="/features" className="lp-benefit-link">
                   Get started <ArrowRight className="lp-benefit-link-icon" />
                 </Link>
@@ -451,7 +451,7 @@ const LandingPage = () => {
           <div className="lp-testimonials-container">
             <div className="lp-testimonials-header">
               <span className="lp-section-badge">Testimonials</span>
-              <h2 className="lp-section-title">Loved by Real Estate Professionals</h2>
+              <h2 className="lp-section-title">Listing Agents Getting More Offers</h2>
             </div>
             <div className="lp-testimonials-slider">
               {testimonials.map((testimonial, index) => (
@@ -489,10 +489,9 @@ const LandingPage = () => {
                 price="0"
                 period="month"
                 features={[
-                  "Up to 5 active listings",
-                  "Basic document management",
-                  "Make and receive offers",
-                  "E-signature integration",
+                  "Centralized disclosure hub",
+                  "Receive and respond to offers",
+                  "Communicate with buyer parties",
                 ]}
                 ctaText="Start Free"
               />
@@ -501,10 +500,9 @@ const LandingPage = () => {
                 price="19"
                 period="month"
                 features={[
-                  "Unlimited listings",
-                  "Detailed activity tracking", 
-                  "Comps and valuations",
-                  "AI disclosure analysis",
+                  "AI-powered report summaries",
+                  "Instant comps and valuations",
+                  "Advanced listing analytics",
                 ]}
                 highlighted={true}
                 ctaText="Get Started"
@@ -516,9 +514,9 @@ const LandingPage = () => {
         {/* CTA Section */}
         <section className="lp-cta">
           <div className="lp-cta-content">
-            <h2 className="lp-cta-title">Ready to Transform Your Business?</h2>
+            <h2 className="lp-cta-title">Ready to Get More Offers?</h2>
             <p className="lp-cta-subtitle">
-              Join thousands of successful agents closing more deals with RealOffer
+              Join thousands of listing agents who are getting more offers, faster, by making their properties easier for buyers to evaluate and act on.
             </p>
             <div className="lp-cta-buttons">
               <Link to="/signup" className="lp-cta-button-primary">
