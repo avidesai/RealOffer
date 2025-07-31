@@ -186,6 +186,30 @@
   box-shadow: 0 2px 8px rgba(220, 53, 69, 0.25);
 }
 
+.odv-status-pending-signatures {
+  background-color: #17a2b8;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(23, 162, 184, 0.25);
+}
+
+.odv-status-pending-review {
+  background-color: #20c997;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(32, 201, 151, 0.25);
+}
+
+.odv-status-documents-declined {
+  background-color: #6c757d;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.25);
+}
+
+.odv-status-documents-voided {
+  background-color: #343a40;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(52, 58, 64, 0.25);
+}
+
 .odv-status-box:hover {
   transform: translateY(-1px);
   box-shadow: 0 3px 10px rgba(0,0,0,0.12);

@@ -39,6 +39,14 @@ const getStatusStyle = (status) => {
       return { text: 'Accepted', className: 'status-accepted' };
     case 'rejected':
       return { text: 'Rejected', className: 'status-rejected' };
+    case 'pending-signatures':
+      return { text: 'Pending Signatures', className: 'status-pending-signatures' };
+    case 'pending-review':
+      return { text: 'Documents Signed', className: 'status-pending-review' };
+    case 'documents-declined':
+      return { text: 'Documents Declined', className: 'status-documents-declined' };
+    case 'documents-voided':
+      return { text: 'Documents Voided', className: 'status-documents-voided' };
     default:
       return { text: 'Pending Review', className: 'status-submitted' };
   }
@@ -83,24 +91,7 @@ const OfferCard = ({ offer, onClick, onUpdate }) => {
   };
 
   const handleViewClick = async () => {
-    if (status === 'submitted') {
-      try {
-        const response = await axios.put(
-          `${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/status`,
-          { offerStatus: 'under review' },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`, // Add the token to the Authorization header
-            },
-          }
-        );
-        const updatedOffer = response.data;
-        setStatus(updatedOffer.offerStatus);
-        onUpdate(updatedOffer); // Notify parent component of the update
-      } catch (error) {
-        console.error('Error updating offer status:', error);
-      }
-    }
+    // Buyers should not be able to change offer status - just view the offer
     onClick(offer._id);
   };
 

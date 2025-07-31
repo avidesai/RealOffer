@@ -222,6 +222,26 @@
   color: #fff;
 }
 
+.status-pending-signatures {
+  background-color: #17a2b8;
+  color: #fff;
+}
+
+.status-pending-review {
+  background-color: #20c997;
+  color: #fff;
+}
+
+.status-documents-declined {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.status-documents-voided {
+  background-color: #343a40;
+  color: #fff;
+}
+
 @media (max-width: 768px) {
   .offer-card {
     padding: 0.9rem;

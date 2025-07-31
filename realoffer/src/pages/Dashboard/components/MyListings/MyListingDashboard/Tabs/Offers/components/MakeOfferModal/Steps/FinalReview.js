@@ -31,6 +31,9 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
 
   // Parse number helper function
   const parseNumber = (value) => {
+    if (!value || typeof value !== 'string') {
+      return parseFloat(value) || 0;
+    }
     return parseFloat(value.replace(/,/g, '')) || 0;
   };
 
@@ -158,9 +161,22 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
         issues.push('Missing recipient information for DocuSign - agent email and buyer name required');
       }
       
-      // Add information about the simplified workflow
+      // Add information about the DocuSign workflow
       if (documentWorkflow.signing.recipients.length > 0) {
-        warnings.push('Documents will be sent to the buyer\'s agent first for signature setup, then forwarded to all recipients for signing. Status will be "Pending Signatures" until everyone signs, then "Pending Review".');
+        warnings.push({
+          type: 'docusign-process',
+          content: {
+            title: 'The DocuSign signing process is as follows:',
+            steps: [
+              'Documents will be sent to the buyer\'s agent first for signature setup and signing.',
+              'Documents will then be sent to all signers for signatures.'
+            ],
+            statusInfo: {
+              pending: 'Until all parties have signed the documents, the offer status will be "Pending Signatures".',
+              completed: 'After all signatures have been completed, the offer will be updated to "Pending Review".'
+            }
+          }
+        });
       }
     }
 
@@ -235,7 +251,26 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
               <div className="ds-validation-content">
                 {validationAnalysis.warnings.map((warning, index) => (
                   <div key={index} className="ds-validation-warning-item">
-                    {warning}
+                    {typeof warning === 'object' && warning.type === 'docusign-process' ? (
+                      <div className="docusign-process-warning">
+                        <h4 className="docusign-process-title">{warning.content.title}</h4>
+                        <ol className="docusign-process-steps">
+                          {warning.content.steps.map((step, stepIndex) => (
+                            <li key={stepIndex} className="docusign-process-step">{step}</li>
+                          ))}
+                        </ol>
+                        <div className="docusign-process-status">
+                          <div className="docusign-status-item">
+                            <strong>Before Signing:</strong> {warning.content.statusInfo.pending}
+                          </div>
+                          <div className="docusign-status-item">
+                            <strong>After Signing:</strong> {warning.content.statusInfo.completed}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      warning
+                    )}
                   </div>
                 ))}
               </div>

@@ -18,6 +18,9 @@ const formatPercentage = (value) => {
 };
 
 const parseNumber = (value) => {
+  if (!value || typeof value !== 'string') {
+    return parseFloat(value) || 0;
+  }
   return parseFloat(value.replace(/[^0-9.-]+/g, '')) || 0;
 };
 

@@ -147,6 +147,10 @@ const BuyerPackageOffers = ({ buyerPackageId, listingId }) => {
     rejected: offers.filter(o => o.offerStatus === 'rejected').length,
     countered: offers.filter(o => o.offerStatus === 'countered').length,
     accepted: offers.filter(o => o.offerStatus === 'accepted').length,
+    'pending-signatures': offers.filter(o => o.offerStatus === 'pending-signatures').length,
+    'pending-review': offers.filter(o => o.offerStatus === 'pending-review').length,
+    'documents-declined': offers.filter(o => o.offerStatus === 'documents-declined').length,
+    'documents-voided': offers.filter(o => o.offerStatus === 'documents-voided').length,
   };
 
   if (loading) {

@@ -199,23 +199,29 @@ const DocuSignSection = ({
   // Get recipients from document workflow
   const recipients = useMemo(() => documentWorkflow.signing.recipients || [], [documentWorkflow.signing.recipients]);
 
-  // Auto-populate recipients with buyer and agent information
+  // Auto-populate recipients with buyer and agent information (only initially)
   useEffect(() => {
     if (offerData && recipients.length > 0) {
       const updatedRecipients = recipients.map(recipient => {
         if (recipient.id === 'buyer-agent') {
-          // Populate agent information from offerData.presentedBy
-          return {
-            ...recipient,
-            name: offerData.presentedBy?.name || '',
-            email: offerData.presentedBy?.email || ''
-          };
+          // Only populate if the recipient hasn't been manually edited (empty or default values)
+          const shouldAutoPopulate = !recipient.name && !recipient.email;
+          if (shouldAutoPopulate) {
+            return {
+              ...recipient,
+              name: offerData.presentedBy?.name || '',
+              email: offerData.presentedBy?.email || ''
+            };
+          }
         } else if (recipient.id === 'primary-buyer') {
-          // Populate buyer information from offerData.buyerName
-          return {
-            ...recipient,
-            name: offerData.buyerName || ''
-          };
+          // Only populate if the recipient hasn't been manually edited (empty or default values)
+          const shouldAutoPopulate = !recipient.name;
+          if (shouldAutoPopulate) {
+            return {
+              ...recipient,
+              name: offerData.buyerName || ''
+            };
+          }
         }
         return recipient;
       });
@@ -236,7 +242,7 @@ const DocuSignSection = ({
         }));
       }
     }
-  }, [offerData, recipients, updateDocumentWorkflow]);
+  }, [offerData, updateDocumentWorkflow]); // Removed 'recipients' from dependencies to prevent re-running on user edits
 
   const addBuyer = () => {
     const newOrder = recipients.length + 1;
@@ -306,6 +312,17 @@ const DocuSignSection = ({
 
   // Check if any documents are selected for signing
   const hasSelectedDocuments = signableDocuments.some(doc => doc.sendForSigning);
+
+  // Check if user is choosing to sign documents (not skipping)
+  const isSigningEnabled = !documentWorkflow.signing.skip && hasSelectedDocuments;
+
+  // Check if there are validation warnings about missing recipient information
+  const hasRecipientValidationWarnings = validation.warnings && validation.warnings.some(warning => 
+    warning.includes('recipient') || warning.includes('name') || warning.includes('email')
+  );
+
+  // Disable next button if signing is enabled and there are recipient validation warnings
+  const isNextButtonDisabled = isSigningEnabled && hasRecipientValidationWarnings;
 
   const handleSkipSigning = () => {
     // Mark all documents as not to be sent and set skip flag
@@ -608,6 +625,7 @@ const DocuSignSection = ({
         <button
           className="mom-next-button"
           onClick={handleNextStep}
+          disabled={isNextButtonDisabled}
         >
           Next
         </button>

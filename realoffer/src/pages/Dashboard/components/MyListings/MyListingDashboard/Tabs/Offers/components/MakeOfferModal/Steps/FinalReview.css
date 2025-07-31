@@ -1108,5 +1108,124 @@
   .ds-validation-panel {
     display: none;
   }
+
+/* ===== DOCUSIGN PROCESS WARNING STYLES ===== */
+.docusign-process-warning {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin: 0.5rem 0;
+}
+
+/* Remove orange warning styling for DocuSign warnings */
+.ds-validation-warning-item .docusign-process-warning {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin: 0;
+  color: #374151;
+}
+
+.ds-validation-warning-item .docusign-process-warning .docusign-process-title {
+  color: #1e40af;
+}
+
+.ds-validation-warning-item .docusign-process-warning .docusign-process-step {
+  color: #374151;
+}
+
+.ds-validation-warning-item .docusign-process-warning .docusign-status-item {
+  color: #475569;
+}
+
+.docusign-process-title {
+  color: #1e40af;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.docusign-process-title::before {
+  content: "📋";
+  font-size: 1.1rem;
+}
+
+.docusign-process-steps {
+  margin: 0 0 1.25rem 0;
+  padding-left: 1.5rem;
+  list-style-type: decimal;
+}
+
+.docusign-process-step {
+  color: #374151;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.docusign-process-step:last-child {
+  margin-bottom: 0;
+}
+
+.docusign-process-status {
+  background: #f1f5f9;
+  border-radius: 6px;
+  padding: 1rem;
+  border-left: 4px solid #3b82f6;
+}
+
+.docusign-status-item {
+  color: #475569;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.docusign-status-item:last-child {
+  margin-bottom: 0;
+}
+
+.docusign-status-item strong {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+/* Mobile responsive styles for DocuSign warning */
+@media (max-width: 768px) {
+  .docusign-process-warning {
+    padding: 1rem;
+    margin: 0.25rem 0;
+  }
+  
+  .docusign-process-title {
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .docusign-process-steps {
+    margin-bottom: 1rem;
+    padding-left: 1.25rem;
+  }
+  
+  .docusign-process-step {
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+  }
+  
+  .docusign-process-status {
+    padding: 0.75rem;
+  }
+  
+  .docusign-status-item {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+}
   
   

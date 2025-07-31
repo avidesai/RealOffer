@@ -39,6 +39,14 @@ const getStatusStyle = (status) => {
       return { text: 'Accepted', className: 'status-accepted' };
     case 'rejected':
       return { text: 'Rejected', className: 'status-rejected' };
+    case 'pending-signatures':
+      return { text: 'Pending Signatures', className: 'status-pending-signatures' };
+    case 'pending-review':
+      return { text: 'Documents Signed', className: 'status-pending-review' };
+    case 'documents-declined':
+      return { text: 'Documents Declined', className: 'status-documents-declined' };
+    case 'documents-voided':
+      return { text: 'Documents Voided', className: 'status-documents-voided' };
     default:
       return { text: 'Pending Review', className: 'status-submitted' };
   }
@@ -83,7 +91,9 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
   };
 
   const handleViewClick = async () => {
-    if (status === 'submitted') {
+    // Only allow transition to 'under review' from 'pending-review' status
+    // 'pending-signatures' should stay as is until signatures are completed
+    if (status === 'pending-review') {
       try {
         const response = await axios.put(
           `${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/status`,

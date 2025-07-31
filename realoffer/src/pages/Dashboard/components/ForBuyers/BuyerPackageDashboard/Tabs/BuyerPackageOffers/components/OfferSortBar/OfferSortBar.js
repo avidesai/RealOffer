@@ -42,6 +42,10 @@ function OfferSortBar({ onFilterChange, onSortChange, onAddOffer, currentPage, t
                 <option value="rejected">Rejected ({statusCounts.rejected})</option>
                 <option value="countered">Countered ({statusCounts.countered})</option>
                 <option value="accepted">Accepted ({statusCounts.accepted})</option>
+                <option value="pending-signatures">Pending Signatures ({statusCounts['pending-signatures']})</option>
+                <option value="pending-review">Documents Signed ({statusCounts['pending-review']})</option>
+                <option value="documents-declined">Documents Declined ({statusCounts['documents-declined']})</option>
+                <option value="documents-voided">Documents Voided ({statusCounts['documents-voided']})</option>
               </select>
             </div>
             <div className="offer-sort-section">

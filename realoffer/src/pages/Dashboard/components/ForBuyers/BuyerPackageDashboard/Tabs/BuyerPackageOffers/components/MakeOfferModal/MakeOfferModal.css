@@ -497,9 +497,20 @@
 }
 
 .mom-next-button:hover {
-  background-color: #357abd;
+  background-color: #0056b3;
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.mom-next-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  background-color: #6c757d;
+}
+
+.mom-next-button:disabled:hover {
+  background-color: #6c757d;
+  transform: none !important;
 }
 
 .mom-close-button {

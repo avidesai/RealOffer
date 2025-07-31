@@ -25,6 +25,14 @@ const getStatusStyle = (status) => {
       return { text: 'Accepted', className: 'odv-status-accepted' };
     case 'rejected':
       return { text: 'Rejected', className: 'odv-status-rejected' };
+    case 'pending-signatures':
+      return { text: 'Pending Signatures', className: 'odv-status-pending-signatures' };
+    case 'pending-review':
+      return { text: 'Documents Signed', className: 'odv-status-pending-review' };
+    case 'documents-declined':
+      return { text: 'Documents Declined', className: 'odv-status-documents-declined' };
+    case 'documents-voided':
+      return { text: 'Documents Voided', className: 'odv-status-documents-voided' };
     default:
       return { text: 'Pending Review', className: 'odv-status-submitted' };
   }
