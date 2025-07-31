@@ -49,11 +49,12 @@ const migrateExistingMessages = async () => {
         for (const response of offer.responses) {
           messagesToCreate.push({
             offer: offer._id,
-            sender: null, // We don't have sender info in old responses
+            // Don't set sender for legacy responses - they'll be system messages
             content: response.message,
             subject: response.subject,
             messageType: 'response',
             responseType: response.responseType,
+            isSystemMessage: true, // Mark as system message since we don't have sender info
             createdAt: response.respondedAt || new Date()
           });
         }

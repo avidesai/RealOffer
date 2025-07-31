@@ -247,9 +247,12 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId, buyerP
 
   // Handle file input change
   const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      handleDocumentUpload(file);
+    const files = Array.from(event.target.files);
+    if (files.length > 0) {
+      // Upload each file sequentially
+      files.forEach(file => {
+        handleDocumentUpload(file);
+      });
     }
     // Reset the input
     event.target.value = '';
@@ -341,13 +344,14 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId, buyerP
             <label className="ds-upload-label">
               <input
                 type="file"
+                multiple
                 accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                 onChange={handleFileChange}
                 disabled={uploadLoading}
                 className="ds-file-input"
               />
-              <span>Choose file or drag and drop</span>
-              <small>PDF, DOC, DOCX, JPG, PNG (max 50MB)</small>
+              <span>Choose files or drag and drop</span>
+              <small>PDF, DOC, DOCX, JPG, PNG (max 50MB each)</small>
             </label>
           </div>
 

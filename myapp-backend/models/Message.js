@@ -12,7 +12,7 @@ const MessageSchema = new Schema({
   sender: { 
     type: Schema.Types.ObjectId, 
     ref: 'User', 
-    required: true 
+    required: false // Make optional for system messages and legacy responses
   },
   messageType: { 
     type: String, 
