@@ -184,19 +184,15 @@ exports.getPropertyAnalysis = async (req, res) => {
       const freshData = await fetchFreshAnalysisData(property);
       
       // Preserve custom value if it exists
-      let customValueData = {};
       if (analysis && analysis.valuation && analysis.valuation.isCustomValue) {
-        customValueData = {
-          'valuation.customValue': analysis.valuation.customValue,
-          'valuation.originalValue': analysis.valuation.originalValue,
-          'valuation.isCustomValue': true
-        };
+        // Keep the custom value and original value, but update everything else
+        freshData.valuation.customValue = analysis.valuation.customValue;
+        freshData.valuation.originalValue = analysis.valuation.originalValue;
+        freshData.valuation.isCustomValue = true;
       } else {
         // Store the original API value when first fetched
-        customValueData = {
-          'valuation.originalValue': freshData.valuation.estimatedValue,
-          'valuation.isCustomValue': false
-        };
+        freshData.valuation.originalValue = freshData.valuation.estimatedValue;
+        freshData.valuation.isCustomValue = false;
       }
       
       // Create or update analysis document
@@ -204,7 +200,6 @@ exports.getPropertyAnalysis = async (req, res) => {
         { propertyId },
         {
           ...freshData,
-          ...customValueData,
           lastUpdated: new Date()
         },
         { upsert: true, new: true }
