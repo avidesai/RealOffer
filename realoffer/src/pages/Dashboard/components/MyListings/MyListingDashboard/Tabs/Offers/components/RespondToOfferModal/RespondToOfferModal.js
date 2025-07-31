@@ -11,6 +11,7 @@ function RespondToOfferModal({ isOpen, onClose, offer, propertyListing }) {
   const [response, setResponse] = useState('sendMessage'); // Default to "Send Message"
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (propertyListing && propertyListing.homeCharacteristics) {
@@ -39,6 +40,9 @@ function RespondToOfferModal({ isOpen, onClose, offer, propertyListing }) {
   if (!isOpen) return null;
 
   const handleSubmit = async () => {
+    if (isSubmitting) return; // Prevent double submission
+    
+    setIsSubmitting(true);
     try {
       await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/respond`,
@@ -56,6 +60,8 @@ function RespondToOfferModal({ isOpen, onClose, offer, propertyListing }) {
       onClose(true); // Indicate that the modal was submitted
     } catch (error) {
       console.error('Error responding to offer:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -160,7 +166,13 @@ function RespondToOfferModal({ isOpen, onClose, offer, propertyListing }) {
           </div>
         </div>
         <div className="respond-to-offer-modal-footer">
-          <button className="respond-to-offer-modal-send-response-button" onClick={handleSubmit}>Send Response</button>
+          <button 
+            className="respond-to-offer-modal-send-response-button" 
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Sending...' : 'Send Response'}
+          </button>
         </div>
       </div>
     </div>

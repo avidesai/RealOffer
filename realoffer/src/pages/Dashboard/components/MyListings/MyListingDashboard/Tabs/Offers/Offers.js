@@ -179,15 +179,15 @@ const Offers = ({ listingId }) => {
             )}
           </div>
           {showModal && <MakeOfferModal onClose={handleCloseModal} listingId={listingId} />}
-          {respondToOffer && (
-            <RespondToOfferModal
-              isOpen={!!respondToOffer}
-              onClose={handleCloseRespondModal}
-              offer={respondToOffer}
-              propertyListing={propertyListing}
-            />
-          )}
         </>
+      )}
+      {respondToOffer && (
+        <RespondToOfferModal
+          isOpen={!!respondToOffer}
+          onClose={handleCloseRespondModal}
+          offer={respondToOffer}
+          propertyListing={propertyListing}
+        />
       )}
     </div>
   );
