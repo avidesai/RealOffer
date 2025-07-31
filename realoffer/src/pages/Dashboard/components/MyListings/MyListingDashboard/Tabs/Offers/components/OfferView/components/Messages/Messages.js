@@ -47,7 +47,7 @@ const Messages = ({ offer }) => {
     <div className="odv-messages-section">
       <h2 className="odv-messages-section-title">Messages</h2>
       <div className="odv-message-bubble odv-buyer-message">
-        <div className="odv-agent-avatar-container">
+        <div className="odv-messages-agent-avatar-container">
           {(() => {
             const nameParts = offer.presentedBy.name ? offer.presentedBy.name.split(' ') : ['', ''];
             const firstName = nameParts[0] || '';
@@ -58,7 +58,7 @@ const Messages = ({ offer }) => {
                 firstName={firstName}
                 lastName={lastName}
                 size="small"
-                className="odv-agent-avatar-img"
+                className="odv-messages-agent-avatar-img"
                 alt={offer.presentedBy.name}
               />
             );
@@ -75,13 +75,13 @@ const Messages = ({ offer }) => {
             <p>{lastResponse.message}</p>
             <div className="odv-message-timestamp">{formatDateTime(lastResponse.respondedAt)}</div>
           </div>
-          <div className="odv-agent-avatar-container right-avatar">
+          <div className="odv-messages-agent-avatar-container right-avatar">
             <Avatar
               src={userData?.profilePhotoUrl}
               firstName={userData?.firstName}
               lastName={userData?.lastName}
               size="small"
-              className="odv-agent-avatar-img"
+              className="odv-messages-agent-avatar-img"
               alt="Agent"
             />
           </div>
