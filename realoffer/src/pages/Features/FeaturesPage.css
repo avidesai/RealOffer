@@ -49,7 +49,7 @@
 }
 
 .features-page-hero-title {
-  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-size: clamp(2.25rem, 4.5vw, 3rem);
   font-weight: 800;
   margin-bottom: var(--space-xl);
   background: var(--primary-gradient);

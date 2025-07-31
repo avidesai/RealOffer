@@ -308,14 +308,14 @@ const LandingPage = () => {
             <h2 className="lp-section-title">Your Secret Weapon for More Offers</h2>
             <p className="lp-section-subtitle">
               Every feature exists to streamline the buyer's journey and improve your outcomes. 
-              We don't replace your MLS process — we supercharge it.
+              We don't replace your listing process — we supercharge it.
             </p>
           </div>
           <div className="lp-features-grid">
             <Feature
               icon={FileText}
               title="Centralized Disclosure Hub"
-              description="Upload all disclosures in one place so buyer agents never ask 'where's the packet?' again."
+              description="Organize all property disclosures in a centralized hub for agents and buyers to analyze."
             />
             <Feature
               icon={Zap}
@@ -325,12 +325,12 @@ const LandingPage = () => {
             <Feature
               icon={Shield}
               title="Smart Valuation Tools"
-              description="Provide buyer agents with suggested price ranges and comps so they can assess value instantly."
+              description="Buyer agents get instant access to suggested price ranges and comps to assess property value quickly."
             />
             <Feature
               icon={BarChart2}
               title="Activity Tracking"
-              description="See how many buyer agents view your listing, download disclosures, or submit offers — create urgency."
+              description="Track buyer agent engagement with your listing, including views, downloads, and offers submitted."
             />
             <Feature
               icon={Calculator}

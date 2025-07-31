@@ -17,8 +17,8 @@
 }
 
 .features-page-feature-header {
-  margin-bottom: var(--space-2xl);
-  padding-bottom: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-lg);
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -32,6 +32,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  margin-top: var(--space-sm);
 }
 
 .feature-description {
@@ -51,7 +52,7 @@
 .feature-points-section {
   background: var(--bg-secondary);
   border-radius: var(--radius-xl);
-  padding: var(--space-xl);
+  padding: var(--space-lg);
   border: 1px solid var(--border-color);
 }
 
@@ -124,7 +125,7 @@
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
   border: 1px solid #bae6fd;
   border-radius: var(--radius-xl);
-  padding: var(--space-xl);
+  padding: var(--space-lg);
   position: relative;
   overflow: hidden;
   height: fit-content;
