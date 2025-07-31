@@ -28,8 +28,7 @@
 }
 
 .features-page-container {
-  font-family: 'Inter', sans-serif;
-  background-color: var(--bg-primary);
+  background-color: #f8fafd;
   color: var(--text-primary);
   min-height: 100vh;
 }
