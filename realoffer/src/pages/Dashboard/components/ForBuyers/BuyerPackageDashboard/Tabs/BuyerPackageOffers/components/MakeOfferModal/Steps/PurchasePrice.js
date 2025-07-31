@@ -92,6 +92,32 @@ const PurchasePrice = ({ handleNextStep }) => {
 
   const { loanAmount, percentDown, downPaymentDollar, balanceOfDownPayment } = calculatedValues;
 
+  // Update offer data with calculated values whenever they change
+  useEffect(() => {
+    const purchasePrice = parseNumber(offerData.purchasePrice);
+    if (purchasePrice > 0) {
+      const updates = {};
+      
+      // Only update if we have valid calculated values
+      if (percentDown !== '0.00' && !isNaN(parseFloat(percentDown))) {
+        updates.percentDown = parseFloat(percentDown);
+      }
+      
+      if (balanceOfDownPayment && !isNaN(parseNumber(balanceOfDownPayment.replace(/[^0-9.-]+/g, '')))) {
+        updates.balanceOfDownPayment = parseNumber(balanceOfDownPayment.replace(/[^0-9.-]+/g, ''));
+      }
+      
+      if (loanAmount && !isNaN(parseNumber(loanAmount.replace(/[^0-9.-]+/g, '')))) {
+        updates.loanAmount = parseNumber(loanAmount.replace(/[^0-9.-]+/g, ''));
+      }
+      
+      // Only update if we have changes to make
+      if (Object.keys(updates).length > 0) {
+        updateOfferData(updates);
+      }
+    }
+  }, [percentDown, balanceOfDownPayment, loanAmount, offerData.purchasePrice, updateOfferData]);
+
   const handleBlur = (e) => {
     const { name, value } = e.target;
     const isPercentMode = inputModes[name] === 'percent';
@@ -159,10 +185,12 @@ const PurchasePrice = ({ handleNextStep }) => {
     const { name, value } = e.target;
     const updatedData = { [name]: value };
     if (value === 'CASH') {
-      updatedData.downPayment = offerData.purchasePrice;
+      const purchasePrice = parseNumber(offerData.purchasePrice);
+      updatedData.downPayment = purchasePrice.toString();
       updatedData.downPaymentPercent = '100';
       updatedData.loanAmount = '0';
-      updatedData.percentDown = '100';
+      updatedData.percentDown = 100; // Set as number, not string
+      updatedData.balanceOfDownPayment = (purchasePrice - parseNumber(offerData.initialDeposit || 0)).toString();
     }
     updateOfferData(updatedData);
   };

@@ -336,29 +336,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     }
   }, [offerData, listingId, onClose, handleResetOffer, token, documentWorkflow, updateDocumentWorkflow]);
 
-  useEffect(() => {
-    const downPayment = parseNumber(offerData.downPayment);
-    const purchasePrice = parseNumber(offerData.purchasePrice);
-    const initialDeposit = parseNumber(offerData.initialDeposit);
-    
-    const loanAmount = purchasePrice - downPayment;
-    const percentDown = purchasePrice > 0 ? ((downPayment / purchasePrice) * 100).toFixed(2) : '0';
-    const balanceOfDownPayment = downPayment - initialDeposit;
-    
-    const newValues = {
-      loanAmount: isNaN(loanAmount) ? '' : loanAmount.toString(),
-      percentDown: isNaN(percentDown) ? '' : percentDown,
-      balanceOfDownPayment: isNaN(balanceOfDownPayment) ? '' : balanceOfDownPayment.toString(),
-    };
 
-    if (JSON.stringify(newValues) !== JSON.stringify({
-      loanAmount: offerData.loanAmount,
-      percentDown: offerData.percentDown,
-      balanceOfDownPayment: offerData.balanceOfDownPayment,
-    })) {
-      updateOfferData(newValues);
-    }
-  }, [offerData.purchasePrice, offerData.downPayment, offerData.initialDeposit, updateOfferData, offerData.loanAmount, offerData.percentDown, offerData.balanceOfDownPayment]);
 
   useEffect(() => {
     updateOfferData(prevData => ({ ...prevData, propertyListing: listingId }));
