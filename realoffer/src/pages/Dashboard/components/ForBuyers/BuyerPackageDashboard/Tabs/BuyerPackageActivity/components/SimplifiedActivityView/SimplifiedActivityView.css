@@ -1,0 +1,201 @@
+/* SimplifiedActivityView.css */
+
+.simplified-activity-view {
+  animation: fadeIn 0.3s ease;
+  padding: 1rem 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Popularity Card */
+.popularity-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #007bff;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.popularity-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+
+.popularity-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  color: #007bff;
+  transition: all 0.2s ease;
+}
+
+.popularity-icon svg {
+  width: 48px;
+  height: 48px;
+  transition: all 0.2s ease;
+}
+
+/* Icon color variations based on popularity */
+.popularity-card[data-tier="1"] .popularity-icon {
+  color: #6c757d;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.popularity-card[data-tier="2"] .popularity-icon {
+  color: #17a2b8;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+}
+
+.popularity-card[data-tier="3"] .popularity-icon {
+  color: #28a745;
+  background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+}
+
+.popularity-card[data-tier="4"] .popularity-icon {
+  color: #ffc107;
+  background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+}
+
+.popularity-card[data-tier="5"] .popularity-icon {
+  color: #dc3545;
+  background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+}
+
+.popularity-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.popularity-title {
+  margin: 0 0 0.75rem 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.popularity-description {
+  margin: 0;
+  color: #6c757d;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* Activity Info Section */
+.activity-info {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 1.5rem;
+  border-left: 4px solid #6c757d;
+}
+
+.info-section h3 {
+  margin: 0 0 1rem 0;
+  color: #2c3e50;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.info-section p {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .simplified-activity-view {
+    padding: 0.5rem 0;
+  }
+
+  .popularity-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+
+  .popularity-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .popularity-icon svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .popularity-title {
+    font-size: 1.25rem;
+  }
+
+  .popularity-description {
+    font-size: 0.9rem;
+  }
+
+  .activity-info {
+    padding: 1rem;
+  }
+
+  .info-section h3 {
+    font-size: 1.1rem;
+  }
+
+  .info-section p {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .popularity-card {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .popularity-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .popularity-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .popularity-title {
+    font-size: 1.1rem;
+  }
+
+  .popularity-description {
+    font-size: 0.85rem;
+  }
+
+  .activity-info {
+    padding: 0.75rem;
+  }
+
+  .info-section h3 {
+    font-size: 1rem;
+  }
+
+  .info-section p {
+    font-size: 0.85rem;
+  }
+} 
