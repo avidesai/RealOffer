@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import Header from '../../components/Header/Header';
+import Footer from '../../components/Footer/Footer';
 import './PasswordReset.css';
 
 const PasswordReset = () => {
@@ -100,130 +102,130 @@ const PasswordReset = () => {
     navigate('/forgot-password');
   };
 
-  if (status === 'success') {
-    return (
-      <div className="password-reset">
-        <div className="password-reset-container">
-          <div className="password-reset-content">
-            <div className="password-reset-icon success">✓</div>
-            <h1 className="password-reset-title">Password Reset Successful!</h1>
-            <p className="password-reset-message">{message}</p>
-            <div className="password-reset-actions">
-              <button 
-                className="password-reset-button primary"
-                onClick={handleLogin}
-              >
-                Log In
-              </button>
-            </div>
+  const renderContent = () => {
+    if (status === 'success') {
+      return (
+        <div className="password-reset-form">
+          <div className="password-reset-icon success">✓</div>
+          <h1 className="password-reset-title">Password Reset Successful!</h1>
+          <p className="password-reset-message">{message}</p>
+          <div className="password-reset-actions">
+            <button 
+              className="password-reset-button primary"
+              onClick={handleLogin}
+            >
+              Log In
+            </button>
           </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  if (status === 'error') {
-    return (
-      <div className="password-reset">
-        <div className="password-reset-container">
-          <div className="password-reset-content">
-            <div className="password-reset-icon error">✗</div>
-            <h1 className="password-reset-title">Reset Failed</h1>
-            <p className="password-reset-message">{message}</p>
-            <div className="password-reset-actions">
-              <button 
-                className="password-reset-button primary"
-                onClick={handleRequestNewReset}
-              >
-                Request New Reset
-              </button>
-              <button 
-                className="password-reset-button secondary"
-                onClick={handleLogin}
-              >
-                Go to Login
-              </button>
-            </div>
+    if (status === 'error') {
+      return (
+        <div className="password-reset-form">
+          <div className="password-reset-icon error">✗</div>
+          <h1 className="password-reset-title">Reset Failed</h1>
+          <p className="password-reset-message">{message}</p>
+          <div className="password-reset-actions">
+            <button 
+              className="password-reset-button primary"
+              onClick={handleRequestNewReset}
+            >
+              Request New Reset
+            </button>
+            <button 
+              className="password-reset-button secondary"
+              onClick={handleLogin}
+            >
+              Go to Login
+            </button>
           </div>
         </div>
+      );
+    }
+
+    return (
+      <div className="password-reset-form">
+        <h1 className="password-reset-title">Reset Your Password</h1>
+        <p className="password-reset-message">
+          Enter your new password below. Make sure it's secure and easy to remember.
+        </p>
+        
+        <form onSubmit={handleSubmit} className="password-reset-form-inner">
+          <div className="password-reset-field">
+            <label htmlFor="newPassword" className="password-reset-label">
+              New Password
+            </label>
+            <div className="password-reset-input-container">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="newPassword"
+                name="newPassword"
+                value={formData.newPassword}
+                onChange={handleChange}
+                className={`password-reset-input ${errors.newPassword ? 'password-reset-input-invalid' : ''}`}
+                placeholder="Enter your new password"
+              />
+              <button
+                type="button"
+                className="password-reset-toggle"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+            {errors.newPassword && (
+              <div className="password-reset-error">{errors.newPassword}</div>
+            )}
+          </div>
+          
+          <div className="password-reset-field">
+            <label htmlFor="confirmPassword" className="password-reset-label">
+              Confirm Password
+            </label>
+            <div className="password-reset-input-container">
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className={`password-reset-input ${errors.confirmPassword ? 'password-reset-input-invalid' : ''}`}
+                placeholder="Confirm your new password"
+              />
+              <button
+                type="button"
+                className="password-reset-toggle"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+            {errors.confirmPassword && (
+              <div className="password-reset-error">{errors.confirmPassword}</div>
+            )}
+          </div>
+          
+          <button
+            type="submit"
+            className="password-reset-button primary"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Resetting Password...' : 'Reset Password'}
+          </button>
+        </form>
       </div>
     );
-  }
+  };
 
   return (
-    <div className="password-reset">
-      <div className="password-reset-container">
-        <div className="password-reset-content">
-          <h1 className="password-reset-title">Reset Your Password</h1>
-          <p className="password-reset-message">
-            Enter your new password below. Make sure it's secure and easy to remember.
-          </p>
-          
-          <form onSubmit={handleSubmit} className="password-reset-form">
-            <div className="password-reset-field">
-              <label htmlFor="newPassword" className="password-reset-label">
-                New Password
-              </label>
-              <div className="password-reset-input-container">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="newPassword"
-                  name="newPassword"
-                  value={formData.newPassword}
-                  onChange={handleChange}
-                  className={`password-reset-input ${errors.newPassword ? 'password-reset-input-invalid' : ''}`}
-                  placeholder="Enter your new password"
-                />
-                <button
-                  type="button"
-                  className="password-reset-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
-                </button>
-              </div>
-              {errors.newPassword && (
-                <div className="password-reset-error">{errors.newPassword}</div>
-              )}
-            </div>
-            
-            <div className="password-reset-field">
-              <label htmlFor="confirmPassword" className="password-reset-label">
-                Confirm Password
-              </label>
-              <div className="password-reset-input-container">
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className={`password-reset-input ${errors.confirmPassword ? 'password-reset-input-invalid' : ''}`}
-                  placeholder="Confirm your new password"
-                />
-                <button
-                  type="button"
-                  className="password-reset-toggle"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-                </button>
-              </div>
-              {errors.confirmPassword && (
-                <div className="password-reset-error">{errors.confirmPassword}</div>
-              )}
-            </div>
-            
-            <button
-              type="submit"
-              className="password-reset-button primary"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Resetting Password...' : 'Reset Password'}
-            </button>
-          </form>
-        </div>
+    <div className="password-reset-page-container">
+      <Header />
+      <div className="password-reset-content-wrapper">
+        {renderContent()}
       </div>
+      <Footer />
     </div>
   );
 };
