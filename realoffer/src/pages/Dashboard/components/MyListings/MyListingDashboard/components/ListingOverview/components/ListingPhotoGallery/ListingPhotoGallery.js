@@ -11,10 +11,12 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
   const [orderedImages, setOrderedImages] = useState(images);
   const [isUpdating, setIsUpdating] = useState(false);
   const [hasPhotoChanges, setHasPhotoChanges] = useState(false);
+  const [showDeleteButtons, setShowDeleteButtons] = useState(false);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
   const thumbnailBarRef = useRef(null);
   const mainPhotoRef = useRef(null);
+  const fileInputRef = useRef(null);
   const { logout } = useAuth();
 
   // Minimum swipe distance (in px)
@@ -193,11 +195,97 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
     e.stopPropagation();
   };
 
+  const handleAddPhotos = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleDeletePhotos = () => {
+    setShowDeleteButtons(!showDeleteButtons);
+  };
+
+  const handleFileChange = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    try {
+      setIsUpdating(true);
+      const formData = new FormData();
+      files.forEach(file => {
+        formData.append('propertyImages', file);
+      });
+
+      const response = await api.post(`/api/propertyListings/${listingId}/photos`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      // Update the images with the new photos
+      setOrderedImages(response.data.imagesUrls);
+      setHasPhotoChanges(true);
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        console.error('Authentication failed, token may be expired. Logging out.');
+        await logout();
+      } else {
+        console.error('Error adding photos:', error);
+      }
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleDeletePhoto = async (indexToDelete) => {
+    try {
+      setIsUpdating(true);
+      const updatedImages = orderedImages.filter((_, index) => index !== indexToDelete);
+      
+      await api.put(`/api/propertyListings/${listingId}/photos`, {
+        imageUrls: updatedImages
+      });
+
+      setOrderedImages(updatedImages);
+      setHasPhotoChanges(true);
+      
+      // Adjust current index if necessary
+      if (currentIndex >= updatedImages.length) {
+        setCurrentIndex(Math.max(0, updatedImages.length - 1));
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        console.error('Authentication failed, token may be expired. Logging out.');
+        await logout();
+      } else {
+        console.error('Error deleting photo:', error);
+      }
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   return (
     <div className="photo-gallery-modal" onClick={() => onClose(hasPhotoChanges)}>
       <div className="photo-gallery-content" onClick={(e) => e.stopPropagation()}>
         <div className="photo-gallery-header">
-          {isUpdating && <div className="photo-gallery-updating">Updating order...</div>}
+          <div className="photo-gallery-controls">
+            <button 
+              className="photo-gallery-control-button add-photos"
+              onClick={handleAddPhotos}
+              aria-label="Add photos"
+            >
+              Add Photos
+            </button>
+            <button 
+              className={`photo-gallery-control-button delete-photos ${showDeleteButtons ? 'active' : ''}`}
+              onClick={handleDeletePhotos}
+              aria-label="Delete photos"
+            >
+              {showDeleteButtons ? 'Done Deleting' : 'Delete Photos'}
+            </button>
+          </div>
+          {isUpdating && <div className="photo-gallery-updating">Updating photos...</div>}
           <button 
             className="photo-gallery-close-button" 
             onClick={() => onClose(hasPhotoChanges)}
@@ -270,6 +358,18 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
                             draggable={false}
                           />
                           <div className="thumbnail-order">{index + 1}</div>
+                          {showDeleteButtons && (
+                            <button
+                              className="thumbnail-delete-button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeletePhoto(index);
+                              }}
+                              aria-label={`Delete photo ${index + 1}`}
+                            >
+                              ×
+                            </button>
+                          )}
                         </div>
                       )}
                     </Draggable>
@@ -280,6 +380,16 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
             </Droppable>
           </DragDropContext>
         </div>
+        
+        {/* Hidden file input for adding photos */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          multiple
+          accept="image/*"
+          style={{ display: 'none' }}
+        />
       </div>
     </div>
   );

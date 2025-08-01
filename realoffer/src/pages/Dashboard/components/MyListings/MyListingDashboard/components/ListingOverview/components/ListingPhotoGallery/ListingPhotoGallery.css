@@ -53,7 +53,7 @@
 
 .photo-gallery-header {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   padding: 1.5rem 2rem;
   background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
@@ -242,6 +242,34 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.thumbnail-delete-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(220, 53, 69, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+  z-index: 10;
+}
+
+.thumbnail-delete-button:hover {
+  background: rgba(220, 53, 69, 1);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
 .thumbnail-bar {
   display: flex;
   overflow-x: auto;
@@ -305,6 +333,67 @@
 @keyframes fadeInOut {
   0%, 100% { opacity: 0.9; transform: translateY(-50%) scale(1); }
   50% { opacity: 1; transform: translateY(-50%) scale(1.02); }
+}
+
+.photo-gallery-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-right: 2rem;
+}
+
+.photo-gallery-control-button {
+  background: #ffffff;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #6c757d;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.photo-gallery-control-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.photo-gallery-control-button.add-photos {
+  border-color: #28a745;
+  color: #28a745;
+}
+
+.photo-gallery-control-button.add-photos:hover {
+  background-color: #28a745;
+  color: #ffffff;
+  border-color: #28a745;
+}
+
+.photo-gallery-control-button.delete-photos {
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+.photo-gallery-control-button.delete-photos:hover {
+  background-color: #dc3545;
+  color: #ffffff;
+  border-color: #dc3545;
+}
+
+.photo-gallery-control-button.delete-photos.active {
+  background-color: #dc3545;
+  color: #ffffff;
+  border-color: #dc3545;
+}
+
+.photo-gallery-control-button.delete-photos.active:hover {
+  background-color: #c82333;
+  border-color: #c82333;
 }
 
 /* Responsive Design */
@@ -374,6 +463,15 @@
     padding: 0.8rem 1rem;
   }
   
+  .photo-gallery-controls {
+    gap: 0.5rem;
+  }
+  
+  .photo-gallery-control-button {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.8rem;
+  }
+  
   .photo-gallery-close-button {
     width: 40px;
     height: 40px;
@@ -430,6 +528,15 @@
 @media (max-width: 480px) {
   .photo-gallery-header {
     padding: 0.6rem 0.8rem;
+  }
+  
+  .photo-gallery-controls {
+    gap: 0.4rem;
+  }
+  
+  .photo-gallery-control-button {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
   }
   
   .photo-gallery-close-button {
