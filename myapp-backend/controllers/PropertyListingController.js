@@ -97,6 +97,7 @@ exports.createListing = async (req, res) => {
     officerEmail,
     officerNumber,
     scheduleShowingUrl,
+    offerDueDate,
   } = req.body;
 
   const propertyImages = req.files ? req.files.map((file) => file.location) : [];
@@ -142,6 +143,7 @@ exports.createListing = async (req, res) => {
     },
     description: description || '',
     scheduleShowingUrl: scheduleShowingUrl || '',
+    offerDueDate: offerDueDate || null,
     agentIds,
     imagesUrls: propertyImages,
     status: 'active',

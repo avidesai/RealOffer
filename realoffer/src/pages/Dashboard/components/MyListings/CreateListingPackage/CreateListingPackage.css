@@ -89,6 +89,16 @@
   width: 100%;
 }
 
+/* Field label styling to match MakeOfferModal */
+.clp-form-group label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
 .clp-input,
 .clp-select,
 .clp-input[type="number"] {

@@ -28,6 +28,7 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
     sqFootage: '',
     lotSize: '',
     description: '',
+    offerDueDate: '',
     agent1: user ? (user._id || user.id) : '',
     agent2: '',
     companyName: '',

@@ -35,6 +35,7 @@ const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, hand
       <div className="clp-form-section">
         <div className="clp-form-row">
           <div className="clp-form-group full-width">
+            <label>Property Type</label>
             <select
               name="propertyType"
               value={formData.propertyType}
@@ -55,6 +56,7 @@ const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, hand
 
         <div className="clp-form-row">
           <div className="clp-form-group full-width">
+            <label>List Price</label>
             <input
               type="text"
               name="askingPrice"
@@ -69,6 +71,7 @@ const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, hand
 
         <div className="clp-form-row">
           <div className="clp-form-group">
+            <label>Bedrooms</label>
             <input
               type="number"
               name="bedrooms"
@@ -81,6 +84,7 @@ const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, hand
           </div>
 
           <div className="clp-form-group">
+            <label>Bathrooms</label>
             <input
               type="number"
               name="bathrooms"
@@ -95,6 +99,7 @@ const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, hand
 
         <div className="clp-form-row">
           <div className="clp-form-group full-width">
+            <label>Year Built</label>
             <input
               type="number"
               name="yearBuilt"
@@ -109,6 +114,7 @@ const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, hand
 
         <div className="clp-form-row">
           <div className="clp-form-group">
+            <label>Square Footage</label>
             <div className="clp-input-suffix-wrapper">
               <input
                 type="text"
@@ -124,6 +130,7 @@ const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, hand
           </div>
 
           <div className="clp-form-group">
+            <label>Lot Size</label>
             <div className="clp-input-suffix-wrapper">
               <input
                 type="text"
@@ -141,11 +148,26 @@ const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, hand
 
         <div className="clp-form-row">
           <div className="clp-form-group full-width">
+            <label>Description</label>
+            <textarea
+              name="description"
+              placeholder="Description"
+              value={formData.description}
+              onChange={handleChange}
+              rows="4"
+              className="clp-textarea"
+            />
+          </div>
+        </div>
+
+        <div className="clp-form-row">
+          <div className="clp-form-group full-width">
+            <label>Offer Due Date (Optional)</label>
             <input
-              type="url"
-              name="scheduleShowingUrl"
-              placeholder="Schedule Showing URL (Optional)"
-              value={formData.scheduleShowingUrl}
+              type="date"
+              name="offerDueDate"
+              placeholder="Offer Due Date"
+              value={formData.offerDueDate}
               onChange={handleChange}
               className="clp-input"
             />
@@ -154,13 +176,14 @@ const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, hand
 
         <div className="clp-form-row">
           <div className="clp-form-group full-width">
-            <textarea
-              name="description"
-              placeholder="Description"
-              value={formData.description}
+            <label>Schedule Showings URL (Optional)</label>
+            <input
+              type="url"
+              name="scheduleShowingUrl"
+              placeholder="Full URL of webpage to schedule showings"
+              value={formData.scheduleShowingUrl}
               onChange={handleChange}
-              rows="4"
-              className="clp-textarea"
+              className="clp-input"
             />
           </div>
         </div>

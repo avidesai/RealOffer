@@ -23,48 +23,77 @@ const Escrow = ({ formData, handleChange, handleNextStep, handlePrevStep }) => {
 
   return (
     <div className="clp-step">
-      <h2>Escrow</h2>
-      <input
-        type="text"
-        name="companyName"
-        placeholder="Company Name"
-        value={formData.companyName}
-        onChange={handleChange}
-        className="clp-input"
-      />
-      <input
-        type="text"
-        name="officerName"
-        placeholder="Escrow Officer Name"
-        value={formData.officerName}
-        onChange={handleChange}
-        className="clp-input"
-      />
-      <input
-        type="text"
-        name="officerPhone"
-        placeholder="Escrow Officer Phone"
-        value={formData.officerPhone}
-        onChange={handlePhoneChange} // Use the custom handler for phone number
-        className="clp-input"
-        maxLength="14" // To ensure no more than 14 characters
-      />
-      <input
-        type="text"
-        name="officerEmail"
-        placeholder="Escrow Officer Email"
-        value={formData.officerEmail}
-        onChange={handleChange}
-        className="clp-input"
-      />
-      <input
-        type="text"
-        name="officerNumber"
-        placeholder="Escrow Number (Optional)"
-        value={formData.officerNumber}
-        onChange={handleChange}
-        className="clp-input"
-      />
+      <h2>Escrow Information (Optional)</h2>
+      
+      <div className="clp-form-section">
+        <div className="clp-form-row">
+          <div className="clp-form-group full-width">
+            <label>Company Name</label>
+            <input
+              type="text"
+              name="companyName"
+              placeholder="Company Name"
+              value={formData.companyName}
+              onChange={handleChange}
+              className="clp-input"
+            />
+          </div>
+        </div>
+
+        <div className="clp-form-row">
+          <div className="clp-form-group">
+            <label>Escrow Officer Name</label>
+            <input
+              type="text"
+              name="officerName"
+              placeholder="Escrow Officer Name"
+              value={formData.officerName}
+              onChange={handleChange}
+              className="clp-input"
+            />
+          </div>
+
+          <div className="clp-form-group">
+            <label>Escrow Officer Phone</label>
+            <input
+              type="text"
+              name="officerPhone"
+              placeholder="Escrow Officer Phone"
+              value={formData.officerPhone}
+              onChange={handlePhoneChange} // Use the custom handler for phone number
+              className="clp-input"
+              maxLength="14" // To ensure no more than 14 characters
+            />
+          </div>
+        </div>
+
+        <div className="clp-form-row">
+          <div className="clp-form-group">
+            <label>Escrow Officer Email</label>
+            <input
+              type="text"
+              name="officerEmail"
+              placeholder="Escrow Officer Email"
+              value={formData.officerEmail}
+              onChange={handleChange}
+              className="clp-input"
+            />
+          </div>
+
+          <div className="clp-form-group">
+            <label>Escrow Number</label>
+            <input
+              type="text"
+              name="officerNumber"
+              placeholder="Escrow Number (Optional)"
+              value={formData.officerNumber}
+              onChange={handleChange}
+              className="clp-input"
+            />
+          </div>
+        </div>
+      </div>
+
       <div className='clp-button-container'>
         <button className="clp-back-button" onClick={handlePrevStep}>Back</button>
         <button className="clp-next-button" onClick={handleNextStep}>Next</button>
