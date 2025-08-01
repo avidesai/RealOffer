@@ -82,10 +82,9 @@ function BuyerPackageListingOverview({ buyerPackage }) {
     }
   };
 
-  const handleGalleryClose = async () => {
+  const handleGalleryClose = (hasPhotoChanges = false) => {
     setShowGallery(false);
-    // Refresh the listing to get the updated photo order
-    await handleRefreshListing();
+    // No need to refresh since buyers can't reorder photos
   };
 
   const formatPrice = (price) => {

@@ -82,10 +82,12 @@ function ListingOverview({ listing }) {
     }
   };
 
-  const handleGalleryClose = async () => {
+  const handleGalleryClose = async (hasPhotoChanges = false) => {
     setShowGallery(false);
-    // Refresh the listing to get the updated photo order
-    await handleRefreshListing();
+    // Only refresh if photos were actually reordered
+    if (hasPhotoChanges) {
+      await handleRefreshListing();
+    }
   };
 
   const formatPrice = (price) => {

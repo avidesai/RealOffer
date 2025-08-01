@@ -10,6 +10,7 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [orderedImages, setOrderedImages] = useState(images);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [hasPhotoChanges, setHasPhotoChanges] = useState(false);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
   const thumbnailBarRef = useRef(null);
@@ -140,6 +141,7 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
         `/api/propertyListings/${listingId}/photos`,
         { imageUrls: newOrder }
       );
+      setHasPhotoChanges(true); // Mark that photos were changed
     } catch (error) {
       if (error.response && error.response.status === 401) {
         console.error('Authentication failed, token may be expired. Logging out.');
@@ -192,13 +194,13 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
   };
 
   return (
-    <div className="photo-gallery-modal" onClick={onClose}>
+    <div className="photo-gallery-modal" onClick={() => onClose(hasPhotoChanges)}>
       <div className="photo-gallery-content" onClick={(e) => e.stopPropagation()}>
         <div className="photo-gallery-header">
           {isUpdating && <div className="photo-gallery-updating">Updating order...</div>}
           <button 
             className="photo-gallery-close-button" 
-            onClick={onClose}
+            onClick={() => onClose(hasPhotoChanges)}
             aria-label="Close gallery"
           ></button>
         </div>
