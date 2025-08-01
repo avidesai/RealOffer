@@ -7,6 +7,7 @@ const { s3Client } = require('../config/aws');
 const multerS3 = require('multer-s3');
 const mongoose = require('mongoose');
 const crypto = require('crypto'); // For generating unique public URLs
+const emailService = require('../utils/emailService');
 
 // Configure multer-s3 for photos
 const uploadPhotos = multer({
@@ -307,6 +308,97 @@ exports.addPhotosToListing = async (req, res) => {
   } catch (error) {
     console.error('Error adding photos to listing:', error);
     res.status(500).json({ message: error.message });
+  }
+};
+
+// Share property listing
+exports.shareListing = async (req, res) => {
+  try {
+    const { listingId, shareUrl, recipient } = req.body;
+    const userId = req.user.id;
+
+    // Validate required fields
+    if (!listingId || !shareUrl || !recipient) {
+      return res.status(400).json({ 
+        message: 'Listing ID, share URL, and recipient information are required' 
+      });
+    }
+
+    if (!recipient.firstName || !recipient.lastName || !recipient.email || !recipient.role) {
+      return res.status(400).json({ 
+        message: 'Recipient first name, last name, email, and role are required' 
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(recipient.email)) {
+      return res.status(400).json({ 
+        message: 'Please enter a valid email address' 
+      });
+    }
+
+    // Find the listing and verify ownership
+    const listing = await PropertyListing.findOne({
+      _id: listingId,
+      createdBy: userId
+    });
+
+    if (!listing) {
+      return res.status(404).json({ 
+        message: 'Listing not found or you do not have permission to share it' 
+      });
+    }
+
+    // Get sender information
+    const sender = await User.findById(userId);
+    if (!sender) {
+      return res.status(404).json({ 
+        message: 'Sender information not found' 
+      });
+    }
+
+    const senderName = `${sender.firstName} ${sender.lastName}`;
+    const recipientName = `${recipient.firstName} ${recipient.lastName}`;
+    const propertyAddress = listing.homeCharacteristics.address;
+
+    // Send sharing email
+    try {
+      const emailResult = await emailService.sendSharingEmail(
+        recipient.email,
+        recipientName,
+        recipient.role,
+        shareUrl,
+        recipient.message || '',
+        senderName,
+        propertyAddress
+      );
+
+      if (!emailResult.success) {
+        console.error('Failed to send sharing email:', emailResult.error);
+        return res.status(500).json({ 
+          message: 'Failed to send sharing email. Please try again later.' 
+        });
+      }
+
+      // Log the sharing activity
+      console.log(`Listing ${listingId} shared with ${recipient.email} by user ${userId}`);
+
+      res.status(200).json({ 
+        message: 'Property shared successfully. An email has been sent to the recipient.' 
+      });
+    } catch (emailError) {
+      console.error('Email sending error:', emailError);
+      return res.status(500).json({ 
+        message: 'Failed to send sharing email. Please try again later.' 
+      });
+    }
+  } catch (error) {
+    console.error('Share listing error:', error);
+    res.status(500).json({ 
+      message: 'Server error during sharing',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
+    });
   }
 };
 

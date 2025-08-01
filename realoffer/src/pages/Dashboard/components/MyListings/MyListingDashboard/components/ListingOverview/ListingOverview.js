@@ -180,7 +180,8 @@ function ListingOverview({ listing }) {
           <ShareUrl
             isOpen={showShareModal}
             onClose={() => setShowShareModal(false)}
-            url={currentListing.publicUrl} // Pass the public URL
+            url={currentListing.publicUrl}
+            listingId={currentListing._id}
           />
         )}
       </div>

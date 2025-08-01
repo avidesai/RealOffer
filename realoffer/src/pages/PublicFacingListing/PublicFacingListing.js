@@ -1,7 +1,7 @@
 // PublicFacingListing.js
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import { useAuth } from '../../context/AuthContext';
@@ -33,6 +33,7 @@ const formatNumber = (num) => {
 
 const PublicFacingListing = () => {
   const { token } = useParams();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   
   // Debug: Log the token from URL params
@@ -61,6 +62,30 @@ const PublicFacingListing = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState(null);
+
+  // Check for shared recipient information in URL parameters
+  useEffect(() => {
+    const sharedFirstName = searchParams.get('firstName');
+    const sharedLastName = searchParams.get('lastName');
+    const sharedEmail = searchParams.get('email');
+    const sharedRole = searchParams.get('role');
+
+    if (sharedFirstName && sharedLastName && sharedEmail) {
+      // Pre-fill form with shared recipient information
+      setFormData(prev => ({
+        ...prev,
+        firstName: sharedFirstName,
+        lastName: sharedLastName,
+        email: sharedEmail,
+        role: sharedRole === 'buyerAgent' ? 'buyerAgent' : 'buyer'
+      }));
+      
+      // If user is not logged in, show signup form directly
+      if (!user) {
+        setFormStep('signup');
+      }
+    }
+  }, [searchParams, user]);
 
   // Update form data when user changes
   useEffect(() => {

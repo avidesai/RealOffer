@@ -28,4 +28,7 @@ router.post(
 router.delete('/:id', PropertyListingController.deleteListing);
 router.post('/updateSignaturePackage', PropertyListingController.updateSignaturePackage);
 
+// Share listing
+router.post('/share', authMiddleware, PropertyListingController.shareListing);
+
 module.exports = router;

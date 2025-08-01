@@ -131,6 +131,83 @@ class EmailService {
       return { success: false, error: error.message };
     }
   }
+
+  // Send sharing email with recipient information
+  async sendSharingEmail(recipientEmail, recipientName, role, shareUrl, customMessage, senderName, propertyAddress) {
+    const roleText = role === 'buyerAgent' ? 'Buyer Agent' : 'Buyer';
+    const subject = `${senderName} has shared a property with you`;
+    
+    // Add recipient information to the share URL
+    const urlWithParams = new URL(shareUrl);
+    urlWithParams.searchParams.set('firstName', recipientName.split(' ')[0]);
+    urlWithParams.searchParams.set('lastName', recipientName.split(' ').slice(1).join(' '));
+    urlWithParams.searchParams.set('email', recipientEmail);
+    urlWithParams.searchParams.set('role', role);
+    
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: recipientEmail,
+      subject: subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">Property Shared with You</h1>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${recipientName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              ${senderName} has shared a property listing with you. You can access the property details, 
+              documents, and make offers through the link below.
+            </p>
+            ${customMessage ? `
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #666; line-height: 1.6; margin: 0; font-style: italic;">
+                "${customMessage}"
+              </p>
+            </div>
+            ` : ''}
+            <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
+                Property: ${propertyAddress}
+              </p>
+              <p style="color: #666; margin: 0; font-size: 14px;">
+                Role: ${roleText}
+              </p>
+            </div>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${urlWithParams.toString()}" 
+                 style="background-color: #007bff; color: white; padding: 12px 30px; 
+                        text-decoration: none; border-radius: 5px; display: inline-block;">
+                View Property
+              </a>
+            </div>
+            <p style="color: #666; line-height: 1.6;">
+              If the button doesn't work, you can copy and paste this link into your browser:
+            </p>
+            <p style="color: #007bff; word-break: break-all;">
+              ${urlWithParams.toString()}
+            </p>
+            <p style="color: #666; line-height: 1.6;">
+              This link will take you directly to the property listing where you can view details, 
+              documents, and make offers if interested.
+            </p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('Sharing email send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 module.exports = new EmailService(); 
