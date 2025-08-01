@@ -17,7 +17,11 @@ const PromptCSPModal = ({ onClose, onCreatePackage, listingId }) => {
             'Authorization': `Bearer ${token}`
           }
         });
-        setSignaturePackage(response.data.signaturePackage);
+        // Check if signaturePackage exists and has a valid _id
+        const hasSignaturePackage = response.data.signaturePackage && 
+                                  response.data.signaturePackage._id && 
+                                  typeof response.data.signaturePackage._id === 'string';
+        setSignaturePackage(hasSignaturePackage ? response.data.signaturePackage : null);
       } catch (error) {
         console.error('Error fetching listing status:', error);
       }

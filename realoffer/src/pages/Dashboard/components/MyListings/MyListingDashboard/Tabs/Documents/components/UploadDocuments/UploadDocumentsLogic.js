@@ -262,23 +262,60 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
       // Get the uploaded document IDs in the order they were uploaded
       const uploadedDocumentIds = response.data.map(doc => doc._id);
       
-      // Update the document order in the property listing
+      // Check if there's already a document order set in the Documents tab
       try {
-        await axios.put(
-          `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}/documentOrder`,
-          { documentOrder: uploadedDocumentIds },
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
+        const listingResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
           }
-        );
-      } catch (orderError) {
-        console.warn('Could not update document order:', orderError);
-        // If the specific endpoint doesn't exist, try the general listing update
+        });
+        
+        const existingDocumentOrder = listingResponse.data.documentOrder || [];
+        
+        let finalDocumentOrder;
+        
+        if (existingDocumentOrder.length > 0) {
+          // If there's already an order set, append the new documents to the end
+          finalDocumentOrder = [...existingDocumentOrder, ...uploadedDocumentIds];
+        } else {
+          // If no existing order, use the current order from the modal (files array order)
+          finalDocumentOrder = uploadedDocumentIds;
+        }
+        
+        // Update the document order in the property listing
         try {
           await axios.put(
-            `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`,
+            `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}/documentOrder`,
+            { documentOrder: finalDocumentOrder },
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            }
+          );
+        } catch (orderError) {
+          console.warn('Could not update document order:', orderError);
+          // If the specific endpoint doesn't exist, try the general listing update
+          try {
+            await axios.put(
+              `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`,
+              { documentOrder: finalDocumentOrder },
+              {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              }
+            );
+          } catch (fallbackError) {
+            console.warn('Could not update document order (fallback):', fallbackError);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking existing document order:', error);
+        // Fallback to using just the uploaded document order
+        try {
+          await axios.put(
+            `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}/documentOrder`,
             { documentOrder: uploadedDocumentIds },
             {
               headers: {

@@ -29,7 +29,12 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
           'Authorization': `Bearer ${token}`
         }
       });
-      setSignaturePackage(res.data.signaturePackage);
+      
+      // Check if signaturePackage exists and has a valid _id
+      const hasSignaturePackage = res.data.signaturePackage && 
+                                res.data.signaturePackage._id && 
+                                typeof res.data.signaturePackage._id === 'string';
+      setSignaturePackage(hasSignaturePackage ? res.data.signaturePackage : null);
       
       // If the listing has a stored document order, use it
       if (res.data.documentOrder && res.data.documentOrder.length > 0) {
@@ -62,8 +67,21 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
           const orderB = orderMap.has(b._id) ? orderMap.get(b._id) : Number.MAX_SAFE_INTEGER;
           return orderA - orderB;
         });
+        
+        // Ensure all documents are included in the order, even if they weren't in the original order
+        const allDocumentIds = listingDocuments.map(doc => doc._id);
+        const missingIds = allDocumentIds.filter(id => !currentOrder.includes(id));
+        if (missingIds.length > 0) {
+          // Add missing documents to the end of the order
+          const updatedOrder = [...currentOrder, ...missingIds];
+          setDocumentOrder(updatedOrder);
+        } else {
+          setDocumentOrder(currentOrder);
+        }
       } else {
-        setDocumentOrder(listingDocuments.map(doc => doc._id));
+        // If no stored order, create order from current document list
+        const newOrder = listingDocuments.map(doc => doc._id);
+        setDocumentOrder(newOrder);
       }
       
       setDocuments(listingDocuments);
