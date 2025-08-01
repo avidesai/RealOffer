@@ -12,6 +12,8 @@ router.get('/public/:token', PropertyListingController.getPublicListing);
 router.use(authMiddleware);
 
 router.get('/', PropertyListingController.getAllListings);
+router.post('/share', PropertyListingController.shareListing);
+router.post('/updateSignaturePackage', PropertyListingController.updateSignaturePackage);
 router.get('/:id', PropertyListingController.getListingById);
 router.post(
   '/',
@@ -26,9 +28,5 @@ router.post(
   PropertyListingController.addPhotosToListing
 );
 router.delete('/:id', PropertyListingController.deleteListing);
-router.post('/updateSignaturePackage', PropertyListingController.updateSignaturePackage);
-
-// Share listing
-router.post('/share', authMiddleware, PropertyListingController.shareListing);
 
 module.exports = router;
