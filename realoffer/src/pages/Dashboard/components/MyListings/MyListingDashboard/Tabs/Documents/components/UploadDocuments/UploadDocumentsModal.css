@@ -12,7 +12,6 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  font-family: 'Inter', sans-serif;
 }
 
 .udm-modal-content {
@@ -21,7 +20,7 @@
   border-radius: 16px;
   width: 900px;
   max-width: 95%;
-  max-height: 95vh;
+  height: 90vh;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   position: relative;
   overflow-y: auto;

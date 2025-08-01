@@ -358,6 +358,44 @@
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
+/* Ensure date inputs match other form fields */
+.form-group input[type="date"] {
+  font-family: inherit;
+  font-size: 1rem;
+  color: #2d3748;
+}
+
+.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5);
+  cursor: pointer;
+}
+
+.form-group input[type="date"]::-webkit-datetime-edit {
+  font-family: inherit;
+  font-size: 1rem;
+  color: #2d3748;
+}
+
+.form-group input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  font-family: inherit;
+  font-size: 1rem;
+  color: #2d3748;
+}
+
+.form-group input[type="date"]::-webkit-datetime-edit-text {
+  font-family: inherit;
+  font-size: 1rem;
+  color: #2d3748;
+}
+
+.form-group input[type="date"]::-webkit-datetime-edit-month-field,
+.form-group input[type="date"]::-webkit-datetime-edit-day-field,
+.form-group input[type="date"]::-webkit-datetime-edit-year-field {
+  font-family: inherit;
+  font-size: 1rem;
+  color: #2d3748;
+}
+
 .form-group textarea {
   width: 100%;
   padding: 0.75rem;

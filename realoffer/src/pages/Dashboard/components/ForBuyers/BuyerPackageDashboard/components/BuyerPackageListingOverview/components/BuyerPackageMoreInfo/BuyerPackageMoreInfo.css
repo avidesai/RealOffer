@@ -15,7 +15,7 @@
 .more-info-modal {
   background: #fff;
   border-radius: 22px;
-  width: 600px;
+  width: 750px;
   max-width: 98vw;
   padding: 2.5rem 2.2rem 2.2rem 2.2rem;
   box-shadow: 0 8px 32px rgba(27, 92, 243, 0.13), 0 2px 8px rgba(0,0,0,0.08);
@@ -105,10 +105,10 @@
   gap: 0.7rem;
 }
 .info-label {
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.97rem;
   flex-basis: 38%;
-  color: #4a4a4a;
+  color: #374151;
 }
 
 .field-container {
@@ -134,6 +134,44 @@
   border-color: #007bff;
   box-shadow: 0 0 0 3px rgba(0,123,255,0.09);
   background: #fff;
+}
+
+/* Ensure date inputs match other form fields */
+.form-control[type="date"] {
+  font-family: inherit;
+  font-size: 1rem;
+  color: #2d3748;
+}
+
+.form-control[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5);
+  cursor: pointer;
+}
+
+.form-control[type="date"]::-webkit-datetime-edit {
+  font-family: inherit;
+  font-size: 1rem;
+  color: #2d3748;
+}
+
+.form-control[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  font-family: inherit;
+  font-size: 1rem;
+  color: #2d3748;
+}
+
+.form-control[type="date"]::-webkit-datetime-edit-text {
+  font-family: inherit;
+  font-size: 1rem;
+  color: #2d3748;
+}
+
+.form-control[type="date"]::-webkit-datetime-edit-month-field,
+.form-control[type="date"]::-webkit-datetime-edit-day-field,
+.form-control[type="date"]::-webkit-datetime-edit-year-field {
+  font-family: inherit;
+  font-size: 1rem;
+  color: #2d3748;
 }
 
 /* Read-only styling for disabled inputs - BuyerPackageMoreInfo specific */
@@ -276,35 +314,91 @@
 /* Responsive */
 @media (max-width: 700px) {
   .more-info-modal {
-    padding: 1.2rem 0.5rem 1.2rem 0.5rem;
-    width: 99vw;
+    padding: 1.5rem 1rem 1.5rem 1rem;
+    width: 95vw;
     min-width: 0;
     border-radius: 12px;
+    margin: 1rem;
   }
+  
   .more-info-header {
-    margin-bottom: 1.1rem;
+    margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
   }
+  
+  .more-info-header h2 {
+    font-size: 1.3rem;
+  }
+  
+  .info-section {
+    margin-bottom: 2rem;
+    padding: 0 0.5rem;
+  }
+  
   .info-section h3 {
-    font-size: 1rem;
-    margin-bottom: 0.7rem;
-    padding-bottom: 0.2rem;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.3rem;
   }
+  
+  .info-row {
+    margin-bottom: 1.2rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
   .info-label {
-    font-size: 0.93rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #374151;
   }
+  
+  .field-container {
+    width: 100%;
+  }
+  
   .form-control {
-    font-size: 0.97rem;
-    padding: 0.7rem 0.7rem;
+    font-size: 1rem;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box;
   }
+  
   .form-control:disabled {
-    padding: 0.7rem 0;
+    padding: 0.8rem 1rem;
+    background: #f8f9fa;
+    color: #2c3e50;
   }
+  
   .listing-description {
     font-size: 0.95rem;
-    padding: 0.8rem 0.7rem;
-    border-radius: 7px;
+    padding: 1rem;
+    border-radius: 8px;
+    min-height: 100px;
   }
+  
+  .property-description-container {
+    padding: 0 0.5rem;
+  }
+  
+  .property-description-container .form-control {
+    padding: 1rem;
+    font-size: 0.95rem;
+    min-height: 120px;
+  }
+  
   .property-description-container .form-control:disabled {
-    padding: 0.8rem 0;
+    padding: 1rem;
+    background: #f8f9fa;
+    color: #2c3e50;
+  }
+  
+  .more-info-close-button {
+    top: 1rem;
+    right: 1rem;
+    width: 36px;
+    height: 36px;
+    font-size: 1.3em;
   }
 } 

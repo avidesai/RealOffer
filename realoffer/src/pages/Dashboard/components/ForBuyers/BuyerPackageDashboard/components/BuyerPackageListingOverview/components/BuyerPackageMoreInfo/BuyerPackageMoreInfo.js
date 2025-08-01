@@ -55,6 +55,30 @@ const BuyerPackageMoreInfo = ({ buyerPackage, onClose }) => {
     };
     return types[type] || type || '';
   };
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  // Formatting functions for display (similar to CreateListingPackage)
+  const formatCurrency = (value) => {
+    if (!value) return '';
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0
+    }).format(value);
+  };
+
+  const formatDisplayNumber = (value) => {
+    if (!value) return '';
+    return new Intl.NumberFormat('en-US').format(value);
+  };
 
   const renderField = (label, field, value, formatter) => {
     const displayValue = formatter ? formatter(value) : value || 'Not specified';
@@ -104,13 +128,14 @@ const BuyerPackageMoreInfo = ({ buyerPackage, onClose }) => {
         <div className="info-section">
           <h3>Property Details</h3>
           <div className="info-grid">
-            {renderField('Price', 'homeCharacteristics.price', listing.homeCharacteristics.price, formatPrice)}
+            {renderField('Price', 'homeCharacteristics.price', listing.homeCharacteristics.price, formatCurrency)}
             {renderField('Property Type', 'homeCharacteristics.propertyType', listing.homeCharacteristics.propertyType, formatPropertyType)}
             {renderField('Beds', 'homeCharacteristics.beds', listing.homeCharacteristics.beds)}
             {renderField('Baths', 'homeCharacteristics.baths', listing.homeCharacteristics.baths)}
-            {renderField('Square Footage', 'homeCharacteristics.squareFootage', listing.homeCharacteristics.squareFootage, formatNumber)}
-            {renderField('Lot Size', 'homeCharacteristics.lotSize', listing.homeCharacteristics.lotSize, formatNumber)}
+            {renderField('Square Footage', 'homeCharacteristics.squareFootage', listing.homeCharacteristics.squareFootage, formatDisplayNumber)}
+            {renderField('Lot Size', 'homeCharacteristics.lotSize', listing.homeCharacteristics.lotSize, formatDisplayNumber)}
             {renderField('Year Built', 'homeCharacteristics.yearBuilt', listing.homeCharacteristics.yearBuilt)}
+            {listing.offerDueDate && renderField('Offer Due Date', 'offerDueDate', listing.offerDueDate, formatDate)}
           </div>
         </div>
         
@@ -133,7 +158,7 @@ const BuyerPackageMoreInfo = ({ buyerPackage, onClose }) => {
         {listing.scheduleShowingUrl && (
           <div className="info-section">
             <h3>Showing Information</h3>
-            {renderField('Schedule Showing Link', 'scheduleShowingUrl', listing.scheduleShowingUrl)}
+            {renderField('Schedule Showings Link', 'scheduleShowingUrl', listing.scheduleShowingUrl)}
           </div>
         )}
         

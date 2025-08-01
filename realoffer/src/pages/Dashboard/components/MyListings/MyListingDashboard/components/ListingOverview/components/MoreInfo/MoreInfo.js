@@ -156,10 +156,48 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     };
     return types[type] || type || '';
   };
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  // Formatting functions for display (similar to CreateListingPackage)
+  const formatCurrency = (value) => {
+    if (!value) return '';
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0
+    }).format(value);
+  };
+
+  const formatDisplayNumber = (value) => {
+    if (!value) return '';
+    return new Intl.NumberFormat('en-US').format(value);
+  };
+
+  const handleFormattedChange = (e, field) => {
+    const { value } = e.target;
+    const rawValue = value.replace(/[^0-9]/g, '');
+    handleInputChange({
+      target: {
+        name: field,
+        value: rawValue
+      }
+    }, field);
+  };
 
   const renderField = (label, field, value, formatter) => {
     const isNumber = ['homeCharacteristics.price','homeCharacteristics.beds','homeCharacteristics.baths','homeCharacteristics.squareFootage','homeCharacteristics.lotSize','homeCharacteristics.yearBuilt'].includes(field);
     const isPhone = field === 'escrowInfo.company.phone';
+    const isDate = field === 'offerDueDate';
+    const isPrice = field === 'homeCharacteristics.price';
+    const isFormattedNumber = field === 'homeCharacteristics.squareFootage' || field === 'homeCharacteristics.lotSize';
     
     // Define realistic increments for different fields
     const getFieldConfig = (fieldName) => {
@@ -209,6 +247,27 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
               onChange={(e) => handleInputChange(e, field)}
               className="form-control"
               placeholder="https://example.com/schedule-showing"
+            />
+          ) : isDate ? (
+            <input
+              type="date"
+              value={value ? value.split('T')[0] : ''}
+              onChange={(e) => handleInputChange(e, field)}
+              className="form-control"
+            />
+          ) : isPrice ? (
+            <input
+              type="text"
+              value={formatCurrency(value)}
+              onChange={(e) => handleFormattedChange(e, field)}
+              className="form-control"
+            />
+          ) : isFormattedNumber ? (
+            <input
+              type="text"
+              value={formatDisplayNumber(value)}
+              onChange={(e) => handleFormattedChange(e, field)}
+              className="form-control"
             />
           ) : isNumber ? (
             <input
@@ -274,13 +333,14 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
             <div className="info-section">
               <h3>Property Details</h3>
               <div className="info-grid">
-                {renderField('Price', 'homeCharacteristics.price', listing.homeCharacteristics.price, formatPrice)}
+                {renderField('Price', 'homeCharacteristics.price', listing.homeCharacteristics.price, formatCurrency)}
                 {renderField('Property Type', 'homeCharacteristics.propertyType', listing.homeCharacteristics.propertyType, formatPropertyType)}
                 {renderField('Beds', 'homeCharacteristics.beds', listing.homeCharacteristics.beds)}
                 {renderField('Baths', 'homeCharacteristics.baths', listing.homeCharacteristics.baths)}
-                {renderField('Square Footage', 'homeCharacteristics.squareFootage', listing.homeCharacteristics.squareFootage, formatNumber)}
-                {renderField('Lot Size', 'homeCharacteristics.lotSize', listing.homeCharacteristics.lotSize, formatNumber)}
+                {renderField('Square Footage', 'homeCharacteristics.squareFootage', listing.homeCharacteristics.squareFootage, formatDisplayNumber)}
+                {renderField('Lot Size', 'homeCharacteristics.lotSize', listing.homeCharacteristics.lotSize, formatDisplayNumber)}
                 {renderField('Year Built', 'homeCharacteristics.yearBuilt', listing.homeCharacteristics.yearBuilt)}
+                {renderField('Offer Due Date', 'offerDueDate', listing.offerDueDate, formatDate)}
               </div>
             </div>
             
@@ -302,7 +362,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
             
             <div className="info-section">
               <h3>Showing Information</h3>
-              {renderField('Schedule Showing Link', 'scheduleShowingUrl', listing.scheduleShowingUrl)}
+              {renderField('Schedule Showings Link', 'scheduleShowingUrl', listing.scheduleShowingUrl)}
             </div>
             
             <div className="info-section property-description-container">
