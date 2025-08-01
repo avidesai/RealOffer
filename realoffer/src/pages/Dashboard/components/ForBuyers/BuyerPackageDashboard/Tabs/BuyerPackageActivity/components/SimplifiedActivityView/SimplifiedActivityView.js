@@ -175,20 +175,84 @@ const SimplifiedActivityView = ({ metrics }) => {
   const tier = calculatePopularityTier(metrics);
   const popularityData = getPopularityMessage(tier, metrics);
 
+  // Generate activity data from listing creation to today
+  const generateActivitiesPerDay = () => {
+    const { views, downloads, offers, buyerPackages } = metrics;
+    
+    // For now, we'll use a reasonable number of days since listing creation
+    // In a real implementation, you'd get the listing creation date from the listing data
+    const daysSinceCreation = Math.max(7, Math.min(90, Math.floor((views + downloads + offers + buyerPackages) / 10))); // Estimate based on activity
+    const data = [];
+    
+    // Calculate total activities and distribute them
+    const totalActivities = views + downloads + offers + buyerPackages;
+    const avgActivitiesPerDay = totalActivities / daysSinceCreation;
+    
+    for (let i = 0; i < daysSinceCreation; i++) {
+      // Add some realistic variation with a trend
+      const trend = Math.sin((i / daysSinceCreation) * Math.PI) * 0.3; // Natural curve
+      const variation = (Math.random() - 0.5) * 0.2; // ±10% variation
+      const dailyActivities = Math.max(0, Math.round(avgActivitiesPerDay * (1 + trend + variation)));
+      data.push(dailyActivities);
+    }
+    
+    return data;
+  };
+
+  const activitiesPerDay = generateActivitiesPerDay();
+  const maxActivities = Math.max(...activitiesPerDay);
+
   return (
-    <div className="simplified-activity-view">
-      <div className="popularity-card" data-tier={tier}>
-        <div className="popularity-icon">
+    <div className="sav-simplified-activity-view">
+      <div className="sav-popularity-card" data-tier={tier}>
+        <div className="sav-popularity-icon">
           {getActivityIcon(popularityData.icon)}
         </div>
-        <div className="popularity-content">
-          <h2 className="popularity-title">{popularityData.title}</h2>
-          <p className="popularity-description">{popularityData.description}</p>
+        <div className="sav-popularity-content">
+          <h2 className="sav-popularity-title">{popularityData.title}</h2>
+          <p className="sav-popularity-description">{popularityData.description}</p>
         </div>
       </div>
       
-      <div className="activity-info">
-        <div className="info-section">
+      {/* Chart section hidden for now - can be re-enabled later */}
+      {/* 
+      <div className="sav-views-chart">
+        <h3 className="sav-chart-title">Activity Since Listing Created</h3>
+        <div className="sav-chart-container">
+          <svg className="sav-line-chart" viewBox="0 0 100 40" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="sav-line-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#007bff" stopOpacity="0.6"/>
+                <stop offset="100%" stopColor="#007bff" stopOpacity="0.1"/>
+              </linearGradient>
+            </defs>
+            <path
+              className="sav-line-path"
+              d={activitiesPerDay.map((activities, index) => {
+                const x = (index / (activitiesPerDay.length - 1)) * 100;
+                const y = 40 - (maxActivities > 0 ? (activities / maxActivities) * 35 : 0);
+                return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
+              }).join(' ')}
+              fill="none"
+              stroke="#007bff"
+              strokeWidth="1.5"
+            />
+            <path
+              className="sav-area-path"
+              d={`M 0 40 ${activitiesPerDay.map((activities, index) => {
+                const x = (index / (activitiesPerDay.length - 1)) * 100;
+                const y = 40 - (maxActivities > 0 ? (activities / maxActivities) * 35 : 0);
+                return `L ${x} ${y}`;
+              }).join(' ')} L 100 40 Z`}
+              fill="url(#sav-line-gradient)"
+            />
+          </svg>
+        </div>
+      </div>
+      */}
+      
+      <div className="sav-activity-info">
+        <div className="sav-info-section">
           <h3>Activity Information</h3>
           <p>Detailed activity information is not available for this listing. The listing agent has chosen to keep this information private.</p>
         </div>
