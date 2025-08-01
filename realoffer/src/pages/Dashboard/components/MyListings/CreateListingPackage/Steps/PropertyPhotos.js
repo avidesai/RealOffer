@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-const PropertyPhotos = ({ handleFileChange, handleRemovePhoto, handleSubmit, handlePrevStep, loading, formData }) => {
+const PropertyPhotos = ({ handleFileChange, handleRemovePhoto, handleReorderPhotos, handleSubmit, handlePrevStep, loading, formData }) => {
   const [previews, setPreviews] = useState([]);
   const fileInputRef = useRef();
 
@@ -22,22 +22,11 @@ const PropertyPhotos = ({ handleFileChange, handleRemovePhoto, handleSubmit, han
     if (!result.destination) return;
 
     const items = Array.from(formData.propertyImages);
-    const previewItems = Array.from(previews);
     const [reorderedItem] = items.splice(result.source.index, 1);
-    const [reorderedPreview] = previewItems.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
-    previewItems.splice(result.destination.index, 0, reorderedPreview);
 
-    // Update the file order in the parent component
-    const newFileList = new DataTransfer();
-    items.forEach(file => newFileList.items.add(file));
-    handleFileChange({
-      target: {
-        name: 'propertyImages',
-        files: newFileList.files
-      }
-    });
-    setPreviews(previewItems);
+    // Use the dedicated reorder function instead of handleFileChange
+    handleReorderPhotos(items);
   };
 
   // Drag-and-drop and click handler
@@ -55,7 +44,7 @@ const PropertyPhotos = ({ handleFileChange, handleRemovePhoto, handleSubmit, han
 
   return (
     <div className="clp-step">
-      <h2>Property Photos (Optional)</h2>
+      <h2>Property Photos</h2>
       <label
         className="clp-photo-upload-area"
         tabIndex={0}

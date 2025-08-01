@@ -55,7 +55,7 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
     }
     if (step === 3) { // Property Features step (previously step 3, now step 3)
       if (!formData.propertyType) newErrors.propertyType = 'Property Type is required';
-      if (!formData.askingPrice) newErrors.askingPrice = 'Asking Price is required';
+      if (!formData.askingPrice) newErrors.askingPrice = 'List Price is required';
       if (!formData.bedrooms) newErrors.bedrooms = 'Bedrooms is required';
       if (!formData.bathrooms) newErrors.bathrooms = 'Bathrooms is required';
       if (!formData.yearBuilt) newErrors.yearBuilt = 'Year Built is required';
@@ -94,6 +94,13 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
     setFormData((prevData) => ({
       ...prevData,
       propertyImages: prevData.propertyImages.filter((_, index) => index !== indexToRemove),
+    }));
+  };
+
+  const handleReorderPhotos = (reorderedFiles) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      propertyImages: reorderedFiles,
     }));
   };
 
@@ -181,6 +188,7 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
       handleChange={handleChange}
       handleFileChange={handleFileChange}
       handleRemovePhoto={handleRemovePhoto}
+      handleReorderPhotos={handleReorderPhotos}
       handleSubmit={handleSubmit}
       onClose={onClose}
       loading={loading}

@@ -17,6 +17,7 @@ const CreateListingPackageForm = ({
   handleChange,
   handleFileChange,
   handleRemovePhoto,
+  handleReorderPhotos,
   handleSubmit,
   loading, // Add loading prop
   onClose
@@ -70,6 +71,7 @@ const CreateListingPackageForm = ({
         <PropertyPhotos
           handleFileChange={handleFileChange}
           handleRemovePhoto={handleRemovePhoto}
+          handleReorderPhotos={handleReorderPhotos}
           handleSubmit={handleSubmit}
           handlePrevStep={handlePrevStep}
           loading={loading}
