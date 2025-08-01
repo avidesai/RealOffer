@@ -153,18 +153,21 @@
   justify-content: center;
   min-width: 60px;
   min-height: 60px;
+  opacity: 0;
+  transform: translateY(10px);
 }
 
 .nav-button:hover {
-  transform: scale(1.1);
+  transform: scale(1.1) translateY(0);
   background: rgba(255, 255, 255, 1);
   border-color: #007bff;
   color: #007bff;
   box-shadow: 0 12px 32px rgba(0, 123, 255, 0.2);
+  opacity: 1;
 }
 
 .nav-button:active {
-  transform: scale(0.95);
+  transform: scale(0.95) translateY(0);
 }
 
 .prev { 
@@ -182,9 +185,8 @@
   transform: translateY(0);
 }
 
-.nav-button {
-  opacity: 0;
-  transform: translateY(10px);
+.photo-container:hover .nav-button:hover {
+  transform: scale(1.1) translateY(0);
 }
 
 .thumbnail-wrapper {
