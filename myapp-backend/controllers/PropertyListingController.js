@@ -273,5 +273,42 @@ exports.updatePhotoOrder = async (req, res) => {
   }
 };
 
+// Add photos to an existing listing
+exports.addPhotosToListing = async (req, res) => {
+  try {
+    const listing = await PropertyListing.findOne({
+      _id: req.params.id,
+      createdBy: req.user.id
+    });
+
+    if (!listing) {
+      return res.status(404).json({
+        message: "Listing not found or you don't have permission to update it"
+      });
+    }
+
+    // Get the uploaded file URLs from the multer middleware
+    const uploadedFiles = req.files;
+    if (!uploadedFiles || uploadedFiles.length === 0) {
+      return res.status(400).json({ message: "No photos were uploaded" });
+    }
+
+    // Extract the URLs from the uploaded files
+    const newPhotoUrls = uploadedFiles.map(file => file.location);
+
+    // Add the new photos to the existing imagesUrls array
+    listing.imagesUrls = [...listing.imagesUrls, ...newPhotoUrls];
+    await listing.save();
+
+    res.status(200).json({
+      message: "Photos added successfully",
+      imagesUrls: listing.imagesUrls
+    });
+  } catch (error) {
+    console.error('Error adding photos to listing:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Export multer upload configuration
 exports.uploadPhotos = uploadPhotos;

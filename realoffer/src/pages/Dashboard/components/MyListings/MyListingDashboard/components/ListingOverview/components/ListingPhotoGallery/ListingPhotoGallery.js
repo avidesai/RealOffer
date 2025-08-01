@@ -222,7 +222,7 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
         },
       });
 
-      // Update the images with the new photos
+      // Update the images with the new photos from the response
       setOrderedImages(response.data.imagesUrls);
       setHasPhotoChanges(true);
     } catch (error) {

@@ -20,6 +20,11 @@ router.post(
 );
 router.put('/:id', PropertyListingController.updateListing);
 router.put('/:id/photos', PropertyListingController.updatePhotoOrder);
+router.post(
+  '/:id/photos',
+  PropertyListingController.uploadPhotos.array('propertyImages', 50),
+  PropertyListingController.addPhotosToListing
+);
 router.delete('/:id', PropertyListingController.deleteListing);
 router.post('/updateSignaturePackage', PropertyListingController.updateSignaturePackage);
 
