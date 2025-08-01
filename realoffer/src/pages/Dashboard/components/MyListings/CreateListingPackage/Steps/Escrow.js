@@ -65,14 +65,6 @@ const Escrow = ({ formData, handleChange, handleNextStep, handlePrevStep }) => {
         onChange={handleChange}
         className="clp-input"
       />
-      <input
-        type="url"
-        name="scheduleShowingUrl"
-        placeholder="Schedule Showing URL (Optional)"
-        value={formData.scheduleShowingUrl}
-        onChange={handleChange}
-        className="clp-input"
-      />
       <div className='clp-button-container'>
         <button className="clp-back-button" onClick={handlePrevStep}>Back</button>
         <button className="clp-next-button" onClick={handleNextStep}>Next</button>

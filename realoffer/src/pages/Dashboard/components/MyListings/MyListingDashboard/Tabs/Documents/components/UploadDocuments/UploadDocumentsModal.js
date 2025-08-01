@@ -20,15 +20,15 @@ const UploadDocumentsModal = ({
 }) => {
   return (
     <div className="upload-documents-modal" onDragOver={handleDragOver} onDrop={handleDrop}>
-      <div className="modal-content">
-        <button className="offer-close-button" onClick={onClose}></button>
-        <div className='offer-modal-header'>
+      <div className="udm-modal-content">
+        <button className="udm-close-button" onClick={onClose}></button>
+        <div className='udm-modal-header'>
           <h2>Add Documents</h2>
           <p>Upload disclosure documents for this listing.</p>
         </div>
-        <div className="offer-upload-area">
-          <div className="offer-drag-drop">
-            <button className="offer-upload-button" onClick={handleUploadClick}>
+        <div className="udm-upload-area">
+          <div className="udm-drag-drop">
+            <button className="udm-upload-button" onClick={handleUploadClick}>
               Select Files
             </button>
             <input
@@ -42,19 +42,19 @@ const UploadDocumentsModal = ({
           </div>
         </div>
         {errors.length > 0 && (
-          <div className="offer-upload-errors">
+          <div className="udm-upload-errors">
             {errors.map((error, index) => (
-              <p key={index} className="offer-upload-error">{error}</p>
+              <p key={index} className="udm-upload-error">{error}</p>
             ))}
           </div>
         )}
-        {uploading && <div className="offer-upload-spinner-container"><div className="offer-upload-spinner"></div></div>}
-        <div className="offer-file-list-container">
+        {uploading && <div className="udm-upload-spinner-container"><div className="udm-upload-spinner"></div></div>}
+        <div className="udm-file-list-container">
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="file-list">
               {(provided) => (
                 <div 
-                  className="offer-file-list"
+                  className="udm-file-list"
                   {...provided.droppableProps}
                   ref={provided.innerRef}
                 >
@@ -65,25 +65,25 @@ const UploadDocumentsModal = ({
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className={`offer-file-item ${snapshot.isDragging ? 'dragging' : ''}`}
+                          className={`udm-file-item ${snapshot.isDragging ? 'dragging' : ''}`}
                         >
-                          <div className="offer-file-drag-handle">
+                          <div className="udm-file-drag-handle">
                             <span className="drag-icon">⋮⋮</span>
                           </div>
-                          <div className="offer-file-title">
+                          <div className="udm-file-title">
                             <input
                               type="text"
                               value={file.title || file.file.name}
                               onChange={(e) => handleFileTitleChange(index, e.target.value)}
                               placeholder="Document Title"
-                              className="offer-file-title-input"
+                              className="udm-file-title-input"
                             />
                           </div>
-                          <div className="offer-file-type">
+                          <div className="udm-file-type">
                             <select
                               value={file.type}
                               onChange={(e) => handleFileTypeChange(index, e.target.value)}
-                              className="offer-file-type-select"
+                              className="udm-file-type-select"
                             >
                               <option value="">Select Type</option>
                               <option value="Coversheet">Coversheet</option>
@@ -100,8 +100,8 @@ const UploadDocumentsModal = ({
                               <option value="Other">Other</option>
                             </select>
                           </div>
-                          <div className="offer-file-delete">
-                            <button className="offer-delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>
+                          <div className="udm-file-delete">
+                            <button className="udm-delete-file-button" onClick={() => handleDeleteFile(index)}>Delete</button>
                           </div>
                         </div>
                       )}
@@ -113,9 +113,11 @@ const UploadDocumentsModal = ({
             </Droppable>
           </DragDropContext>
         </div>
-        <div className="offer-modal-footer">
-          <button className="offer-upload-files-button" onClick={handleUpload}>Upload Documents</button>
-        </div>
+        {files.length > 0 && (
+          <div className="udm-modal-footer">
+            <button className="udm-upload-files-button" onClick={handleUpload}>Upload Documents</button>
+          </div>
+        )}
       </div>
     </div>
   );

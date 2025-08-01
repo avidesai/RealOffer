@@ -15,13 +15,13 @@
   font-family: 'Inter', sans-serif;
 }
 
-.modal-content {
+.udm-modal-content {
   background: #ffffff;
   padding: 2rem;
   border-radius: 16px;
-  width: 700px;
+  width: 900px;
   max-width: 95%;
-  max-height: 90vh;
+  max-height: 95vh;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   position: relative;
   overflow-y: auto;
@@ -39,24 +39,24 @@
   }
 }
 
-.offer-modal-header {
+.udm-modal-header {
   margin-bottom: 1.5rem;
 }
 
-.offer-modal-header h2 {
+.udm-modal-header h2 {
   font-size: 1.5rem;
   color: #1a1a1a;
   margin-bottom: 0.5rem;
   font-weight: 600;
 }
 
-.offer-modal-header p {
+.udm-modal-header p {
   color: #666;
   font-size: 1rem;
   line-height: 1.4;
 }
 
-.offer-close-button {
+.udm-close-button {
   position: absolute;
   top: 2rem;
   right: 2rem;
@@ -76,13 +76,13 @@
   z-index: 1005;
 }
 
-.offer-close-button:hover {
+.udm-close-button:hover {
   color: #ffffff;
   background-color: #e74c3c;
   box-shadow: 0 6px 16px rgba(231, 76, 60, 0.2);
 }
 
-.offer-close-button:before {
+.udm-close-button:before {
   content: '×';
   font-weight: 300;
   display: inline-block;
@@ -90,11 +90,11 @@
   margin-bottom: 2px;
 }
 
-.offer-upload-area {
+.udm-upload-area {
   margin-bottom: 1.5rem;
 }
 
-.offer-drag-drop {
+.udm-drag-drop {
   border: 2px dashed #4a90e2;
   border-radius: 12px;
   padding: 1.5rem 1.25rem;
@@ -110,14 +110,14 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-.offer-drag-drop:hover {
+.udm-drag-drop:hover {
   background-color: #eff6ff;
   border-color: #357abd;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(74, 144, 226, 0.1);
 }
 
-.offer-upload-button {
+.udm-upload-button {
   background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
   color: white;
   border: none;
@@ -130,13 +130,13 @@
   box-shadow: 0 2px 8px rgba(74, 144, 226, 0.25);
 }
 
-.offer-upload-button:hover {
+.udm-upload-button:hover {
   background: linear-gradient(135deg, #357abd 0%, #2c5282 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(74, 144, 226, 0.35);
 }
 
-.offer-file-list-container {
+.udm-file-list-container {
   max-height: 1200px;
   min-height: 200px;
   overflow-y: auto;
@@ -145,25 +145,25 @@
   scrollbar-color: #d1d5db #f8f9fa;
 }
 
-.offer-file-list-container::-webkit-scrollbar {
+.udm-file-list-container::-webkit-scrollbar {
   width: 8px;
 }
 
-.offer-file-list-container::-webkit-scrollbar-thumb {
+.udm-file-list-container::-webkit-scrollbar-thumb {
   background: #d1d5db;
   border-radius: 6px;
 }
 
-.offer-file-list-container::-webkit-scrollbar-track {
+.udm-file-list-container::-webkit-scrollbar-track {
   background: #f8f9fa;
 }
 
-.offer-file-list {
+.udm-file-list {
   width: 100%;
   position: relative;
 }
 
-.offer-file-item {
+.udm-file-item {
   display: flex;
   align-items: center;
   background-color: #f8f9fa;
@@ -177,7 +177,7 @@
   cursor: grab;
 }
 
-.offer-file-item.dragging {
+.udm-file-item.dragging {
   background-color: #e3f2fd;
   border-color: #4a90e2;
   box-shadow: 0 8px 25px rgba(74, 144, 226, 0.15);
@@ -186,12 +186,12 @@
   transition: none;
 }
 
-.offer-file-item:active {
+.udm-file-item:active {
   cursor: grabbing;
   transition: none;
 }
 
-.offer-file-drag-handle {
+.udm-file-drag-handle {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
@@ -203,7 +203,7 @@
   transition: color 0.2s ease;
 }
 
-.offer-file-drag-handle:hover {
+.udm-file-drag-handle:hover {
   color: #4a90e2;
 }
 
@@ -214,13 +214,13 @@
   user-select: none;
 }
 
-.offer-file-item:hover {
+.udm-file-item:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transform: translateY(-1px);
 }
 
 /* Smooth transitions for drag and drop reordering */
-.offer-file-item {
+.udm-file-item {
   transition: box-shadow 0.15s ease,
               background-color 0.15s ease,
               border-color 0.15s ease;
@@ -228,28 +228,28 @@
 }
 
 /* Ensure smooth animations during drag operations */
-.offer-file-list [data-rbd-draggable-context-id] {
+.udm-file-list [data-rbd-draggable-context-id] {
   transition: none;
 }
 
-.offer-file-title {
+.udm-file-title {
   flex: 2 1 0;
   min-width: 200px;
 }
 
-.offer-file-type {
+.udm-file-type {
   flex: 1.5 1 0;
   min-width: 150px;
 }
 
-.offer-file-delete {
+.udm-file-delete {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: flex-end;
 }
 
-.offer-file-title-input {
+.udm-file-title-input {
   width: 100%;
   padding: 0.875rem 1rem;
   border: 1px solid #dee2e6;
@@ -263,19 +263,19 @@
   height: 44px;
 }
 
-.offer-file-title-input:focus,
-.offer-file-type-select:focus {
+.udm-file-title-input:focus,
+.udm-file-type-select:focus {
   border-color: #4a90e2;
   outline: none;
   box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
 }
 
-.offer-file-title-input::placeholder {
+.udm-file-title-input::placeholder {
   color: #a0aec0;
   font-size: 1rem;
 }
 
-.offer-file-type-select {
+.udm-file-type-select {
   width: 100%;
   padding: 0.875rem 1rem;
   border: 1px solid #dee2e6;
@@ -295,11 +295,11 @@
   height: 44px;
 }
 
-.offer-file-type-select option {
+.udm-file-type-select option {
   padding: 0.5rem 1rem;
 }
 
-.offer-delete-file-button {
+.udm-delete-file-button {
   background-color: #e74c3c;
   color: white;
   border: none;
@@ -313,18 +313,18 @@
   min-width: 70px;
 }
 
-.offer-delete-file-button:hover {
+.udm-delete-file-button:hover {
   background-color: #c0392b;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.offer-modal-footer {
+.udm-modal-footer {
   text-align: center;
   margin-top: 0.75rem;
 }
 
-.offer-upload-files-button {
+.udm-upload-files-button {
   background: linear-gradient(135deg, #1b5cf3 0%, #4078fb 100%);
   color: white;
   border: none;
@@ -337,13 +337,13 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.offer-upload-files-button:hover {
+.udm-upload-files-button:hover {
   background: linear-gradient(135deg, #1544b2 0%, #3460c8 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.offer-upload-errors {
+.udm-upload-errors {
   background-color: #f8d7da;
   color: #721c24;
   padding: 1rem 1.25rem;
@@ -352,13 +352,13 @@
   border: 1px solid #f5c6cb;
 }
 
-.offer-upload-error {
+.udm-upload-error {
   margin: 0;
   font-size: 1rem;
   line-height: 1.5;
 }
 
-.offer-upload-spinner-container {
+.udm-upload-spinner-container {
   position: fixed;
   top: 0;
   left: 0;
@@ -372,16 +372,16 @@
   z-index: 1001;
 }
 
-.offer-upload-spinner {
+.udm-upload-spinner {
   border: 4px solid rgba(74, 144, 226, 0.1);
   border-top: 4px solid #4a90e2;
   border-radius: 50%;
   width: 40px;
   height: 40px;
-  animation: offer-spin 1s linear infinite;
+  animation: udm-spin 1s linear infinite;
 }
 
-@keyframes offer-spin {
+@keyframes udm-spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
@@ -394,38 +394,38 @@
     border-radius: 12px;
   }
   
-  .offer-modal-header h2 {
+  .udm-modal-header h2 {
     font-size: 1.35rem;
   }
   
-  .offer-file-list-container {
+  .udm-file-list-container {
     max-height: 1200px;
     min-height: 150px;
   }
   
-  .offer-drag-drop {
+  .udm-drag-drop {
     padding: 1.25rem 1rem;
     min-height: 90px;
   }
   
-  .offer-file-item {
+  .udm-file-item {
     flex-direction: column;
     align-items: stretch;
     gap: 0.75rem;
     padding: 1rem;
   }
   
-  .offer-file-drag-handle {
+  .udm-file-drag-handle {
     align-self: flex-start;
     margin-bottom: 0.5rem;
   }
   
-  .offer-file-title, .offer-file-type, .offer-file-delete {
+  .udm-file-title, .udm-file-type, .udm-file-delete {
     min-width: 0;
     width: 100%;
   }
   
-  .offer-upload-errors {
+  .udm-upload-errors {
     padding: 0.875rem;
     font-size: 0.9rem;
   }

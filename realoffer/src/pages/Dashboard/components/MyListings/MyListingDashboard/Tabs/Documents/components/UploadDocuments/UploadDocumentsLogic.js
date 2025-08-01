@@ -7,6 +7,138 @@ import UploadDocumentsModal from './UploadDocumentsModal';
 import PromptCSPModal from './PromptCSPModal/PromptCSPModal';
 import CreateSignaturePackage from '../CreateSignaturePackage/CreateSignaturePackage';
 
+// Utility function to clean filename by removing extensions
+const cleanFilename = (filename) => {
+  return filename.replace(/\.(pdf|doc|docx|jpg|jpeg|png|gif|bmp|tiff|tif)$/i, '');
+};
+
+// Utility function to intelligently determine document type based on filename
+const getDocumentTypeFromFilename = (filename) => {
+  const lowerFilename = filename.toLowerCase();
+  
+  // Check for specific keyword combinations first (higher priority)
+  if ((lowerFilename.includes('pest') && lowerFilename.includes('inspection')) ||
+      (lowerFilename.includes('termite') && lowerFilename.includes('inspection')) ||
+      (lowerFilename.includes('pest') && lowerFilename.includes('report')) ||
+      (lowerFilename.includes('termite') && lowerFilename.includes('report'))) {
+    return 'Pest Inspection Report';
+  }
+  
+  if ((lowerFilename.includes('lead') && lowerFilename.includes('paint')) ||
+      (lowerFilename.includes('lead') && lowerFilename.includes('disclosure'))) {
+    return 'Lead Based Paint Disclosures';
+  }
+  
+  if ((lowerFilename.includes('natural') && lowerFilename.includes('hazard')) ||
+      (lowerFilename.includes('hazard') && lowerFilename.includes('disclosure')) ||
+      (lowerFilename.includes('nhd'))) {
+    return 'Natural Hazard Disclosures';
+  }
+  
+  if ((lowerFilename.includes('seller') && lowerFilename.includes('property') && lowerFilename.includes('questionnaire')) ||
+      (lowerFilename.includes('spq'))) {
+    return 'Seller Property Questionnaire';
+  }
+  
+  if ((lowerFilename.includes('agent') && lowerFilename.includes('visual') && lowerFilename.includes('inspection')) ||
+      (lowerFilename.includes('agent') && lowerFilename.includes('inspection')) ||
+      (lowerFilename.includes('avid'))) {
+    return 'Agent Visual Inspection';
+  }
+  
+  if ((lowerFilename.includes('preliminary') && lowerFilename.includes('title')) ||
+      (lowerFilename.includes('title') && lowerFilename.includes('report')) ||
+      (lowerFilename.includes('prelim'))) {
+    return 'Preliminary Title Report';
+  }
+  
+  if ((lowerFilename.includes('real estate') && lowerFilename.includes('transfer') && lowerFilename.includes('disclosure')) ||
+      (lowerFilename.includes('transfer') && lowerFilename.includes('disclosure')) ||
+      (lowerFilename.includes('tds'))) {
+    return 'Real Estate Transfer Disclosure Statement';
+  }
+  
+  if ((lowerFilename.includes('hoa')) ||
+      (lowerFilename.includes('homeowners') && lowerFilename.includes('association'))) {
+    return 'HOA Documents';
+  }
+  
+  // Define keyword patterns for each document type with confidence scores
+  const patterns = {
+    'Coversheet': {
+      keywords: ['coversheet', 'cover sheet', 'cover', 'summary', 'overview', 'index', 'table of contents'],
+      score: 0
+    },
+    'Offer Instructions': {
+      keywords: ['offer instructions', 'offer instruction', 'instructions', 'instruction', 'how to offer', 'offer guide', 'offer process', 'submission guide'],
+      score: 0
+    },
+    'Home Inspection Report': {
+      keywords: ['home inspection', 'inspection report', 'home inspector', 'inspection', 'home inspection report', 'property inspection', 'building inspection', 'structural inspection'],
+      score: 0
+    },
+    'Pest Inspection Report': {
+      keywords: ['pest inspection', 'pest report', 'termite', 'termite inspection', 'pest control', 'wood destroying', 'pest inspection report', 'termite report'],
+      score: 0
+    },
+    'Natural Hazard Disclosures': {
+      keywords: ['natural hazard', 'hazard disclosure', 'natural hazard disclosure', 'flood zone', 'earthquake', 'wildfire', 'natural disaster', 'hazard zone', 'natural hazard disclosures'],
+      score: 0
+    },
+    'Lead Based Paint Disclosures': {
+      keywords: ['lead based paint', 'lead paint', 'lead disclosure', 'lead based paint disclosure', 'lead paint disclosure', 'lead warning', 'lead hazard'],
+      score: 0
+    },
+    'Seller Property Questionnaire': {
+      keywords: ['seller property questionnaire', 'property questionnaire', 'seller questionnaire', 'spq', 'seller disclosure', 'property disclosure', 'seller property disclosure'],
+      score: 0
+    },
+    'Agent Visual Inspection': {
+      keywords: ['agent visual inspection', 'visual inspection', 'agent inspection', 'broker inspection', 'agent report', 'visual report', 'agent visual'],
+      score: 0
+    },
+    'Preliminary Title Report': {
+      keywords: ['preliminary title', 'title report', 'preliminary title report', 'title search', 'title examination', 'title insurance', 'preliminary report'],
+      score: 0
+    },
+    'Real Estate Transfer Disclosure Statement': {
+      keywords: ['real estate transfer disclosure', 'transfer disclosure', 'transfer disclosure statement', 'real estate transfer', 'transfer statement', 'real estate disclosure'],
+      score: 0
+    },
+    'HOA Documents': {
+      keywords: ['hoa', 'homeowners association', 'hoa documents', 'hoa docs', 'association documents', 'hoa rules', 'hoa bylaws', 'hoa covenants', 'hoa guidelines'],
+      score: 0
+    }
+  };
+  
+  // Calculate scores for each document type
+  Object.keys(patterns).forEach(docType => {
+    patterns[docType].keywords.forEach(keyword => {
+      if (lowerFilename.includes(keyword)) {
+        patterns[docType].score += 1;
+        // Bonus points for exact matches or longer keywords
+        if (lowerFilename === keyword || keyword.length > 3) {
+          patterns[docType].score += 0.5;
+        }
+      }
+    });
+  });
+  
+  // Find the document type with the highest score
+  let bestMatch = 'Other'; // Default fallback
+  let highestScore = 0;
+  
+  Object.keys(patterns).forEach(docType => {
+    if (patterns[docType].score > highestScore) {
+      highestScore = patterns[docType].score;
+      bestMatch = docType;
+    }
+  });
+  
+  // Only return a specific type if we have a reasonable confidence (score > 0.5)
+  return highestScore > 0.5 ? bestMatch : 'Other';
+};
+
 const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
@@ -27,7 +159,12 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
     const droppedFiles = Array.from(e.dataTransfer.files);
     const newFiles = [
       ...files,
-      ...droppedFiles.map((file) => ({ file, type: '', title: file.name, docType: getDocType(file) })),
+      ...droppedFiles.map((file) => ({ 
+        file, 
+        type: getDocumentTypeFromFilename(file.name), // Auto-detect document type
+        title: cleanFilename(file.name), // Clean filename by removing extensions
+        docType: getDocType(file) 
+      })),
     ];
     setFiles(newFiles);
     setErrors([]); // Clear any existing errors when new files are added
@@ -37,7 +174,12 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
     const selectedFiles = Array.from(e.target.files);
     const newFiles = [
       ...files,
-      ...selectedFiles.map((file) => ({ file, type: '', title: file.name, docType: getDocType(file) })),
+      ...selectedFiles.map((file) => ({ 
+        file, 
+        type: getDocumentTypeFromFilename(file.name), // Auto-detect document type
+        title: cleanFilename(file.name), // Clean filename by removing extensions
+        docType: getDocType(file) 
+      })),
     ];
     setFiles(newFiles);
     setErrors([]); // Clear any existing errors when new files are added

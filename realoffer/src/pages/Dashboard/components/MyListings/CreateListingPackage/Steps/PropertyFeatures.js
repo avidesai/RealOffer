@@ -141,6 +141,19 @@ const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, hand
 
         <div className="clp-form-row">
           <div className="clp-form-group full-width">
+            <input
+              type="url"
+              name="scheduleShowingUrl"
+              placeholder="Schedule Showing URL (Optional)"
+              value={formData.scheduleShowingUrl}
+              onChange={handleChange}
+              className="clp-input"
+            />
+          </div>
+        </div>
+
+        <div className="clp-form-row">
+          <div className="clp-form-group full-width">
             <textarea
               name="description"
               placeholder="Description"
