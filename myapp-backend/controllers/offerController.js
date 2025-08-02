@@ -135,7 +135,7 @@ exports.createOffer = async (req, res) => {
     }
 
     // Send notification to listing agent (non-blocking)
-    const buyerName = `${req.user.firstName} ${req.user.lastName}`;
+    const buyerName = `${req.user.firstName || 'Unknown'} ${req.user.lastName || 'User'}`;
     notificationService.sendOfferNotification(
       propertyListingId,
       req.body.purchasePrice,

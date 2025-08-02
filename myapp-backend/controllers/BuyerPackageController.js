@@ -111,7 +111,7 @@ exports.createBuyerPackage = async (req, res) => {
     await activity.save();
 
     // Send notification to listing agent (non-blocking)
-    const buyerName = `${req.user.firstName} ${req.user.lastName}`;
+    const buyerName = `${req.user.firstName || 'Unknown'} ${req.user.lastName || 'User'}`;
     notificationService.sendBuyerPackageNotification(
       propertyListingId,
       buyerName,
@@ -205,7 +205,7 @@ exports.getBuyerPackage = async (req, res) => {
       await activity.save();
 
       // Send notification to listing agent (non-blocking)
-      const viewerName = `${req.user.firstName} ${req.user.lastName}`;
+      const viewerName = `${req.user.firstName || 'Unknown'} ${req.user.lastName || 'User'}`;
       notificationService.sendViewNotification(
         buyerPackage.propertyListing._id,
         viewerName,
@@ -315,7 +315,7 @@ exports.recordDocumentDownload = async (req, res) => {
     await activity.save();
 
     // Send notification to listing agent (non-blocking)
-    const downloaderName = `${req.user.firstName} ${req.user.lastName}`;
+    const downloaderName = `${req.user.firstName || 'Unknown'} ${req.user.lastName || 'User'}`;
     notificationService.sendDownloadNotification(
       buyerPackage.propertyListing,
       downloaderName,

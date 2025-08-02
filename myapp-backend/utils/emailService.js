@@ -212,6 +212,7 @@ class EmailService {
   // Send notification email for buyer package created
   async sendBuyerPackageNotification(listingAgentEmail, listingAgentName, propertyAddress, buyerName, buyerRole) {
     const subject = `New Buyer Package Created - ${propertyAddress}`;
+    const roleText = buyerRole === 'agent' ? 'Buyer Agent' : 'Buyer';
     
     const mailOptions = {
       from: `"RealOffer" <noreply@realoffer.io>`,
@@ -231,11 +232,8 @@ class EmailService {
               <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
                 Property: ${propertyAddress}
               </p>
-              <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
-                Buyer: ${buyerName}
-              </p>
               <p style="color: #666; margin: 0; font-size: 14px;">
-                Role: ${buyerRole === 'agent' ? 'Buyer Agent' : 'Buyer'}
+                ${buyerName} (${roleText})
               </p>
             </div>
             <p style="color: #666; line-height: 1.6;">
@@ -262,6 +260,7 @@ class EmailService {
   // Send notification email for property view
   async sendViewNotification(listingAgentEmail, listingAgentName, propertyAddress, viewerName, viewerRole) {
     const subject = `Property Viewed - ${propertyAddress}`;
+    const roleText = viewerRole === 'agent' ? 'Buyer Agent' : 'Buyer';
     
     const mailOptions = {
       from: `"RealOffer" <noreply@realoffer.io>`,
@@ -281,11 +280,8 @@ class EmailService {
               <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
                 Property: ${propertyAddress}
               </p>
-              <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
-                Viewer: ${viewerName}
-              </p>
               <p style="color: #666; margin: 0; font-size: 14px;">
-                Role: ${viewerRole === 'agent' ? 'Buyer Agent' : 'Buyer'}
+                Viewer: ${viewerName} (${roleText})
               </p>
             </div>
             <p style="color: #666; line-height: 1.6;">
@@ -312,6 +308,7 @@ class EmailService {
   // Send notification email for document download
   async sendDownloadNotification(listingAgentEmail, listingAgentName, propertyAddress, downloaderName, downloaderRole, documentTitle) {
     const subject = `Document Downloaded - ${propertyAddress}`;
+    const roleText = downloaderRole === 'agent' ? 'Buyer Agent' : 'Buyer';
     
     const mailOptions = {
       from: `"RealOffer" <noreply@realoffer.io>`,
@@ -334,11 +331,8 @@ class EmailService {
               <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
                 Document: ${documentTitle}
               </p>
-              <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
-                Downloaded by: ${downloaderName}
-              </p>
               <p style="color: #666; margin: 0; font-size: 14px;">
-                Role: ${downloaderRole === 'agent' ? 'Buyer Agent' : 'Buyer'}
+                Downloaded by: ${downloaderName} (${roleText})
               </p>
             </div>
             <p style="color: #666; line-height: 1.6;">
@@ -365,6 +359,7 @@ class EmailService {
   // Send notification email for new offer
   async sendOfferNotification(listingAgentEmail, listingAgentName, propertyAddress, offerAmount, buyerName, buyerRole) {
     const subject = `New Offer Received - ${propertyAddress}`;
+    const roleText = buyerRole === 'agent' ? 'Buyer Agent' : 'Buyer';
     
     const mailOptions = {
       from: `"RealOffer" <noreply@realoffer.io>`,
@@ -387,11 +382,8 @@ class EmailService {
               <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
                 Offer Amount: $${offerAmount?.toLocaleString() || 'N/A'}
               </p>
-              <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
-                Buyer: ${buyerName}
-              </p>
               <p style="color: #666; margin: 0; font-size: 14px;">
-                Role: ${buyerRole === 'agent' ? 'Buyer Agent' : 'Buyer'}
+                ${buyerName} (${roleText})
               </p>
             </div>
             <p style="color: #666; line-height: 1.6;">
