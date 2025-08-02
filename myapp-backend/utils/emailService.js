@@ -208,6 +208,212 @@ class EmailService {
       return { success: false, error: error.message };
     }
   }
+
+  // Send notification email for buyer package created
+  async sendBuyerPackageNotification(listingAgentEmail, listingAgentName, propertyAddress, buyerName, buyerRole) {
+    const subject = `New Buyer Package Created - ${propertyAddress}`;
+    
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: listingAgentEmail,
+      subject: subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">New Buyer Package</h1>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${listingAgentName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              A new buyer package has been created for your property listing.
+            </p>
+            <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
+                Property: ${propertyAddress}
+              </p>
+              <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
+                Buyer: ${buyerName}
+              </p>
+              <p style="color: #666; margin: 0; font-size: 14px;">
+                Role: ${buyerRole === 'agent' ? 'Buyer Agent' : 'Buyer'}
+              </p>
+            </div>
+            <p style="color: #666; line-height: 1.6;">
+              You can view the buyer package and track their activity through your RealOffer dashboard.
+            </p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('Buyer package notification send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Send notification email for property view
+  async sendViewNotification(listingAgentEmail, listingAgentName, propertyAddress, viewerName, viewerRole) {
+    const subject = `Property Viewed - ${propertyAddress}`;
+    
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: listingAgentEmail,
+      subject: subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">Property Viewed</h1>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${listingAgentName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              Someone has viewed your property listing.
+            </p>
+            <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
+                Property: ${propertyAddress}
+              </p>
+              <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
+                Viewer: ${viewerName}
+              </p>
+              <p style="color: #666; margin: 0; font-size: 14px;">
+                Role: ${viewerRole === 'agent' ? 'Buyer Agent' : 'Buyer'}
+              </p>
+            </div>
+            <p style="color: #666; line-height: 1.6;">
+              You can track all activity for this property through your RealOffer dashboard.
+            </p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('View notification send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Send notification email for document download
+  async sendDownloadNotification(listingAgentEmail, listingAgentName, propertyAddress, downloaderName, downloaderRole, documentTitle) {
+    const subject = `Document Downloaded - ${propertyAddress}`;
+    
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: listingAgentEmail,
+      subject: subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">Document Downloaded</h1>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${listingAgentName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              Someone has downloaded a document from your property listing.
+            </p>
+            <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
+                Property: ${propertyAddress}
+              </p>
+              <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
+                Document: ${documentTitle}
+              </p>
+              <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
+                Downloaded by: ${downloaderName}
+              </p>
+              <p style="color: #666; margin: 0; font-size: 14px;">
+                Role: ${downloaderRole === 'agent' ? 'Buyer Agent' : 'Buyer'}
+              </p>
+            </div>
+            <p style="color: #666; line-height: 1.6;">
+              You can track all document activity for this property through your RealOffer dashboard.
+            </p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('Download notification send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Send notification email for new offer
+  async sendOfferNotification(listingAgentEmail, listingAgentName, propertyAddress, offerAmount, buyerName, buyerRole) {
+    const subject = `New Offer Received - ${propertyAddress}`;
+    
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: listingAgentEmail,
+      subject: subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">New Offer Received</h1>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${listingAgentName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              A new offer has been submitted for your property listing.
+            </p>
+            <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
+                Property: ${propertyAddress}
+              </p>
+              <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
+                Offer Amount: $${offerAmount?.toLocaleString() || 'N/A'}
+              </p>
+              <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
+                Buyer: ${buyerName}
+              </p>
+              <p style="color: #666; margin: 0; font-size: 14px;">
+                Role: ${buyerRole === 'agent' ? 'Buyer Agent' : 'Buyer'}
+              </p>
+            </div>
+            <p style="color: #666; line-height: 1.6;">
+              You can review and respond to this offer through your RealOffer dashboard.
+            </p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('Offer notification send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 module.exports = new EmailService(); 

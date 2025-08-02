@@ -55,6 +55,14 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
   const handleInputChange = (e, field) => {
     const { value } = e.target;
     
+    // For datetime-local inputs, convert to proper datetime format
+    let processedValue = value;
+    if (field === 'offerDueDate' && value) {
+      // Convert datetime-local value to ISO string for backend
+      const date = new Date(value);
+      processedValue = date.toISOString();
+    }
+    
     // Update local state immediately
     const [mainField, subField, nestedField] = field.split('.');
     if (nestedField) {
@@ -64,7 +72,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
           ...prevState[mainField],
           [subField]: {
             ...prevState[mainField][subField],
-            [nestedField]: value
+            [nestedField]: processedValue
           }
         }
       }));
@@ -73,13 +81,13 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
         ...prevState,
         [mainField]: {
           ...prevState[mainField],
-          [subField]: value
+          [subField]: processedValue
         }
       }));
     } else {
       setListing(prevState => ({
         ...prevState,
-        [field]: value
+        [field]: processedValue
       }));
     }
 
@@ -104,7 +112,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
             ...listing[mainField],
             [subField]: {
               ...listing[mainField][subField],
-              [nestedField]: value
+              [nestedField]: processedValue
             }
           }
         };
@@ -112,11 +120,11 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
         updatedField = {
           [mainField]: {
             ...listing[mainField],
-            [subField]: value
+            [subField]: processedValue
           }
         };
       } else {
-        updatedField = { [field]: value };
+        updatedField = { [field]: processedValue };
       }
 
       try {
@@ -167,6 +175,18 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
       minute: '2-digit',
       hour12: true
     });
+  };
+
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    // Format for datetime-local input: YYYY-MM-DDTHH:MM
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
   // Formatting functions for display (similar to CreateListingPackage)
@@ -254,7 +274,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
           ) : isDate ? (
             <input
               type="datetime-local"
-              value={value || ''}
+              value={formatDateForInput(value)}
               onChange={(e) => handleInputChange(e, field)}
               className="form-control"
             />

@@ -13,6 +13,12 @@ const Settings = ({ listing, onStatusChange }) => {
   const [error, setError] = useState('');
   const [showActivityStatsToBuyers, setShowActivityStatsToBuyers] = useState(false);
   const [showActivityDetailsToBuyers, setShowActivityDetailsToBuyers] = useState(false);
+  const [notificationSettings, setNotificationSettings] = useState({
+    buyerPackageCreated: true,
+    views: false,
+    downloads: true,
+    offers: true
+  });
   const navigate = useNavigate();
   const { token } = useAuth(); // Get the token from AuthContext
 
@@ -21,6 +27,12 @@ const Settings = ({ listing, onStatusChange }) => {
     if (listing) {
       setShowActivityStatsToBuyers(listing.showActivityStatsToBuyers || false);
       setShowActivityDetailsToBuyers(listing.showActivityDetailsToBuyers || false);
+      setNotificationSettings(listing.notificationSettings || {
+        buyerPackageCreated: true,
+        views: false,
+        downloads: true,
+        offers: true
+      });
     }
   }, [listing]);
 
@@ -54,6 +66,39 @@ const Settings = ({ listing, onStatusChange }) => {
     }
   };
 
+  const handleNotificationSettingsUpdate = async (newSettings) => {
+    setError('');
+    try {
+      await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listing._id}`,
+        {
+          notificationSettings: newSettings
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        }
+      );
+      console.log('Notification settings updated');
+      
+      // Notify parent component to refresh listing data
+      if (onStatusChange) {
+        await onStatusChange(listing._id, listing.status);
+      }
+    } catch (error) {
+      console.error('Error updating notification settings:', error);
+      setError('Failed to update notification settings. Please try again.');
+      // Revert the state on error
+      setNotificationSettings(listing.notificationSettings || {
+        buyerPackageCreated: true,
+        views: false,
+        downloads: true,
+        offers: true
+      });
+    }
+  };
+
   const handleStatsToggle = async (checked) => {
     const newStatsSetting = checked;
     setShowActivityStatsToBuyers(newStatsSetting);
@@ -64,6 +109,12 @@ const Settings = ({ listing, onStatusChange }) => {
     const newDetailsSetting = checked;
     setShowActivityDetailsToBuyers(newDetailsSetting);
     await handleActivitySettingsUpdate(showActivityStatsToBuyers, newDetailsSetting);
+  };
+
+  const handleNotificationToggle = async (setting, checked) => {
+    const newSettings = { ...notificationSettings, [setting]: checked };
+    setNotificationSettings(newSettings);
+    await handleNotificationSettingsUpdate(newSettings);
   };
 
   const handleArchivePackage = async () => {
@@ -161,6 +212,74 @@ const Settings = ({ listing, onStatusChange }) => {
           {error}
         </div>
       )}
+      
+      {/* Email Notification Settings */}
+      <div className="settings-section notification-settings-section">
+        <h2 className="settings-title">Email Notifications</h2>
+        <p className="settings-description">Configure which events will trigger email notifications to you.</p>
+        
+        <div className="toggle-settings">
+          <div className="toggle-setting">
+            <div className="toggle-label">
+              <span className="toggle-title">Buyer packages created</span>
+              <span className="toggle-description">Get notified when someone creates a buyer package for this listing</span>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={notificationSettings.buyerPackageCreated}
+                onChange={(e) => handleNotificationToggle('buyerPackageCreated', e.target.checked)}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+          
+          <div className="toggle-setting">
+            <div className="toggle-label">
+              <span className="toggle-title">Property views</span>
+              <span className="toggle-description">Get notified when someone views this property listing</span>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={notificationSettings.views}
+                onChange={(e) => handleNotificationToggle('views', e.target.checked)}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+          
+          <div className="toggle-setting">
+            <div className="toggle-label">
+              <span className="toggle-title">Document downloads</span>
+              <span className="toggle-description">Get notified when someone downloads documents from this listing</span>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={notificationSettings.downloads}
+                onChange={(e) => handleNotificationToggle('downloads', e.target.checked)}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+          
+          <div className="toggle-setting">
+            <div className="toggle-label">
+              <span className="toggle-title">New offers</span>
+              <span className="toggle-description">Get notified when someone submits an offer for this property</span>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={notificationSettings.offers}
+                onChange={(e) => handleNotificationToggle('offers', e.target.checked)}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
       
       {/* Activity Visibility Settings */}
       <div className="settings-section activity-visibility-section">

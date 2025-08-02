@@ -4,6 +4,7 @@ const BuyerPackage = require('../models/BuyerPackage');
 const PropertyListing = require('../models/PropertyListing');
 const Activity = require('../models/Activity');
 const User = require('../models/User');
+const notificationService = require('../utils/notificationService');
 
 // Create a new buyer package
 exports.createBuyerPackage = async (req, res) => {
@@ -109,6 +110,16 @@ exports.createBuyerPackage = async (req, res) => {
 
     await activity.save();
 
+    // Send notification to listing agent (non-blocking)
+    const buyerName = `${req.user.firstName} ${req.user.lastName}`;
+    notificationService.sendBuyerPackageNotification(
+      propertyListingId,
+      buyerName,
+      userRole
+    ).catch(error => {
+      console.error('Failed to send buyer package notification:', error);
+    });
+
     res.status(201).json({
       message: 'Buyer package created successfully',
       buyerPackage: savedPackage
@@ -192,6 +203,16 @@ exports.getBuyerPackage = async (req, res) => {
       });
 
       await activity.save();
+
+      // Send notification to listing agent (non-blocking)
+      const viewerName = `${req.user.firstName} ${req.user.lastName}`;
+      notificationService.sendViewNotification(
+        buyerPackage.propertyListing._id,
+        viewerName,
+        buyerPackage.userRole
+      ).catch(error => {
+        console.error('Failed to send view notification:', error);
+      });
     }
 
     res.status(200).json(buyerPackage);
@@ -292,6 +313,17 @@ exports.recordDocumentDownload = async (req, res) => {
     });
 
     await activity.save();
+
+    // Send notification to listing agent (non-blocking)
+    const downloaderName = `${req.user.firstName} ${req.user.lastName}`;
+    notificationService.sendDownloadNotification(
+      buyerPackage.propertyListing,
+      downloaderName,
+      buyerPackage.userRole,
+      documentTitle
+    ).catch(error => {
+      console.error('Failed to send download notification:', error);
+    });
 
     res.status(200).json({ message: 'Download recorded successfully' });
   } catch (error) {

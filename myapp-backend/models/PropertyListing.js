@@ -51,6 +51,13 @@ const propertyListingSchema = new mongoose.Schema(
     // Activity visibility settings for buyer parties
     showActivityStatsToBuyers: { type: Boolean, default: false },
     showActivityDetailsToBuyers: { type: Boolean, default: false },
+    // Email notification settings for listing agents
+    notificationSettings: {
+      buyerPackageCreated: { type: Boolean, default: true },
+      views: { type: Boolean, default: false },
+      downloads: { type: Boolean, default: true },
+      offers: { type: Boolean, default: true }
+    }
   },
   { timestamps: true }
 );

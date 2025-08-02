@@ -10,6 +10,7 @@ const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const { offerDocumentsContainerClient } = require('../config/azureStorage');
 const { getPdfPageCount } = require('./DocumentController');
+const notificationService = require('../utils/notificationService');
 
 // Configure multer for in-memory storage before uploading to Azure
 const storage = multer.memoryStorage();
@@ -132,6 +133,17 @@ exports.createOffer = async (req, res) => {
       });
       await initialMessage.save();
     }
+
+    // Send notification to listing agent (non-blocking)
+    const buyerName = `${req.user.firstName} ${req.user.lastName}`;
+    notificationService.sendOfferNotification(
+      propertyListingId,
+      req.body.purchasePrice,
+      buyerName,
+      req.user.role || 'buyer'
+    ).catch(error => {
+      console.error('Failed to send offer notification:', error);
+    });
 
     // Fetch the complete offer with populated documents
     const populatedOffer = await Offer.findById(offer._id).populate('documents');
