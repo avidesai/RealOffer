@@ -32,7 +32,12 @@ const uploadPhotos = multer({
 // Get all property listings for the logged-in user
 exports.getAllListings = async (req, res) => {
   try {
-    const listings = await PropertyListing.find({ createdBy: req.user.id });
+    const listings = await PropertyListing.find({
+      $or: [
+        { createdBy: req.user.id },
+        { agentIds: req.user.id }
+      ]
+    });
     res.status(200).json(listings);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -51,11 +56,12 @@ exports.getListingById = async (req, res) => {
       return res.status(404).json({ message: "Listing not found" });
     }
 
-    // Check if user is the listing creator
+    // Check if user is the listing creator or an agent
     const isOwner = listing.createdBy.toString() === req.user.id;
+    const isAgent = listing.agentIds.some(agentId => agentId.toString() === req.user.id);
     
-    // If not the owner, check if user has a buyer package for this listing
-    if (!isOwner) {
+    // If not the owner or agent, check if user has a buyer package for this listing
+    if (!isOwner && !isAgent) {
       const BuyerPackage = require('../models/BuyerPackage');
       const buyerPackage = await BuyerPackage.findOne({
         propertyListing: req.params.id,
@@ -211,14 +217,25 @@ exports.getPublicListing = async (req, res) => {
 // Update an existing property listing
 exports.updateListing = async (req, res) => {
   try {
+    // Check if user is either the creator or an agent on the listing
+    const listing = await PropertyListing.findById(req.params.id);
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+
+    const isCreator = listing.createdBy.toString() === req.user.id;
+    const isAgent = listing.agentIds.some(agentId => agentId.toString() === req.user.id);
+
+    if (!isCreator && !isAgent) {
+      return res.status(403).json({ message: "You don't have permission to update this listing" });
+    }
+
     const updatedListing = await PropertyListing.findOneAndUpdate(
-      { _id: req.params.id, createdBy: req.user.id },
+      { _id: req.params.id },
       req.body,
       { new: true }
     );
-    if (!updatedListing) {
-      return res.status(404).json({ message: "Listing not found or you don't have permission to update it" });
-    }
+    
     res.status(200).json(updatedListing);
   } catch (error) {
     res.status(400).json({ message: error.message });

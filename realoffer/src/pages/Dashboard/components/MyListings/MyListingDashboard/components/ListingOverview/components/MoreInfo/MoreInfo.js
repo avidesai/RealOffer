@@ -4,17 +4,26 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import api from '../../../../../../../../../context/api';
 import Modal from 'react-modal';
 import InputMask from 'react-input-mask';
+import { useAuth } from '../../../../../../../../../context/AuthContext';
 import './MoreInfo.css';
 
 Modal.setAppElement('#root'); // Set the root element for accessibility
 
 const MoreInfo = ({ isOpen, onClose, listingId }) => {
+  const { user, token } = useAuth();
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hasChanges, setHasChanges] = useState(false);
-  // Removed unused originalListing state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [selectedAgents, setSelectedAgents] = useState([]);
+  const [agents, setAgents] = useState([]);
   const debounceTimer = useRef({});
+  const searchTimeoutRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   const fetchListing = useCallback(async () => {
     if (!listingId) return;
@@ -38,6 +47,9 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
       
       setListing(listingData);
       setHasChanges(false);
+      
+      // Fetch agents for this listing
+      await fetchAgents(listingData.agentIds);
     } catch (error) {
       console.error('Error fetching listing:', error);
       setError('Failed to load property information. Please try again.');
@@ -46,11 +58,132 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     }
   }, [listingId]);
 
+  const fetchAgents = async (agentIds) => {
+    if (!agentIds || agentIds.length === 0) {
+      setAgents([]);
+      setSelectedAgents([]);
+      return;
+    }
+
+    try {
+      const agentPromises = agentIds.map(id => 
+        api.get(`/api/users/${id}`)
+      );
+      const agentResponses = await Promise.all(agentPromises);
+      const fetchedAgents = agentResponses.map(response => response.data);
+      
+      setAgents(fetchedAgents);
+      setSelectedAgents(fetchedAgents.filter(agent => agent._id !== user._id));
+    } catch (error) {
+      console.error('Error fetching agents:', error);
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
       fetchListing();
     }
   }, [isOpen, fetchListing]);
+
+  // Handle click outside dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Search for agents
+  const searchAgents = async (query) => {
+    if (!query || query.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    setSearchLoading(true);
+    try {
+      const response = await api.get(`/users/search?query=${encodeURIComponent(query)}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      // Filter out current user and already selected agents
+      const filteredResults = response.data.filter(agent => 
+        agent._id !== user._id && 
+        !agents.some(existing => existing._id === agent._id) &&
+        !selectedAgents.some(selected => selected._id === agent._id)
+      );
+      
+      setSearchResults(filteredResults);
+    } catch (error) {
+      console.error('Error searching agents:', error);
+      setSearchResults([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    setShowDropdown(true);
+
+    // Debounce search
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      searchAgents(query);
+    }, 300);
+  };
+
+  // Add agent to selected list
+  const addAgent = async (agent) => {
+    const newSelectedAgents = [...selectedAgents, agent];
+    setSelectedAgents(newSelectedAgents);
+    setSearchQuery('');
+    setShowDropdown(false);
+    setSearchResults([]);
+    
+    // Update the listing with the new agent
+    const allAgentIds = [user._id, ...newSelectedAgents.map(a => a._id)];
+    try {
+      await api.put(`/api/propertyListings/${listingId}`, {
+        agentIds: allAgentIds
+      });
+      setHasChanges(true);
+    } catch (error) {
+      console.error('Error adding agent:', error);
+      setError('Failed to add agent. Please try again.');
+    }
+  };
+
+  // Remove agent from selected list
+  const removeAgent = async (agentId) => {
+    const newSelectedAgents = selectedAgents.filter(agent => agent._id !== agentId);
+    setSelectedAgents(newSelectedAgents);
+    
+    // Update the listing without the removed agent
+    const allAgentIds = [user._id, ...newSelectedAgents.map(a => a._id)];
+    try {
+      await api.put(`/api/propertyListings/${listingId}`, {
+        agentIds: allAgentIds
+      });
+      setHasChanges(true);
+    } catch (error) {
+      console.error('Error removing agent:', error);
+      setError('Failed to remove agent. Please try again.');
+    }
+  };
 
   const handleInputChange = (e, field) => {
     const { value } = e.target;
@@ -99,9 +232,6 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
       clearTimeout(debounceTimer.current[field]);
     }
 
-    // Set loading state for this field
-    // setUpdating(prev => ({ ...prev, [field]: true })); // This line was removed
-
     // Debounce the API call
     debounceTimer.current[field] = setTimeout(async () => {
       let updatedField = {};
@@ -132,8 +262,6 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
       } catch (error) {
         console.error('Error updating listing:', error);
         setError('Failed to update property information. Please try again.');
-      } finally {
-        // setUpdating(prev => ({ ...prev, [field]: false })); // This line was removed
       }
     }, 1000);
   };
@@ -371,6 +499,89 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
               {renderField('City', 'homeCharacteristics.city', listing.homeCharacteristics.city)}
               {renderField('State', 'homeCharacteristics.state', listing.homeCharacteristics.state)}
               {renderField('Zip Code', 'homeCharacteristics.zip', listing.homeCharacteristics.zip)}
+            </div>
+            
+            <div className="info-section">
+              <h3>Listing Agents</h3>
+              
+              {/* Primary Agent (Current User) */}
+              <div className="agent-section">
+                <div className="primary-agent-display">
+                  <div className="agent-info">
+                    <span className="agent-name">{`${user?.firstName} ${user?.lastName}`}</span>
+                    <span className="agent-email">{user?.email}</span>
+                  </div>
+                  <span className="primary-badge">Primary</span>
+                </div>
+              </div>
+
+              {/* Additional Agents Search */}
+              <div className="agent-section">
+                <label className="info-label">Add Additional Agents</label>
+                <div className="agent-search-container" ref={dropdownRef}>
+                  <input
+                    type="text"
+                    placeholder="Search for agents by name or email..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    onFocus={() => setShowDropdown(true)}
+                    className="agent-search-input"
+                  />
+                  
+                  {showDropdown && (searchQuery.length > 0 || searchLoading) && (
+                    <div className="agent-dropdown">
+                      {searchLoading ? (
+                        <div className="dropdown-loading">Searching...</div>
+                      ) : searchResults.length > 0 ? (
+                        searchResults.map(agent => (
+                          <div
+                            key={agent._id}
+                            className="dropdown-item"
+                            onClick={() => addAgent(agent)}
+                          >
+                            <div className="agent-info">
+                              <span className="agent-name">{`${agent.firstName} ${agent.lastName}`}</span>
+                              <span className="agent-email">{agent.email}</span>
+                              {agent.agencyName && (
+                                <span className="agent-agency">{agent.agencyName}</span>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      ) : searchQuery.length >= 2 ? (
+                        <div className="dropdown-no-results">No agents found</div>
+                      ) : null}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Selected Agents List */}
+              {selectedAgents.length > 0 && (
+                <div className="agent-section">
+                  <label className="info-label">Additional Agents</label>
+                  <div className="selected-agents-list">
+                    {selectedAgents.map(agent => (
+                      <div key={agent._id} className="selected-agent-item">
+                        <div className="agent-info">
+                          <span className="agent-name">{`${agent.firstName} ${agent.lastName}`}</span>
+                          <span className="agent-email">{agent.email}</span>
+                          {agent.agencyName && (
+                            <span className="agent-agency">{agent.agencyName}</span>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          className="remove-agent-btn"
+                          onClick={() => removeAgent(agent._id)}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             
             <div className="info-section">
