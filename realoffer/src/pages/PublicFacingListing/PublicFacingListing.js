@@ -79,8 +79,6 @@ const PublicFacingListing = () => {
         email: sharedEmail,
         role: sharedRole === 'buyerAgent' ? 'buyerAgent' : 'buyer'
       }));
-      // Always reset to initial step so the user must click Continue
-      if (!user) setFormStep('initial');
     }
   }, [searchParams, user]);
 
