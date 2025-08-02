@@ -880,7 +880,6 @@ const PublicFacingListing = () => {
                 onChange={handleInputChange}
                 required={!user}
                 autoComplete="given-name"
-                disabled={!!user}
               />
             </div>
             <div className="pfl-form-group">
@@ -894,7 +893,6 @@ const PublicFacingListing = () => {
                 onChange={handleInputChange}
                 required={!user}
                 autoComplete="family-name"
-                disabled={!!user}
               />
             </div>
           </div>
@@ -909,7 +907,6 @@ const PublicFacingListing = () => {
               onChange={handleInputChange}
               required={!user}
               autoComplete="email"
-              disabled={!!user}
             />
           </div>
           <div className="pfl-form-group">
@@ -920,7 +917,6 @@ const PublicFacingListing = () => {
               value={formData.role}
               onChange={handleInputChange}
               required={!user}
-              disabled={!!user}
             >
               <option value="agent">Real Estate Agent</option>
               <option value="buyer">Home Buyer</option>
