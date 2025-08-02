@@ -28,10 +28,6 @@ const MessageThread = ({ offer }) => {
     });
   };
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   const scrollToBottomOfContainer = () => {
     const messageContainer = document.querySelector('.message-thread-content');
     if (messageContainer) {

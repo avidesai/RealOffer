@@ -175,32 +175,6 @@ const SimplifiedActivityView = ({ metrics }) => {
   const tier = calculatePopularityTier(metrics);
   const popularityData = getPopularityMessage(tier, metrics);
 
-  // Generate activity data from listing creation to today
-  const generateActivitiesPerDay = () => {
-    const { views, downloads, offers, buyerPackages } = metrics;
-    
-    // For now, we'll use a reasonable number of days since listing creation
-    // In a real implementation, you'd get the listing creation date from the listing data
-    const daysSinceCreation = Math.max(7, Math.min(90, Math.floor((views + downloads + offers + buyerPackages) / 10))); // Estimate based on activity
-    const data = [];
-    
-    // Calculate total activities and distribute them
-    const totalActivities = views + downloads + offers + buyerPackages;
-    const avgActivitiesPerDay = totalActivities / daysSinceCreation;
-    
-    for (let i = 0; i < daysSinceCreation; i++) {
-      // Add some realistic variation with a trend
-      const trend = Math.sin((i / daysSinceCreation) * Math.PI) * 0.3; // Natural curve
-      const variation = (Math.random() - 0.5) * 0.2; // ±10% variation
-      const dailyActivities = Math.max(0, Math.round(avgActivitiesPerDay * (1 + trend + variation)));
-      data.push(dailyActivities);
-    }
-    
-    return data;
-  };
-
-  const activitiesPerDay = generateActivitiesPerDay();
-  const maxActivities = Math.max(...activitiesPerDay);
 
   return (
     <div className="sav-simplified-activity-view">

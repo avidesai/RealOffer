@@ -89,27 +89,36 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
 
   // Add agent to selected list
   const addAgent = (agent) => {
-    setSelectedAgents(prev => [...prev, agent]);
+    const newSelectedAgents = [...selectedAgents, agent];
+    setSelectedAgents(newSelectedAgents);
     setSearchQuery('');
     setShowDropdown(false);
     setSearchResults([]);
-  };
-
-  // Remove agent from selected list
-  const removeAgent = (agentId) => {
-    setSelectedAgents(prev => prev.filter(agent => agent._id !== agentId));
-  };
-
-  // Update form data when selected agents change
-  useEffect(() => {
-    const agentIds = selectedAgents.map(agent => agent._id);
+    
+    // Update form data directly
+    const agentIds = newSelectedAgents.map(agent => agent._id);
     handleChange({
       target: {
         name: 'agentIds',
         value: agentIds,
       },
     });
-  }, [selectedAgents, handleChange]);
+  };
+
+  // Remove agent from selected list
+  const removeAgent = (agentId) => {
+    const newSelectedAgents = selectedAgents.filter(agent => agent._id !== agentId);
+    setSelectedAgents(newSelectedAgents);
+    
+    // Update form data directly
+    const agentIds = newSelectedAgents.map(agent => agent._id);
+    handleChange({
+      target: {
+        name: 'agentIds',
+        value: agentIds,
+      },
+    });
+  };
 
   return (
     <div className="clp-step">

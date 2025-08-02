@@ -242,7 +242,7 @@ const DocuSignSection = ({
         }));
       }
     }
-  }, [offerData, updateDocumentWorkflow]); // Removed 'recipients' from dependencies to prevent re-running on user edits
+  }, [offerData, updateDocumentWorkflow, recipients]); // Added 'recipients' to dependencies
 
   const addBuyer = () => {
     const newOrder = recipients.length + 1;
@@ -373,11 +373,9 @@ const DocuSignSection = ({
       }
       
       // Monitor popup closure and handle timeout
-      let popupClosed = false;
       const checkClosed = setInterval(() => {
         if (popup.closed) {
           clearInterval(checkClosed);
-          popupClosed = true;
           setDocuSignLoading(false);
           
           // If popup closed without successful OAuth callback, check connection status

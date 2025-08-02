@@ -11,7 +11,7 @@ import './BuyerPackageListingOverview.css';
 function BuyerPackageListingOverview({ buyerPackage }) {
   const [agents, setAgents] = useState([]);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [currentListing, setCurrentListing] = useState(buyerPackage.propertyListing);
   const [showGallery, setShowGallery] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false); // State for ShareUrl modal
@@ -58,29 +58,7 @@ function BuyerPackageListingOverview({ buyerPackage }) {
     fetchAgentDetails();
   }, [currentListing]);
 
-  const handleRefreshListing = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get(`/api/propertyListings/${currentListing._id}`);
-      
-      // Ensure escrow data exists in the refreshed listing
-      const refreshedListing = response.data;
-      if (!refreshedListing.escrowInfo) {
-        refreshedListing.escrowInfo = { 
-          escrowNumber: '', 
-          company: { name: '', phone: '', email: '' } 
-        };
-      } else if (!refreshedListing.escrowInfo.company) {
-        refreshedListing.escrowInfo.company = { name: '', phone: '', email: '' };
-      }
-      
-      setCurrentListing(refreshedListing);
-    } catch (error) {
-      console.error('Error refreshing listing:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+
 
   const handleGalleryClose = (hasPhotoChanges = false) => {
     setShowGallery(false);

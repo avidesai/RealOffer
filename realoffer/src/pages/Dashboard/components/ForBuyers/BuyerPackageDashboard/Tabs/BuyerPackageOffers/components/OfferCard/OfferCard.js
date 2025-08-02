@@ -55,7 +55,7 @@ const getStatusStyle = (status) => {
 const OfferCard = ({ offer, onClick, onUpdate }) => {
   const { token } = useAuth(); // Get the token from AuthContext
   const [notes, setNotes] = useState(offer.privateListingTeamNotes || '');
-  const [status, setStatus] = useState(offer.offerStatus);
+  const [status] = useState(offer.offerStatus);
 
   // Debounced notes value
   const debouncedNotes = useDebounce(notes, 500); // 500ms debounce delay

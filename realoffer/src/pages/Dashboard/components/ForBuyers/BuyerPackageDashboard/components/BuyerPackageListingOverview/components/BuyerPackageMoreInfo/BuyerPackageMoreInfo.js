@@ -34,8 +34,6 @@ const BuyerPackageMoreInfo = ({ buyerPackage, onClose }) => {
   }
 
   // Formatting helpers
-  const formatPrice = (price) => price ? `$${price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}` : '$0';
-  const formatNumber = (number) => number?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") || '';
   const formatPhone = (phone) => {
     if (!phone) return '';
     const cleaned = phone.replace(/\D/g, '');
@@ -78,10 +76,7 @@ const BuyerPackageMoreInfo = ({ buyerPackage, onClose }) => {
     }).format(value);
   };
 
-  const formatDisplayNumber = (value) => {
-    if (!value) return '';
-    return new Intl.NumberFormat('en-US').format(value);
-  };
+
 
   const formatSquareFootage = (value) => {
     if (!value) return '';

@@ -103,9 +103,7 @@ const BuyerPackageOffers = ({ buyerPackageId, listingId }) => {
     );
   };
 
-  const handleRespondToOffer = (offer) => {
-    setRespondToOffer(offer);
-  };
+
 
   const handleCloseRespondModal = async (submitted) => {
     setRespondToOffer(null);
