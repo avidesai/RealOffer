@@ -164,7 +164,7 @@ const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, hand
           <div className="clp-form-group full-width">
             <label>Offer Due Date (Optional)</label>
             <input
-              type="date"
+              type="datetime-local"
               name="offerDueDate"
               placeholder="Offer Due Date"
               value={formData.offerDueDate}

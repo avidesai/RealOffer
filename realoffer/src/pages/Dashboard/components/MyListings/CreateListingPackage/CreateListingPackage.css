@@ -101,7 +101,8 @@
 
 .clp-input,
 .clp-select,
-.clp-input[type="number"] {
+.clp-input[type="number"],
+.clp-input[type="datetime-local"] {
   width: 100%;
   height: 48px;
   padding: 0 1rem;

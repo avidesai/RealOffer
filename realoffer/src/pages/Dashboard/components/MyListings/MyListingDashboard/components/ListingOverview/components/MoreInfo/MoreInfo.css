@@ -137,30 +137,35 @@
 }
 
 /* Ensure date inputs match other form fields */
-.form-control[type="date"] {
+.form-control[type="date"],
+.form-control[type="datetime-local"] {
   font-family: inherit;
   font-size: 1rem;
   color: #2d3748;
 }
 
-.form-control[type="date"]::-webkit-calendar-picker-indicator {
+.form-control[type="date"]::-webkit-calendar-picker-indicator,
+.form-control[type="datetime-local"]::-webkit-calendar-picker-indicator {
   filter: invert(0.5);
   cursor: pointer;
 }
 
-.form-control[type="date"]::-webkit-datetime-edit {
+.form-control[type="date"]::-webkit-datetime-edit,
+.form-control[type="datetime-local"]::-webkit-datetime-edit {
   font-family: inherit;
   font-size: 1rem;
   color: #2d3748;
 }
 
-.form-control[type="date"]::-webkit-datetime-edit-fields-wrapper {
+.form-control[type="date"]::-webkit-datetime-edit-fields-wrapper,
+.form-control[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {
   font-family: inherit;
   font-size: 1rem;
   color: #2d3748;
 }
 
-.form-control[type="date"]::-webkit-datetime-edit-text {
+.form-control[type="date"]::-webkit-datetime-edit-text,
+.form-control[type="datetime-local"]::-webkit-datetime-edit-text {
   font-family: inherit;
   font-size: 1rem;
   color: #2d3748;
@@ -168,7 +173,10 @@
 
 .form-control[type="date"]::-webkit-datetime-edit-month-field,
 .form-control[type="date"]::-webkit-datetime-edit-day-field,
-.form-control[type="date"]::-webkit-datetime-edit-year-field {
+.form-control[type="date"]::-webkit-datetime-edit-year-field,
+.form-control[type="datetime-local"]::-webkit-datetime-edit-month-field,
+.form-control[type="datetime-local"]::-webkit-datetime-edit-day-field,
+.form-control[type="datetime-local"]::-webkit-datetime-edit-year-field {
   font-family: inherit;
   font-size: 1rem;
   color: #2d3748;

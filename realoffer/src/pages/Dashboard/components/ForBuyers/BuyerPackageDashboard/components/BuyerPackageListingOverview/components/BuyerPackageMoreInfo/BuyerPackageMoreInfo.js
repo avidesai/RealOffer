@@ -58,10 +58,13 @@ const BuyerPackageMoreInfo = ({ buyerPackage, onClose }) => {
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
     });
   };
 

@@ -159,10 +159,13 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
     });
   };
 
@@ -250,8 +253,8 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
             />
           ) : isDate ? (
             <input
-              type="date"
-              value={value ? value.split('T')[0] : ''}
+              type="datetime-local"
+              value={value || ''}
               onChange={(e) => handleInputChange(e, field)}
               className="form-control"
             />
