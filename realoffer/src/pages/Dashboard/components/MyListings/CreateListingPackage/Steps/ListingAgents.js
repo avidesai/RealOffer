@@ -50,7 +50,7 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
 
     setLoading(true);
     try {
-      const response = await api.get(`/users/search?query=${encodeURIComponent(query)}`, {
+      const response = await api.get(`/api/users/search?query=${encodeURIComponent(query)}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

@@ -58,8 +58,7 @@ exports.searchUsers = async (req, res) => {
                 { email: searchRegex },
                 { $expr: { $regexMatch: { input: { $concat: ['$firstName', ' ', '$lastName'] }, regex: searchRegex.source, options: 'i' } } }
             ],
-            role: { $in: ['agent', 'admin'] }, // Only return agents and admins
-            isActive: true // Only return active users
+            role: { $in: ['agent', 'admin'] } // Only return agents and admins
         })
         .select('firstName lastName email role agentLicenseNumber agencyName')
         .limit(10); // Limit results to prevent overwhelming the UI
