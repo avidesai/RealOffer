@@ -1,7 +1,7 @@
 // ShareUrl.js
 
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../../../../../../../../context/api';
 import './ShareUrl.css';
 
 const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
@@ -66,7 +66,7 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
     setError('');
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/listings/share`, {
+      const response = await api.post('/api/propertyListings/share', {
         listingId,
         shareUrl: url,
         recipient: {
@@ -130,7 +130,7 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
           <div className="share-url-success">
             <div className="share-url-success-icon">✓</div>
             <h3>Shared Successfully!</h3>
-            <p>An email has been sent to {shareData.email} with access to this listing.</p>
+            <p>An email has been sent with access to this listing.</p>
           </div>
         ) : (
           <div className="share-url-body">

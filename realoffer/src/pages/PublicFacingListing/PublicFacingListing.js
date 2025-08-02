@@ -79,11 +79,8 @@ const PublicFacingListing = () => {
         email: sharedEmail,
         role: sharedRole === 'buyerAgent' ? 'buyerAgent' : 'buyer'
       }));
-      
-      // If user is not logged in, show signup form directly
-      if (!user) {
-        setFormStep('signup');
-      }
+      // Always reset to initial step so the user must click Continue
+      if (!user) setFormStep('initial');
     }
   }, [searchParams, user]);
 
