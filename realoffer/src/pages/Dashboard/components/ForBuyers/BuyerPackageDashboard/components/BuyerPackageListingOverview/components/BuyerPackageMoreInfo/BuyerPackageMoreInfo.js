@@ -80,6 +80,11 @@ const BuyerPackageMoreInfo = ({ buyerPackage, onClose }) => {
     return new Intl.NumberFormat('en-US').format(value);
   };
 
+  const formatSquareFootage = (value) => {
+    if (!value) return '';
+    return `${new Intl.NumberFormat('en-US').format(value)} SqFt`;
+  };
+
   const renderField = (label, field, value, formatter) => {
     const displayValue = formatter ? formatter(value) : value || 'Not specified';
     
@@ -132,8 +137,8 @@ const BuyerPackageMoreInfo = ({ buyerPackage, onClose }) => {
             {renderField('Property Type', 'homeCharacteristics.propertyType', listing.homeCharacteristics.propertyType, formatPropertyType)}
             {renderField('Beds', 'homeCharacteristics.beds', listing.homeCharacteristics.beds)}
             {renderField('Baths', 'homeCharacteristics.baths', listing.homeCharacteristics.baths)}
-            {renderField('Square Footage', 'homeCharacteristics.squareFootage', listing.homeCharacteristics.squareFootage, formatDisplayNumber)}
-            {renderField('Lot Size', 'homeCharacteristics.lotSize', listing.homeCharacteristics.lotSize, formatDisplayNumber)}
+            {renderField('Square Footage', 'homeCharacteristics.squareFootage', listing.homeCharacteristics.squareFootage, formatSquareFootage)}
+            {renderField('Lot Size', 'homeCharacteristics.lotSize', listing.homeCharacteristics.lotSize, formatSquareFootage)}
             {renderField('Year Built', 'homeCharacteristics.yearBuilt', listing.homeCharacteristics.yearBuilt)}
             {listing.offerDueDate && renderField('Offer Due Date', 'offerDueDate', listing.offerDueDate, formatDate)}
           </div>
