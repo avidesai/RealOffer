@@ -30,7 +30,7 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
     description: '',
     offerDueDate: '',
     agent1: user ? (user._id || user.id) : '',
-    agent2: '',
+    agentIds: [], // New field for multiple agents
     companyName: '',
     officerName: '',
     officerPhone: '',

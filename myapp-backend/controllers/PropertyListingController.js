@@ -91,7 +91,7 @@ exports.createListing = async (req, res) => {
     sqFootage,
     lotSize,
     description,
-    agent2,
+    agentIds, // Changed from agent2 to agentIds array
     companyName,
     officerName,
     officerPhone,
@@ -102,13 +102,20 @@ exports.createListing = async (req, res) => {
   } = req.body;
 
   const propertyImages = req.files ? req.files.map((file) => file.location) : [];
-  const agentIds = [req.user.id];
+  
+  // Initialize with the current user as the primary agent
+  const finalAgentIds = [req.user.id];
 
-  if (agent2) {
-    try {
-      agentIds.push(new mongoose.Types.ObjectId(agent2));
-    } catch (error) {
-      return res.status(400).json({ message: 'Invalid agent ID format' });
+  // Add additional agents if provided
+  if (agentIds && Array.isArray(agentIds)) {
+    for (const agentId of agentIds) {
+      if (agentId && agentId !== req.user.id) { // Don't add if it's the same as current user
+        try {
+          finalAgentIds.push(new mongoose.Types.ObjectId(agentId));
+        } catch (error) {
+          return res.status(400).json({ message: 'Invalid agent ID format' });
+        }
+      }
     }
   }
 
@@ -145,7 +152,7 @@ exports.createListing = async (req, res) => {
     description: description || '',
     scheduleShowingUrl: scheduleShowingUrl || '',
     offerDueDate: offerDueDate || null,
-    agentIds,
+    agentIds: finalAgentIds,
     imagesUrls: propertyImages,
     status: 'active',
     escrowInfo,

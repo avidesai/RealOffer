@@ -41,6 +41,35 @@ exports.getAllUsers = async (req, res) => {
     }
 };
 
+exports.searchUsers = async (req, res) => {
+    try {
+        const { query } = req.query;
+        
+        if (!query || query.trim().length < 2) {
+            return res.status(400).json({ message: 'Search query must be at least 2 characters long' });
+        }
+
+        const searchRegex = new RegExp(query.trim(), 'i');
+        
+        const users = await User.find({
+            $or: [
+                { firstName: searchRegex },
+                { lastName: searchRegex },
+                { email: searchRegex },
+                { $expr: { $regexMatch: { input: { $concat: ['$firstName', ' ', '$lastName'] }, regex: searchRegex.source, options: 'i' } } }
+            ],
+            role: { $in: ['agent', 'admin'] }, // Only return agents and admins
+            isActive: true // Only return active users
+        })
+        .select('firstName lastName email role agentLicenseNumber agencyName')
+        .limit(10); // Limit results to prevent overwhelming the UI
+
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 exports.getUserById = async (req, res) => {
     try {
         const user = await User.findById(req.params.id).populate('listingPackages');
