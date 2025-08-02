@@ -77,7 +77,7 @@ const PublicFacingListing = () => {
         firstName: sharedFirstName,
         lastName: sharedLastName,
         email: sharedEmail,
-        role: sharedRole === 'buyerAgent' ? 'buyerAgent' : 'buyer'
+        role: sharedRole === 'buyerAgent' ? 'agent' : 'buyer'
       }));
     }
   }, [searchParams, user]);
