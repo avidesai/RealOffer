@@ -8,6 +8,7 @@
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
   border: 1px solid #e9ecef;
   transition: all 0.2s ease;
+  overflow: hidden;
 }
 
 .listing-overview:hover {
@@ -160,6 +161,7 @@
   text-align: right;
   gap: 0.8rem;
   margin-top: 0.5rem;
+  align-items: flex-end;
 }
 
 .listing-overview-agent-info {

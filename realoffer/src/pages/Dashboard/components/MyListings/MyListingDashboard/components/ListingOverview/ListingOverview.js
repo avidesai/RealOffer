@@ -6,6 +6,7 @@ import Avatar from '../../../../../../../components/Avatar/Avatar';
 import MoreInfo from './components/MoreInfo/MoreInfo';
 import ListingPhotoGallery from './components/ListingPhotoGallery/ListingPhotoGallery';
 import ShareUrl from './components/ShareUrl/ShareUrl'; // Import ShareUrl component
+import OfferDueReminder from '../../../../../../../components/OfferDueReminder/OfferDueReminder';
 import './ListingOverview.css';
 
 function ListingOverview({ listing }) {
@@ -142,6 +143,7 @@ function ListingOverview({ listing }) {
             </div>
           </div>
           <div className="overview-agents">
+            <OfferDueReminder offerDueDate={currentListing.offerDueDate} />
             {agents.map(agent => (
               <div key={agent._id} className="listing-overview-agent-info">
                 <Avatar 

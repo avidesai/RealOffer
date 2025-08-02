@@ -1,0 +1,189 @@
+/* OfferDueReminder.css */
+
+.offer-due-reminder {
+  position: relative;
+  max-width: 280px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  border: 1px solid;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+  margin-bottom: 1rem;
+  align-self: flex-end;
+  order: -1;
+}
+
+
+
+.offer-due-reminder.normal {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-color: #e1e4e8;
+  color: #6c757d;
+}
+
+.offer-due-reminder.warning {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-color: #e1e4e8;
+  color: #2c3e50;
+}
+
+.offer-due-reminder.urgent {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  border-color: #e1e4e8;
+  color: #721c24;
+  animation: pulse 2s infinite;
+}
+
+.offer-due-reminder.expired {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-color: #e1e4e8;
+  color: #6c757d;
+}
+
+.reminder-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  padding: 1rem 1.2rem;
+}
+
+.reminder-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.reminder-icon {
+  color: #6c757d;
+}
+
+.reminder-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.reminder-message {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reminder-date {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: inherit;
+  opacity: 0.8;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 4px 16px rgba(220, 53, 69, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 16px rgba(220, 53, 69, 0.4);
+  }
+  100% {
+    box-shadow: 0 4px 16px rgba(220, 53, 69, 0.2);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .offer-due-reminder {
+    top: 1.2rem;
+    right: 1.2rem;
+    max-width: 260px;
+  }
+  
+  .reminder-content {
+    padding: 0.8rem 1rem;
+    gap: 0.7rem;
+  }
+  
+  .reminder-message {
+    font-size: 0.85rem;
+  }
+  
+  .reminder-date {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .offer-due-reminder {
+    position: relative;
+    top: auto;
+    right: auto;
+    max-width: 100%;
+    margin-bottom: 1rem;
+    order: -1;
+  }
+  
+  .reminder-content {
+    padding: 0.8rem 1rem;
+    gap: 0.7rem;
+  }
+  
+  .reminder-message {
+    font-size: 0.85rem;
+  }
+  
+  .reminder-date {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .offer-due-reminder {
+    margin-bottom: 0.8rem;
+    border-radius: 10px;
+  }
+  
+  .reminder-content {
+    padding: 0.7rem 0.9rem;
+    gap: 0.6rem;
+  }
+  
+  .reminder-message {
+    font-size: 0.8rem;
+  }
+  
+  .reminder-date {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .offer-due-reminder {
+    margin-bottom: 0.6rem;
+    border-radius: 8px;
+  }
+  
+  .reminder-content {
+    padding: 0.6rem 0.8rem;
+    gap: 0.5rem;
+  }
+  
+  .reminder-message {
+    font-size: 0.75rem;
+  }
+  
+  .reminder-date {
+    font-size: 0.65rem;
+  }
+} 
