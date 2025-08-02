@@ -168,7 +168,7 @@ class EmailService {
             ` : ''}
             <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
               <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
-                Property: ${propertyAddress}
+                ${propertyAddress}
               </p>
               <p style="color: #666; margin: 0; font-size: 14px;">
                 Role: ${roleText}
@@ -230,7 +230,7 @@ class EmailService {
             </p>
             <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
               <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
-                Property: ${propertyAddress}
+                ${propertyAddress}
               </p>
               <p style="color: #666; margin: 0; font-size: 14px;">
                 ${buyerName} (${roleText})
@@ -278,7 +278,7 @@ class EmailService {
             </p>
             <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
               <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
-                Property: ${propertyAddress}
+                ${propertyAddress}
               </p>
               <p style="color: #666; margin: 0; font-size: 14px;">
                 Viewer: ${viewerName} (${roleText})
@@ -326,7 +326,7 @@ class EmailService {
             </p>
             <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
               <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
-                Property: ${propertyAddress}
+                ${propertyAddress}
               </p>
               <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
                 Document: ${documentTitle}
@@ -377,7 +377,7 @@ class EmailService {
             </p>
             <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
               <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
-                Property: ${propertyAddress}
+                ${propertyAddress}
               </p>
               <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
                 Offer Amount: $${offerAmount?.toLocaleString() || 'N/A'}
