@@ -298,13 +298,9 @@ const PublicFacingListing = () => {
             setError('Please check your information and try again');
           }
         } else if (response.status === 401) {
-          if (errorMessage.includes('email') || errorMessage.includes('user not found')) {
-            setError('No account found with this email address');
-          } else if (errorMessage.includes('password') || errorMessage.includes('invalid credentials')) {
-            setError('Incorrect password. Please try again.');
-          } else {
-            setError('Invalid email or password. Please check your credentials and try again.');
-          }
+          // For 401 errors, the backend returns "Invalid email or password" for both cases
+          // Since we already know the user exists (from checkUserExists), this must be a password error
+          setError('Incorrect password. Please try again.');
         } else if (response.status === 429) {
           setError('Too many login attempts. Please wait a few minutes and try again.');
         } else if (response.status === 500) {
