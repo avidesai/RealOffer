@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../../../../../context/AuthContext';
 import BuyerPackageActivitySortBar from './components/BuyerPackageActivitySortBar/BuyerPackageActivitySortBar';
-import TabPaywall from '../../../../../../../components/TabPaywall/TabPaywall';
 import Avatar from '../../../../../../../components/Avatar/Avatar';
 import SimplifiedActivityView from './components/SimplifiedActivityView/SimplifiedActivityView';
 import './BuyerPackageActivity.css';
@@ -331,15 +330,6 @@ const BuyerPackageActivity = ({ buyerPackageId, listingId }) => {
           <div className="spinner"></div>
           <p>Loading activities</p>
         </div>
-      </div>
-    );
-  }
-
-  // Check if user is pro - if not, show paywall
-  if (!user?.isPremium) {
-    return (
-      <div className="activity-tab">
-        <TabPaywall feature="activity" />
       </div>
     );
   }
