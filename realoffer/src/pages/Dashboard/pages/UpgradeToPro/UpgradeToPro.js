@@ -19,7 +19,6 @@ const agentProFeatures = [
 
 // Buyer features (no unlimited listings, more buyer-focused)
 const buyerProFeatures = [
-  { icon: <BarChart2 size={24} />, title: 'Track Buyer Activity', desc: 'Track buyer interest, document views, and offer activity on properties.' },
   { icon: <Brain size={24} />, title: 'AI Document Analysis', desc: 'Instantly review disclosures and reports for key risks and insights.' },
   { icon: <TrendingUp size={24} />, title: 'Market Intelligence & Comps', desc: 'Access up-to-date property valuations and comparable sales data.' },
 ];
