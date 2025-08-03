@@ -187,7 +187,7 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                     name="email"
                     value={shareData.email}
                     onChange={handleInputChange}
-                    placeholder="Email"
+                    placeholder="Email Address"
                     className="share-url-input-field"
                     required
                   />
