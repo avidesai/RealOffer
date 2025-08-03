@@ -1,7 +1,8 @@
 // BuyerPackageMoreInfo.js
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
+import api from '../../../../../../../../../context/api';
 import './BuyerPackageMoreInfo.css';
 
 Modal.setAppElement('#root'); // Set the root element for accessibility
@@ -9,6 +10,30 @@ Modal.setAppElement('#root'); // Set the root element for accessibility
 const BuyerPackageMoreInfo = ({ buyerPackage, onClose }) => {
   // Extract the property listing from the buyer package
   const listing = buyerPackage?.propertyListing;
+  const [agents, setAgents] = useState([]);
+
+  // Fetch agents for this listing
+  useEffect(() => {
+    const fetchAgentDetails = async () => {
+      if (!listing || !listing.agentIds || !listing.agentIds.length) {
+        return;
+      }
+      
+      try {
+        const agentDetails = await Promise.all(
+          listing.agentIds.map(async (id) => {
+            const response = await api.get(`/api/users/${id}`);
+            return response.data;
+          })
+        );
+        setAgents(agentDetails);
+      } catch (error) {
+        console.error('Error fetching agent details:', error);
+      }
+    };
+    
+    fetchAgentDetails();
+  }, [listing]);
 
   // Guard against undefined listing
   if (!listing || !listing.homeCharacteristics) {
@@ -148,6 +173,26 @@ const BuyerPackageMoreInfo = ({ buyerPackage, onClose }) => {
           {renderField('City', 'homeCharacteristics.city', listing.homeCharacteristics.city)}
           {renderField('State', 'homeCharacteristics.state', listing.homeCharacteristics.state)}
           {renderField('Zip Code', 'homeCharacteristics.zip', listing.homeCharacteristics.zip)}
+        </div>
+        
+        <div className="info-section">
+          <h3>Listing Agents</h3>
+          <div className="selected-agents-list">
+            {agents.map(agent => (
+              <div key={agent._id} className="selected-agent-item">
+                <div className="agent-info">
+                  <span className="agent-name">{`${agent.firstName} ${agent.lastName}`}</span>
+                  {agent.phone && (
+                    <span className="agent-phone">{agent.phone}</span>
+                  )}
+                  <span className="agent-email">{agent.email}</span>
+                  {agent.agencyName && (
+                    <span className="agent-agency">{agent.agencyName}</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
         
         <div className="info-section">

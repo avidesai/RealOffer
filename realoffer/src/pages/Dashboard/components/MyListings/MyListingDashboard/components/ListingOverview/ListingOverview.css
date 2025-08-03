@@ -155,6 +155,44 @@
   box-shadow: 0 4px 12px rgba(46,204,113,0.25);
 }
 
+.overview-right-section {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  align-items: flex-end;
+}
+
+/* Compact OfferDueReminder styling for ListingOverview */
+.overview-right-section .offer-due-reminder {
+  margin-bottom: 0.5rem;
+  max-width: 240px;
+}
+
+.overview-right-section .reminder-content {
+  padding: 0.6rem 0.9rem;
+  gap: 0.6rem;
+}
+
+.overview-right-section .reminder-message {
+  font-size: 0.8rem;
+}
+
+.overview-right-section .reminder-date {
+  font-size: 0.7rem;
+}
+
+.overview-right-section .reminder-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Hide OfferDueReminder on mobile and smaller screens */
+@media (max-width: 768px) {
+  .overview-right-section .offer-due-reminder {
+    display: none;
+  }
+}
+
 .overview-agents {
   display: flex;
   flex-direction: column;
@@ -193,6 +231,23 @@
   letter-spacing: 0.01em;
   z-index: 1;
   position: relative;
+}
+
+/* Compact styling when there are multiple agents */
+.overview-agents.multiple-agents {
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+}
+
+.overview-agents.multiple-agents .listing-overview-agent-info {
+  padding: 0.4rem 0.6rem;
+  gap: 0.6rem;
+}
+
+
+
+.overview-agents.multiple-agents .listing-overview-agent-info p {
+  font-size: 0.85rem;
 }
 
 /* Enhanced spinner overlay */

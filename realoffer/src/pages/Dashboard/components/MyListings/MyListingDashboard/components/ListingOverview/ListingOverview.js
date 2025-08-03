@@ -142,21 +142,23 @@ function ListingOverview({ listing }) {
               <button className="overview-btn" onClick={() => setShowMoreInfo(true)}>More Info</button>
             </div>
           </div>
-          <div className="overview-agents">
+          <div className="overview-right-section">
             <OfferDueReminder offerDueDate={currentListing.offerDueDate} />
-            {agents.map(agent => (
-              <div key={agent._id} className="listing-overview-agent-info">
-                <Avatar 
-                  src={agent.profilePhotoUrl}
-                  firstName={agent.firstName}
-                  lastName={agent.lastName}
-                  size="small"
-                  className="listing-overview-agent-image"
-                  alt={`${agent.firstName} ${agent.lastName}`}
-                />
-                <p>{agent.firstName} {agent.lastName}</p>
-              </div>
-            ))}
+            <div className={`overview-agents ${agents.length > 1 ? 'multiple-agents' : ''}`}>
+              {agents.map(agent => (
+                <div key={agent._id} className="listing-overview-agent-info">
+                  <Avatar 
+                    src={agent.profilePhotoUrl}
+                    firstName={agent.firstName}
+                    lastName={agent.lastName}
+                    size={agents.length > 1 ? "compact" : "small"}
+                    className="listing-overview-agent-image"
+                    alt={`${agent.firstName} ${agent.lastName}`}
+                  />
+                  <p>{agent.firstName} {agent.lastName}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
         {showMoreInfo && (

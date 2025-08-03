@@ -239,6 +239,12 @@ exports.updateListing = async (req, res) => {
 
     // Validate agentIds if being updated
     if (req.body.agentIds && Array.isArray(req.body.agentIds)) {
+      // Get current listing to compare agentIds
+      const currentListing = await PropertyListing.findById(req.params.id);
+      if (!currentListing) {
+        return res.status(404).json({ message: "Listing not found" });
+      }
+
       // Ensure the current user is always included as primary agent
       const finalAgentIds = [req.user.id];
       
@@ -257,6 +263,35 @@ exports.updateListing = async (req, res) => {
         return res.status(400).json({ 
           message: 'Maximum of 2 listing agents allowed (1 primary + 1 additional)' 
         });
+      }
+      
+      // Find newly added agents (agents in finalAgentIds but not in current listing)
+      const currentAgentIds = currentListing.agentIds.map(id => id.toString());
+      const newAgentIds = finalAgentIds.filter(id => !currentAgentIds.includes(id.toString()));
+      
+      // Send email notifications to newly added agents
+      if (newAgentIds.length > 0) {
+        try {
+          const propertyAddress = `${currentListing.homeCharacteristics.address}, ${currentListing.homeCharacteristics.city}, ${currentListing.homeCharacteristics.state}`;
+          const addedByAgentName = `${req.user.firstName} ${req.user.lastName}`;
+          
+          for (const agentId of newAgentIds) {
+            if (agentId !== req.user.id) { // Don't send notification to self
+              const agent = await User.findById(agentId);
+              if (agent) {
+                await emailService.sendAgentAddedNotification(
+                  agent.email,
+                  `${agent.firstName} ${agent.lastName}`,
+                  propertyAddress,
+                  addedByAgentName
+                );
+              }
+            }
+          }
+        } catch (emailError) {
+          console.error('Error sending agent added notifications:', emailError);
+          // Don't fail the request if email fails
+        }
       }
       
       // Update the request body with validated agentIds

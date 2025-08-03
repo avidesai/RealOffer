@@ -45,6 +45,16 @@
   box-shadow: none !important;
 }
 
+.avatar-compact {
+  width: 22px !important;
+  height: 22px !important;
+  font-size: 10px;
+  min-width: 22px;
+  min-height: 22px;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 .avatar-activity {
   width: 40px !important;
   height: 40px !important;

@@ -553,6 +553,9 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                 <div className="mlmi-selected-agent-item">
                   <div className="mlmi-agent-info">
                     <span className="mlmi-agent-name">{`${user?.firstName} ${user?.lastName}`}</span>
+                    {user?.phone && (
+                      <span className="mlmi-agent-phone">{user.phone}</span>
+                    )}
                     <span className="mlmi-agent-email">{user?.email}</span>
                     {user?.agencyName && (
                       <span className="mlmi-agent-agency">{user.agencyName}</span>
@@ -566,6 +569,9 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                   <div key={agent._id} className="mlmi-selected-agent-item">
                     <div className="mlmi-agent-info">
                       <span className="mlmi-agent-name">{`${agent.firstName} ${agent.lastName}`}</span>
+                      {agent.phone && (
+                        <span className="mlmi-agent-phone">{agent.phone}</span>
+                      )}
                       <span className="mlmi-agent-email">{agent.email}</span>
                       {agent.agencyName && (
                         <span className="mlmi-agent-agency">{agent.agencyName}</span>

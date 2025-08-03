@@ -311,6 +311,72 @@
   border: 1.5px solid #f5c6cb;
 }
 
+/* Listing Agents Styles - Read-only for buyers */
+.selected-agents-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin-top: 0.15rem;
+}
+
+.selected-agent-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  margin-bottom: 0.125rem;
+}
+
+.selected-agent-item .agent-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.agent-name {
+  font-weight: 700;
+  color: #1a1a1a;
+  font-size: 0.95rem;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agent-email {
+  color: #6c757d;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agent-phone {
+  color: #6c757d;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agent-agency {
+  color: #495057;
+  font-size: 0.8rem;
+  font-style: italic;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Responsive */
 @media (max-width: 700px) {
   .more-info-modal {

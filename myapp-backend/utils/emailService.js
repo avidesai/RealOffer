@@ -406,6 +406,57 @@ class EmailService {
       return { success: false, error: error.message };
     }
   }
+
+  // Send notification email for agent added to listing
+  async sendAgentAddedNotification(agentEmail, agentName, propertyAddress, addedByAgentName) {
+    const subject = `You've been added as a listing agent - ${propertyAddress}`;
+    
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: agentEmail,
+      subject: subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">Listing Agent Added</h1>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${agentName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              You have been added as a listing agent for a property on RealOffer.
+            </p>
+            <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
+                ${propertyAddress}
+              </p>
+              <p style="color: #666; margin: 0; font-size: 14px;">
+                Added by: ${addedByAgentName}
+              </p>
+            </div>
+            <p style="color: #666; line-height: 1.6;">
+              You now have access to manage this property listing, including viewing offers, 
+              managing documents, and more.
+            </p>
+            <p style="color: #666; line-height: 1.6;">
+              You can access this property through your RealOffer dashboard.
+            </p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('Agent added notification send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 module.exports = new EmailService(); 
