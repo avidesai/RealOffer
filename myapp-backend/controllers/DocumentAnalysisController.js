@@ -142,7 +142,7 @@ exports.analyzeDocument = async (req, res) => {
     }
 
     // Check if document type is supported
-    if (!['Home Inspection Report', 'Pest Inspection Report'].includes(document.type)) {
+    if (!['Home Inspection Report', 'Pest Inspection Report', 'Seller Property Questionnaire', 'Transfer Disclosure Statement', 'Agent Visual Inspection Disclosure'].includes(document.type)) {
       return res.status(400).json({ message: 'Document type not supported for analysis' });
     }
 
@@ -171,9 +171,22 @@ exports.analyzeDocument = async (req, res) => {
 
     // If no completed analysis, create or reset
     if (!analysis) {
+      let analysisType;
+      if (document.type === 'Home Inspection Report') {
+        analysisType = 'home_inspection';
+      } else if (document.type === 'Pest Inspection Report') {
+        analysisType = 'pest_inspection';
+      } else if (document.type === 'Seller Property Questionnaire') {
+        analysisType = 'seller_property_questionnaire';
+      } else if (document.type === 'Transfer Disclosure Statement') {
+        analysisType = 'transfer_disclosure_statement';
+      } else if (document.type === 'Agent Visual Inspection Disclosure') {
+        analysisType = 'agent_visual_inspection_disclosure';
+      }
+      
       analysis = new DocumentAnalysis({
         document: documentId,
-        analysisType: document.type === 'Home Inspection Report' ? 'home_inspection' : 'pest_inspection',
+        analysisType: analysisType,
         status: 'processing',
         progress: {
           currentStep: 'initializing',
@@ -210,8 +223,10 @@ exports.analyzeDocument = async (req, res) => {
 
     // Prepare prompt based on document type
     await updateAnalysisProgress(analysis._id, 'analyzing', 50, 'Preparing analysis...');
-    const prompt = document.type === 'Home Inspection Report'
-      ? `You are an expert home inspector and real-estate advisor. Read the home-inspection report below and produce a plain-language summary for buyers and agents.
+    let prompt;
+    
+    if (document.type === 'Home Inspection Report') {
+      prompt = `You are an expert home inspector and real-estate advisor. Read the home-inspection report below and produce a plain-language summary for buyers and agents.
 
 • **No technical jargon.**  
 • **No dollar estimates.**  
@@ -265,8 +280,9 @@ Include a 1-sentence explanation if useful (max 2 sentences).
 Write clearly and helpfully. Avoid dollar figures. This summary should let regular buyers and agents quickly grasp what matters most.
 
 Report content:
-${text}`
-      : `You are a licensed pest inspector and real estate advisor. Your job is to read a pest inspection report and provide a clear, helpful summary for both home buyers and real estate agents.
+${text}`;
+    } else if (document.type === 'Pest Inspection Report') {
+      prompt = `You are a licensed pest inspector and real estate advisor. Your job is to read a pest inspection report and provide a clear, helpful summary for both home buyers and real estate agents.
 
 Structure your response as follows:
 
@@ -305,6 +321,177 @@ Write clearly and use bullet points wherever possible. Avoid overly technical or
 
 Report content:
 ${text}`;
+    } else if (document.type === 'Seller Property Questionnaire') {
+      prompt = `You are a real estate advisor. Review the following Seller Property Questionnaire (SPQ) and produce a clean, buyer- and agent-friendly summary that highlights the most important information disclosed by the seller.
+
+Ignore all unselected checkboxes and standard legal or template text. Focus only on content actually provided by the seller — either through checked boxes, explanations, or added notes.
+
+Organize your summary with the following structure:
+
+## 1. Maintenance, Repairs, and Upgrades
+
+List any upgrades, renovations, repairs, or replacements made to the property (interior or exterior).
+
+Mention the year and vendor/contractor if provided.
+
+Include recurring or seasonal maintenance routines (e.g., gutter cleaning, HVAC servicing).
+
+## 2. Known Issues or Defects
+
+Summarize any current or past problems with systems or structures (e.g., plumbing, electrical, HVAC, windows, roof, drainage).
+
+Indicate whether the seller states the issue was resolved or still active.
+
+Include any mention of past water intrusion, slow drains, moisture, or mold-related problems.
+
+## 3. Environmental & External Conditions
+
+Note any natural features or risks disclosed: proximity to rivers, past flooding, soil saturation, high water tables, etc.
+
+Include any comments about pests, wildlife, or pet-related conditions.
+
+If the seller mentioned cannabis use, smoking, or industrial nuisances, include that as well.
+
+## 4. Neighborhood and Surrounding Factors
+
+Summarize any issues disclosed about neighbors, road noise, nearby businesses, odors, or wildlife activity.
+
+Include whether the seller disclosed a death on the property in the past 3 years.
+
+## 5. Legal, Easements, and Ownership Notes
+
+Note any shared structures (fences, driveways), easements, boundary disputes, or public access disclosures.
+
+Mention if the seller disclosed any liens, HOA disputes, lawsuits, or other legal claims.
+
+## 6. HOA and Community Restrictions
+
+If the property is in an HOA, list:
+
+- HOA name
+- Monthly dues
+- Common areas maintained
+- Restrictions (e.g., basketball hoops, architectural approvals)
+
+## 7. Cosmetic and Other Notable Disclosures
+
+Mention any wear and tear, stains, markings, or cosmetic imperfections disclosed by the seller that may impact buyer perception.
+
+Include any general material facts the seller added that don't fit cleanly into another section.
+
+Write your summary in a clear, readable format, using bullet points or short paragraphs. Keep the language natural and useful to buyers and agents — avoid legal terms or form language. If no material disclosures were made in a section, simply skip that section.
+
+giReport content:
+${text}`;
+    } else if (document.type === 'Transfer Disclosure Statement') {
+      prompt = `You are a real estate advisor. Read the following Transfer Disclosure Statement (TDS) and produce a concise, easy-to-read summary of all meaningful information provided by the seller.
+
+Ignore all legal form text, unselected checkboxes, and empty fields. Focus only on content that the seller actually disclosed — including any explanations or added notes.
+
+Organize your summary using the following structure:
+
+## 1. Property Overview
+
+State whether the seller is the occupant.
+
+Mention any general details the seller provided about the property, such as roof type and age, HVAC systems, or unique features.
+
+## 2. Included Features and Systems
+
+List key home features the seller confirmed are present (e.g., oven, water heater, sprinklers, pool, solar, garage door openers).
+
+Include any custom or non-standard additions (e.g., Tesla charger, fountain, TV equipment).
+
+## 3. Items in Need of Repair or Not in Working Order
+
+Highlight any appliances, fixtures, or systems the seller disclosed as broken, malfunctioning, or in poor condition.
+
+Be specific about location or context if the seller provided it (e.g., "broken roof tile above garage").
+
+## 4. Structural and Material Defects
+
+Summarize any seller-reported issues related to:
+
+- Foundation
+- Roofing
+- Windows, floors, doors
+- Electrical, plumbing, sewer, or insulation
+
+Clearly note if the seller added descriptive detail (e.g., "scrapes and dings in wood floors").
+
+## 5. Environmental, Easement, or Legal Disclosures
+
+List any environmental hazards, easements, zoning issues, or property modifications disclosed by the seller.
+
+Include notes on:
+
+- Shared structures or boundaries
+- Drainage/fill concerns
+- HOA presence and dues
+- Any mention of neighborhood nuisances (e.g., road noise, helicopters, vineyard equipment)
+
+## 6. HOA and Community Restrictions
+
+If the seller disclosed that the home is part of an HOA:
+
+- Include the HOA name
+- Monthly dues
+- Any noted CC&Rs or architectural limitations
+
+Write the summary in clean, bullet-point or short-paragraph form. Avoid repeating form questions or legal language. The output should be immediately useful to both agents and homebuyers without requiring them to read the full form.
+
+Report content:
+${text}`;
+    } else if (document.type === 'Agent Visual Inspection Disclosure') {
+      prompt = `You are a real estate advisor. Read the following Agent Visual Inspection Disclosure (AVID) and generate a summary of the agent's material observations made during their visual walkthrough of the home.
+
+This form includes room-by-room notes. Your job is to ignore:
+
+- Any unfilled or blank sections
+- All legal or boilerplate AVID language
+- Generic entries like "Nothing to note"
+
+Instead, extract only meaningful visual observations that might matter to a homebuyer or real estate agent.
+
+Structure your response into the following categories:
+
+## 1. Interior Observations
+
+Summarize all relevant interior findings across rooms (e.g., scuffs, discoloration, trim issues, missing fixtures).
+
+Group rooms together where appropriate (e.g., "Minor scuffs in multiple bedrooms").
+
+Specify rooms only when the issue is room-specific and relevant.
+
+## 2. Exterior Observations
+
+Include any findings related to the building exterior, yard, fencing, visible drainage issues, paint, or wear and tear.
+
+Note anything that might suggest maintenance or cosmetic attention is needed.
+
+## 3. Garage, Parking, and Storage Areas
+
+List any garage-related issues disclosed (e.g., unfinished drywall, limited access, visible mechanicals).
+
+Include comments about Tesla chargers, irrigation systems, or stored personal items that impacted visibility.
+
+## 4. Accessibility or Inspection Limitations
+
+Mention any spaces or areas the agent was unable to inspect due to personal items, furniture, or lack of access.
+
+Example: "Closet full of personal items; unable to inspect interior."
+
+## 5. Other Notable Visual Conditions
+
+Include anything not fitting into the above categories, such as missing smoke detectors, attic access, or notable wear in unexpected locations.
+
+Only include items mentioned by the agent, not assumptions or advice.
+
+Keep your summary clean, brief, and structured using bullet points or short paragraphs. Focus on what would matter to a buyer when deciding how well the property has been maintained. Do not repeat legal warnings or explain the agent's limitations — focus only on what was visibly observed and disclosed.
+
+Report content:
+${text}`;
+    }
 
     // Call Claude API
     await updateAnalysisProgress(analysis._id, 'analyzing', 70, 'Analyzing document content...');

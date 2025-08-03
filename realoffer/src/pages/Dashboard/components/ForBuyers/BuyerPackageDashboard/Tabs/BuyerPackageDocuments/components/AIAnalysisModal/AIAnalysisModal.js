@@ -20,6 +20,12 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, isBuyerPac
   const getModalTitle = () => {
     if (documentType && documentType.toLowerCase().includes('pest')) {
       return 'Pest Inspection Report Analysis';
+    } else if (documentType && documentType.toLowerCase().includes('seller property questionnaire')) {
+      return 'Seller Property Questionnaire Analysis';
+    } else if (documentType && documentType.toLowerCase().includes('transfer disclosure statement')) {
+      return 'Transfer Disclosure Statement Analysis';
+    } else if (documentType && documentType.toLowerCase().includes('agent visual inspection disclosure')) {
+      return 'Agent Visual Inspection Disclosure Analysis';
     }
     return 'Home Inspection Report Analysis';
   };
@@ -230,6 +236,21 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, isBuyerPac
                       // Style pest inspection items (original format)
                       if (documentType && documentType.toLowerCase().includes('pest')) {
                         return <li {...props} className="pest-item-standard">{children}</li>;
+                      }
+                      
+                      // Style SPQ items
+                      if (documentType && documentType.toLowerCase().includes('seller property questionnaire')) {
+                        return <li {...props} className="spq-item-standard">{children}</li>;
+                      }
+                      
+                      // Style TDS items
+                      if (documentType && documentType.toLowerCase().includes('transfer disclosure statement')) {
+                        return <li {...props} className="tds-item-standard">{children}</li>;
+                      }
+                      
+                      // Style AVID items
+                      if (documentType && documentType.toLowerCase().includes('agent visual inspection disclosure')) {
+                        return <li {...props} className="avid-item-standard">{children}</li>;
                       }
                       
                       return <li {...props}>{children}</li>;
