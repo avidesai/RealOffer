@@ -354,9 +354,9 @@ If the seller mentioned cannabis use, smoking, or industrial nuisances, include 
 
 ## 4. Neighborhood and Surrounding Factors
 
-Summarize any issues disclosed about neighbors, road noise, nearby businesses, odors, or wildlife activity.
+**Death on Property (Past 3 Years):** [State whether the seller disclosed a death on the property in the past 3 years - "Yes, seller disclosed a death on the property." or "No death on the property was disclosed." or "No information provided regarding death on the property."]
 
-Include whether the seller disclosed a death on the property in the past 3 years.
+Summarize any issues disclosed about neighbors, road noise, nearby businesses, odors, or wildlife activity.
 
 ## 5. Legal, Easements, and Ownership Notes
 
