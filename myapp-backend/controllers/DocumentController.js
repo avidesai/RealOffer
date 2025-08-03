@@ -513,7 +513,7 @@ exports.getDocumentsByOffer = async (req, res) => {
     
     const isListingCreator = offer.propertyListing.createdBy.toString() === req.user.id;
     const isListingAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
-    const isBuyersAgent = offer.buyersAgent.toString() === req.user.id;
+    const isBuyersAgent = offer.buyersAgent && offer.buyersAgent.toString() === req.user.id;
     
     if (!isListingCreator && !isListingAgent && !isBuyersAgent) {
       return res.status(403).json({ message: 'Not authorized to view these documents' });

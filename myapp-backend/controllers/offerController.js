@@ -169,6 +169,16 @@ exports.getOfferById = async (req, res) => {
   try {
     const offer = await Offer.findById(req.params.id).populate('buyersAgent').populate('propertyListing');
     if (!offer) return res.status(404).json({ message: 'Offer not found' });
+    
+    // Check authorization - user must be listing creator, listing agent, or buyer's agent
+    const isListingCreator = offer.propertyListing.createdBy.toString() === req.user.id;
+    const isListingAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isBuyersAgent = offer.buyersAgent && offer.buyersAgent._id.toString() === req.user.id;
+    
+    if (!isListingCreator && !isListingAgent && !isBuyersAgent) {
+      return res.status(403).json({ message: 'Not authorized to view this offer' });
+    }
+    
     res.status(200).json(offer);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -189,8 +199,18 @@ exports.updateOffer = async (req, res) => {
 // Delete a specific offer
 exports.deleteOffer = async (req, res) => {
   try {
-    const offer = await Offer.findByIdAndDelete(req.params.id);
+    const offer = await Offer.findById(req.params.id).populate('propertyListing');
     if (!offer) return res.status(404).json({ message: 'Offer not found' });
+    
+    // Check authorization - only listing creator and agents can delete offers
+    const isListingCreator = offer.propertyListing.createdBy.toString() === req.user.id;
+    const isListingAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    
+    if (!isListingCreator && !isListingAgent) {
+      return res.status(403).json({ message: 'Not authorized to delete this offer' });
+    }
+    
+    await Offer.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Offer deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -203,17 +223,26 @@ exports.updatePrivateNotes = async (req, res) => {
     const { id } = req.params;
     const { privateListingTeamNotes } = req.body;
 
-    const offer = await Offer.findByIdAndUpdate(
+    const offer = await Offer.findById(id).populate('propertyListing');
+    if (!offer) {
+      return res.status(404).json({ message: 'Offer not found' });
+    }
+
+    // Check authorization - only listing creator and agents can update private notes
+    const isListingCreator = offer.propertyListing.createdBy.toString() === req.user.id;
+    const isListingAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    
+    if (!isListingCreator && !isListingAgent) {
+      return res.status(403).json({ message: 'Not authorized to update private notes' });
+    }
+
+    const updatedOffer = await Offer.findByIdAndUpdate(
       id,
       { privateListingTeamNotes },
       { new: true, runValidators: true }
     );
 
-    if (!offer) {
-      return res.status(404).json({ message: 'Offer not found' });
-    }
-
-    res.status(200).json(offer);
+    res.status(200).json(updatedOffer);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -225,17 +254,26 @@ exports.updateOfferStatus = async (req, res) => {
     const { id } = req.params;
     const { offerStatus } = req.body;
 
-    const offer = await Offer.findByIdAndUpdate(
+    const offer = await Offer.findById(id).populate('propertyListing');
+    if (!offer) {
+      return res.status(404).json({ message: 'Offer not found' });
+    }
+
+    // Check authorization - only listing creator and agents can update offer status
+    const isListingCreator = offer.propertyListing.createdBy.toString() === req.user.id;
+    const isListingAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    
+    if (!isListingCreator && !isListingAgent) {
+      return res.status(403).json({ message: 'Not authorized to update offer status' });
+    }
+
+    const updatedOffer = await Offer.findByIdAndUpdate(
       id,
       { offerStatus },
       { new: true, runValidators: true }
     );
 
-    if (!offer) {
-      return res.status(404).json({ message: 'Offer not found' });
-    }
-
-    res.status(200).json(offer);
+    res.status(200).json(updatedOffer);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -246,8 +284,16 @@ exports.respondToOffer = async (req, res) => {
     const { id } = req.params;
     const { responseType, subject, message } = req.body;
 
-    const offer = await Offer.findById(id);
+    const offer = await Offer.findById(id).populate('propertyListing');
     if (!offer) return res.status(404).json({ message: 'Offer not found' });
+
+    // Check authorization - only listing creator and agents can respond to offers
+    const isListingCreator = offer.propertyListing.createdBy.toString() === req.user.id;
+    const isListingAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    
+    if (!isListingCreator && !isListingAgent) {
+      return res.status(403).json({ message: 'Not authorized to respond to this offer' });
+    }
 
     // Create a new message in the conversation
     const newMessage = new Message({
