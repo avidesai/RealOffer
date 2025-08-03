@@ -23,6 +23,7 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
   
   // Listing data state
   const [currentListing, setCurrentListing] = useState(null);
+  const [listingLoading, setListingLoading] = useState(false);
   
   const [shareData, setShareData] = useState({
     role: 'buyer',
@@ -36,6 +37,7 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
   const fetchCurrentListing = useCallback(async () => {
     if (!listingId) return;
     
+    setListingLoading(true);
     try {
       const response = await api.get(`/api/propertyListings/${listingId}`);
       setCurrentListing(response.data);
@@ -49,6 +51,10 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
       }
     } catch (error) {
       console.error('Error fetching listing:', error);
+      // If there's an error fetching the listing, don't show listing agent option
+      setCurrentListing(null);
+    } finally {
+      setListingLoading(false);
     }
   }, [listingId, shareData.role]);
 
@@ -133,7 +139,11 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
 
   // Check if listing agent option should be available (max 2 agents)
   const canAddListingAgent = () => {
-    if (!currentListing || !currentListing.agentIds) return true;
+    // If we haven't fetched the listing data yet, don't show the option
+    if (!currentListing) return false;
+    // If agentIds is not available, don't show the option
+    if (!currentListing.agentIds) return false;
+    // Only show if there are fewer than 2 agents
     return currentListing.agentIds.length < 2;
   };
 
@@ -271,6 +281,8 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
     setError('');
     setSelectedAgent(null);
     setSearchQuery('');
+    setListingLoading(false);
+    setCurrentListing(null);
     setShareData({
       role: 'buyer',
       firstName: '',
@@ -316,10 +328,11 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                     value={shareData.role}
                     onChange={handleInputChange}
                     className="share-url-select"
+                    disabled={listingLoading}
                   >
                     <option value="buyer">Buyer</option>
                     <option value="buyerAgent">Buyer Agent</option>
-                    {canAddListingAgent() && (
+                    {!listingLoading && canAddListingAgent() && (
                       <option value="listingAgent">Listing Agent</option>
                     )}
                   </select>
