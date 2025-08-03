@@ -9,7 +9,8 @@ class NotificationService {
   async sendBuyerPackageNotification(propertyListingId, buyerName, buyerRole) {
     try {
       const propertyListing = await PropertyListing.findById(propertyListingId)
-        .populate('createdBy', 'firstName lastName email');
+        .populate('createdBy', 'firstName lastName email')
+        .populate('agentIds', 'firstName lastName email');
 
       if (!propertyListing) {
         console.error('Property listing not found for notification');
@@ -22,25 +23,33 @@ class NotificationService {
         return { success: true, skipped: true };
       }
 
-      const listingAgent = propertyListing.createdBy;
-      const listingAgentName = `${listingAgent.firstName} ${listingAgent.lastName}`;
       const propertyAddress = propertyListing.homeCharacteristics.address;
+      const results = [];
 
-      const result = await emailService.sendBuyerPackageNotification(
-        listingAgent.email,
-        listingAgentName,
-        propertyAddress,
-        buyerName,
-        buyerRole
-      );
+      // Send notification to all listing agents
+      for (const agent of propertyListing.agentIds) {
+        const agentName = `${agent.firstName} ${agent.lastName}`;
+        
+        const result = await emailService.sendBuyerPackageNotification(
+          agent.email,
+          agentName,
+          propertyAddress,
+          buyerName,
+          buyerRole
+        );
 
-      if (result.success) {
-        console.log(`Buyer package notification sent to ${listingAgent.email} for property ${propertyAddress}`);
-      } else {
-        console.error('Failed to send buyer package notification:', result.error);
+        if (result.success) {
+          console.log(`Buyer package notification sent to ${agent.email} for property ${propertyAddress}`);
+        } else {
+          console.error(`Failed to send buyer package notification to ${agent.email}:`, result.error);
+        }
+        
+        results.push(result);
       }
 
-      return result;
+      // Return success if at least one notification was sent successfully
+      const hasSuccess = results.some(result => result.success);
+      return { success: hasSuccess, results };
     } catch (error) {
       console.error('Error sending buyer package notification:', error);
       return { success: false, error: error.message };
@@ -51,7 +60,8 @@ class NotificationService {
   async sendViewNotification(propertyListingId, viewerName, viewerRole) {
     try {
       const propertyListing = await PropertyListing.findById(propertyListingId)
-        .populate('createdBy', 'firstName lastName email');
+        .populate('createdBy', 'firstName lastName email')
+        .populate('agentIds', 'firstName lastName email');
 
       if (!propertyListing) {
         console.error('Property listing not found for notification');
@@ -64,25 +74,33 @@ class NotificationService {
         return { success: true, skipped: true };
       }
 
-      const listingAgent = propertyListing.createdBy;
-      const listingAgentName = `${listingAgent.firstName} ${listingAgent.lastName}`;
       const propertyAddress = propertyListing.homeCharacteristics.address;
+      const results = [];
 
-      const result = await emailService.sendViewNotification(
-        listingAgent.email,
-        listingAgentName,
-        propertyAddress,
-        viewerName,
-        viewerRole
-      );
+      // Send notification to all listing agents
+      for (const agent of propertyListing.agentIds) {
+        const agentName = `${agent.firstName} ${agent.lastName}`;
+        
+        const result = await emailService.sendViewNotification(
+          agent.email,
+          agentName,
+          propertyAddress,
+          viewerName,
+          viewerRole
+        );
 
-      if (result.success) {
-        console.log(`View notification sent to ${listingAgent.email} for property ${propertyAddress}`);
-      } else {
-        console.error('Failed to send view notification:', result.error);
+        if (result.success) {
+          console.log(`View notification sent to ${agent.email} for property ${propertyAddress}`);
+        } else {
+          console.error(`Failed to send view notification to ${agent.email}:`, result.error);
+        }
+        
+        results.push(result);
       }
 
-      return result;
+      // Return success if at least one notification was sent successfully
+      const hasSuccess = results.some(result => result.success);
+      return { success: hasSuccess, results };
     } catch (error) {
       console.error('Error sending view notification:', error);
       return { success: false, error: error.message };
@@ -93,7 +111,8 @@ class NotificationService {
   async sendDownloadNotification(propertyListingId, downloaderName, downloaderRole, documentTitle) {
     try {
       const propertyListing = await PropertyListing.findById(propertyListingId)
-        .populate('createdBy', 'firstName lastName email');
+        .populate('createdBy', 'firstName lastName email')
+        .populate('agentIds', 'firstName lastName email');
 
       if (!propertyListing) {
         console.error('Property listing not found for notification');
@@ -106,26 +125,34 @@ class NotificationService {
         return { success: true, skipped: true };
       }
 
-      const listingAgent = propertyListing.createdBy;
-      const listingAgentName = `${listingAgent.firstName} ${listingAgent.lastName}`;
       const propertyAddress = propertyListing.homeCharacteristics.address;
+      const results = [];
 
-      const result = await emailService.sendDownloadNotification(
-        listingAgent.email,
-        listingAgentName,
-        propertyAddress,
-        downloaderName,
-        downloaderRole,
-        documentTitle
-      );
+      // Send notification to all listing agents
+      for (const agent of propertyListing.agentIds) {
+        const agentName = `${agent.firstName} ${agent.lastName}`;
+        
+        const result = await emailService.sendDownloadNotification(
+          agent.email,
+          agentName,
+          propertyAddress,
+          downloaderName,
+          downloaderRole,
+          documentTitle
+        );
 
-      if (result.success) {
-        console.log(`Download notification sent to ${listingAgent.email} for property ${propertyAddress}`);
-      } else {
-        console.error('Failed to send download notification:', result.error);
+        if (result.success) {
+          console.log(`Download notification sent to ${agent.email} for property ${propertyAddress}`);
+        } else {
+          console.error(`Failed to send download notification to ${agent.email}:`, result.error);
+        }
+        
+        results.push(result);
       }
 
-      return result;
+      // Return success if at least one notification was sent successfully
+      const hasSuccess = results.some(result => result.success);
+      return { success: hasSuccess, results };
     } catch (error) {
       console.error('Error sending download notification:', error);
       return { success: false, error: error.message };
@@ -136,7 +163,8 @@ class NotificationService {
   async sendOfferNotification(propertyListingId, offerAmount, buyerName, buyerRole) {
     try {
       const propertyListing = await PropertyListing.findById(propertyListingId)
-        .populate('createdBy', 'firstName lastName email');
+        .populate('createdBy', 'firstName lastName email')
+        .populate('agentIds', 'firstName lastName email');
 
       if (!propertyListing) {
         console.error('Property listing not found for notification');
@@ -149,26 +177,34 @@ class NotificationService {
         return { success: true, skipped: true };
       }
 
-      const listingAgent = propertyListing.createdBy;
-      const listingAgentName = `${listingAgent.firstName} ${listingAgent.lastName}`;
       const propertyAddress = propertyListing.homeCharacteristics.address;
+      const results = [];
 
-      const result = await emailService.sendOfferNotification(
-        listingAgent.email,
-        listingAgentName,
-        propertyAddress,
-        offerAmount,
-        buyerName,
-        buyerRole
-      );
+      // Send notification to all listing agents
+      for (const agent of propertyListing.agentIds) {
+        const agentName = `${agent.firstName} ${agent.lastName}`;
+        
+        const result = await emailService.sendOfferNotification(
+          agent.email,
+          agentName,
+          propertyAddress,
+          offerAmount,
+          buyerName,
+          buyerRole
+        );
 
-      if (result.success) {
-        console.log(`Offer notification sent to ${listingAgent.email} for property ${propertyAddress}`);
-      } else {
-        console.error('Failed to send offer notification:', result.error);
+        if (result.success) {
+          console.log(`Offer notification sent to ${agent.email} for property ${propertyAddress}`);
+        } else {
+          console.error(`Failed to send offer notification to ${agent.email}:`, result.error);
+        }
+        
+        results.push(result);
       }
 
-      return result;
+      // Return success if at least one notification was sent successfully
+      const hasSuccess = results.some(result => result.success);
+      return { success: hasSuccess, results };
     } catch (error) {
       console.error('Error sending offer notification:', error);
       return { success: false, error: error.message };
