@@ -242,7 +242,10 @@ exports.updateCustomValue = async (req, res) => {
     }
 
     // Check if user owns this property
-    if (property.createdBy.toString() !== req.user.id) {
+    const isCreator = property.createdBy.toString() === req.user.id;
+    const isAgent = property.agentIds.some(agentId => agentId.toString() === req.user.id);
+    
+    if (!isCreator && !isAgent) {
       return res.status(403).json({ message: 'Not authorized to modify this property' });
     }
 

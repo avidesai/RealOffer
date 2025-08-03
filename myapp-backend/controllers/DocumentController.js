@@ -44,7 +44,10 @@ exports.uploadDocument = async (req, res) => {
       return res.status(404).json({ message: 'Property listing not found' });
     }
 
-    if (propertyListing.createdBy.toString() !== req.user.id) {
+    const isCreator = propertyListing.createdBy.toString() === req.user.id;
+    const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    
+    if (!isCreator && !isAgent) {
       return res.status(403).json({ message: 'Not authorized to upload documents to this listing' });
     }
 
@@ -116,7 +119,10 @@ exports.addDocumentToPropertyListing = async (req, res) => {
     }
 
     // Check if the authenticated user is authorized to add documents to this listing
-    if (propertyListing.createdBy.toString() !== req.user.id) {
+    const isCreator = propertyListing.createdBy.toString() === req.user.id;
+    const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    
+    if (!isCreator && !isAgent) {
       return res.status(403).json({ message: 'Not authorized to add documents to this listing' });
     }
     const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
@@ -172,7 +178,10 @@ exports.getDocumentsByListing = async (req, res) => {
       return res.status(404).json({ message: 'Property listing not found' });
     }
     // Check if the authenticated user is authorized to view these documents
-    if (propertyListing.createdBy.toString() !== req.user.id) {
+    const isCreator = propertyListing.createdBy.toString() === req.user.id;
+    const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    
+    if (!isCreator && !isAgent) {
       return res.status(403).json({ message: 'Not authorized to view these documents' });
     }
     const documents = await Document.find({ propertyListing: req.params.listingId });
@@ -197,7 +206,14 @@ exports.updateDocumentSignedStatus = async (req, res) => {
 
     // Check if the authenticated user is authorized to update this document
     const propertyListing = await PropertyListing.findById(document.propertyListing);
-    if (!propertyListing || propertyListing.createdBy.toString() !== req.user.id) {
+    if (!propertyListing) {
+      return res.status(404).json({ message: 'Property listing not found' });
+    }
+    
+    const isCreator = propertyListing.createdBy.toString() === req.user.id;
+    const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    
+    if (!isCreator && !isAgent) {
       return res.status(403).json({ message: 'Not authorized to update this document' });
     }
     document.signed = signed;
@@ -222,7 +238,14 @@ exports.deleteDocument = async (req, res) => {
     }
 
     const propertyListing = await PropertyListing.findById(document.propertyListing);
-    if (!propertyListing || propertyListing.createdBy.toString() !== req.user.id) {
+    if (!propertyListing) {
+      return res.status(404).json({ message: 'Property listing not found' });
+    }
+    
+    const isCreator = propertyListing.createdBy.toString() === req.user.id;
+    const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    
+    if (!isCreator && !isAgent) {
       return res.status(403).json({ message: 'Not authorized to delete this document' });
     }
     const blobName = document.azureKey;
@@ -250,7 +273,14 @@ exports.addPageToSignaturePackage = async (req, res) => {
 
     // Check if the authenticated user is authorized to modify this document
     const propertyListing = await PropertyListing.findById(document.propertyListing);
-    if (!propertyListing || propertyListing.createdBy.toString() !== req.user.id) {
+    if (!propertyListing) {
+      return res.status(404).json({ message: 'Property listing not found' });
+    }
+    
+    const isCreator = propertyListing.createdBy.toString() === req.user.id;
+    const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    
+    if (!isCreator && !isAgent) {
       return res.status(403).json({ message: 'Not authorized to modify this document' });
     }
     if (!document.signaturePackagePages.includes(page)) {
@@ -279,7 +309,14 @@ exports.removePageFromSignaturePackage = async (req, res) => {
 
     // Check if the authenticated user is authorized to modify this document
     const propertyListing = await PropertyListing.findById(document.propertyListing);
-    if (!propertyListing || propertyListing.createdBy.toString() !== req.user.id) {
+    if (!propertyListing) {
+      return res.status(404).json({ message: 'Property listing not found' });
+    }
+    
+    const isCreator = propertyListing.createdBy.toString() === req.user.id;
+    const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    
+    if (!isCreator && !isAgent) {
       return res.status(403).json({ message: 'Not authorized to modify this document' });
     }
     const updatedDocument = await Document.findByIdAndUpdate(
@@ -303,7 +340,10 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     }
 
     // Check if the authenticated user is authorized to create a signature packet for this listing
-    if (propertyListing.createdBy.toString() !== req.user.id) {
+    const isCreator = propertyListing.createdBy.toString() === req.user.id;
+    const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    
+    if (!isCreator && !isAgent) {
       return res.status(403).json({ message: 'Not authorized to create a signature packet for this listing' });
     }
     
@@ -471,7 +511,11 @@ exports.getDocumentsByOffer = async (req, res) => {
       return res.status(404).json({ message: 'Offer not found' });
     }
     
-    if (offer.propertyListing.createdBy.toString() !== req.user.id && offer.buyersAgent.toString() !== req.user.id) {
+    const isListingCreator = offer.propertyListing.createdBy.toString() === req.user.id;
+    const isListingAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isBuyersAgent = offer.buyersAgent.toString() === req.user.id;
+    
+    if (!isListingCreator && !isListingAgent && !isBuyersAgent) {
       return res.status(403).json({ message: 'Not authorized to view these documents' });
     }
     
@@ -693,13 +737,27 @@ exports.getSingleDocument = async (req, res) => {
     if (document.propertyListing) {
       // For listing documents, check if user owns the listing
       const propertyListing = await PropertyListing.findById(document.propertyListing);
-      if (!propertyListing || propertyListing.createdBy.toString() !== req.user.id) {
+      if (!propertyListing) {
+        return res.status(404).json({ message: 'Property listing not found' });
+      }
+      
+      const isCreator = propertyListing.createdBy.toString() === req.user.id;
+      const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+      
+      if (!isCreator && !isAgent) {
         return res.status(403).json({ message: 'Not authorized to access this document' });
       }
     } else if (document.offer) {
       // For offer documents, check if user owns the listing the offer is for
       const offer = await Offer.findById(document.offer).populate('propertyListing');
-      if (!offer || !offer.propertyListing || offer.propertyListing.createdBy.toString() !== req.user.id) {
+      if (!offer || !offer.propertyListing) {
+        return res.status(404).json({ message: 'Offer or property listing not found' });
+      }
+      
+      const isCreator = offer.propertyListing.createdBy.toString() === req.user.id;
+      const isAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+      
+      if (!isCreator && !isAgent) {
         return res.status(403).json({ message: 'Not authorized to access this document' });
       }
     } else {
@@ -735,13 +793,27 @@ exports.downloadDocument = async (req, res) => {
     if (document.propertyListing) {
       // For listing documents, check if user owns the listing
       propertyListing = await PropertyListing.findById(document.propertyListing);
-      if (!propertyListing || propertyListing.createdBy.toString() !== req.user.id) {
+      if (!propertyListing) {
+        return res.status(404).json({ message: 'Property listing not found' });
+      }
+      
+      const isCreator = propertyListing.createdBy.toString() === req.user.id;
+      const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+      
+      if (!isCreator && !isAgent) {
         return res.status(403).json({ message: 'Not authorized to access this document' });
       }
     } else if (document.offer) {
       // For offer documents, check if user owns the listing the offer is for
       const offer = await Offer.findById(document.offer).populate('propertyListing');
-      if (!offer || !offer.propertyListing || offer.propertyListing.createdBy.toString() !== req.user.id) {
+      if (!offer || !offer.propertyListing) {
+        return res.status(404).json({ message: 'Offer or property listing not found' });
+      }
+      
+      const isCreator = offer.propertyListing.createdBy.toString() === req.user.id;
+      const isAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+      
+      if (!isCreator && !isAgent) {
         return res.status(403).json({ message: 'Not authorized to access this document' });
       }
       propertyListing = offer.propertyListing;
