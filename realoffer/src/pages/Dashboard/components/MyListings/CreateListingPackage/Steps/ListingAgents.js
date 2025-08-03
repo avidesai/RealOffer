@@ -124,86 +124,85 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
     <div className="clp-step">
       <h2>Listing Agents</h2>
       
-      {/* Primary Agent (Current User) */}
-      <div className="clp-form-group">
-        <label>Primary Agent</label>
-        <div className="primary-agent-display">
-          <div className="agent-info">
-            <span className="agent-name">{`${user?.firstName} ${user?.lastName}`}</span>
-            <span className="agent-email">{user?.email}</span>
-          </div>
-          <span className="primary-badge">Primary</span>
-        </div>
-        {errors.agent1 && <div className="clp-error">{errors.agent1}</div>}
-      </div>
-
-      {/* Additional Agents Search */}
-      <div className="clp-form-group">
-        <label>Additional Agents</label>
-        <div className="agent-search-container" ref={dropdownRef}>
-          <input
-            type="text"
-            placeholder="Search for agents by name or email..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            onFocus={() => setShowDropdown(true)}
-            className="agent-search-input"
-          />
-          
-          {showDropdown && (searchQuery.length > 0 || loading) && (
-            <div className="agent-dropdown">
-              {loading ? (
-                <div className="dropdown-loading">Searching...</div>
-              ) : searchResults.length > 0 ? (
-                searchResults.map(agent => (
-                  <div
-                    key={agent._id}
-                    className="dropdown-item"
-                    onClick={() => addAgent(agent)}
-                  >
-                    <div className="agent-info">
-                      <span className="agent-name">{`${agent.firstName} ${agent.lastName}`}</span>
-                      <span className="agent-email">{agent.email}</span>
-                      {agent.agencyName && (
-                        <span className="agent-agency">{agent.agencyName}</span>
-                      )}
-                    </div>
-                  </div>
-                ))
-              ) : searchQuery.length >= 2 ? (
-                <div className="dropdown-no-results">No agents found</div>
-              ) : null}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Selected Agents List */}
-      {selectedAgents.length > 0 && (
+      {/* Additional Agents Search - Only show if less than 2 total agents */}
+      {selectedAgents.length < 1 && (
         <div className="clp-form-group">
-          <label>Selected Additional Agents</label>
-          <div className="selected-agents-list">
-            {selectedAgents.map(agent => (
-              <div key={agent._id} className="selected-agent-item">
-                <div className="agent-info">
-                  <span className="agent-name">{`${agent.firstName} ${agent.lastName}`}</span>
-                  <span className="agent-email">{agent.email}</span>
-                  {agent.agencyName && (
-                    <span className="agent-agency">{agent.agencyName}</span>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  className="remove-agent-btn"
-                  onClick={() => removeAgent(agent._id)}
-                >
-                  ×
-                </button>
+          <label>Add Additional Agents</label>
+          <div className="agent-search-container" ref={dropdownRef}>
+            <input
+              type="text"
+              placeholder="Search for agents by name or email..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              onFocus={() => setShowDropdown(true)}
+              className="agent-search-input"
+            />
+            
+            {showDropdown && (searchQuery.length > 0 || loading) && (
+              <div className="agent-dropdown">
+                {loading ? (
+                  <div className="dropdown-loading">Searching...</div>
+                ) : searchResults.length > 0 ? (
+                  searchResults.map(agent => (
+                    <div
+                      key={agent._id}
+                      className="dropdown-item"
+                      onClick={() => addAgent(agent)}
+                    >
+                      <div className="agent-info">
+                        <span className="agent-name">{`${agent.firstName} ${agent.lastName}`}</span>
+                        <span className="agent-email">{agent.email}</span>
+                        {agent.agencyName && (
+                          <span className="agent-agency">{agent.agencyName}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : searchQuery.length >= 2 ? (
+                  <div className="dropdown-no-results">No agents found</div>
+                ) : null}
               </div>
-            ))}
+            )}
           </div>
         </div>
       )}
+
+      {/* All Agents List */}
+      <div className="selected-agents-list">
+        {/* Primary Agent (Current User) - Always First */}
+        <div className="selected-agent-item">
+          <div className="agent-info">
+            <span className="agent-name">{`${user?.firstName} ${user?.lastName}`}</span>
+            <span className="agent-email">{user?.email}</span>
+            {user?.agencyName && (
+              <span className="agent-agency">{user.agencyName}</span>
+            )}
+          </div>
+          <span className="primary-badge">Primary</span>
+        </div>
+        
+        {/* Additional Agents */}
+        {selectedAgents.map(agent => (
+          <div key={agent._id} className="selected-agent-item">
+            <div className="agent-info">
+              <span className="agent-name">{`${agent.firstName} ${agent.lastName}`}</span>
+              <span className="agent-email">{agent.email}</span>
+              {agent.agencyName && (
+                <span className="agent-agency">{agent.agencyName}</span>
+              )}
+            </div>
+            <button
+              type="button"
+              className="remove-agent-btn"
+              onClick={() => removeAgent(agent._id)}
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {errors.agent1 && <div className="clp-error">{errors.agent1}</div>}
 
       <div className='clp-button-container'>
         <button className="clp-back-button" onClick={handlePrevStep}>Back</button>

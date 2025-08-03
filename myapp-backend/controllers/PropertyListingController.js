@@ -112,7 +112,7 @@ exports.createListing = async (req, res) => {
   // Initialize with the current user as the primary agent
   const finalAgentIds = [req.user.id];
 
-  // Add additional agents if provided
+  // Add additional agents if provided (maximum 1 additional agent)
   if (agentIds && Array.isArray(agentIds)) {
     for (const agentId of agentIds) {
       if (agentId && agentId !== req.user.id) { // Don't add if it's the same as current user
@@ -122,6 +122,13 @@ exports.createListing = async (req, res) => {
           return res.status(400).json({ message: 'Invalid agent ID format' });
         }
       }
+    }
+    
+    // Check if we have more than 2 total agents (1 primary + 1 additional)
+    if (finalAgentIds.length > 2) {
+      return res.status(400).json({ 
+        message: 'Maximum of 2 listing agents allowed (1 primary + 1 additional)' 
+      });
     }
   }
 
@@ -228,6 +235,32 @@ exports.updateListing = async (req, res) => {
 
     if (!isCreator && !isAgent) {
       return res.status(403).json({ message: "You don't have permission to update this listing" });
+    }
+
+    // Validate agentIds if being updated
+    if (req.body.agentIds && Array.isArray(req.body.agentIds)) {
+      // Ensure the current user is always included as primary agent
+      const finalAgentIds = [req.user.id];
+      
+      for (const agentId of req.body.agentIds) {
+        if (agentId && agentId !== req.user.id) {
+          try {
+            finalAgentIds.push(new mongoose.Types.ObjectId(agentId));
+          } catch (error) {
+            return res.status(400).json({ message: 'Invalid agent ID format' });
+          }
+        }
+      }
+      
+      // Check if we have more than 2 total agents (1 primary + 1 additional)
+      if (finalAgentIds.length > 2) {
+        return res.status(400).json({ 
+          message: 'Maximum of 2 listing agents allowed (1 primary + 1 additional)' 
+        });
+      }
+      
+      // Update the request body with validated agentIds
+      req.body.agentIds = finalAgentIds;
     }
 
     const updatedListing = await PropertyListing.findOneAndUpdate(

@@ -1,14 +1,28 @@
 // ShareUrl.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import api from '../../../../../../../../../context/api';
+import { useAuth } from '../../../../../../../../../context/AuthContext';
 import './ShareUrl.css';
 
 const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
+  const { user, token } = useAuth();
   const [copied, setCopied] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [shareSuccess, setShareSuccess] = useState(false);
   const [error, setError] = useState('');
+  
+  // Agent search states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState(null);
+  const searchTimeoutRef = useRef(null);
+  const dropdownRef = useRef(null);
+  
+  // Listing data state
+  const [currentListing, setCurrentListing] = useState(null);
   
   const [shareData, setShareData] = useState({
     role: 'buyer',
@@ -17,6 +31,111 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
     email: '',
     message: ''
   });
+
+  // Fetch current listing to check agent count
+  const fetchCurrentListing = useCallback(async () => {
+    if (!listingId) return;
+    
+    try {
+      const response = await api.get(`/api/propertyListings/${listingId}`);
+      setCurrentListing(response.data);
+      
+      // If listing agent option is no longer available, reset role to buyer
+      if (response.data.agentIds && response.data.agentIds.length >= 2 && shareData.role === 'listingAgent') {
+        setShareData(prev => ({
+          ...prev,
+          role: 'buyer'
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching listing:', error);
+    }
+  }, [listingId, shareData.role]);
+
+  // Fetch current listing data when modal opens
+  useEffect(() => {
+    if (isOpen && listingId) {
+      fetchCurrentListing();
+    }
+  }, [isOpen, listingId, fetchCurrentListing]);
+
+  // Handle click outside dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Search for agents
+  const searchAgents = async (query) => {
+    if (!query || query.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    setSearchLoading(true);
+    try {
+      const response = await api.get(`/api/users/search?query=${encodeURIComponent(query)}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      // Filter out current user and agents already on the listing
+      const filteredResults = response.data.filter(agent => 
+        agent._id !== user._id && 
+        (!currentListing?.agentIds || !currentListing.agentIds.some(id => id.toString() === agent._id))
+      );
+      setSearchResults(filteredResults);
+    } catch (error) {
+      console.error('Error searching agents:', error);
+      setSearchResults([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    setShowDropdown(true);
+
+    // Debounce search
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      searchAgents(query);
+    }, 300);
+  };
+
+  // Add agent to selected
+  const addAgent = (agent) => {
+    setSelectedAgent(agent);
+    setSearchQuery('');
+    setShowDropdown(false);
+    setSearchResults([]);
+  };
+
+  // Remove selected agent
+  const removeAgent = () => {
+    setSelectedAgent(null);
+  };
+
+  // Check if listing agent option should be available (max 2 agents)
+  const canAddListingAgent = () => {
+    if (!currentListing || !currentListing.agentIds) return true;
+    return currentListing.agentIds.length < 2;
+  };
 
   const handleCopy = async () => {
     try {
@@ -49,63 +168,109 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
   const handleSharePackage = async (e) => {
     e.preventDefault();
     
-    // Validate required fields
-    if (!shareData.firstName.trim() || !shareData.lastName.trim() || !shareData.email.trim()) {
-      setError('Please fill in all required fields.');
-      return;
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(shareData.email)) {
-      setError('Please enter a valid email address.');
-      return;
-    }
-
-    setIsSharing(true);
-    setError('');
-
-    try {
-      const response = await api.post('/api/propertyListings/share', {
-        listingId,
-        shareUrl: url,
-        recipient: {
-          role: shareData.role,
-          firstName: shareData.firstName.trim(),
-          lastName: shareData.lastName.trim(),
-          email: shareData.email.trim().toLowerCase(),
-          message: shareData.message.trim()
-        }
-      });
-
-      if (response.status === 200) {
-        setShareSuccess(true);
-        // Reset form
-        setShareData({
-          role: 'buyer',
-          firstName: '',
-          lastName: '',
-          email: '',
-          message: ''
-        });
-        
-        // Auto-close after 3 seconds
-        setTimeout(() => {
-          setShareSuccess(false);
-          onClose();
-        }, 3000);
+    if (shareData.role === 'listingAgent') {
+      // Handle listing agent addition
+      if (!selectedAgent) {
+        setError('Please select an agent to add.');
+        return;
       }
-    } catch (error) {
-      console.error('Error sharing listing:', error);
-      setError(error.response?.data?.message || 'Failed to share listing. Please try again.');
-    } finally {
-      setIsSharing(false);
+
+      setIsSharing(true);
+      setError('');
+
+      try {
+        // Get current listing to update agentIds
+        const listingResponse = await api.get(`/api/propertyListings/${listingId}`);
+        const currentListing = listingResponse.data;
+        const currentAgentIds = currentListing.agentIds || [];
+        
+        // Add the selected agent if not already present
+        if (!currentAgentIds.some(id => id.toString() === selectedAgent._id)) {
+          const updatedAgentIds = [...currentAgentIds, selectedAgent._id];
+          
+          await api.put(`/api/propertyListings/${listingId}`, {
+            agentIds: updatedAgentIds
+          });
+
+          setShareSuccess(true);
+          setSelectedAgent(null);
+          
+          // Auto-close after 3 seconds
+          setTimeout(() => {
+            setShareSuccess(false);
+            onClose();
+          }, 3000);
+        } else {
+          setError('This agent is already associated with this listing.');
+        }
+      } catch (error) {
+        console.error('Error adding listing agent:', error);
+        setError(error.response?.data?.message || 'Failed to add listing agent. Please try again.');
+      } finally {
+        setIsSharing(false);
+      }
+    } else {
+      // Handle regular sharing (buyer/buyerAgent)
+      // Validate required fields
+      if (!shareData.firstName.trim() || !shareData.lastName.trim() || !shareData.email.trim()) {
+        setError('Please fill in all required fields.');
+        return;
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(shareData.email)) {
+        setError('Please enter a valid email address.');
+        return;
+      }
+
+      setIsSharing(true);
+      setError('');
+
+      try {
+        const response = await api.post('/api/propertyListings/share', {
+          listingId,
+          shareUrl: url,
+          recipient: {
+            role: shareData.role,
+            firstName: shareData.firstName.trim(),
+            lastName: shareData.lastName.trim(),
+            email: shareData.email.trim().toLowerCase(),
+            message: shareData.message.trim()
+          }
+        });
+
+        if (response.status === 200) {
+          setShareSuccess(true);
+          // Reset form
+          setShareData({
+            role: 'buyer',
+            firstName: '',
+            lastName: '',
+            email: '',
+            message: ''
+          });
+          
+          // Auto-close after 3 seconds
+          setTimeout(() => {
+            setShareSuccess(false);
+            onClose();
+          }, 3000);
+        }
+      } catch (error) {
+        console.error('Error sharing listing:', error);
+        setError(error.response?.data?.message || 'Failed to share listing. Please try again.');
+      } finally {
+        setIsSharing(false);
+      }
     }
   };
 
   const handleClose = () => {
     setShareSuccess(false);
     setError('');
+    setSelectedAgent(null);
+    setSearchQuery('');
     setShareData({
       role: 'buyer',
       firstName: '',
@@ -129,8 +294,15 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
         {shareSuccess ? (
           <div className="share-url-success">
             <div className="share-url-success-icon">✓</div>
-            <h3>Shared Successfully!</h3>
-            <p>An email has been sent with access to this listing.</p>
+            <h3>
+              {shareData.role === 'listingAgent' ? 'Agent Added Successfully!' : 'Shared Successfully!'}
+            </h3>
+            <p>
+              {shareData.role === 'listingAgent' 
+                ? 'The agent has been added to this listing and will have access to all listing features.'
+                : 'An email has been sent with access to this listing.'
+              }
+            </p>
           </div>
         ) : (
           <div className="share-url-body">
@@ -147,65 +319,141 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                   >
                     <option value="buyer">Buyer</option>
                     <option value="buyerAgent">Buyer Agent</option>
+                    {canAddListingAgent() && (
+                      <option value="listingAgent">Listing Agent</option>
+                    )}
                   </select>
                 </div>
               </div>
 
-              <div className="share-url-form-row">
-                <div className="share-url-form-group">
-                  <label className="share-url-label">First Name</label>
-                  <input
-                    type="text"
-                    name="firstName"
-                    value={shareData.firstName}
-                    onChange={handleInputChange}
-                    placeholder="First Name"
-                    className="share-url-input-field"
-                    required
-                  />
+              {shareData.role === 'listingAgent' ? (
+                // Listing Agent Search Interface
+                <div className="share-url-form-row">
+                  <div className="share-url-form-group full-width">
+                    <label className="share-url-label">Search for Agent</label>
+                    <div className="agent-search-container" ref={dropdownRef}>
+                      <input
+                        type="text"
+                        placeholder="Search for agents by name or email..."
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        onFocus={() => setShowDropdown(true)}
+                        className="agent-search-input"
+                      />
+                      
+                      {showDropdown && (searchQuery.length > 0 || searchLoading) && (
+                        <div className="agent-dropdown">
+                          {searchLoading ? (
+                            <div className="dropdown-loading">Searching...</div>
+                          ) : searchResults.length > 0 ? (
+                            searchResults.map(agent => (
+                              <div
+                                key={agent._id}
+                                className="dropdown-item"
+                                onClick={() => addAgent(agent)}
+                              >
+                                <div className="agent-info">
+                                  <span className="agent-name">{`${agent.firstName} ${agent.lastName}`}</span>
+                                  <span className="agent-email">{agent.email}</span>
+                                  {agent.agencyName && (
+                                    <span className="agent-agency">{agent.agencyName}</span>
+                                  )}
+                                </div>
+                              </div>
+                            ))
+                          ) : searchQuery.length >= 2 ? (
+                            <div className="dropdown-no-results">No agents found</div>
+                          ) : null}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div className="share-url-form-group">
-                  <label className="share-url-label">Last Name</label>
-                  <input
-                    type="text"
-                    name="lastName"
-                    value={shareData.lastName}
-                    onChange={handleInputChange}
-                    placeholder="Last Name"
-                    className="share-url-input-field"
-                    required
-                  />
-                </div>
-              </div>
+              ) : (
+                // Regular Form Fields for Buyer/Buyer Agent
+                <>
+                  <div className="share-url-form-row">
+                    <div className="share-url-form-group">
+                      <label className="share-url-label">First Name</label>
+                      <input
+                        type="text"
+                        name="firstName"
+                        value={shareData.firstName}
+                        onChange={handleInputChange}
+                        placeholder="First Name"
+                        className="share-url-input-field"
+                        required
+                      />
+                    </div>
+                    <div className="share-url-form-group">
+                      <label className="share-url-label">Last Name</label>
+                      <input
+                        type="text"
+                        name="lastName"
+                        value={shareData.lastName}
+                        onChange={handleInputChange}
+                        placeholder="Last Name"
+                        className="share-url-input-field"
+                        required
+                      />
+                    </div>
+                  </div>
 
-              <div className="share-url-form-row">
-                <div className="share-url-form-group">
-                  <label className="share-url-label">Email</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={shareData.email}
-                    onChange={handleInputChange}
-                    placeholder="Email"
-                    className="share-url-input-field"
-                    required
-                  />
-                </div>
-              </div>
+                  <div className="share-url-form-row">
+                    <div className="share-url-form-group">
+                      <label className="share-url-label">Email</label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={shareData.email}
+                        onChange={handleInputChange}
+                        placeholder="Email"
+                        className="share-url-input-field"
+                        required
+                      />
+                    </div>
+                  </div>
 
-              <div className="share-url-form-row">
-                <div className="share-url-form-group">
-                  <label className="share-url-label">Message (Optional)</label>
-                  <textarea
-                    name="message"
-                    value={shareData.message}
-                    onChange={handleInputChange}
-                    placeholder="Enter a custom message for your recipient"
-                    className="share-url-textarea"
-                    rows="3"
-                  />
+                  <div className="share-url-form-row">
+                    <div className="share-url-form-group">
+                      <label className="share-url-label">Message (Optional)</label>
+                      <textarea
+                        name="message"
+                        value={shareData.message}
+                        onChange={handleInputChange}
+                        placeholder="Enter a custom message for your recipient"
+                        className="share-url-textarea"
+                        rows="3"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Selected Agent Display */}
+              {shareData.role === 'listingAgent' && selectedAgent && (
+                <div className="share-url-form-row">
+                  <div className="share-url-form-group full-width">
+                    <label className="share-url-label">Selected Agent</label>
+                    <div className="selected-agent-item">
+                      <div className="agent-info">
+                        <span className="agent-name">{`${selectedAgent.firstName} ${selectedAgent.lastName}`}</span>
+                        <span className="agent-email">{selectedAgent.email}</span>
+                        {selectedAgent.agencyName && (
+                          <span className="agent-agency">{selectedAgent.agencyName}</span>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        className="remove-agent-btn"
+                        onClick={removeAgent}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {error && <div className="share-url-error">{error}</div>}
 
@@ -220,9 +468,12 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                 <button 
                   type="submit"
                   className="share-url-share-button"
-                  disabled={isSharing}
+                  disabled={isSharing || (shareData.role === 'listingAgent' && !selectedAgent)}
                 >
-                  {isSharing ? 'Sharing...' : 'Share Package'}
+                  {isSharing 
+                    ? (shareData.role === 'listingAgent' ? 'Adding...' : 'Sharing...') 
+                    : (shareData.role === 'listingAgent' ? 'Add Listing Agent' : 'Share Package')
+                  }
                 </button>
               </div>
             </form>

@@ -25,6 +25,27 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
   const searchTimeoutRef = useRef(null);
   const dropdownRef = useRef(null);
 
+  const fetchAgents = useCallback(async (agentIds) => {
+    if (!agentIds || agentIds.length === 0) {
+      setAgents([]);
+      setSelectedAgents([]);
+      return;
+    }
+
+    try {
+      const agentPromises = agentIds.map(id => 
+        api.get(`/api/users/${id}`)
+      );
+      const agentResponses = await Promise.all(agentPromises);
+      const fetchedAgents = agentResponses.map(response => response.data);
+      
+      setAgents(fetchedAgents);
+      setSelectedAgents(fetchedAgents.filter(agent => agent._id !== user._id));
+    } catch (error) {
+      console.error('Error fetching agents:', error);
+    }
+  }, [user._id]);
+
   const fetchListing = useCallback(async () => {
     if (!listingId) return;
     
@@ -56,28 +77,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     } finally {
       setLoading(false);
     }
-  }, [listingId]);
-
-  const fetchAgents = async (agentIds) => {
-    if (!agentIds || agentIds.length === 0) {
-      setAgents([]);
-      setSelectedAgents([]);
-      return;
-    }
-
-    try {
-      const agentPromises = agentIds.map(id => 
-        api.get(`/api/users/${id}`)
-      );
-      const agentResponses = await Promise.all(agentPromises);
-      const fetchedAgents = agentResponses.map(response => response.data);
-      
-      setAgents(fetchedAgents);
-      setSelectedAgents(fetchedAgents.filter(agent => agent._id !== user._id));
-    } catch (error) {
-      console.error('Error fetching agents:', error);
-    }
-  };
+  }, [listingId, fetchAgents]);
 
   useEffect(() => {
     if (isOpen) {
@@ -108,7 +108,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
 
     setSearchLoading(true);
     try {
-      const response = await api.get(`/users/search?query=${encodeURIComponent(query)}`, {
+      const response = await api.get(`/api/users/search?query=${encodeURIComponent(query)}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -371,9 +371,9 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     const fieldConfig = getFieldConfig(field);
     
     return (
-      <div className="info-row" key={field}>
-        <span className="info-label">{label}</span>
-        <div className="field-container">
+              <div className="mlmi-info-row" key={field}>
+          <span className="mlmi-info-label">{label}</span>
+          <div className="mlmi-field-container">
           {field === 'homeCharacteristics.propertyType' ? (
             <select
               name="propertyType"
@@ -394,7 +394,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
               type="url"
               value={value || ''}
               onChange={(e) => handleInputChange(e, field)}
-              className="form-control"
+              className="mlmi-form-control"
               placeholder="https://example.com/schedule-showing"
             />
           ) : isDate ? (
@@ -402,28 +402,28 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
               type="datetime-local"
               value={formatDateForInput(value)}
               onChange={(e) => handleInputChange(e, field)}
-              className="form-control"
+              className="mlmi-form-control"
             />
           ) : isPrice ? (
             <input
               type="text"
               value={formatCurrency(value)}
               onChange={(e) => handleFormattedChange(e, field)}
-              className="form-control"
+              className="mlmi-form-control"
             />
           ) : isFormattedNumber ? (
             <input
               type="text"
               value={formatDisplayNumber(value)}
               onChange={(e) => handleFormattedChange(e, field)}
-              className="form-control"
+              className="mlmi-form-control"
             />
           ) : isNumber ? (
             <input
               type="number"
               value={value || ''}
               onChange={(e) => handleInputChange(e, field)}
-              className="form-control"
+              className="mlmi-form-control"
               min={fieldConfig.min}
               max={fieldConfig.max}
               step={fieldConfig.step}
@@ -438,7 +438,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                 <input
                   {...inputProps}
                   type="text"
-                  className="form-control"
+                  className="mlmi-form-control"
                 />
               )}
             </InputMask>
@@ -447,7 +447,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
               type="text"
               value={value || ''}
               onChange={(e) => handleInputChange(e, field)}
-              className="form-control"
+              className="mlmi-form-control"
             />
           )}
         </div>
@@ -461,27 +461,27 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     <Modal 
       isOpen={isOpen} 
       onRequestClose={handleClose} 
-      className="more-info-modal" 
-      overlayClassName="more-info-overlay"
+      className="mlmi-more-info-modal" 
+      overlayClassName="mlmi-more-info-overlay"
       closeTimeoutMS={300}
     >
-      <div className="more-info-content">
-        <div className="more-info-header">
+      <div className="mlmi-more-info-content">
+        <div className="mlmi-more-info-header">
           <h2>Property Information</h2>
-          <button className="more-info-close-button" onClick={handleClose}></button>
+          <button className="mlmi-more-info-close-button" onClick={handleClose}></button>
         </div>
         
         {error && (
-          <div className="more-info-error">{error}</div>
+          <div className="mlmi-more-info-error">{error}</div>
         )}
         
         {loading && !listing ? (
-          <div className="loading-spinner"></div>
+          <div className="mlmi-loading-spinner"></div>
         ) : listing ? (
           <>
-            <div className="info-section">
+            <div className="mlmi-info-section">
               <h3>Property Details</h3>
-              <div className="info-grid">
+              <div className="mlmi-info-grid">
                 {renderField('Price', 'homeCharacteristics.price', listing.homeCharacteristics.price, formatCurrency)}
                 {renderField('Property Type', 'homeCharacteristics.propertyType', listing.homeCharacteristics.propertyType, formatPropertyType)}
                 {renderField('Beds', 'homeCharacteristics.beds', listing.homeCharacteristics.beds)}
@@ -493,7 +493,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
               </div>
             </div>
             
-            <div className="info-section">
+            <div className="mlmi-info-section">
               <h3>Location</h3>
               {renderField('Address', 'homeCharacteristics.address', listing.homeCharacteristics.address)}
               {renderField('City', 'homeCharacteristics.city', listing.homeCharacteristics.city)}
@@ -501,90 +501,89 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
               {renderField('Zip Code', 'homeCharacteristics.zip', listing.homeCharacteristics.zip)}
             </div>
             
-            <div className="info-section">
+            <div className="mlmi-info-section">
               <h3>Listing Agents</h3>
               
-              {/* Primary Agent (Current User) */}
-              <div className="agent-section">
-                <div className="primary-agent-display">
-                  <div className="agent-info">
-                    <span className="agent-name">{`${user?.firstName} ${user?.lastName}`}</span>
-                    <span className="agent-email">{user?.email}</span>
-                  </div>
-                  <span className="primary-badge">Primary</span>
-                </div>
-              </div>
-
-              {/* Additional Agents Search */}
-              <div className="agent-section">
-                <label className="info-label">Add Additional Agents</label>
-                <div className="agent-search-container" ref={dropdownRef}>
-                  <input
-                    type="text"
-                    placeholder="Search for agents by name or email..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    onFocus={() => setShowDropdown(true)}
-                    className="agent-search-input"
-                  />
-                  
-                  {showDropdown && (searchQuery.length > 0 || searchLoading) && (
-                    <div className="agent-dropdown">
-                      {searchLoading ? (
-                        <div className="dropdown-loading">Searching...</div>
-                      ) : searchResults.length > 0 ? (
-                        searchResults.map(agent => (
-                          <div
-                            key={agent._id}
-                            className="dropdown-item"
-                            onClick={() => addAgent(agent)}
-                          >
-                            <div className="agent-info">
-                              <span className="agent-name">{`${agent.firstName} ${agent.lastName}`}</span>
-                              <span className="agent-email">{agent.email}</span>
-                              {agent.agencyName && (
-                                <span className="agent-agency">{agent.agencyName}</span>
-                              )}
+              {/* Additional Agents Search - Only show if less than 2 total agents */}
+              {selectedAgents.length < 1 && (
+                <div className="mlmi-agent-section">
+                  <label className="mlmi-info-label">Add Additional Agents</label>
+                  <div className="mlmi-agent-search-container" ref={dropdownRef}>
+                    <input
+                      type="text"
+                      placeholder="Search for agents by name or email..."
+                      value={searchQuery}
+                      onChange={handleSearchChange}
+                      onFocus={() => setShowDropdown(true)}
+                      className="mlmi-agent-search-input"
+                    />
+                    
+                    {showDropdown && (searchQuery.length > 0 || searchLoading) && (
+                      <div className="mlmi-agent-dropdown">
+                        {searchLoading ? (
+                          <div className="mlmi-dropdown-loading">Searching...</div>
+                        ) : searchResults.length > 0 ? (
+                          searchResults.map(agent => (
+                            <div
+                              key={agent._id}
+                              className="mlmi-dropdown-item"
+                              onClick={() => addAgent(agent)}
+                            >
+                              <div className="mlmi-agent-info">
+                                <span className="mlmi-agent-name">{`${agent.firstName} ${agent.lastName}`}</span>
+                                <span className="mlmi-agent-email">{agent.email}</span>
+                                {agent.agencyName && (
+                                  <span className="mlmi-agent-agency">{agent.agencyName}</span>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        ))
-                      ) : searchQuery.length >= 2 ? (
-                        <div className="dropdown-no-results">No agents found</div>
-                      ) : null}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Selected Agents List */}
-              {selectedAgents.length > 0 && (
-                <div className="agent-section">
-                  <label className="info-label">Additional Agents</label>
-                  <div className="selected-agents-list">
-                    {selectedAgents.map(agent => (
-                      <div key={agent._id} className="selected-agent-item">
-                        <div className="agent-info">
-                          <span className="agent-name">{`${agent.firstName} ${agent.lastName}`}</span>
-                          <span className="agent-email">{agent.email}</span>
-                          {agent.agencyName && (
-                            <span className="agent-agency">{agent.agencyName}</span>
-                          )}
-                        </div>
-                        <button
-                          type="button"
-                          className="remove-agent-btn"
-                          onClick={() => removeAgent(agent._id)}
-                        >
-                          ×
-                        </button>
+                          ))
+                        ) : searchQuery.length >= 2 ? (
+                          <div className="mlmi-dropdown-no-results">No agents found</div>
+                        ) : null}
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               )}
+
+              {/* All Agents List */}
+              <div className="mlmi-selected-agents-list">
+                {/* Primary Agent (Current User) - Always First */}
+                <div className="mlmi-selected-agent-item">
+                  <div className="mlmi-agent-info">
+                    <span className="mlmi-agent-name">{`${user?.firstName} ${user?.lastName}`}</span>
+                    <span className="mlmi-agent-email">{user?.email}</span>
+                    {user?.agencyName && (
+                      <span className="mlmi-agent-agency">{user.agencyName}</span>
+                    )}
+                  </div>
+                  <span className="mlmi-primary-badge">Primary</span>
+                </div>
+                
+                {/* Additional Agents */}
+                {selectedAgents.map(agent => (
+                  <div key={agent._id} className="mlmi-selected-agent-item">
+                    <div className="mlmi-agent-info">
+                      <span className="mlmi-agent-name">{`${agent.firstName} ${agent.lastName}`}</span>
+                      <span className="mlmi-agent-email">{agent.email}</span>
+                      {agent.agencyName && (
+                        <span className="mlmi-agent-agency">{agent.agencyName}</span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      className="mlmi-remove-agent-btn"
+                      onClick={() => removeAgent(agent._id)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
             
-            <div className="info-section">
+            <div className="mlmi-info-section">
               <h3>Escrow Information</h3>
               {renderField('Escrow Number', 'escrowInfo.escrowNumber', listing.escrowInfo.escrowNumber)}
               {renderField('Company Name', 'escrowInfo.company.name', listing.escrowInfo.company.name)}
@@ -592,18 +591,18 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
               {renderField('Email', 'escrowInfo.company.email', listing.escrowInfo.company.email)}
             </div>
             
-            <div className="info-section">
+            <div className="mlmi-info-section">
               <h3>Showing Information</h3>
               {renderField('Schedule Showings Link', 'scheduleShowingUrl', listing.scheduleShowingUrl)}
             </div>
             
-            <div className="info-section property-description-container">
-              <h3 className="property-description-title">Property Description</h3>
-              <div className="description-edit-container">
+            <div className="mlmi-info-section mlmi-property-description-container">
+              <h3 className="mlmi-property-description-title">Property Description</h3>
+              <div className="mlmi-description-edit-container">
                 <textarea
                   value={listing.description || ''}
                   onChange={(e) => handleInputChange(e, 'description')}
-                  className="form-control"
+                  className="mlmi-form-control"
                   placeholder="Enter a detailed description of the property, including features, amenities, and highlights..."
                   rows={14}
                   style={{resize:'vertical',minHeight:180,maxHeight:500}}
@@ -613,7 +612,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
           </>
         ) : null}
         
-        {loading && listing && <div className="loading-spinner"></div>}
+        {loading && listing && <div className="mlmi-loading-spinner"></div>}
       </div>
     </Modal>
   );
