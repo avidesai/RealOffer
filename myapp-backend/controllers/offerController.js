@@ -11,6 +11,8 @@ const { v4: uuidv4 } = require('uuid');
 const { offerDocumentsContainerClient } = require('../config/azureStorage');
 const { getPdfPageCount } = require('./DocumentController');
 const notificationService = require('../utils/notificationService');
+const User = require('../models/User');
+const emailService = require('../utils/emailService');
 
 // Configure multer for in-memory storage before uploading to Azure
 const storage = multer.memoryStorage();
@@ -284,7 +286,10 @@ exports.respondToOffer = async (req, res) => {
     const { id } = req.params;
     const { responseType, subject, message } = req.body;
 
-    const offer = await Offer.findById(id).populate('propertyListing');
+    const offer = await Offer.findById(id)
+      .populate('propertyListing')
+      .populate('presentedBy', 'firstName lastName email');
+    
     if (!offer) return res.status(404).json({ message: 'Offer not found' });
 
     // Check authorization - only listing creator and agents can respond to offers
@@ -294,6 +299,10 @@ exports.respondToOffer = async (req, res) => {
     if (!isListingCreator && !isListingAgent) {
       return res.status(403).json({ message: 'Not authorized to respond to this offer' });
     }
+
+    // Get responder info
+    const responder = await User.findById(req.user.id);
+    const responderName = `${responder.firstName} ${responder.lastName}`.trim();
 
     // Create a new message in the conversation
     const newMessage = new Message({
@@ -325,6 +334,28 @@ exports.respondToOffer = async (req, res) => {
     }
 
     await offer.save();
+
+    // Send email notification to the agent who created the offer
+    if (offer.presentedBy && offer.presentedBy.email) {
+      try {
+        const propertyAddress = offer.propertyListing.homeCharacteristics?.address || 'Property Address';
+        const agentName = `${offer.presentedBy.firstName} ${offer.presentedBy.lastName}`.trim();
+        
+        await emailService.sendOfferResponseNotification(
+          offer.presentedBy.email,
+          agentName,
+          propertyAddress,
+          responseType,
+          subject,
+          message,
+          responderName,
+          offer.purchasePrice
+        );
+      } catch (emailError) {
+        console.error('Error sending offer response email:', emailError);
+        // Don't fail the request if email fails
+      }
+    }
 
     // Populate sender info for response
     await newMessage.populate('sender', 'firstName lastName email profilePhotoUrl');

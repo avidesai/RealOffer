@@ -86,9 +86,9 @@ const OfferDetailsView = ({ offerId, offerData, onBack, onRespond }) => {
         <div className="odv-middle-section">
           <AgentInfo offer={offer} />
           <Documents documents={documents} />
-          <MessageThread offer={offer} />
+          <PrivateNotes notes={notes} handleNotesChange={handleNotesChange} handleNotesBlur={handleNotesBlur} />
         </div>
-        <PrivateNotes notes={notes} handleNotesChange={handleNotesChange} handleNotesBlur={handleNotesBlur} />
+        <MessageThread offer={offer} />
       </div>
     </div>
   );

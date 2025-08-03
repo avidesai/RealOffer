@@ -8,14 +8,12 @@ import Terms from './components/Terms/Terms';
 import AgentInfo from './components/AgentInfo/AgentInfo';
 import MessageThread from './components/MessageThread/MessageThread';
 import Documents from './components/Documents/Documents';
-import PrivateNotes from './components/PrivateNotes/PrivateNotes';
 import OfferViewBar from './components/OfferViewBar/OfferViewBar';
 
 const OfferDetailsView = ({ offerId, onBack }) => {
   const { token } = useAuth();
   const [offer, setOffer] = useState(null);
   const [documents, setDocuments] = useState([]);
-  const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -36,7 +34,6 @@ const OfferDetailsView = ({ offerId, onBack }) => {
 
         const offerData = offerResponse.data;
         setOffer(offerData);
-        setNotes(offerData.privateListingTeamNotes || '');
         setDocuments(documentsResponse.data);
       } catch (error) {
         console.error('Error fetching offer and documents:', error);
@@ -48,23 +45,6 @@ const OfferDetailsView = ({ offerId, onBack }) => {
 
     fetchOfferAndDocuments();
   }, [offerId, token]);
-
-  const handleNotesChange = (event) => {
-    setNotes(event.target.value);
-  };
-
-  const handleNotesBlur = async () => {
-    try {
-      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/private-notes`, {
-        privateListingTeamNotes: notes,
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-    } catch (error) {
-      console.error('Error updating notes:', error);
-      // Optionally, show an error message to the user
-    }
-  };
 
   if (loading) {
     return <div className="odv-spinner-container"><div className="odv-spinner"></div></div>;
@@ -86,9 +66,8 @@ const OfferDetailsView = ({ offerId, onBack }) => {
         <div className="odv-middle-section">
           <AgentInfo offer={offer} />
           <Documents documents={documents} />
-          <MessageThread offer={offer} />
         </div>
-        <PrivateNotes notes={notes} handleNotesChange={handleNotesChange} handleNotesBlur={handleNotesBlur} />
+        <MessageThread offer={offer} />
       </div>
     </div>
   );

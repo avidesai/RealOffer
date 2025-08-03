@@ -42,6 +42,16 @@ const Documents = ({ documents }) => {
                     <p className="odv-offer-details-document-meta">
                       {formatDate(doc.updatedAt)}
                     </p>
+                    {doc.signingStatus === 'pending' && (
+                      <div className="odv-document-status-pending-signatures">
+                        Pending Signatures
+                      </div>
+                    )}
+                    {doc.signingStatus === 'signed' && (
+                      <div className="odv-document-status-signed">
+                        Signed
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="odv-offer-details-document-actions">

@@ -15,6 +15,7 @@ const MessageThread = ({ offer }) => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const messagesEndRef = useRef(null);
+  const textareaRef = useRef(null);
   const [userData, setUserData] = useState(null);
 
   const formatDateTime = (isoString) => {
@@ -32,6 +33,21 @@ const MessageThread = ({ offer }) => {
     const messageContainer = document.querySelector('.message-thread-content');
     if (messageContainer) {
       messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
+  };
+
+  const autoResizeTextarea = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  };
+
+  const resetTextareaHeight = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
     }
   };
 
@@ -86,6 +102,11 @@ const MessageThread = ({ offer }) => {
     }
   }, [messages, loading]);
 
+  // Auto-resize textarea when message changes
+  useEffect(() => {
+    autoResizeTextarea();
+  }, [newMessage]);
+
   const sendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || sending) return;
@@ -103,8 +124,10 @@ const MessageThread = ({ offer }) => {
         }
       );
 
-      setMessages(prev => [...prev, response.data]);
       setNewMessage('');
+      resetTextareaHeight();
+      setMessages(prev => [...prev, response.data]);
+      scrollToBottomOfContainer();
     } catch (error) {
       console.error('Error sending message:', error);
     } finally {
@@ -115,7 +138,7 @@ const MessageThread = ({ offer }) => {
   const markAsRead = async (messageId) => {
     try {
       await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/api/messages/offers/${offer._id}/messages/${messageId}/read`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/messages/${messageId}/read`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` }
@@ -131,57 +154,53 @@ const MessageThread = ({ offer }) => {
   };
 
   const getSenderInfo = (message) => {
-    if (message.isSystemMessage) {
-      return {
-        name: 'System',
-        avatar: null,
-        isSystem: true
-      };
-    }
-
     if (message.sender) {
       return {
-        name: `${message.sender.firstName} ${message.sender.lastName}`,
-        avatar: message.sender.profilePhotoUrl,
+        name: `${message.sender.firstName} ${message.sender.lastName}`.trim(),
         isSystem: false
       };
-    }
-
-    // Fallback for legacy messages
-    if (message === messages[0] && offer.buyersAgentMessage) {
+    } else if (message.messageType === 'system_message') {
       return {
-        name: offer.presentedBy?.name || 'Buyer Agent',
-        avatar: offer.presentedBy?.agentImageUrl,
+        name: 'System',
+        isSystem: true
+      };
+    } else {
+      // Legacy message handling
+      const isLegacyMessage = !message.sender && offer.buyersAgentMessage;
+      if (isLegacyMessage) {
+        return {
+          name: offer.buyersAgent?.firstName && offer.buyersAgent?.lastName 
+            ? `${offer.buyersAgent.firstName} ${offer.buyersAgent.lastName}`.trim()
+            : 'Buyer\'s Agent',
+          isSystem: false
+        };
+      }
+      return {
+        name: 'Unknown',
         isSystem: false
       };
     }
-
-    return {
-      name: 'Unknown User',
-      avatar: null,
-      isSystem: false
-    };
   };
 
   const renderMessage = (message, index) => {
-    const senderInfo = getSenderInfo(message);
     const isFromCurrentUser = isMessageFromCurrentUser(message);
-    const isLegacyMessage = !message.sender && index === 0 && offer.buyersAgentMessage;
+    const senderInfo = getSenderInfo(message);
+    const isLegacyMessage = !message.sender && offer.buyersAgentMessage;
 
     // Mark message as read if it's from another user
-    if (!isFromCurrentUser && !message.isReadBy) {
+    if (!isFromCurrentUser && message._id && !message.readBy?.includes(user._id)) {
       markAsRead(message._id);
     }
 
     return (
       <div
-        key={message._id || `legacy-${index}`}
+        key={message._id || index}
         className={`message-bubble ${isFromCurrentUser ? 'current-user' : 'other-user'} ${senderInfo.isSystem ? 'system-message' : ''}`}
       >
         {!isFromCurrentUser && !senderInfo.isSystem && (
           <div className="message-avatar">
             <Avatar
-              src={senderInfo.avatar}
+              src={message.sender?.profilePhotoUrl}
               firstName={senderInfo.name.split(' ')[0]}
               lastName={senderInfo.name.split(' ').slice(1).join(' ')}
               size="small"
@@ -256,6 +275,7 @@ const MessageThread = ({ offer }) => {
       <form className="message-input-form" onSubmit={sendMessage}>
         <div className="message-input-container">
           <textarea
+            ref={textareaRef}
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message..."
@@ -273,7 +293,7 @@ const MessageThread = ({ offer }) => {
             disabled={!newMessage.trim() || sending}
             className="send-button"
           >
-            {sending ? 'Sending...' : 'Send'}
+            {sending ? 'Sending' : 'Send'}
           </button>
         </div>
       </form>
