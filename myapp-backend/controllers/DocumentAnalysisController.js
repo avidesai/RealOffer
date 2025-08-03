@@ -142,7 +142,7 @@ exports.analyzeDocument = async (req, res) => {
     }
 
     // Check if document type is supported
-    if (!['Home Inspection Report', 'Pest Inspection Report', 'Seller Property Questionnaire', 'Transfer Disclosure Statement', 'Agent Visual Inspection Disclosure'].includes(document.type)) {
+    if (!['Home Inspection Report', 'Pest Inspection Report', 'Seller Property Questionnaire', 'Real Estate Transfer Disclosure Statement', 'Agent Visual Inspection'].includes(document.type)) {
       return res.status(400).json({ message: 'Document type not supported for analysis' });
     }
 
@@ -178,9 +178,9 @@ exports.analyzeDocument = async (req, res) => {
         analysisType = 'pest_inspection';
       } else if (document.type === 'Seller Property Questionnaire') {
         analysisType = 'seller_property_questionnaire';
-      } else if (document.type === 'Transfer Disclosure Statement') {
+      } else if (document.type === 'Real Estate Transfer Disclosure Statement') {
         analysisType = 'transfer_disclosure_statement';
-      } else if (document.type === 'Agent Visual Inspection Disclosure') {
+      } else if (document.type === 'Agent Visual Inspection') {
         analysisType = 'agent_visual_inspection_disclosure';
       }
       
@@ -381,9 +381,9 @@ Include any general material facts the seller added that don't fit cleanly into 
 
 Write your summary in a clear, readable format, using bullet points or short paragraphs. Keep the language natural and useful to buyers and agents — avoid legal terms or form language. If no material disclosures were made in a section, simply skip that section.
 
-giReport content:
+Report content:
 ${text}`;
-    } else if (document.type === 'Transfer Disclosure Statement') {
+    } else if (document.type === 'Real Estate Transfer Disclosure Statement') {
       prompt = `You are a real estate advisor. Read the following Transfer Disclosure Statement (TDS) and produce a concise, easy-to-read summary of all meaningful information provided by the seller.
 
 Ignore all legal form text, unselected checkboxes, and empty fields. Focus only on content that the seller actually disclosed — including any explanations or added notes.
@@ -442,7 +442,7 @@ Write the summary in clean, bullet-point or short-paragraph form. Avoid repeatin
 
 Report content:
 ${text}`;
-    } else if (document.type === 'Agent Visual Inspection Disclosure') {
+    } else if (document.type === 'Agent Visual Inspection') {
       prompt = `You are a real estate advisor. Read the following Agent Visual Inspection Disclosure (AVID) and generate a summary of the agent's material observations made during their visual walkthrough of the home.
 
 This form includes room-by-room notes. Your job is to ignore:

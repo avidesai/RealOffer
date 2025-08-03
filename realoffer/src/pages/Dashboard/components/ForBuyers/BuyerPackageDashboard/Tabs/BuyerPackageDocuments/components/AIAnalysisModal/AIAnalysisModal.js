@@ -22,9 +22,9 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, isBuyerPac
       return 'Pest Inspection Report Analysis';
     } else if (documentType && documentType.toLowerCase().includes('seller property questionnaire')) {
       return 'Seller Property Questionnaire Analysis';
-    } else if (documentType && documentType.toLowerCase().includes('transfer disclosure statement')) {
+    } else if (documentType && documentType.toLowerCase().includes('real estate transfer disclosure statement')) {
       return 'Transfer Disclosure Statement Analysis';
-    } else if (documentType && documentType.toLowerCase().includes('agent visual inspection disclosure')) {
+    } else if (documentType && documentType.toLowerCase().includes('agent visual inspection')) {
       return 'Agent Visual Inspection Disclosure Analysis';
     }
     return 'Home Inspection Report Analysis';
@@ -244,12 +244,12 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, isBuyerPac
                       }
                       
                       // Style TDS items
-                      if (documentType && documentType.toLowerCase().includes('transfer disclosure statement')) {
+                      if (documentType && documentType.toLowerCase().includes('real estate transfer disclosure statement')) {
                         return <li {...props} className="tds-item-standard">{children}</li>;
                       }
                       
                       // Style AVID items
-                      if (documentType && documentType.toLowerCase().includes('agent visual inspection disclosure')) {
+                      if (documentType && documentType.toLowerCase().includes('agent visual inspection')) {
                         return <li {...props} className="avid-item-standard">{children}</li>;
                       }
                       
