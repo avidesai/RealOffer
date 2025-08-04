@@ -10,7 +10,12 @@ export const calculateOfferDueReminder = (offerDueDate) => {
   if (isNaN(dueDate.getTime())) return null;
   
   const timeDiff = dueDate.getTime() - now.getTime();
-  const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+  
+  // Calculate calendar days difference
+  const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dueDateOnly = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
+  const calendarDaysDiff = Math.ceil((dueDateOnly.getTime() - nowDate.getTime()) / (1000 * 60 * 60 * 24));
+  
   const hoursDiff = Math.ceil(timeDiff / (1000 * 60 * 60));
   const minutesDiff = Math.ceil(timeDiff / (1000 * 60));
   
@@ -26,14 +31,14 @@ export const calculateOfferDueReminder = (offerDueDate) => {
   // Within the last hour
   if (hoursDiff <= 1) {
     return {
-      text: minutesDiff <= 0 ? "Offers due now!" : `Offers due in ${minutesDiff} minute${minutesDiff !== 1 ? 's' : ''}`,
+      text: minutesDiff <= 0 ? "Offers due now" : `Offers due in ${minutesDiff} minute${minutesDiff !== 1 ? 's' : ''}`,
       type: "urgent",
       urgent: true
     };
   }
   
-  // Within the last 24 hours
-  if (daysDiff <= 1) {
+  // Within the last 24 hours (same calendar day or next day)
+  if (calendarDaysDiff <= 1) {
     return {
       text: `Offers due in ${hoursDiff} hour${hoursDiff !== 1 ? 's' : ''}`,
       type: "urgent",
@@ -42,17 +47,32 @@ export const calculateOfferDueReminder = (offerDueDate) => {
   }
   
   // Within 7 days
-  if (daysDiff <= 7) {
-    return {
-      text: `Offers due in ${daysDiff} day${daysDiff !== 1 ? 's' : ''}`,
-      type: "warning",
-      urgent: false
-    };
+  if (calendarDaysDiff <= 7) {
+    // Use natural language for common cases
+    if (calendarDaysDiff === 2) {
+      return {
+        text: "Offers due tomorrow",
+        type: "warning",
+        urgent: false
+      };
+    } else if (calendarDaysDiff === 1) {
+      return {
+        text: "Offers due today",
+        type: "urgent",
+        urgent: true
+      };
+    } else {
+      return {
+        text: `Offers due in ${calendarDaysDiff} day${calendarDaysDiff !== 1 ? 's' : ''}`,
+        type: "warning",
+        urgent: false
+      };
+    }
   }
   
   // More than 7 days
   return {
-    text: `Offers due in ${daysDiff} day${daysDiff !== 1 ? 's' : ''}`,
+    text: `Offers due in ${calendarDaysDiff} day${calendarDaysDiff !== 1 ? 's' : ''}`,
     type: "normal",
     urgent: false
   };
