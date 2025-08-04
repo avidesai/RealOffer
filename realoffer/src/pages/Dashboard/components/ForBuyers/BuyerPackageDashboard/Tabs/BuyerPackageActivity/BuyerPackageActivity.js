@@ -9,7 +9,7 @@ import SimplifiedActivityView from './components/SimplifiedActivityView/Simplifi
 import './BuyerPackageActivity.css';
 
 const BuyerPackageActivity = ({ buyerPackageId, listingId }) => {
-  const { token, user } = useAuth();
+  const { token } = useAuth();
   const [activities, setActivities] = useState([]);
   const [expandedUsers, setExpandedUsers] = useState(new Set());
   const [userGroups, setUserGroups] = useState([]);

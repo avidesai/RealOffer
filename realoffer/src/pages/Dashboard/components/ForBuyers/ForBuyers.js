@@ -263,7 +263,12 @@ function ForBuyers() {
         </>
       ) : (
         <div className="for-buyers-empty">
-          {searchQuery || filter !== 'all' ? (
+          {buyerPackages.length === 0 ? (
+            <>
+              <p>You don't have any buyer packages yet.</p>
+              <p>Browse public listings to join a buyer package.</p>
+            </>
+          ) : (searchQuery || filter !== 'all') ? (
             <>
               <p>No buyer packages match your current filters.</p>
               <button onClick={() => {

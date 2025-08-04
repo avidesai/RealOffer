@@ -282,7 +282,12 @@ function MyListings() {
         </>
       ) : (
         <div className="my-listings-empty">
-          {searchQuery || filter !== 'all' ? (
+          {listings.length === 0 ? (
+            <>
+              <p>You don't have any listings yet.</p>
+              <p>Create your first listing to get started.</p>
+            </>
+          ) : (searchQuery || filter !== 'all') ? (
             <>
               <p>No listings match your current filters.</p>
               <button onClick={() => {
