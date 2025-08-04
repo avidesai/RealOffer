@@ -165,6 +165,10 @@ const propertyAnalysisRouter = require('./routes/propertyAnalysis');
 const stripeRouter = require('./routes/stripe');
 const buyerPackagesRouter = require('./routes/buyerPackages');
 const adminRouter = require('./routes/admin');
+const offerDueDateNotificationsRouter = require('./routes/offerDueDateNotifications');
+
+// Initialize offer due date notification service
+require('./utils/offerDueDateNotificationService');
 
 // Route Usage
 app.use('/api/users', usersRouter);
@@ -180,6 +184,7 @@ app.use('/api/property-analysis', propertyAnalysisRouter);
 app.use('/api/stripe', stripeRouter);
 app.use('/api/buyerPackages', buyerPackagesRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/offer-due-date-notifications', offerDueDateNotificationsRouter);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

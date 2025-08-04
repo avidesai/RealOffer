@@ -56,7 +56,8 @@ const propertyListingSchema = new mongoose.Schema(
       buyerPackageCreated: { type: Boolean, default: true },
       views: { type: Boolean, default: false },
       downloads: { type: Boolean, default: true },
-      offers: { type: Boolean, default: true }
+      offers: { type: Boolean, default: true },
+      offerDueDateReminders: { type: Boolean, default: true }
     }
   },
   { timestamps: true }

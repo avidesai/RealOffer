@@ -539,6 +539,76 @@ class EmailService {
       return { success: false, error: error.message };
     }
   }
+
+  // Send offer due date reminder email
+  async sendOfferDueDateReminder(recipientEmail, recipientName, propertyAddress, timeRemaining, dueDate, recipientRole) {
+    const roleText = recipientRole === 'agent' ? 'Buyer Agent' : 'Buyer';
+    const formattedDueDate = new Date(dueDate).toLocaleString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: recipientEmail,
+      subject: `Offer Due Date Reminder - ${propertyAddress}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">Offer Due Date Reminder</h1>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${recipientName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              This is a reminder that the offer due date for a property you're interested in is approaching.
+            </p>
+            <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #856404; font-weight: 600; margin: 0 0 10px 0; font-size: 16px;">
+                ⏰ Time Remaining: ${timeRemaining}
+              </p>
+            </div>
+            <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
+                ${propertyAddress}
+              </p>
+              <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
+                Due Date: ${formattedDueDate}
+              </p>
+            </div>
+            <p style="color: #666; line-height: 1.6;">
+              Make sure to submit your offer before the deadline. You can access the property listing and submit your offer through your RealOffer dashboard.
+            </p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.FRONTEND_URL}/dashboard" 
+                 style="background-color: #007bff; color: white; padding: 12px 30px; 
+                        text-decoration: none; border-radius: 5px; display: inline-block;">
+                View Property
+              </a>
+            </div>
+            <p style="color: #666; line-height: 1.6;">
+              If you have any questions or need assistance, please don't hesitate to reach out to the listing agent.
+            </p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('Offer due date reminder send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 module.exports = new EmailService(); 

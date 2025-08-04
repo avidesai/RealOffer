@@ -17,7 +17,8 @@ const Settings = ({ listing, onStatusChange }) => {
     buyerPackageCreated: true,
     views: false,
     downloads: true,
-    offers: true
+    offers: true,
+    offerDueDateReminders: true
   });
   const navigate = useNavigate();
   const { token, user } = useAuth(); // Get the token and user from AuthContext
@@ -31,7 +32,8 @@ const Settings = ({ listing, onStatusChange }) => {
         buyerPackageCreated: true,
         views: false,
         downloads: true,
-        offers: true
+        offers: true,
+        offerDueDateReminders: true
       });
     }
   }, [listing]);
@@ -94,7 +96,8 @@ const Settings = ({ listing, onStatusChange }) => {
         buyerPackageCreated: true,
         views: false,
         downloads: true,
-        offers: true
+        offers: true,
+        offerDueDateReminders: true
       });
     }
   };
@@ -217,7 +220,7 @@ const Settings = ({ listing, onStatusChange }) => {
       <div className="settings-sections-row">
         <div className="settings-section notification-settings-section">
           <h2 className="settings-title">Email Notifications</h2>
-          <p className="settings-description">Configure which events will trigger email notifications to you.</p>
+          <p className="settings-description">Configure which events will trigger email notifications.</p>
           
           <div className="toggle-settings">
             <div className="toggle-setting">
@@ -267,7 +270,7 @@ const Settings = ({ listing, onStatusChange }) => {
             
             <div className="toggle-setting">
               <div className="toggle-label">
-                <span className="toggle-title">New offers</span>
+                <span className="toggle-title">Offer activity</span>
                 <span className="toggle-description">Get notified when someone submits an offer for this property</span>
               </div>
               <label className="toggle-switch">
@@ -275,6 +278,21 @@ const Settings = ({ listing, onStatusChange }) => {
                   type="checkbox"
                   checked={notificationSettings.offers}
                   onChange={(e) => handleNotificationToggle('offers', e.target.checked)}
+                />
+                <span className="toggle-slider"></span>
+              </label>
+            </div>
+            
+            <div className="toggle-setting">
+              <div className="toggle-label">
+                <span className="toggle-title">Send offer due date reminders</span>
+                <span className="toggle-description">Send email reminders to buyer parties 3 days, 1 day, and 3 hours before the offer due date</span>
+              </div>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={notificationSettings.offerDueDateReminders}
+                  onChange={(e) => handleNotificationToggle('offerDueDateReminders', e.target.checked)}
                 />
                 <span className="toggle-slider"></span>
               </label>
