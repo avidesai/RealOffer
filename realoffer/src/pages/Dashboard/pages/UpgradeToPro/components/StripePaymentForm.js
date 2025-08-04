@@ -122,6 +122,7 @@ const StripePaymentForm = ({
   return (
     <form onSubmit={handleSubmit} className="stripe-payment-form">
       <div className="upgrade-payment-fields">
+        
         <div className="stripe-card-element-container">
           <CardElement 
             options={cardElementOptions}

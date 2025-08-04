@@ -59,7 +59,6 @@ const userSchema = new mongoose.Schema({
     subscriptionCurrentPeriodEnd: { type: Date },
     subscriptionCancelAtPeriodEnd: { type: Boolean, default: false },
     paymentMethodId: { type: String },
-    trialEnd: { type: Date },
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {
