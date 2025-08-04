@@ -541,15 +541,18 @@ class EmailService {
   }
 
   // Send offer due date reminder email
-  async sendOfferDueDateReminder(recipientEmail, recipientName, propertyAddress, timeRemaining, dueDate, recipientRole) {
+  async sendOfferDueDateReminder(recipientEmail, recipientName, propertyAddress, timeRemaining, dueDate, recipientRole, timezone = 'America/Los_Angeles') {
     const roleText = recipientRole === 'agent' ? 'Buyer Agent' : 'Buyer';
+    
+    // Format the date using the stored timezone
     const formattedDueDate = new Date(dueDate).toLocaleString('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: timezone
     });
     
     const mailOptions = {

@@ -106,6 +106,7 @@ exports.createListing = async (req, res) => {
     officerNumber,
     scheduleShowingUrl,
     offerDueDate,
+    offerDueDateTimezone,
   } = req.body;
 
   const propertyImages = req.files ? req.files.map((file) => file.location) : [];
@@ -166,6 +167,7 @@ exports.createListing = async (req, res) => {
     description: description || '',
     scheduleShowingUrl: scheduleShowingUrl || '',
     offerDueDate: offerDueDate || null,
+    offerDueDateTimezone: offerDueDateTimezone || 'America/Los_Angeles',
     agentIds: finalAgentIds,
     imagesUrls: propertyImages,
     status: 'active',

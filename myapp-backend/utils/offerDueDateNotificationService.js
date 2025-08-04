@@ -133,7 +133,8 @@ class OfferDueDateNotificationService {
         propertyAddress,
         timeRemaining,
         listing.offerDueDate,
-        recipientRole
+        recipientRole,
+        listing.offerDueDateTimezone
       );
 
       if (result.success) {

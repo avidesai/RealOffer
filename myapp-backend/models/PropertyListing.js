@@ -39,6 +39,7 @@ const propertyListingSchema = new mongoose.Schema(
     },
     scheduleShowingUrl: String, // URL for scheduling showings
     offerDueDate: Date, // Date when offers are due
+    offerDueDateTimezone: { type: String, default: 'America/Los_Angeles' }, // Timezone for offer due date
     agentIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     documents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Document' }],
     offers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Offer' }],

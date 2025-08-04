@@ -129,6 +129,11 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
       }
     });
 
+    // Add timezone information for offer due date
+    if (formData.offerDueDate) {
+      formDataToSend.append('offerDueDateTimezone', Intl.DateTimeFormat().resolvedOptions().timeZone);
+    }
+
     try {
       console.log('Creating listing with token:', token ? 'Present' : 'Missing');
       const response = await api.post('/api/propertyListings', formDataToSend);

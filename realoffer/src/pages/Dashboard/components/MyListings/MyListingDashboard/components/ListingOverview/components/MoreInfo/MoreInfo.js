@@ -194,6 +194,13 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
       // Convert datetime-local value to ISO string for backend
       const date = new Date(value);
       processedValue = date.toISOString();
+      
+      // Also update the timezone when offer due date is changed
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      setListing(prevState => ({
+        ...prevState,
+        offerDueDateTimezone: timezone
+      }));
     }
     
     // Update local state immediately
@@ -255,6 +262,12 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
         };
       } else {
         updatedField = { [field]: processedValue };
+      }
+
+      // Include timezone when updating offer due date
+      if (field === 'offerDueDate') {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        updatedField.offerDueDateTimezone = timezone;
       }
 
       try {
