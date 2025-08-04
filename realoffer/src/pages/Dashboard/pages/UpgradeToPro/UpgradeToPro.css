@@ -221,6 +221,26 @@
   margin-left: 0.5rem;
 }
 
+/* --- Coupon Success Message - Centered above promo code */
+.coupon-success-message {
+  text-align: center;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
+  border: 2px solid #38a169;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(56, 161, 105, 0.15);
+  width: 100%;
+}
+
+.coupon-success-text {
+  color: #2f855a;
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
 /* --- Stripe Elements Styling --- */
 .stripe-card-element-container {
   background: #f7fafd;
@@ -395,7 +415,7 @@
   }
   .upgrade-features-card, .upgrade-subscribe-card {
     max-width: 100vw;
-    padding: 1rem 0.2rem;
+    padding: 1rem 1.5rem;
   }
   .upgrade-hero-title {
     font-size: 1.5rem;

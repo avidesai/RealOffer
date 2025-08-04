@@ -181,6 +181,17 @@ const UpgradeToProContent = () => {
               </small>
             )}
           </div>
+          
+          {/* Coupon Success Message - Centered above promo code */}
+          {couponStatus==='success' && validCoupon && (
+            <div className="coupon-success-message">
+              <span className="coupon-success-text">
+                🎉 Promo Applied:<br />
+                Free Access for 2 Months
+              </span>
+            </div>
+          )}
+          
           <div className="upgrade-coupon-row">
             <input 
               type="text" 
@@ -197,13 +208,6 @@ const UpgradeToProContent = () => {
             >
               {couponLoading ? 'Checking...' : 'Apply'}
             </button>
-            {couponStatus==='success' && validCoupon && (
-              <span className="coupon-success">
-                {validCoupon.percentOff 
-                  ? `${validCoupon.percentOff}% off` 
-                  : `$${validCoupon.amountOff/100} off`} applied!
-              </span>
-            )}
             {couponStatus==='error' && <span className="coupon-error">Invalid promo code</span>}
           </div>
           {paymentError && (
