@@ -274,8 +274,9 @@
 
 .message-input-container {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
+  width: 100%;
 }
 
 .message-input-container textarea {
@@ -291,6 +292,7 @@
   max-height: 120px;
   font-family: inherit;
   transition: border-color 0.2s;
+  overflow: hidden;
 }
 
 .message-input-container textarea:focus {
@@ -308,7 +310,7 @@
   background: #007bff;
   color: white;
   border: none;
-  padding: 0.75rem 1.2rem;
+  padding: 0.75rem 1rem;
   border-radius: 20px;
   font-size: 0.95rem;
   font-weight: 600;
@@ -319,7 +321,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 80px;
+  min-width: 70px;
   white-space: nowrap;
 }
 
@@ -372,7 +374,7 @@
   }
   
   .message-input-container {
-    gap: 8px;
+    gap: 6px;
   }
   
   .message-input-container textarea {
@@ -381,10 +383,10 @@
   }
   
   .send-button {
-    padding: 0.7rem 1rem;
+    padding: 0.7rem 0.8rem;
     font-size: 0.9rem;
     height: 40px;
-    min-width: 75px;
+    min-width: 65px;
     white-space: nowrap;
   }
 }
@@ -428,7 +430,7 @@
   }
   
   .message-input-container {
-    gap: 6px;
+    gap: 4px;
   }
   
   .message-input-container textarea {
@@ -437,10 +439,10 @@
   }
   
   .send-button {
-    padding: 0.6rem 0.9rem;
+    padding: 0.6rem 0.7rem;
     font-size: 0.85rem;
     height: 36px;
-    min-width: 70px;
+    min-width: 60px;
     white-space: nowrap;
   }
 }

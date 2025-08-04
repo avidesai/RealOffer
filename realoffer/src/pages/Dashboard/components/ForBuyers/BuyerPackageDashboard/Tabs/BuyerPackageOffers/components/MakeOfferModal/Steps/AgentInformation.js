@@ -1,6 +1,7 @@
 // AgentInformation.js
 
 import React, { useEffect, useCallback } from 'react';
+import InputMask from 'react-input-mask';
 import { useAuth } from '../../../../../../../../../../context/AuthContext';
 import { useOffer } from '../../../../../../../../../../context/OfferContext';
 import axios from 'axios';
@@ -61,21 +62,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
     }
   }, [isAgent, fetchUserData, getRandomColor, handleNestedChange]);
 
-  const formatPhoneNumber = (value) => {
-    if (!value) return '';
-    const cleaned = ('' + value).replace(/\D/g, '');
-    const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
-    if (match) {
-      return `(${match[1]}) ${match[2]}-${match[3]}`;
-    }
-    return value;
-  };
 
-  const handlePhoneNumberChange = (e) => {
-    const { name, value } = e.target;
-    const formattedValue = formatPhoneNumber(value);
-    handleNestedChange({ target: { name, value: formattedValue } }, 'presentedBy');
-  };
 
   return (
     <div className="modal-step">
@@ -129,14 +116,21 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
           value={formData.presentedBy.email || ''}
           onChange={(e) => handleNestedChange(e, 'presentedBy')}
         />
-        <input
-          type="text"
-          name="phoneNumber"
-          placeholder="Phone Number"
-          className="agent-info-input"
+        <InputMask
+          mask="(999) 999-9999"
           value={formData.presentedBy.phoneNumber || ''}
-          onChange={handlePhoneNumberChange}
-        />
+          onChange={(e) => handleNestedChange(e, 'presentedBy')}
+        >
+          {(inputProps) => (
+            <input
+              {...inputProps}
+              type="text"
+              name="phoneNumber"
+              placeholder="Phone Number"
+              className="agent-info-input"
+            />
+          )}
+        </InputMask>
       </div>
       <div className="agent-info-form-group">
         <label className="agent-info-label">Brokerage Information</label>
