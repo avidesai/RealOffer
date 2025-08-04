@@ -8,6 +8,7 @@ const multerS3 = require('multer-s3');
 const mongoose = require('mongoose');
 const crypto = require('crypto'); // For generating unique public URLs
 const emailService = require('../utils/emailService');
+const offerDueDateNotificationService = require('../utils/offerDueDateNotificationService');
 
 // Configure multer-s3 for photos
 const uploadPhotos = multer({
@@ -298,11 +299,26 @@ exports.updateListing = async (req, res) => {
       req.body.agentIds = finalAgentIds;
     }
 
+    // Check if offer due date is being updated
+    const currentListing = await PropertyListing.findById(req.params.id);
+    const isOfferDueDateUpdated = currentListing.offerDueDate?.getTime() !== req.body.offerDueDate?.getTime();
+
     const updatedListing = await PropertyListing.findOneAndUpdate(
       { _id: req.params.id },
       req.body,
       { new: true }
     );
+    
+    // Reset notification flags if offer due date was updated
+    if (isOfferDueDateUpdated && req.body.offerDueDate) {
+      try {
+        await offerDueDateNotificationService.resetNotificationFlags(req.params.id);
+        console.log(`Reset notification flags for listing ${req.params.id} due to offer due date update`);
+      } catch (error) {
+        console.error('Error resetting notification flags:', error);
+        // Don't fail the request if notification reset fails
+      }
+    }
     
     res.status(200).json(updatedListing);
   } catch (error) {

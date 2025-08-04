@@ -555,7 +555,7 @@ class EmailService {
     const mailOptions = {
       from: `"RealOffer" <noreply@realoffer.io>`,
       to: recipientEmail,
-      subject: `Offer Due Date Reminder - ${propertyAddress}`,
+      subject: `Offers Due in ${timeRemaining} - ${propertyAddress}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
@@ -568,7 +568,7 @@ class EmailService {
             </p>
             <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin: 20px 0;">
               <p style="color: #856404; font-weight: 600; margin: 0 0 10px 0; font-size: 16px;">
-                ⏰ Time Remaining: ${timeRemaining}
+                ⏰ Time Remaining: ${timeRemaining === '1 day' ? '24 hours' : timeRemaining}
               </p>
             </div>
             <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">

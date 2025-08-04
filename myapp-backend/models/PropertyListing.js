@@ -58,6 +58,12 @@ const propertyListingSchema = new mongoose.Schema(
       downloads: { type: Boolean, default: true },
       offers: { type: Boolean, default: true },
       offerDueDateReminders: { type: Boolean, default: true }
+    },
+    // Track sent offer due date notifications to prevent duplicates
+    sentOfferDueDateNotifications: {
+      threeDays: { type: Boolean, default: false },
+      oneDay: { type: Boolean, default: false },
+      threeHours: { type: Boolean, default: false }
     }
   },
   { timestamps: true }

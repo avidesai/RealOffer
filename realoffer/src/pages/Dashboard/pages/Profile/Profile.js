@@ -253,7 +253,7 @@ const Profile = () => {
               </div>
               {/* Agency Name */}
               <div className="form-group">
-                <label htmlFor="agencyName">Name</label>
+                <label htmlFor="agencyName">Brokerage Name</label>
                 <input
                   type="text"
                   id="agencyName"
@@ -265,7 +265,7 @@ const Profile = () => {
               </div>
               {/* Brokerage License Number */}
               <div className="form-group">
-                <label htmlFor="brokerageLicenseNumber">License Number</label>
+                <label htmlFor="brokerageLicenseNumber">Brokerage License Number</label>
                 <input
                   type="text"
                   id="brokerageLicenseNumber"

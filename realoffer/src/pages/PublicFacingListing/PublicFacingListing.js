@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
+import InputMask from 'react-input-mask';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import { useAuth } from '../../context/AuthContext';
@@ -50,6 +51,7 @@ const PublicFacingListing = () => {
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
     email: user?.email || '',
+    phone: user?.phone || '',
     role: user?.role || 'agent', // Default to agent as requested
     password: '',
     confirmPassword: '',
@@ -159,7 +161,7 @@ const PublicFacingListing = () => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'radio' ? checked : value,
+      [name]: type === 'radio' ? (value === 'true') : value,
     }));
     // Clear error when user starts typing
     if (error) setError('');
@@ -209,8 +211,8 @@ const PublicFacingListing = () => {
       }
     }
     
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.role) {
-      setError('Please fill in all required fields.');
+    if (!formData.email) {
+      setError('Please enter your email address.');
       return;
     }
 
@@ -327,7 +329,7 @@ const PublicFacingListing = () => {
     e.preventDefault();
     e.stopPropagation();
     
-    if (!formData.firstName || !formData.lastName || !formData.password || !formData.confirmPassword) {
+    if (!formData.firstName || !formData.lastName || !formData.phone || !formData.password || !formData.confirmPassword || !formData.role) {
       setError('Please fill in all required fields.');
       return;
     }
@@ -335,6 +337,14 @@ const PublicFacingListing = () => {
     // Validate license number for agents
     if (formData.role === 'agent' && !formData.agentLicenseNumber.trim()) {
       setError('License number is required for real estate agents.');
+      return;
+    }
+
+    // Validate phone number format
+    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+    const cleanPhone = formData.phone.replace(/[\s\-\(\)]/g, '');
+    if (!phoneRegex.test(cleanPhone)) {
+      setError('Please enter a valid phone number.');
       return;
     }
 
@@ -366,6 +376,7 @@ const PublicFacingListing = () => {
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
+          phone: formData.phone,
           password: formData.password,
           role: formData.role,
           agentLicenseNumber: formData.role === 'agent' ? formData.agentLicenseNumber : '',
@@ -463,6 +474,7 @@ const PublicFacingListing = () => {
           userInfo: {
             name: `${user.firstName} ${user.lastName}`,
             email: user.email,
+            phone: user.phone || '',
             role: user.role || 'buyer'
           }
         }),
@@ -537,6 +549,7 @@ const PublicFacingListing = () => {
           userInfo: {
             name: `${formData.firstName} ${formData.lastName}`,
             email: formData.email,
+            phone: formData.phone,
             role: formData.role
           }
         }),
@@ -751,6 +764,34 @@ const PublicFacingListing = () => {
           <p>Complete your registration to access this listing.</p>
           {error && <p className="pfl-error">{error}</p>}
           <form className="pfl-inquiry-form" onSubmit={handleSignup} onKeyDown={handleKeyDown}>
+            <div className="pfl-form-row">
+              <div className="pfl-form-group">
+                <label htmlFor="firstName">First Name</label>
+                <input
+                  type="text"
+                  id="firstName"
+                  name="firstName"
+                  placeholder="Enter your first name"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  required
+                  autoComplete="given-name"
+                />
+              </div>
+              <div className="pfl-form-group">
+                <label htmlFor="lastName">Last Name</label>
+                <input
+                  type="text"
+                  id="lastName"
+                  name="lastName"
+                  placeholder="Enter your last name"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  required
+                  autoComplete="family-name"
+                />
+              </div>
+            </div>
             <div className="pfl-form-group">
               <label htmlFor="password">Password</label>
               <input
@@ -778,6 +819,39 @@ const PublicFacingListing = () => {
                 autoComplete="new-password"
                 minLength="6"
               />
+            </div>
+            <div className="pfl-form-group">
+              <label htmlFor="phone">Phone Number</label>
+              <InputMask
+                mask="(999) 999-9999"
+                value={formData.phone || ''}
+                onChange={handleInputChange}
+              >
+                {(inputProps) => (
+                  <input
+                    {...inputProps}
+                    type="text"
+                    id="phone"
+                    name="phone"
+                    placeholder="Enter your phone number"
+                    required
+                    autoComplete="tel"
+                  />
+                )}
+              </InputMask>
+            </div>
+            <div className="pfl-form-group">
+              <label htmlFor="role">I am a...</label>
+              <select
+                id="role"
+                name="role"
+                value={formData.role}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="agent">Real Estate Agent</option>
+                <option value="buyer">Home Buyer</option>
+              </select>
             </div>
             {formData.role === 'agent' && (
               <div className="pfl-form-group">
@@ -839,7 +913,7 @@ const PublicFacingListing = () => {
     return (
       <div className="pfl-form-container">
         <h2>{isListingAgent ? 'Manage Your Listing' : 'Access Listing'}</h2>
-        <p>{isListingAgent ? 'Manage your property listing, view offers, and track buyer activity.' : 'View disclosures, make offers, and more.'}</p>
+        <p>{isListingAgent ? 'Manage your property listing, view offers, and track buyer activity.' : 'Enter your email to get started.'}</p>
         
         <div className="pfl-benefits-section">
           <h4>{isListingAgent ? 'What you can do:' : 'What you\'ll get access to:'}</h4>
@@ -864,34 +938,6 @@ const PublicFacingListing = () => {
         {error && <p className="pfl-error">{error}</p>}
         
         <form className="pfl-inquiry-form" onSubmit={handleInitialSubmit} onKeyDown={handleKeyDown}>
-          <div className="pfl-form-row">
-            <div className="pfl-form-group">
-              <label htmlFor="firstName">First Name</label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                placeholder="Enter your first name"
-                value={formData.firstName}
-                onChange={handleInputChange}
-                required={!user}
-                autoComplete="given-name"
-              />
-            </div>
-            <div className="pfl-form-group">
-              <label htmlFor="lastName">Last Name</label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                placeholder="Enter your last name"
-                value={formData.lastName}
-                onChange={handleInputChange}
-                required={!user}
-                autoComplete="family-name"
-              />
-            </div>
-          </div>
           <div className="pfl-form-group">
             <label htmlFor="email">Email Address</label>
             <input
@@ -904,19 +950,6 @@ const PublicFacingListing = () => {
               required={!user}
               autoComplete="email"
             />
-          </div>
-          <div className="pfl-form-group">
-            <label htmlFor="role">I am a...</label>
-            <select
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={handleInputChange}
-              required={!user}
-            >
-              <option value="agent">Real Estate Agent</option>
-              <option value="buyer">Home Buyer</option>
-            </select>
           </div>
           <button type="submit" className="pfl-request-button" disabled={isLoading}>
             {isLoading ? 'Checking...' : (user ? (listing && listing.createdBy === user._id ? 'Manage Listing' : 'Get Access Now') : 'Continue')}

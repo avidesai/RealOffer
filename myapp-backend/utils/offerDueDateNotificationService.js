@@ -61,17 +61,22 @@ class OfferDueDateNotificationService {
 
     let shouldSendNotification = false;
     let timeRemaining = '';
+    let notificationType = '';
 
     // Check if we should send a notification based on time thresholds
-    if (daysDiff === 3) {
+    // Only send if not already sent for this notification type
+    if (daysDiff === 3 && !listing.sentOfferDueDateNotifications?.threeDays) {
       shouldSendNotification = true;
       timeRemaining = '3 days';
-    } else if (daysDiff === 1) {
+      notificationType = 'threeDays';
+    } else if (daysDiff === 1 && !listing.sentOfferDueDateNotifications?.oneDay) {
       shouldSendNotification = true;
       timeRemaining = '1 day';
-    } else if (hoursDiff === 3) {
+      notificationType = 'oneDay';
+    } else if (hoursDiff === 3 && !listing.sentOfferDueDateNotifications?.threeHours) {
       shouldSendNotification = true;
       timeRemaining = '3 hours';
+      notificationType = 'threeHours';
     }
 
     if (!shouldSendNotification) {
@@ -103,6 +108,15 @@ class OfferDueDateNotificationService {
     const failed = results.filter(result => result.status === 'rejected' || (result.status === 'fulfilled' && !result.value.success)).length;
     
     console.log(`Sent ${timeRemaining} notifications for listing ${listing.homeCharacteristics.address}: ${successful} successful, ${failed} failed`);
+
+    // Mark this notification as sent to prevent duplicates
+    if (successful > 0) {
+      const updateData = {};
+      updateData[`sentOfferDueDateNotifications.${notificationType}`] = true;
+      
+      await PropertyListing.findByIdAndUpdate(listing._id, updateData);
+      console.log(`Marked ${notificationType} notification as sent for listing: ${listing.homeCharacteristics.address}`);
+    }
   }
 
   // Send notification to a specific buyer party
@@ -196,6 +210,24 @@ class OfferDueDateNotificationService {
       return { success: true, upcomingNotifications };
     } catch (error) {
       console.error('Error getting upcoming due dates:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Reset notification flags when offer due date is updated
+  async resetNotificationFlags(listingId) {
+    try {
+      await PropertyListing.findByIdAndUpdate(listingId, {
+        sentOfferDueDateNotifications: {
+          threeDays: false,
+          oneDay: false,
+          threeHours: false
+        }
+      });
+      console.log(`Reset notification flags for listing: ${listingId}`);
+      return { success: true };
+    } catch (error) {
+      console.error('Error resetting notification flags:', error);
       return { success: false, error: error.message };
     }
   }

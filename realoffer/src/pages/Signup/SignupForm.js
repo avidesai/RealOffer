@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import InputMask from 'react-input-mask';
 import { useAuth } from '../../context/AuthContext';
 import './SignupForm.css';
 
@@ -12,6 +13,7 @@ function SignupForm() {
     firstName: '',
     lastName: '',
     email: '',
+    phone: '',
     password: '',
     confirmPassword: '',
     role: '',
@@ -30,7 +32,7 @@ function SignupForm() {
     const { name, value, type, checked } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: type === 'radio' ? checked : value
+      [name]: type === 'radio' ? (value === 'true') : value
     }));
     // Clear specific field errors and general error when user starts typing
     clearErrors();
@@ -64,6 +66,16 @@ function SignupForm() {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
+    }
+    
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else {
+      const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+      const cleanPhone = formData.phone.replace(/[\s\-\(\)]/g, '');
+      if (!phoneRegex.test(cleanPhone)) {
+        newErrors.phone = 'Please enter a valid phone number';
+      }
     }
     
     if (!formData.password) {
@@ -298,6 +310,26 @@ function SignupForm() {
             placeholder="Confirm your password"
           />
           {errors.confirmPassword && <div className="sup-error">{errors.confirmPassword}</div>}
+        </div>
+        <div className="sup-form-group">
+          <label htmlFor="phone" className="sup-label">Phone Number</label>
+          <InputMask
+            mask="(999) 999-9999"
+            value={formData.phone || ''}
+            onChange={handleChange}
+          >
+            {(inputProps) => (
+              <input
+                {...inputProps}
+                type="text"
+                id="phone"
+                name="phone"
+                className={`sup-input ${errors.phone ? 'sup-input-invalid' : ''}`}
+                placeholder="Enter your phone number"
+              />
+            )}
+          </InputMask>
+          {errors.phone && <div className="sup-error">{errors.phone}</div>}
         </div>
         <div className="sup-form-group">
           <label htmlFor="role" className="sup-label">Role</label>

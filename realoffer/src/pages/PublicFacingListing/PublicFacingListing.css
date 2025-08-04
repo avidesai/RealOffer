@@ -105,7 +105,7 @@
 /* Main Content Grid - Reduced spacing */
 .pfl-content-grid {
   display: grid;
-  grid-template-columns: 1fr 500px;
+  grid-template-columns: 1fr 550px;
   gap: var(--pfl-space-xl); /* Reduced from var(--pfl-space-2xl) */
   align-items: start;
 }
@@ -662,7 +662,7 @@
   }
   
   .pfl-content-grid {
-    grid-template-columns: 1fr 460px;
+    grid-template-columns: 1fr 500px;
     gap: var(--pfl-space-lg); /* Reduced gap */
   }
   
@@ -700,7 +700,7 @@
   }
   
   .pfl-content-grid {
-    grid-template-columns: 1fr 420px; /* Slightly narrower form */
+    grid-template-columns: 1fr 450px; /* Slightly narrower form */
     gap: var(--pfl-space-md);
   }
   
