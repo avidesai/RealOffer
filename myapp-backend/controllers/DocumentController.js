@@ -46,8 +46,9 @@ exports.uploadDocument = async (req, res) => {
 
     const isCreator = propertyListing.createdBy.toString() === req.user.id;
     const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
     
-    if (!isCreator && !isAgent) {
+    if (!isCreator && !isAgent && !isTeamMember) {
       return res.status(403).json({ message: 'Not authorized to upload documents to this listing' });
     }
 
@@ -121,8 +122,9 @@ exports.addDocumentToPropertyListing = async (req, res) => {
     // Check if the authenticated user is authorized to add documents to this listing
     const isCreator = propertyListing.createdBy.toString() === req.user.id;
     const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
     
-    if (!isCreator && !isAgent) {
+    if (!isCreator && !isAgent && !isTeamMember) {
       return res.status(403).json({ message: 'Not authorized to add documents to this listing' });
     }
     const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
@@ -180,8 +182,9 @@ exports.getDocumentsByListing = async (req, res) => {
     // Check if the authenticated user is authorized to view these documents
     const isCreator = propertyListing.createdBy.toString() === req.user.id;
     const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
     
-    if (!isCreator && !isAgent) {
+    if (!isCreator && !isAgent && !isTeamMember) {
       return res.status(403).json({ message: 'Not authorized to view these documents' });
     }
     const documents = await Document.find({ propertyListing: req.params.listingId });
@@ -212,8 +215,9 @@ exports.updateDocumentSignedStatus = async (req, res) => {
     
     const isCreator = propertyListing.createdBy.toString() === req.user.id;
     const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
     
-    if (!isCreator && !isAgent) {
+    if (!isCreator && !isAgent && !isTeamMember) {
       return res.status(403).json({ message: 'Not authorized to update this document' });
     }
     document.signed = signed;
@@ -244,8 +248,9 @@ exports.deleteDocument = async (req, res) => {
     
     const isCreator = propertyListing.createdBy.toString() === req.user.id;
     const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
     
-    if (!isCreator && !isAgent) {
+    if (!isCreator && !isAgent && !isTeamMember) {
       return res.status(403).json({ message: 'Not authorized to delete this document' });
     }
     const blobName = document.azureKey;
@@ -279,8 +284,9 @@ exports.addPageToSignaturePackage = async (req, res) => {
     
     const isCreator = propertyListing.createdBy.toString() === req.user.id;
     const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
     
-    if (!isCreator && !isAgent) {
+    if (!isCreator && !isAgent && !isTeamMember) {
       return res.status(403).json({ message: 'Not authorized to modify this document' });
     }
     if (!document.signaturePackagePages.includes(page)) {
@@ -315,8 +321,9 @@ exports.removePageFromSignaturePackage = async (req, res) => {
     
     const isCreator = propertyListing.createdBy.toString() === req.user.id;
     const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
     
-    if (!isCreator && !isAgent) {
+    if (!isCreator && !isAgent && !isTeamMember) {
       return res.status(403).json({ message: 'Not authorized to modify this document' });
     }
     const updatedDocument = await Document.findByIdAndUpdate(
@@ -342,8 +349,9 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     // Check if the authenticated user is authorized to create a signature packet for this listing
     const isCreator = propertyListing.createdBy.toString() === req.user.id;
     const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
     
-    if (!isCreator && !isAgent) {
+    if (!isCreator && !isAgent && !isTeamMember) {
       return res.status(403).json({ message: 'Not authorized to create a signature packet for this listing' });
     }
     
@@ -513,9 +521,10 @@ exports.getDocumentsByOffer = async (req, res) => {
     
     const isListingCreator = offer.propertyListing.createdBy.toString() === req.user.id;
     const isListingAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = offer.propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
     const isBuyersAgent = offer.buyersAgent && offer.buyersAgent.toString() === req.user.id;
     
-    if (!isListingCreator && !isListingAgent && !isBuyersAgent) {
+    if (!isListingCreator && !isListingAgent && !isTeamMember && !isBuyersAgent) {
       return res.status(403).json({ message: 'Not authorized to view these documents' });
     }
     
@@ -743,8 +752,9 @@ exports.getSingleDocument = async (req, res) => {
       
       const isCreator = propertyListing.createdBy.toString() === req.user.id;
       const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+      const isTeamMember = propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
       
-      if (!isCreator && !isAgent) {
+      if (!isCreator && !isAgent && !isTeamMember) {
         return res.status(403).json({ message: 'Not authorized to access this document' });
       }
     } else if (document.offer) {
@@ -756,8 +766,9 @@ exports.getSingleDocument = async (req, res) => {
       
       const isCreator = offer.propertyListing.createdBy.toString() === req.user.id;
       const isAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+      const isTeamMember = offer.propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
       
-      if (!isCreator && !isAgent) {
+      if (!isCreator && !isAgent && !isTeamMember) {
         return res.status(403).json({ message: 'Not authorized to access this document' });
       }
     } else {
@@ -799,8 +810,9 @@ exports.downloadDocument = async (req, res) => {
       
       const isCreator = propertyListing.createdBy.toString() === req.user.id;
       const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+      const isTeamMember = propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
       
-      if (!isCreator && !isAgent) {
+      if (!isCreator && !isAgent && !isTeamMember) {
         return res.status(403).json({ message: 'Not authorized to access this document' });
       }
     } else if (document.offer) {
@@ -812,8 +824,9 @@ exports.downloadDocument = async (req, res) => {
       
       const isCreator = offer.propertyListing.createdBy.toString() === req.user.id;
       const isAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+      const isTeamMember = offer.propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
       
-      if (!isCreator && !isAgent) {
+      if (!isCreator && !isAgent && !isTeamMember) {
         return res.status(403).json({ message: 'Not authorized to access this document' });
       }
       propertyListing = offer.propertyListing;

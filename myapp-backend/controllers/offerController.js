@@ -172,12 +172,13 @@ exports.getOfferById = async (req, res) => {
     const offer = await Offer.findById(req.params.id).populate('buyersAgent').populate('propertyListing');
     if (!offer) return res.status(404).json({ message: 'Offer not found' });
     
-    // Check authorization - user must be listing creator, listing agent, or buyer's agent
+    // Check authorization - user must be listing creator, listing agent, team member, or buyer's agent
     const isListingCreator = offer.propertyListing.createdBy.toString() === req.user.id;
     const isListingAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = offer.propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
     const isBuyersAgent = offer.buyersAgent && offer.buyersAgent._id.toString() === req.user.id;
     
-    if (!isListingCreator && !isListingAgent && !isBuyersAgent) {
+    if (!isListingCreator && !isListingAgent && !isTeamMember && !isBuyersAgent) {
       return res.status(403).json({ message: 'Not authorized to view this offer' });
     }
     
@@ -204,11 +205,12 @@ exports.deleteOffer = async (req, res) => {
     const offer = await Offer.findById(req.params.id).populate('propertyListing');
     if (!offer) return res.status(404).json({ message: 'Offer not found' });
     
-    // Check authorization - only listing creator and agents can delete offers
+    // Check authorization - only listing creator, agents, and team members can delete offers
     const isListingCreator = offer.propertyListing.createdBy.toString() === req.user.id;
     const isListingAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = offer.propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
     
-    if (!isListingCreator && !isListingAgent) {
+    if (!isListingCreator && !isListingAgent && !isTeamMember) {
       return res.status(403).json({ message: 'Not authorized to delete this offer' });
     }
     
@@ -230,11 +232,12 @@ exports.updatePrivateNotes = async (req, res) => {
       return res.status(404).json({ message: 'Offer not found' });
     }
 
-    // Check authorization - only listing creator and agents can update private notes
+    // Check authorization - only listing creator, agents, and team members can update private notes
     const isListingCreator = offer.propertyListing.createdBy.toString() === req.user.id;
     const isListingAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = offer.propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
     
-    if (!isListingCreator && !isListingAgent) {
+    if (!isListingCreator && !isListingAgent && !isTeamMember) {
       return res.status(403).json({ message: 'Not authorized to update private notes' });
     }
 
@@ -261,11 +264,12 @@ exports.updateOfferStatus = async (req, res) => {
       return res.status(404).json({ message: 'Offer not found' });
     }
 
-    // Check authorization - only listing creator and agents can update offer status
+    // Check authorization - only listing creator, agents, and team members can update offer status
     const isListingCreator = offer.propertyListing.createdBy.toString() === req.user.id;
     const isListingAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = offer.propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
     
-    if (!isListingCreator && !isListingAgent) {
+    if (!isListingCreator && !isListingAgent && !isTeamMember) {
       return res.status(403).json({ message: 'Not authorized to update offer status' });
     }
 
