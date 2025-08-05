@@ -166,6 +166,7 @@ const stripeRouter = require('./routes/stripe');
 const buyerPackagesRouter = require('./routes/buyerPackages');
 const adminRouter = require('./routes/admin');
 const offerDueDateNotificationsRouter = require('./routes/offerDueDateNotifications');
+const chatRouter = require('./routes/chat');
 
 // Initialize offer due date notification service
 require('./utils/offerDueDateNotificationService');
@@ -185,6 +186,7 @@ app.use('/api/stripe', stripeRouter);
 app.use('/api/buyerPackages', buyerPackagesRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/offer-due-date-notifications', offerDueDateNotificationsRouter);
+app.use('/api/chat', chatRouter);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

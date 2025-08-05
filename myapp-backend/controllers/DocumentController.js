@@ -7,6 +7,8 @@ const { containerClient, generateSASToken } = require('../config/azureStorage');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const { PDFDocument } = require('pdf-lib');
+const { extractTextFromPDF } = require('./DocumentAnalysisController');
+const { processDocumentForSearch } = require('../utils/documentProcessor');
 
 // Configure multer for in-memory storage before uploading to Azure
 const storage = multer.memoryStorage();
@@ -27,6 +29,24 @@ const getPdfPageCount = async (buffer) => {
   } catch (error) {
     console.error('Error reading PDF:', error);
     return 0;
+  }
+};
+
+// Helper function to process document for AI chat
+const processDocumentForChat = async (document, fileBuffer) => {
+  try {
+    // Extract text from PDF for AI chat
+    if (document.docType === 'pdf') {
+      const text = await extractTextFromPDF(fileBuffer, document._id);
+      document.textContent = text;
+      await document.save();
+      
+      // Process for semantic search (generate chunks and embeddings)
+      await processDocumentForSearch(document._id);
+    }
+  } catch (error) {
+    console.error('Error processing document for AI chat:', error);
+    // Don't fail the upload if AI processing fails
   }
 };
 
@@ -94,6 +114,10 @@ exports.uploadDocument = async (req, res) => {
       }
       
       propertyListing.documents.push(savedDocument._id);
+      
+      // Process document for AI chat (async, don't wait for completion)
+      processDocumentForChat(savedDocument, file.buffer);
+      
       return savedDocument;
     }));
 
@@ -162,6 +186,10 @@ exports.addDocumentToPropertyListing = async (req, res) => {
 
       const savedDocument = await newDocument.save();
       propertyListing.documents.push(savedDocument._id);
+      
+      // Process document for AI chat (async, don't wait for completion)
+      processDocumentForChat(savedDocument, file.buffer);
+      
       return savedDocument;
     }));
 

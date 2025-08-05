@@ -7,6 +7,7 @@ import MoreInfo from './components/MoreInfo/MoreInfo';
 import ListingPhotoGallery from './components/ListingPhotoGallery/ListingPhotoGallery';
 import ShareUrl from './components/ShareUrl/ShareUrl'; // Import ShareUrl component
 import OfferDueReminder from '../../../../../../../components/OfferDueReminder/OfferDueReminder';
+import PropertyChat from '../../../../../../../components/PropertyChat/PropertyChat';
 import './ListingOverview.css';
 
 function ListingOverview({ listing }) {
@@ -16,6 +17,7 @@ function ListingOverview({ listing }) {
   const [currentListing, setCurrentListing] = useState(listing);
   const [showGallery, setShowGallery] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false); // State for ShareUrl modal
+  const [showChatModal, setShowChatModal] = useState(false); // State for chat modal
 
   // Ensure listing has all required structures
   useEffect(() => {
@@ -156,6 +158,7 @@ function ListingOverview({ listing }) {
                 </button>
               )}
               <button className="overview-btn" onClick={() => setShowMoreInfo(true)}>More Info</button>
+              <button className="ask-questions-btn" onClick={() => setShowChatModal(true)}>Ask Questions</button>
             </div>
           </div>
           <div className="overview-right-section">
@@ -203,6 +206,25 @@ function ListingOverview({ listing }) {
             url={currentListing.publicUrl}
             listingId={currentListing._id}
           />
+        )}
+        {showChatModal && (
+          <div className="chat-modal-overlay">
+            <div className="chat-modal">
+              <div className="chat-modal-header">
+                <h3>Ask AI About This Property</h3>
+                <button 
+                  className="close-btn"
+                  onClick={() => setShowChatModal(false)}
+                >
+                  ×
+                </button>
+              </div>
+              <PropertyChat 
+                propertyId={currentListing._id}
+                onClose={() => setShowChatModal(false)}
+              />
+            </div>
+          </div>
         )}
       </div>
     </div>

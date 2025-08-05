@@ -119,14 +119,39 @@ const extractTextFromPDF = async (pdfBuffer, analysisId) => {
     // If text is too short or empty, try OCR
     if (!text || text.length < 100) {
       await updateAnalysisProgress(analysisId, 'performing_ocr', 30, 'Text extraction yielded insufficient results, switching to OCR...');
-      return await extractTextWithOCR(pdfBuffer);
+      const ocrText = await extractTextWithOCR(pdfBuffer);
+      
+      // Store the extracted text in the document for AI chat
+      const document = await Document.findById(analysisId);
+      if (document) {
+        document.textContent = ocrText;
+        await document.save();
+      }
+      
+      return ocrText;
     }
 
+    // Store the extracted text in the document for AI chat
+    const document = await Document.findById(analysisId);
+    if (document) {
+      document.textContent = text;
+      await document.save();
+    }
+    
     return text;
   } catch (error) {
     // If PDF parsing fails, try OCR
     await updateAnalysisProgress(analysisId, 'performing_ocr', 30, 'PDF parsing failed, switching to OCR...');
-    return await extractTextWithOCR(pdfBuffer);
+    const ocrText = await extractTextWithOCR(pdfBuffer);
+    
+    // Store the extracted text in the document for AI chat
+    const document = await Document.findById(analysisId);
+    if (document) {
+      document.textContent = ocrText;
+      await document.save();
+    }
+    
+    return ocrText;
   }
 };
 
@@ -608,4 +633,7 @@ ${text}`;
 };
 
 // Apply rate limiters to the analyze endpoint
-exports.analyzeDocument = [minuteLimiter, hourLimiter, exports.analyzeDocument]; 
+exports.analyzeDocument = [minuteLimiter, hourLimiter, exports.analyzeDocument];
+
+// Export extractTextFromPDF for use in DocumentController
+exports.extractTextFromPDF = extractTextFromPDF; 

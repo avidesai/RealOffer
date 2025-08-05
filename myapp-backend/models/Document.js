@@ -20,6 +20,26 @@ const documentSchema = new mongoose.Schema({
   signed: { type: Boolean, default: false },
   analysis: { type: mongoose.Schema.Types.ObjectId, ref: 'DocumentAnalysis', required: false },
   
+  // AI Chat feature fields
+  textContent: { type: String }, // Store extracted text
+  textChunks: [{
+    content: String,
+    startIndex: Number,
+    endIndex: Number,
+    pageNumber: Number,
+    section: String,
+    metadata: {
+      documentType: String,
+      documentTitle: String,
+      uploadedAt: Date
+    }
+  }],
+  embeddings: [{
+    chunkIndex: Number,
+    embedding: [Number], // Vector for semantic search
+    content: String
+  }],
+  
   // DocuSign integration fields
   docusignEnvelopeId: { type: String },
   signingStatus: {
