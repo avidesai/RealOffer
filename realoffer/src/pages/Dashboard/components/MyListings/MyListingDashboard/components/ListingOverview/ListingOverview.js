@@ -148,6 +148,7 @@ function ListingOverview({ listing }) {
             <p className="property-price">${formatPrice(currentListing.homeCharacteristics.price)}<span className='space'>•</span>{currentListing.homeCharacteristics.beds} Bed, {currentListing.homeCharacteristics.baths} Bath</p>
             <div className={`overview-buttons ${!currentListing.scheduleShowingUrl ? 'three-buttons' : ''}`}>
               <button className="overview-btn-share-package" onClick={() => setShowShareModal(true)}>Share</button>
+              <button className="ask-questions-btn" onClick={() => setShowChatModal(true)}>Ask Questions</button>
               <button className="overview-btn" onClick={() => setShowGallery(true)}>Images</button>
               {currentListing.scheduleShowingUrl && (
                 <button 
@@ -158,7 +159,6 @@ function ListingOverview({ listing }) {
                 </button>
               )}
               <button className="overview-btn" onClick={() => setShowMoreInfo(true)}>More Info</button>
-              <button className="ask-questions-btn" onClick={() => setShowChatModal(true)}>Ask Questions</button>
             </div>
           </div>
           <div className="overview-right-section">

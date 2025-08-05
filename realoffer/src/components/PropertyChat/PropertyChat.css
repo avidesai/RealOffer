@@ -55,20 +55,34 @@
   color: #333;
 }
 
-/* Ask Questions Button */
+/* Ask Questions Button - AI Analysis Style */
 .ask-questions-btn {
-  background: #0066cc;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
+  position: relative;
+  z-index: 1;
+  background: white;
+  color: #262626;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  background-image:
+    linear-gradient(white, white),
+    linear-gradient(90deg, #007bff, #00c6ff, #10b981, #f59e42, #e34d8c, #007bff);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
 }
 
 .ask-questions-btn:hover {
-  background: #0052a3;
+  background-image:
+    linear-gradient(white, white),
+    linear-gradient(90deg, #0056b3, #0056b3, #0056b3, #0056b3, #0056b3, #0056b3);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+  transform: translateY(-1px);
 }
 
 /* Chat Interface */
