@@ -240,6 +240,15 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
       ...prev,
       [name]: value
     }));
+    
+    // Update selectedAgent if it's an invite and we're updating firstName or lastName
+    if (selectedAgent && selectedAgent.isInvite && (name === 'firstName' || name === 'lastName')) {
+      setSelectedAgent(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+    
     // Clear error when user starts typing
     if (error) setError('');
   };
