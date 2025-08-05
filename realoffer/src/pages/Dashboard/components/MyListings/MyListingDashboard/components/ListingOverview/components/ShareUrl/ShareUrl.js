@@ -25,6 +25,7 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
   const [invitingTeamMember, setInvitingTeamMember] = useState(false);
   const [inviteSuccess, setInviteSuccess] = useState(false);
   const [inviteError, setInviteError] = useState('');
+  const [isExistingUser, setIsExistingUser] = useState(false);
   
   // Listing data state
   const [currentListing, setCurrentListing] = useState(null);
@@ -194,6 +195,7 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
       console.log('Invitation response:', response.data);
 
       setInviteSuccess(true);
+      setIsExistingUser(response.data.userExists || false);
       setSearchQuery('');
       setSearchResults([]);
       setShowDropdown(false);
@@ -202,6 +204,7 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
       // Show success message for a few seconds
       setTimeout(() => {
         setInviteSuccess(false);
+        setIsExistingUser(false);
       }, 3000);
       
     } catch (error) {
@@ -547,7 +550,7 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                     {/* Invitation status messages */}
                     {inviteSuccess && (
                       <div className="invite-success">
-                        ✓ Invitation sent successfully!
+                        ✓ {isExistingUser ? 'User added to team successfully!' : 'Invitation sent successfully!'}
                       </div>
                     )}
                     {inviteError && (

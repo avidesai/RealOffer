@@ -695,9 +695,54 @@ exports.sendTeamMemberInvitation = async (req, res) => {
         // Check if user already exists
         const existingUser = await User.findOne({ email: email.toLowerCase() });
         if (existingUser) {
-            return res.status(409).json({ 
-                message: 'A user with this email address already exists' 
+            // For team member invitations, we can invite existing users
+            // Just add them to the team instead of creating a new account
+            console.log('Existing user found for team member invitation:', existingUser.email);
+            
+            // Add the existing user to the listing's team members
+            const PropertyListing = require('../models/PropertyListing');
+            const listing = await PropertyListing.findById(listingId);
+            if (!listing) {
+                return res.status(404).json({ 
+                    message: 'Listing not found' 
+                });
+            }
+            
+            // Check if user is already a team member
+            const currentTeamMemberIds = listing.teamMemberIds || [];
+            if (currentTeamMemberIds.some(id => id.toString() === existingUser._id.toString())) {
+                return res.status(409).json({ 
+                    message: 'This user is already a team member for this listing' 
+                });
+            }
+            
+            // Add user to team members
+            const updatedTeamMemberIds = [...currentTeamMemberIds, existingUser._id];
+            await PropertyListing.findByIdAndUpdate(listingId, {
+                teamMemberIds: updatedTeamMemberIds
             });
+            
+            // Send notification email to existing user
+            const emailResult = await emailService.sendTeamMemberAddedNotification(
+                existingUser.email,
+                `${existingUser.firstName} ${existingUser.lastName}`,
+                propertyAddress,
+                inviterName
+            );
+            
+            if (emailResult.success) {
+                res.status(200).json({ 
+                    message: 'Existing user added to team successfully',
+                    email: email,
+                    userExists: true
+                });
+            } else {
+                res.status(500).json({ 
+                    message: 'Failed to send notification email',
+                    error: emailResult.error 
+                });
+            }
+            return;
         }
 
         // Get the listing to access its publicUrl

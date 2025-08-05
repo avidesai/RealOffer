@@ -228,7 +228,7 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
     setInviteError('');
     
     try {
-      await api.post('/api/users/invite-team-member', {
+      const response = await api.post('/api/users/invite-team-member', {
         email: inviteData.inviteEmail,
         firstName: firstName,
         lastName: lastName,
@@ -241,6 +241,7 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
         }
       });
 
+      console.log('Invitation response:', response.data);
       setInviteSuccess(true);
       setTeamMemberSearchQuery('');
       setTeamMemberSearchResults([]);
