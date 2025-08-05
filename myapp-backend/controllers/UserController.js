@@ -60,7 +60,7 @@ exports.searchUsers = async (req, res) => {
             ],
             role: { $in: ['agent', 'admin'] } // Only return agents and admins
         })
-        .select('firstName lastName email role agentLicenseNumber agencyName')
+        .select('firstName lastName email phone role agentLicenseNumber agencyName')
         .limit(10); // Limit results to prevent overwhelming the UI
 
         res.status(200).json(users);

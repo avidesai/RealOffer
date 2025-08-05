@@ -16,12 +16,22 @@ function ListingItem({ listing, onStatusChange, onShareListing }) {
 
   useEffect(() => {
     const fetchAgents = async () => {
-      const agentDetails = await Promise.all(
-        listing.agentIds.map(async (id) => {
-          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`);
-          return response.data;
-        })
-      );
+      // Check if agentIds are already populated objects or just IDs
+      const isPopulated = listing.agentIds.length > 0 && typeof listing.agentIds[0] === 'object' && listing.agentIds[0]._id;
+      
+      let agentDetails;
+      if (isPopulated) {
+        // agentIds are already populated user objects
+        agentDetails = listing.agentIds;
+      } else {
+        // agentIds are just IDs, need to fetch user objects
+        agentDetails = await Promise.all(
+          listing.agentIds.map(async (id) => {
+            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`);
+            return response.data;
+          })
+        );
+      }
       setAgents(agentDetails);
     };
 

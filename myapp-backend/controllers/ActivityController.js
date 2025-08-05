@@ -17,15 +17,16 @@ exports.getActivities = async (req, res) => {
         return res.status(404).json({ message: 'Property listing not found' });
       }
       
-      // Check if user owns the listing, is an agent, OR has a buyer package for this listing
+      // Check if user owns the listing, is an agent, team member, OR has a buyer package for this listing
       const isOwner = listing.createdBy.toString() === req.user.id;
       const isAgent = listing.agentIds.some(agentId => agentId.toString() === req.user.id);
+      const isTeamMember = listing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
       const hasBuyerPackage = await BuyerPackage.findOne({
         propertyListing: listingId,
         user: req.user.id
       });
       
-      if (!isOwner && !isAgent && !hasBuyerPackage) {
+      if (!isOwner && !isAgent && !isTeamMember && !hasBuyerPackage) {
         return res.status(403).json({ message: 'Not authorized to view these activities' });
       }
       

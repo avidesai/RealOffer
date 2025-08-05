@@ -20,12 +20,22 @@ const BuyerPackageMoreInfo = ({ buyerPackage, onClose }) => {
       }
       
       try {
-        const agentDetails = await Promise.all(
-          listing.agentIds.map(async (id) => {
-            const response = await api.get(`/api/users/${id}`);
-            return response.data;
-          })
-        );
+        // Check if agentIds are already populated objects or just IDs
+        const isPopulated = listing.agentIds.length > 0 && typeof listing.agentIds[0] === 'object' && listing.agentIds[0]._id;
+        
+        let agentDetails;
+        if (isPopulated) {
+          // agentIds are already populated user objects
+          agentDetails = listing.agentIds;
+        } else {
+          // agentIds are just IDs, need to fetch user objects
+          agentDetails = await Promise.all(
+            listing.agentIds.map(async (id) => {
+              const response = await api.get(`/api/users/${id}`);
+              return response.data;
+            })
+          );
+        }
         setAgents(agentDetails);
       } catch (error) {
         console.error('Error fetching agent details:', error);

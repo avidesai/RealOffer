@@ -15,15 +15,23 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hasChanges, setHasChanges] = useState(false);
+  const [agents, setAgents] = useState([]);
+  const [selectedAgents, setSelectedAgents] = useState([]);
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [selectedTeamMembers, setSelectedTeamMembers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [showDropdown, setShowDropdown] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [selectedAgents, setSelectedAgents] = useState([]);
-  const [agents, setAgents] = useState([]);
-  const debounceTimer = useRef({});
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [teamMemberSearchQuery, setTeamMemberSearchQuery] = useState('');
+  const [teamMemberSearchResults, setTeamMemberSearchResults] = useState([]);
+  const [teamMemberSearchLoading, setTeamMemberSearchLoading] = useState(false);
+  const [showTeamMemberDropdown, setShowTeamMemberDropdown] = useState(false);
   const searchTimeoutRef = useRef(null);
   const dropdownRef = useRef(null);
+  const teamMemberSearchTimeoutRef = useRef(null);
+  const teamMemberDropdownRef = useRef(null);
+  const debounceTimer = useRef({});
 
   const fetchAgents = useCallback(async (agentIds) => {
     if (!agentIds || agentIds.length === 0) {
@@ -33,16 +41,59 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     }
 
     try {
-      const agentPromises = agentIds.map(id => 
-        api.get(`/api/users/${id}`)
-      );
-      const agentResponses = await Promise.all(agentPromises);
-      const fetchedAgents = agentResponses.map(response => response.data);
+      // Check if agentIds are already populated objects or just IDs
+      const isPopulated = agentIds.length > 0 && typeof agentIds[0] === 'object' && agentIds[0]._id;
+      
+      let fetchedAgents;
+      if (isPopulated) {
+        // agentIds are already populated user objects
+        fetchedAgents = agentIds;
+      } else {
+        // agentIds are just IDs, need to fetch user objects
+        const agentPromises = agentIds.map(id => 
+          api.get(`/api/users/${id}`)
+        );
+        const agentResponses = await Promise.all(agentPromises);
+        fetchedAgents = agentResponses.map(response => response.data);
+      }
       
       setAgents(fetchedAgents);
+      // Filter out current user from selected agents - they will be handled separately based on their role
       setSelectedAgents(fetchedAgents.filter(agent => agent._id !== user._id));
     } catch (error) {
       console.error('Error fetching agents:', error);
+    }
+  }, [user._id]);
+
+  const fetchTeamMembers = useCallback(async (teamMemberIds) => {
+    if (!teamMemberIds || teamMemberIds.length === 0) {
+      setTeamMembers([]);
+      setSelectedTeamMembers([]);
+      return;
+    }
+
+    try {
+      // Check if teamMemberIds are already populated objects or just IDs
+      const isPopulated = teamMemberIds.length > 0 && typeof teamMemberIds[0] === 'object' && teamMemberIds[0]._id;
+      
+      let fetchedTeamMembers;
+      if (isPopulated) {
+        // teamMemberIds are already populated user objects
+        fetchedTeamMembers = teamMemberIds;
+      } else {
+        // teamMemberIds are just IDs, need to fetch user objects
+        const teamMemberPromises = teamMemberIds.map(id => 
+          api.get(`/api/users/${id}`)
+        );
+        const teamMemberResponses = await Promise.all(teamMemberPromises);
+        fetchedTeamMembers = teamMemberResponses.map(response => response.data);
+      }
+      
+      setTeamMembers(fetchedTeamMembers);
+      // Filter out current user from selected team members - they will be handled separately based on their role
+      setSelectedTeamMembers(fetchedTeamMembers.filter(teamMember => teamMember._id !== user._id));
+    } catch (error) {
+      console.error('Error fetching team members:', error);
     }
   }, [user._id]);
 
@@ -69,15 +120,16 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
       setListing(listingData);
       setHasChanges(false);
       
-      // Fetch agents for this listing
+      // Fetch agents and team members for this listing
       await fetchAgents(listingData.agentIds);
+      await fetchTeamMembers(listingData.teamMemberIds);
     } catch (error) {
       console.error('Error fetching listing:', error);
       setError('Failed to load property information. Please try again.');
     } finally {
       setLoading(false);
     }
-  }, [listingId, fetchAgents]);
+  }, [listingId, fetchAgents, fetchTeamMembers]);
 
   useEffect(() => {
     if (isOpen) {
@@ -90,6 +142,9 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
+      }
+      if (teamMemberDropdownRef.current && !teamMemberDropdownRef.current.contains(event.target)) {
+        setShowTeamMemberDropdown(false);
       }
     };
 
@@ -118,7 +173,9 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
       const filteredResults = response.data.filter(agent => 
         agent._id !== user._id && 
         !agents.some(existing => existing._id === agent._id) &&
-        !selectedAgents.some(selected => selected._id === agent._id)
+        !selectedAgents.some(selected => selected._id === agent._id) &&
+        !teamMembers.some(teamMember => teamMember._id === agent._id) &&
+        !selectedTeamMembers.some(selected => selected._id === agent._id)
       );
       
       setSearchResults(filteredResults);
@@ -127,6 +184,39 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
       setSearchResults([]);
     } finally {
       setSearchLoading(false);
+    }
+  };
+
+  // Search for team members
+  const searchTeamMembers = async (query) => {
+    if (!query || query.trim().length < 2) {
+      setTeamMemberSearchResults([]);
+      return;
+    }
+
+    setTeamMemberSearchLoading(true);
+    try {
+      const response = await api.get(`/api/users/search?query=${encodeURIComponent(query)}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      // Filter out current user and already selected team members
+      const filteredResults = response.data.filter(teamMember => 
+        teamMember._id !== user._id && 
+        !teamMembers.some(existing => existing._id === teamMember._id) &&
+        !selectedTeamMembers.some(selected => selected._id === teamMember._id) &&
+        !agents.some(agent => agent._id === teamMember._id) &&
+        !selectedAgents.some(selected => selected._id === teamMember._id)
+      );
+      
+      setTeamMemberSearchResults(filteredResults);
+    } catch (error) {
+      console.error('Error searching team members:', error);
+      setTeamMemberSearchResults([]);
+    } finally {
+      setTeamMemberSearchLoading(false);
     }
   };
 
@@ -146,42 +236,104 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     }, 300);
   };
 
+  // Handle team member search input change
+  const handleTeamMemberSearchChange = (e) => {
+    const query = e.target.value;
+    setTeamMemberSearchQuery(query);
+    setShowTeamMemberDropdown(true);
+
+    // Debounce search
+    if (teamMemberSearchTimeoutRef.current) {
+      clearTimeout(teamMemberSearchTimeoutRef.current);
+    }
+
+    teamMemberSearchTimeoutRef.current = setTimeout(() => {
+      searchTeamMembers(query);
+    }, 300);
+  };
+
   // Add agent to selected list
   const addAgent = async (agent) => {
-    const newSelectedAgents = [...selectedAgents, agent];
-    setSelectedAgents(newSelectedAgents);
-    setSearchQuery('');
-    setShowDropdown(false);
-    setSearchResults([]);
-    
-    // Update the listing with the new agent
-    const allAgentIds = [user._id, ...newSelectedAgents.map(a => a._id)];
+    if (selectedAgents.length >= 1) {
+      setError('Maximum of 1 additional agent allowed.');
+      return;
+    }
+
     try {
+      const allAgentIds = [user._id, ...selectedAgents.map(a => a._id), agent._id];
+      
       await api.put(`/api/propertyListings/${listingId}`, {
         agentIds: allAgentIds
       });
+
+      setSelectedAgents([...selectedAgents, agent]);
+      setSearchQuery('');
+      setSearchResults([]);
+      setShowDropdown(false);
       setHasChanges(true);
+      setError(null);
     } catch (error) {
       console.error('Error adding agent:', error);
       setError('Failed to add agent. Please try again.');
     }
   };
 
+  // Add team member to selected list
+  const addTeamMember = async (teamMember) => {
+    try {
+      const allTeamMemberIds = [...selectedTeamMembers.map(tm => tm._id), teamMember._id];
+      
+      await api.put(`/api/propertyListings/${listingId}`, {
+        teamMemberIds: allTeamMemberIds
+      });
+
+      setSelectedTeamMembers([...selectedTeamMembers, teamMember]);
+      setTeamMemberSearchQuery('');
+      setTeamMemberSearchResults([]);
+      setShowTeamMemberDropdown(false);
+      setHasChanges(true);
+      setError(null);
+    } catch (error) {
+      console.error('Error adding team member:', error);
+      setError('Failed to add team member. Please try again.');
+    }
+  };
+
   // Remove agent from selected list
   const removeAgent = async (agentId) => {
-    const newSelectedAgents = selectedAgents.filter(agent => agent._id !== agentId);
-    setSelectedAgents(newSelectedAgents);
-    
-    // Update the listing without the removed agent
-    const allAgentIds = [user._id, ...newSelectedAgents.map(a => a._id)];
     try {
+      const newSelectedAgents = selectedAgents.filter(agent => agent._id !== agentId);
+      const allAgentIds = [user._id, ...newSelectedAgents.map(a => a._id)];
+      
       await api.put(`/api/propertyListings/${listingId}`, {
         agentIds: allAgentIds
       });
+
+      setSelectedAgents(newSelectedAgents);
       setHasChanges(true);
+      setError(null);
     } catch (error) {
       console.error('Error removing agent:', error);
       setError('Failed to remove agent. Please try again.');
+    }
+  };
+
+  // Remove team member from selected list
+  const removeTeamMember = async (teamMemberId) => {
+    try {
+      const newSelectedTeamMembers = selectedTeamMembers.filter(teamMember => teamMember._id !== teamMemberId);
+      const allTeamMemberIds = newSelectedTeamMembers.map(tm => tm._id);
+      
+      await api.put(`/api/propertyListings/${listingId}`, {
+        teamMemberIds: allTeamMemberIds
+      });
+
+      setSelectedTeamMembers(newSelectedTeamMembers);
+      setHasChanges(true);
+      setError(null);
+    } catch (error) {
+      console.error('Error removing team member:', error);
+      setError('Failed to remove team member. Please try again.');
     }
   };
 
@@ -341,6 +493,49 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
   const formatDisplayNumber = (value) => {
     if (!value) return '';
     return new Intl.NumberFormat('en-US').format(value);
+  };
+
+  // Helper functions to determine user's role
+  const isUserPrimaryAgent = () => {
+    if (!listing || !listing.agentIds || listing.agentIds.length === 0) return false;
+    // The first agent in the list is the primary agent (listing creator)
+    const primaryAgentId = Array.isArray(listing.agentIds) && listing.agentIds.length > 0 
+      ? (typeof listing.agentIds[0] === 'object' ? listing.agentIds[0]._id : listing.agentIds[0])
+      : null;
+    return primaryAgentId === user._id;
+  };
+
+  const isUserAdditionalAgent = () => {
+    if (!listing || !listing.agentIds) return false;
+    const agentIds = listing.agentIds.filter(id => {
+      const agentId = typeof id === 'object' ? id._id : id;
+      return agentId !== user._id;
+    });
+    // Check if current user is in the agentIds but not the primary agent
+    return agentIds.some(id => {
+      const agentId = typeof id === 'object' ? id._id : id;
+      return agentId === user._id;
+    });
+  };
+
+  const isUserTeamMember = () => {
+    if (!listing || !listing.teamMemberIds) return false;
+    return listing.teamMemberIds.some(id => {
+      const teamMemberId = typeof id === 'object' ? id._id : id;
+      return teamMemberId === user._id;
+    });
+  };
+
+  const getPrimaryAgent = () => {
+    if (!listing || !listing.agentIds || listing.agentIds.length === 0) return null;
+    const primaryAgentId = typeof listing.agentIds[0] === 'object' ? listing.agentIds[0]._id : listing.agentIds[0];
+    return agents.find(agent => agent._id === primaryAgentId);
+  };
+
+  const getAdditionalAgents = () => {
+    if (!listing || !listing.agentIds) return [];
+    const primaryAgentId = typeof listing.agentIds[0] === 'object' ? listing.agentIds[0]._id : listing.agentIds[0];
+    return agents.filter(agent => agent._id !== primaryAgentId);
   };
 
   const handleFormattedChange = (e, field) => {
@@ -517,8 +712,8 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
             <div className="mlmi-info-section">
               <h3>Listing Agents</h3>
               
-              {/* Additional Agents Search - Only show if less than 2 total agents */}
-              {selectedAgents.length < 1 && (
+              {/* Additional Agents Search - Only show if current user is primary agent or additional agent, and less than 2 total agents */}
+              {(isUserPrimaryAgent() || isUserAdditionalAgent()) && selectedAgents.length < 1 && (
                 <div className="mlmi-agent-section">
                   <label className="mlmi-info-label">Add Additional Agents</label>
                   <div className="mlmi-agent-search-container" ref={dropdownRef}>
@@ -562,23 +757,25 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
 
               {/* All Agents List */}
               <div className="mlmi-selected-agents-list">
-                {/* Primary Agent (Current User) - Always First */}
-                <div className="mlmi-selected-agent-item">
-                  <div className="mlmi-agent-info">
-                    <span className="mlmi-agent-name">{`${user?.firstName} ${user?.lastName}`}</span>
-                    {user?.phone && (
-                      <span className="mlmi-agent-phone">{user.phone}</span>
-                    )}
-                    <span className="mlmi-agent-email">{user?.email}</span>
-                    {user?.agencyName && (
-                      <span className="mlmi-agent-agency">{user.agencyName}</span>
-                    )}
+                {/* Primary Agent */}
+                {getPrimaryAgent() && (
+                  <div className="mlmi-selected-agent-item">
+                    <div className="mlmi-agent-info">
+                      <span className="mlmi-agent-name">{`${getPrimaryAgent().firstName} ${getPrimaryAgent().lastName}`}</span>
+                      {getPrimaryAgent().phone && (
+                        <span className="mlmi-agent-phone">{getPrimaryAgent().phone}</span>
+                      )}
+                      <span className="mlmi-agent-email">{getPrimaryAgent().email}</span>
+                      {getPrimaryAgent().agencyName && (
+                        <span className="mlmi-agent-agency">{getPrimaryAgent().agencyName}</span>
+                      )}
+                    </div>
+                    <span className="mlmi-primary-badge">Primary</span>
                   </div>
-                  <span className="mlmi-primary-badge">Primary</span>
-                </div>
+                )}
                 
                 {/* Additional Agents */}
-                {selectedAgents.map(agent => (
+                {getAdditionalAgents().map(agent => (
                   <div key={agent._id} className="mlmi-selected-agent-item">
                     <div className="mlmi-agent-info">
                       <span className="mlmi-agent-name">{`${agent.firstName} ${agent.lastName}`}</span>
@@ -590,16 +787,116 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                         <span className="mlmi-agent-agency">{agent.agencyName}</span>
                       )}
                     </div>
-                    <button
-                      type="button"
-                      className="mlmi-remove-agent-btn"
-                      onClick={() => removeAgent(agent._id)}
-                    >
-                      ×
-                    </button>
+                    {(isUserPrimaryAgent() || isUserAdditionalAgent()) && (
+                      <button
+                        type="button"
+                        className="mlmi-remove-agent-btn"
+                        onClick={() => removeAgent(agent._id)}
+                      >
+                        ×
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
+            </div>
+            
+            <div className="mlmi-info-section mlmi-team-members-section">
+              <h3>Team Members</h3>
+              <p className="mlmi-team-members-description">
+                Team members have access to manage this listing. Team members will not be displayed to buyers or other external parties.
+              </p>
+              
+              {/* Team Members Search - Only show if current user is primary agent or additional agent */}
+              {(isUserPrimaryAgent() || isUserAdditionalAgent()) && (
+                <div className="mlmi-agent-section">
+                <label className="mlmi-info-label">Add Team Members</label>
+                <div className="mlmi-agent-search-container" ref={teamMemberDropdownRef}>
+                  <input
+                    type="text"
+                    placeholder="Search for team members by name or email..."
+                    value={teamMemberSearchQuery}
+                    onChange={handleTeamMemberSearchChange}
+                    onFocus={() => setShowTeamMemberDropdown(true)}
+                    className="mlmi-agent-search-input"
+                  />
+                  
+                  {showTeamMemberDropdown && (teamMemberSearchQuery.length > 0 || teamMemberSearchLoading) && (
+                    <div className="mlmi-agent-dropdown">
+                      {teamMemberSearchLoading ? (
+                        <div className="mlmi-dropdown-loading">Searching...</div>
+                      ) : teamMemberSearchResults.length > 0 ? (
+                        teamMemberSearchResults.map(teamMember => (
+                          <div
+                            key={teamMember._id}
+                            className="mlmi-dropdown-item"
+                            onClick={() => addTeamMember(teamMember)}
+                          >
+                            <div className="mlmi-agent-info">
+                              <span className="mlmi-agent-name">{`${teamMember.firstName} ${teamMember.lastName}`}</span>
+                              <span className="mlmi-agent-email">{teamMember.email}</span>
+                              {teamMember.agencyName && (
+                                <span className="mlmi-agent-agency">{teamMember.agencyName}</span>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      ) : teamMemberSearchQuery.length >= 2 ? (
+                        <div className="mlmi-dropdown-no-results">No team members found</div>
+                      ) : null}
+                    </div>
+                  )}
+                </div>
+              </div>
+              )}
+
+              {/* Selected Team Members List */}
+              {(selectedTeamMembers.length > 0 || isUserTeamMember()) && (
+                <div className="mlmi-selected-agents-list">
+                  {/* Show current user if they are a team member */}
+                  {isUserTeamMember() && (
+                    <div className="mlmi-selected-agent-item mlmi-team-member-item">
+                      <div className="mlmi-agent-info">
+                        <span className="mlmi-agent-name">{`${user?.firstName} ${user?.lastName}`}</span>
+                        {user?.phone && (
+                          <span className="mlmi-agent-phone">{user.phone}</span>
+                        )}
+                        <span className="mlmi-agent-email">{user?.email}</span>
+                        {user?.agencyName && (
+                          <span className="mlmi-agent-agency">{user.agencyName}</span>
+                        )}
+                      </div>
+                      <span className="mlmi-team-member-badge">Team Member</span>
+                    </div>
+                  )}
+                  
+                  {/* Show other team members */}
+                  {selectedTeamMembers.map(teamMember => (
+                    <div key={teamMember._id} className="mlmi-selected-agent-item mlmi-team-member-item">
+                      <div className="mlmi-agent-info">
+                        <span className="mlmi-agent-name">{`${teamMember.firstName} ${teamMember.lastName}`}</span>
+                        {teamMember.phone && (
+                          <span className="mlmi-agent-phone">{teamMember.phone}</span>
+                        )}
+                        <span className="mlmi-agent-email">{teamMember.email}</span>
+                        {teamMember.agencyName && (
+                          <span className="mlmi-agent-agency">{teamMember.agencyName}</span>
+                        )}
+                      </div>
+                      <span className="mlmi-team-member-badge">Team Member</span>
+                      {(isUserPrimaryAgent() || isUserAdditionalAgent()) && (
+                        <button
+                          type="button"
+                          className="mlmi-remove-agent-btn"
+                          onClick={() => removeTeamMember(teamMember._id)}
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             
             <div className="mlmi-info-section">

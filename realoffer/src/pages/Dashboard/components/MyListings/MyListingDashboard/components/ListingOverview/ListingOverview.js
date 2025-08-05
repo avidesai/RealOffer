@@ -44,12 +44,22 @@ function ListingOverview({ listing }) {
       }
       
       try {
-        const agentDetails = await Promise.all(
-          currentListing.agentIds.map(async (id) => {
-            const response = await api.get(`/api/users/${id}`);
-            return response.data;
-          })
-        );
+        // Check if agentIds are already populated objects or just IDs
+        const isPopulated = currentListing.agentIds.length > 0 && typeof currentListing.agentIds[0] === 'object' && currentListing.agentIds[0]._id;
+        
+        let agentDetails;
+        if (isPopulated) {
+          // agentIds are already populated user objects
+          agentDetails = currentListing.agentIds;
+        } else {
+          // agentIds are just IDs, need to fetch user objects
+          agentDetails = await Promise.all(
+            currentListing.agentIds.map(async (id) => {
+              const response = await api.get(`/api/users/${id}`);
+              return response.data;
+            })
+          );
+        }
         setAgents(agentDetails);
       } catch (error) {
         console.error('Error fetching agent details:', error);

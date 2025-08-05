@@ -14,7 +14,7 @@ router.use(authMiddleware);
 router.get('/', PropertyListingController.getAllListings);
 router.post('/share', PropertyListingController.shareListing);
 router.post('/updateSignaturePackage', PropertyListingController.updateSignaturePackage);
-router.get('/:id', PropertyListingController.getListingById);
+router.get('/:id', PropertyListingController.getListing);
 router.post(
   '/',
   PropertyListingController.uploadPhotos.array('propertyImages', 50),

@@ -24,8 +24,9 @@ exports.getViewersByListing = async (req, res) => {
     // Check if the user is authorized to view this listing's viewers
     const isCreator = listing.createdBy.toString() === req.user.id;
     const isAgent = listing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = listing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
     
-    if (!isCreator && !isAgent) {
+    if (!isCreator && !isAgent && !isTeamMember) {
       return res.status(403).json({ message: 'Not authorized to view this listing\'s viewers' });
     }
     const viewers = await Viewer.find({ listing: req.params.listingId }).populate('user listing');
@@ -75,9 +76,10 @@ exports.deleteViewer = async (req, res) => {
     // Check if the user is authorized to delete this viewer
     const isListingCreator = viewer.listing.createdBy.toString() === req.user.id;
     const isListingAgent = viewer.listing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = viewer.listing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
     const isViewer = viewer.user.toString() === req.user.id;
     
-    if (!isListingCreator && !isListingAgent && !isViewer) {
+    if (!isListingCreator && !isListingAgent && !isTeamMember && !isViewer) {
       return res.status(403).json({ message: 'Not authorized to delete this viewer' });
     }
     await Viewer.findByIdAndDelete(req.params.id);

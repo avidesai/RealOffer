@@ -458,6 +458,58 @@ class EmailService {
     }
   }
 
+  // Send team member added notification email
+  async sendTeamMemberAddedNotification(teamMemberEmail, teamMemberName, propertyAddress, addedByAgentName) {
+    const subject = `You've been added as a team member - ${propertyAddress}`;
+    
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: teamMemberEmail,
+      subject: subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">Team Member Added</h1>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${teamMemberName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              You have been added as a team member for a property on RealOffer.
+            </p>
+            <div style="background-color: #e8f5e8; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #2e7d32; font-weight: 600; margin: 0 0 10px 0;">
+                ${propertyAddress}
+              </p>
+              <p style="color: #666; margin: 0; font-size: 14px;">
+                Added by: ${addedByAgentName}
+              </p>
+            </div>
+            <p style="color: #666; line-height: 1.6;">
+              You now have full access to manage this property listing, including viewing offers, 
+              managing documents, and responding to buyer inquiries. Your profile will remain private 
+              and won't be displayed to buyers or other external parties.
+            </p>
+            <p style="color: #666; line-height: 1.6;">
+              You can access this property through your RealOffer dashboard.
+            </p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('Team member added notification send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Send offer response notification email
   async sendOfferResponseNotification(agentEmail, agentName, propertyAddress, responseType, subject, message, responderName, offerAmount) {
     let responseTitle, responseColor;
