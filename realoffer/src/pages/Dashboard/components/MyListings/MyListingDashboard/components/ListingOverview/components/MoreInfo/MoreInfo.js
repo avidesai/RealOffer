@@ -586,11 +586,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     return agents.find(agent => agent._id === primaryAgentId);
   };
 
-  const getAdditionalAgents = () => {
-    if (!listing || !listing.agentIds) return [];
-    const primaryAgentId = typeof listing.agentIds[0] === 'object' ? listing.agentIds[0]._id : listing.agentIds[0];
-    return agents.filter(agent => agent._id !== primaryAgentId);
-  };
+
 
   const handleFormattedChange = (e, field) => {
     const { value } = e.target;

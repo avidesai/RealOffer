@@ -36,13 +36,13 @@ const TabPaywall = ({ feature, variant = 'analysis' }) => {
       case 'ai-analysis':
         return {
           title: "AI Document Analysis",
-          description: "Get instant AI-powered analysis of home and pest inspection reports to identify key risks, estimate costs, and make informed decisions.",
+          description: "Get instant AI-powered analysis of the most important disclosures to save time, identify key risks and make informed decisions.",
           icon: <Brain size={32} />,
           benefits: [
-            { icon: <Brain size={16} />, text: "AI-powered analysis of inspection reports" },
-            { icon: <FileText size={16} />, text: "Instant summary of key findings and risks" },
-            { icon: <Search size={16} />, text: "Identify potential issues and cost estimates" },
-            { icon: <Shield size={16} />, text: "Professional risk assessment and recommendations" }
+            { icon: <Brain size={16} />, text: "AI-powered analysis of disclosure documents" },
+            { icon: <FileText size={16} />, text: "Instant summary of key findings and risks from all document types" },
+            { icon: <Shield size={16} />, text: "Professional risk assessment and recommendations" },
+            { icon: <Search size={16} />, text: "Support for inspections, TDS, SPQ, AVID, and more" }
           ]
         };
       default:
