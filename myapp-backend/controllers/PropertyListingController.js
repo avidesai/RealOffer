@@ -233,13 +233,30 @@ exports.createListing = async (req, res) => {
 exports.getPublicListing = async (req, res) => {
   const { token } = req.params;
 
+  console.log('Public listing request:', {
+    token,
+    expectedUrl: `${process.env.FRONTEND_URL}/listings/public/${token}`,
+    FRONTEND_URL: process.env.FRONTEND_URL
+  });
+
   try {
     const listing = await PropertyListing.findOne({ publicUrl: `${process.env.FRONTEND_URL}/listings/public/${token}` });
+    
     if (!listing) {
+      console.log('No listing found with publicUrl:', `${process.env.FRONTEND_URL}/listings/public/${token}`);
+      
+      // Try to find any listing with this token in the publicUrl
+      const allListings = await PropertyListing.find({});
+      const matchingListings = allListings.filter(l => l.publicUrl && l.publicUrl.includes(token));
+      console.log('Listings with similar token:', matchingListings.map(l => ({ id: l._id, publicUrl: l.publicUrl })));
+      
       return res.status(404).json({ message: "Listing not found or no longer public." });
     }
+    
+    console.log('Found listing:', { id: listing._id, publicUrl: listing.publicUrl });
     res.status(200).json(listing);
   } catch (error) {
+    console.error('Error in getPublicListing:', error);
     res.status(500).json({ message: error.message });
   }
 };

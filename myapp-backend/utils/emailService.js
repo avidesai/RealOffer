@@ -678,7 +678,7 @@ class EmailService {
       customMessage
     });
     
-    const pflUrl = `${process.env.FRONTEND_URL}/public/${invitationToken}?email=${encodeURIComponent(recipientEmail)}&role=teamMember&firstName=${encodeURIComponent(recipientFirstName || '')}&lastName=${encodeURIComponent(recipientLastName || '')}`;
+    const pflUrl = `${process.env.FRONTEND_URL}/listings/public/${invitationToken}?email=${encodeURIComponent(recipientEmail)}&role=teamMember&firstName=${encodeURIComponent(recipientFirstName || '')}&lastName=${encodeURIComponent(recipientLastName || '')}`;
     
     console.log('Generated PFL URL:', pflUrl);
     
