@@ -168,8 +168,17 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
     setInvitingTeamMember(true);
     setInviteError('');
     
+    console.log('Sending team member invitation:', {
+      email: inviteData.inviteEmail,
+      firstName: shareData.firstName,
+      lastName: shareData.lastName,
+      listingId: listingId,
+      propertyAddress: currentListing?.homeCharacteristics?.address || 'Property',
+      inviterName: `${user.firstName} ${user.lastName}`
+    });
+    
     try {
-      await api.post('/api/users/invite-team-member', {
+      const response = await api.post('/api/users/invite-team-member', {
         email: inviteData.inviteEmail,
         firstName: shareData.firstName,
         lastName: shareData.lastName,
@@ -181,6 +190,8 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
           'Authorization': `Bearer ${token}`
         }
       });
+      
+      console.log('Invitation response:', response.data);
 
       setInviteSuccess(true);
       setSearchQuery('');

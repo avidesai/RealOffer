@@ -668,6 +668,15 @@ exports.sendTeamMemberInvitation = async (req, res) => {
     try {
         const { email, firstName, lastName, listingId, propertyAddress, inviterName } = req.body;
         
+        console.log('Team member invitation request:', {
+            email,
+            firstName,
+            lastName,
+            listingId,
+            propertyAddress,
+            inviterName
+        });
+        
         // Validate required fields
         if (!email || !listingId || !propertyAddress || !inviterName) {
             return res.status(400).json({ 

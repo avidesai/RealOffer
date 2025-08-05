@@ -667,7 +667,19 @@ class EmailService {
 
   // Send team member invitation email
   async sendTeamMemberInvitation(recipientEmail, recipientFirstName, recipientLastName, inviterName, propertyAddress, invitationToken, listingId) {
+    console.log('Sending team member invitation email:', {
+      recipientEmail,
+      recipientFirstName,
+      recipientLastName,
+      inviterName,
+      propertyAddress,
+      invitationToken,
+      listingId
+    });
+    
     const pflUrl = `${process.env.FRONTEND_URL}/public/${invitationToken}?email=${encodeURIComponent(recipientEmail)}&role=teamMember&firstName=${encodeURIComponent(recipientFirstName || '')}&lastName=${encodeURIComponent(recipientLastName || '')}`;
+    
+    console.log('Generated PFL URL:', pflUrl);
     
     const mailOptions = {
       from: `"RealOffer" <noreply@realoffer.io>`,
@@ -717,7 +729,9 @@ class EmailService {
     };
 
     try {
+      console.log('Attempting to send email to:', recipientEmail);
       await this.transporter.sendMail(mailOptions);
+      console.log('Email sent successfully to:', recipientEmail);
       return { success: true };
     } catch (error) {
       console.error('Team member invitation send error:', error);
