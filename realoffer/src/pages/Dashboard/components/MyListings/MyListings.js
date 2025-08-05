@@ -24,6 +24,7 @@ function MyListings() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareListingUrl, setShareListingUrl] = useState('');
+  const [shareListingId, setShareListingId] = useState('');
 
   // Calculate counts for different statuses
   const activeListingsCount = listings.filter(listing => listing.status === 'active').length;
@@ -222,6 +223,7 @@ function MyListings() {
 
   const handleShareListing = (listing) => {
     setShareListingUrl(listing.publicUrl);
+    setShareListingId(listing._id);
     setShowShareModal(true);
   };
 
@@ -313,8 +315,13 @@ function MyListings() {
       {showShareModal && (
         <ShareUrl
           isOpen={showShareModal}
-          onClose={() => setShowShareModal(false)}
+          onClose={() => {
+            setShowShareModal(false);
+            setShareListingId('');
+            setShareListingUrl('');
+          }}
           url={shareListingUrl}
+          listingId={shareListingId}
         />
       )}
     </div>
