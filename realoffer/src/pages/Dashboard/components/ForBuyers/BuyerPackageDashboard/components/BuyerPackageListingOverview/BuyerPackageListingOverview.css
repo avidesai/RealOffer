@@ -232,50 +232,63 @@
   align-items: flex-end;
 }
 
+/* Agent display with agency information */
 .listing-overview-agent-info {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 0.8rem;
-  padding: 0.6rem 0.8rem;
-  border-radius: 10px;
-  position: relative;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e3e8f0;
+  transition: all 0.2s ease;
 }
 
-.listing-overview-agent-image {
-  width: 36px;
-  height: 36px;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  z-index: 1;
-  position: relative;
+.listing-overview-agent-info:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
 }
 
-.listing-overview-agent-info p {
-  margin: 0;
-  font-size: 0.95rem;
+.agent-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.agent-name {
   font-weight: 600;
-  color: #2c3e50;
-  letter-spacing: 0.01em;
-  z-index: 1;
-  position: relative;
+  color: #1e293b;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.agency-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.agent-agency-logo {
+  flex-shrink: 0;
+}
+
+.agency-name {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Multiple agents layout */
+.overview-agents.multiple-agents .listing-overview-agent-info {
+  margin-bottom: 0.5rem;
+}
+
+.overview-agents.multiple-agents .listing-overview-agent-info:last-child {
+  margin-bottom: 0;
 }
 
 /* Compact styling when there are multiple agents */
-.overview-agents.multiple-agents {
-  gap: 0.4rem;
-  margin-top: 0.3rem;
-}
-
-.overview-agents.multiple-agents .listing-overview-agent-info {
-  padding: 0.4rem 0.6rem;
-  gap: 0.6rem;
-}
-
-
-
 .overview-agents.multiple-agents .listing-overview-agent-info p {
   font-size: 0.85rem;
 }
@@ -502,5 +515,21 @@
     text-align: center;
     line-height: 1.2;
     font-weight: 600;
+  }
+} 
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .listing-overview-agent-info {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+  
+  .agent-name {
+    font-size: 0.85rem;
+  }
+  
+  .agency-name {
+    font-size: 0.7rem;
   }
 } 

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../../../../../../context/api';
 import Avatar from '../../../../../../../components/Avatar/Avatar';
+import AgencyLogo from '../../../../../../../components/AgencyLogo/AgencyLogo';
 import BuyerPackageMoreInfo from './components/BuyerPackageMoreInfo/BuyerPackageMoreInfo';
 import ListingPhotoGallery from './components/ListingPhotoGallery/ListingPhotoGallery';
 import ShareUrl from './components/ShareUrl/ShareUrl'; // Import ShareUrl component
@@ -144,7 +145,21 @@ function BuyerPackageListingOverview({ buyerPackage }) {
                     className="listing-overview-agent-image"
                     alt={`${agent.firstName} ${agent.lastName}`}
                   />
-                  <p>{agent.firstName} {agent.lastName}</p>
+                  <div className="agent-details">
+                    <p className="agent-name">{agent.firstName} {agent.lastName}</p>
+                    {agent.agencyName && (
+                      <div className="agency-info">
+                        <AgencyLogo 
+                          src={agent.agencyImage}
+                          alt={agent.agencyName}
+                          size="small"
+                          fit={agent.logoFit || 'contain'}
+                          className="agent-agency-logo"
+                        />
+                        <span className="agency-name">{agent.agencyName}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

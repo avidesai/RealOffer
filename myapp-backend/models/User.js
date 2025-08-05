@@ -29,6 +29,7 @@ const userSchema = new mongoose.Schema({
     agencyName: { type: String, default: '' },
     agencyWebsite: { type: String, default: '' },
     agencyImage: { type: String, default: '' },
+    logoFit: { type: String, default: 'contain', enum: ['contain', 'cover', 'stretch'] },
     agencyAddressLine1: { type: String, default: '' },
     agencyAddressLine2: { type: String, default: '' },
     linkedIn: { type: String, default: '' },

@@ -91,6 +91,20 @@ const useProfileLogic = () => {
     }
   };
 
+  const handleLogoFitChange = async (fitOption) => {
+    setUpdating({ ...updating, logoFit: true });
+    try {
+      const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user._id}`, { 
+        logoFit: fitOption 
+      });
+      setProfileData(response.data);
+    } catch (error) {
+      console.error('Error updating logo fit:', error);
+    } finally {
+      setUpdating({ ...updating, logoFit: false });
+    }
+  };
+
   return {
     profileData,
     loading,
@@ -100,6 +114,7 @@ const useProfileLogic = () => {
     handleInputChange,
     handlePhotoUpload,
     handleCheckboxChange,
+    handleLogoFitChange,
   };
 };
 

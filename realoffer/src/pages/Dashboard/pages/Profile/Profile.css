@@ -455,3 +455,101 @@ input[type="email"]:focus,
   }
 }
 
+/* Logo-specific upload area */
+.logo-upload-area {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.logo-preview-container {
+  width: 120px;
+  height: 80px;
+  border: 2px solid #e3e8f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  overflow: hidden;
+  position: relative;
+}
+
+.agency-logo-preview {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: all 0.3s ease;
+}
+
+.agency-logo-preview[data-fit="cover"] {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.agency-logo-preview[data-fit="stretch"] {
+  object-fit: fill;
+  width: 100%;
+  height: 100%;
+}
+
+.logo-upload-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.logo-fit-options {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background: #f1f5f9;
+  border-radius: 6px;
+}
+
+.fit-option-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #475569;
+  margin: 0;
+}
+
+.fit-option-select {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.fit-option-select:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+}
+
+/* Responsive adjustments for logo upload */
+@media (max-width: 768px) {
+  .logo-upload-area {
+    padding: 1rem;
+  }
+  
+  .logo-preview-container {
+    width: 100px;
+    height: 70px;
+  }
+  
+  .logo-fit-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+

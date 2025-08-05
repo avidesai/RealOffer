@@ -21,7 +21,8 @@ const Profile = () => {
     noLicense,
     handleInputChange,
     handlePhotoUpload,
-    handleCheckboxChange
+    handleCheckboxChange,
+    handleLogoFitChange
   } = useProfileLogic();
 
   const [isEmailModalOpen, setEmailModalOpen] = useState(false);
@@ -229,25 +230,42 @@ const Profile = () => {
                 <h3>Brokerage Information</h3>
               {/* Agency Photo */}
               <div className="form-group">
-                <label htmlFor="agencyImage" className='photo-text'>Agency Photo</label>
-                <div className="upload-area-profile">
-                  <Avatar 
-                    src={profileData.agencyImage}
-                    firstName={profileData.agencyName}
-                    lastName=""
-                    size="upload"
-                    className="agency-photo"
-                    alt={profileData.agencyName || "Agency"}
-                  />
-                  <label className="upload-label-profile" htmlFor="agencyImage">
-                    Upload Photo
-                    <input
-                      type="file"
-                      id="agencyImage"
-                      className="upload-input"
-                      onChange={(e) => handlePhotoUpload(e, 'agencyImage')}
+                <label htmlFor="agencyImage" className='photo-text'>Agency Logo</label>
+                <div className="upload-area-profile logo-upload-area">
+                  <div className="logo-preview-container">
+                    <img 
+                      src={profileData.agencyImage || '/src/assets/images/default-logo.png'}
+                      alt={profileData.agencyName || "Agency Logo"}
+                      className="agency-logo-preview"
+                      data-fit={profileData.logoFit || 'contain'}
                     />
-                  </label>
+                  </div>
+                  <div className="logo-upload-controls">
+                    <label className="upload-label-profile" htmlFor="agencyImage">
+                      Upload Logo
+                      <input
+                        type="file"
+                        id="agencyImage"
+                        className="upload-input"
+                        accept="image/*"
+                        onChange={(e) => handlePhotoUpload(e, 'agencyImage')}
+                      />
+                    </label>
+                    {profileData.agencyImage && (
+                      <div className="logo-fit-options">
+                        <label className="fit-option-label">Logo Fit:</label>
+                        <select 
+                          className="fit-option-select"
+                          value={profileData.logoFit || 'contain'}
+                          onChange={(e) => handleLogoFitChange(e.target.value)}
+                        >
+                          <option value="contain">Fit Entire Logo</option>
+                          <option value="cover">Fill Space</option>
+                          <option value="stretch">Stretch to Fit</option>
+                        </select>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {isUploading.agencyImage && <div className="input-spinner"></div>}
               </div>
