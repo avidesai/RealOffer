@@ -377,7 +377,9 @@ exports.updateListing = async (req, res) => {
 
     // Check if offer due date is being updated
     const currentListing = await PropertyListing.findById(req.params.id);
-    const isOfferDueDateUpdated = currentListing.offerDueDate?.getTime() !== req.body.offerDueDate?.getTime();
+    const currentDueDate = currentListing.offerDueDate ? new Date(currentListing.offerDueDate).getTime() : null;
+    const newDueDate = req.body.offerDueDate ? new Date(req.body.offerDueDate).getTime() : null;
+    const isOfferDueDateUpdated = currentDueDate !== newDueDate;
 
     const updatedListing = await PropertyListing.findOneAndUpdate(
       { _id: req.params.id },
