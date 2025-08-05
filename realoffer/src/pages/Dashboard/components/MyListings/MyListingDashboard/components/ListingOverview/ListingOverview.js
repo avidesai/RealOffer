@@ -173,9 +173,9 @@ function ListingOverview({ listing }) {
             listingId={currentListing._id}
           />
         )}
-        {showGallery && currentListing.imagesUrls && currentListing.imagesUrls.length > 0 && (
+        {showGallery && (
           <ListingPhotoGallery
-            images={currentListing.imagesUrls}
+            images={currentListing.imagesUrls || []}
             onClose={handleGalleryClose}
             listingId={currentListing._id}
           />

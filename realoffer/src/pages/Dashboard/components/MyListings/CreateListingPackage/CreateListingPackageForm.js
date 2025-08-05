@@ -76,6 +76,7 @@ const CreateListingPackageForm = ({
           handlePrevStep={handlePrevStep}
           loading={loading}
           formData={formData}
+          errors={errors}
         />
       )}
     </div>

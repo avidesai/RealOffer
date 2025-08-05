@@ -3,8 +3,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-const PropertyPhotos = ({ handleFileChange, handleRemovePhoto, handleReorderPhotos, handleSubmit, handlePrevStep, loading, formData }) => {
+const PropertyPhotos = ({ handleFileChange, handleRemovePhoto, handleReorderPhotos, handleSubmit, handlePrevStep, loading, formData, errors }) => {
   const [previews, setPreviews] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef();
 
   useEffect(() => {
@@ -42,11 +43,30 @@ const PropertyPhotos = ({ handleFileChange, handleRemovePhoto, handleReorderPhot
     if (fileInputRef.current) fileInputRef.current.click();
   };
 
+  const handleFileInputChange = (e) => {
+    setIsUploading(true);
+    try {
+      handleFileChange(e);
+    } catch (error) {
+      console.error('Error handling file upload:', error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <div className="clp-step">
       <h2>Property Photos</h2>
+      
+      {/* Error message display */}
+      {errors.photos && (
+        <div className="clp-error" style={{ marginBottom: '1rem' }}>
+          {errors.photos}
+        </div>
+      )}
+      
       <label
-        className="clp-photo-upload-area"
+        className={`clp-photo-upload-area ${isUploading ? 'uploading' : ''}`}
         tabIndex={0}
         onClick={handleAreaClick}
         onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && handleAreaClick()}
@@ -54,14 +74,23 @@ const PropertyPhotos = ({ handleFileChange, handleRemovePhoto, handleReorderPhot
         onDragOver={e => e.preventDefault()}
         aria-label="Upload property photos"
       >
-        <span className="clp-photo-upload-icon" aria-hidden="true">📷</span>
-        <span className="clp-photo-upload-text">Click or drag photos to upload</span>
-        <span className="clp-photo-upload-hint">JPG, PNG, up to 10MB each</span>
+        {isUploading ? (
+          <div className="clp-uploading-spinner">
+            <div className="clp-spinner"></div>
+            <span>Processing photos...</span>
+          </div>
+        ) : (
+          <>
+            <span className="clp-photo-upload-icon" aria-hidden="true">📷</span>
+            <span className="clp-photo-upload-text">Click or drag photos to upload</span>
+            <span className="clp-photo-upload-hint">JPG, PNG, up to 25MB each</span>
+          </>
+        )}
         <input
           type="file"
           name="propertyImages"
           multiple
-          onChange={handleFileChange}
+          onChange={handleFileInputChange}
           className="clp-photo-upload-input"
           accept="image/*"
           ref={fileInputRef}

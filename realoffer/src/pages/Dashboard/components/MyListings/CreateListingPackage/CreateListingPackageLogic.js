@@ -83,11 +83,53 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
   };
 
   const handleFileChange = (e) => {
-    const newFiles = e.target.files ? Array.from(e.target.files) : e.target.files;
-    setFormData((prevData) => ({
-      ...prevData,
-      propertyImages: [...(prevData.propertyImages || []), ...(newFiles || [])],
-    }));
+    const files = e.target.files;
+    console.log('CreateListingPackage: File upload triggered with files:', files);
+    
+    if (!files || files.length === 0) {
+      console.log('CreateListingPackage: No files selected');
+      return;
+    }
+
+    // Convert FileList to Array and validate files
+    const newFiles = Array.from(files);
+    console.log('CreateListingPackage: Processing files:', newFiles.map(f => ({ name: f.name, size: f.size, type: f.type })));
+    
+    // Validate file types and sizes
+    const validFiles = newFiles.filter(file => {
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        console.error(`CreateListingPackage: Invalid file type: ${file.type}`);
+        return false;
+      }
+      
+      // Check file size (25MB limit to accommodate high-quality photos)
+      if (file.size > 25 * 1024 * 1024) {
+        console.error(`CreateListingPackage: File too large: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+        return false;
+      }
+      
+      return true;
+    });
+
+    console.log('CreateListingPackage: Valid files:', validFiles.length);
+
+    if (validFiles.length === 0) {
+      setErrors({ photos: 'Please select valid image files (JPG, PNG) under 25MB each' });
+      return;
+    }
+
+    // Clear any previous photo errors
+    setErrors(prev => ({ ...prev, photos: '' }));
+
+    setFormData((prevData) => {
+      const updatedImages = [...(prevData.propertyImages || []), ...validFiles];
+      console.log('CreateListingPackage: Updated propertyImages count:', updatedImages.length);
+      return {
+        ...prevData,
+        propertyImages: updatedImages,
+      };
+    });
   };
 
   const handleRemovePhoto = (indexToRemove) => {

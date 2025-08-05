@@ -72,7 +72,6 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
 }
 
 .clp-form-row {
@@ -83,6 +82,7 @@
 .clp-form-group {
   flex: 1;
   min-width: 0;
+  margin-bottom: 1.5rem;
 }
 
 .clp-form-group.full-width {
@@ -115,7 +115,6 @@
   background-color: #fff;
   color: #1a1a1a;
   line-height: 1.2;
-  margin-bottom: 0.25rem;
 }
 
 .clp-input:focus,
@@ -157,7 +156,6 @@
   min-height: 120px;
   max-height: 240px;
   line-height: 1.5;
-  margin-bottom: 0.25rem;
 }
 
 .clp-textarea:focus {
@@ -189,7 +187,7 @@
 .clp-button-container {
   display: flex;
   justify-content: space-between;
-  margin-top: 2.5rem;
+  margin-top: 2rem;
   gap: 1rem;
 }
 
@@ -331,22 +329,45 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 2px dashed #4a90e2;
-  background: #f8f9fa;
+  padding: 3rem 2rem;
+  border: 2px dashed #cbd5e0;
   border-radius: 12px;
-  padding: 2.5rem 1.5rem;
-  margin-bottom: 1.5rem;
+  background-color: #f7fafc;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  min-height: 200px;
   position: relative;
-  text-align: center;
 }
 
 .clp-photo-upload-area:hover, .clp-photo-upload-area:focus {
-  border-color: #357abd;
-  background: #eff6ff;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.1);
+  border-color: #4a90e2;
+  background-color: #edf2f7;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
+}
+
+.clp-photo-upload-area.uploading {
+  border-color: #4a90e2;
+  background-color: #edf2f7;
+  cursor: not-allowed;
+}
+
+.clp-uploading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: #4a90e2;
+  font-weight: 500;
+}
+
+.clp-uploading-spinner .clp-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e2e8f0;
+  border-top: 2px solid #4a90e2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
 .clp-photo-upload-icon {

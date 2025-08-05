@@ -207,12 +207,20 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
 
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
-    if (files.length === 0) return;
+    console.log('File upload triggered with files:', files);
+    
+    if (files.length === 0) {
+      console.log('No files selected');
+      return;
+    }
 
     try {
       setIsUpdating(true);
+      console.log('Starting file upload for listing:', listingId);
+      
       const formData = new FormData();
       files.forEach(file => {
+        console.log('Adding file to FormData:', file.name, file.size, file.type);
         formData.append('propertyImages', file);
       });
 
@@ -222,15 +230,18 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
         },
       });
 
+      console.log('File upload successful:', response.data);
+      
       // Update the images with the new photos from the response
       setOrderedImages(response.data.imagesUrls);
       setHasPhotoChanges(true);
     } catch (error) {
+      console.error('Error adding photos:', error);
       if (error.response && error.response.status === 401) {
         console.error('Authentication failed, token may be expired. Logging out.');
         await logout();
       } else {
-        console.error('Error adding photos:', error);
+        console.error('Error response:', error.response?.data);
       }
     } finally {
       setIsUpdating(false);
@@ -277,13 +288,15 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
             >
               Add Photos
             </button>
-            <button 
-              className={`photo-gallery-control-button delete-photos ${showDeleteButtons ? 'active' : ''}`}
-              onClick={handleDeletePhotos}
-              aria-label="Delete photos"
-            >
-              {showDeleteButtons ? 'Done Deleting' : 'Delete Photos'}
-            </button>
+            {orderedImages.length > 0 && (
+              <button 
+                className={`photo-gallery-control-button delete-photos ${showDeleteButtons ? 'active' : ''}`}
+                onClick={handleDeletePhotos}
+                aria-label="Delete photos"
+              >
+                {showDeleteButtons ? 'Done Deleting' : 'Delete Photos'}
+              </button>
+            )}
           </div>
           {isUpdating && <div className="photo-gallery-updating">Updating photos...</div>}
           <button 
@@ -293,93 +306,111 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
           ></button>
         </div>
         
-        <div 
-          className="photo-container"
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-        >
-          <button 
-            className="nav-button prev" 
-            onClick={handlePrev}
-            aria-label="Previous photo"
-          >
-            &#8249;
-          </button>
-          
-          <img 
-            ref={mainPhotoRef}
-            src={orderedImages[currentIndex]} 
-            alt={`${currentIndex + 1} of ${orderedImages.length}`} 
-            className="main-photo" 
-            onClick={handleMainPhotoClick}
-            draggable={false}
-          />
-          
-          <button 
-            className="nav-button next" 
-            onClick={handleNext}
-            aria-label="Next photo"
-          >
-            &#8250;
-          </button>
-        </div>
-        
-        <div className="thumbnail-bar-container">
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="thumbnail-list" direction="horizontal">
-              {(provided) => (
-                <div
-                  ref={(el) => {
-                    thumbnailBarRef.current = el;
-                    provided.innerRef(el);
-                  }}
-                  {...provided.droppableProps}
-                  className="thumbnail-bar"
-                >
-                  {orderedImages.map((image, index) => (
-                    <Draggable
-                      key={`${image}-${index}`}
-                      draggableId={`${image}-${index}`}
-                      index={index}
+        {orderedImages.length === 0 ? (
+          <div className="photo-gallery-empty">
+            <div className="photo-gallery-empty-content">
+              <span className="photo-gallery-empty-icon">📷</span>
+              <h3>No Photos Yet</h3>
+              <p>Click "Add Photos" to upload property images</p>
+              <button 
+                className="photo-gallery-add-first-photos"
+                onClick={handleAddPhotos}
+              >
+                Add Photos
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div 
+              className="photo-container"
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+            >
+              <button 
+                className="nav-button prev" 
+                onClick={handlePrev}
+                aria-label="Previous photo"
+              >
+                &#8249;
+              </button>
+              
+              <img 
+                ref={mainPhotoRef}
+                src={orderedImages[currentIndex]} 
+                alt={`${currentIndex + 1} of ${orderedImages.length}`} 
+                className="main-photo" 
+                onClick={handleMainPhotoClick}
+                draggable={false}
+              />
+              
+              <button 
+                className="nav-button next" 
+                onClick={handleNext}
+                aria-label="Next photo"
+              >
+                &#8250;
+              </button>
+            </div>
+            
+            <div className="thumbnail-bar-container">
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="thumbnail-list" direction="horizontal">
+                  {(provided) => (
+                    <div
+                      ref={(el) => {
+                        thumbnailBarRef.current = el;
+                        provided.innerRef(el);
+                      }}
+                      {...provided.droppableProps}
+                      className="thumbnail-bar"
                     >
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className={`thumbnail-wrapper ${snapshot.isDragging ? 'dragging' : ''}`}
+                      {orderedImages.map((image, index) => (
+                        <Draggable
+                          key={`${image}-${index}`}
+                          draggableId={`${image}-${index}`}
+                          index={index}
                         >
-                          <img
-                            src={image}
-                            alt={`${index + 1}`}
-                            className={`thumbnail ${index === currentIndex ? 'active' : ''}`}
-                            onClick={() => handleThumbnailClick(index)}
-                            draggable={false}
-                          />
-                          <div className="thumbnail-order">{index + 1}</div>
-                          {showDeleteButtons && (
-                            <button
-                              className="thumbnail-delete-button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeletePhoto(index);
-                              }}
-                              aria-label={`Delete photo ${index + 1}`}
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={`thumbnail-wrapper ${snapshot.isDragging ? 'dragging' : ''}`}
                             >
-                              ×
-                            </button>
+                              <img
+                                src={image}
+                                alt={`${index + 1}`}
+                                className={`thumbnail ${index === currentIndex ? 'active' : ''}`}
+                                onClick={() => handleThumbnailClick(index)}
+                                draggable={false}
+                              />
+                              <div className="thumbnail-order">{index + 1}</div>
+                              {showDeleteButtons && (
+                                <button
+                                  className="thumbnail-delete-button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeletePhoto(index);
+                                  }}
+                                  aria-label={`Delete photo ${index + 1}`}
+                                >
+                                  ×
+                                </button>
+                              )}
+                            </div>
                           )}
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-        </div>
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            </div>
+          </>
+        )}
         
         {/* Hidden file input for adding photos */}
         <input
