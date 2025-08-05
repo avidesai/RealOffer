@@ -1,10 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import api from '../../context/api';
-import { useAuth } from '../../context/AuthContext';
 import './PropertyChat.css';
 
 const PropertyChat = ({ propertyId, onClose }) => {
-  const { token } = useAuth();
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);

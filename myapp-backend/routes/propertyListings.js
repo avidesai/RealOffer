@@ -8,6 +8,9 @@ const authMiddleware = require('../middleware/auth');
 // Public Route
 router.get('/public/:token', PropertyListingController.getPublicListing);
 
+// Team member assignment route (no auth required)
+router.post('/:id/add-team-member', PropertyListingController.addTeamMember);
+
 // Authenticated Routes
 router.use(authMiddleware);
 

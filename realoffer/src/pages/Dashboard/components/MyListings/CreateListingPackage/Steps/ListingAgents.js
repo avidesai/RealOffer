@@ -223,6 +223,7 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
   };
 
   // Invite team member who doesn't have an account
+  // eslint-disable-next-line no-unused-vars
   const inviteTeamMember = async (inviteData, firstName, lastName) => {
     setInvitingTeamMember(true);
     setInviteError('');

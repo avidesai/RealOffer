@@ -261,6 +261,45 @@ exports.getPublicListing = async (req, res) => {
   }
 };
 
+// Add team member to listing (no auth required - used for invitation flow)
+exports.addTeamMember = async (req, res) => {
+  try {
+    const { listingId } = req.params;
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    const listing = await PropertyListing.findById(listingId);
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+
+    // Check if user is already a team member
+    const currentTeamMemberIds = listing.teamMemberIds || [];
+    if (currentTeamMemberIds.some(id => id.toString() === userId)) {
+      return res.status(409).json({ message: "User is already a team member for this listing" });
+    }
+
+    // Add user to team members
+    const updatedTeamMemberIds = [...currentTeamMemberIds, userId];
+    await PropertyListing.findByIdAndUpdate(listingId, {
+      teamMemberIds: updatedTeamMemberIds
+    });
+
+    console.log(`User ${userId} added as team member to listing ${listingId}`);
+    res.status(200).json({ 
+      message: "User added as team member successfully",
+      listingId: listingId,
+      userId: userId
+    });
+  } catch (error) {
+    console.error('Error adding team member:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Update an existing property listing
 exports.updateListing = async (req, res) => {
   try {

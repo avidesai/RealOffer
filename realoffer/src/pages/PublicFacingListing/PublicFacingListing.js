@@ -81,7 +81,7 @@ const PublicFacingListing = () => {
         lastName: sharedLastName,
         email: sharedEmail,
         role: sharedRole === 'buyerAgent' ? 'agent' : 
-              sharedRole === 'teamMember' ? 'teamMember' : 'buyer'
+              sharedRole === 'teamMember' ? 'agent' : 'buyer' // Team members sign up as agents
       }));
     }
   }, [searchParams, user]);
@@ -336,9 +336,9 @@ const PublicFacingListing = () => {
       return;
     }
 
-    // Validate license number for agents and team members
-    if ((formData.role === 'agent' || formData.role === 'teamMember') && !formData.agentLicenseNumber.trim()) {
-      setError('License number is required for real estate agents and team members.');
+    // Validate license number for agents
+    if (formData.role === 'agent' && !formData.agentLicenseNumber.trim()) {
+      setError('License number is required for real estate agents.');
       return;
     }
 
@@ -381,7 +381,7 @@ const PublicFacingListing = () => {
           phone: formData.phone,
           password: formData.password,
           role: formData.role,
-          agentLicenseNumber: (formData.role === 'agent' || formData.role === 'teamMember') ? formData.agentLicenseNumber : '',
+          agentLicenseNumber: formData.role === 'agent' ? formData.agentLicenseNumber : '',
           hasAgent: formData.role === 'buyer' ? formData.hasAgent : null,
         }),
       });
@@ -419,8 +419,30 @@ const PublicFacingListing = () => {
             return;
           }
           
-          // Check if this is a team member invitation
-          if (formData.role === 'teamMember') {
+          // Check if this is a team member invitation (from URL parameters)
+          const sharedRole = searchParams.get('role');
+          if (sharedRole === 'teamMember') {
+            // Add the user as a team member to this listing
+            try {
+              const addTeamMemberResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listing._id}/add-team-member`, {
+                method: 'POST',
+                headers: { 
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  userId: userId
+                }),
+              });
+              
+              if (addTeamMemberResponse.ok) {
+                console.log('User added as team member to listing');
+              } else {
+                console.error('Failed to add user as team member');
+              }
+            } catch (error) {
+              console.error('Error adding user as team member:', error);
+            }
+            
             // For team members, redirect to the listing dashboard
             window.location.href = `/mylisting/${listing._id}`;
             return;
@@ -860,10 +882,9 @@ const PublicFacingListing = () => {
               >
                 <option value="agent">Real Estate Agent</option>
                 <option value="buyer">Home Buyer</option>
-                <option value="teamMember">Team Member</option>
               </select>
             </div>
-            {(formData.role === 'agent' || formData.role === 'teamMember') && (
+            {formData.role === 'agent' && (
               <div className="pfl-form-group">
                 <label htmlFor="agentLicenseNumber">License Number</label>
                 <input
