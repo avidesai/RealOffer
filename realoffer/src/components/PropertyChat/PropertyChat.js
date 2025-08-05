@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../context/api';
 import { useAuth } from '../../context/AuthContext';
 import './PropertyChat.css';
 
@@ -28,14 +28,10 @@ const PropertyChat = ({ propertyId, onClose }) => {
     setIsLoading(true);
     
     try {
-      const response = await axios.post('/api/chat/property', {
+      const response = await api.post('/api/chat/property', {
         propertyId,
         message: inputMessage,
         conversationHistory: messages.slice(-10) // Last 10 messages for context
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
       });
       
       const assistantMessage = { 
