@@ -6,16 +6,18 @@ import Avatar from '../../../../../../../components/Avatar/Avatar';
 import MoreInfo from './components/MoreInfo/MoreInfo';
 import ListingPhotoGallery from './components/ListingPhotoGallery/ListingPhotoGallery';
 import ShareUrl from './components/ShareUrl/ShareUrl'; // Import ShareUrl component
+import DisclosureSignatureRequiredModal from './components/DisclosureSignatureRequiredModal/DisclosureSignatureRequiredModal';
 import OfferDueReminder from '../../../../../../../components/OfferDueReminder/OfferDueReminder';
 import './ListingOverview.css';
 
-function ListingOverview({ listing }) {
+function ListingOverview({ listing, onOpenSignaturePackage }) {
   const [agents, setAgents] = useState([]);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentListing, setCurrentListing] = useState(listing);
   const [showGallery, setShowGallery] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false); // State for ShareUrl modal
+  const [showDisclosureRequiredModal, setShowDisclosureRequiredModal] = useState(false); // State for disclosure required modal
 
   // Ensure listing has all required structures
   useEffect(() => {
@@ -95,6 +97,21 @@ function ListingOverview({ listing }) {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
+  const handleShareClick = () => {
+    // Check if signature package exists
+    if (!currentListing.signaturePackage) {
+      setShowDisclosureRequiredModal(true);
+    } else {
+      setShowShareModal(true);
+    }
+  };
+
+  const handleCreateSignaturePacket = () => {
+    // Navigate to the Documents tab and trigger the signature package modal
+    // We'll use a URL parameter to indicate that the signature package modal should be opened
+    window.location.href = `/mylisting/${currentListing._id}?openSignaturePackage=true`;
+  };
+
   // Guard against rendering before currentListing is properly initialized
   if (!currentListing) {
     return (
@@ -129,7 +146,7 @@ function ListingOverview({ listing }) {
             <p className="property-location">{currentListing.homeCharacteristics.city}, {currentListing.homeCharacteristics.state} {currentListing.homeCharacteristics.zip}</p>
             <p className="property-price">${formatPrice(currentListing.homeCharacteristics.price)}<span className='space'>•</span>{currentListing.homeCharacteristics.beds} Bed, {currentListing.homeCharacteristics.baths} Bath</p>
             <div className={`overview-buttons ${!currentListing.scheduleShowingUrl ? 'three-buttons' : ''}`}>
-              <button className="overview-btn-share-package" onClick={() => setShowShareModal(true)}>Share</button>
+              <button className="overview-btn-share-package" onClick={handleShareClick}>Share</button>
               <button className="overview-btn" onClick={() => setShowGallery(true)}>Images</button>
               {currentListing.scheduleShowingUrl && (
                 <button 
@@ -186,6 +203,13 @@ function ListingOverview({ listing }) {
             onClose={() => setShowShareModal(false)}
             url={currentListing.publicUrl}
             listingId={currentListing._id}
+          />
+        )}
+        {showDisclosureRequiredModal && (
+          <DisclosureSignatureRequiredModal
+            isOpen={showDisclosureRequiredModal}
+            onClose={() => setShowDisclosureRequiredModal(false)}
+            onCreateSignaturePacket={handleCreateSignaturePacket}
           />
         )}
       </div>

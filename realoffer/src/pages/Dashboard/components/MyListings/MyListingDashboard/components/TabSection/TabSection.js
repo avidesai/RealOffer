@@ -9,7 +9,7 @@ import Analysis from '../../Tabs/Analysis/Analysis';
 import axios from 'axios';
 import './TabSection.css';
 
-const TabSection = ({ listing }) => {
+const TabSection = ({ listing, onOpenSignaturePackage, shouldOpenSignaturePackage }) => {
   const { token } = useAuth();  // Get the token from AuthContext
   const [activeTab, setActiveTab] = useState('docs');
   const [updatedListing, setUpdatedListing] = useState(listing);
@@ -74,7 +74,7 @@ const TabSection = ({ listing }) => {
         ))}
       </div>
       <div className="tab-content" role="tabpanel">
-        {activeTab === 'docs' && <Documents listingId={updatedListing._id} />}
+        {activeTab === 'docs' && <Documents listingId={updatedListing._id} onOpenSignaturePackage={onOpenSignaturePackage} shouldOpenSignaturePackage={shouldOpenSignaturePackage} />}
         {activeTab === 'analysis' && <Analysis listingId={updatedListing._id} />}
         {activeTab === 'activity' && <Activity listingId={updatedListing._id} />}
         {activeTab === 'messages' && <Messages listingId={updatedListing._id} />}
