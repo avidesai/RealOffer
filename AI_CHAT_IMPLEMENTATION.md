@@ -91,7 +91,7 @@ This implementation adds an AI chat feature to the RealOffer platform that allow
 
 Ensure your `.env` file has:
 ```env
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
+CLAUDE_API_KEY=your_claude_api_key_here
 ```
 
 ### 2. Install Dependencies

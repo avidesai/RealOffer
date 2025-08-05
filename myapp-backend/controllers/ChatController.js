@@ -5,7 +5,7 @@ const Document = require('../models/Document');
 const { searchDocuments } = require('../utils/semanticSearch');
 
 const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+  apiKey: process.env.CLAUDE_API_KEY,
 });
 
 const createPropertyKnowledgeBase = async (propertyId) => {
