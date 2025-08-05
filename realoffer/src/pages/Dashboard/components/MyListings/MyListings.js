@@ -42,6 +42,8 @@ function MyListings() {
           },
         });
         console.log('Fetched listings:', response.data);
+        console.log('Number of listings fetched:', response.data.length);
+        console.log('User ID:', user?._id || user?.id);
         setListings(response.data);
         setError('');
       } catch (error) {

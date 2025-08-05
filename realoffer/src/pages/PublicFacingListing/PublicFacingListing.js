@@ -424,6 +424,7 @@ const PublicFacingListing = () => {
           if (sharedRole === 'teamMember') {
             // Add the user as a team member to this listing
             try {
+              console.log('Adding user as team member:', { userId, listingId: listing._id });
               const addTeamMemberResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listing._id}/add-team-member`, {
                 method: 'POST',
                 headers: { 
@@ -435,16 +436,37 @@ const PublicFacingListing = () => {
               });
               
               if (addTeamMemberResponse.ok) {
-                console.log('User added as team member to listing');
+                const responseData = await addTeamMemberResponse.json();
+                console.log('User added as team member to listing successfully:', responseData);
+                
+                // Wait a moment to ensure the backend has processed the assignment
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Ensure the user data is properly stored in localStorage
+                if (loginData && loginData.user && loginData.token) {
+                  localStorage.setItem('user', JSON.stringify(loginData.user));
+                  localStorage.setItem('token', loginData.token);
+                  console.log('User data stored in localStorage:', loginData.user);
+                }
+                
+                // For team members, redirect to the listing dashboard
+                console.log('Redirecting to listing dashboard:', `/mylisting/${listing._id}`);
+                window.location.href = `/mylisting/${listing._id}`;
               } else {
-                console.error('Failed to add user as team member');
+                const errorData = await addTeamMemberResponse.json();
+                console.error('Failed to add user as team member:', errorData);
+                
+                // If team member assignment fails, redirect to dashboard instead
+                console.log('Team member assignment failed, redirecting to dashboard');
+                window.location.href = '/dashboard';
               }
-            } catch (error) {
-              console.error('Error adding user as team member:', error);
-            }
-            
-            // For team members, redirect to the listing dashboard
-            window.location.href = `/mylisting/${listing._id}`;
+                          } catch (error) {
+                console.error('Error adding user as team member:', error);
+                
+                // If team member assignment fails, redirect to dashboard instead
+                console.log('Team member assignment failed due to error, redirecting to dashboard');
+                window.location.href = '/dashboard';
+              }
             return;
           }
           

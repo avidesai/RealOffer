@@ -28,6 +28,9 @@ function MyListingDashboard() {
       }
 
       try {
+        console.log('Fetching listing details for ID:', id);
+        console.log('Using token:', token ? 'Present' : 'Missing');
+        
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${id}`, {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -38,7 +41,16 @@ function MyListingDashboard() {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching listing details:', error);
-        setError('Failed to fetch listing details. Please try again.');
+        console.error('Error response:', error.response?.data);
+        console.error('Error status:', error.response?.status);
+        
+        if (error.response?.status === 403) {
+          setError('You do not have permission to access this listing. Please contact the listing agent.');
+        } else if (error.response?.status === 404) {
+          setError('Listing not found. It may have been removed or you may not have access.');
+        } else {
+          setError('Failed to fetch listing details. Please try again.');
+        }
         setLoading(false);
       }
     };
