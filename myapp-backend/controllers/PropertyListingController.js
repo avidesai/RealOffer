@@ -51,8 +51,8 @@ exports.getListing = async (req, res) => {
   try {
     const listing = await PropertyListing.findById(req.params.id)
       .populate('offers')
-      .populate('agentIds', 'firstName lastName email phone role agentLicenseNumber agencyName')
-      .populate('teamMemberIds', 'firstName lastName email phone role agentLicenseNumber agencyName');
+      .populate('agentIds', 'firstName lastName email phone role agentLicenseNumber agencyName profilePhotoUrl')
+      .populate('teamMemberIds', 'firstName lastName email phone role agentLicenseNumber agencyName profilePhotoUrl');
     
     if (!listing) {
       return res.status(404).json({ message: "Listing not found" });

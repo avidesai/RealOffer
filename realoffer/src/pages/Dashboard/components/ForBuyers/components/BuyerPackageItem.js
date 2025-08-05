@@ -19,16 +19,26 @@ function BuyerPackageItem({ buyerPackage, onStatusChange, onShareListing }) {
     const fetchAgents = async () => {
       if (buyerPackage.propertyListing && buyerPackage.propertyListing.agentIds && buyerPackage.propertyListing.agentIds.length > 0) {
         try {
-          const agentDetails = await Promise.all(
-            buyerPackage.propertyListing.agentIds.map(async (id) => {
-              const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`, {
-                headers: {
-                  'Authorization': `Bearer ${token}`,
-                },
-              });
-              return response.data;
-            })
-          );
+          // Check if agentIds are already populated objects or just IDs
+          const isPopulated = buyerPackage.propertyListing.agentIds.length > 0 && typeof buyerPackage.propertyListing.agentIds[0] === 'object' && buyerPackage.propertyListing.agentIds[0]._id;
+          
+          let agentDetails;
+          if (isPopulated) {
+            // agentIds are already populated user objects
+            agentDetails = buyerPackage.propertyListing.agentIds;
+          } else {
+            // agentIds are just IDs, need to fetch user objects
+            agentDetails = await Promise.all(
+              buyerPackage.propertyListing.agentIds.map(async (id) => {
+                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`, {
+                  headers: {
+                    'Authorization': `Bearer ${token}`,
+                  },
+                });
+                return response.data;
+              })
+            );
+          }
           setAgents(agentDetails);
         } catch (error) {
           console.error('Failed to fetch agents:', error);

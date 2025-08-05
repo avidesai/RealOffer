@@ -33,11 +33,21 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     }
 
     try {
-      const agentPromises = agentIds.map(id => 
-        api.get(`/api/users/${id}`)
-      );
-      const agentResponses = await Promise.all(agentPromises);
-      const fetchedAgents = agentResponses.map(response => response.data);
+      // Check if agentIds are already populated objects or just IDs
+      const isPopulated = agentIds.length > 0 && typeof agentIds[0] === 'object' && agentIds[0]._id;
+      
+      let fetchedAgents;
+      if (isPopulated) {
+        // agentIds are already populated user objects
+        fetchedAgents = agentIds;
+      } else {
+        // agentIds are just IDs, need to fetch user objects
+        const agentPromises = agentIds.map(id => 
+          api.get(`/api/users/${id}`)
+        );
+        const agentResponses = await Promise.all(agentPromises);
+        fetchedAgents = agentResponses.map(response => response.data);
+      }
       
       setAgents(fetchedAgents);
       setSelectedAgents(fetchedAgents.filter(agent => agent._id !== user._id));
