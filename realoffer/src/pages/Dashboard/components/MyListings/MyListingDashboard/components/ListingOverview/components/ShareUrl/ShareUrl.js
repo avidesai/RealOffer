@@ -185,7 +185,8 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
         lastName: shareData.lastName,
         listingId: listingId,
         propertyAddress: currentListing?.homeCharacteristics?.address || 'Property',
-        inviterName: `${user.firstName} ${user.lastName}`
+        inviterName: `${user.firstName} ${user.lastName}`,
+        message: shareData.message || ''
       }, {
         headers: {
           'Authorization': `Bearer ${token}`

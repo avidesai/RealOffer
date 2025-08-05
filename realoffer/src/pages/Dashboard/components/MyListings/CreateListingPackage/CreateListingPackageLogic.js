@@ -211,7 +211,8 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
                 lastName: invite.lastName,
                 listingId: response.data._id,
                 propertyAddress: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zip}`,
-                inviterName: `${user.firstName} ${user.lastName}`
+                inviterName: `${user.firstName} ${user.lastName}`,
+                message: ''
               }, {
                 headers: {
                   'Authorization': `Bearer ${token}`

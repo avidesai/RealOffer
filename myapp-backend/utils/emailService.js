@@ -666,7 +666,7 @@ class EmailService {
   }
 
   // Send team member invitation email
-  async sendTeamMemberInvitation(recipientEmail, recipientFirstName, recipientLastName, inviterName, propertyAddress, invitationToken, listingId) {
+  async sendTeamMemberInvitation(recipientEmail, recipientFirstName, recipientLastName, inviterName, propertyAddress, invitationToken, listingId, customMessage = '') {
     console.log('Sending team member invitation email:', {
       recipientEmail,
       recipientFirstName,
@@ -674,7 +674,8 @@ class EmailService {
       inviterName,
       propertyAddress,
       invitationToken,
-      listingId
+      listingId,
+      customMessage
     });
     
     const pflUrl = `${process.env.FRONTEND_URL}/public/${invitationToken}?email=${encodeURIComponent(recipientEmail)}&role=teamMember&firstName=${encodeURIComponent(recipientFirstName || '')}&lastName=${encodeURIComponent(recipientLastName || '')}`;
@@ -693,8 +694,15 @@ class EmailService {
           <div style="padding: 20px;">
             <h2 style="color: #333;">Hi ${recipientFirstName || 'there'},</h2>
             <p style="color: #666; line-height: 1.6;">
-              ${inviterName} has invited you to join their team on RealOffer to help manage a property listing.
+              ${inviterName} has invited you to join their team to manage a property listing.
             </p>
+            ${customMessage ? `
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #666; line-height: 1.6; margin: 0; font-style: italic;">
+                "${customMessage}"
+              </p>
+            </div>
+            ` : ''}
             <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
               <h3 style="color: #333; margin: 0 0 10px 0;">Property Details</h3>
               <p style="color: #666; margin: 0;">${propertyAddress}</p>

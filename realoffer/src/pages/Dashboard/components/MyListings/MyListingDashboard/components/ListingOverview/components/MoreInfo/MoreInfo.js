@@ -323,7 +323,8 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
         lastName: lastName,
         listingId: listingId,
         propertyAddress: listing.homeCharacteristics.address,
-        inviterName: `${user.firstName} ${user.lastName}`
+        inviterName: `${user.firstName} ${user.lastName}`,
+        message: ''
       }, {
         headers: {
           'Authorization': `Bearer ${token}`

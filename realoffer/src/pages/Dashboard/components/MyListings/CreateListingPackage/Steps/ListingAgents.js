@@ -234,7 +234,8 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
         lastName: lastName,
         listingId: 'new', // This is for a new listing
         propertyAddress: 'New Property Listing',
-        inviterName: `${user.firstName} ${user.lastName}`
+        inviterName: `${user.firstName} ${user.lastName}`,
+        message: ''
       }, {
         headers: {
           'Authorization': `Bearer ${token}`

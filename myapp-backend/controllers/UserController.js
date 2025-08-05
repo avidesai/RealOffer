@@ -666,7 +666,7 @@ exports.resendEmailVerification = async (req, res) => {
 
 exports.sendTeamMemberInvitation = async (req, res) => {
     try {
-        const { email, firstName, lastName, listingId, propertyAddress, inviterName } = req.body;
+        const { email, firstName, lastName, listingId, propertyAddress, inviterName, message } = req.body;
         
         console.log('Team member invitation request:', {
             email,
@@ -674,7 +674,8 @@ exports.sendTeamMemberInvitation = async (req, res) => {
             lastName,
             listingId,
             propertyAddress,
-            inviterName
+            inviterName,
+            message
         });
         
         // Validate required fields
@@ -771,7 +772,8 @@ exports.sendTeamMemberInvitation = async (req, res) => {
             inviterName,
             propertyAddress,
             publicUrlToken,
-            listingId
+            listingId,
+            message || ''
         );
 
         if (emailResult.success) {
