@@ -45,6 +45,11 @@ const Profile = () => {
       <div className="profile-background">
         <div className="profile-container">
           <h2 className="profile-title">Profile</h2>
+          {profileData.role !== 'buyer' && (
+            <p className="profile-autosave-notice">
+              Changes are saved automatically.
+            </p>
+          )}
           <div className={`profile-content ${profileData.role === 'buyer' ? 'buyer-only' : ''}`}>
             {/* Agent Information Column */}
             <div className="profile-column agent-info">
