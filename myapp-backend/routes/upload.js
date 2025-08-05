@@ -17,7 +17,7 @@ const upload = multer({
   })
 });
 
-router.post('/', upload.array('propertyImages', 30), (req, res) => {
+router.post('/', upload.array('propertyImages', 100), (req, res) => {
   const propertyImages = req.files.map(file => file.location);
   res.json({ message: 'Files uploaded successfully', files: propertyImages });
 });

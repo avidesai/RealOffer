@@ -214,12 +214,40 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
       return;
     }
 
+    // Check file count limit (100 photos max per upload)
+    if (files.length > 100) {
+      console.error('Too many files selected:', files.length);
+      alert(`You can only upload up to 100 photos at once. You selected ${files.length} photos. Please select fewer photos and try again.`);
+      return;
+    }
+
+    // Validate file types and sizes
+    const validFiles = files.filter(file => {
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        console.error(`Invalid file type: ${file.type}`);
+        return false;
+      }
+      
+      // Check file size (25MB limit)
+      if (file.size > 25 * 1024 * 1024) {
+        console.error(`File too large: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+        return false;
+      }
+      
+      return true;
+    });
+
+    if (validFiles.length !== files.length) {
+      alert(`Some files were invalid. ${validFiles.length} of ${files.length} files will be uploaded.`);
+    }
+
     try {
       setIsUpdating(true);
       console.log('Starting file upload for listing:', listingId);
       
       const formData = new FormData();
-      files.forEach(file => {
+      validFiles.forEach(file => {
         console.log('Adding file to FormData:', file.name, file.size, file.type);
         formData.append('propertyImages', file);
       });
@@ -242,6 +270,7 @@ const ListingPhotoGallery = ({ images, onClose, listingId }) => {
         await logout();
       } else {
         console.error('Error response:', error.response?.data);
+        alert('Failed to upload photos. Please try again.');
       }
     } finally {
       setIsUpdating(false);

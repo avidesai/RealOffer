@@ -17,14 +17,14 @@ router.post('/updateSignaturePackage', PropertyListingController.updateSignature
 router.get('/:id', PropertyListingController.getListing);
 router.post(
   '/',
-  PropertyListingController.uploadPhotos.array('propertyImages', 50),
+  PropertyListingController.uploadPhotos.array('propertyImages', 100),
   PropertyListingController.createListing
 );
 router.put('/:id', PropertyListingController.updateListing);
 router.put('/:id/photos', PropertyListingController.updatePhotoOrder);
 router.post(
   '/:id/photos',
-  PropertyListingController.uploadPhotos.array('propertyImages', 50),
+  PropertyListingController.uploadPhotos.array('propertyImages', 100),
   PropertyListingController.addPhotosToListing
 );
 router.delete('/:id', PropertyListingController.deleteListing);

@@ -112,7 +112,7 @@ const PropertyPhotos = ({ handleFileChange, handleRemovePhoto, handleReorderPhot
           <>
             <span className="clp-photo-upload-icon" aria-hidden="true">📷</span>
             <span className="clp-photo-upload-text">Click or drag photos to upload</span>
-            <span className="clp-photo-upload-hint">JPG, PNG, up to 25MB each</span>
+            <span className="clp-photo-upload-hint">JPG, PNG, up to 25MB each • Max 100 photos per upload</span>
           </>
         )}
         <input

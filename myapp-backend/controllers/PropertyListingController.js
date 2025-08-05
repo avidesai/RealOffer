@@ -26,7 +26,7 @@ const uploadPhotos = multer({
   }),
   limits: {
     fileSize: 25 * 1024 * 1024, // 25MB file size limit
-    files: 50 // Maximum number of files
+    files: 100 // Maximum number of files
   }
 });
 

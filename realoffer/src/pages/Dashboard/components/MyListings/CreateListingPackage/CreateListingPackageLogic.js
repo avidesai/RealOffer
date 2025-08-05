@@ -96,6 +96,13 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
     const newFiles = Array.from(files);
     console.log('CreateListingPackage: Processing files:', newFiles.map(f => ({ name: f.name, size: f.size, type: f.type })));
     
+    // Check file count limit (100 photos max per upload)
+    if (newFiles.length > 100) {
+      console.error('CreateListingPackage: Too many files selected:', newFiles.length);
+      setErrors({ photos: `You can only upload up to 100 photos at once. You selected ${newFiles.length} photos. Please select fewer photos and try again.` });
+      return;
+    }
+    
     // Validate file types and sizes
     const validFiles = newFiles.filter(file => {
       // Check file type
@@ -120,8 +127,12 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
       return;
     }
 
-    // Clear any previous photo errors
-    setErrors(prev => ({ ...prev, photos: '' }));
+    if (validFiles.length !== newFiles.length) {
+      setErrors({ photos: `Some files were invalid. ${validFiles.length} of ${newFiles.length} files will be uploaded.` });
+    } else {
+      // Clear any previous photo errors
+      setErrors(prev => ({ ...prev, photos: '' }));
+    }
 
     // Add files to the end of the existing array to preserve order
     setFormData((prevData) => {
