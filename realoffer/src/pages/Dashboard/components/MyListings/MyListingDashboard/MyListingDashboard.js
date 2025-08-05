@@ -1,7 +1,7 @@
 // MyListingDashboard.js
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../../../../context/AuthContext';
 import MyListingDashboardHeader from './Header/MyListingDashboardHeader';
@@ -12,25 +12,11 @@ import './MyListingDashboard.css';
 
 function MyListingDashboard() {
   const { id } = useParams();
-  const location = useLocation();
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [openSignaturePackageModal, setOpenSignaturePackageModal] = useState(null);
-  const [shouldOpenSignaturePackage, setShouldOpenSignaturePackage] = useState(false);
   const navigate = useNavigate();
   const { token } = useAuth();
-
-  useEffect(() => {
-    // Check if we should open the signature package modal
-    const urlParams = new URLSearchParams(location.search);
-    const openSignaturePackage = urlParams.get('openSignaturePackage');
-    if (openSignaturePackage === 'true') {
-      setShouldOpenSignaturePackage(true);
-      // Remove the parameter from the URL
-      navigate(`/mylisting/${id}`, { replace: true });
-    }
-  }, [location.search, id, navigate]);
 
   useEffect(() => {
     const fetchListingDetails = async () => {
@@ -94,8 +80,8 @@ function MyListingDashboard() {
     <div className="my-listing-dashboard">
       <MyListingDashboardHeader onBackClick={handleBackClick} />
       <div className="my-listing-dashboard-content">
-        <ListingOverview listing={listing} onOpenSignaturePackage={openSignaturePackageModal} />
-        <TabSection listing={listing} onOpenSignaturePackage={setOpenSignaturePackageModal} shouldOpenSignaturePackage={shouldOpenSignaturePackage} />
+        <ListingOverview listing={listing} />
+        <TabSection listing={listing} />
       </div>
       <Footer />
     </div>

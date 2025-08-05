@@ -38,7 +38,7 @@ exports.getAllListings = async (req, res) => {
         { createdBy: req.user.id },
         { agentIds: req.user.id }
       ]
-    }).populate('signaturePackage');
+    });
     res.status(200).json(listings);
   } catch (error) {
     res.status(500).json({ message: error.message });

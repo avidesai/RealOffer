@@ -8,7 +8,6 @@ import ListingFilterSortBar from './components/ListingFilterSortBar';
 import Pagination from './components/Pagination';
 import CreateListingPackageLogic from './CreateListingPackage/CreateListingPackageLogic';
 import ShareUrl from './MyListingDashboard/components/ListingOverview/components/ShareUrl/ShareUrl';
-import DisclosureSignatureRequiredModal from './MyListingDashboard/components/ListingOverview/components/DisclosureSignatureRequiredModal/DisclosureSignatureRequiredModal';
 import './MyListings.css';
 
 function MyListings() {
@@ -25,8 +24,6 @@ function MyListings() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareListingUrl, setShareListingUrl] = useState('');
-  const [showDisclosureRequiredModal, setShowDisclosureRequiredModal] = useState(false);
-  const [selectedListingForDisclosure, setSelectedListingForDisclosure] = useState(null);
 
   // Calculate counts for different statuses
   const activeListingsCount = listings.filter(listing => listing.status === 'active').length;
@@ -168,14 +165,6 @@ function MyListings() {
     setShowCreateListingModal(false);
   };
 
-  const handleCreateSignaturePacket = () => {
-    setShowDisclosureRequiredModal(false);
-    // Navigate to the listing dashboard to create the signature packet
-    if (selectedListingForDisclosure) {
-      window.location.href = `/mylisting/${selectedListingForDisclosure._id}`;
-    }
-  };
-
   const handleFilterChange = useCallback((newFilter) => {
     setFilter(newFilter);
     setCurrentPage(1); // Reset to first page when filter changes
@@ -232,14 +221,8 @@ function MyListings() {
   };
 
   const handleShareListing = (listing) => {
-    // Check if signature package exists
-    if (!listing.signaturePackage) {
-      setSelectedListingForDisclosure(listing);
-      setShowDisclosureRequiredModal(true);
-    } else {
-      setShareListingUrl(listing.publicUrl);
-      setShowShareModal(true);
-    }
+    setShareListingUrl(listing.publicUrl);
+    setShowShareModal(true);
   };
 
   if (loading) {
@@ -332,13 +315,6 @@ function MyListings() {
           isOpen={showShareModal}
           onClose={() => setShowShareModal(false)}
           url={shareListingUrl}
-        />
-      )}
-      {showDisclosureRequiredModal && (
-        <DisclosureSignatureRequiredModal
-          isOpen={showDisclosureRequiredModal}
-          onClose={() => setShowDisclosureRequiredModal(false)}
-          onCreateSignaturePacket={handleCreateSignaturePacket}
         />
       )}
     </div>

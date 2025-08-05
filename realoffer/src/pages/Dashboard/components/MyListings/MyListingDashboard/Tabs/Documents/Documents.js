@@ -11,7 +11,7 @@ import AIAnalysisModal from './components/AIAnalysisModal/AIAnalysisModal';
 
 axios.defaults.withCredentials = true;
 
-const Documents = ({ listingId, onOpenSignaturePackage, shouldOpenSignaturePackage }) => {
+const Documents = ({ listingId }) => {
   const { token } = useAuth();
   const [documents, setDocuments] = useState([]);
   const [documentOrder, setDocumentOrder] = useState([]);
@@ -106,20 +106,6 @@ const Documents = ({ listingId, onOpenSignaturePackage, shouldOpenSignaturePacka
     
     loadData();
   }, [token, listingId, fetchListingData, fetchDocuments]);
-
-  // Expose the openSignaturePackageModal function to parent components
-  useEffect(() => {
-    if (onOpenSignaturePackage) {
-      onOpenSignaturePackage(openSignaturePackageModal);
-    }
-  }, [onOpenSignaturePackage]);
-
-  // Automatically open signature package modal if requested
-  useEffect(() => {
-    if (shouldOpenSignaturePackage && !showSignaturePackageModal) {
-      setShowSignaturePackageModal(true);
-    }
-  }, [shouldOpenSignaturePackage, showSignaturePackageModal]);
 
   const handleUploadClick = () => {
     setShowUploadModal(true);
@@ -467,9 +453,11 @@ const Documents = ({ listingId, onOpenSignaturePackage, shouldOpenSignaturePacka
                   <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
                     <button className="docs-tab-delete-button docs-tab-document-actions-button">Download</button>
                   </a>
-                  <button className="docs-tab-delete-button docs-tab-document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
-                    Delete
-                  </button>
+                  {doc.purpose !== 'signature_package' && (
+                    <button className="docs-tab-delete-button docs-tab-document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
+                      Delete
+                    </button>
+                  )}
                 </div>
               )}
             </div>
