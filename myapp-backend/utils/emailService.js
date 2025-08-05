@@ -380,7 +380,7 @@ class EmailService {
                 ${propertyAddress}
               </p>
               <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
-                Offer Amount: $${offerAmount?.toLocaleString() || 'N/A'}
+                Offer Amount: $${Number(offerAmount)?.toLocaleString() || 'N/A'}
               </p>
               <p style="color: #666; margin: 0; font-size: 14px;">
                 ${buyerName} (${roleText})
@@ -501,7 +501,7 @@ class EmailService {
                 ${propertyAddress}
               </p>
               <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
-                Offer Amount: $${offerAmount?.toLocaleString() || 'N/A'}
+                Offer Amount: $${Number(offerAmount)?.toLocaleString() || 'N/A'}
               </p>
               <p style="color: #666; margin: 0; font-size: 14px;">
                 Responded by: ${responderName}
