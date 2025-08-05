@@ -829,7 +829,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                 )}
                 
                 {/* Additional Agents */}
-                {getAdditionalAgents().map(agent => (
+                {selectedAgents.map(agent => (
                   <div key={agent._id} className="mlmi-selected-agent-item">
                     <div className="mlmi-agent-info">
                       <span className="mlmi-agent-name">{`${agent.firstName} ${agent.lastName}`}</span>
@@ -894,9 +894,9 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                               {teamMember.agencyName && !teamMember.isInvite && (
                                 <span className="mlmi-agent-agency">{teamMember.agencyName}</span>
                               )}
-                                                      {teamMember.isInvite && (
-                          <span className="mlmi-team-member-badge">Send Invitation</span>
-                        )}
+                              {teamMember.isInvite && (
+                                <span className="mlmi-invite-badge">Send Invitation</span>
+                              )}
                             </div>
                           </div>
                         ))

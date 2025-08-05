@@ -401,6 +401,7 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.08);
   max-height: 240px;
   overflow-y: auto;
+  overflow-x: hidden;
   z-index: 1000;
   margin-top: 0.5rem;
   backdrop-filter: blur(8px);
@@ -415,6 +416,8 @@
   align-items: center;
   min-width: 0;
   overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .mlmi-dropdown-item:hover {
@@ -430,6 +433,9 @@
   flex: 1;
   min-width: 0;
   overflow: hidden;
+  width: 100%;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .mlmi-dropdown-loading,
