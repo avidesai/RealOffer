@@ -892,9 +892,9 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                               {teamMember.agencyName && !teamMember.isInvite && (
                                 <span className="mlmi-agent-agency">{teamMember.agencyName}</span>
                               )}
-                              {teamMember.isInvite && (
-                                <span className="mlmi-invite-badge">Send Invitation</span>
-                              )}
+                                                      {teamMember.isInvite && (
+                          <span className="mlmi-team-member-badge">Send Invitation</span>
+                        )}
                             </div>
                           </div>
                         ))
@@ -922,6 +922,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                   </div>
                 )}
               </div>
+              )}
               
               {/* Form Fields for Invite */}
               {selectedTeamMembers.some(tm => tm.isInvite) && (
@@ -1016,16 +1017,20 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                           <span className="mlmi-agent-agency">{teamMember.agencyName}</span>
                         )}
                       </div>
-                      <span className="mlmi-team-member-badge">Team Member</span>
-                      {(isUserPrimaryAgent() || isUserAdditionalAgent()) && (
-                        <button
-                          type="button"
-                          className="mlmi-remove-agent-btn"
-                          onClick={() => removeTeamMember(teamMember._id)}
-                        >
-                          ×
-                        </button>
-                      )}
+                      <div className="mlmi-agent-actions">
+                        {teamMember.isInvite && (
+                          <span className="mlmi-team-member-badge">Send Invitation</span>
+                        )}
+                        {(isUserPrimaryAgent() || isUserAdditionalAgent()) && (
+                          <button
+                            type="button"
+                            className="mlmi-remove-agent-btn"
+                            onClick={() => removeTeamMember(teamMember._id)}
+                          >
+                            ×
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>

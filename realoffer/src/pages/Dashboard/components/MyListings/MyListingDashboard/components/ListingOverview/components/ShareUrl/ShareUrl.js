@@ -619,17 +619,19 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                         {selectedAgent.agencyName && !selectedAgent.isInvite && (
                           <span className="agent-agency">{selectedAgent.agencyName}</span>
                         )}
-                        {selectedAgent.isInvite && (
-                          <span className="invite-badge">Send Invitation</span>
-                        )}
                       </div>
-                      <button
-                        type="button"
-                        className="remove-agent-btn"
-                        onClick={removeAgent}
-                      >
-                        ×
-                      </button>
+                      <div className="agent-actions">
+                        {selectedAgent.isInvite && (
+                          <span className="team-member-badge">Send Invitation</span>
+                        )}
+                        <button
+                          type="button"
+                          className="remove-agent-btn"
+                          onClick={removeAgent}
+                        >
+                          ×
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
