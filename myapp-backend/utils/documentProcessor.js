@@ -1,10 +1,52 @@
 const Anthropic = require('@anthropic-ai/sdk');
-const { RecursiveCharacterTextSplitter } = require('langchain/text_splitter');
 const Document = require('../models/Document');
 
 const anthropic = new Anthropic({
   apiKey: process.env.CLAUDE_API_KEY,
 });
+
+// Simple text splitter implementation
+const splitTextIntoChunks = (text, chunkSize = 1000, overlap = 200) => {
+  const chunks = [];
+  let startIndex = 0;
+  
+  while (startIndex < text.length) {
+    let endIndex = startIndex + chunkSize;
+    
+    // If this isn't the last chunk, try to break at a sentence boundary
+    if (endIndex < text.length) {
+      // Look for sentence endings within the last 100 characters
+      const searchStart = Math.max(startIndex + chunkSize - 100, startIndex);
+      const searchEnd = Math.min(startIndex + chunkSize + 100, text.length);
+      const searchText = text.substring(searchStart, searchEnd);
+      
+      // Find the last sentence ending
+      const sentenceEndings = ['. ', '! ', '? ', '\n\n', '\n'];
+      let lastSentenceEnd = -1;
+      
+      for (const ending of sentenceEndings) {
+        const lastIndex = searchText.lastIndexOf(ending);
+        if (lastIndex !== -1) {
+          lastSentenceEnd = Math.max(lastSentenceEnd, searchStart + lastIndex + ending.length);
+        }
+      }
+      
+      if (lastSentenceEnd > startIndex + chunkSize - 100) {
+        endIndex = lastSentenceEnd;
+      }
+    }
+    
+    const chunk = text.substring(startIndex, endIndex).trim();
+    if (chunk.length > 0) {
+      chunks.push(chunk);
+    }
+    
+    // Move to next chunk with overlap
+    startIndex = Math.max(startIndex + 1, endIndex - overlap);
+  }
+  
+  return chunks;
+};
 
 const processDocumentForSearch = async (documentId) => {
   const document = await Document.findById(documentId);
@@ -22,13 +64,7 @@ const processDocumentForSearch = async (documentId) => {
   }
   
   // Split text into chunks with overlap
-  const textSplitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 1000,
-    chunkOverlap: 200,
-    separators: ['\n\n', '\n', '. ', '! ', '? ', ' ', '']
-  });
-  
-  const chunks = await textSplitter.splitText(document.textContent);
+  const chunks = splitTextIntoChunks(document.textContent, 1000, 200);
   
   // Create structured chunks with metadata
   const structuredChunks = chunks.map((chunk, index) => {
