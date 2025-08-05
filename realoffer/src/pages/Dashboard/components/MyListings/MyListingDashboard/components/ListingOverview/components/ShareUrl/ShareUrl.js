@@ -94,11 +94,30 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
         }
       });
       
-      // Filter out current user and agents already on the listing
-      const filteredResults = response.data.filter(agent => 
-        agent._id !== user._id && 
-        (!currentListing?.agentIds || !currentListing.agentIds.some(id => id.toString() === agent._id))
-      );
+      // Filter out current user and agents/team members already on the listing
+      const filteredResults = response.data.filter(agent => {
+        // Don't show current user
+        if (agent._id === user._id) return false;
+        
+        // For listing agents, filter out existing agents and team members
+        if (shareData.role === 'listingAgent') {
+          const isExistingAgent = currentListing?.agentIds?.some(id => id.toString() === agent._id);
+          const isExistingTeamMember = currentListing?.teamMemberIds?.some(id => id.toString() === agent._id);
+          return !isExistingAgent && !isExistingTeamMember;
+        }
+        
+        // For team members, filter out existing agents and team members
+        if (shareData.role === 'teamMember') {
+          const isExistingAgent = currentListing?.agentIds?.some(id => id.toString() === agent._id);
+          const isExistingTeamMember = currentListing?.teamMemberIds?.some(id => id.toString() === agent._id);
+          return !isExistingAgent && !isExistingTeamMember;
+        }
+        
+        // For other roles, filter out existing agents only
+        const isExistingAgent = currentListing?.agentIds?.some(id => id.toString() === agent._id);
+        return !isExistingAgent;
+      });
+      
       setSearchResults(filteredResults);
     } catch (error) {
       console.error('Error searching agents:', error);
@@ -219,6 +238,47 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
       } finally {
         setIsSharing(false);
       }
+    } else if (shareData.role === 'teamMember') {
+      // Handle team member addition
+      if (!selectedAgent) {
+        setError('Please select a team member to add.');
+        return;
+      }
+
+      setIsSharing(true);
+      setError('');
+
+      try {
+        // Get current listing to update teamMemberIds
+        const listingResponse = await api.get(`/api/propertyListings/${listingId}`);
+        const currentListing = listingResponse.data;
+        const currentTeamMemberIds = currentListing.teamMemberIds || [];
+        
+        // Add the selected team member if not already present
+        if (!currentTeamMemberIds.some(id => id.toString() === selectedAgent._id)) {
+          const updatedTeamMemberIds = [...currentTeamMemberIds, selectedAgent._id];
+          
+          await api.put(`/api/propertyListings/${listingId}`, {
+            teamMemberIds: updatedTeamMemberIds
+          });
+
+          setShareSuccess(true);
+          setSelectedAgent(null);
+          
+          // Auto-close after 3 seconds
+          setTimeout(() => {
+            setShareSuccess(false);
+            onClose();
+          }, 3000);
+        } else {
+          setError('This team member is already associated with this listing.');
+        }
+      } catch (error) {
+        console.error('Error adding team member:', error);
+        setError(error.response?.data?.message || 'Failed to add team member. Please try again.');
+      } finally {
+        setIsSharing(false);
+      }
     } else {
       // Handle regular sharing (buyer/buyerAgent)
       // Validate required fields
@@ -307,11 +367,15 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
           <div className="share-url-success">
             <div className="share-url-success-icon">✓</div>
             <h3>
-              {shareData.role === 'listingAgent' ? 'Agent Added Successfully!' : 'Shared Successfully!'}
+              {shareData.role === 'listingAgent' ? 'Agent Added Successfully!' : 
+               shareData.role === 'teamMember' ? 'Team Member Added Successfully!' : 
+               'Shared Successfully!'}
             </h3>
             <p>
               {shareData.role === 'listingAgent' 
                 ? 'The agent has been added to this listing and will have access to all listing features.'
+                : shareData.role === 'teamMember'
+                ? 'The team member has been added to this listing and will have access to all listing features.'
                 : 'An email has been sent with access to this listing.'
               }
             </p>
@@ -332,6 +396,7 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                   >
                     <option value="buyer">Buyer</option>
                     <option value="buyerAgent">Buyer Agent</option>
+                    <option value="teamMember">Team Member</option>
                     {!listingLoading && canAddListingAgent() && (
                       <option value="listingAgent">Listing Agent</option>
                     )}
@@ -339,15 +404,19 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                 </div>
               </div>
 
-              {shareData.role === 'listingAgent' ? (
-                // Listing Agent Search Interface
+              {(shareData.role === 'listingAgent' || shareData.role === 'teamMember') ? (
+                // Agent/Team Member Search Interface
                 <div className="share-url-form-row">
                   <div className="share-url-form-group full-width">
-                    <label className="share-url-label">Search for Agent</label>
+                    <label className="share-url-label">
+                      {shareData.role === 'listingAgent' ? 'Search for Agent' : 'Search for Team Member'}
+                    </label>
                     <div className="agent-search-container" ref={dropdownRef}>
                       <input
                         type="text"
-                        placeholder="Search for agents by name or email..."
+                        placeholder={shareData.role === 'listingAgent' 
+                          ? "Search for agents by name or email..." 
+                          : "Search for team members by name or email..."}
                         value={searchQuery}
                         onChange={handleSearchChange}
                         onFocus={() => setShowDropdown(true)}
@@ -375,7 +444,7 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                               </div>
                             ))
                           ) : searchQuery.length >= 2 ? (
-                            <div className="dropdown-no-results">No agents found</div>
+                            <div className="dropdown-no-results">No {shareData.role === 'listingAgent' ? 'agents' : 'team members'} found</div>
                           ) : null}
                         </div>
                       )}
@@ -443,11 +512,13 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                 </>
               )}
 
-              {/* Selected Agent Display */}
-              {shareData.role === 'listingAgent' && selectedAgent && (
+              {/* Selected Agent/Team Member Display */}
+              {(shareData.role === 'listingAgent' || shareData.role === 'teamMember') && selectedAgent && (
                 <div className="share-url-form-row">
                   <div className="share-url-form-group full-width">
-                    <label className="share-url-label">Selected Agent</label>
+                    <label className="share-url-label">
+                      {shareData.role === 'listingAgent' ? 'Selected Agent' : 'Selected Team Member'}
+                    </label>
                     <div className="selected-agent-item">
                       <div className="agent-info">
                         <span className="agent-name">{`${selectedAgent.firstName} ${selectedAgent.lastName}`}</span>
@@ -481,11 +552,13 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                 <button 
                   type="submit"
                   className="share-url-share-button"
-                  disabled={isSharing || (shareData.role === 'listingAgent' && !selectedAgent)}
+                  disabled={isSharing || ((shareData.role === 'listingAgent' || shareData.role === 'teamMember') && !selectedAgent)}
                 >
                   {isSharing 
-                    ? (shareData.role === 'listingAgent' ? 'Adding...' : 'Sharing...') 
-                    : (shareData.role === 'listingAgent' ? 'Add Listing Agent' : 'Share Package')
+                    ? (shareData.role === 'listingAgent' ? 'Adding...' : 
+                       shareData.role === 'teamMember' ? 'Adding...' : 'Sharing...') 
+                    : (shareData.role === 'listingAgent' ? 'Add Listing Agent' : 
+                       shareData.role === 'teamMember' ? 'Add Team Member' : 'Share Package')
                   }
                 </button>
               </div>

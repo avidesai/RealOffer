@@ -36,7 +36,8 @@ exports.getAllListings = async (req, res) => {
     const listings = await PropertyListing.find({
       $or: [
         { createdBy: req.user.id },
-        { agentIds: req.user.id }
+        { agentIds: req.user.id },
+        { teamMemberIds: req.user.id }
       ]
     });
     res.status(200).json(listings);
@@ -45,13 +46,10 @@ exports.getAllListings = async (req, res) => {
   }
 };
 
-// Get a single listing by ID for the logged-in user
-exports.getListingById = async (req, res) => {
+// Get a specific property listing
+exports.getListing = async (req, res) => {
   try {
-    // First try to find the listing by ID
-    const listing = await PropertyListing.findOne({ _id: req.params.id })
-      .populate('offers')
-      .populate('signaturePackage');
+    const listing = await PropertyListing.findById(req.params.id);
     
     if (!listing) {
       return res.status(404).json({ message: "Listing not found" });
@@ -60,9 +58,10 @@ exports.getListingById = async (req, res) => {
     // Check if user is the listing creator or an agent
     const isOwner = listing.createdBy.toString() === req.user.id;
     const isAgent = listing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = listing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
     
-    // If not the owner or agent, check if user has a buyer package for this listing
-    if (!isOwner && !isAgent) {
+    // If not the owner, agent, or team member, check if user has a buyer package for this listing
+    if (!isOwner && !isAgent && !isTeamMember) {
       const BuyerPackage = require('../models/BuyerPackage');
       const buyerPackage = await BuyerPackage.findOne({
         propertyListing: req.params.id,
@@ -99,6 +98,7 @@ exports.createListing = async (req, res) => {
     lotSize,
     description,
     agentIds, // Changed from agent2 to agentIds array
+    teamMemberIds, // New field for team members
     companyName,
     officerName,
     officerPhone,
@@ -131,6 +131,22 @@ exports.createListing = async (req, res) => {
       return res.status(400).json({ 
         message: 'Maximum of 2 listing agents allowed (1 primary + 1 additional)' 
       });
+    }
+  }
+
+  // Initialize team member IDs
+  const finalTeamMemberIds = [];
+
+  // Add team members if provided
+  if (teamMemberIds && Array.isArray(teamMemberIds)) {
+    for (const teamMemberId of teamMemberIds) {
+      if (teamMemberId && teamMemberId !== req.user.id) { // Don't add if it's the same as current user
+        try {
+          finalTeamMemberIds.push(new mongoose.Types.ObjectId(teamMemberId));
+        } catch (error) {
+          return res.status(400).json({ message: 'Invalid team member ID format' });
+        }
+      }
     }
   }
 
@@ -169,6 +185,7 @@ exports.createListing = async (req, res) => {
     offerDueDate: offerDueDate || null,
     offerDueDateTimezone: offerDueDateTimezone || 'America/Los_Angeles',
     agentIds: finalAgentIds,
+    teamMemberIds: finalTeamMemberIds,
     imagesUrls: propertyImages,
     status: 'active',
     escrowInfo,
@@ -235,8 +252,9 @@ exports.updateListing = async (req, res) => {
 
     const isCreator = listing.createdBy.toString() === req.user.id;
     const isAgent = listing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = listing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
 
-    if (!isCreator && !isAgent) {
+    if (!isCreator && !isAgent && !isTeamMember) {
       return res.status(403).json({ message: "You don't have permission to update this listing" });
     }
 
@@ -299,6 +317,59 @@ exports.updateListing = async (req, res) => {
       
       // Update the request body with validated agentIds
       req.body.agentIds = finalAgentIds;
+    }
+
+    // Validate teamMemberIds if being updated
+    if (req.body.teamMemberIds && Array.isArray(req.body.teamMemberIds)) {
+      // Get current listing to compare teamMemberIds
+      const currentListing = await PropertyListing.findById(req.params.id);
+      if (!currentListing) {
+        return res.status(404).json({ message: "Listing not found" });
+      }
+
+      // Validate team member IDs
+      const finalTeamMemberIds = [];
+      for (const teamMemberId of req.body.teamMemberIds) {
+        if (teamMemberId && teamMemberId !== req.user.id) {
+          try {
+            finalTeamMemberIds.push(new mongoose.Types.ObjectId(teamMemberId));
+          } catch (error) {
+            return res.status(400).json({ message: 'Invalid team member ID format' });
+          }
+        }
+      }
+      
+      // Find newly added team members (team members in finalTeamMemberIds but not in current listing)
+      const currentTeamMemberIds = currentListing.teamMemberIds.map(id => id.toString());
+      const newTeamMemberIds = finalTeamMemberIds.filter(id => !currentTeamMemberIds.includes(id.toString()));
+      
+      // Send email notifications to newly added team members
+      if (newTeamMemberIds.length > 0) {
+        try {
+          const propertyAddress = `${currentListing.homeCharacteristics.address}, ${currentListing.homeCharacteristics.city}, ${currentListing.homeCharacteristics.state}`;
+          const addedByAgentName = `${req.user.firstName} ${req.user.lastName}`;
+          
+          for (const teamMemberId of newTeamMemberIds) {
+            if (teamMemberId !== req.user.id) { // Don't send notification to self
+              const teamMember = await User.findById(teamMemberId);
+              if (teamMember) {
+                await emailService.sendTeamMemberAddedNotification(
+                  teamMember.email,
+                  `${teamMember.firstName} ${teamMember.lastName}`,
+                  propertyAddress,
+                  addedByAgentName
+                );
+              }
+            }
+          }
+        } catch (emailError) {
+          console.error('Error sending team member added notifications:', emailError);
+          // Don't fail the request if email fails
+        }
+      }
+      
+      // Update the request body with validated teamMemberIds
+      req.body.teamMemberIds = finalTeamMemberIds;
     }
 
     // Check if offer due date is being updated
