@@ -94,3 +94,36 @@
     background-color: #0056b3;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
+
+  .prompt-csp-close-button {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #666;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .prompt-csp-close-button:hover {
+    color: #ffffff;
+    background-color: #e74c3c;
+    box-shadow: 0 6px 16px rgba(231, 76, 60, 0.2);
+  }
+
+  .prompt-csp-close-button:before {
+    content: '×';
+    font-weight: 300;
+    display: inline-block;
+    margin-top: -0.15rem;
+    line-height: 1;
+  }

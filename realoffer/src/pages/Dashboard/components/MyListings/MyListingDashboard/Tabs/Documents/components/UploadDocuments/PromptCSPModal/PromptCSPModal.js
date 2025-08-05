@@ -40,7 +40,7 @@ const PromptCSPModal = ({ onClose, onCreatePackage, listingId }) => {
   return (
     <div className="prompt-csp-modal">
       <div className="modal-content">
-        <button className="offer-close-button" onClick={onClose}></button>
+        <button className="prompt-csp-close-button" onClick={onClose}></button>
         <div className='offer-modal-header'>
           <h2>{title}</h2>
           <p>Would you like to {actionText.toLowerCase()} a buyer signature packet?</p>
