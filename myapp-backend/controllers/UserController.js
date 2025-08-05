@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const { uploadFile } = require('../config/aws');
 const emailService = require('../utils/emailService');
+const crypto = require('crypto'); // Added for team member invitation
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -58,10 +59,40 @@ exports.searchUsers = async (req, res) => {
                 { email: searchRegex },
                 { $expr: { $regexMatch: { input: { $concat: ['$firstName', ' ', '$lastName'] }, regex: searchRegex.source, options: 'i' } } }
             ],
-            role: { $in: ['agent', 'admin'] } // Only return agents and admins
+            role: { $in: ['agent', 'admin', 'teamMember'] } // Return agents, admins, and team members
         })
         .select('firstName lastName email phone role agentLicenseNumber agencyName')
         .limit(10); // Limit results to prevent overwhelming the UI
+
+        // If no users found, add an invite option
+        if (users.length === 0) {
+            // Check if the query looks like an email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const isEmail = emailRegex.test(query.trim());
+            
+            if (isEmail) {
+                // Add invite option for email
+                users.push({
+                    _id: 'invite_' + Date.now(),
+                    firstName: 'Invite',
+                    lastName: query.trim(),
+                    email: query.trim(),
+                    isInvite: true,
+                    inviteEmail: query.trim()
+                });
+            } else {
+                // For name searches, try to extract potential email
+                const potentialEmail = query.trim().toLowerCase().replace(/\s+/g, '.') + '@example.com';
+                users.push({
+                    _id: 'invite_' + Date.now(),
+                    firstName: query.trim(),
+                    lastName: '',
+                    email: potentialEmail,
+                    isInvite: true,
+                    inviteEmail: potentialEmail
+                });
+            }
+        }
 
         res.status(200).json(users);
     } catch (error) {
@@ -90,7 +121,7 @@ exports.getUserWithListingPackages = async (req, res) => {
 };
 
 exports.createUser = async (req, res) => {
-    const { firstName, lastName, email, password, role, agentLicenseNumber, hasAgent } = req.body;
+    const { firstName, lastName, email, password, role, agentLicenseNumber, hasAgent, invitationToken } = req.body;
     
     try {
         // Validate required fields
@@ -116,9 +147,9 @@ exports.createUser = async (req, res) => {
         }
 
         // Validate role
-        if (!['agent', 'buyer', 'seller', 'admin'].includes(role)) {
+        if (!['agent', 'buyer', 'seller', 'admin', 'teamMember'].includes(role)) {
             return res.status(400).json({ 
-                message: 'Invalid role. Must be one of: agent, buyer, seller, admin' 
+                message: 'Invalid role. Must be one of: agent, buyer, seller, admin, teamMember' 
             });
         }
 
@@ -183,6 +214,26 @@ exports.createUser = async (req, res) => {
         });
         
         const savedUser = await newUser.save();
+        
+        // Handle invitation token if present
+        if (invitationToken) {
+            try {
+                // Here you would typically validate the invitation token
+                // and add the user to the appropriate listing/team
+                // For now, we'll just log that an invitation was used
+                console.log(`User ${savedUser.email} signed up with invitation token: ${invitationToken}`);
+                
+                // TODO: Implement invitation validation and team member assignment
+                // This would involve:
+                // 1. Validating the invitation token
+                // 2. Finding the associated listing
+                // 3. Adding the user as a team member to that listing
+                
+            } catch (invitationError) {
+                console.error('Error handling invitation:', invitationError);
+                // Don't fail the signup if invitation handling fails
+            }
+        }
         
         // Return user data without password and ensure consistent ID field
         const userResponse = {
@@ -611,4 +662,77 @@ exports.resendEmailVerification = async (req, res) => {
       error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
     });
   }
+};
+
+exports.sendTeamMemberInvitation = async (req, res) => {
+    try {
+        const { email, firstName, lastName, listingId, propertyAddress, inviterName } = req.body;
+        
+        // Validate required fields
+        if (!email || !listingId || !propertyAddress || !inviterName) {
+            return res.status(400).json({ 
+                message: 'Missing required fields: email, listingId, propertyAddress, and inviterName are required' 
+            });
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ 
+                message: 'Invalid email format' 
+            });
+        }
+
+        // Check if user already exists
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
+        if (existingUser) {
+            return res.status(409).json({ 
+                message: 'A user with this email address already exists' 
+            });
+        }
+
+        // Get the listing to access its publicUrl
+        const PropertyListing = require('../models/PropertyListing');
+        const listing = await PropertyListing.findById(listingId);
+        if (!listing) {
+            return res.status(404).json({ 
+                message: 'Listing not found' 
+            });
+        }
+
+        if (!listing.publicUrl) {
+            return res.status(400).json({ 
+                message: 'Listing does not have a public URL' 
+            });
+        }
+
+        // Extract the token from the publicUrl
+        const publicUrlToken = listing.publicUrl.split('/').pop();
+        
+        // Send invitation email
+        const emailResult = await emailService.sendTeamMemberInvitation(
+            email,
+            firstName || 'Team Member',
+            lastName || '',
+            inviterName,
+            propertyAddress,
+            publicUrlToken,
+            listingId
+        );
+
+        if (emailResult.success) {
+            res.status(200).json({ 
+                message: 'Team member invitation sent successfully',
+                email: email
+            });
+        } else {
+            res.status(500).json({ 
+                message: 'Failed to send invitation email',
+                error: emailResult.error 
+            });
+        }
+    } catch (error) {
+        console.error('Error sending team member invitation:', error);
+        res.status(500).json({ message: error.message });
+    }
 };

@@ -9,6 +9,7 @@ const authMiddleware = require('../middleware/auth'); // Import auth middleware
 router.get('/', UserController.getAllUsers);
 router.get('/search', authMiddleware, UserController.searchUsers); // Add search route
 router.get('/verify-token', authMiddleware, UserController.verifyToken); // Add this route before the :id route
+router.post('/invite-team-member', authMiddleware, UserController.sendTeamMemberInvitation); // Add invitation route
 router.get('/:id', UserController.getUserById);
 router.get('/:id/listingPackages', UserController.getUserWithListingPackages);
 router.post('/', UserController.createUser);

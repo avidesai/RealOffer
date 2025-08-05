@@ -20,6 +20,11 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
   const [teamMemberLoading, setTeamMemberLoading] = useState(false);
   const [selectedTeamMembers, setSelectedTeamMembers] = useState([]);
   
+  // Invitation states
+  const [invitingTeamMember, setInvitingTeamMember] = useState(false);
+  const [inviteSuccess, setInviteSuccess] = useState(false);
+  const [inviteError, setInviteError] = useState('');
+  
   const searchTimeoutRef = useRef(null);
   const teamMemberSearchTimeoutRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -182,20 +187,51 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
 
   // Add team member to selected list
   const addTeamMember = (teamMember) => {
-    const newSelectedTeamMembers = [...selectedTeamMembers, teamMember];
-    setSelectedTeamMembers(newSelectedTeamMembers);
+    if (selectedTeamMembers.length >= 5) {
+      alert('Maximum of 5 team members allowed.');
+      return;
+    }
+    setSelectedTeamMembers([...selectedTeamMembers, teamMember]);
     setTeamMemberSearchQuery('');
-    setShowTeamMemberDropdown(false);
     setTeamMemberSearchResults([]);
+    setShowTeamMemberDropdown(false);
+  };
+
+  // Invite team member who doesn't have an account
+  const inviteTeamMember = async (inviteData) => {
+    setInvitingTeamMember(true);
+    setInviteError('');
     
-    // Update form data directly
-    const teamMemberIds = newSelectedTeamMembers.map(teamMember => teamMember._id);
-    handleChange({
-      target: {
-        name: 'teamMemberIds',
-        value: teamMemberIds,
-      },
-    });
+    try {
+      const response = await api.post('/api/users/invite-team-member', {
+        email: inviteData.inviteEmail,
+        firstName: inviteData.firstName,
+        lastName: inviteData.lastName,
+        listingId: 'new', // This is for a new listing
+        propertyAddress: 'New Property Listing',
+        inviterName: `${user.firstName} ${user.lastName}`
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      setInviteSuccess(true);
+      setTeamMemberSearchQuery('');
+      setTeamMemberSearchResults([]);
+      setShowTeamMemberDropdown(false);
+      
+      // Show success message for a few seconds
+      setTimeout(() => {
+        setInviteSuccess(false);
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Error inviting team member:', error);
+      setInviteError(error.response?.data?.message || 'Failed to send invitation. Please try again.');
+    } finally {
+      setInvitingTeamMember(false);
+    }
   };
 
   // Remove team member from selected list
@@ -328,14 +364,19 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
                   teamMemberSearchResults.map(teamMember => (
                     <div
                       key={teamMember._id}
-                      className="dropdown-item"
-                      onClick={() => addTeamMember(teamMember)}
+                      className={`dropdown-item ${teamMember.isInvite ? 'invite-item' : ''}`}
+                      onClick={() => teamMember.isInvite ? inviteTeamMember(teamMember) : addTeamMember(teamMember)}
                     >
                       <div className="agent-info">
-                        <span className="agent-name">{`${teamMember.firstName} ${teamMember.lastName}`}</span>
+                        <span className="agent-name">
+                          {teamMember.isInvite ? `Invite ${teamMember.firstName} ${teamMember.lastName}` : `${teamMember.firstName} ${teamMember.lastName}`}
+                        </span>
                         <span className="agent-email">{teamMember.email}</span>
-                        {teamMember.agencyName && (
+                        {teamMember.agencyName && !teamMember.isInvite && (
                           <span className="agent-agency">{teamMember.agencyName}</span>
+                        )}
+                        {teamMember.isInvite && (
+                          <span className="invite-badge">Send Invitation</span>
                         )}
                       </div>
                     </div>
@@ -346,6 +387,23 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
               </div>
             )}
           </div>
+          
+          {/* Invitation status messages */}
+          {inviteSuccess && (
+            <div className="invite-success">
+              ✓ Invitation sent successfully!
+            </div>
+          )}
+          {inviteError && (
+            <div className="invite-error">
+              {inviteError}
+            </div>
+          )}
+          {invitingTeamMember && (
+            <div className="invite-loading">
+              Sending invitation...
+            </div>
+          )}
         </div>
 
         {/* Selected Team Members List */}

@@ -80,7 +80,8 @@ const PublicFacingListing = () => {
         firstName: sharedFirstName,
         lastName: sharedLastName,
         email: sharedEmail,
-        role: sharedRole === 'buyerAgent' ? 'agent' : 'buyer'
+        role: sharedRole === 'buyerAgent' ? 'agent' : 
+              sharedRole === 'teamMember' ? 'teamMember' : 'buyer'
       }));
     }
   }, [searchParams, user]);
@@ -335,9 +336,9 @@ const PublicFacingListing = () => {
       return;
     }
 
-    // Validate license number for agents
-    if (formData.role === 'agent' && !formData.agentLicenseNumber.trim()) {
-      setError('License number is required for real estate agents.');
+    // Validate license number for agents and team members
+    if ((formData.role === 'agent' || formData.role === 'teamMember') && !formData.agentLicenseNumber.trim()) {
+      setError('License number is required for real estate agents and team members.');
       return;
     }
 
@@ -380,7 +381,7 @@ const PublicFacingListing = () => {
           phone: formData.phone,
           password: formData.password,
           role: formData.role,
-          agentLicenseNumber: formData.role === 'agent' ? formData.agentLicenseNumber : '',
+          agentLicenseNumber: (formData.role === 'agent' || formData.role === 'teamMember') ? formData.agentLicenseNumber : '',
           hasAgent: formData.role === 'buyer' ? formData.hasAgent : null,
         }),
       });
@@ -414,6 +415,13 @@ const PublicFacingListing = () => {
           // Check if the newly created user is the listing agent
           if (listing && listing.createdBy === userId) {
             // User is the listing agent, redirect to MyListings dashboard
+            window.location.href = `/mylisting/${listing._id}`;
+            return;
+          }
+          
+          // Check if this is a team member invitation
+          if (formData.role === 'teamMember') {
+            // For team members, redirect to the listing dashboard
             window.location.href = `/mylisting/${listing._id}`;
             return;
           }
@@ -852,9 +860,10 @@ const PublicFacingListing = () => {
               >
                 <option value="agent">Real Estate Agent</option>
                 <option value="buyer">Home Buyer</option>
+                <option value="teamMember">Team Member</option>
               </select>
             </div>
-            {formData.role === 'agent' && (
+            {(formData.role === 'agent' || formData.role === 'teamMember') && (
               <div className="pfl-form-group">
                 <label htmlFor="agentLicenseNumber">License Number</label>
                 <input

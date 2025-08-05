@@ -1,14 +1,15 @@
 // SignupForm.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import InputMask from 'react-input-mask';
 import { useAuth } from '../../context/AuthContext';
 import './SignupForm.css';
 
 function SignupForm() {
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -25,8 +26,26 @@ function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [generalError, setGeneralError] = useState('');
+  const [invitationToken, setInvitationToken] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  // Handle URL parameters for invitations
+  useEffect(() => {
+    const invitation = searchParams.get('invitation');
+    const email = searchParams.get('email');
+    
+    if (invitation) {
+      setInvitationToken(invitation);
+    }
+    
+    if (email) {
+      setFormData(prev => ({
+        ...prev,
+        email: email
+      }));
+    }
+  }, [searchParams]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -179,7 +198,9 @@ function SignupForm() {
     const { confirmPassword, ...userData } = formData;
 
     try {
-      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users`, userData);
+      // Include invitation token if present
+      const signupData = invitationToken ? { ...userData, invitationToken } : userData;
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users`, signupData);
       setSuccessMessage('Account created successfully! Logging you in...');
       
       // Auto-login after successful signup

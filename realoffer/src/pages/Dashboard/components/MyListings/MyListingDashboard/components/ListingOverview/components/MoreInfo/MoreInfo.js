@@ -27,6 +27,9 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
   const [teamMemberSearchResults, setTeamMemberSearchResults] = useState([]);
   const [teamMemberSearchLoading, setTeamMemberSearchLoading] = useState(false);
   const [showTeamMemberDropdown, setShowTeamMemberDropdown] = useState(false);
+  const [invitingTeamMember, setInvitingTeamMember] = useState(false);
+  const [inviteSuccess, setInviteSuccess] = useState(false);
+  const [inviteError, setInviteError] = useState('');
   const searchTimeoutRef = useRef(null);
   const dropdownRef = useRef(null);
   const teamMemberSearchTimeoutRef = useRef(null);
@@ -296,6 +299,43 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     } catch (error) {
       console.error('Error adding team member:', error);
       setError('Failed to add team member. Please try again.');
+    }
+  };
+
+  // Invite team member who doesn't have an account
+  const inviteTeamMember = async (inviteData) => {
+    setInvitingTeamMember(true);
+    setInviteError('');
+    
+    try {
+      const response = await api.post('/api/users/invite-team-member', {
+        email: inviteData.inviteEmail,
+        firstName: inviteData.firstName,
+        lastName: inviteData.lastName,
+        listingId: listingId,
+        propertyAddress: listing.homeCharacteristics.address,
+        inviterName: `${user.firstName} ${user.lastName}`
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      setInviteSuccess(true);
+      setTeamMemberSearchQuery('');
+      setTeamMemberSearchResults([]);
+      setShowTeamMemberDropdown(false);
+      
+      // Show success message for a few seconds
+      setTimeout(() => {
+        setInviteSuccess(false);
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Error inviting team member:', error);
+      setInviteError(error.response?.data?.message || 'Failed to send invitation. Please try again.');
+    } finally {
+      setInvitingTeamMember(false);
     }
   };
 
@@ -829,14 +869,19 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                         teamMemberSearchResults.map(teamMember => (
                           <div
                             key={teamMember._id}
-                            className="mlmi-dropdown-item"
-                            onClick={() => addTeamMember(teamMember)}
+                            className={`mlmi-dropdown-item ${teamMember.isInvite ? 'mlmi-invite-item' : ''}`}
+                            onClick={() => teamMember.isInvite ? inviteTeamMember(teamMember) : addTeamMember(teamMember)}
                           >
                             <div className="mlmi-agent-info">
-                              <span className="mlmi-agent-name">{`${teamMember.firstName} ${teamMember.lastName}`}</span>
+                              <span className="mlmi-agent-name">
+                                {teamMember.isInvite ? `Invite ${teamMember.firstName} ${teamMember.lastName}` : `${teamMember.firstName} ${teamMember.lastName}`}
+                              </span>
                               <span className="mlmi-agent-email">{teamMember.email}</span>
-                              {teamMember.agencyName && (
+                              {teamMember.agencyName && !teamMember.isInvite && (
                                 <span className="mlmi-agent-agency">{teamMember.agencyName}</span>
+                              )}
+                              {teamMember.isInvite && (
+                                <span className="mlmi-invite-badge">Send Invitation</span>
                               )}
                             </div>
                           </div>
@@ -847,6 +892,23 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                     </div>
                   )}
                 </div>
+                
+                {/* Invitation status messages */}
+                {inviteSuccess && (
+                  <div className="mlmi-invite-success">
+                    ✓ Invitation sent successfully!
+                  </div>
+                )}
+                {inviteError && (
+                  <div className="mlmi-invite-error">
+                    {inviteError}
+                  </div>
+                )}
+                {invitingTeamMember && (
+                  <div className="mlmi-invite-loading">
+                    Sending invitation...
+                  </div>
+                )}
               </div>
               )}
 

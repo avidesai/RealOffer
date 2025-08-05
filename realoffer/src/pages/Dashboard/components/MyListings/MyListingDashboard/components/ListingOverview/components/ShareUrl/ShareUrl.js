@@ -21,6 +21,11 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
   const searchTimeoutRef = useRef(null);
   const dropdownRef = useRef(null);
   
+  // Invitation states
+  const [invitingTeamMember, setInvitingTeamMember] = useState(false);
+  const [inviteSuccess, setInviteSuccess] = useState(false);
+  const [inviteError, setInviteError] = useState('');
+  
   // Listing data state
   const [currentListing, setCurrentListing] = useState(null);
   const [listingLoading, setListingLoading] = useState(false);
@@ -148,7 +153,43 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
     setSelectedAgent(agent);
     setSearchQuery('');
     setShowDropdown(false);
-    setSearchResults([]);
+  };
+
+  // Invite team member who doesn't have an account
+  const inviteTeamMember = async (inviteData) => {
+    setInvitingTeamMember(true);
+    setInviteError('');
+    
+    try {
+      const response = await api.post('/api/users/invite-team-member', {
+        email: inviteData.inviteEmail,
+        firstName: inviteData.firstName,
+        lastName: inviteData.lastName,
+        listingId: listingId,
+        propertyAddress: currentListing?.homeCharacteristics?.address || 'Property',
+        inviterName: `${user.firstName} ${user.lastName}`
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      setInviteSuccess(true);
+      setSearchQuery('');
+      setSearchResults([]);
+      setShowDropdown(false);
+      
+      // Show success message for a few seconds
+      setTimeout(() => {
+        setInviteSuccess(false);
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Error inviting team member:', error);
+      setInviteError(error.response?.data?.message || 'Failed to send invitation. Please try again.');
+    } finally {
+      setInvitingTeamMember(false);
+    }
   };
 
   // Remove selected agent
@@ -431,14 +472,19 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                             searchResults.map(agent => (
                               <div
                                 key={agent._id}
-                                className="dropdown-item"
-                                onClick={() => addAgent(agent)}
+                                className={`dropdown-item ${agent.isInvite ? 'invite-item' : ''}`}
+                                onClick={() => agent.isInvite ? inviteTeamMember(agent) : addAgent(agent)}
                               >
                                 <div className="agent-info">
-                                  <span className="agent-name">{`${agent.firstName} ${agent.lastName}`}</span>
+                                  <span className="agent-name">
+                                    {agent.isInvite ? `Invite ${agent.firstName} ${agent.lastName}` : `${agent.firstName} ${agent.lastName}`}
+                                  </span>
                                   <span className="agent-email">{agent.email}</span>
-                                  {agent.agencyName && (
+                                  {agent.agencyName && !agent.isInvite && (
                                     <span className="agent-agency">{agent.agencyName}</span>
+                                  )}
+                                  {agent.isInvite && (
+                                    <span className="invite-badge">Send Invitation</span>
                                   )}
                                 </div>
                               </div>
@@ -449,6 +495,23 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                         </div>
                       )}
                     </div>
+                    
+                    {/* Invitation status messages */}
+                    {inviteSuccess && (
+                      <div className="invite-success">
+                        ✓ Invitation sent successfully!
+                      </div>
+                    )}
+                    {inviteError && (
+                      <div className="invite-error">
+                        {inviteError}
+                      </div>
+                    )}
+                    {invitingTeamMember && (
+                      <div className="invite-loading">
+                        Sending invitation...
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (

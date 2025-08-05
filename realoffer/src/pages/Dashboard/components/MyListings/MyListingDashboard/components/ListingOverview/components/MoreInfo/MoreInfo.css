@@ -654,3 +654,53 @@
   box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
   margin-right: 0.75rem;
 }
+
+/* Invite-specific styles */
+.mlmi-invite-item {
+  background-color: #f8f9fa;
+  border-left: 3px solid #28a745;
+}
+
+.mlmi-invite-item:hover {
+  background-color: #e9ecef;
+}
+
+.mlmi-invite-badge {
+  background-color: #28a745;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-left: auto;
+}
+
+.mlmi-invite-success {
+  color: #28a745;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.mlmi-invite-error {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.mlmi-invite-loading {
+  color: #6c757d;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-top: 8px;
+  font-size: 14px;
+}

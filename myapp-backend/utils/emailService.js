@@ -664,6 +664,66 @@ class EmailService {
       return { success: false, error: error.message };
     }
   }
+
+  // Send team member invitation email
+  async sendTeamMemberInvitation(recipientEmail, recipientFirstName, recipientLastName, inviterName, propertyAddress, invitationToken, listingId) {
+    const pflUrl = `${process.env.FRONTEND_URL}/public/${invitationToken}?email=${encodeURIComponent(recipientEmail)}&role=teamMember&firstName=${encodeURIComponent(recipientFirstName || '')}&lastName=${encodeURIComponent(recipientLastName || '')}`;
+    
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: recipientEmail,
+      subject: `${inviterName} invited you to join their team on RealOffer`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">You're Invited!</h1>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${recipientFirstName || 'there'},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              ${inviterName} has invited you to join their team on RealOffer to help manage a property listing.
+            </p>
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+              <h3 style="color: #333; margin: 0 0 10px 0;">Property Details</h3>
+              <p style="color: #666; margin: 0;">${propertyAddress}</p>
+            </div>
+            <p style="color: #666; line-height: 1.6;">
+              As a team member, you'll have access to manage this listing and collaborate with the listing agents.
+              Team members are not displayed to buyers or other external parties.
+            </p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${pflUrl}" 
+                 style="background-color: #007bff; color: white; padding: 12px 30px; 
+                        text-decoration: none; border-radius: 5px; display: inline-block;">
+                Join Team
+              </a>
+            </div>
+            <p style="color: #666; line-height: 1.6;">
+              If the button doesn't work, you can copy and paste this link into your browser:
+            </p>
+            <p style="color: #007bff; word-break: break-all;">
+              ${pflUrl}
+            </p>
+            <p style="color: #666; line-height: 1.6;">
+              This invitation link will expire in 7 days. If you have any questions, please contact ${inviterName}.
+            </p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('Team member invitation send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 module.exports = new EmailService(); 
