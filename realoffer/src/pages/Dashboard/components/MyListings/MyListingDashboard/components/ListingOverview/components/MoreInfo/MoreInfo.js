@@ -926,6 +926,60 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
               </div>
               )}
               
+              {/* Selected Team Members List */}
+              {(selectedTeamMembers.length > 0 || isUserTeamMember()) && (
+                <div className="mlmi-selected-agents-list">
+                  {/* Show current user if they are a team member */}
+                  {isUserTeamMember() && (
+                    <div className="mlmi-selected-agent-item mlmi-team-member-item">
+                      <div className="mlmi-agent-info">
+                        <span className="mlmi-agent-name">{`${user?.firstName} ${user?.lastName}`}</span>
+                        {user?.phone && (
+                          <span className="mlmi-agent-phone">{user.phone}</span>
+                        )}
+                        <span className="mlmi-agent-email">{user?.email}</span>
+                        {user?.agencyName && (
+                          <span className="mlmi-agent-agency">{user.agencyName}</span>
+                        )}
+                      </div>
+                      <span className="mlmi-team-member-badge">Team Member</span>
+                    </div>
+                  )}
+                  
+                  {/* Show other team members */}
+                  {selectedTeamMembers.map(teamMember => (
+                    <div key={teamMember._id} className="mlmi-selected-agent-item mlmi-team-member-item">
+                      <div className="mlmi-agent-info">
+                        <span className="mlmi-agent-name">
+                          {teamMember.isInvite ? `Invite ${teamMember.firstName} ${teamMember.lastName}` : `${teamMember.firstName} ${teamMember.lastName}`}
+                        </span>
+                        {teamMember.phone && (
+                          <span className="mlmi-agent-phone">{teamMember.phone}</span>
+                        )}
+                        <span className="mlmi-agent-email">{teamMember.email}</span>
+                        {teamMember.agencyName && (
+                          <span className="mlmi-agent-agency">{teamMember.agencyName}</span>
+                        )}
+                      </div>
+                      <div className="mlmi-agent-actions">
+                        {teamMember.isInvite && (
+                          <span className="mlmi-team-member-badge">Send Invitation</span>
+                        )}
+                        {(isUserPrimaryAgent() || isUserAdditionalAgent()) && (
+                          <button
+                            type="button"
+                            className="mlmi-remove-agent-btn"
+                            onClick={() => removeTeamMember(teamMember._id)}
+                          >
+                            ×
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {/* Form Fields for Invite */}
               {selectedTeamMembers.some(tm => tm.isInvite) && (
                 <div className="mlmi-invite-form-section">
@@ -981,60 +1035,6 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                   >
                     {invitingTeamMember ? 'Sending...' : 'Send Invitation'}
                   </button>
-                </div>
-              )}
-
-              {/* Selected Team Members List */}
-              {(selectedTeamMembers.length > 0 || isUserTeamMember()) && (
-                <div className="mlmi-selected-agents-list">
-                  {/* Show current user if they are a team member */}
-                  {isUserTeamMember() && (
-                    <div className="mlmi-selected-agent-item mlmi-team-member-item">
-                      <div className="mlmi-agent-info">
-                        <span className="mlmi-agent-name">{`${user?.firstName} ${user?.lastName}`}</span>
-                        {user?.phone && (
-                          <span className="mlmi-agent-phone">{user.phone}</span>
-                        )}
-                        <span className="mlmi-agent-email">{user?.email}</span>
-                        {user?.agencyName && (
-                          <span className="mlmi-agent-agency">{user.agencyName}</span>
-                        )}
-                      </div>
-                      <span className="mlmi-team-member-badge">Team Member</span>
-                    </div>
-                  )}
-                  
-                  {/* Show other team members */}
-                  {selectedTeamMembers.map(teamMember => (
-                    <div key={teamMember._id} className="mlmi-selected-agent-item mlmi-team-member-item">
-                      <div className="mlmi-agent-info">
-                        <span className="mlmi-agent-name">
-                          {teamMember.isInvite ? `Invite ${teamMember.firstName} ${teamMember.lastName}` : `${teamMember.firstName} ${teamMember.lastName}`}
-                        </span>
-                        {teamMember.phone && (
-                          <span className="mlmi-agent-phone">{teamMember.phone}</span>
-                        )}
-                        <span className="mlmi-agent-email">{teamMember.email}</span>
-                        {teamMember.agencyName && (
-                          <span className="mlmi-agent-agency">{teamMember.agencyName}</span>
-                        )}
-                      </div>
-                      <div className="mlmi-agent-actions">
-                        {teamMember.isInvite && (
-                          <span className="mlmi-team-member-badge">Send Invitation</span>
-                        )}
-                        {(isUserPrimaryAgent() || isUserAdditionalAgent()) && (
-                          <button
-                            type="button"
-                            className="mlmi-remove-agent-btn"
-                            onClick={() => removeTeamMember(teamMember._id)}
-                          >
-                            ×
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
                 </div>
               )}
             </div>

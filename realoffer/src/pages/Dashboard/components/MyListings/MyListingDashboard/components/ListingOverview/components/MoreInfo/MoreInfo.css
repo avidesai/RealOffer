@@ -296,17 +296,25 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem;
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
+  padding: 0.875rem 1rem;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  border: 1px solid #90caf9;
+  border-radius: 10px;
+  margin-top: 1rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.1);
 }
 
 .mlmi-agent-info {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  width: 100%;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .mlmi-agent-name {
@@ -371,18 +379,27 @@
 
 .mlmi-agent-search-input {
   width: 100%;
-  padding: 1rem 1.25rem;
+  padding: 0.875rem 1rem;
   border: 1px solid #ced4da;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  transition: border-color 0.15s ease;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
   background-color: #fff;
+  color: #1a1a1a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .mlmi-agent-search-input:focus {
   outline: none;
   border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1), 0 4px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.mlmi-agent-search-input:hover {
+  border-color: #adb5bd;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .mlmi-agent-search-input::placeholder {
@@ -490,6 +507,11 @@
 
 .mlmi-selected-agent-item .mlmi-agent-info {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  width: 100%;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .mlmi-remove-agent-btn {
@@ -644,8 +666,9 @@
 }
 
 .mlmi-team-member-item {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1px solid #7dd3fc;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.1);
 }
 
 .mlmi-team-member-badge {
@@ -709,4 +732,133 @@
   border-radius: 4px;
   margin-top: 8px;
   font-size: 14px;
+}
+
+/* Invite Form Section - Enhanced styling to match CreateListingPackage */
+.mlmi-invite-form-section {
+  margin-top: 1rem;
+  padding: 1.5rem;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.mlmi-invite-form-section h4 {
+  margin: 0 0 1rem 0;
+  color: #1a1a1a;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.mlmi-form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.mlmi-form-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.mlmi-form-group label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.025em;
+}
+
+.mlmi-form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.2;
+  transition: all 0.2s;
+  background: #fff;
+  color: #374151;
+  box-sizing: border-box;
+}
+
+.mlmi-form-control:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.mlmi-form-control:hover {
+  border-color: #9ca3af;
+}
+
+.mlmi-form-control::placeholder {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.mlmi-invite-send-btn {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 140px;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+}
+
+.mlmi-invite-send-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.mlmi-invite-send-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+}
+
+.mlmi-invite-send-btn:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.mlmi-invite-send-btn:disabled:hover {
+  background: #e5e7eb;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Enhanced agent actions styling */
+.mlmi-agent-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+/* Responsive adjustments for invite form */
+@media (max-width: 768px) {
+  .mlmi-form-row {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .mlmi-invite-send-btn {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .mlmi-invite-form-section {
+    padding: 1rem;
+  }
 }

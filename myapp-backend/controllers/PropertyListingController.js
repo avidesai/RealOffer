@@ -273,16 +273,16 @@ exports.getPublicListing = async (req, res) => {
 // Add team member to listing (no auth required - used for invitation flow)
 exports.addTeamMember = async (req, res) => {
   try {
-    const { listingId } = req.params;
+    const { id } = req.params;
     const { userId } = req.body;
 
-    console.log('addTeamMember called with:', { listingId, userId });
+    console.log('addTeamMember called with:', { listingId: id, userId });
 
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
     }
 
-    const listing = await PropertyListing.findById(listingId);
+    const listing = await PropertyListing.findById(id);
     if (!listing) {
       return res.status(404).json({ message: "Listing not found" });
     }
@@ -299,14 +299,14 @@ exports.addTeamMember = async (req, res) => {
     const updatedTeamMemberIds = [...currentTeamMemberIds, new mongoose.Types.ObjectId(userId)];
     console.log('Updated team member IDs:', updatedTeamMemberIds.map(id => id.toString()));
     
-    await PropertyListing.findByIdAndUpdate(listingId, {
+    await PropertyListing.findByIdAndUpdate(id, {
       teamMemberIds: updatedTeamMemberIds
     });
 
-    console.log(`User ${userId} added as team member to listing ${listingId}`);
+    console.log(`User ${userId} added as team member to listing ${id}`);
     res.status(200).json({ 
       message: "User added as team member successfully",
-      listingId: listingId,
+      listingId: id,
       userId: userId
     });
   } catch (error) {
