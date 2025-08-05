@@ -61,13 +61,27 @@ exports.getListing = async (req, res) => {
     // Check if user is the listing creator or an agent
     const isOwner = listing.createdBy.toString() === req.user.id;
     const isAgent = listing.agentIds.some(agentId => agentId.toString() === req.user.id);
-    const isTeamMember = listing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
+    
+    // Check if user is a team member (handle both populated and unpopulated IDs)
+    const isTeamMember = listing.teamMemberIds.some(teamMember => {
+      // If teamMember is an object (populated), check the _id
+      if (teamMember && typeof teamMember === 'object' && teamMember._id) {
+        return teamMember._id.toString() === req.user.id;
+      }
+      // If teamMember is just an ID (unpopulated), check directly
+      return teamMember.toString() === req.user.id;
+    });
     
     console.log('Permission check for listing:', req.params.id);
     console.log('User ID:', req.user.id);
     console.log('Listing creator:', listing.createdBy.toString());
     console.log('Listing agents:', listing.agentIds.map(id => id.toString()));
-    console.log('Listing team members:', listing.teamMemberIds.map(id => id.toString()));
+    console.log('Listing team members:', listing.teamMemberIds.map(teamMember => {
+      if (teamMember && typeof teamMember === 'object' && teamMember._id) {
+        return teamMember._id.toString();
+      }
+      return teamMember.toString();
+    }));
     console.log('Is owner:', isOwner);
     console.log('Is agent:', isAgent);
     console.log('Is team member:', isTeamMember);
