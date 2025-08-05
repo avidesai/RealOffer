@@ -31,6 +31,7 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
     offerDueDate: '',
     agent1: user ? (user._id || user.id) : '',
     agentIds: [], // New field for multiple agents
+    teamMemberIds: [], // New field for team members
     companyName: '',
     officerName: '',
     officerPhone: '',

@@ -12,8 +12,18 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
   const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedAgents, setSelectedAgents] = useState([]);
+  
+  // Team member states
+  const [teamMemberSearchQuery, setTeamMemberSearchQuery] = useState('');
+  const [teamMemberSearchResults, setTeamMemberSearchResults] = useState([]);
+  const [showTeamMemberDropdown, setShowTeamMemberDropdown] = useState(false);
+  const [teamMemberLoading, setTeamMemberLoading] = useState(false);
+  const [selectedTeamMembers, setSelectedTeamMembers] = useState([]);
+  
   const searchTimeoutRef = useRef(null);
+  const teamMemberSearchTimeoutRef = useRef(null);
   const dropdownRef = useRef(null);
+  const teamMemberDropdownRef = useRef(null);
 
   // Initialize with current user as primary agent
   useEffect(() => {
@@ -27,11 +37,14 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
     }
   }, [user, formData.agent1, handleChange]);
 
-  // Handle click outside dropdown
+  // Handle click outside dropdowns
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
+      }
+      if (teamMemberDropdownRef.current && !teamMemberDropdownRef.current.contains(event.target)) {
+        setShowTeamMemberDropdown(false);
       }
     };
 
@@ -71,7 +84,38 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
     }
   };
 
-  // Handle search input change
+  // Search for team members
+  const searchTeamMembers = async (query) => {
+    if (!query || query.trim().length < 2) {
+      setTeamMemberSearchResults([]);
+      return;
+    }
+
+    setTeamMemberLoading(true);
+    try {
+      const response = await api.get(`/api/users/search?query=${encodeURIComponent(query)}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      // Filter out current user, already selected agents, and already selected team members
+      const filteredResults = response.data.filter(agent => 
+        agent._id !== user._id && 
+        !selectedAgents.some(selected => selected._id === agent._id) &&
+        !selectedTeamMembers.some(selected => selected._id === agent._id)
+      );
+      
+      setTeamMemberSearchResults(filteredResults);
+    } catch (error) {
+      console.error('Error searching team members:', error);
+      setTeamMemberSearchResults([]);
+    } finally {
+      setTeamMemberLoading(false);
+    }
+  };
+
+  // Handle search input change for agents
   const handleSearchChange = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
@@ -84,6 +128,22 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
 
     searchTimeoutRef.current = setTimeout(() => {
       searchAgents(query);
+    }, 300);
+  };
+
+  // Handle search input change for team members
+  const handleTeamMemberSearchChange = (e) => {
+    const query = e.target.value;
+    setTeamMemberSearchQuery(query);
+    setShowTeamMemberDropdown(true);
+
+    // Debounce search
+    if (teamMemberSearchTimeoutRef.current) {
+      clearTimeout(teamMemberSearchTimeoutRef.current);
+    }
+
+    teamMemberSearchTimeoutRef.current = setTimeout(() => {
+      searchTeamMembers(query);
     }, 300);
   };
 
@@ -116,6 +176,39 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
       target: {
         name: 'agentIds',
         value: agentIds,
+      },
+    });
+  };
+
+  // Add team member to selected list
+  const addTeamMember = (teamMember) => {
+    const newSelectedTeamMembers = [...selectedTeamMembers, teamMember];
+    setSelectedTeamMembers(newSelectedTeamMembers);
+    setTeamMemberSearchQuery('');
+    setShowTeamMemberDropdown(false);
+    setTeamMemberSearchResults([]);
+    
+    // Update form data directly
+    const teamMemberIds = newSelectedTeamMembers.map(teamMember => teamMember._id);
+    handleChange({
+      target: {
+        name: 'teamMemberIds',
+        value: teamMemberIds,
+      },
+    });
+  };
+
+  // Remove team member from selected list
+  const removeTeamMember = (teamMemberId) => {
+    const newSelectedTeamMembers = selectedTeamMembers.filter(teamMember => teamMember._id !== teamMemberId);
+    setSelectedTeamMembers(newSelectedTeamMembers);
+    
+    // Update form data directly
+    const teamMemberIds = newSelectedTeamMembers.map(teamMember => teamMember._id);
+    handleChange({
+      target: {
+        name: 'teamMemberIds',
+        value: teamMemberIds,
       },
     });
   };
@@ -173,6 +266,9 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
         <div className="selected-agent-item">
           <div className="agent-info">
             <span className="agent-name">{`${user?.firstName} ${user?.lastName}`}</span>
+            {user?.phone && (
+              <span className="agent-phone">{user.phone}</span>
+            )}
             <span className="agent-email">{user?.email}</span>
             {user?.agencyName && (
               <span className="agent-agency">{user.agencyName}</span>
@@ -186,6 +282,9 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
           <div key={agent._id} className="selected-agent-item">
             <div className="agent-info">
               <span className="agent-name">{`${agent.firstName} ${agent.lastName}`}</span>
+              {agent.phone && (
+                <span className="agent-phone">{agent.phone}</span>
+              )}
               <span className="agent-email">{agent.email}</span>
               {agent.agencyName && (
                 <span className="agent-agency">{agent.agencyName}</span>
@@ -200,6 +299,82 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
             </button>
           </div>
         ))}
+      </div>
+
+      {/* Team Members Section */}
+      <div className="team-members-section">
+        <h3>Team Members</h3>
+        <p className="team-members-description">
+          Add team members who will have access to manage this listing. Team members will not be displayed to buyers or other external parties.
+        </p>
+        
+        <div className="clp-form-group">
+          <label>Add Team Members</label>
+          <div className="agent-search-container" ref={teamMemberDropdownRef}>
+            <input
+              type="text"
+              placeholder="Search for team members by name or email..."
+              value={teamMemberSearchQuery}
+              onChange={handleTeamMemberSearchChange}
+              onFocus={() => setShowTeamMemberDropdown(true)}
+              className="agent-search-input"
+            />
+            
+            {showTeamMemberDropdown && (teamMemberSearchQuery.length > 0 || teamMemberLoading) && (
+              <div className="agent-dropdown">
+                {teamMemberLoading ? (
+                  <div className="dropdown-loading">Searching...</div>
+                ) : teamMemberSearchResults.length > 0 ? (
+                  teamMemberSearchResults.map(teamMember => (
+                    <div
+                      key={teamMember._id}
+                      className="dropdown-item"
+                      onClick={() => addTeamMember(teamMember)}
+                    >
+                      <div className="agent-info">
+                        <span className="agent-name">{`${teamMember.firstName} ${teamMember.lastName}`}</span>
+                        <span className="agent-email">{teamMember.email}</span>
+                        {teamMember.agencyName && (
+                          <span className="agent-agency">{teamMember.agencyName}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : teamMemberSearchQuery.length >= 2 ? (
+                  <div className="dropdown-no-results">No team members found</div>
+                ) : null}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Selected Team Members List */}
+        {selectedTeamMembers.length > 0 && (
+          <div className="selected-agents-list">
+            {selectedTeamMembers.map(teamMember => (
+              <div key={teamMember._id} className="selected-agent-item team-member-item">
+                <div className="agent-info">
+                  <span className="agent-name">{`${teamMember.firstName} ${teamMember.lastName}`}</span>
+                  {teamMember.phone && (
+                    <span className="agent-phone">{teamMember.phone}</span>
+                  )}
+                  <span className="agent-email">{teamMember.email}</span>
+                  {teamMember.agencyName && (
+                    <span className="agent-agency">{teamMember.agencyName}</span>
+                  )}
+                </div>
+                <span className="team-member-badge">Team Member</span>
+                <button
+                  type="button"
+                  className="remove-agent-btn"
+                  onClick={() => removeTeamMember(teamMember._id)}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {errors.agent1 && <div className="clp-error">{errors.agent1}</div>}
