@@ -61,8 +61,13 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
       }
       
       setAgents(fetchedAgents);
-      // Filter out current user from selected agents - they will be handled separately based on their role
-      setSelectedAgents(fetchedAgents.filter(agent => agent._id !== user._id));
+      // Filter out current user and primary agent from selected agents
+      // Primary agent will be handled separately in the Primary Agent section
+      const primaryAgentId = fetchedAgents.length > 0 ? 
+        (typeof fetchedAgents[0] === 'object' ? fetchedAgents[0]._id : fetchedAgents[0]) : null;
+      setSelectedAgents(fetchedAgents.filter(agent => 
+        agent._id !== user._id && agent._id !== primaryAgentId
+      ));
     } catch (error) {
       console.error('Error fetching agents:', error);
     }
