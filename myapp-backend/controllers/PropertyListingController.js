@@ -49,7 +49,10 @@ exports.getAllListings = async (req, res) => {
 // Get a specific property listing
 exports.getListing = async (req, res) => {
   try {
-    const listing = await PropertyListing.findById(req.params.id);
+    const listing = await PropertyListing.findById(req.params.id)
+      .populate('offers')
+      .populate('agentIds', 'firstName lastName email phone role agentLicenseNumber agencyName')
+      .populate('teamMemberIds', 'firstName lastName email phone role agentLicenseNumber agencyName');
     
     if (!listing) {
       return res.status(404).json({ message: "Listing not found" });
