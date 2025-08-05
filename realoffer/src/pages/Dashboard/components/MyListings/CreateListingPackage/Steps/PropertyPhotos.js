@@ -6,6 +6,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 const PropertyPhotos = ({ handleFileChange, handleRemovePhoto, handleReorderPhotos, handleSubmit, handlePrevStep, loading, formData, errors }) => {
   const [previews, setPreviews] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef();
 
   useEffect(() => {
@@ -31,24 +32,50 @@ const PropertyPhotos = ({ handleFileChange, handleRemovePhoto, handleReorderPhot
   };
 
   // Drag-and-drop and click handler
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only set drag over to false if we're leaving the upload area entirely
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setIsDragOver(false);
+    }
+  };
+
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    setIsDragOver(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      console.log('PropertyPhotos: Files dropped:', e.dataTransfer.files);
       handleFileChange({ target: { name: 'propertyImages', files: e.dataTransfer.files } });
     }
   };
 
   const handleAreaClick = () => {
-    if (fileInputRef.current) fileInputRef.current.click();
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
   const handleFileInputChange = (e) => {
     setIsUploading(true);
     try {
+      console.log('PropertyPhotos: File input change triggered');
       handleFileChange(e);
     } catch (error) {
-      console.error('Error handling file upload:', error);
+      console.error('PropertyPhotos: Error handling file upload:', error);
     } finally {
       setIsUploading(false);
     }
@@ -66,12 +93,14 @@ const PropertyPhotos = ({ handleFileChange, handleRemovePhoto, handleReorderPhot
       )}
       
       <label
-        className={`clp-photo-upload-area ${isUploading ? 'uploading' : ''}`}
+        className={`clp-photo-upload-area ${isUploading ? 'uploading' : ''} ${isDragOver ? 'drag-over' : ''}`}
         tabIndex={0}
         onClick={handleAreaClick}
         onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && handleAreaClick()}
         onDrop={handleDrop}
-        onDragOver={e => e.preventDefault()}
+        onDragOver={handleDragOver}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
         aria-label="Upload property photos"
       >
         {isUploading ? (
@@ -100,6 +129,10 @@ const PropertyPhotos = ({ handleFileChange, handleRemovePhoto, handleReorderPhot
 
       {previews.length > 0 && (
         <div className="photo-preview-container">
+          <div className="photo-preview-header">
+            <h3>Selected Photos ({previews.length})</h3>
+            <p className="photo-preview-hint">Drag photos to reorder them</p>
+          </div>
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="photo-list" direction="horizontal">
               {(provided) => (
@@ -114,12 +147,12 @@ const PropertyPhotos = ({ handleFileChange, handleRemovePhoto, handleReorderPhot
                       draggableId={preview}
                       index={index}
                     >
-                      {(provided) => (
+                      {(provided, snapshot) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className="photo-preview-item"
+                          className={`photo-preview-item ${snapshot.isDragging ? 'dragging' : ''}`}
                         >
                           <img src={preview} alt={`Preview ${index + 1}`} />
                           <div className="photo-preview-order">{index + 1}</div>

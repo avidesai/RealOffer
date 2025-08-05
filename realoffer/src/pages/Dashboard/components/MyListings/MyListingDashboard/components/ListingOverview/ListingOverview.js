@@ -116,13 +116,19 @@ function ListingOverview({ listing }) {
       <div className={`listing-content ${loading ? 'blurred' : ''}`}>
         <div className="overview-header">
           <div className="overview-image" onClick={() => setShowGallery(true)}>
-            <img 
-              src={currentListing.imagesUrls && currentListing.imagesUrls.length > 0 
-                ? currentListing.imagesUrls[0] 
-                : 'https://via.placeholder.com/200x150?text=No+Image'} 
-              alt="Property" 
-              className="property-image" 
-            />
+            {currentListing.imagesUrls && currentListing.imagesUrls.length > 0 ? (
+              <img 
+                src={currentListing.imagesUrls[0]} 
+                alt="Property" 
+                className="property-image" 
+              />
+            ) : (
+              <div className="property-image-placeholder">
+                <div className="placeholder-icon">📷</div>
+                <div className="placeholder-text">No Photos</div>
+                <div className="placeholder-hint">Click to add photos</div>
+              </div>
+            )}
           </div>
           <div className="overview-details">
             <h1 className="property-address">{currentListing.homeCharacteristics.address}</h1>

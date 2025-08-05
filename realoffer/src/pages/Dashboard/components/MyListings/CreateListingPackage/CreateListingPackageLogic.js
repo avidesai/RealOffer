@@ -122,6 +122,7 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
     // Clear any previous photo errors
     setErrors(prev => ({ ...prev, photos: '' }));
 
+    // Add files to the end of the existing array to preserve order
     setFormData((prevData) => {
       const updatedImages = [...(prevData.propertyImages || []), ...validFiles];
       console.log('CreateListingPackage: Updated propertyImages count:', updatedImages.length);
@@ -130,6 +131,9 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
         propertyImages: updatedImages,
       };
     });
+
+    // Clear the file input to allow selecting the same files again
+    e.target.value = '';
   };
 
   const handleRemovePhoto = (indexToRemove) => {
