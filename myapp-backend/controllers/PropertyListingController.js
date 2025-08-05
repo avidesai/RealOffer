@@ -63,6 +63,15 @@ exports.getListing = async (req, res) => {
     const isAgent = listing.agentIds.some(agentId => agentId.toString() === req.user.id);
     const isTeamMember = listing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
     
+    console.log('Permission check for listing:', req.params.id);
+    console.log('User ID:', req.user.id);
+    console.log('Listing creator:', listing.createdBy.toString());
+    console.log('Listing agents:', listing.agentIds.map(id => id.toString()));
+    console.log('Listing team members:', listing.teamMemberIds.map(id => id.toString()));
+    console.log('Is owner:', isOwner);
+    console.log('Is agent:', isAgent);
+    console.log('Is team member:', isTeamMember);
+    
     // If not the owner, agent, or team member, check if user has a buyer package for this listing
     if (!isOwner && !isAgent && !isTeamMember) {
       const BuyerPackage = require('../models/BuyerPackage');
@@ -267,6 +276,8 @@ exports.addTeamMember = async (req, res) => {
     const { listingId } = req.params;
     const { userId } = req.body;
 
+    console.log('addTeamMember called with:', { listingId, userId });
+
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
     }
@@ -278,12 +289,16 @@ exports.addTeamMember = async (req, res) => {
 
     // Check if user is already a team member
     const currentTeamMemberIds = listing.teamMemberIds || [];
+    console.log('Current team member IDs:', currentTeamMemberIds.map(id => id.toString()));
+    console.log('Checking if user is already a team member:', userId);
     if (currentTeamMemberIds.some(id => id.toString() === userId)) {
       return res.status(409).json({ message: "User is already a team member for this listing" });
     }
 
     // Add user to team members
-    const updatedTeamMemberIds = [...currentTeamMemberIds, userId];
+    const updatedTeamMemberIds = [...currentTeamMemberIds, new mongoose.Types.ObjectId(userId)];
+    console.log('Updated team member IDs:', updatedTeamMemberIds.map(id => id.toString()));
+    
     await PropertyListing.findByIdAndUpdate(listingId, {
       teamMemberIds: updatedTeamMemberIds
     });
