@@ -61,7 +61,30 @@ exports.getListing = async (req, res) => {
     // Check if user is the listing creator or an agent
     const isOwner = listing.createdBy.toString() === req.user.id;
     const isAgent = listing.agentIds.some(agentId => agentId.toString() === req.user.id);
-    const isTeamMember = listing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
+    
+    // Check if user is a team member (handle both populated and unpopulated IDs)
+    const isTeamMember = listing.teamMemberIds.some(teamMember => {
+      // If teamMember is an object (populated), check the _id
+      if (teamMember && typeof teamMember === 'object' && teamMember._id) {
+        return teamMember._id.toString() === req.user.id;
+      }
+      // If teamMember is just an ID (unpopulated), check directly
+      return teamMember.toString() === req.user.id;
+    });
+    
+    console.log('Permission check for listing:', req.params.id);
+    console.log('User ID:', req.user.id);
+    console.log('Listing creator:', listing.createdBy.toString());
+    console.log('Listing agents:', listing.agentIds.map(id => id.toString()));
+    console.log('Listing team members:', listing.teamMemberIds.map(teamMember => {
+      if (teamMember && typeof teamMember === 'object' && teamMember._id) {
+        return teamMember._id.toString();
+      }
+      return teamMember.toString();
+    }));
+    console.log('Is owner:', isOwner);
+    console.log('Is agent:', isAgent);
+    console.log('Is team member:', isTeamMember);
     
     // If not the owner, agent, or team member, check if user has a buyer package for this listing
     if (!isOwner && !isAgent && !isTeamMember) {
@@ -264,34 +287,40 @@ exports.getPublicListing = async (req, res) => {
 // Add team member to listing (no auth required - used for invitation flow)
 exports.addTeamMember = async (req, res) => {
   try {
-    const { listingId } = req.params;
+    const { id } = req.params;
     const { userId } = req.body;
+
+    console.log('addTeamMember called with:', { listingId: id, userId });
 
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
     }
 
-    const listing = await PropertyListing.findById(listingId);
+    const listing = await PropertyListing.findById(id);
     if (!listing) {
       return res.status(404).json({ message: "Listing not found" });
     }
 
     // Check if user is already a team member
     const currentTeamMemberIds = listing.teamMemberIds || [];
+    console.log('Current team member IDs:', currentTeamMemberIds.map(id => id.toString()));
+    console.log('Checking if user is already a team member:', userId);
     if (currentTeamMemberIds.some(id => id.toString() === userId)) {
       return res.status(409).json({ message: "User is already a team member for this listing" });
     }
 
     // Add user to team members
-    const updatedTeamMemberIds = [...currentTeamMemberIds, userId];
-    await PropertyListing.findByIdAndUpdate(listingId, {
+    const updatedTeamMemberIds = [...currentTeamMemberIds, new mongoose.Types.ObjectId(userId)];
+    console.log('Updated team member IDs:', updatedTeamMemberIds.map(id => id.toString()));
+    
+    await PropertyListing.findByIdAndUpdate(id, {
       teamMemberIds: updatedTeamMemberIds
     });
 
-    console.log(`User ${userId} added as team member to listing ${listingId}`);
+    console.log(`User ${userId} added as team member to listing ${id}`);
     res.status(200).json({ 
       message: "User added as team member successfully",
-      listingId: listingId,
+      listingId: id,
       userId: userId
     });
   } catch (error) {
