@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../../../../context/AuthContext';
 import Avatar from '../../../../../components/Avatar/Avatar';
+import basePhoto from '../../../../../assets/images/basephoto.png';
 import './BuyerPackageItem.css';
 
 function BuyerPackageItem({ buyerPackage, onStatusChange, onShareListing }) {
@@ -100,9 +101,11 @@ function BuyerPackageItem({ buyerPackage, onStatusChange, onShareListing }) {
           className="buyer-package-item-image" 
         />
       ) : (
-        <div className="buyer-package-item-image-placeholder">
-          <span>No Image</span>
-        </div>
+        <img 
+          src={basePhoto} 
+          alt={`${propertyListing.homeCharacteristics.address} view`} 
+          className="buyer-package-item-image" 
+        />
       )}
       <div className="buyer-package-item-details">
         <div className="buyer-package-item-info">

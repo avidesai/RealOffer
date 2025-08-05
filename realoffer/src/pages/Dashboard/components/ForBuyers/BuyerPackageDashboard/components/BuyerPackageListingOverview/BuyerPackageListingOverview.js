@@ -7,6 +7,7 @@ import BuyerPackageMoreInfo from './components/BuyerPackageMoreInfo/BuyerPackage
 import ListingPhotoGallery from './components/ListingPhotoGallery/ListingPhotoGallery';
 import ShareUrl from './components/ShareUrl/ShareUrl'; // Import ShareUrl component
 import OfferDueReminder from '../../../../../../../components/OfferDueReminder/OfferDueReminder';
+import basePhoto from '../../../../../../../assets/images/basephoto.png';
 import './BuyerPackageListingOverview.css';
 
 function BuyerPackageListingOverview({ buyerPackage }) {
@@ -94,7 +95,7 @@ function BuyerPackageListingOverview({ buyerPackage }) {
             <img 
               src={currentListing.imagesUrls && currentListing.imagesUrls.length > 0 
                 ? currentListing.imagesUrls[0] 
-                : 'https://via.placeholder.com/200x150?text=No+Image'} 
+                : basePhoto} 
               alt="Property" 
               className="property-image" 
             />

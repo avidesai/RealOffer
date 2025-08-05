@@ -6,6 +6,7 @@ import InputMask from 'react-input-mask';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import { useAuth } from '../../context/AuthContext';
+import basePhoto from '../../assets/images/basephoto.png';
 import './PublicFacingListing.css';
 
 const getPropertyTypeText = (value) => {
@@ -158,7 +159,7 @@ const PublicFacingListing = () => {
   }, [token, user]);
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === 'radio' ? (value === 'true') : value,
@@ -341,8 +342,8 @@ const PublicFacingListing = () => {
     }
 
     // Validate phone number format
-    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-    const cleanPhone = formData.phone.replace(/[\s\-\(\)]/g, '');
+    const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
+    const cleanPhone = formData.phone.replace(/[\s\-()]/g, '');
     if (!phoneRegex.test(cleanPhone)) {
       setError('Please enter a valid phone number.');
       return;
@@ -996,7 +997,7 @@ const PublicFacingListing = () => {
           <div className="pfl-main-content">
             <div className="pfl-gallery-section">
               <div className="pfl-gallery-container">
-                {listing.imagesUrls && listing.imagesUrls.length > 0 && (
+                {listing.imagesUrls && listing.imagesUrls.length > 0 ? (
                   <>
                     <img
                       src={listing.imagesUrls[currentImageIndex]}
@@ -1028,6 +1029,17 @@ const PublicFacingListing = () => {
                         </button>
                       </div>
                     )}
+                  </>
+                ) : (
+                  <>
+                    <img
+                      src={basePhoto}
+                      alt="Property"
+                      className="pfl-main-image"
+                    />
+                    <div className="pfl-price-overlay">
+                      <span className="pfl-price-amount">{formatPrice(listing.homeCharacteristics.price)}</span>
+                    </div>
                   </>
                 )}
               </div>

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../../../context/AuthContext';
 import Avatar from '../../../../../components/Avatar/Avatar';
+import basePhoto from '../../../../../assets/images/basephoto.png';
 import './ListingItem.css';
 
 function ListingItem({ listing, onStatusChange, onShareListing }) {
@@ -91,7 +92,7 @@ function ListingItem({ listing, onStatusChange, onShareListing }) {
   return (
     <div className="listing-item" onClick={handleClick}>
       <img 
-        src={listing.imagesUrls[0]} 
+        src={listing.imagesUrls[0] || basePhoto} 
         alt={`${listing.homeCharacteristics.address} view`} 
         className="listing-item-image" 
       />
