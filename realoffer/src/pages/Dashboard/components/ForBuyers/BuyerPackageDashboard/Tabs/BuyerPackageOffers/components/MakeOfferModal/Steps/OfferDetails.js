@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { useOffer } from '../../../../../../../../../../context/OfferContext';
 
-const OfferDetails = ({ handleNextStep, handlePrevStep }) => {
+const OfferDetails = ({ handleNextStep, handlePrevStep, errors = [] }) => {
   const { offerData, updateOfferData } = useOffer();
 
   // Set default offerExpiryDate to 24 hours after submittedOn, rounded up to the next hour
@@ -63,8 +63,14 @@ const OfferDetails = ({ handleNextStep, handlePrevStep }) => {
           name="offerExpiryDate"
           value={offerData.offerExpiryDate || ''}
           onChange={handleChange}
+          className={errors.some(err => err.toLowerCase().includes('offer expiration')) ? 'error' : ''}
           style={{ fontFamily: 'inherit', fontSize: '1rem', color: '#1a1a1a' }}
         />
+        {errors.some(err => err.toLowerCase().includes('offer expiration')) && (
+          <div className="error-message">
+            {errors.find(err => err.toLowerCase().includes('offer expiration'))}
+          </div>
+        )}
       </div>
       <div className="form-group">
         <label htmlFor="buyersAgentCommission">Buyer's Agent Commission (%)</label>
@@ -74,8 +80,14 @@ const OfferDetails = ({ handleNextStep, handlePrevStep }) => {
           placeholder="Commission percentage"
           value={offerData.buyersAgentCommission || ''}
           onChange={handleChange}
+          className={errors.some(err => err.toLowerCase().includes('buyer agent commission')) ? 'error' : ''}
           step={0.50}
         />
+        {errors.some(err => err.toLowerCase().includes('buyer agent commission')) && (
+          <div className="error-message">
+            {errors.find(err => err.toLowerCase().includes('buyer agent commission'))}
+          </div>
+        )}
       </div>
       <div className="form-group">
         <label htmlFor="buyerName">Buyer's Full Name</label>
@@ -85,7 +97,13 @@ const OfferDetails = ({ handleNextStep, handlePrevStep }) => {
           placeholder="Full name of buyer"
           value={offerData.buyerName || ''}
           onChange={handleChange}
+          className={errors.some(err => err.toLowerCase().includes('buyer name')) ? 'error' : ''}
         />
+        {errors.some(err => err.toLowerCase().includes('buyer name')) && (
+          <div className="error-message">
+            {errors.find(err => err.toLowerCase().includes('buyer name'))}
+          </div>
+        )}
       </div>
       <div className="form-group">
         <label>Special Terms</label>

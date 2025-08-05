@@ -24,6 +24,38 @@ const MakeOfferModal = ({ onClose, listingId }) => {
   const [stepErrors, setStepErrors] = useState({});
 
   const handleNextStep = useCallback(() => {
+    // Auto-set contingency fields to "Waived" if days are empty
+    if (step === 2) {
+      const updatedData = { ...offerData };
+      
+      // Check finance contingency
+      if (!updatedData.financeContingencyDays || updatedData.financeContingencyDays === '') {
+        updatedData.financeContingency = 'Waived';
+        updatedData.financeContingencyDays = '';
+      }
+      
+      // Check appraisal contingency
+      if (!updatedData.appraisalContingencyDays || updatedData.appraisalContingencyDays === '') {
+        updatedData.appraisalContingency = 'Waived';
+        updatedData.appraisalContingencyDays = '';
+      }
+      
+      // Check inspection contingency
+      if (!updatedData.inspectionContingencyDays || updatedData.inspectionContingencyDays === '') {
+        updatedData.inspectionContingency = 'Waived';
+        updatedData.inspectionContingencyDays = '';
+      }
+      
+      // Check seller rent back
+      if (!updatedData.sellerRentBackDays || updatedData.sellerRentBackDays === '') {
+        updatedData.sellerRentBack = 'Waived';
+        updatedData.sellerRentBackDays = '';
+      }
+      
+      // Update the offer data with the auto-set values
+      updateOfferData(updatedData);
+    }
+    
     // Validate current step before proceeding
     const validation = validateStep(step, offerData);
     
@@ -42,7 +74,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
     }));
     
     setStep(prevStep => prevStep + 1);
-  }, [step, offerData]);
+  }, [step, offerData, updateOfferData]);
 
   const handlePrevStep = useCallback(() => {
     setStep(prevStep => prevStep - 1);
@@ -51,11 +83,13 @@ const MakeOfferModal = ({ onClose, listingId }) => {
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     updateOfferData(prevData => ({ ...prevData, [name]: value }));
-    // Clear error for this field when user types
-    setStepErrors(prev => ({
-      ...prev,
-      [step]: prev[step] ? prev[step].filter(error => !error.toLowerCase().includes(name.toLowerCase())) : []
-    }));
+    // Clear errors when user types in any field
+    if (value.trim() !== '') {
+      setStepErrors(prev => ({
+        ...prev,
+        [step]: []
+      }));
+    }
   }, [updateOfferData, step]);
 
   const handleFinanceTypeChange = useCallback((e) => {
@@ -69,10 +103,10 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       }
       return { ...prevData, ...updatedData };
     });
-    // Clear error for this field when user types
+    // Clear errors when user selects finance type
     setStepErrors(prev => ({
       ...prev,
-      [step]: prev[step] ? prev[step].filter(error => !error.toLowerCase().includes('finance type')) : []
+      [step]: []
     }));
   }, [updateOfferData, step]);
 
@@ -85,11 +119,13 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         [name]: value,
       },
     }));
-    // Clear error for this field when user types
-    setStepErrors(prev => ({
-      ...prev,
-      [step]: prev[step] ? prev[step].filter(error => !error.toLowerCase().includes(name.toLowerCase())) : []
-    }));
+    // Clear errors when user types in nested fields
+    if (value.trim() !== '') {
+      setStepErrors(prev => ({
+        ...prev,
+        [step]: []
+      }));
+    }
   }, [updateOfferData, step]);
 
   const handleResetOffer = useCallback(() => {

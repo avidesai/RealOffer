@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState } from 'react';
 
-const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep }) => {
+const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep, errors = [] }) => {
   const [closeOfEscrowFocused, setCloseOfEscrowFocused] = useState(false);
 
   const handleInputChange = useCallback((e) => {
@@ -198,9 +198,14 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep 
             onChange={handleCloseOfEscrowChange}
             onFocus={handleCloseOfEscrowFocus}
             onBlur={handleCloseOfEscrowBlur}
-            className="form-input"
+            className={errors.some(err => err.toLowerCase().includes('close of escrow')) ? 'form-input error' : 'form-input'}
           />
         </div>
+        {errors.some(err => err.toLowerCase().includes('close of escrow')) && (
+          <div className="error-message">
+            {errors.find(err => err.toLowerCase().includes('close of escrow'))}
+          </div>
+        )}
       </div>
       <div className="mom-button-container">
         <button className="mom-step-back-button" onClick={handlePrevStep}>

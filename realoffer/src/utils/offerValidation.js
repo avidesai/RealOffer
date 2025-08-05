@@ -37,17 +37,7 @@ export const stepValidationRules = {
       
       // Check if close of escrow is set
       if (!offerData.closeOfEscrow) {
-        errors.push('Close of escrow date is required');
-      }
-      
-      // Check if at least one contingency is set
-      const hasContingency = offerData.financeContingency || 
-                           offerData.appraisalContingency || 
-                           offerData.inspectionContingency ||
-                           offerData.homeSaleContingency;
-      
-      if (!hasContingency) {
-        errors.push('At least one contingency must be set');
+        errors.push('Close of escrow is required');
       }
       
       return errors;
@@ -56,31 +46,32 @@ export const stepValidationRules = {
   
   // Step 3: Agent Information
   3: {
-    required: ['presentedBy.name', 'presentedBy.licenseNumber', 'presentedBy.email'],
+    required: [],
     custom: (offerData) => {
       const errors = [];
       
-      // Check agent information
-      if (!offerData.presentedBy?.name) {
-        errors.push('Agent name is required');
-      }
-      
-      if (!offerData.presentedBy?.licenseNumber) {
-        errors.push('Agent license number is required');
-      }
-      
-      if (!offerData.presentedBy?.email) {
-        errors.push('Agent email is required');
-      }
-      
-      // Check brokerage information if agent is in transaction
-      if (offerData.isAgentInTransaction) {
-        if (!offerData.brokerageInfo?.name) {
-          errors.push('Brokerage name is required');
+      // If "Enter agent / broker information" is checked (isAgentInTransaction is false)
+      if (!offerData.isAgentInTransaction) {
+        // Check agent information
+        if (!offerData.presentedBy?.name) {
+          errors.push('Agent name is required');
         }
         
-        if (!offerData.brokerageInfo?.licenseNumber) {
-          errors.push('Brokerage license number is required');
+        if (!offerData.presentedBy?.licenseNumber) {
+          errors.push('Agent license number is required');
+        }
+        
+        if (!offerData.presentedBy?.email) {
+          errors.push('Agent email is required');
+        }
+        
+        if (!offerData.presentedBy?.phoneNumber) {
+          errors.push('Agent phone number is required');
+        }
+        
+        // Check brokerage information
+        if (!offerData.brokerageInfo?.name) {
+          errors.push('Brokerage name is required');
         }
       }
       
@@ -90,13 +81,23 @@ export const stepValidationRules = {
   
   // Step 4: Offer Details
   4: {
-    required: ['buyerName'],
+    required: ['buyerName', 'buyersAgentCommission', 'offerExpiryDate'],
     custom: (offerData) => {
       const errors = [];
       
       // Check buyer name
       if (!offerData.buyerName) {
         errors.push('Buyer name is required');
+      }
+      
+      // Check buyer agent commission
+      if (!offerData.buyersAgentCommission) {
+        errors.push('Buyer agent commission is required');
+      }
+      
+      // Check offer expiration
+      if (!offerData.offerExpiryDate) {
+        errors.push('Offer expiration is required');
       }
       
       return errors;

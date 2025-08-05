@@ -335,7 +335,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
       {/* Optional Recommendations */}
       {validation.warnings && validation.warnings.length > 0 && (
         <div className="ds-validation-info">
-          <h4>Recommendations:</h4>
+          <h4>Notice:</h4>
           <ul>
             {validation.warnings.map((warning, index) => (
               <li key={index}>{warning}</li>
@@ -347,7 +347,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
       <div className="ds-document-section">
         <div className="ds-section-header">
           <h3>Upload Documents</h3>
-          <p>Upload your documents and select their type from the dropdown. Document types will be auto-detected based on filename.</p>
+          <p>Upload your documents and select their type from the dropdown.</p>
         </div>
         
         <div className="ds-section-content">

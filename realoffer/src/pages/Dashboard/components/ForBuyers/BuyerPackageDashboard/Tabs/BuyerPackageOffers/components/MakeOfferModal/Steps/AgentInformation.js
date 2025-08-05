@@ -1,13 +1,13 @@
 // AgentInformation.js
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import InputMask from 'react-input-mask';
 import { useAuth } from '../../../../../../../../../../context/AuthContext';
 import { useOffer } from '../../../../../../../../../../context/OfferContext';
 import axios from 'axios';
 import './AgentInformation.css';
 
-const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handlePrevStep }) => {
+const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handlePrevStep, errors = [] }) => {
   const { user, token } = useAuth(); // Get the token from AuthContext
   const { offerData, updateOfferData } = useOffer();
   const isAgent = offerData.isAgentInTransaction || false;
@@ -45,10 +45,14 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
     }
   }, [user._id, handleNestedChange, token]);
 
+  // Track previous agent state to detect changes
+  const [prevIsAgent, setPrevIsAgent] = useState(isAgent);
+
   useEffect(() => {
     if (isAgent) {
       fetchUserData();
-    } else {
+    } else if (prevIsAgent !== isAgent) {
+      // Only clear fields when switching from "I am the agent" to "Enter agent/broker info"
       handleNestedChange({ target: { name: 'name', value: '' } }, 'presentedBy');
       handleNestedChange({ target: { name: 'licenseNumber', value: '' } }, 'presentedBy');
       handleNestedChange({ target: { name: 'email', value: '' } }, 'presentedBy');
@@ -60,7 +64,10 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
       handleNestedChange({ target: { name: 'addressLine1', value: '' } }, 'brokerageInfo');
       handleNestedChange({ target: { name: 'addressLine2', value: '' } }, 'brokerageInfo');
     }
-  }, [isAgent, fetchUserData, getRandomColor, handleNestedChange]);
+    
+    // Update previous state
+    setPrevIsAgent(isAgent);
+  }, [isAgent, fetchUserData, getRandomColor, handleNestedChange, prevIsAgent]);
 
 
 
@@ -96,26 +103,41 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
           type="text"
           name="name"
           placeholder="Agent Name"
-          className="agent-info-input"
+          className={errors.some(err => err.toLowerCase().includes('agent name')) ? 'agent-info-input error' : 'agent-info-input'}
           value={formData.presentedBy.name || ''}
           onChange={(e) => handleNestedChange(e, 'presentedBy')}
         />
+        {errors.some(err => err.toLowerCase().includes('agent name')) && (
+          <div className="error-message">
+            {errors.find(err => err.toLowerCase().includes('agent name'))}
+          </div>
+        )}
         <input
           type="text"
           name="licenseNumber"
           placeholder="License Number"
-          className="agent-info-input"
+          className={errors.some(err => err.toLowerCase().includes('agent license number')) ? 'agent-info-input error' : 'agent-info-input'}
           value={formData.presentedBy.licenseNumber || ''}
           onChange={(e) => handleNestedChange(e, 'presentedBy')}
         />
+        {errors.some(err => err.toLowerCase().includes('agent license number')) && (
+          <div className="error-message">
+            {errors.find(err => err.toLowerCase().includes('agent license number'))}
+          </div>
+        )}
         <input
           type="email"
           name="email"
           placeholder="Email"
-          className="agent-info-input"
+          className={errors.some(err => err.toLowerCase().includes('agent email')) ? 'agent-info-input error' : 'agent-info-input'}
           value={formData.presentedBy.email || ''}
           onChange={(e) => handleNestedChange(e, 'presentedBy')}
         />
+        {errors.some(err => err.toLowerCase().includes('agent email')) && (
+          <div className="error-message">
+            {errors.find(err => err.toLowerCase().includes('agent email'))}
+          </div>
+        )}
         <InputMask
           mask="(999) 999-9999"
           value={formData.presentedBy.phoneNumber || ''}
@@ -127,10 +149,15 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
               type="text"
               name="phoneNumber"
               placeholder="Phone Number"
-              className="agent-info-input"
+              className={errors.some(err => err.toLowerCase().includes('agent phone number')) ? 'agent-info-input error' : 'agent-info-input'}
             />
           )}
         </InputMask>
+        {errors.some(err => err.toLowerCase().includes('agent phone number')) && (
+          <div className="error-message">
+            {errors.find(err => err.toLowerCase().includes('agent phone number'))}
+          </div>
+        )}
       </div>
       <div className="agent-info-form-group">
         <label className="agent-info-label">Brokerage Information</label>
@@ -138,10 +165,15 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
           type="text"
           name="name"
           placeholder="Brokerage Name"
-          className="agent-info-input"
+          className={errors.some(err => err.toLowerCase().includes('brokerage name')) ? 'agent-info-input error' : 'agent-info-input'}
           value={formData.brokerageInfo.name || ''}
           onChange={(e) => handleNestedChange(e, 'brokerageInfo')}
         />
+        {errors.some(err => err.toLowerCase().includes('brokerage name')) && (
+          <div className="error-message">
+            {errors.find(err => err.toLowerCase().includes('brokerage name'))}
+          </div>
+        )}
         <input
           type="text"
           name="licenseNumber"

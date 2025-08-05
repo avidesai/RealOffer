@@ -245,8 +245,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
           {validationAnalysis.warnings.length > 0 && (
             <div className="ds-validation-warnings-box">
               <div className="ds-validation-header">
-                <h3>Warnings</h3>
-                <p>Please review these warnings before submitting</p>
+                <h3>Notice</h3>
               </div>
               <div className="ds-validation-content">
                 {validationAnalysis.warnings.map((warning, index) => (

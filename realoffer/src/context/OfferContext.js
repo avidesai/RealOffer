@@ -189,7 +189,7 @@ export const OfferProvider = ({ children }) => {
 
     // Optional warning if no documents are included
     if (documentWorkflow.documents.length === 0) {
-      validation.warnings.push('No documents included with this offer');
+      validation.warnings.push('You have not added any documents yet');
     }
 
     return validation;
