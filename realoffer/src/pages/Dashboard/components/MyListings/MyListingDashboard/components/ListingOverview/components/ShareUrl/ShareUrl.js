@@ -613,7 +613,7 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                     <div className="selected-agent-item">
                       <div className="agent-info">
                         <span className="agent-name">
-                          {selectedAgent.isInvite ? `Invite ${selectedAgent.lastName}` : `${selectedAgent.firstName} ${selectedAgent.lastName}`}
+                          {selectedAgent.isInvite ? `Invite ${selectedAgent.firstName} ${selectedAgent.lastName}` : `${selectedAgent.firstName} ${selectedAgent.lastName}`}
                         </span>
                         <span className="agent-email">{selectedAgent.email}</span>
                         {selectedAgent.agencyName && !selectedAgent.isInvite && (

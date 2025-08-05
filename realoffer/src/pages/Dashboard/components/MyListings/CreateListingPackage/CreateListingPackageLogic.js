@@ -32,6 +32,7 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
     agent1: user ? (user._id || user.id) : '',
     agentIds: [], // New field for multiple agents
     teamMemberIds: [], // New field for team members
+    teamMembers: [], // New field for team member objects (including invites)
     companyName: '',
     officerName: '',
     officerPhone: '',
@@ -196,6 +197,35 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
       console.log('Creating listing with token:', token ? 'Present' : 'Missing');
       const response = await api.post('/api/propertyListings', formDataToSend);
       console.log('Listing created successfully:', response.data);
+      
+      // Send team member invitations if any
+      if (formData.teamMembers && formData.teamMembers.length > 0) {
+        const inviteTeamMembers = formData.teamMembers.filter(tm => tm.isInvite);
+        if (inviteTeamMembers.length > 0) {
+          console.log('Sending team member invitations...');
+          for (const invite of inviteTeamMembers) {
+            try {
+              await api.post('/api/users/invite-team-member', {
+                email: invite.inviteEmail,
+                firstName: invite.firstName,
+                lastName: invite.lastName,
+                listingId: response.data._id,
+                propertyAddress: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zip}`,
+                inviterName: `${user.firstName} ${user.lastName}`
+              }, {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              });
+              console.log(`Invitation sent to ${invite.inviteEmail}`);
+            } catch (inviteError) {
+              console.error(`Failed to send invitation to ${invite.inviteEmail}:`, inviteError);
+              // Don't fail the entire listing creation if invitation fails
+            }
+          }
+        }
+      }
+      
       addNewListing(response.data);
       onClose();
     } catch (error) {

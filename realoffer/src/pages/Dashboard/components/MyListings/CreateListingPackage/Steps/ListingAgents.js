@@ -42,6 +42,13 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
     }
   }, [user, formData.agent1, handleChange]);
 
+  // Initialize selected team members from formData
+  useEffect(() => {
+    if (formData.teamMembers && formData.teamMembers.length > 0) {
+      setSelectedTeamMembers(formData.teamMembers);
+    }
+  }, [formData.teamMembers]);
+
   // Handle click outside dropdowns
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -204,6 +211,15 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
       setTeamMemberSearchResults([]);
       setShowTeamMemberDropdown(false);
     }
+    
+    // Update form data with team members
+    const updatedTeamMembers = [...selectedTeamMembers, teamMember];
+    handleChange({
+      target: {
+        name: 'teamMembers',
+        value: updatedTeamMembers,
+      },
+    });
   };
 
   // Invite team member who doesn't have an account
@@ -251,12 +267,11 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
     const newSelectedTeamMembers = selectedTeamMembers.filter(teamMember => teamMember._id !== teamMemberId);
     setSelectedTeamMembers(newSelectedTeamMembers);
     
-    // Update form data directly
-    const teamMemberIds = newSelectedTeamMembers.map(teamMember => teamMember._id);
+    // Update form data with team members
     handleChange({
       target: {
-        name: 'teamMemberIds',
-        value: teamMemberIds,
+        name: 'teamMembers',
+        value: newSelectedTeamMembers,
       },
     });
   };
@@ -418,64 +433,6 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
           )}
         </div>
 
-        {/* Form Fields for Invite */}
-        {selectedTeamMembers.some(tm => tm.isInvite) && (
-          <div className="invite-form-section">
-            <h4>Invitation Details</h4>
-            <div className="form-row">
-              <div className="form-group">
-                <label>First Name</label>
-                <input
-                  type="text"
-                  placeholder="Enter first name"
-                  className="form-control"
-                  onChange={(e) => {
-                    // Update the invite data with the entered name
-                    const firstName = e.target.value;
-                    setSelectedTeamMembers(prev => 
-                      prev.map(tm => 
-                        tm.isInvite ? { ...tm, firstName: firstName } : tm
-                      )
-                    );
-                  }}
-                />
-              </div>
-              <div className="form-group">
-                <label>Last Name</label>
-                <input
-                  type="text"
-                  placeholder="Enter last name"
-                  className="form-control"
-                  onChange={(e) => {
-                    // Update the invite data with the entered name
-                    const lastName = e.target.value;
-                    setSelectedTeamMembers(prev => 
-                      prev.map(tm => 
-                        tm.isInvite ? { ...tm, lastName: lastName } : tm
-                      )
-                    );
-                  }}
-                />
-              </div>
-            </div>
-            <button
-              type="button"
-              className="invite-send-btn"
-              onClick={() => {
-                const invite = selectedTeamMembers.find(tm => tm.isInvite);
-                if (invite && invite.firstName && invite.lastName) {
-                  inviteTeamMember(invite, invite.firstName, invite.lastName);
-                } else {
-                  alert('Please fill in both first and last name for the invitation.');
-                }
-              }}
-              disabled={invitingTeamMember}
-            >
-              {invitingTeamMember ? 'Sending...' : 'Send Invitation'}
-            </button>
-          </div>
-        )}
-
         {/* Selected Team Members List */}
         {selectedTeamMembers.length > 0 && (
           <div className="selected-agents-list">
@@ -483,7 +440,7 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
               <div key={teamMember._id} className="selected-agent-item team-member-item">
                 <div className="agent-info">
                   <span className="agent-name">
-                    {teamMember.isInvite ? `Invite ${teamMember.lastName}` : `${teamMember.firstName} ${teamMember.lastName}`}
+                    {teamMember.isInvite ? `Invite ${teamMember.firstName} ${teamMember.lastName}` : `${teamMember.firstName} ${teamMember.lastName}`}
                   </span>
                   {teamMember.phone && (
                     <span className="agent-phone">{teamMember.phone}</span>
@@ -506,16 +463,75 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
                     </button>
                   </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+                          ))}
+            </div>
+          )}
+
+          {/* Form Fields for Invite */}
+          {selectedTeamMembers.some(tm => tm.isInvite) && (
+            <div className="invite-form-section">
+              <h4>Team Member Details</h4>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>First Name *</label>
+                  <input
+                    type="text"
+                    placeholder="Enter first name"
+                    className="form-control"
+                    onChange={(e) => {
+                      // Update the invite data with the entered name
+                      const firstName = e.target.value;
+                      setSelectedTeamMembers(prev => 
+                        prev.map(tm => 
+                          tm.isInvite ? { ...tm, firstName: firstName } : tm
+                        )
+                      );
+                    }}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Last Name *</label>
+                  <input
+                    type="text"
+                    placeholder="Enter last name"
+                    className="form-control"
+                    onChange={(e) => {
+                      // Update the invite data with the entered name
+                      const lastName = e.target.value;
+                      setSelectedTeamMembers(prev => 
+                        prev.map(tm => 
+                          tm.isInvite ? { ...tm, lastName: lastName } : tm
+                        )
+                      );
+                    }}
+                  />
+                </div>
+              </div>
+              <p className="invite-note">
+                * Team member invitation will be sent automatically when the listing package is created.
+              </p>
+            </div>
+          )}
+        </div>
 
       {errors.agent1 && <div className="clp-error">{errors.agent1}</div>}
 
+      {/* Validation for invite team members */}
+      {selectedTeamMembers.some(tm => tm.isInvite && (!tm.firstName || !tm.lastName)) && (
+        <div className="clp-error">
+          Please fill in both first and last name for all invited team members.
+        </div>
+      )}
+
       <div className='clp-button-container'>
         <button className="clp-back-button" onClick={handlePrevStep}>Back</button>
-        <button className="clp-next-button" onClick={handleNextStep}>Next</button>
+        <button 
+          className="clp-next-button" 
+          onClick={handleNextStep}
+          disabled={selectedTeamMembers.some(tm => tm.isInvite && (!tm.firstName || !tm.lastName))}
+        >
+          Next
+        </button>
       </div>
     </div>
   );

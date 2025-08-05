@@ -1007,7 +1007,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                     <div key={teamMember._id} className="mlmi-selected-agent-item mlmi-team-member-item">
                       <div className="mlmi-agent-info">
                         <span className="mlmi-agent-name">
-                          {teamMember.isInvite ? `Invite ${teamMember.lastName}` : `${teamMember.firstName} ${teamMember.lastName}`}
+                          {teamMember.isInvite ? `Invite ${teamMember.firstName} ${teamMember.lastName}` : `${teamMember.firstName} ${teamMember.lastName}`}
                         </span>
                         {teamMember.phone && (
                           <span className="mlmi-agent-phone">{teamMember.phone}</span>
