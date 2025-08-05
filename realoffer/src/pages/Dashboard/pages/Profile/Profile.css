@@ -457,10 +457,11 @@ input[type="email"]:focus,
 
 /* Logo-specific upload area */
 .logo-upload-area {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.5rem;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1.5rem;
+  padding: 1.25rem 1.5rem;
 }
 
 .logo-preview-container {
@@ -474,6 +475,7 @@ input[type="email"]:focus,
   background: #f8fafc;
   overflow: hidden;
   position: relative;
+  flex-shrink: 0;
 }
 
 .agency-logo-preview {
@@ -499,7 +501,7 @@ input[type="email"]:focus,
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  width: 100%;
+  align-self: center;
 }
 
 .logo-fit-options {
@@ -538,12 +540,19 @@ input[type="email"]:focus,
 /* Responsive adjustments for logo upload */
 @media (max-width: 768px) {
   .logo-upload-area {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
     padding: 1rem;
   }
   
   .logo-preview-container {
     width: 100px;
     height: 70px;
+  }
+  
+  .logo-upload-controls {
+    align-self: flex-start;
   }
   
   .logo-fit-options {
