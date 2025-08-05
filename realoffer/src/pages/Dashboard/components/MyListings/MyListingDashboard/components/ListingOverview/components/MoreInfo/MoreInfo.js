@@ -283,35 +283,44 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
 
   // Add team member to selected list
   const addTeamMember = async (teamMember) => {
-    try {
-      const allTeamMemberIds = [...selectedTeamMembers.map(tm => tm._id), teamMember._id];
-      
-      await api.put(`/api/propertyListings/${listingId}`, {
-        teamMemberIds: allTeamMemberIds
-      });
-
+    if (teamMember.isInvite) {
+      // For invite options, add to selected and show form fields
       setSelectedTeamMembers([...selectedTeamMembers, teamMember]);
       setTeamMemberSearchQuery('');
       setTeamMemberSearchResults([]);
       setShowTeamMemberDropdown(false);
-      setHasChanges(true);
-      setError(null);
-    } catch (error) {
-      console.error('Error adding team member:', error);
-      setError('Failed to add team member. Please try again.');
+    } else {
+      // For existing users, add directly
+      try {
+        const allTeamMemberIds = [...selectedTeamMembers.map(tm => tm._id), teamMember._id];
+        
+        await api.put(`/api/propertyListings/${listingId}`, {
+          teamMemberIds: allTeamMemberIds
+        });
+
+        setSelectedTeamMembers([...selectedTeamMembers, teamMember]);
+        setTeamMemberSearchQuery('');
+        setTeamMemberSearchResults([]);
+        setShowTeamMemberDropdown(false);
+        setHasChanges(true);
+        setError(null);
+      } catch (error) {
+        console.error('Error adding team member:', error);
+        setError('Failed to add team member. Please try again.');
+      }
     }
   };
 
   // Invite team member who doesn't have an account
-  const inviteTeamMember = async (inviteData) => {
+  const inviteTeamMember = async (inviteData, firstName, lastName) => {
     setInvitingTeamMember(true);
     setInviteError('');
     
     try {
-      const response = await api.post('/api/users/invite-team-member', {
+      await api.post('/api/users/invite-team-member', {
         email: inviteData.inviteEmail,
-        firstName: inviteData.firstName,
-        lastName: inviteData.lastName,
+        firstName: firstName,
+        lastName: lastName,
         listingId: listingId,
         propertyAddress: listing.homeCharacteristics.address,
         inviterName: `${user.firstName} ${user.lastName}`
@@ -325,6 +334,9 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
       setTeamMemberSearchQuery('');
       setTeamMemberSearchResults([]);
       setShowTeamMemberDropdown(false);
+      
+      // Remove the invite from selected team members
+      setSelectedTeamMembers(prev => prev.filter(tm => tm._id !== inviteData._id));
       
       // Show success message for a few seconds
       setTimeout(() => {
@@ -870,7 +882,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                           <div
                             key={teamMember._id}
                             className={`mlmi-dropdown-item ${teamMember.isInvite ? 'mlmi-invite-item' : ''}`}
-                            onClick={() => teamMember.isInvite ? inviteTeamMember(teamMember) : addTeamMember(teamMember)}
+                            onClick={() => addTeamMember(teamMember)}
                           >
                             <div className="mlmi-agent-info">
                               <span className="mlmi-agent-name">
@@ -910,6 +922,63 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                   </div>
                 )}
               </div>
+              
+              {/* Form Fields for Invite */}
+              {selectedTeamMembers.some(tm => tm.isInvite) && (
+                <div className="mlmi-invite-form-section">
+                  <h4>Invitation Details</h4>
+                  <div className="mlmi-form-row">
+                    <div className="mlmi-form-group">
+                      <label>First Name</label>
+                      <input
+                        type="text"
+                        placeholder="Enter first name"
+                        className="mlmi-form-control"
+                        onChange={(e) => {
+                          // Update the invite data with the entered name
+                          const firstName = e.target.value;
+                          setSelectedTeamMembers(prev => 
+                            prev.map(tm => 
+                              tm.isInvite ? { ...tm, firstName: firstName } : tm
+                            )
+                          );
+                        }}
+                      />
+                    </div>
+                    <div className="mlmi-form-group">
+                      <label>Last Name</label>
+                      <input
+                        type="text"
+                        placeholder="Enter last name"
+                        className="mlmi-form-control"
+                        onChange={(e) => {
+                          // Update the invite data with the entered name
+                          const lastName = e.target.value;
+                          setSelectedTeamMembers(prev => 
+                            prev.map(tm => 
+                              tm.isInvite ? { ...tm, lastName: lastName } : tm
+                            )
+                          );
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="mlmi-invite-send-btn"
+                    onClick={() => {
+                      const invite = selectedTeamMembers.find(tm => tm.isInvite);
+                      if (invite && invite.firstName && invite.lastName) {
+                        inviteTeamMember(invite, invite.firstName, invite.lastName);
+                      } else {
+                        setError('Please fill in both first and last name for the invitation.');
+                      }
+                    }}
+                    disabled={invitingTeamMember}
+                  >
+                    {invitingTeamMember ? 'Sending...' : 'Send Invitation'}
+                  </button>
+                </div>
               )}
 
               {/* Selected Team Members List */}
@@ -936,7 +1005,9 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                   {selectedTeamMembers.map(teamMember => (
                     <div key={teamMember._id} className="mlmi-selected-agent-item mlmi-team-member-item">
                       <div className="mlmi-agent-info">
-                        <span className="mlmi-agent-name">{`${teamMember.firstName} ${teamMember.lastName}`}</span>
+                        <span className="mlmi-agent-name">
+                          {teamMember.isInvite ? `Invite ${teamMember.lastName}` : `${teamMember.firstName} ${teamMember.lastName}`}
+                        </span>
                         {teamMember.phone && (
                           <span className="mlmi-agent-phone">{teamMember.phone}</span>
                         )}

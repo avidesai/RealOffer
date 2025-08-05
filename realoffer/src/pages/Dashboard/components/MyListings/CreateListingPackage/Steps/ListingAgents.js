@@ -203,7 +203,7 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
     setInviteError('');
     
     try {
-      const response = await api.post('/api/users/invite-team-member', {
+      await api.post('/api/users/invite-team-member', {
         email: inviteData.inviteEmail,
         firstName: inviteData.firstName,
         lastName: inviteData.lastName,

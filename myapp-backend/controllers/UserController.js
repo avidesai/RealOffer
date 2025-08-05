@@ -74,7 +74,7 @@ exports.searchUsers = async (req, res) => {
                 // Add invite option for email
                 users.push({
                     _id: 'invite_' + Date.now(),
-                    firstName: 'Invite',
+                    firstName: '',
                     lastName: query.trim(),
                     email: query.trim(),
                     isInvite: true,

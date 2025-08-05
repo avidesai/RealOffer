@@ -150,9 +150,17 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
 
   // Add agent to selected
   const addAgent = (agent) => {
-    setSelectedAgent(agent);
-    setSearchQuery('');
-    setShowDropdown(false);
+    if (agent.isInvite) {
+      // For invite options, add to selected and show form fields
+      setSelectedAgent(agent);
+      setSearchQuery('');
+      setShowDropdown(false);
+    } else {
+      // For existing users, add directly
+      setSelectedAgent(agent);
+      setSearchQuery('');
+      setShowDropdown(false);
+    }
   };
 
   // Invite team member who doesn't have an account
@@ -161,10 +169,10 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
     setInviteError('');
     
     try {
-      const response = await api.post('/api/users/invite-team-member', {
+      await api.post('/api/users/invite-team-member', {
         email: inviteData.inviteEmail,
-        firstName: inviteData.firstName,
-        lastName: inviteData.lastName,
+        firstName: shareData.firstName,
+        lastName: shareData.lastName,
         listingId: listingId,
         propertyAddress: currentListing?.homeCharacteristics?.address || 'Property',
         inviterName: `${user.firstName} ${user.lastName}`
@@ -178,6 +186,7 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
       setSearchQuery('');
       setSearchResults([]);
       setShowDropdown(false);
+      setSelectedAgent(null);
       
       // Show success message for a few seconds
       setTimeout(() => {
@@ -290,19 +299,15 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
       setError('');
 
       try {
-        // Get current listing to update teamMemberIds
-        const listingResponse = await api.get(`/api/propertyListings/${listingId}`);
-        const currentListing = listingResponse.data;
-        const currentTeamMemberIds = currentListing.teamMemberIds || [];
-        
-        // Add the selected team member if not already present
-        if (!currentTeamMemberIds.some(id => id.toString() === selectedAgent._id)) {
-          const updatedTeamMemberIds = [...currentTeamMemberIds, selectedAgent._id];
-          
-          await api.put(`/api/propertyListings/${listingId}`, {
-            teamMemberIds: updatedTeamMemberIds
-          });
+        if (selectedAgent.isInvite) {
+          // Handle team member invitation
+          if (!shareData.firstName.trim() || !shareData.lastName.trim()) {
+            setError('Please fill in the first and last name for the invitation.');
+            return;
+          }
 
+          await inviteTeamMember(selectedAgent);
+          
           setShareSuccess(true);
           setSelectedAgent(null);
           
@@ -312,7 +317,30 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
             onClose();
           }, 3000);
         } else {
-          setError('This team member is already associated with this listing.');
+          // Handle existing team member addition
+          const listingResponse = await api.get(`/api/propertyListings/${listingId}`);
+          const currentListing = listingResponse.data;
+          const currentTeamMemberIds = currentListing.teamMemberIds || [];
+          
+          // Add the selected team member if not already present
+          if (!currentTeamMemberIds.some(id => id.toString() === selectedAgent._id)) {
+            const updatedTeamMemberIds = [...currentTeamMemberIds, selectedAgent._id];
+            
+            await api.put(`/api/propertyListings/${listingId}`, {
+              teamMemberIds: updatedTeamMemberIds
+            });
+
+            setShareSuccess(true);
+            setSelectedAgent(null);
+            
+            // Auto-close after 3 seconds
+            setTimeout(() => {
+              setShareSuccess(false);
+              onClose();
+            }, 3000);
+          } else {
+            setError('This team member is already associated with this listing.');
+          }
         }
       } catch (error) {
         console.error('Error adding team member:', error);
@@ -473,7 +501,7 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                               <div
                                 key={agent._id}
                                 className={`dropdown-item ${agent.isInvite ? 'invite-item' : ''}`}
-                                onClick={() => agent.isInvite ? inviteTeamMember(agent) : addAgent(agent)}
+                                onClick={() => addAgent(agent)}
                               >
                                 <div className="agent-info">
                                   <span className="agent-name">
@@ -584,10 +612,15 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                     </label>
                     <div className="selected-agent-item">
                       <div className="agent-info">
-                        <span className="agent-name">{`${selectedAgent.firstName} ${selectedAgent.lastName}`}</span>
+                        <span className="agent-name">
+                          {selectedAgent.isInvite ? `Invite ${selectedAgent.lastName}` : `${selectedAgent.firstName} ${selectedAgent.lastName}`}
+                        </span>
                         <span className="agent-email">{selectedAgent.email}</span>
-                        {selectedAgent.agencyName && (
+                        {selectedAgent.agencyName && !selectedAgent.isInvite && (
                           <span className="agent-agency">{selectedAgent.agencyName}</span>
+                        )}
+                        {selectedAgent.isInvite && (
+                          <span className="invite-badge">Send Invitation</span>
                         )}
                       </div>
                       <button
@@ -600,6 +633,52 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                     </div>
                   </div>
                 </div>
+              )}
+
+              {/* Form Fields for Invite */}
+              {(shareData.role === 'listingAgent' || shareData.role === 'teamMember') && selectedAgent && selectedAgent.isInvite && (
+                <>
+                  <div className="share-url-form-row">
+                    <div className="share-url-form-group">
+                      <label className="share-url-label">First Name</label>
+                      <input
+                        type="text"
+                        name="firstName"
+                        value={shareData.firstName}
+                        onChange={handleInputChange}
+                        placeholder="First Name"
+                        className="share-url-input-field"
+                        required
+                      />
+                    </div>
+                    <div className="share-url-form-group">
+                      <label className="share-url-label">Last Name</label>
+                      <input
+                        type="text"
+                        name="lastName"
+                        value={shareData.lastName}
+                        onChange={handleInputChange}
+                        placeholder="Last Name"
+                        className="share-url-input-field"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="share-url-form-row">
+                    <div className="share-url-form-group">
+                      <label className="share-url-label">Message (Optional)</label>
+                      <textarea
+                        name="message"
+                        value={shareData.message}
+                        onChange={handleInputChange}
+                        placeholder="Enter a custom message for your recipient"
+                        className="share-url-textarea"
+                        rows="3"
+                      />
+                    </div>
+                  </div>
+                </>
               )}
 
               {error && <div className="share-url-error">{error}</div>}

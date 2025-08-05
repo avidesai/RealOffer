@@ -48,7 +48,7 @@ function SignupForm() {
   }, [searchParams]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type } = e.target;
     setFormData(prevData => ({
       ...prevData,
       [name]: type === 'radio' ? (value === 'true') : value
@@ -90,8 +90,8 @@ function SignupForm() {
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone number is required';
     } else {
-      const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-      const cleanPhone = formData.phone.replace(/[\s\-\(\)]/g, '');
+      const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
+      const cleanPhone = formData.phone.replace(/[\s\-()]/g, '');
       if (!phoneRegex.test(cleanPhone)) {
         newErrors.phone = 'Please enter a valid phone number';
       }
