@@ -28,7 +28,7 @@ const parsePercentage = (value) => {
   return parseFloat(value.replace(/[^0-9.-]+/g, '')) || 0;
 };
 
-const PurchasePrice = ({ handleNextStep }) => {
+const PurchasePrice = ({ handleNextStep, errors = [] }) => {
   const { offerData, updateOfferData } = useOffer();
   const [displayValues, setDisplayValues] = useState({
     purchasePrice: '',
@@ -307,6 +307,9 @@ const PurchasePrice = ({ handleNextStep }) => {
         <h2>Purchase Price</h2>
         <p>Provide your offer price, terms, and financing.</p>
       </div>
+      
+
+      
       <div className="form-group dollar-input">
         <label>Purchase Price</label>
         <input
@@ -316,7 +319,13 @@ const PurchasePrice = ({ handleNextStep }) => {
           onChange={handleNumberChange}
           onBlur={handleBlur}
           onFocus={handleFocus}
+          className={errors.some(err => err.toLowerCase().includes('purchase price')) ? 'error' : ''}
         />
+        {errors.some(err => err.toLowerCase().includes('purchase price')) && (
+          <div className="error-message">
+            {errors.find(err => err.toLowerCase().includes('purchase price'))}
+          </div>
+        )}
       </div>
       
       {renderAmountInput('initialDeposit', 'Initial Deposit', 'Enter amount')}
@@ -327,11 +336,17 @@ const PurchasePrice = ({ handleNextStep }) => {
           name="financeType"
           value={offerData.financeType}
           onChange={handleFinanceTypeChange}
+          className={errors.some(err => err.toLowerCase().includes('finance type')) ? 'error' : ''}
         >
           <option value="LOAN">Loan</option>
           <option value="CASH">Cash</option>
           <option value="FHA/VA">FHA/VA Loan</option>
         </select>
+        {errors.some(err => err.toLowerCase().includes('finance type')) && (
+          <div className="error-message">
+            {errors.find(err => err.toLowerCase().includes('finance type'))}
+          </div>
+        )}
       </div>
       
       {offerData.financeType !== 'CASH' && (
@@ -351,7 +366,10 @@ const PurchasePrice = ({ handleNextStep }) => {
         <button className="mom-step-back-button" disabled>
           Back
         </button>
-        <button className="mom-next-button" onClick={handleNextStep}>
+        <button 
+          className="mom-next-button" 
+          onClick={handleNextStep}
+        >
           Next
         </button>
       </div>

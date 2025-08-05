@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../../../../../../../../context/AuthContext';
 import { useOffer } from '../../../../../../../../../context/OfferContext';
+import { validateStep } from '../../../../../../../../../utils/offerValidation';
 import './MakeOfferModal.css';
 import './Steps/DocumentsAndSigning.css';
 import PurchasePrice from './Steps/PurchasePrice';
@@ -20,14 +21,42 @@ const MakeOfferModal = ({ onClose, listingId, buyerPackageId }) => {
   const { offerData, documentWorkflow, updateOfferData, updateDocumentWorkflow, resetDocumentWorkflow } = useOffer();
   const { token } = useAuth();
   const [step, setStep] = useState(1);
+  const [stepErrors, setStepErrors] = useState({});
 
-  const handleNextStep = useCallback(() => setStep(prevStep => prevStep + 1), []);
-  const handlePrevStep = useCallback(() => setStep(prevStep => prevStep - 1), []);
+  const handleNextStep = useCallback(() => {
+    // Validate current step before proceeding
+    const validation = validateStep(step, offerData);
+    
+    if (!validation.isValid) {
+      setStepErrors(prev => ({
+        ...prev,
+        [step]: validation.errors
+      }));
+      return; // Don't proceed if validation fails
+    }
+    
+    // Clear errors for current step
+    setStepErrors(prev => ({
+      ...prev,
+      [step]: []
+    }));
+    
+    setStep(prevStep => prevStep + 1);
+  }, [step, offerData]);
+
+  const handlePrevStep = useCallback(() => {
+    setStep(prevStep => prevStep - 1);
+  }, []);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     updateOfferData(prevData => ({ ...prevData, [name]: value }));
-  }, [updateOfferData]);
+    // Clear error for this field when user types
+    setStepErrors(prev => ({
+      ...prev,
+      [step]: prev[step] ? prev[step].filter(error => !error.toLowerCase().includes(name.toLowerCase())) : []
+    }));
+  }, [updateOfferData, step]);
 
   const handleFinanceTypeChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -40,7 +69,12 @@ const MakeOfferModal = ({ onClose, listingId, buyerPackageId }) => {
       }
       return { ...prevData, ...updatedData };
     });
-  }, [updateOfferData]);
+    // Clear error for this field when user types
+    setStepErrors(prev => ({
+      ...prev,
+      [step]: prev[step] ? prev[step].filter(error => !error.toLowerCase().includes('finance type')) : []
+    }));
+  }, [updateOfferData, step]);
 
   const handleNestedChange = useCallback((e, section) => {
     const { name, value } = e.target;
@@ -51,7 +85,12 @@ const MakeOfferModal = ({ onClose, listingId, buyerPackageId }) => {
         [name]: value,
       },
     }));
-  }, [updateOfferData]);
+    // Clear error for this field when user types
+    setStepErrors(prev => ({
+      ...prev,
+      [step]: prev[step] ? prev[step].filter(error => !error.toLowerCase().includes(name.toLowerCase())) : []
+    }));
+  }, [updateOfferData, step]);
 
   const handleResetOffer = useCallback(() => {
     updateOfferData({
@@ -324,24 +363,28 @@ const MakeOfferModal = ({ onClose, listingId, buyerPackageId }) => {
       handleChange={handleChange}
       handleFinanceTypeChange={handleFinanceTypeChange}
       handleNextStep={handleNextStep}
+      errors={stepErrors[1] || []}
     />,
     contingencies: <Contingencies
       formData={offerData}
       handleChange={handleChange}
       handleNextStep={handleNextStep}
       handlePrevStep={handlePrevStep}
+      errors={stepErrors[2] || []}
     />,
     agentInformation: <AgentInformation
       formData={offerData}
       handleNestedChange={handleNestedChange}
       handleNextStep={handleNextStep}
       handlePrevStep={handlePrevStep}
+      errors={stepErrors[3] || []}
     />,
     offerDetails: <OfferDetails
       formData={offerData}
       handleChange={handleChange}
       handleNextStep={handleNextStep}
       handlePrevStep={handlePrevStep}
+      errors={stepErrors[4] || []}
     />,
     documents: <DocumentsAndSigning
       handleNextStep={handleNextStep}
@@ -362,7 +405,7 @@ const MakeOfferModal = ({ onClose, listingId, buyerPackageId }) => {
       handlePrevStep={handlePrevStep}
       handleSubmit={handleSubmit}
     />
-  }), [offerData, handleChange, handleFinanceTypeChange, handleNextStep, handlePrevStep, handleNestedChange, listingId, buyerPackageId, handleSubmit, documentWorkflow, updateDocumentWorkflow]);
+  }), [offerData, handleChange, handleFinanceTypeChange, handleNextStep, handlePrevStep, handleNestedChange, listingId, buyerPackageId, handleSubmit, documentWorkflow, updateDocumentWorkflow, stepErrors]);
 
   return (
     <div className="make-offer-modal">

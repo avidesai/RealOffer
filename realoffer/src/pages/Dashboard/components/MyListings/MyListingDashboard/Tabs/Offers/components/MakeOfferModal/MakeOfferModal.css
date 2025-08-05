@@ -1228,3 +1228,22 @@
     }
   }
 }
+
+.error-message {
+  color: #c33;
+  font-size: 12px;
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+.form-group input.error,
+.form-group select.error {
+  border-color: #c33;
+  background-color: #fff5f5;
+}
+
+.form-group input.error:focus,
+.form-group select.error:focus {
+  border-color: #c33;
+  box-shadow: 0 0 0 2px rgba(204, 51, 51, 0.2);
+}
