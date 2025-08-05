@@ -20,10 +20,7 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
   const [teamMemberLoading, setTeamMemberLoading] = useState(false);
   const [selectedTeamMembers, setSelectedTeamMembers] = useState([]);
   
-  // Invitation states
-  const [invitingTeamMember, setInvitingTeamMember] = useState(false);
-  const [inviteSuccess, setInviteSuccess] = useState(false);
-  const [inviteError, setInviteError] = useState('');
+
   
   const searchTimeoutRef = useRef(null);
   const teamMemberSearchTimeoutRef = useRef(null);
@@ -222,48 +219,7 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
     });
   };
 
-  // Invite team member who doesn't have an account
-  // eslint-disable-next-line no-unused-vars
-  const inviteTeamMember = async (inviteData, firstName, lastName) => {
-    setInvitingTeamMember(true);
-    setInviteError('');
-    
-    try {
-      const response = await api.post('/api/users/invite-team-member', {
-        email: inviteData.inviteEmail,
-        firstName: firstName,
-        lastName: lastName,
-        listingId: 'new', // This is for a new listing
-        propertyAddress: 'New Property Listing',
-        inviterName: `${user.firstName} ${user.lastName}`,
-        message: ''
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
 
-      console.log('Invitation response:', response.data);
-      setInviteSuccess(true);
-      setTeamMemberSearchQuery('');
-      setTeamMemberSearchResults([]);
-      setShowTeamMemberDropdown(false);
-      
-      // Remove the invite from selected team members
-      setSelectedTeamMembers(prev => prev.filter(tm => tm._id !== inviteData._id));
-      
-      // Show success message for a few seconds
-      setTimeout(() => {
-        setInviteSuccess(false);
-      }, 3000);
-      
-    } catch (error) {
-      console.error('Error inviting team member:', error);
-      setInviteError(error.response?.data?.message || 'Failed to send invitation. Please try again.');
-    } finally {
-      setInvitingTeamMember(false);
-    }
-  };
 
   // Remove team member from selected list
   const removeTeamMember = (teamMemberId) => {
@@ -418,22 +374,7 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
             )}
           </div>
           
-          {/* Invitation status messages */}
-          {inviteSuccess && (
-            <div className="invite-success">
-              ✓ Invitation sent successfully!
-            </div>
-          )}
-          {inviteError && (
-            <div className="invite-error">
-              {inviteError}
-            </div>
-          )}
-          {invitingTeamMember && (
-            <div className="invite-loading">
-              Sending invitation...
-            </div>
-          )}
+
         </div>
 
         {/* Selected Team Members List */}
