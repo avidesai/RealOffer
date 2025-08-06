@@ -176,6 +176,17 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
     }
   };
 
+  const handleTextareaChange = (e) => {
+    setInputMessage(e.target.value);
+    
+    // Auto-resize textarea
+    const textarea = e.target;
+    textarea.style.height = '44px'; // Reset to initial height
+    const scrollHeight = textarea.scrollHeight;
+    const newHeight = Math.min(scrollHeight, 120); // Max height of 120px
+    textarea.style.height = newHeight + 'px';
+  };
+
   const stopStreaming = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -269,7 +280,7 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
           )}
           
           <div className="pchat-message-time">
-            {message.timestamp.toLocaleTimeString()}
+            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </div>
         </div>
       </div>
@@ -305,7 +316,7 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
               <div className="pchat-welcome">
                 <p>I can help you analyze this property.</p>
                 
-                <p className="ask-me-about">Ask me about:</p>
+                <p className="ask-me-about">What you can ask me:</p>
                 <ul>
                   <li>Property details and features</li>
                   <li>Valuation data and comparable properties</li>
@@ -340,11 +351,10 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
             <div className="pchat-input-wrapper">
               <textarea
                 value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
+                onChange={handleTextareaChange}
                 onKeyPress={handleKeyPress}
                 placeholder={isLoading ? "AI is thinking..." : "Ask about this property..."}
                 disabled={isLoading}
-                rows={3}
               />
               <button 
                 onClick={sendMessageStream} 

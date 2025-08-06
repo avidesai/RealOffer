@@ -1,4 +1,6 @@
 const Anthropic = require('@anthropic-ai/sdk');
+const Document = require('../models/Document');
+const DocumentAnalysis = require('../models/DocumentAnalysis');
 const PropertyListing = require('../models/PropertyListing');
 const PropertyAnalysis = require('../models/PropertyAnalysis');
 const optimizedDocumentProcessor = require('../utils/optimizedDocumentProcessor');
@@ -51,7 +53,7 @@ class OptimizedChatController {
       console.log(`📊 Document selection: ${relevantDocuments.length}/${allDocuments.length} documents selected in ${Date.now() - startTime}ms`);
 
       // Build optimized prompt
-      const promptComponents = this.buildFastPrompt(knowledgeBase, relevantDocuments, message, conversationHistory);
+      const promptComponents = await this.buildFastPrompt(knowledgeBase, relevantDocuments, message, conversationHistory);
 
       // Execute streaming with timeout
       await this.executeOptimizedStream(res, promptComponents, propertyId, relevantDocuments, startTime, cacheKey);
@@ -132,19 +134,23 @@ class OptimizedChatController {
   }
 
   /**
-   * Build fast, optimized prompt
+   * Build fast prompt with AI summaries
    */
-  buildFastPrompt(knowledgeBase, documents, userMessage, conversationHistory) {
+  async buildFastPrompt(knowledgeBase, documents, userMessage, conversationHistory) {
     // Streamlined system prompt
     const systemPrompt = `You are a real estate AI assistant. Provide concise, accurate answers based on the property information and documents provided. Always cite sources using [Source: Document Title] format.
 
-IMPORTANT: Be specific and cite sources. If you reference information from a document, include [Source: Document Title].`;
+IMPORTANT: 
+- Be specific and cite sources. If you reference information from a document, include [Source: Document Title].
+- When available, prioritize AI-generated summaries (marked with 🤖) as they contain expert analysis.
+- Use document excerpts and key findings to provide comprehensive answers.
+- If a document has an AI analysis, reference that analysis in your response.`;
 
     // Compact property context
     const propertyContext = this.createCompactPropertyContext(knowledgeBase);
 
-    // Efficient document context
-    const documentContext = this.createEfficientDocumentContext(documents);
+    // Efficient document context with AI summaries
+    const documentContext = await this.createEfficientDocumentContext(documents);
 
     // Limited conversation context
     const recentHistory = conversationHistory.slice(-4); // Only last 4 messages
@@ -199,33 +205,60 @@ IMPORTANT: Be specific and cite sources. If you reference information from a doc
   }
 
   /**
-   * Create efficient document context
+   * Create efficient document context with AI summaries
    */
-  createEfficientDocumentContext(documents) {
+  async createEfficientDocumentContext(documents) {
     if (!documents || documents.length === 0) {
       return 'DOCUMENTS: No relevant documents found.';
     }
 
     let context = 'RELEVANT DOCUMENTS:\n';
     
-    documents.forEach((doc, index) => {
-      context += `\n${index + 1}. ${doc.title} (${doc.type}) [Score: ${doc.relevanceScore.toFixed(2)}]\n`;
-      context += `Summary: ${doc.summary}\n`;
+    // Process documents with AI summaries
+    for (const doc of documents) {
+      context += `\n${doc.index + 1}. ${doc.title} (${doc.type}) [Score: ${doc.relevanceScore.toFixed(2)}]\n`;
       
-      if (doc.keyFindings && doc.keyFindings.length > 0) {
-        context += `Key Points: ${doc.keyFindings.slice(0, 3).join(' | ')}\n`;
+      // Try to get AI-generated summary first
+      let hasAISummary = false;
+      if (doc.analysis) {
+        try {
+          const analysis = await DocumentAnalysis.findById(doc.analysis);
+          if (analysis && analysis.status === 'completed' && analysis.analysisResult) {
+            context += `🤖 AI Analysis: ${analysis.analysisResult}\n`;
+            hasAISummary = true;
+            console.log(`✅ Using AI analysis for ${doc.title}`);
+          }
+        } catch (error) {
+          console.warn(`Failed to fetch AI analysis for ${doc.title}:`, error.message);
+        }
       }
       
-      // Include relevant excerpts from full text
-      if (doc.fullText) {
+      // Fallback to enhanced content summary
+      if (!hasAISummary && doc.enhancedContent?.summary) {
+        context += `📋 Summary: ${doc.enhancedContent.summary}\n`;
+        console.log(`📋 Using enhanced summary for ${doc.title}`);
+      } else if (!hasAISummary) {
+        context += `📋 Summary: ${doc.summary}\n`;
+        console.log(`📋 Using basic summary for ${doc.title}`);
+      }
+      
+      // Include key findings
+      if (doc.enhancedContent?.keyFindings && doc.enhancedContent.keyFindings.length > 0) {
+        context += `🔍 Key Findings: ${doc.enhancedContent.keyFindings.slice(0, 3).join(' | ')}\n`;
+      } else if (doc.keyFindings && doc.keyFindings.length > 0) {
+        context += `🔍 Key Points: ${doc.keyFindings.slice(0, 3).join(' | ')}\n`;
+      }
+      
+      // Include relevant excerpts from full text (only if no AI summary)
+      if (!hasAISummary && doc.fullText) {
         const relevantExcerpt = this.extractRelevantExcerpt(doc.fullText, doc.title);
         if (relevantExcerpt) {
-          context += `Excerpt: ${relevantExcerpt}\n`;
+          context += `📄 Excerpt: ${relevantExcerpt}\n`;
         }
       }
       
       context += '---\n';
-    });
+    }
 
     return context;
   }

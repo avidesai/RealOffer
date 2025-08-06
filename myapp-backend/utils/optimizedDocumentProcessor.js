@@ -35,7 +35,7 @@ class OptimizedDocumentProcessor {
         { textContent: { $exists: true, $ne: null, $ne: '' } },
         { 'enhancedContent.summary': { $exists: true } }
       ]
-    }).select('title type textContent enhancedContent metadata pages size createdAt');
+    }).select('title type textContent enhancedContent metadata pages size createdAt analysis');
 
     // Process documents in parallel for speed
     const processedDocs = await Promise.all(
@@ -77,6 +77,7 @@ class OptimizedDocumentProcessor {
         summary: doc.enhancedContent?.summary || this.generateQuickSummary(content),
         keyFindings: keyFindings,
         relevanceScore: 0, // Will be calculated during search
+        analysis: doc.analysis, // Include analysis reference
         metadata: {
           pages: doc.pages,
           size: doc.size,

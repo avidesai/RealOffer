@@ -25,7 +25,7 @@
   border-radius: 16px;
   width: 90%;
   max-width: 800px;
-  height: 80vh;
+  height: 90vh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
@@ -192,9 +192,10 @@
 .pchat-message {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   max-width: 80%;
   animation: messageSlide 0.3s ease-out;
+  margin-bottom: 8px;
 }
 
 @keyframes messageSlide {
@@ -223,12 +224,34 @@
   border-radius: 12px;
   line-height: 1.5;
   word-wrap: break-word;
+  position: relative;
+  z-index: 1;
 }
 
 .pchat-message.user .pchat-message-content {
-  background: #007bff;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
   color: white;
   border-bottom-right-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.pchat-message.user .pchat-message-content:hover {
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.pchat-message.user .pchat-message-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  border-radius: 12px;
+  pointer-events: none;
 }
 
 .pchat-message.assistant .pchat-message-content {
@@ -236,19 +259,34 @@
   color: #333;
   border: 1px solid #e9ecef;
   border-bottom-left-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .pchat-message-time {
   font-size: 11px;
-  color: #64748b;
-  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 6px;
   padding: 0 8px;
-  font-weight: 500;
+  font-weight: 400;
+  text-align: right;
+}
+
+.pchat-message.assistant .pchat-message-time {
+  color: #64748b;
+  text-align: left;
 }
 
 .pchat-response {
   line-height: 1.6;
   white-space: pre-wrap;
+  font-size: 15px;
+  font-weight: 400;
+  color: inherit;
+}
+
+.pchat-message-content p {
+  margin: 0;
+  line-height: 1.5;
   font-size: 15px;
   font-weight: 400;
 }
@@ -575,12 +613,14 @@
   line-height: 1.4;
   font-weight: 400;
   min-height: 44px;
+  max-height: 120px;
+  height: 44px;
   font-family: inherit;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
   background: white;
   color: #333;
-  resize: vertical;
-  max-height: 120px;
+  resize: none;
+  overflow-y: hidden;
 }
 
 .pchat-input-wrapper textarea:focus {
