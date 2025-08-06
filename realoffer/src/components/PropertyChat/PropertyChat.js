@@ -149,10 +149,9 @@ const PropertyChat = ({ propertyId, onClose, isOpen }) => {
                 <p>Ask me anything about this property! I can help you with:</p>
                 <ul>
                   <li>Property details and features</li>
-                  <li>Inspection findings</li>
-                  <li>Property history</li>
-                  <li>Valuation information</li>
-                  <li>Document contents</li>
+                  <li>Valuation data and comparable properties</li>
+                  <li>Information about any uploaded disclosures</li>
+                  <li>Specific questions about uploaded documents</li>
                 </ul>
               </div>
             )}
