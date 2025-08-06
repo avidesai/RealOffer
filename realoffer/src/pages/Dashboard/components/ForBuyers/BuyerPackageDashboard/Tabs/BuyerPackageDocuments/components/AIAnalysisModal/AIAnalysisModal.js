@@ -57,12 +57,7 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, isBuyerPac
         forceRefresh: false // Only generate new analysis if one doesn't exist
       });
 
-      // Remove "Here is a structured summary..." if present
-      let result = response.data.result;
-      if (result && result.trim().toLowerCase().startsWith('here is a structured summary')) {
-        result = result.replace(/^.*?\n+/i, '');
-      }
-      setAnalysis({ ...response.data, result });
+      setAnalysis({ ...response.data, result: response.data.result });
       setError(null);
 
       // If this is the initial request and analysis is processing, start polling

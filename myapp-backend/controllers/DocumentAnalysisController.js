@@ -538,23 +538,8 @@ ${text}`;
       }
     });
 
-    // Validate and clean the response
+    // Get the analysis result from Claude Haiku
     let analysisResult = claudeResponse.data.content[0].text;
-    
-    // Remove any introductory phrases that might be added by Claude
-    const introPhrases = [
-      'Here is a structured summary',
-      'Based on the home inspection report',
-      'Here is my analysis',
-      'Here is the analysis'
-    ];
-    
-    for (const phrase of introPhrases) {
-      if (analysisResult.toLowerCase().includes(phrase.toLowerCase())) {
-        analysisResult = analysisResult.replace(new RegExp(`^.*?${phrase}[^\\n]*\\n+`, 'i'), '');
-        break;
-      }
-    }
     
     // Ensure proper formatting for the new structure
     if (document.type === 'Home Inspection Report') {
