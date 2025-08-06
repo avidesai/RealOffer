@@ -150,6 +150,24 @@
   margin-bottom: 2px;
 }
 
+/* Content for paywall */
+.pchat-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* When paywall is shown, allow scrolling */
+.pchat-modal.paywall-visible {
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+.pchat-modal.paywall-visible .pchat-content {
+  overflow: visible;
+}
+
 /* Chat Interface */
 .pchat-container {
   display: flex;

@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import TabPaywall from '../TabPaywall/TabPaywall';
 import './EnhancedPropertyChat.css';
 
 const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -288,6 +291,26 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
   };
 
   if (!isOpen) return null;
+
+  // Check if user is pro - if not, show paywall
+  if (!user?.isPremium) {
+    return (
+      <div className="pchat-overlay">
+        <div className="pchat-modal paywall-visible">
+          <div className="pchat-header">
+            <div className="header-title-container">
+              <h3>AI Assistant</h3>
+              <span className="beta-badge">Beta</span>
+            </div>
+            <button className="pchat-close" onClick={onClose}>×</button>
+          </div>
+          <div className="pchat-content">
+            <TabPaywall feature="property-chat" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pchat-overlay">

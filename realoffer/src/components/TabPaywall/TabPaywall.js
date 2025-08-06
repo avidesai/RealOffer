@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, BarChart2, Calculator, Activity as ActivityIcon, Eye, Download, BarChart3, Brain, FileText, Search, Shield } from 'lucide-react';
+import { TrendingUp, BarChart2, Calculator, Activity as ActivityIcon, Eye, Download, BarChart3, Brain, FileText, Search, Shield, MessageSquare } from 'lucide-react';
 import './TabPaywall.css';
 
 const TabPaywall = ({ feature, variant = 'analysis' }) => {
@@ -43,6 +43,18 @@ const TabPaywall = ({ feature, variant = 'analysis' }) => {
             { icon: <FileText size={16} />, text: "Instant summary of key findings and risks from all document types" },
             { icon: <Shield size={16} />, text: "Professional risk assessment and recommendations" },
             { icon: <Search size={16} />, text: "Support for inspections, TDS, SPQ, AVID, and more" }
+          ]
+        };
+      case 'property-chat':
+        return {
+          title: "AI Property Assistant",
+          description: "Get instant answers about any property using our AI assistant. Ask questions about property details, documents, and get personalized insights.",
+          icon: <MessageSquare size={32} />,
+          benefits: [
+            { icon: <MessageSquare size={16} />, text: "AI-powered property assistant for instant answers" },
+            { icon: <Brain size={16} />, text: "Ask questions about property details, documents, and valuation" },
+            { icon: <Search size={16} />, text: "Get insights from inspection reports, disclosures, and more" },
+            { icon: <FileText size={16} />, text: "Personalized recommendations and property analysis" }
           ]
         };
       default:
