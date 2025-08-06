@@ -83,55 +83,66 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let fullResponse = '';
+      let buffer = ''; // Buffer for incomplete JSON
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
+        // Add new chunk to buffer
+        buffer += decoder.decode(value, { stream: true });
+        
+        // Process complete lines
+        const lines = buffer.split('\n');
+        
+        // Keep the last potentially incomplete line in buffer
+        buffer = lines.pop() || '';
 
         for (const line of lines) {
-          if (line.startsWith('data: ')) {
+          if (line.startsWith('data: ') && line.trim().length > 6) {
             try {
-              const data = JSON.parse(line.slice(6));
-              
-              if (data.type === 'content') {
-                fullResponse += data.content;
+              const jsonStr = line.slice(6).trim();
+              if (jsonStr) {
+                const data = JSON.parse(jsonStr);
                 
-                // Update the streaming message
-                setMessages(prev => prev.map(msg => 
-                  msg.id === assistantMessageId 
-                    ? { ...msg, content: fullResponse }
-                    : msg
-                ));
-              } else if (data.type === 'complete') {
-                // Handle completion with citations and metadata
-                setMessages(prev => prev.map(msg => 
-                  msg.id === assistantMessageId 
-                    ? { 
-                        ...msg, 
-                        content: data.response,
-                        isStreaming: false,
-                        citations: data.citations || [],
-                        sources: data.sources || []
-                      }
-                    : msg
-                ));
-                
-                // Update global state
-                setCitations(data.citations || []);
-                setSources(data.sources || []);
-                setTokenUsage(data.estimatedTokens);
-                setProcessingTime(data.processingTime);
-                setIsCached(data.cached || false);
-                setRelevanceScores(data.sources?.map(s => s.relevanceScore) || []);
-                
-              } else if (data.type === 'error') {
-                throw new Error(data.error);
+                if (data.type === 'content') {
+                  fullResponse += data.content;
+                  
+                  // Update the streaming message
+                  setMessages(prev => prev.map(msg => 
+                    msg.id === assistantMessageId 
+                      ? { ...msg, content: fullResponse }
+                      : msg
+                  ));
+                } else if (data.type === 'complete') {
+                  // Handle completion with citations and metadata
+                  setMessages(prev => prev.map(msg => 
+                    msg.id === assistantMessageId 
+                      ? { 
+                          ...msg, 
+                          content: data.response,
+                          isStreaming: false,
+                          citations: data.citations || [],
+                          sources: data.sources || []
+                        }
+                      : msg
+                  ));
+                  
+                  // Update global state
+                  setCitations(data.citations || []);
+                  setSources(data.sources || []);
+                  setTokenUsage(data.estimatedTokens);
+                  setProcessingTime(data.processingTime);
+                  setIsCached(data.cached || false);
+                  setRelevanceScores(data.sources?.map(s => s.relevanceScore) || []);
+                  
+                } else if (data.type === 'error') {
+                  throw new Error(data.error);
+                }
               }
             } catch (parseError) {
-              console.error('Error parsing streaming data:', parseError);
+              console.warn('Skipping malformed JSON chunk:', line.slice(6));
+              // Continue processing instead of breaking
             }
           }
         }
@@ -288,7 +299,10 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
         <div className="pchat-messages">
           {messages.length === 0 && (
             <div className="pchat-welcome">
-              <p>Ask me anything about this property! I can help you with:</p>
+              <h4>🤖 AI Property Assistant</h4>
+              <p>I can help you analyze this property with intelligent document processing and expert insights.</p>
+              
+              <p><strong>What you can ask me:</strong></p>
               <ul>
                 <li>Property details and features</li>
                 <li>Valuation data and comparable properties</li>
@@ -297,13 +311,14 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
                 <li>Details from disclosure documents</li>
                 <li>Specific questions about any uploaded documents</li>
               </ul>
-              <p><strong>Optimized features:</strong></p>
+              
+              <p><strong>✨ Advanced features:</strong></p>
               <ul>
-                <li>⚡️ Ultra-fast document processing</li>
-                <li>🎯 Smart document relevance scoring</li>
-                <li>📊 Source citations with relevance scores</li>
-                <li>💾 Intelligent caching for instant responses</li>
-                <li>🔍 Advanced semantic document search</li>
+                <li>Ultra-fast document processing</li>
+                <li>Smart document relevance scoring</li>
+                <li>Source citations with relevance scores</li>
+                <li>Intelligent caching for instant responses</li>
+                <li>Advanced semantic document search</li>
               </ul>
             </div>
           )}
@@ -312,7 +327,10 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
           
           {error && (
             <div className="pchat-error">
-              <p>Error: {error}</p>
+              <div>
+                <strong>Connection Error</strong>
+                <p>{error}</p>
+              </div>
               <button onClick={() => setError(null)}>Dismiss</button>
             </div>
           )}
@@ -332,7 +350,7 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask about this property..."
+              placeholder={isLoading ? "AI is thinking..." : "Ask about this property..."}
               disabled={isLoading}
               rows={3}
             />
@@ -341,7 +359,13 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
               disabled={isLoading || !inputMessage.trim()}
               className="pchat-send"
             >
-              {isLoading ? '...' : 'Send'}
+              {isLoading ? (
+                <div className="typing-dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              ) : 'Send'}
             </button>
           </div>
           
