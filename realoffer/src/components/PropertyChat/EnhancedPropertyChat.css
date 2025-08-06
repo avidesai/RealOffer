@@ -508,8 +508,10 @@
   font-weight: 400;
   font-size: 1rem;
   color: #666;
+  margin-top: 4rem;
   margin-bottom: 1rem;
 }
+
 
 .pchat-welcome ul {
   text-align: left;

@@ -316,7 +316,7 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
               <div className="pchat-welcome">
                 <p>I can help you analyze this property.</p>
                 
-                <p className="ask-me-about">What you can ask me:</p>
+                <p className="ask-me-about">Ask me about:</p>
                 <ul>
                   <li>Property details and features</li>
                   <li>Valuation data and comparable properties</li>
