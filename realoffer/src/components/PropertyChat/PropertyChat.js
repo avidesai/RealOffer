@@ -6,6 +6,8 @@ const PropertyChat = ({ propertyId, onClose }) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamingResponse, setStreamingResponse] = useState('');
   const [showSources, setShowSources] = useState({});
   const messagesEndRef = useRef(null);
 
@@ -15,7 +17,7 @@ const PropertyChat = ({ propertyId, onClose }) => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, streamingResponse]);
 
   const sendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -24,6 +26,8 @@ const PropertyChat = ({ propertyId, onClose }) => {
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsLoading(true);
+    setIsStreaming(false);
+    setStreamingResponse('');
     
     try {
       const response = await api.post('/api/chat/property', {
@@ -36,7 +40,9 @@ const PropertyChat = ({ propertyId, onClose }) => {
         role: 'assistant', 
         content: response.data.response,
         sources: response.data.sources,
-        relevantChunks: response.data.relevantChunks
+        documents: response.data.documents,
+        model: response.data.model,
+        citations: response.data.citations
       };
       
       setMessages(prev => [...prev, assistantMessage]);
@@ -54,8 +60,113 @@ const PropertyChat = ({ propertyId, onClose }) => {
     }
   };
 
+  const sendMessageStream = async () => {
+    if (!inputMessage.trim()) return;
+    
+    const userMessage = { role: 'user', content: inputMessage };
+    setMessages(prev => [...prev, userMessage]);
+    setInputMessage('');
+    setIsLoading(true);
+    setIsStreaming(true);
+    setStreamingResponse('');
+    
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/chat/property/stream`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          propertyId,
+          message: inputMessage,
+          conversationHistory: messages.slice(-10)
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Streaming request failed');
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullResponse = '';
+      let sources = [];
+      let citations = [];
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              
+              if (data.type === 'content') {
+                fullResponse += data.content;
+                setStreamingResponse(fullResponse);
+              } else if (data.type === 'citations') {
+                citations = data.citations;
+              } else if (data.type === 'complete') {
+                fullResponse = data.response;
+                sources = data.sources;
+                citations = data.citations;
+                
+                const assistantMessage = {
+                  role: 'assistant',
+                  content: fullResponse,
+                  sources: sources,
+                  documents: data.documents,
+                  model: 'claude-3-5-sonnet-20241022',
+                  citations: citations
+                };
+                
+                setMessages(prev => [...prev, assistantMessage]);
+                setShowSources(prev => ({ ...prev, [messages.length]: false }));
+                setStreamingResponse('');
+                setIsStreaming(false);
+                return;
+              } else if (data.error) {
+                throw new Error(data.error);
+              }
+            } catch (e) {
+              console.error('Error parsing streaming data:', e);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Streaming chat error:', error);
+      const errorMessage = { 
+        role: 'assistant', 
+        content: 'Sorry, I encountered an error. Please try again.',
+        isError: true
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+      setIsStreaming(false);
+      setStreamingResponse('');
+    }
+  };
+
   const formatSource = (source) => {
-    return `${source.documentType}: ${source.documentTitle} (Page ${source.pageNumber}, ${source.section})`;
+    if (source.citation) {
+      // New citation format
+      return `${source.documentTitle} (${source.documentType})`;
+    } else {
+      // Legacy format
+      return `${source.documentType}: ${source.documentTitle} (Source ${source.sourceIndex})`;
+    }
+  };
+
+  const handleSendMessage = () => {
+    // Use streaming by default for better UX
+    sendMessageStream();
   };
 
   return (
@@ -71,6 +182,9 @@ const PropertyChat = ({ propertyId, onClose }) => {
               <li>Valuation information</li>
               <li>Document contents</li>
             </ul>
+            <div className="model-info">
+              <small>Powered by Claude 3.5 Sonnet with real-time streaming</small>
+            </div>
           </div>
         )}
         
@@ -94,12 +208,11 @@ const PropertyChat = ({ propertyId, onClose }) => {
                         <div className="source-header">
                           {formatSource(source)}
                         </div>
-                        <div className="source-excerpt">
-                          {msg.relevantChunks.find(chunk => 
-                            chunk.source.documentId === source.documentId &&
-                            chunk.source.startIndex === source.startIndex
-                          )?.content.substring(0, 200)}...
-                        </div>
+                        {source.citation && (
+                          <div className="citation-excerpt">
+                            {source.citation.text}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -108,7 +221,27 @@ const PropertyChat = ({ propertyId, onClose }) => {
             )}
           </div>
         ))}
-        {isLoading && <div className="loading">AI is thinking...</div>}
+        
+        {isStreaming && streamingResponse && (
+          <div className="message assistant streaming">
+            <div className="message-content">
+              {streamingResponse}
+              <span className="streaming-cursor">|</span>
+            </div>
+          </div>
+        )}
+        
+        {isLoading && !isStreaming && (
+          <div className="loading">
+            <div className="loading-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <span>AI is thinking...</span>
+          </div>
+        )}
+        
         <div ref={messagesEndRef} />
       </div>
       
@@ -118,11 +251,15 @@ const PropertyChat = ({ propertyId, onClose }) => {
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           placeholder="Ask about this property..."
-          onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+          onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
           disabled={isLoading}
         />
-        <button onClick={sendMessage} disabled={isLoading || !inputMessage.trim()}>
-          Send
+        <button 
+          onClick={handleSendMessage} 
+          disabled={isLoading || !inputMessage.trim()}
+          className={isStreaming ? 'streaming' : ''}
+        >
+          {isStreaming ? 'Streaming...' : 'Send'}
         </button>
       </div>
     </div>
