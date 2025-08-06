@@ -9,7 +9,7 @@ const anthropic = new Anthropic({
 });
 
 // Cache for static content to enable prompt caching
-const STATIC_SYSTEM_PROMPT = `You are a helpful assistant for a real estate property. You have access to property information, valuation data, and uploaded documents. When citing information, use official citations to reference the source documents.
+const STATIC_SYSTEM_PROMPT = `You are a helpful assistant for a real estate property. You have access to property information, valuation data, and ALL uploaded property documents including inspections, disclosures, and reports. When citing information, use official citations to reference the source documents.
 
 IMPORTANT RULES:
 1. Only answer questions based on the provided information
@@ -19,7 +19,8 @@ IMPORTANT RULES:
 5. For general neighborhood/area questions, you can use your base knowledge but be clear about what's from your knowledge vs. the property data
 6. Keep responses concise but informative
 7. If asked about property value, focus on the valuation data provided
-8. Always provide accurate and helpful information about the property`;
+8. Always provide accurate and helpful information about the property
+9. You have access to inspection reports, disclosure documents, and all property-related files`;
 
 // Files API integration for direct PDF processing
 const uploadDocumentToClaude = async (fileBuffer, fileName) => {
@@ -143,14 +144,13 @@ exports.chatWithProperty = async (req, res) => {
     // Get property knowledge base
     const knowledgeBase = await createPropertyKnowledgeBase(propertyId);
     
-    // Get documents with text content
+    // Get documents with text content - include ALL property-related documents
     const documents = await Document.find({ 
       propertyListing: propertyId,
       textContent: { $exists: true, $ne: null, $ne: '' },
-      // Exclude offer documents - only use property listing documents
-      offer: { $exists: false },
-      purpose: { $in: ['listing', 'public'] } // Only listing and public documents
-    }).limit(5); // Limit to 5 most recent documents for now
+      // Include all property-related documents, not just listing documents
+      // This includes pest inspections, home inspections, disclosures, etc.
+    }).limit(10); // Increased limit to include more document types
     
     // Create property context with prompt caching
     const propertyContext = `PROPERTY INFORMATION:
@@ -289,10 +289,9 @@ exports.chatWithPropertyFiles = async (req, res) => {
     const documents = await Document.find({ 
       propertyListing: propertyId,
       docType: 'pdf', // Only process PDFs with Files API
-      // Exclude offer documents - only use property listing documents
-      offer: { $exists: false },
-      purpose: { $in: ['listing', 'public'] } // Only listing and public documents
-    }).limit(5);
+      // Include all property-related documents, not just listing documents
+      // This includes pest inspections, home inspections, disclosures, etc.
+    }).limit(10);
     
     // Create property context
     const propertyContext = `PROPERTY INFORMATION:
@@ -445,19 +444,17 @@ exports.chatWithPropertyStream = async (req, res) => {
     const pdfDocuments = await Document.find({ 
       propertyListing: propertyId,
       docType: 'pdf', // Only PDFs for Files API
-      // Exclude offer documents - only use property listing documents
-      offer: { $exists: false },
-      purpose: { $in: ['listing', 'public'] } // Only listing and public documents
-    }).limit(3); // Limit PDFs to avoid API limits
+      // Include all property-related documents, not just listing documents
+      // This includes pest inspections, home inspections, disclosures, etc.
+    }).limit(5); // Increased limit to include more document types
     
     const textDocuments = await Document.find({ 
       propertyListing: propertyId,
       textContent: { $exists: true, $ne: null, $ne: '' },
       docType: { $ne: 'pdf' }, // Non-PDF documents
-      // Exclude offer documents - only use property listing documents
-      offer: { $exists: false },
-      purpose: { $in: ['listing', 'public'] } // Only listing and public documents
-    }).limit(2); // Limit text documents
+      // Include all property-related documents, not just listing documents
+      // This includes pest inspections, home inspections, disclosures, etc.
+    }).limit(5); // Limit text documents
     
     // Create property context
     const propertyContext = `PROPERTY INFORMATION:
