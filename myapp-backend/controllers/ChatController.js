@@ -21,6 +21,22 @@ IMPORTANT RULES:
 7. If asked about property value, focus on the valuation data provided
 8. Always provide accurate and helpful information about the property`;
 
+// Files API integration for direct PDF processing
+const uploadDocumentToClaude = async (fileBuffer, fileName) => {
+  try {
+    const file = await anthropic.files.create({
+      file: fileBuffer,
+      purpose: 'assistants'
+    });
+    
+    console.log(`✅ File uploaded to Claude: ${fileName} (ID: ${file.id})`);
+    return file.id;
+  } catch (error) {
+    console.error(`❌ Error uploading file to Claude: ${fileName}`, error);
+    return null;
+  }
+};
+
 const createPropertyKnowledgeBase = async (propertyId) => {
   const property = await PropertyListing.findById(propertyId);
   const analysis = await PropertyAnalysis.findOne({ propertyId });
@@ -106,7 +122,7 @@ const extractSourceReferences = (response, documents) => {
   return sources;
 };
 
-// Updated chat function with Claude 3.5 Sonnet, prompt caching, and citations
+// Updated chat function with Claude 3.5 Sonnet, prompt caching, citations, and Files API
 exports.chatWithProperty = async (req, res) => {
   const { propertyId, message, conversationHistory = [] } = req.body;
   
@@ -130,7 +146,10 @@ exports.chatWithProperty = async (req, res) => {
     // Get documents with text content
     const documents = await Document.find({ 
       propertyListing: propertyId,
-      textContent: { $exists: true, $ne: null, $ne: '' }
+      textContent: { $exists: true, $ne: null, $ne: '' },
+      // Exclude offer documents - only use property listing documents
+      offer: { $exists: false },
+      purpose: { $in: ['listing', 'public'] } // Only listing and public documents
     }).limit(5); // Limit to 5 most recent documents for now
     
     // Create property context with prompt caching
@@ -252,6 +271,153 @@ Content: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? 
   }
 };
 
+// Enhanced chat function with Files API integration
+exports.chatWithPropertyFiles = async (req, res) => {
+  const { propertyId, message, conversationHistory = [] } = req.body;
+  
+  try {
+    // Validate property exists and user has access
+    const property = await PropertyListing.findById(propertyId);
+    if (!property) {
+      return res.status(404).json({ error: 'Property not found' });
+    }
+    
+    // Get property knowledge base
+    const knowledgeBase = await createPropertyKnowledgeBase(propertyId);
+    
+    // Get documents with Files API integration
+    const documents = await Document.find({ 
+      propertyListing: propertyId,
+      docType: 'pdf', // Only process PDFs with Files API
+      // Exclude offer documents - only use property listing documents
+      offer: { $exists: false },
+      purpose: { $in: ['listing', 'public'] } // Only listing and public documents
+    }).limit(5);
+    
+    // Create property context
+    const propertyContext = `PROPERTY INFORMATION:
+Address: ${knowledgeBase.propertyInfo.address}
+Price: $${knowledgeBase.propertyInfo.price}
+Beds: ${knowledgeBase.propertyInfo.beds}
+Baths: ${knowledgeBase.propertyInfo.baths}
+Square Footage: ${knowledgeBase.propertyInfo.sqft}
+Year Built: ${knowledgeBase.propertyInfo.yearBuilt}
+Property Type: ${knowledgeBase.propertyInfo.propertyType}
+Description: ${knowledgeBase.propertyInfo.description}
+
+VALUATION DATA:
+Estimated Value: $${knowledgeBase.valuation?.estimatedValue || 'Not available'}
+Price Range: $${knowledgeBase.valuation?.priceRange?.low || 'Not available'} - $${knowledgeBase.valuation?.priceRange?.high || 'Not available'}
+Price per Sq Ft: $${knowledgeBase.valuation?.pricePerSqFt || 'Not available'}`;
+
+    // Prepare content array for Claude with Files API
+    const content = [
+      {
+        type: 'text',
+        text: propertyContext,
+        cache_control: { type: 'ephemeral' }
+      }
+    ];
+
+    // Add PDF files directly to Claude using Files API
+    const claudeFileIds = [];
+    for (const doc of documents) {
+      try {
+        // Get the file from Azure storage
+        const { containerClient } = require('../config/azureStorage');
+        const blockBlobClient = containerClient.getBlockBlobClient(doc.azureKey);
+        const downloadResponse = await blockBlobClient.download();
+        
+        // Convert stream to buffer
+        const chunks = [];
+        for await (const chunk of downloadResponse.readableStreamBody) {
+          chunks.push(chunk);
+        }
+        const fileBuffer = Buffer.concat(chunks);
+        
+        // Upload to Claude Files API
+        const claudeFileId = await uploadDocumentToClaude(fileBuffer, doc.title);
+        if (claudeFileId) {
+          claudeFileIds.push(claudeFileId);
+          content.push({
+            type: 'file',
+            source: { type: 'file_id', file_id: claudeFileId }
+          });
+        }
+      } catch (error) {
+        console.error(`Error processing file ${doc.title}:`, error);
+        // Fallback to text content if Files API fails
+        if (doc.textContent) {
+          content.push({
+            type: 'text',
+            text: `Document: ${doc.title} (${doc.type})\nContent: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? '...' : ''}`,
+            cache_control: { type: 'ephemeral' }
+          });
+        }
+      }
+    }
+
+    // Add user message
+    content.push({
+      type: 'text',
+      text: `Question: ${message}`
+    });
+
+    // Use Claude with Files API
+    const claudeResponse = await anthropic.messages.create({
+      model: 'claude-3-5-sonnet-20241022',
+      max_tokens: 4000,
+      temperature: 0.1,
+      system: STATIC_SYSTEM_PROMPT,
+      messages: [
+        {
+          role: 'user',
+          content: content
+        }
+      ],
+      citations: true
+    });
+    
+    // Extract response and citations
+    const response = claudeResponse.content[0].text;
+    const citations = claudeResponse.content[0].citations || [];
+    
+    // Process citations
+    const processedSources = citations.map(citation => {
+      const documentIndex = citation.start - 1;
+      if (documentIndex >= 0 && documentIndex < documents.length) {
+        const doc = documents[documentIndex];
+        return {
+          documentId: doc._id,
+          documentTitle: doc.title,
+          documentType: doc.type,
+          sourceIndex: documentIndex + 1,
+          citation: citation
+        };
+      }
+      return null;
+    }).filter(source => source !== null);
+    
+    res.json({ 
+      response,
+      sources: processedSources,
+      documents: documents.map(doc => ({
+        id: doc._id,
+        title: doc.title,
+        type: doc.type
+      })),
+      model: 'claude-3-5-sonnet-20241022',
+      citations: citations,
+      filesApiUsed: claudeFileIds.length > 0,
+      claudeFileIds: claudeFileIds
+    });
+    
+  } catch (error) {
+    console.error('Chat with Files API error:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // New streaming endpoint for real-time responses
 exports.chatWithPropertyStream = async (req, res) => {
   const { propertyId, message, conversationHistory = [] } = req.body;
@@ -278,7 +444,10 @@ exports.chatWithPropertyStream = async (req, res) => {
     // Get documents with text content
     const documents = await Document.find({ 
       propertyListing: propertyId,
-      textContent: { $exists: true, $ne: null, $ne: '' }
+      textContent: { $exists: true, $ne: null, $ne: '' },
+      // Exclude offer documents - only use property listing documents
+      offer: { $exists: false },
+      purpose: { $in: ['listing', 'public'] } // Only listing and public documents
     }).limit(5);
     
     // Create context (same as non-streaming version)

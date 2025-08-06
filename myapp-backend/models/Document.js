@@ -40,6 +40,9 @@ const documentSchema = new mongoose.Schema({
     content: String
   }],
   
+  // Claude Files API integration
+  claudeFileId: { type: String }, // Claude Files API file ID for enhanced processing
+  
   // DocuSign integration fields
   docusignEnvelopeId: { type: String },
   signingStatus: {

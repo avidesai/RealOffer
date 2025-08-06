@@ -5,5 +5,6 @@ const auth = require('../middleware/auth');
 
 router.post('/property', auth, ChatController.chatWithProperty);
 router.post('/property/stream', auth, ChatController.chatWithPropertyStream);
+router.post('/property/files', auth, ChatController.chatWithPropertyFiles);
 
 module.exports = router; 

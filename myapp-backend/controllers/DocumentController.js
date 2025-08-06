@@ -9,6 +9,11 @@ const { v4: uuidv4 } = require('uuid');
 const { PDFDocument } = require('pdf-lib');
 const { extractTextFromPDF } = require('./DocumentAnalysisController');
 const { processDocumentForSearch } = require('../utils/documentProcessor');
+const Anthropic = require('@anthropic-ai/sdk');
+
+const anthropic = new Anthropic({
+  apiKey: process.env.CLAUDE_API_KEY,
+});
 
 // Configure multer for in-memory storage before uploading to Azure
 const storage = multer.memoryStorage();
@@ -32,13 +37,37 @@ const getPdfPageCount = async (buffer) => {
   }
 };
 
-// Helper function to process document for AI chat
+// Upload document to Claude Files API for enhanced AI processing
+const uploadToClaudeFiles = async (fileBuffer, fileName) => {
+  try {
+    const file = await anthropic.files.create({
+      file: fileBuffer,
+      purpose: 'assistants'
+    });
+    
+    console.log(`✅ File uploaded to Claude Files API: ${fileName} (ID: ${file.id})`);
+    return file.id;
+  } catch (error) {
+    console.error(`❌ Error uploading file to Claude Files API: ${fileName}`, error);
+    return null;
+  }
+};
+
+// Enhanced helper function to process document for AI chat with Files API
 const processDocumentForChat = async (document, fileBuffer) => {
   try {
     // Extract text from PDF for AI chat
     if (document.docType === 'pdf') {
       const text = await extractTextFromPDF(fileBuffer, document._id);
       document.textContent = text;
+      
+      // Upload to Claude Files API for enhanced processing
+      const claudeFileId = await uploadToClaudeFiles(fileBuffer, document.title);
+      if (claudeFileId) {
+        document.claudeFileId = claudeFileId;
+        console.log(`✅ Document ${document.title} linked to Claude Files API`);
+      }
+      
       await document.save();
       
       // Process for semantic search (generate chunks and embeddings)
