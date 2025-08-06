@@ -8,6 +8,11 @@ const anthropic = new Anthropic({
   apiKey: process.env.CLAUDE_API_KEY,
 });
 
+// Check if API key is available
+if (!process.env.CLAUDE_API_KEY) {
+  console.error('❌ CLAUDE_API_KEY environment variable is not set');
+}
+
 // Cache for static content to enable prompt caching
 const STATIC_SYSTEM_PROMPT = `You are a helpful assistant for a real estate property. You have access to property information, valuation data, and ALL uploaded property documents including inspections, disclosures, and reports. When citing information, use official citations to reference the source documents.
 
@@ -25,6 +30,12 @@ IMPORTANT RULES:
 // Files API integration for direct PDF processing
 const uploadDocumentToClaude = async (fileBuffer, fileName) => {
   try {
+    // Check if anthropic client is properly initialized
+    if (!anthropic || !anthropic.files) {
+      console.error('❌ Anthropic client not properly initialized');
+      return null;
+    }
+    
     const file = await anthropic.files.create({
       file: fileBuffer,
       purpose: 'assistants'
@@ -318,43 +329,17 @@ Price per Sq Ft: $${knowledgeBase.valuation?.pricePerSqFt || 'Not available'}`;
       }
     ];
 
-    // Add PDF files directly to Claude using Files API
+    // Add all documents as text content (temporarily disabled Files API)
     const claudeFileIds = [];
-    for (const doc of documents) {
-      try {
-        // Get the file from Azure storage
-        const { containerClient } = require('../config/azureStorage');
-        const blockBlobClient = containerClient.getBlockBlobClient(doc.azureKey);
-        const downloadResponse = await blockBlobClient.download();
-        
-        // Convert stream to buffer
-        const chunks = [];
-        for await (const chunk of downloadResponse.readableStreamBody) {
-          chunks.push(chunk);
-        }
-        const fileBuffer = Buffer.concat(chunks);
-        
-        // Upload to Claude Files API
-        const claudeFileId = await uploadDocumentToClaude(fileBuffer, doc.title);
-        if (claudeFileId) {
-          claudeFileIds.push(claudeFileId);
-          content.push({
-            type: 'file',
-            source: { type: 'file_id', file_id: claudeFileId }
-          });
-        }
-      } catch (error) {
-        console.error(`Error processing file ${doc.title}:`, error);
-        // Fallback to text content if Files API fails
-        if (doc.textContent) {
-          content.push({
-            type: 'text',
-            text: `Document: ${doc.title} (${doc.type})\nContent: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? '...' : ''}`,
-            cache_control: { type: 'ephemeral' }
-          });
-        }
+    documents.forEach((doc, index) => {
+      if (doc.textContent) {
+        content.push({
+          type: 'text',
+          text: `Document ${index + 1}: ${doc.title} (${doc.type})\nContent: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? '...' : ''}`,
+          cache_control: { type: 'ephemeral' }
+        });
       }
-    }
+    });
 
     // Add user message
     content.push({
@@ -362,7 +347,7 @@ Price per Sq Ft: $${knowledgeBase.valuation?.pricePerSqFt || 'Not available'}`;
       text: `Question: ${message}`
     });
 
-    // Use Claude with Files API
+    // Use Claude with text content (temporarily disabled Files API and citations)
     const claudeResponse = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20241022',
       max_tokens: 4000,
@@ -373,29 +358,13 @@ Price per Sq Ft: $${knowledgeBase.valuation?.pricePerSqFt || 'Not available'}`;
           role: 'user',
           content: content
         }
-      ],
-      citations: true
+      ]
     });
     
-    // Extract response and citations
+    // Extract response
     const response = claudeResponse.content[0].text;
-    const citations = claudeResponse.content[0].citations || [];
-    
-    // Process citations
-    const processedSources = citations.map(citation => {
-      const documentIndex = citation.start - 1;
-      if (documentIndex >= 0 && documentIndex < documents.length) {
-        const doc = documents[documentIndex];
-        return {
-          documentId: doc._id,
-          documentTitle: doc.title,
-          documentType: doc.type,
-          sourceIndex: documentIndex + 1,
-          citation: citation
-        };
-      }
-      return null;
-    }).filter(source => source !== null);
+    const citations = [];
+    const processedSources = [];
     
     res.json({ 
       response,
@@ -481,54 +450,22 @@ Price per Sq Ft: $${knowledgeBase.valuation?.pricePerSqFt || 'Not available'}`;
       }
     ];
 
-    // Add PDF files directly to Claude using Files API
+    // Temporarily use text content for all documents to avoid Files API issues
     const claudeFileIds = [];
     const allDocuments = [...pdfDocuments, ...textDocuments];
     
-    for (const doc of pdfDocuments) {
-      try {
-        // Get the file from Azure storage
-        const { containerClient } = require('../config/azureStorage');
-        const blockBlobClient = containerClient.getBlockBlobClient(doc.azureKey);
-        const downloadResponse = await blockBlobClient.download();
-        
-        // Convert stream to buffer
-        const chunks = [];
-        for await (const chunk of downloadResponse.readableStreamBody) {
-          chunks.push(chunk);
-        }
-        const fileBuffer = Buffer.concat(chunks);
-        
-        // Upload to Claude Files API
-        const claudeFileId = await uploadDocumentToClaude(fileBuffer, doc.title);
-        if (claudeFileId) {
-          claudeFileIds.push(claudeFileId);
-          content.push({
-            type: 'file',
-            source: { type: 'file_id', file_id: claudeFileId }
-          });
-        }
-      } catch (error) {
-        console.error(`Error processing PDF file ${doc.title}:`, error);
-        // Fallback to text content if Files API fails
-        if (doc.textContent) {
-          content.push({
-            type: 'text',
-            text: `Document: ${doc.title} (${doc.type})\nContent: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? '...' : ''}`,
-            cache_control: { type: 'ephemeral' }
-          });
-        }
+    // Add all documents as text content for now
+    allDocuments.forEach((doc, index) => {
+      if (doc.textContent) {
+        content.push({
+          type: 'text',
+          text: `Document ${index + 1}: ${doc.title} (${doc.type})\nContent: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? '...' : ''}`,
+          cache_control: { type: 'ephemeral' }
+        });
       }
-    }
-
-    // Add text documents as text content
-    textDocuments.forEach((doc, index) => {
-      content.push({
-        type: 'text',
-        text: `Document ${index + 1}: ${doc.title} (${doc.type})\nContent: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? '...' : ''}`,
-        cache_control: { type: 'ephemeral' }
-      });
     });
+
+
 
     // Add user message
     content.push({
@@ -565,46 +502,10 @@ Price per Sq Ft: $${knowledgeBase.valuation?.pricePerSqFt || 'Not available'}`;
       }
     }
 
-    // After streaming is complete, get citations with a separate call
+    // For streaming, we'll skip citations for now to avoid API errors
+    // Citations can be added back later when the API supports them properly
     let citations = [];
     let processedSources = [];
-    
-    try {
-      const citationResponse = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 100,
-        temperature: 0.1,
-        system: STATIC_SYSTEM_PROMPT,
-        messages: [
-          {
-            role: 'user',
-            content: content
-          }
-        ],
-        citations: true
-      });
-
-      citations = citationResponse.content[0].citations || [];
-      
-      // Process citations to match our document structure
-      processedSources = citations.map(citation => {
-        const documentIndex = citation.start - 1;
-        if (documentIndex >= 0 && documentIndex < allDocuments.length) {
-          const doc = allDocuments[documentIndex];
-          return {
-            documentId: doc._id,
-            documentTitle: doc.title,
-            documentType: doc.type,
-            sourceIndex: documentIndex + 1,
-            citation: citation
-          };
-        }
-        return null;
-      }).filter(source => source !== null);
-    } catch (citationError) {
-      console.error('Citation generation error:', citationError);
-      // Continue without citations if they fail
-    }
 
     // Send final message with full response and sources
     res.write(`data: ${JSON.stringify({
