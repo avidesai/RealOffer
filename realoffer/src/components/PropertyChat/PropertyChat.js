@@ -111,62 +111,6 @@ const PropertyChat = ({ propertyId, onClose, isOpen }) => {
     }
   };
 
-  const sendMessageWithFilesAPI = async () => {
-    if (!inputMessage.trim()) return;
-    
-    const userMessage = { role: 'user', content: inputMessage };
-    setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
-    setIsLoading(true);
-    setIsStreaming(false);
-    setStreamingResponse('');
-    
-    try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/chat/property/files`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          propertyId,
-          message: inputMessage,
-          conversationHistory: messages.slice(-10)
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Files API request failed');
-      }
-
-      const data = await response.json();
-      
-      const assistantMessage = {
-        role: 'assistant',
-        content: data.response,
-        sources: data.sources || [],
-        documents: data.documents,
-        model: data.model,
-        citations: data.citations,
-        filesApiUsed: data.filesApiUsed
-      };
-      
-      setMessages(prev => [...prev, assistantMessage]);
-      setShowSources(prev => ({ ...prev, [messages.length]: false }));
-      
-    } catch (error) {
-      console.error('Files API chat error:', error);
-      const errorMessage = { 
-        role: 'assistant', 
-        content: 'Sorry, I encountered an error. Please try again.',
-        isError: true
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const formatSource = (source) => {
     if (source.citation) {
       // New citation format

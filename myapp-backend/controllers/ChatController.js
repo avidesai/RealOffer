@@ -418,7 +418,7 @@ Price per Sq Ft: $${knowledgeBase.valuation?.pricePerSqFt || 'Not available'}`;
   }
 };
 
-// New streaming endpoint for real-time responses
+// Enhanced streaming endpoint with Files API integration
 exports.chatWithPropertyStream = async (req, res) => {
   const { propertyId, message, conversationHistory = [] } = req.body;
   
@@ -441,16 +441,25 @@ exports.chatWithPropertyStream = async (req, res) => {
     // Get property knowledge base
     const knowledgeBase = await createPropertyKnowledgeBase(propertyId);
     
-    // Get documents with text content
-    const documents = await Document.find({ 
+    // Get documents - prioritize PDFs with Files API, fallback to text content
+    const pdfDocuments = await Document.find({ 
       propertyListing: propertyId,
-      textContent: { $exists: true, $ne: null, $ne: '' },
+      docType: 'pdf', // Only PDFs for Files API
       // Exclude offer documents - only use property listing documents
       offer: { $exists: false },
       purpose: { $in: ['listing', 'public'] } // Only listing and public documents
-    }).limit(5);
+    }).limit(3); // Limit PDFs to avoid API limits
     
-    // Create context (same as non-streaming version)
+    const textDocuments = await Document.find({ 
+      propertyListing: propertyId,
+      textContent: { $exists: true, $ne: null, $ne: '' },
+      docType: { $ne: 'pdf' }, // Non-PDF documents
+      // Exclude offer documents - only use property listing documents
+      offer: { $exists: false },
+      purpose: { $in: ['listing', 'public'] } // Only listing and public documents
+    }).limit(2); // Limit text documents
+    
+    // Create property context
     const propertyContext = `PROPERTY INFORMATION:
 Address: ${knowledgeBase.propertyInfo.address}
 Price: $${knowledgeBase.propertyInfo.price}
@@ -466,14 +475,71 @@ Estimated Value: $${knowledgeBase.valuation?.estimatedValue || 'Not available'}
 Price Range: $${knowledgeBase.valuation?.priceRange?.low || 'Not available'} - $${knowledgeBase.valuation?.priceRange?.high || 'Not available'}
 Price per Sq Ft: $${knowledgeBase.valuation?.pricePerSqFt || 'Not available'}`;
 
-    let documentContext = 'DOCUMENTS:\n';
-    documents.forEach((doc, index) => {
-      documentContext += `\nDocument ${index + 1}: ${doc.title} (${doc.type})
-Content: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? '...' : ''}
-`;
+    // Prepare content array for Claude with Files API integration
+    const content = [
+      {
+        type: 'text',
+        text: propertyContext,
+        cache_control: { type: 'ephemeral' }
+      }
+    ];
+
+    // Add PDF files directly to Claude using Files API
+    const claudeFileIds = [];
+    const allDocuments = [...pdfDocuments, ...textDocuments];
+    
+    for (const doc of pdfDocuments) {
+      try {
+        // Get the file from Azure storage
+        const { containerClient } = require('../config/azureStorage');
+        const blockBlobClient = containerClient.getBlockBlobClient(doc.azureKey);
+        const downloadResponse = await blockBlobClient.download();
+        
+        // Convert stream to buffer
+        const chunks = [];
+        for await (const chunk of downloadResponse.readableStreamBody) {
+          chunks.push(chunk);
+        }
+        const fileBuffer = Buffer.concat(chunks);
+        
+        // Upload to Claude Files API
+        const claudeFileId = await uploadDocumentToClaude(fileBuffer, doc.title);
+        if (claudeFileId) {
+          claudeFileIds.push(claudeFileId);
+          content.push({
+            type: 'file',
+            source: { type: 'file_id', file_id: claudeFileId }
+          });
+        }
+      } catch (error) {
+        console.error(`Error processing PDF file ${doc.title}:`, error);
+        // Fallback to text content if Files API fails
+        if (doc.textContent) {
+          content.push({
+            type: 'text',
+            text: `Document: ${doc.title} (${doc.type})\nContent: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? '...' : ''}`,
+            cache_control: { type: 'ephemeral' }
+          });
+        }
+      }
+    }
+
+    // Add text documents as text content
+    textDocuments.forEach((doc, index) => {
+      content.push({
+        type: 'text',
+        text: `Document ${index + 1}: ${doc.title} (${doc.type})\nContent: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? '...' : ''}`,
+        cache_control: { type: 'ephemeral' }
+      });
     });
 
-    // Stream the response without citations (citations not supported in streaming)
+    // Add user message
+    content.push({
+      type: 'text',
+      text: `Question: ${message}`
+    });
+
+    // Stream the response with Files API support
     const stream = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20241022',
       max_tokens: 4000,
@@ -482,22 +548,7 @@ Content: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? 
       messages: [
         {
           role: 'user',
-          content: [
-            {
-              type: 'text',
-              text: propertyContext,
-              cache_control: { type: 'ephemeral' }
-            },
-            {
-              type: 'text',
-              text: documentContext,
-              cache_control: { type: 'ephemeral' }
-            },
-            {
-              type: 'text',
-              text: `Question: ${message}`
-            }
-          ]
+          content: content
         }
       ],
       stream: true
@@ -530,22 +581,7 @@ Content: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? 
         messages: [
           {
             role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: propertyContext,
-                cache_control: { type: 'ephemeral' }
-              },
-              {
-                type: 'text',
-                text: documentContext,
-                cache_control: { type: 'ephemeral' }
-              },
-              {
-                type: 'text',
-                text: `Question: ${message}\n\nPlease provide citations for the sources used in your response.`
-              }
-            ]
+            content: content
           }
         ],
         citations: true
@@ -556,8 +592,8 @@ Content: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? 
       // Process citations to match our document structure
       processedSources = citations.map(citation => {
         const documentIndex = citation.start - 1;
-        if (documentIndex >= 0 && documentIndex < documents.length) {
-          const doc = documents[documentIndex];
+        if (documentIndex >= 0 && documentIndex < allDocuments.length) {
+          const doc = allDocuments[documentIndex];
           return {
             documentId: doc._id,
             documentTitle: doc.title,
@@ -578,12 +614,15 @@ Content: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? 
       type: 'complete',
       response: fullResponse,
       sources: processedSources,
-      documents: documents.map(doc => ({
+      documents: allDocuments.map(doc => ({
         id: doc._id,
         title: doc.title,
         type: doc.type
       })),
-      citations: citations
+      model: 'claude-3-5-sonnet-20241022',
+      citations: citations,
+      filesApiUsed: claudeFileIds.length > 0,
+      claudeFileIds: claudeFileIds
     })}\n\n`);
 
     res.end();

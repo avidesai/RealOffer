@@ -10,7 +10,7 @@ This document describes the implementation of an AI chat feature that allows use
 - **Official Citations**: Native citation support instead of manual `[SOURCE X]` markers
 - **Real-time Streaming**: Live response streaming for better UX
 - **Prompt Caching**: 90% cost reduction for repeated queries
-- **Files API Integration**: Direct PDF upload to Claude for enhanced processing
+- **Files API Integration**: Direct PDF upload to Claude for enhanced processing (NOW IN STREAMING!)
 - **Enhanced Document Processing**: Automatic file linking on upload
 - **Document Integration**: All PDF documents are processed for text extraction
 - **Property Information**: Includes listing details and valuation data
@@ -83,7 +83,7 @@ Body: {
   message: string,
   conversationHistory: array
 }
-Response: Server-Sent Events stream
+Response: Server-Sent Events stream with Files API support
 
 POST /api/chat/property/files
 Body: {
