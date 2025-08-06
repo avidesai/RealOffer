@@ -40,6 +40,14 @@ const documentSchema = new mongoose.Schema({
     content: String
   }],
   
+  // Enhanced AI Chat features
+  enhancedContent: {
+    structured: mongoose.Schema.Types.Mixed, // Structured content analysis
+    summary: String, // AI-generated summary
+    keyFindings: [String] // Key findings extracted by AI
+  },
+  lastProcessed: { type: Date }, // When document was last processed for AI
+  
   // Claude Files API integration
   claudeFileId: { type: String }, // Claude Files API file ID for enhanced processing
   

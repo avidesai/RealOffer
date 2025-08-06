@@ -167,6 +167,7 @@ const buyerPackagesRouter = require('./routes/buyerPackages');
 const adminRouter = require('./routes/admin');
 const offerDueDateNotificationsRouter = require('./routes/offerDueDateNotifications');
 const chatRouter = require('./routes/chat');
+const enhancedChatRouter = require('./routes/enhancedChat');
 
 // Initialize offer due date notification service
 require('./utils/offerDueDateNotificationService');
@@ -187,6 +188,7 @@ app.use('/api/buyerPackages', buyerPackagesRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/offer-due-date-notifications', offerDueDateNotificationsRouter);
 app.use('/api/chat', chatRouter);
+app.use('/api/chat/enhanced', enhancedChatRouter);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

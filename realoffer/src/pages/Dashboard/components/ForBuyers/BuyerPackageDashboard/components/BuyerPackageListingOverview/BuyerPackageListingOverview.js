@@ -8,7 +8,7 @@ import BuyerPackageMoreInfo from './components/BuyerPackageMoreInfo/BuyerPackage
 import ListingPhotoGallery from './components/ListingPhotoGallery/ListingPhotoGallery';
 import ShareUrl from './components/ShareUrl/ShareUrl'; // Import ShareUrl component
 import OfferDueReminder from '../../../../../../../components/OfferDueReminder/OfferDueReminder';
-import PropertyChat from '../../../../../../../components/PropertyChat/PropertyChat';
+import EnhancedPropertyChat from '../../../../../../../components/PropertyChat/EnhancedPropertyChat';
 import basePhoto from '../../../../../../../assets/images/basephoto.png';
 import './BuyerPackageListingOverview.css';
 
@@ -189,7 +189,7 @@ function BuyerPackageListingOverview({ buyerPackage }) {
           />
         )}
         {showChatModal && (
-          <PropertyChat 
+          <EnhancedPropertyChat 
             propertyId={currentListing._id}
             onClose={() => setShowChatModal(false)}
             isOpen={showChatModal}

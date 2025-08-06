@@ -7,7 +7,7 @@ import MoreInfo from './components/MoreInfo/MoreInfo';
 import ListingPhotoGallery from './components/ListingPhotoGallery/ListingPhotoGallery';
 import ShareUrl from './components/ShareUrl/ShareUrl'; // Import ShareUrl component
 import OfferDueReminder from '../../../../../../../components/OfferDueReminder/OfferDueReminder';
-import PropertyChat from '../../../../../../../components/PropertyChat/PropertyChat';
+import EnhancedPropertyChat from '../../../../../../../components/PropertyChat/EnhancedPropertyChat';
 import './ListingOverview.css';
 
 function ListingOverview({ listing }) {
@@ -208,7 +208,7 @@ function ListingOverview({ listing }) {
           />
         )}
         {showChatModal && (
-          <PropertyChat 
+          <EnhancedPropertyChat 
             propertyId={currentListing._id}
             onClose={() => setShowChatModal(false)}
             isOpen={showChatModal}
