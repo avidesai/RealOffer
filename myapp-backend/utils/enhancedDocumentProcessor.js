@@ -117,7 +117,7 @@ Return the structured content in a clear, organized format.`;
 
     try {
       const response = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-3-5-sonnet-20241022', // Using Sonnet for complex content structuring
         max_tokens: 2000,
         temperature: 0.1,
         messages: [{
@@ -177,14 +177,14 @@ Return the structured content in a clear, organized format.`;
   }
 
   /**
-   * Generate document summary
+   * Generate document summary using Haiku for cost efficiency
    */
   async generateDocumentSummary(text, documentType) {
     if (text.length < 100) return text;
 
     try {
       const response = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-3-haiku-20240307',
         max_tokens: 300,
         temperature: 0.1,
         messages: [{

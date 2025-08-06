@@ -518,11 +518,11 @@ Report content:
 ${text}`;
     }
 
-    // Call Claude API
-    await updateAnalysisProgress(analysis._id, 'analyzing', 70, 'Analyzing document content...');
+    // Call Claude API with Haiku for cost-effective summaries
+    await updateAnalysisProgress(analysis._id, 'analyzing', 70, 'Analyzing document content with AI...');
     const claudeResponse = await axios.post('https://api.anthropic.com/v1/messages', {
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 2000, // Increased for more detailed analysis with Sonnet
+      model: 'claude-3-haiku-20240307',
+      max_tokens: 1500, // Reduced for Haiku - sufficient for summaries
       temperature: 0.1,
       messages: [
         {
@@ -583,7 +583,7 @@ ${text}`;
     analysis.progress = {
       currentStep: 'completed',
       percentage: 100,
-      message: 'Analysis completed successfully'
+      message: 'Analysis loading...'
     };
     await analysis.save();
 
@@ -594,7 +594,7 @@ ${text}`;
       progress: {
         currentStep: 'completed',
         percentage: 100,
-        message: 'Analysis completed successfully'
+        message: 'Analysis loading...'
       },
       lastUpdated: analysis.lastUpdated
     });
