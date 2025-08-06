@@ -14,7 +14,7 @@ const cleanFilename = (filename) => {
 
 // Utility function to intelligently determine document type based on filename
 const getDocumentTypeFromFilename = (filename) => {
-  const lowerFilename = filename.toLowerCase();
+  const lowerFilename = filename.toLowerCase().replace(/_/g, ' ');
   
   // Check for specific keyword combinations first (higher priority)
   if ((lowerFilename.includes('pest') && lowerFilename.includes('inspection')) ||
@@ -73,12 +73,12 @@ const getDocumentTypeFromFilename = (filename) => {
       keywords: ['offer instructions', 'offer instruction', 'instructions', 'instruction', 'how to offer', 'offer guide', 'offer process', 'submission guide'],
       score: 0
     },
-    'Home Inspection Report': {
-      keywords: ['home inspection', 'inspection report', 'home inspector', 'inspection', 'home inspection report', 'property inspection', 'building inspection', 'structural inspection'],
+    'Roof Inspection Report': {
+      keywords: ['roof inspection', 'roof report', 'roof inspector', 'roof inspection report', 'roofing inspection', 'roof assessment', 'roof evaluation', 'roof condition', 'roofing report'],
       score: 0
     },
-    'Roof Inspection Report': {
-      keywords: ['roof inspection', 'roof report', 'roof inspector', 'roof inspection report', 'roofing inspection', 'roof assessment', 'roof evaluation', 'roof condition'],
+    'Home Inspection Report': {
+      keywords: ['home inspection', 'home inspector', 'home inspection report', 'property inspection', 'building inspection', 'structural inspection'],
       score: 0
     },
     'Pest Inspection Report': {
@@ -123,6 +123,14 @@ const getDocumentTypeFromFilename = (filename) => {
         // Bonus points for exact matches or longer keywords
         if (lowerFilename === keyword || keyword.length > 3) {
           patterns[docType].score += 0.5;
+        }
+        // Extra bonus for more specific keywords (longer phrases)
+        if (keyword.length > 10) {
+          patterns[docType].score += 1;
+        }
+        // Highest priority for exact phrase matches
+        if (lowerFilename.includes(keyword) && keyword.split(' ').length > 1) {
+          patterns[docType].score += 2;
         }
       }
     });
