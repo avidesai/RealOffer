@@ -11,6 +11,8 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
   const [citations, setCitations] = useState([]);
   const [processingTime, setProcessingTime] = useState(null);
   const [error, setError] = useState(null);
+  const [isCached, setIsCached] = useState(false);
+  const [relevanceScores, setRelevanceScores] = useState([]);
   
   const messagesEndRef = useRef(null);
   const abortControllerRef = useRef(null);
@@ -122,6 +124,8 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
                 setSources(data.sources || []);
                 setTokenUsage(data.estimatedTokens);
                 setProcessingTime(data.processingTime);
+                setIsCached(data.cached || false);
+                setRelevanceScores(data.sources?.map(s => s.relevanceScore) || []);
                 
               } else if (data.type === 'error') {
                 throw new Error(data.error);
@@ -273,7 +277,9 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
               <span className="pchat-token-count">Tokens: {tokenUsage}</span>
             )}
             {processingTime && (
-              <span className="pchat-processing-time">{processingTime}ms</span>
+              <span className={`pchat-processing-time ${isCached ? 'cached' : ''}`}>
+                {processingTime}ms {isCached && '⚡️ (cached)'}
+              </span>
             )}
           </div>
           <button className="pchat-close" onClick={onClose}>×</button>
@@ -291,12 +297,13 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
                 <li>Details from disclosure documents</li>
                 <li>Specific questions about any uploaded documents</li>
               </ul>
-              <p><strong>New features:</strong></p>
+              <p><strong>Optimized features:</strong></p>
               <ul>
-                <li>✅ Comprehensive document analysis</li>
-                <li>✅ Source citations for all information</li>
-                <li>✅ Intelligent document retrieval</li>
-                <li>✅ Cost-optimized responses</li>
+                <li>⚡️ Ultra-fast document processing</li>
+                <li>🎯 Smart document relevance scoring</li>
+                <li>📊 Source citations with relevance scores</li>
+                <li>💾 Intelligent caching for instant responses</li>
+                <li>🔍 Advanced semantic document search</li>
               </ul>
             </div>
           )}
@@ -346,7 +353,14 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
                 <div className="pchat-sources-grid">
                   {sources.map((source, index) => (
                     <div key={index} className="pchat-source-card">
-                      <h4>{source.title}</h4>
+                      <div className="source-header">
+                        <h4>{source.title}</h4>
+                        {source.relevanceScore && (
+                          <span className="relevance-score">
+                            {(source.relevanceScore * 100).toFixed(0)}% match
+                          </span>
+                        )}
+                      </div>
                       <p className="source-type">{source.type}</p>
                       {source.summary && (
                         <p className="source-summary">{source.summary}</p>
