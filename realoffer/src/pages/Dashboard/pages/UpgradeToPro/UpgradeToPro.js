@@ -7,20 +7,21 @@ import StripeWrapper from './components/StripeWrapper';
 import StripePaymentForm from './components/StripePaymentForm';
 import api from '../../../../context/api';
 import './UpgradeToPro.css';
-import { BarChart2, Brain, TrendingUp, Users } from 'lucide-react';
+import { BarChart2, Brain, TrendingUp, Users, MessageSquare } from 'lucide-react';
 
-// Agent features (includes unlimited listings)
+// Agent features
 const agentProFeatures = [
-  { icon: <BarChart2 size={24} />, title: 'Advanced Analytics & Insights', desc: 'Track buyer engagement, document views, and offer activity in real time.' },
-  { icon: <Brain size={24} />, title: 'AI Document Analysis', desc: 'Instantly review disclosures and reports for key risks and insights.' },
-  { icon: <TrendingUp size={24} />, title: 'Market Intelligence & Comps', desc: 'Access up-to-date property valuations and comparable sales data.' },
-  { icon: <Users size={24} />, title: 'Unlimited Active Listings', desc: 'Manage as many listings as you need—no limits, ever.' },
+  { icon: <BarChart2 size={24} />, title: 'Advanced Analytics', desc: 'Track buyer engagement, views, downloads, and offer activity in real time.' },
+  { icon: <Brain size={24} />, title: 'AI Document Analysis', desc: 'Get instant summaries of inspection reports and disclosures.' },
+  { icon: <MessageSquare size={24} />, title: 'AI Property Assistant', desc: 'Ask any question about a property and get instant, intelligent answers. Save hours of research.' },
+  { icon: <TrendingUp size={24} />, title: 'Market Intelligence & Comps', desc: 'Access up-to-date property valuations and comparable sales data. No more manual research.' },
 ];
 
-// Buyer features (no unlimited listings, more buyer-focused)
+// Buyer features (more buyer-focused)
 const buyerProFeatures = [
-  { icon: <Brain size={24} />, title: 'AI Document Analysis', desc: 'Instantly review disclosures and reports for key risks and insights.' },
-  { icon: <TrendingUp size={24} />, title: 'Market Intelligence & Comps', desc: 'Access up-to-date property valuations and comparable sales data.' },
+  { icon: <Brain size={24} />, title: 'AI Document Analysis', desc: 'Get instant summaries of inspection reports and disclosures.' },
+  { icon: <MessageSquare size={24} />, title: 'AI Property Assistant', desc: 'Ask any question about a property and get instant, intelligent answers. Save hours of research.' },
+  { icon: <TrendingUp size={24} />, title: 'Market Intelligence & Comps', desc: 'Access up-to-date property valuations and comparable sales data. No more manual research.' },
 ];
 
 const ANNUAL_PRICE = 199;
@@ -124,8 +125,8 @@ const UpgradeToProContent = () => {
         </h1>
         <p className="upgrade-hero-subtitle">
           {isBuyer 
-            ? 'Get exclusive access to advanced tools and listing insights—designed for serious homebuyers.'
-            : 'Supercharge your business with next level tools and insights—built for top agents.'
+            ? 'Get the home you want with AI insights that give you an edge over other buyers.'
+            : 'Close more deals with AI insights and real-time analytics. Outperform your competition.'
           }
         </p>
       </div>
