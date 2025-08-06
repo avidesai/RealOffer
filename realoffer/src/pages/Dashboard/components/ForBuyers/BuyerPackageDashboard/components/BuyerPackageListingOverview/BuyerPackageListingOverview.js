@@ -189,23 +189,11 @@ function BuyerPackageListingOverview({ buyerPackage }) {
           />
         )}
         {showChatModal && (
-          <div className="chat-modal-overlay">
-            <div className="chat-modal">
-              <div className="chat-modal-header">
-                <h3>Ask AI About This Property</h3>
-                <button 
-                  className="close-btn"
-                  onClick={() => setShowChatModal(false)}
-                >
-                  ×
-                </button>
-              </div>
-              <PropertyChat 
-                propertyId={currentListing._id}
-                onClose={() => setShowChatModal(false)}
-              />
-            </div>
-          </div>
+          <PropertyChat 
+            propertyId={currentListing._id}
+            onClose={() => setShowChatModal(false)}
+            isOpen={showChatModal}
+          />
         )}
       </div>
     </div>
