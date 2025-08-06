@@ -148,7 +148,7 @@ function ListingOverview({ listing }) {
             <p className="property-price">${formatPrice(currentListing.homeCharacteristics.price)}<span className='space'>•</span>{currentListing.homeCharacteristics.beds} Bed, {currentListing.homeCharacteristics.baths} Bath</p>
             <div className={`overview-buttons ${!currentListing.scheduleShowingUrl ? 'three-buttons' : ''}`}>
               <button className="overview-btn-share-package" onClick={() => setShowShareModal(true)}>Share</button>
-              <button className="ask-questions-btn" onClick={() => setShowChatModal(true)}>Ask Questions</button>
+              <button className="ask-questions-btn" onClick={() => setShowChatModal(true)}>AI Assistant</button>
               <button className="overview-btn" onClick={() => setShowGallery(true)}>Images</button>
               {currentListing.scheduleShowingUrl && (
                 <button 
@@ -208,23 +208,11 @@ function ListingOverview({ listing }) {
           />
         )}
         {showChatModal && (
-          <div className="chat-modal-overlay">
-            <div className="chat-modal">
-              <div className="chat-modal-header">
-                <h3>Ask AI About This Property</h3>
-                <button 
-                  className="close-btn"
-                  onClick={() => setShowChatModal(false)}
-                >
-                  ×
-                </button>
-              </div>
-              <PropertyChat 
-                propertyId={currentListing._id}
-                onClose={() => setShowChatModal(false)}
-              />
-            </div>
-          </div>
+          <PropertyChat 
+            propertyId={currentListing._id}
+            onClose={() => setShowChatModal(false)}
+            isOpen={showChatModal}
+          />
         )}
       </div>
     </div>

@@ -89,12 +89,12 @@ const processDocumentForSearch = async (documentId) => {
     };
   });
   
-  // Generate embeddings for each chunk using Claude
+  // Generate embeddings for each chunk using Claude 3.5 Sonnet
   const chunkEmbeddings = await Promise.all(
     structuredChunks.map(async (chunk, index) => {
       try {
         const embeddingResponse = await anthropic.embeddings.create({
-          model: 'claude-3-haiku-20240307',
+          model: 'claude-3-5-sonnet-20241022',
           input: chunk.content,
         });
         

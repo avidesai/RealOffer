@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import api from '../../context/api';
 import './PropertyChat.css';
 
-const PropertyChat = ({ propertyId, onClose }) => {
+const PropertyChat = ({ propertyId, onClose, isOpen }) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamingResponse, setStreamingResponse] = useState('');
   const [showSources, setShowSources] = useState({});
   const messagesEndRef = useRef(null);
 
@@ -15,34 +16,87 @@ const PropertyChat = ({ propertyId, onClose }) => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, streamingResponse]);
 
-  const sendMessage = async () => {
+  const sendMessageStream = async () => {
     if (!inputMessage.trim()) return;
     
     const userMessage = { role: 'user', content: inputMessage };
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsLoading(true);
+    setIsStreaming(true);
+    setStreamingResponse('');
     
     try {
-      const response = await api.post('/api/chat/property', {
-        propertyId,
-        message: inputMessage,
-        conversationHistory: messages.slice(-10) // Last 10 messages for context
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/chat/property/stream`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          propertyId,
+          message: inputMessage,
+          conversationHistory: messages.slice(-10)
+        })
       });
-      
-      const assistantMessage = { 
-        role: 'assistant', 
-        content: response.data.response,
-        sources: response.data.sources,
-        relevantChunks: response.data.relevantChunks
-      };
-      
-      setMessages(prev => [...prev, assistantMessage]);
-      setShowSources(prev => ({ ...prev, [messages.length]: false }));
+
+      if (!response.ok) {
+        throw new Error('Streaming request failed');
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullResponse = '';
+      let sources = [];
+      let citations = [];
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              
+              if (data.type === 'content') {
+                fullResponse += data.content;
+                setStreamingResponse(fullResponse);
+              } else if (data.type === 'complete') {
+                fullResponse = data.response;
+                sources = data.sources || [];
+                citations = data.citations || [];
+                
+                const assistantMessage = {
+                  role: 'assistant',
+                  content: fullResponse,
+                  sources: sources,
+                  documents: data.documents,
+                  model: 'claude-3-5-sonnet-20241022',
+                  citations: citations
+                };
+                
+                setMessages(prev => [...prev, assistantMessage]);
+                setShowSources(prev => ({ ...prev, [messages.length]: false }));
+                setStreamingResponse('');
+                setIsStreaming(false);
+                return;
+              } else if (data.error) {
+                throw new Error(data.error);
+              }
+            } catch (e) {
+              console.error('Error parsing streaming data:', e);
+            }
+          }
+        }
+      }
     } catch (error) {
-      console.error('Chat error:', error);
+      console.error('Streaming chat error:', error);
       const errorMessage = { 
         role: 'assistant', 
         content: 'Sorry, I encountered an error. Please try again.',
@@ -51,79 +105,132 @@ const PropertyChat = ({ propertyId, onClose }) => {
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+      setIsStreaming(false);
+      setStreamingResponse('');
     }
   };
 
   const formatSource = (source) => {
-    return `${source.documentType}: ${source.documentTitle} (Page ${source.pageNumber}, ${source.section})`;
+    if (source.citation) {
+      // New citation format
+      return `${source.documentTitle} (${source.documentType})`;
+    } else {
+      // Legacy format
+      return `${source.documentType}: ${source.documentTitle} (Source ${source.sourceIndex})`;
+    }
   };
 
+  const handleSendMessage = () => {
+    // Use streaming by default for better UX
+    sendMessageStream();
+  };
+
+  if (!isOpen) return null;
+
   return (
-    <div className="property-chat">
-      <div className="chat-messages">
-        {messages.length === 0 && (
-          <div className="chat-welcome">
-            <p>Ask me anything about this property! I can help you with:</p>
-            <ul>
-              <li>Property details and features</li>
-              <li>Inspection findings</li>
-              <li>Property history</li>
-              <li>Valuation information</li>
-              <li>Document contents</li>
-            </ul>
+    <div className="chat-modal-overlay">
+      <div className="chat-modal">
+        <div className="chat-modal-header">
+          <div className="header-title-container">
+            <h3>AI Assistant</h3>
+            <span className="beta-badge">Beta</span>
           </div>
-        )}
-        
-        {messages.map((msg, index) => (
-          <div key={index} className={`message ${msg.role} ${msg.isError ? 'error' : ''}`}>
-            <div className="message-content">{msg.content}</div>
+          <button 
+            className="close-btn"
+            onClick={onClose}
+          >
+            ×
+          </button>
+        </div>
+        <div className="pchat-container">
+          <div className="pchat-messages">
+            {messages.length === 0 && (
+              <div className="pchat-welcome">
+                <p>Ask me anything about this property! I can help you with:</p>
+                <ul>
+                  <li>Property details and features</li>
+                  <li>Valuation data and comparable properties</li>
+                  <li>Information about any uploaded disclosures</li>
+                  <li>Specific questions about uploaded documents</li>
+                </ul>
+              </div>
+            )}
             
-            {msg.sources && msg.sources.length > 0 && (
-              <div className="message-sources">
-                <button 
-                  className="sources-toggle"
-                  onClick={() => setShowSources(prev => ({ ...prev, [index]: !prev[index] }))}
-                >
-                  {showSources[index] ? 'Hide' : 'Show'} Sources ({msg.sources.length})
-                </button>
+            {messages.map((msg, index) => (
+              <div key={index} className={`pchat-message ${msg.role} ${msg.isError ? 'error' : ''}`}>
+                <div className="pchat-message-content">{msg.content}</div>
                 
-                {showSources[index] && (
-                  <div className="sources-details">
-                    {msg.sources.map((source, sourceIndex) => (
-                      <div key={sourceIndex} className="source-item">
-                        <div className="source-header">
-                          {formatSource(source)}
-                        </div>
-                        <div className="source-excerpt">
-                          {msg.relevantChunks.find(chunk => 
-                            chunk.source.documentId === source.documentId &&
-                            chunk.source.startIndex === source.startIndex
-                          )?.content.substring(0, 200)}...
-                        </div>
+                {msg.sources && msg.sources.length > 0 && (
+                  <div className="pchat-message-sources">
+                    <button 
+                      className="pchat-sources-toggle"
+                      onClick={() => setShowSources(prev => ({ ...prev, [index]: !prev[index] }))}
+                    >
+                      {showSources[index] ? 'Hide' : 'Show'} Sources ({msg.sources.length})
+                    </button>
+                    
+                    {showSources[index] && (
+                      <div className="pchat-sources-details">
+                        {msg.sources.map((source, sourceIndex) => (
+                          <div key={sourceIndex} className="pchat-source-item">
+                            <div className="pchat-source-header">
+                              {formatSource(source)}
+                            </div>
+                            {source.citation && (
+                              <div className="pchat-citation-excerpt">
+                                {source.citation.text}
+                              </div>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
               </div>
+            ))}
+            
+            {isStreaming && streamingResponse && (
+              <div className="pchat-message assistant streaming">
+                <div className="pchat-message-content">
+                  {streamingResponse}
+                  <span className="pchat-streaming-cursor">|</span>
+                </div>
+              </div>
             )}
+            
+            {isLoading && !isStreaming && (
+              <div className="pchat-loading">
+                <div className="pchat-loading-dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <span>AI is thinking...</span>
+              </div>
+            )}
+            
+            <div ref={messagesEndRef} />
           </div>
-        ))}
-        {isLoading && <div className="loading">AI is thinking...</div>}
-        <div ref={messagesEndRef} />
-      </div>
-      
-      <div className="chat-input">
-        <input
-          type="text"
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-          placeholder="Ask about this property..."
-          onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-          disabled={isLoading}
-        />
-        <button onClick={sendMessage} disabled={isLoading || !inputMessage.trim()}>
-          Send
-        </button>
+          
+          <div className="pchat-input">
+            <input
+              type="text"
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              placeholder="Ask about this property..."
+              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              disabled={isLoading}
+            />
+            <button 
+              onClick={handleSendMessage} 
+              disabled={isLoading || !inputMessage.trim()}
+              className={isStreaming ? 'pchat-streaming' : ''}
+            >
+              {isStreaming ? 'Streaming...' : 'Send'}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

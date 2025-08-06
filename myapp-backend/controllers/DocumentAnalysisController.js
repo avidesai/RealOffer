@@ -521,8 +521,9 @@ ${text}`;
     // Call Claude API
     await updateAnalysisProgress(analysis._id, 'analyzing', 70, 'Analyzing document content...');
     const claudeResponse = await axios.post('https://api.anthropic.com/v1/messages', {
-      model: 'claude-3-haiku-20240307',
-      max_tokens: 1500, // Increased for more detailed analysis
+      model: 'claude-3-5-sonnet-20241022',
+      max_tokens: 2000, // Increased for more detailed analysis with Sonnet
+      temperature: 0.1,
       messages: [
         {
           role: 'user',
