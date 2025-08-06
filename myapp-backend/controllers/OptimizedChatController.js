@@ -138,13 +138,12 @@ class OptimizedChatController {
    */
   async buildFastPrompt(knowledgeBase, documents, userMessage, conversationHistory) {
     // Streamlined system prompt
-    const systemPrompt = `You are a real estate AI assistant. Provide concise, accurate answers based on the property information and documents provided. Always cite sources using [Source: Document Title] format.
+    const systemPrompt = `You are a real estate AI assistant. Provide concise, accurate answers based on the property information and documents provided.
 
 IMPORTANT: 
-- Be specific and cite sources. If you reference information from a document, include [Source: Document Title].
 - When available, prioritize AI-generated summaries (marked with 🤖) as they contain expert analysis.
 - Use document excerpts and key findings to provide comprehensive answers.
-- If a document has an AI analysis, reference that analysis in your response.`;
+- Do NOT include text citations like [Source: Document Title] in your responses - the citation system will handle this automatically.`;
 
     // Compact property context
     const propertyContext = this.createCompactPropertyContext(knowledgeBase);
@@ -414,27 +413,27 @@ IMPORTANT:
   }
 
   /**
-   * Process response for citations
+   * Process response with citations (blue markers only)
    */
   processResponseWithCitations(responseText, documents) {
-    const citations = [];
     let processedText = responseText;
+    const citations = [];
 
-    documents.forEach((doc) => {
-      const titleRegex = new RegExp(doc.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    documents.forEach((doc, index) => {
+      const titleRegex = new RegExp(`\\b${doc.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
       
-      if (titleRegex.test(responseText)) {
+      if (titleRegex.test(processedText)) {
         citations.push({
-          documentId: doc.id,
+          id: index + 1,
           documentTitle: doc.title,
           documentType: doc.type,
           relevanceScore: doc.relevanceScore
         });
 
-        // Add citation markers
+        // Only add blue citation markers, no text citations
         processedText = processedText.replace(
           titleRegex, 
-          `${doc.title} [Source: ${doc.title}]`
+          doc.title
         );
       }
     });

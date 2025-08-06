@@ -361,13 +361,7 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
                 disabled={isLoading || !inputMessage.trim()}
                 className="pchat-send"
               >
-                {isLoading ? (
-                  <div className="typing-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                ) : 'Send'}
+                              {isLoading ? 'Sending...' : 'Send'}
               </button>
             </div>
           </div>

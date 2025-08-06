@@ -440,24 +440,24 @@
 
 /* Streaming Indicator */
 .pchat-streaming-indicator {
-  margin-top: 12px;
+  margin-top: 8px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .typing-dots {
   display: flex;
-  gap: 4px;
+  gap: 3px;
 }
 
 .typing-dots span {
-  width: 8px;
-  height: 8px;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  width: 6px;
+  height: 6px;
+  background: #007bff;
   border-radius: 50%;
-  animation: typing 1.4s infinite;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  animation: typing 1.4s infinite ease-in-out;
+  opacity: 0.6;
 }
 
 .typing-dots span:nth-child(2) {
@@ -470,11 +470,11 @@
 
 @keyframes typing {
   0%, 60%, 100% {
-    transform: translateY(0) scale(1);
-    opacity: 0.5;
+    transform: translateY(0);
+    opacity: 0.4;
   }
   30% {
-    transform: translateY(-12px) scale(1.2);
+    transform: translateY(-8px);
     opacity: 1;
   }
 }
@@ -570,20 +570,24 @@
 
 
 .pchat-stop-button {
-  background: #dc3545;
+  background: #6c757d;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
   cursor: pointer;
-  margin-bottom: 16px;
-  font-size: 13px;
-  font-weight: 600;
+  margin-bottom: 12px;
+  font-size: 12px;
+  font-weight: 500;
   transition: all 0.2s ease;
+  align-self: center;
+  opacity: 0.8;
 }
 
 .pchat-stop-button:hover {
-  background: #c82333;
+  background: #5a6268;
+  opacity: 1;
+  transform: translateY(-1px);
 }
 
 .pchat-input {
@@ -595,6 +599,7 @@
   border-top: 1px solid #f1f3f5;
   margin-top: 1rem;
   background: white;
+  align-items: center;
 }
 
 .pchat-input-wrapper {
@@ -668,6 +673,12 @@
 .pchat-input-wrapper .pchat-send:disabled {
   background: #6c757d;
   cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.pchat-input-wrapper .pchat-send:disabled:hover {
+  background: #6c757d;
+  transform: none;
 }
 
 

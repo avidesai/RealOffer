@@ -200,9 +200,10 @@ CORE RESPONSIBILITIES:
 5. Offer insights based on comparable properties and market data
 
 CITATION REQUIREMENTS:
-- When referencing information from documents, cite the source using [Source: Document Title]
+- Do NOT include text citations like [Source: Document Title] in your responses
+- The citation system will automatically handle source references with blue markers
 - Be specific about which document contains the information
-- When multiple documents contain related information, cite all relevant sources
+- When multiple documents contain related information, reference all relevant sources
 - Distinguish between information from documents vs. general real estate knowledge
 
 RESPONSE GUIDELINES:
@@ -211,7 +212,7 @@ RESPONSE GUIDELINES:
 - Highlight critical issues or red flags prominently
 - Provide context and explanations for technical terms
 - Structure responses logically with clear sections when appropriate
-- Always cite your sources for specific claims or findings
+- The citation system will automatically add source references
 
 DOCUMENT TYPES YOU HAVE ACCESS TO:
 - Pest/Termite Inspection Reports
@@ -389,10 +390,10 @@ ${comparablesText}`;
           referenced: true
         });
 
-        // Add proper citation format
+        // Only add blue citation markers, no text citations
         processedText = processedText.replace(
           docTitleRegex, 
-          `${doc.title} [Source: ${doc.title}]`
+          doc.title
         );
       }
     });
