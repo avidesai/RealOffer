@@ -20,6 +20,8 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, isBuyerPac
   const getModalTitle = () => {
     if (documentType && documentType.toLowerCase().includes('pest')) {
       return 'Pest Inspection Report Analysis';
+    } else if (documentType && documentType.toLowerCase().includes('roof inspection')) {
+      return 'Roof Inspection Report Analysis';
     } else if (documentType && documentType.toLowerCase().includes('seller property questionnaire')) {
       return 'Seller Property Questionnaire Analysis';
     } else if (documentType && documentType.toLowerCase().includes('real estate transfer disclosure statement')) {

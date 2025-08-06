@@ -77,6 +77,10 @@ const getDocumentTypeFromFilename = (filename) => {
       keywords: ['home inspection', 'inspection report', 'home inspector', 'inspection', 'home inspection report', 'property inspection', 'building inspection', 'structural inspection'],
       score: 0
     },
+    'Roof Inspection Report': {
+      keywords: ['roof inspection', 'roof report', 'roof inspector', 'roof inspection report', 'roofing inspection', 'roof assessment', 'roof evaluation', 'roof condition'],
+      score: 0
+    },
     'Pest Inspection Report': {
       keywords: ['pest inspection', 'pest report', 'termite', 'termite inspection', 'pest control', 'wood destroying', 'pest inspection report', 'termite report'],
       score: 0

@@ -167,7 +167,7 @@ exports.analyzeDocument = async (req, res) => {
     }
 
     // Check if document type is supported
-    if (!['Home Inspection Report', 'Pest Inspection Report', 'Seller Property Questionnaire', 'Real Estate Transfer Disclosure Statement', 'Agent Visual Inspection'].includes(document.type)) {
+    if (!['Home Inspection Report', 'Roof Inspection Report', 'Pest Inspection Report', 'Seller Property Questionnaire', 'Real Estate Transfer Disclosure Statement', 'Agent Visual Inspection'].includes(document.type)) {
       return res.status(400).json({ message: 'Document type not supported for analysis' });
     }
 
@@ -199,6 +199,8 @@ exports.analyzeDocument = async (req, res) => {
       let analysisType;
       if (document.type === 'Home Inspection Report') {
         analysisType = 'home_inspection';
+      } else if (document.type === 'Roof Inspection Report') {
+        analysisType = 'roof_inspection';
       } else if (document.type === 'Pest Inspection Report') {
         analysisType = 'pest_inspection';
       } else if (document.type === 'Seller Property Questionnaire') {
@@ -303,6 +305,62 @@ Include a 1-sentence explanation if useful (max 2 sentences).
 ---
 
 Write clearly and helpfully. Avoid dollar figures. This summary should let regular buyers and agents quickly grasp what matters most.
+
+Report content:
+${text}`;
+    } else if (document.type === 'Roof Inspection Report') {
+      prompt = `You are an expert roof inspector and real-estate advisor. Read the roof inspection report below and produce a plain-language summary for buyers and agents.
+
+• **No technical jargon.**  
+• **No dollar estimates.**  
+• **Every bullet point should be 1–2 sentences** so readers understand why it matters.
+
+Format your response exactly like this:
+
+## Overall Roof Condition: X/10
+Give a score from 1–10:
+- 9–10 = Excellent (very few issues)  
+- 7–8 = Good (minor wear)  
+- 5–6 = Fair (some important repairs)  
+- 3–4 = Poor (many issues)  
+- 1–2 = Major concerns (not safe)
+
+Write 3–4 sentences summarizing the roof's general state and biggest strengths or weaknesses.
+
+---
+
+## Key Roof Components
+Label each component with ✅ Good, ⚠️ Needs attention, or ❌ Problem found.  
+If ⚠️ or ❌, add 1–2 sentences explaining why.
+
+**Shingles/Tiles**:  
+**Flashing**:  
+**Gutters & Downspouts**:  
+**Ventilation**:  
+**Skylights**:  
+**Chimney**:  
+
+---
+
+## Must-Know Issues (Safety or Urgent)
+Bullet each serious problem.  
+For every bullet, give 1–2 sentences that explain the risk or consequence if left unfixed.
+
+---
+
+## Should Fix Soon (Important but Not Urgent)
+List problems that don't block occupancy but should be addressed within the next 6–12 months.  
+Provide 1–2 explanatory sentences per bullet.
+
+---
+
+## Cosmetic or Minor Notes
+List low-priority or purely cosmetic items.  
+Include a 1-sentence explanation if useful (max 2 sentences).
+
+---
+
+Write clearly and helpfully. Avoid dollar figures. This summary should let regular buyers and agents quickly grasp what matters most about the roof condition.
 
 Report content:
 ${text}`;
