@@ -151,6 +151,7 @@ const PropertyChat = ({ propertyId, onClose, isOpen }) => {
                 <ul>
                   <li>Property details and features</li>
                   <li>Valuation data and comparable properties</li>
+                  <li>Market analysis and pricing insights</li>
                   <li>Information from inspection reports (pest, home, etc.)</li>
                   <li>Details from disclosure documents</li>
                   <li>Specific questions about any uploaded documents</li>

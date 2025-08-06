@@ -13,7 +13,8 @@ This document describes the implementation of an AI chat feature that allows use
 - **Files API Integration**: Direct PDF upload to Claude for enhanced processing (NOW IN STREAMING!)
 - **Enhanced Document Processing**: Automatic file linking on upload
 - **Document Integration**: ALL property documents are processed for text extraction (including inspections, disclosures, reports)
-- **Property Information**: Includes listing details and valuation data
+- **Property Information**: Includes listing details, valuation data, and comparable properties
+- **Market Analysis**: AI can provide insights based on comparable properties and market data
 - **Frontend Integration**: Enhanced chat modal with streaming support
 
 ### Architecture

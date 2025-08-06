@@ -14,7 +14,7 @@ if (!process.env.CLAUDE_API_KEY) {
 }
 
 // Cache for static content to enable prompt caching
-const STATIC_SYSTEM_PROMPT = `You are a helpful assistant for a real estate property. You have access to property information, valuation data, and ALL uploaded property documents including inspections, disclosures, and reports. When citing information, use official citations to reference the source documents.
+const STATIC_SYSTEM_PROMPT = `You are a helpful assistant for a real estate property. You have access to property information, valuation data, comparable properties, and ALL uploaded property documents including inspections, disclosures, and reports. When citing information, use official citations to reference the source documents.
 
 IMPORTANT RULES:
 1. Only answer questions based on the provided information
@@ -23,9 +23,9 @@ IMPORTANT RULES:
 4. Be specific about what information comes from which source
 5. For general neighborhood/area questions, you can use your base knowledge but be clear about what's from your knowledge vs. the property data
 6. Keep responses concise but informative
-7. If asked about property value, focus on the valuation data provided
+7. If asked about property value, focus on the valuation data and comparable properties provided
 8. Always provide accurate and helpful information about the property
-9. You have access to inspection reports, disclosure documents, and all property-related files`;
+9. You have access to inspection reports, disclosure documents, comparable properties, and all property-related files`;
 
 // Files API integration for direct PDF processing
 const uploadDocumentToClaude = async (fileBuffer, fileName) => {
@@ -156,12 +156,29 @@ exports.chatWithProperty = async (req, res) => {
     const knowledgeBase = await createPropertyKnowledgeBase(propertyId);
     
     // Get documents with text content - include ALL property-related documents
-    const documents = await Document.find({ 
+    let documents = await Document.find({ 
       propertyListing: propertyId,
       textContent: { $exists: true, $ne: null, $ne: '' },
       // Include all property-related documents, not just listing documents
       // This includes pest inspections, home inspections, disclosures, etc.
-    }).limit(10); // Increased limit to include more document types
+    }).limit(10); // Get more documents initially for smart selection
+    
+    // Smart document selection based on user question
+    const question = message.toLowerCase();
+    if (question.includes('pest') || question.includes('termite')) {
+      documents = documents.filter(doc => 
+        doc.type.toLowerCase().includes('pest') || 
+        doc.textContent.toLowerCase().includes('pest') ||
+        doc.textContent.toLowerCase().includes('termite')
+      ).slice(0, 3);
+    } else if (question.includes('inspection')) {
+      documents = documents.filter(doc => 
+        doc.type.toLowerCase().includes('inspection')
+      ).slice(0, 3);
+    } else {
+      // Default: take the most recent documents
+      documents = documents.slice(0, 6);
+    }
     
     // Create property context with prompt caching
     const propertyContext = `PROPERTY INFORMATION:
@@ -177,7 +194,14 @@ Description: ${knowledgeBase.propertyInfo.description}
 VALUATION DATA:
 Estimated Value: $${knowledgeBase.valuation?.estimatedValue || 'Not available'}
 Price Range: $${knowledgeBase.valuation?.priceRange?.low || 'Not available'} - $${knowledgeBase.valuation?.priceRange?.high || 'Not available'}
-Price per Sq Ft: $${knowledgeBase.valuation?.pricePerSqFt || 'Not available'}`;
+Price per Sq Ft: $${knowledgeBase.valuation?.pricePerSqFt || 'Not available'}
+
+COMPARABLE PROPERTIES:
+${knowledgeBase.valuation?.comparables && knowledgeBase.valuation.comparables.length > 0 
+  ? knowledgeBase.valuation.comparables.map((comp, index) => 
+      `${index + 1}. ${comp.address || 'Address not available'} - $${comp.price || 'Price not available'} (${comp.beds || 'N/A'} beds, ${comp.baths || 'N/A'} baths, ${comp.sqft || 'N/A'} sq ft)`
+    ).join('\n')
+  : 'No comparable properties available'}`;
 
     // Create document context with prompt caching
     let documentContext = 'DOCUMENTS:\n';
@@ -302,7 +326,7 @@ exports.chatWithPropertyFiles = async (req, res) => {
       docType: 'pdf', // Only process PDFs with Files API
       // Include all property-related documents, not just listing documents
       // This includes pest inspections, home inspections, disclosures, etc.
-    }).limit(10);
+    }).limit(6);
     
     // Create property context
     const propertyContext = `PROPERTY INFORMATION:
@@ -318,7 +342,14 @@ Description: ${knowledgeBase.propertyInfo.description}
 VALUATION DATA:
 Estimated Value: $${knowledgeBase.valuation?.estimatedValue || 'Not available'}
 Price Range: $${knowledgeBase.valuation?.priceRange?.low || 'Not available'} - $${knowledgeBase.valuation?.priceRange?.high || 'Not available'}
-Price per Sq Ft: $${knowledgeBase.valuation?.pricePerSqFt || 'Not available'}`;
+Price per Sq Ft: $${knowledgeBase.valuation?.pricePerSqFt || 'Not available'}
+
+COMPARABLE PROPERTIES:
+${knowledgeBase.valuation?.comparables && knowledgeBase.valuation.comparables.length > 0 
+  ? knowledgeBase.valuation.comparables.map((comp, index) => 
+      `${index + 1}. ${comp.address || 'Address not available'} - $${comp.price || 'Price not available'} (${comp.beds || 'N/A'} beds, ${comp.baths || 'N/A'} baths, ${comp.sqft || 'N/A'} sq ft)`
+    ).join('\n')
+  : 'No comparable properties available'}`;
 
     // Prepare content array for Claude with Files API
     const content = [
@@ -335,8 +366,7 @@ Price per Sq Ft: $${knowledgeBase.valuation?.pricePerSqFt || 'Not available'}`;
       if (doc.textContent) {
         content.push({
           type: 'text',
-          text: `Document ${index + 1}: ${doc.title} (${doc.type})\nContent: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? '...' : ''}`,
-          cache_control: { type: 'ephemeral' }
+          text: `Document ${index + 1}: ${doc.title} (${doc.type})\nContent: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? '...' : ''}`
         });
       }
     });
@@ -410,20 +440,46 @@ exports.chatWithPropertyStream = async (req, res) => {
     const knowledgeBase = await createPropertyKnowledgeBase(propertyId);
     
     // Get documents - prioritize PDFs with Files API, fallback to text content
-    const pdfDocuments = await Document.find({ 
+    let pdfDocuments = await Document.find({ 
       propertyListing: propertyId,
       docType: 'pdf', // Only PDFs for Files API
       // Include all property-related documents, not just listing documents
       // This includes pest inspections, home inspections, disclosures, etc.
-    }).limit(5); // Increased limit to include more document types
+    }).limit(5); // Get more documents initially for smart selection
     
-    const textDocuments = await Document.find({ 
+    let textDocuments = await Document.find({ 
       propertyListing: propertyId,
       textContent: { $exists: true, $ne: null, $ne: '' },
       docType: { $ne: 'pdf' }, // Non-PDF documents
       // Include all property-related documents, not just listing documents
       // This includes pest inspections, home inspections, disclosures, etc.
-    }).limit(5); // Limit text documents
+    }).limit(5);
+    
+    // Smart document selection based on user question
+    const question = message.toLowerCase();
+    if (question.includes('pest') || question.includes('termite')) {
+      pdfDocuments = pdfDocuments.filter(doc => 
+        doc.type.toLowerCase().includes('pest') || 
+        doc.textContent.toLowerCase().includes('pest') ||
+        doc.textContent.toLowerCase().includes('termite')
+      ).slice(0, 2);
+      textDocuments = textDocuments.filter(doc => 
+        doc.type.toLowerCase().includes('pest') || 
+        doc.textContent.toLowerCase().includes('pest') ||
+        doc.textContent.toLowerCase().includes('termite')
+      ).slice(0, 1);
+    } else if (question.includes('inspection')) {
+      pdfDocuments = pdfDocuments.filter(doc => 
+        doc.type.toLowerCase().includes('inspection')
+      ).slice(0, 2);
+      textDocuments = textDocuments.filter(doc => 
+        doc.type.toLowerCase().includes('inspection')
+      ).slice(0, 1);
+    } else {
+      // Default: take the most recent documents
+      pdfDocuments = pdfDocuments.slice(0, 3);
+      textDocuments = textDocuments.slice(0, 2);
+    }
     
     // Create property context
     const propertyContext = `PROPERTY INFORMATION:
@@ -439,7 +495,14 @@ Description: ${knowledgeBase.propertyInfo.description}
 VALUATION DATA:
 Estimated Value: $${knowledgeBase.valuation?.estimatedValue || 'Not available'}
 Price Range: $${knowledgeBase.valuation?.priceRange?.low || 'Not available'} - $${knowledgeBase.valuation?.priceRange?.high || 'Not available'}
-Price per Sq Ft: $${knowledgeBase.valuation?.pricePerSqFt || 'Not available'}`;
+Price per Sq Ft: $${knowledgeBase.valuation?.pricePerSqFt || 'Not available'}
+
+COMPARABLE PROPERTIES:
+${knowledgeBase.valuation?.comparables && knowledgeBase.valuation.comparables.length > 0 
+  ? knowledgeBase.valuation.comparables.map((comp, index) => 
+      `${index + 1}. ${comp.address || 'Address not available'} - $${comp.price || 'Price not available'} (${comp.beds || 'N/A'} beds, ${comp.baths || 'N/A'} baths, ${comp.sqft || 'N/A'} sq ft)`
+    ).join('\n')
+  : 'No comparable properties available'}`;
 
     // Prepare content array for Claude with Files API integration
     const content = [
@@ -454,13 +517,12 @@ Price per Sq Ft: $${knowledgeBase.valuation?.pricePerSqFt || 'Not available'}`;
     const claudeFileIds = [];
     const allDocuments = [...pdfDocuments, ...textDocuments];
     
-    // Add all documents as text content for now
+    // Add all documents as text content for now (without cache_control to stay under limit)
     allDocuments.forEach((doc, index) => {
       if (doc.textContent) {
         content.push({
           type: 'text',
-          text: `Document ${index + 1}: ${doc.title} (${doc.type})\nContent: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? '...' : ''}`,
-          cache_control: { type: 'ephemeral' }
+          text: `Document ${index + 1}: ${doc.title} (${doc.type})\nContent: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? '...' : ''}`
         });
       }
     });
