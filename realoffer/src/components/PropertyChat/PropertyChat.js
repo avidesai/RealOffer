@@ -109,12 +109,10 @@ const PropertyChat = ({ propertyId, onClose }) => {
               if (data.type === 'content') {
                 fullResponse += data.content;
                 setStreamingResponse(fullResponse);
-              } else if (data.type === 'citations') {
-                citations = data.citations;
               } else if (data.type === 'complete') {
                 fullResponse = data.response;
-                sources = data.sources;
-                citations = data.citations;
+                sources = data.sources || [];
+                citations = data.citations || [];
                 
                 const assistantMessage = {
                   role: 'assistant',

@@ -304,7 +304,7 @@ Content: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? 
 `;
     });
 
-    // Stream the response
+    // Stream the response without citations (citations not supported in streaming)
     const stream = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20241022',
       max_tokens: 4000,
@@ -331,12 +331,10 @@ Content: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? 
           ]
         }
       ],
-      stream: true,
-      citations: true
+      stream: true
     });
 
     let fullResponse = '';
-    let citations = [];
 
     for await (const chunk of stream) {
       if (chunk.type === 'content_block_delta') {
@@ -347,32 +345,66 @@ Content: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? 
           type: 'content',
           content: content
         })}\n\n`);
-      } else if (chunk.type === 'message_delta' && chunk.delta.citations) {
-        citations = chunk.delta.citations;
-        
-        res.write(`data: ${JSON.stringify({
-          type: 'citations',
-          citations: citations
-        })}\n\n`);
       }
     }
 
-    // Send final message with full response and sources
-    const processedSources = citations.map(citation => {
-      const documentIndex = citation.start - 1;
-      if (documentIndex >= 0 && documentIndex < documents.length) {
-        const doc = documents[documentIndex];
-        return {
-          documentId: doc._id,
-          documentTitle: doc.title,
-          documentType: doc.type,
-          sourceIndex: documentIndex + 1,
-          citation: citation
-        };
-      }
-      return null;
-    }).filter(source => source !== null);
+    // After streaming is complete, get citations with a separate call
+    let citations = [];
+    let processedSources = [];
+    
+    try {
+      const citationResponse = await anthropic.messages.create({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 100,
+        temperature: 0.1,
+        system: STATIC_SYSTEM_PROMPT,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: propertyContext,
+                cache_control: { type: 'ephemeral' }
+              },
+              {
+                type: 'text',
+                text: documentContext,
+                cache_control: { type: 'ephemeral' }
+              },
+              {
+                type: 'text',
+                text: `Question: ${message}\n\nPlease provide citations for the sources used in your response.`
+              }
+            ]
+          }
+        ],
+        citations: true
+      });
 
+      citations = citationResponse.content[0].citations || [];
+      
+      // Process citations to match our document structure
+      processedSources = citations.map(citation => {
+        const documentIndex = citation.start - 1;
+        if (documentIndex >= 0 && documentIndex < documents.length) {
+          const doc = documents[documentIndex];
+          return {
+            documentId: doc._id,
+            documentTitle: doc.title,
+            documentType: doc.type,
+            sourceIndex: documentIndex + 1,
+            citation: citation
+          };
+        }
+        return null;
+      }).filter(source => source !== null);
+    } catch (citationError) {
+      console.error('Citation generation error:', citationError);
+      // Continue without citations if they fail
+    }
+
+    // Send final message with full response and sources
     res.write(`data: ${JSON.stringify({
       type: 'complete',
       response: fullResponse,
@@ -381,7 +413,8 @@ Content: ${doc.textContent.substring(0, 3000)}${doc.textContent.length > 3000 ? 
         id: doc._id,
         title: doc.title,
         type: doc.type
-      }))
+      })),
+      citations: citations
     })}\n\n`);
 
     res.end();
