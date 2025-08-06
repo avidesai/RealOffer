@@ -73,9 +73,8 @@ const processDocumentForChat = async (document, fileBuffer) => {
       // Process for semantic search (generate chunks and embeddings)
       await processDocumentForSearch(document._id);
       
-      // Enhanced processing with new system
-      const enhancedDocumentProcessor = require('../utils/enhancedDocumentProcessor');
-      await enhancedDocumentProcessor.processDocumentForChat(document._id, fileBuffer);
+      // Note: Enhanced processing moved to optimizedDocumentProcessor
+      // await enhancedDocumentProcessor.processDocumentForChat(document._id, fileBuffer);
     }
   } catch (error) {
     console.error('Error processing document for AI chat:', error);
