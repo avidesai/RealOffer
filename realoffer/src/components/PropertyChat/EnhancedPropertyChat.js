@@ -282,7 +282,10 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
     <div className="pchat-overlay">
       <div className="pchat-modal">
         <div className="pchat-header">
-          <h3>Property AI Assistant</h3>
+          <div className="header-title-container">
+            <h3>AI Assistant</h3>
+            <span className="beta-badge">Beta</span>
+          </div>
           <div className="pchat-header-info">
             {tokenUsage && (
               <span className="pchat-token-count">Tokens: {tokenUsage}</span>
@@ -296,105 +299,68 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
           <button className="pchat-close" onClick={onClose}>×</button>
         </div>
         
-        <div className="pchat-messages">
-          {messages.length === 0 && (
-            <div className="pchat-welcome">
-              <h4>🤖 AI Property Assistant</h4>
-              <p>I can help you analyze this property with intelligent document processing and expert insights.</p>
-              
-              <p><strong>What you can ask me:</strong></p>
-              <ul>
-                <li>Property details and features</li>
-                <li>Valuation data and comparable properties</li>
-                <li>Market analysis and pricing insights</li>
-                <li>Information from inspection reports (pest, home, etc.)</li>
-                <li>Details from disclosure documents</li>
-                <li>Specific questions about any uploaded documents</li>
-              </ul>
-              
-              <p><strong>✨ Advanced features:</strong></p>
-              <ul>
-                <li>Ultra-fast document processing</li>
-                <li>Smart document relevance scoring</li>
-                <li>Source citations with relevance scores</li>
-                <li>Intelligent caching for instant responses</li>
-                <li>Advanced semantic document search</li>
-              </ul>
-            </div>
-          )}
-          
-          {messages.map(renderMessage)}
-          
-          {error && (
-            <div className="pchat-error">
-              <div>
-                <strong>Connection Error</strong>
-                <p>{error}</p>
+        <div className="pchat-container">
+          <div className="pchat-messages">
+            {messages.length === 0 && (
+              <div className="pchat-welcome">
+                <p>I can help you analyze this property.</p>
+                
+                <p className="ask-me-about">Ask me about:</p>
+                <ul>
+                  <li>Property details and features</li>
+                  <li>Valuation data and comparable properties</li>
+                  <li>Information from inspection reports (pest, home, etc.)</li>
+                  <li>Specific questions about any uploaded documents</li>
+                </ul>
               </div>
-              <button onClick={() => setError(null)}>Dismiss</button>
-            </div>
-          )}
-          
-          <div ref={messagesEndRef} />
-        </div>
-        
-        <div className="pchat-input-container">
-          {isStreaming && (
-            <button className="pchat-stop-button" onClick={stopStreaming}>
-              Stop Generation
-            </button>
-          )}
-          
-          <div className="pchat-input">
-            <textarea
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder={isLoading ? "AI is thinking..." : "Ask about this property..."}
-              disabled={isLoading}
-              rows={3}
-            />
-            <button 
-              onClick={sendMessageStream} 
-              disabled={isLoading || !inputMessage.trim()}
-              className="pchat-send"
-            >
-              {isLoading ? (
-                <div className="typing-dots">
-                  <span></span>
-                  <span></span>
-                  <span></span>
+            )}
+            
+            {messages.map(renderMessage)}
+            
+            {error && (
+              <div className="pchat-error">
+                <div>
+                  <strong>Connection Error</strong>
+                  <p>{error}</p>
                 </div>
-              ) : 'Send'}
-            </button>
+                <button onClick={() => setError(null)}>Dismiss</button>
+              </div>
+            )}
+            
+            <div ref={messagesEndRef} />
           </div>
           
-          {/* Global sources panel */}
-          {sources.length > 0 && (
-            <div className="pchat-global-sources">
-              <details>
-                <summary>Available Documents ({sources.length})</summary>
-                <div className="pchat-sources-grid">
-                  {sources.map((source, index) => (
-                    <div key={index} className="pchat-source-card">
-                      <div className="source-header">
-                        <h4>{source.title}</h4>
-                        {source.relevanceScore && (
-                          <span className="relevance-score">
-                            {(source.relevanceScore * 100).toFixed(0)}% match
-                          </span>
-                        )}
-                      </div>
-                      <p className="source-type">{source.type}</p>
-                      {source.summary && (
-                        <p className="source-summary">{source.summary}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </details>
+          <div className="pchat-input">
+            {isStreaming && (
+              <button className="pchat-stop-button" onClick={stopStreaming}>
+                Stop Generation
+              </button>
+            )}
+            
+            <div className="pchat-input-wrapper">
+              <textarea
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder={isLoading ? "AI is thinking..." : "Ask about this property..."}
+                disabled={isLoading}
+                rows={3}
+              />
+              <button 
+                onClick={sendMessageStream} 
+                disabled={isLoading || !inputMessage.trim()}
+                className="pchat-send"
+              >
+                {isLoading ? (
+                  <div className="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                ) : 'Send'}
+              </button>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
