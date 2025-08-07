@@ -219,8 +219,16 @@ const Documents = ({ listingId }) => {
 
   const closeSignaturePackageModal = () => {
     setShowSignaturePackageModal(false);
-    fetchListingData();
-    fetchDocuments(documentOrder);
+    // Refresh the listing data to ensure hasSignaturePackage state is up to date
+    const refreshData = async () => {
+      try {
+        const listingData = await fetchListingData();
+        await fetchDocuments(listingData);
+      } catch (error) {
+        console.error('Error refreshing data after closing signature package modal:', error);
+      }
+    };
+    refreshData();
   };
 
   const formatDate = (dateString) => {
@@ -500,6 +508,7 @@ const Documents = ({ listingId }) => {
       )}
       {showSignaturePackageModal && (
         <CreateSignaturePackage
+          key={`signature-package-${hasSignaturePackage}`}
           listingId={listingId}
           isOpen={showSignaturePackageModal}
           onClose={closeSignaturePackageModal}

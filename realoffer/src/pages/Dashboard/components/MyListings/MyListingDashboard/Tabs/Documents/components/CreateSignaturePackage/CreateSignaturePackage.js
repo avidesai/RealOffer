@@ -31,11 +31,14 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments, 
         }
       });
       
-      // Check if signaturePackage exists and has a valid _id
-      const hasSignaturePackage = res.data.signaturePackage && 
-                                res.data.signaturePackage._id && 
-                                typeof res.data.signaturePackage._id === 'string';
-      setSignaturePackage(hasSignaturePackage ? res.data.signaturePackage : null);
+      // Check if signaturePackage exists and has a valid _id, but also consider the hasSignaturePackage prop
+      const hasSignaturePackageFromAPI = res.data.signaturePackage && 
+                                       res.data.signaturePackage._id && 
+                                       typeof res.data.signaturePackage._id === 'string';
+      
+      // Use the prop value if it's false (indicating deletion), otherwise use the API value
+      const finalHasSignaturePackage = hasSignaturePackage ? hasSignaturePackageFromAPI : false;
+      setSignaturePackage(finalHasSignaturePackage ? res.data.signaturePackage : null);
       
       // If the listing has a stored signature package document order, use it; otherwise use the main document order
       if (res.data.signaturePackageDocumentOrder && res.data.signaturePackageDocumentOrder.length > 0) {
@@ -52,7 +55,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments, 
       setError('Failed to load listing data. Please try again.');
       return null;
     }
-  }, [listingId, token]);
+  }, [listingId, token, hasSignaturePackage]);
 
   const fetchDocuments = useCallback(async (currentOrder = []) => {
     try {
@@ -119,6 +122,13 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments, 
     fetchAllData();
   }, [isOpen, fetchListingData, fetchDocuments]);
 
+  // Update signaturePackage state when hasSignaturePackage prop changes
+  useEffect(() => {
+    if (!hasSignaturePackage) {
+      setSignaturePackage(null);
+    }
+  }, [hasSignaturePackage]);
+
   const handlePageSelectionChange = useCallback((updatedDocument) => {
     setDocuments((prevDocuments) =>
       prevDocuments.map((doc) => {
@@ -183,7 +193,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments, 
     }
   };
 
-  const buttonText = (signaturePackage || hasSignaturePackage) ? "Update Disclosure Signature Packet" : "Create Disclosure Signature Packet";
+  const buttonText = (signaturePackage && hasSignaturePackage) ? "Update Disclosure Signature Packet" : "Create Disclosure Signature Packet";
 
   return (
     isOpen && (
