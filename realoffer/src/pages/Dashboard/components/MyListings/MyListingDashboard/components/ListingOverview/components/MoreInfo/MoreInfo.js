@@ -642,7 +642,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
               name="propertyType"
               value={value || ''}
               onChange={(e) => handleInputChange(e, field)}
-              className="form-control"
+              className="mlmi-form-control"
             >
               <option value="">Select Property Type</option>
               <option value="singleFamily">Single Family Home</option>
@@ -1061,8 +1061,8 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                   onChange={(e) => handleInputChange(e, 'description')}
                   className="mlmi-form-control"
                   placeholder="Enter a detailed description of the property, including features, amenities, and highlights..."
-                  rows={14}
-                  style={{resize:'vertical',minHeight:180,maxHeight:500}}
+                  rows={30}
+                  style={{resize:'vertical',minHeight:240,maxHeight:1000}}
                 />
               </div>
             </div>

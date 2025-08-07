@@ -178,6 +178,31 @@
   padding: 0 0.2rem;
 }
 
+/* Hide number input spinners for consistent appearance */
+.mlmi-form-control[type="number"]::-webkit-outer-spin-button,
+.mlmi-form-control[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.mlmi-form-control[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Ensure consistent font sizing across all input types */
+.mlmi-form-control,
+.mlmi-form-control[type="text"],
+.mlmi-form-control[type="number"],
+.mlmi-form-control[type="url"],
+.mlmi-form-control[type="email"],
+.mlmi-form-control[type="password"],
+select.mlmi-form-control,
+textarea.mlmi-form-control {
+  font-size: 1rem !important;
+  font-family: inherit !important;
+  font-weight: 400 !important;
+}
+
 .mlmi-loading-spinner {
   display: flex;
   justify-content: center;
@@ -604,7 +629,7 @@
   }
   
   .mlmi-form-control {
-    font-size: 16px; /* Prevents zoom on iOS */
+    font-size: 1rem !important; /* Consistent sizing, prevents zoom on iOS */
     height: 44px;
   }
   
@@ -617,7 +642,7 @@
   }
   
   .mlmi-property-description-container .mlmi-form-control {
-    font-size: 16px;
+    font-size: 1rem !important;
   }
   
   .mlmi-more-info-close-button {
