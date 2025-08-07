@@ -56,7 +56,7 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, isBuyerPac
     try {
       const response = await api.post('/api/document-analysis/analyze', {
         documentId: documentId,
-        forceRefresh: false // Only generate new analysis if one doesn't exist
+        forceRefresh: false // Check for existing analysis first
       });
 
       setAnalysis({ ...response.data, result: response.data.result });

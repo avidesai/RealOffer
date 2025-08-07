@@ -37,6 +37,64 @@ const getPdfPageCount = async (buffer) => {
   }
 };
 
+// Helper function to check if document type is supported for AI analysis
+const isSupportedForAIAnalysis = (documentType) => {
+  const supportedTypes = [
+    'Home Inspection Report',
+    'Roof Inspection Report', 
+    'Pest Inspection Report',
+    'Seller Property Questionnaire',
+    'Real Estate Transfer Disclosure Statement',
+    'Agent Visual Inspection'
+  ];
+  return supportedTypes.includes(documentType);
+};
+
+// Helper function to automatically trigger AI analysis for supported documents
+const triggerAIAnalysisIfSupported = async (document, fileBuffer) => {
+  try {
+    if (isSupportedForAIAnalysis(document.type)) {
+      console.log(`🤖 Auto-triggering AI analysis for ${document.title} (${document.type})`);
+      
+      // Import the analysis controller dynamically to avoid circular dependencies
+      const DocumentAnalysisController = require('./DocumentAnalysisController');
+      
+      // Create a mock request object for the analysis function
+      const mockReq = {
+        body: {
+          documentId: document._id,
+          forceRefresh: false
+        },
+        user: { id: document.uploadedBy }
+      };
+      
+      // Create a mock response object to capture the result
+      const mockRes = {
+        status: (code) => ({
+          json: (data) => {
+            console.log(`✅ AI analysis initiated for ${document.title}: ${data.status}`);
+            return data;
+          }
+        }),
+        json: (data) => {
+          console.log(`✅ AI analysis completed for ${document.title}: ${data.status}`);
+          return data;
+        }
+      };
+      
+      // Trigger the analysis asynchronously (don't wait for completion)
+      DocumentAnalysisController.analyzeDocument(mockReq, mockRes).catch(error => {
+        console.error(`❌ Error auto-triggering AI analysis for ${document.title}:`, error.message);
+      });
+    } else {
+      console.log(`⏭️ Skipping AI analysis for ${document.title} (${document.type}) - not supported`);
+    }
+  } catch (error) {
+    console.error(`❌ Error in auto-trigger AI analysis for ${document.title}:`, error.message);
+    // Don't fail the upload if AI analysis fails
+  }
+};
+
 // Upload document to Claude Files API for enhanced AI processing
 const uploadToClaudeFiles = async (fileBuffer, fileName) => {
   try {
@@ -150,6 +208,9 @@ exports.uploadDocument = async (req, res) => {
       // Process document for AI chat (async, don't wait for completion)
       processDocumentForChat(savedDocument, file.buffer);
       
+      // Trigger AI analysis if the document type is supported
+      triggerAIAnalysisIfSupported(savedDocument, file.buffer);
+      
       return savedDocument;
     }));
 
@@ -221,6 +282,9 @@ exports.addDocumentToPropertyListing = async (req, res) => {
       
       // Process document for AI chat (async, don't wait for completion)
       processDocumentForChat(savedDocument, file.buffer);
+      
+      // Trigger AI analysis if the document type is supported
+      triggerAIAnalysisIfSupported(savedDocument, file.buffer);
       
       return savedDocument;
     }));
@@ -1009,6 +1073,13 @@ exports.uploadDocumentForBuyerPackage = async (req, res) => {
       });
 
       const savedDocument = await newDocument.save();
+      
+      // Process document for AI chat (async, don't wait for completion)
+      processDocumentForChat(savedDocument, file.buffer);
+      
+      // Trigger AI analysis if the document type is supported
+      triggerAIAnalysisIfSupported(savedDocument, file.buffer);
+      
       return savedDocument;
     }));
 

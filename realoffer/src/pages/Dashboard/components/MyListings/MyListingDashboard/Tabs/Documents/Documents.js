@@ -467,9 +467,9 @@ const Documents = ({ listingId }) => {
                         e.stopPropagation();
                         handleAIAnalysis(doc);
                       }}
-                    >
-                      AI Analysis
-                    </button>
+                                      >
+                    View AI Analysis
+                  </button>
                   )}
                   <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
                     <button className="docs-tab-delete-button docs-tab-document-actions-button">Download</button>
