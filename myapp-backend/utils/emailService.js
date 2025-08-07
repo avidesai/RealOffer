@@ -746,6 +746,56 @@ class EmailService {
       return { success: false, error: error.message };
     }
   }
+
+  // Send offer submission confirmation email to offer creator
+  async sendOfferSubmissionConfirmation(offerCreatorEmail, offerCreatorName, propertyAddress, offerAmount, offerId) {
+    const subject = `Your offer has been submitted - ${propertyAddress}`;
+    
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: offerCreatorEmail,
+      subject: subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">Offer Submitted Successfully!</h1>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${offerCreatorName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              Your offer has been successfully submitted and for review by the listing agent.
+            </p>
+            <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
+                ${propertyAddress}
+              </p>
+              <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
+                Offer Amount: $${Number(offerAmount)?.toLocaleString() || 'N/A'}
+              </p>
+            </div>
+            <p style="color: #666; line-height: 1.6;">
+              You will be notified when the listing agent responds to your offer. You can also track the status of your offer through your RealOffer dashboard.
+            </p>
+            <p style="color: #666; line-height: 1.6;">
+              If you have any questions about your offer, please contact the listing agent directly.
+            </p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('Offer submission confirmation send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 module.exports = new EmailService(); 

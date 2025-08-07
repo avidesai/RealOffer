@@ -176,7 +176,7 @@ exports.handleCallback = async (req, res) => {
         <body>
           <div class="success-container">
             <div class="success-icon">✅</div>
-            <div class="success-message">DocuSign Connected Successfully!</div>
+            <div class="success-message">Please Close This Window</div>
             <div class="closing-message">Please close this window to proceed with your offer.</div>
           </div>
           <script>

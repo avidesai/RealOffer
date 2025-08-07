@@ -147,6 +147,19 @@ exports.createOffer = async (req, res) => {
       console.error('Failed to send offer notification:', error);
     });
 
+    // Send confirmation email to offer creator (non-blocking)
+    const offerCreatorName = `${req.user.firstName || 'Unknown'} ${req.user.lastName || 'User'}`;
+    const propertyAddress = propertyListing.homeCharacteristics.address;
+    notificationService.sendOfferSubmissionConfirmation(
+      req.user.email,
+      offerCreatorName,
+      propertyAddress,
+      req.body.purchasePrice,
+      offer._id
+    ).catch(error => {
+      console.error('Failed to send offer submission confirmation:', error);
+    });
+
     // Fetch the complete offer with populated documents
     const populatedOffer = await Offer.findById(offer._id).populate('documents');
     res.status(201).json(populatedOffer);
