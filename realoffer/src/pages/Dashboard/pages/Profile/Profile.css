@@ -132,7 +132,7 @@
   font-size: 1.18rem;
   font-weight: 700;
   margin-bottom: 1.3rem;
-  color: #23272f;
+  color: #2c3e50;
   padding-bottom: 0.5rem;
   border-bottom: 1.5px solid #e2e8f0;
   letter-spacing: -0.5px;
@@ -340,6 +340,7 @@ input[type="email"]:focus,
     padding: 2rem 1.2rem 1.2rem 1.2rem;
   }
 }
+
 @media (max-width: 900px) {
   .pp-profile-container {
     padding: 1.1rem 0.2rem 1.1rem 0.2rem;
@@ -368,9 +369,23 @@ input[type="email"]:focus,
 }
 
 @media (max-width: 768px) {
+  .pp-profile-container {
+    padding: 1.5rem 1rem 1rem 1rem;
+    margin: 1rem 0.5rem 1rem 0.5rem;
+    border-radius: 12px;
+    gap: 1.5rem;
+  }
+  
   .pp-profile-title {
     font-size: 1.3rem;
-    margin-bottom: 1.2rem;
+    margin-bottom: 0.5rem;
+    margin-top: 0.25rem;
+  }
+  
+  .pp-profile-autosave-notice {
+    font-size: 0.85rem;
+    margin-top: -0.25rem;
+    margin-bottom: 0.5rem;
   }
   
   .pp-profile-upgrade-btn,
@@ -380,6 +395,159 @@ input[type="email"]:focus,
     font-size: 1rem;
     padding: 1rem 0.5rem;
     float: none;
+  }
+  
+  .pp-profile-content {
+    gap: 1.5rem;
+  }
+  
+  .pp-profile-column {
+    gap: 0.75rem;
+  }
+  
+  .pp-form-group {
+    margin-bottom: 0.25rem;
+  }
+  
+  .pp-form-group label {
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  .pp-upload-input,
+  .pp-form-control {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.95rem;
+  }
+  
+  .pp-upload-area-profile {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .pp-upload-area-profile .pp-upload-label-profile {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .pp-email-group {
+    padding: 0.75rem 0.875rem;
+  }
+  
+  .pp-email-display {
+    font-size: 0.95rem;
+  }
+  
+  .pp-edit-button {
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+  }
+  
+  .pp-role-display {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.95rem;
+  }
+  
+  .pp-profile-checkbox-label {
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+  }
+  
+  .pp-profile-checkbox-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-right: 0.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pp-profile-container {
+    padding: 1rem 0.75rem 0.75rem 0.75rem;
+    margin: 0.5rem 0.25rem 0.5rem 0.25rem;
+    gap: 1rem;
+  }
+  
+  .pp-profile-title {
+    font-size: 1.2rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .pp-profile-autosave-notice {
+    font-size: 0.8rem;
+    margin-top: -0.2rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .pp-profile-content {
+    gap: 1rem;
+  }
+  
+  .pp-profile-column {
+    gap: 0.5rem;
+  }
+  
+  .pp-form-group {
+    margin-bottom: 0.2rem;
+  }
+  
+  .pp-form-group label {
+    font-size: 0.85rem;
+    margin-bottom: 0.3rem;
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  .pp-upload-input,
+  .pp-form-control {
+    padding: 0.7rem 0.75rem;
+    font-size: 0.9rem;
+  }
+  
+  .pp-upload-area-profile {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+  
+  .pp-upload-area-profile .pp-upload-label-profile {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.85rem;
+  }
+  
+  .pp-email-group {
+    padding: 0.7rem 0.75rem;
+  }
+  
+  .pp-email-display {
+    font-size: 0.9rem;
+  }
+  
+  .pp-edit-button {
+    padding: 0.35rem 0.875rem;
+    font-size: 0.8rem;
+  }
+  
+  .pp-role-display {
+    padding: 0.7rem 0.75rem;
+    font-size: 0.9rem;
+  }
+  
+  .pp-profile-checkbox-label {
+    font-size: 0.85rem;
+    margin-top: 0.4rem;
+  }
+  
+  .pp-profile-checkbox-label input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    margin-right: 0.35rem;
+  }
+  
+  .pp-profile-upgrade-btn,
+  .pp-profile-manage-subscription-btn {
+    padding: 0.875rem 0.5rem;
+    font-size: 0.95rem;
   }
 }
 
@@ -455,14 +623,6 @@ input[type="email"]:focus,
   }
   .pp-form-group {
     margin-bottom: 0.3rem;
-  }
-}
-@media (max-width: 768px) {
-  .pp-profile-column {
-    gap: 0.5rem;
-  }
-  .pp-form-group {
-    margin-bottom: 0.2rem;
   }
 }
 
@@ -570,6 +730,27 @@ input[type="email"]:focus,
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pp-logo-upload-area {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+  
+  .pp-logo-preview-container {
+    width: 80px;
+    height: 60px;
+  }
+  
+  .pp-fit-option-label {
+    font-size: 0.8rem;
+  }
+  
+  .pp-fit-option-select {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
   }
 }
 
