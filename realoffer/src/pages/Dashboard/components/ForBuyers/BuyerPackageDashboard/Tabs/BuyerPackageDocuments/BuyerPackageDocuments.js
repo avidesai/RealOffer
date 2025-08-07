@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
+import JSZip from 'jszip';
 import { useAuth } from '../../../../../../../context/AuthContext';
 import './BuyerPackageDocuments.css';
 import PDFViewer from './components/PDFViewer/PDFViewer';
@@ -19,6 +20,8 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
   const [currentDocType, setCurrentDocType] = useState('');
   const [showAIAnalysis, setShowAIAnalysis] = useState(false);
   const [selectedDocumentForAnalysis, setSelectedDocumentForAnalysis] = useState(null);
+  const [selectedDocuments, setSelectedDocuments] = useState([]);
+  const [showDownloadDropdown, setShowDownloadDropdown] = useState(false);
 
   const fetchListingData = useCallback(async () => {
     try {
@@ -98,7 +101,8 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
 
   const handleItemClick = (e, doc) => {
     if (
-      !e.target.classList.contains('docs-tab-document-actions-button')
+      !e.target.classList.contains('docs-tab-document-actions-button') &&
+      !e.target.classList.contains('docs-tab-document-checkbox')
     ) {
       handleViewDocument(doc);
     }
@@ -144,6 +148,139 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
     setSelectedDocumentForAnalysis(null);
   };
 
+  const handleDocumentSelect = (id) => {
+    setSelectedDocuments((prevSelected) =>
+      prevSelected.includes(id)
+        ? prevSelected.filter((docId) => docId !== id)
+        : [...prevSelected, id]
+    );
+  };
+
+  const isSelected = (id) => selectedDocuments.includes(id);
+
+  const handleDownloadDocument = async (doc) => {
+    try {
+      const documentUrlWithSAS = `${doc.thumbnailUrl}?${doc.sasToken}`;
+      window.open(documentUrlWithSAS, '_blank', 'noopener,noreferrer');
+    } catch (error) {
+      console.error('Error downloading document:', error);
+    }
+  };
+
+  const handleDownloadSelectedDocuments = async () => {
+    if (selectedDocuments.length === 0) return;
+    
+    const selectedDocs = documents.filter(doc => selectedDocuments.includes(doc._id));
+    
+    if (selectedDocs.length === 1) {
+      // Single document download
+      handleDownloadDocument(selectedDocs[0]);
+      return;
+    }
+    
+    // Multiple documents - download as zip
+    try {
+      const zip = new JSZip();
+      
+      // Download each document and add to zip
+      const downloadPromises = selectedDocs.map(async (doc) => {
+        try {
+          const response = await fetch(`${doc.thumbnailUrl}?${doc.sasToken}`);
+          const blob = await response.blob();
+          
+          // Create a safe filename
+          const safeTitle = (doc.title || 'Untitled').replace(/[^a-zA-Z0-9.-]/g, '_');
+          const extension = doc.type ? `.${doc.type.toLowerCase().replace(/\s+/g, '')}` : '.pdf';
+          const filename = `${safeTitle}${extension}`;
+          
+          zip.file(filename, blob);
+        } catch (error) {
+          console.error(`Error downloading ${doc.title}:`, error);
+        }
+      });
+      
+      await Promise.all(downloadPromises);
+      
+      // Generate and download the zip file
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const url = window.URL.createObjectURL(zipBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `documents_${new Date().toISOString().split('T')[0]}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error creating zip file:', error);
+    }
+  };
+
+  const handleDownloadAllDocuments = async () => {
+    if (documents.length === 0) return;
+    
+    if (documents.length === 1) {
+      // Single document download
+      handleDownloadDocument(documents[0]);
+      return;
+    }
+    
+    // Multiple documents - download as zip
+    try {
+      const zip = new JSZip();
+      
+      // Download each document and add to zip
+      const downloadPromises = documents.map(async (doc) => {
+        try {
+          const response = await fetch(`${doc.thumbnailUrl}?${doc.sasToken}`);
+          const blob = await response.blob();
+          
+          // Create a safe filename
+          const safeTitle = (doc.title || 'Untitled').replace(/[^a-zA-Z0-9.-]/g, '_');
+          const extension = doc.type ? `.${doc.type.toLowerCase().replace(/\s+/g, '')}` : '.pdf';
+          const filename = `${safeTitle}${extension}`;
+          
+          zip.file(filename, blob);
+        } catch (error) {
+          console.error(`Error downloading ${doc.title}:`, error);
+        }
+      });
+      
+      await Promise.all(downloadPromises);
+      
+      // Generate and download the zip file
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const url = window.URL.createObjectURL(zipBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `all_documents_${new Date().toISOString().split('T')[0]}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error creating zip file:', error);
+    }
+  };
+
+  const toggleDownloadDropdown = () => {
+    setShowDownloadDropdown(!showDownloadDropdown);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showDownloadDropdown && !event.target.closest('.docs-tab-download-dropdown')) {
+        setShowDownloadDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDownloadDropdown]);
+
   if (loading) {
     return (
       <div className="docs-tab-documents-tab">
@@ -157,6 +294,42 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
 
   return (
     <div className="docs-tab-documents-tab">
+      <div className="docs-tab-documents-header">
+        <div className="docs-tab-action-buttons">
+          <div className="docs-tab-download-dropdown">
+            <button 
+              className="docs-tab-download-button" 
+              onClick={toggleDownloadDropdown}
+              disabled={documents.length === 0}
+            >
+              Download
+            </button>
+            {showDownloadDropdown && (
+              <div className="docs-tab-dropdown-menu">
+                <button 
+                  className="docs-tab-dropdown-item"
+                  onClick={() => {
+                    handleDownloadSelectedDocuments();
+                    setShowDownloadDropdown(false);
+                  }}
+                  disabled={selectedDocuments.length === 0}
+                >
+                  Download Selected ({selectedDocuments.length})
+                </button>
+                <button 
+                  className="docs-tab-dropdown-item"
+                  onClick={() => {
+                    handleDownloadAllDocuments();
+                    setShowDownloadDropdown(false);
+                  }}
+                >
+                  Download All ({documents.length})
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
       <div className="docs-tab-documents-list">
         {documents.length === 0 ? (
           <p className="docs-tab-no-documents-message">No documents uploaded yet.</p>
@@ -164,9 +337,16 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
           documents.map((doc, index) => (
             <div
               key={doc._id}
-              className={`docs-tab-document-item ${doc.purpose === 'signature_package' ? 'docs-tab-signature-package' : ''}`}
+              className={`docs-tab-document-item ${isSelected(doc._id) ? 'docs-tab-selected' : ''} ${doc.purpose === 'signature_package' ? 'docs-tab-signature-package' : ''}`}
               onClick={(e) => handleItemClick(e, doc)}
             >
+              <input
+                type="checkbox"
+                className="docs-tab-document-checkbox"
+                checked={isSelected(doc._id)}
+                onChange={() => handleDocumentSelect(doc._id)}
+                onClick={(e) => e.stopPropagation()}
+              />
               <div className="docs-tab-document-info">
                 <div className="docs-tab-document-details">
                   <p className="docs-tab-document-title">
