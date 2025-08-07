@@ -33,7 +33,7 @@
 
 .dls-info-section {
   padding: 1rem 1.5rem;
-  background-color: #f8f9fa;
+  background-color: transparent;
   border-bottom: 1px solid #eaeaea;
   flex-shrink: 0;
   max-height: 300px;
@@ -58,7 +58,6 @@
 
 .dls-info-section ul {
   margin: 0 0 1rem 0;
-  padding-left: 1.5rem;
   font-size: 0.85rem;
   color: #555;
   line-height: 1.4;
@@ -83,6 +82,26 @@
   color: #2f54eb !important;
   font-weight: 500;
   padding-left: 1.5rem !important;
+  list-style: none;
+}
+
+.dls-instructions li {
+  margin-bottom: 0.5rem;
+}
+
+/* Hide info section on mobile and smaller screens */
+@media (max-width: 768px) {
+  .dls-info-section {
+    display: none;
+  }
+  
+  /* Make Documents heading smaller and more compact on mobile */
+  .dls-documents-list h3 {
+    font-size: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 0.25rem;
+    padding-left: 1rem;
+  }
 }
 
 .dls-documents-list-container {
@@ -231,7 +250,19 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .dls-documents-list h3,
+  .dls-documents-list h3 {
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 1rem;
+    font-size: 1rem;
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    height: 50px;
+    box-sizing: border-box;
+  }
+  
   .dls-documents-list p {
     padding-left: 1rem;
     padding-right: 1rem;

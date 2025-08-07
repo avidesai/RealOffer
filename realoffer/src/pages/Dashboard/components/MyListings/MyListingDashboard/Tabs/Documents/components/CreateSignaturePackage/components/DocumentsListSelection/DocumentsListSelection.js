@@ -75,13 +75,12 @@ const DocumentsListSelection = ({
       
       <div className="dls-info-section">
         <p>
-          A disclosure signature packet is a PDF containing all the pages from your disclosures that require buyer signatures. <br /><br />
-          Once created, it will automatically be included in offers for buyers, allowing them to make offers more quickly.
+          Select all the pages from your disclosures that will require buyer signatures. A packet will be created and included in offers for buyers.
         </p>
         
         <ul className="dls-instructions">
-          <li>Click on a document to select specific pages to include in your signature packet.</li>
-          <li>Drag documents to reorder where they appear in the signature packet.</li>
+          <li>Browse documents below and click on pages to select them.</li>
+          <li>Drag documents up and down to reorder where they appear in the packet.</li>
         </ul>
       </div>
       

@@ -13,7 +13,10 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
   const { token } = useAuth();
   const [numPages, setNumPages] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [scale, setScale] = useState(0.6);
+  const [scale, setScale] = useState(() => {
+    // Set initial scale to minimum zoom for mobile to fit more content
+    return window.innerWidth <= 768 ? 0.4 : 0.6;
+  });
   const [localSelectedPages, setLocalSelectedPages] = useState([]);
   const [visiblePages, setVisiblePages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -310,13 +313,15 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
     }
   }, [throttledScrollHandler]);
 
-  const zoomIn = useCallback(() => 
-    setScale((prevScale) => Math.min(prevScale + 0.1, 2.0)), 
-  []);
+  const zoomIn = useCallback(() => {
+    const maxScale = window.innerWidth <= 768 ? 1.5 : 2.0;
+    setScale((prevScale) => Math.min(prevScale + 0.1, maxScale));
+  }, []);
   
-  const zoomOut = useCallback(() => 
-    setScale((prevScale) => Math.max(prevScale - 0.1, 0.3)), 
-  []);
+  const zoomOut = useCallback(() => {
+    const minScale = window.innerWidth <= 768 ? 0.4 : 0.3;
+    setScale((prevScale) => Math.max(prevScale - 0.1, minScale));
+  }, []);
 
   const handlePageChange = useCallback((newPage) => {
     if (newPage < 1 || newPage > numPages) return;

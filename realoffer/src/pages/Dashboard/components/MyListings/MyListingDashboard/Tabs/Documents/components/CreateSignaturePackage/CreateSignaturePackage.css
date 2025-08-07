@@ -231,6 +231,21 @@
     width: 100%;
     padding: 0.6rem 1rem;
   }
+  
+  /* Adjust vertical space distribution for mobile */
+  .csp-body {
+    height: 82vh; /* Slightly taller overall */
+  }
+  
+  .csp-documents-list {
+    height: 30%; /* Reduced to 30% for maximum PDF space */
+    min-height: 240px; /* Ensure minimum usable space */
+  }
+  
+  .csp-pdf-viewer {
+    height: 70%; /* Increased to 70% for optimal PDF viewing */
+    flex: 1; /* Take remaining space */
+  }
 }
 
 /* PDF Viewer Select All button fix */

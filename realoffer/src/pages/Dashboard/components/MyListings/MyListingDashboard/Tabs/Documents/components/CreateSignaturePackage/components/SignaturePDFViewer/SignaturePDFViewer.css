@@ -332,27 +332,68 @@
   .spv-pdf-header {
     flex-direction: column;
     height: auto;
-    padding: 0.8rem 1rem;
+    padding: 0.4rem 0.6rem;
     align-items: flex-start;
+    gap: 0.3rem;
   }
   
   .spv-pdf-header h3 {
-    margin-bottom: 0.8rem;
+    margin-bottom: 0;
     max-width: 100%;
     width: 100%;
+    font-size: 0.9rem;
+    line-height: 1.3;
   }
   
   .spv-toolbar {
     width: 100%;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    gap: 6px;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 3px;
+    padding-right: 0;
+    min-width: unset;
+    align-items: center;
+  }
+  
+  .spv-toolbar button {
+    padding: 0.2rem 0.3rem;
+    font-size: 0.7rem;
+    min-width: 28px;
+    height: 28px;
+  }
+  
+  .spv-page-info {
+    font-size: 0.7rem;
+    min-width: 30px;
+    margin: 0 1px;
+    text-align: center;
   }
   
   .spv-select-all-button {
     margin-left: 0;
-    margin-top: 0.5rem;
-    width: 100%;
-    justify-content: center;
+    margin-top: 0;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.7rem;
+    min-width: unset;
+    height: 28px;
+    flex-shrink: 1;
+    white-space: nowrap;
+  }
+  
+  .spv-select-all-button span {
+    font-size: 0.65rem;
+  }
+  
+  .spv-select-all-button svg {
+    font-size: 0.9rem;
+  }
+  
+  /* Make the PDF pages take up more space on mobile */
+  .spv-container .react-pdf__Document {
+    padding: 0.5rem;
+  }
+  
+  .spv-pdf-page-container {
+    margin-bottom: 0.75rem;
   }
 }
