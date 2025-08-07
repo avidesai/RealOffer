@@ -28,9 +28,10 @@ class OptimizedDocumentProcessor {
       }
     }
 
-    // Get documents from database
+    // Get documents from database - EXCLUDE OFFER DOCUMENTS
     const documents = await Document.find({
       propertyListing: propertyId,
+      purpose: { $in: ['listing', 'public'] }, // Exclude 'offer' and 'signature_package'
       $or: [
         { textContent: { $exists: true, $ne: null, $ne: '' } },
         { 'enhancedContent.summary': { $exists: true } }

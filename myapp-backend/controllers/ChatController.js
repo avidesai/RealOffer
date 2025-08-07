@@ -155,9 +155,10 @@ exports.chatWithProperty = async (req, res) => {
     // Get property knowledge base
     const knowledgeBase = await createPropertyKnowledgeBase(propertyId);
     
-    // Get documents with text content - include ALL property-related documents
+    // Get documents with text content - EXCLUDE OFFER DOCUMENTS
     let documents = await Document.find({ 
       propertyListing: propertyId,
+      purpose: { $in: ['listing', 'public'] }, // Exclude 'offer' and 'signature_package'
       textContent: { $exists: true, $ne: null, $ne: '' },
       // Include all property-related documents, not just listing documents
       // This includes pest inspections, home inspections, disclosures, etc.
@@ -320,9 +321,10 @@ exports.chatWithPropertyFiles = async (req, res) => {
     // Get property knowledge base
     const knowledgeBase = await createPropertyKnowledgeBase(propertyId);
     
-    // Get documents with Files API integration
+    // Get documents with Files API integration - EXCLUDE OFFER DOCUMENTS
     const documents = await Document.find({ 
       propertyListing: propertyId,
+      purpose: { $in: ['listing', 'public'] }, // Exclude 'offer' and 'signature_package'
       docType: 'pdf', // Only process PDFs with Files API
       // Include all property-related documents, not just listing documents
       // This includes pest inspections, home inspections, disclosures, etc.
@@ -439,9 +441,10 @@ exports.chatWithPropertyStream = async (req, res) => {
     // Get property knowledge base
     const knowledgeBase = await createPropertyKnowledgeBase(propertyId);
     
-    // Get documents - prioritize PDFs with Files API, fallback to text content
+    // Get documents - prioritize PDFs with Files API, fallback to text content - EXCLUDE OFFER DOCUMENTS
     let pdfDocuments = await Document.find({ 
       propertyListing: propertyId,
+      purpose: { $in: ['listing', 'public'] }, // Exclude 'offer' and 'signature_package'
       docType: 'pdf', // Only PDFs for Files API
       // Include all property-related documents, not just listing documents
       // This includes pest inspections, home inspections, disclosures, etc.
@@ -449,6 +452,7 @@ exports.chatWithPropertyStream = async (req, res) => {
     
     let textDocuments = await Document.find({ 
       propertyListing: propertyId,
+      purpose: { $in: ['listing', 'public'] }, // Exclude 'offer' and 'signature_package'
       textContent: { $exists: true, $ne: null, $ne: '' },
       docType: { $ne: 'pdf' }, // Non-PDF documents
       // Include all property-related documents, not just listing documents
