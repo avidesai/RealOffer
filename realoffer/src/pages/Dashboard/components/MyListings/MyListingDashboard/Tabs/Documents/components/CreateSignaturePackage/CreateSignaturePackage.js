@@ -7,7 +7,7 @@ import DocumentsListSelection from './components/DocumentsListSelection/Document
 import SignaturePDFViewer from './components/SignaturePDFViewer/SignaturePDFViewer';
 import './CreateSignaturePackage.css';
 
-const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments, hasSignaturePackage = false }) => {
+const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }) => {
   const { token } = useAuth();
   const [documents, setDocuments] = useState([]);
   const [documentOrder, setDocumentOrder] = useState([]);
@@ -15,6 +15,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments, 
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [signaturePackage, setSignaturePackage] = useState(null);
+  const [hasSignaturePackage, setHasSignaturePackage] = useState(false);
   const [error, setError] = useState(null);
 
   const handleDocumentSelect = useCallback((document) => {
@@ -65,24 +66,49 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments, 
       });
       const listingDocuments = response.data.filter(doc => doc.purpose === 'listing');
       
+      // Check if a signature package document actually exists
+      const signaturePackageExists = response.data.some(doc => doc.purpose === 'signature_package');
+      setHasSignaturePackage(signaturePackageExists);
+      
       // If we have a signature package document order, sort the documents accordingly
       if (currentOrder.length > 0) {
-        const orderMap = new Map(currentOrder.map((id, index) => [id, index]));
+        const allDocumentIds = listingDocuments.map(doc => doc._id);
+        
+        // Clean up the order: remove IDs of deleted documents and add new ones
+        const cleanedOrder = currentOrder.filter(id => allDocumentIds.includes(id));
+        const missingIds = allDocumentIds.filter(id => !cleanedOrder.includes(id));
+        const finalOrder = [...cleanedOrder, ...missingIds];
+        
+        // Check if cleanup or additions occurred
+        const orderChanged = cleanedOrder.length !== currentOrder.length || missingIds.length > 0;
+        
+        // Sort documents according to the cleaned order
+        const orderMap = new Map(finalOrder.map((id, index) => [id, index]));
         listingDocuments.sort((a, b) => {
           const orderA = orderMap.has(a._id) ? orderMap.get(a._id) : Number.MAX_SAFE_INTEGER;
           const orderB = orderMap.has(b._id) ? orderMap.get(b._id) : Number.MAX_SAFE_INTEGER;
           return orderA - orderB;
         });
         
-        // Ensure all documents are included in the order, even if they weren't in the original order
-        const allDocumentIds = listingDocuments.map(doc => doc._id);
-        const missingIds = allDocumentIds.filter(id => !currentOrder.includes(id));
-        if (missingIds.length > 0) {
-          // Add missing documents to the end of the order
-          const updatedOrder = [...currentOrder, ...missingIds];
-          setSignaturePackageDocumentOrder(updatedOrder);
-        } else {
-          setSignaturePackageDocumentOrder(currentOrder);
+        setSignaturePackageDocumentOrder(finalOrder);
+        
+        // Save cleaned order to database if changes were made AND there's an actual signature package
+        if (orderChanged && signaturePackage && signaturePackage._id) {
+          try {
+            await axios.put(
+              `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`,
+              { signaturePackageDocumentOrder: finalOrder },
+              {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              }
+            );
+            console.log('Cleaned up signature package document order in database');
+          } catch (error) {
+            console.error('Error cleaning up signature package document order:', error);
+            // Don't fail the whole operation if cleanup fails
+          }
         }
       } else {
         // If no stored order, create order from current document list
@@ -120,12 +146,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments, 
     fetchAllData();
   }, [isOpen, fetchListingData, fetchDocuments]);
 
-  // Clear signaturePackage state when hasSignaturePackage prop is false (deletion case)
-  useEffect(() => {
-    if (!hasSignaturePackage) {
-      setSignaturePackage(null);
-    }
-  }, [hasSignaturePackage]);
+
 
   const handlePageSelectionChange = useCallback((updatedDocument) => {
     setDocuments((prevDocuments) =>

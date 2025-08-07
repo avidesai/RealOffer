@@ -39,7 +39,6 @@ const Documents = ({ listingId }) => {
           'Authorization': `Bearer ${token}`
         }
       });
-      setHasSignaturePackage(!!response.data.signaturePackage);
       
       // Get stored document order if it exists
       return response.data.documentOrder || [];
@@ -57,6 +56,10 @@ const Documents = ({ listingId }) => {
         }
       });
       const listingDocuments = response.data.filter(doc => doc.purpose === 'listing' || doc.purpose === 'signature_package');
+      
+      // Check if a signature package document actually exists
+      const signaturePackageExists = response.data.some(doc => doc.purpose === 'signature_package');
+      setHasSignaturePackage(signaturePackageExists);
       
       // Sort documents according to stored order, or by creation date if no order exists
       if (storedOrder.length > 0) {
@@ -83,13 +86,11 @@ const Documents = ({ listingId }) => {
   const refreshDocumentsWithLoading = useCallback(async (orderToUse = documentOrder) => {
     setLoading(true);
     try {
-      // Refresh listing data first to update hasSignaturePackage state
-      const listingData = await fetchListingData();
-      await fetchDocuments(orderToUse.length > 0 ? orderToUse : listingData);
+      await fetchDocuments(orderToUse);
     } finally {
       setLoading(false);
     }
-  }, [fetchDocuments, fetchListingData, documentOrder]);
+  }, [fetchDocuments, documentOrder]);
 
   useEffect(() => {
     if (!token || !listingId) return;
@@ -145,16 +146,9 @@ const Documents = ({ listingId }) => {
       // Remove from document order as well
       setDocumentOrder(prevOrder => prevOrder.filter(docId => docId !== id));
       
-      // If we deleted a signature package, update the hasSignaturePackage state
-      if (isSignaturePackage) {
-        setHasSignaturePackage(false);
-      }
+
       
       fetchDocuments(documentOrder.filter(docId => docId !== id));
-      // Refresh listing data to ensure hasSignaturePackage state is accurate
-      const listingData = await fetchListingData();
-      // Update hasSignaturePackage based on the fresh listing data
-      setHasSignaturePackage(!!listingData.signaturePackage);
     } catch (error) {
       console.error('Error deleting document:', error);
     } finally {
@@ -183,16 +177,9 @@ const Documents = ({ listingId }) => {
       setDocumentOrder(newOrder);
       setSelectedDocuments([]);
       
-      // If we deleted any signature packages, update the hasSignaturePackage state
-      if (selectedSignaturePackages.length > 0) {
-        setHasSignaturePackage(false);
-      }
+
       
       fetchDocuments(newOrder);
-      // Refresh listing data to ensure hasSignaturePackage state is accurate
-      const listingData = await fetchListingData();
-      // Update hasSignaturePackage based on the fresh listing data
-      setHasSignaturePackage(!!listingData.signaturePackage);
     } catch (error) {
       console.error('Error deleting selected documents:', error);
     } finally {
@@ -227,11 +214,10 @@ const Documents = ({ listingId }) => {
 
   const closeSignaturePackageModal = () => {
     setShowSignaturePackageModal(false);
-    // Refresh the listing data to ensure hasSignaturePackage state is up to date
+    // Refresh documents to ensure hasSignaturePackage state is up to date
     const refreshData = async () => {
       try {
-        const listingData = await fetchListingData();
-        await fetchDocuments(listingData);
+        await fetchDocuments(documentOrder);
       } catch (error) {
         console.error('Error refreshing data after closing signature package modal:', error);
       }
@@ -502,7 +488,6 @@ const Documents = ({ listingId }) => {
           onClose={closeUploadModal}
           listingId={listingId}
           onUploadSuccess={() => refreshDocumentsWithLoading()}
-          hasSignaturePackage={hasSignaturePackage}
         />
       )}
       {showPDFViewer && (
@@ -521,7 +506,6 @@ const Documents = ({ listingId }) => {
           isOpen={showSignaturePackageModal}
           onClose={closeSignaturePackageModal}
           refreshDocuments={() => refreshDocumentsWithLoading()}
-          hasSignaturePackage={hasSignaturePackage}
         />
       )}
       {showAIAnalysis && selectedDocumentForAnalysis && (
