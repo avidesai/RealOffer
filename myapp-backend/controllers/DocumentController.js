@@ -598,7 +598,7 @@ exports.getDocumentsByOffer = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to view these documents' });
     }
     
-    const documents = await Document.find({ offer: req.params.offerId });
+    const documents = await Document.find({ offer: req.params.offerId }).sort({ createdAt: 1 });
     if (!documents || documents.length === 0) {
       return res.status(404).json({ message: 'No documents found for this offer' });
     }

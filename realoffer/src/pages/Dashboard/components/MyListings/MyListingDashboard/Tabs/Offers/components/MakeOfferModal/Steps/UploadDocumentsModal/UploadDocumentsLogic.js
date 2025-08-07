@@ -53,6 +53,16 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
     );
   };
 
+  const handleDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const items = Array.from(files);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setFiles(items);
+  };
+
   const handleUpload = async () => {
     const newErrors = [];
     if (files.length === 0) {
@@ -71,10 +81,11 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
     setUploading(true);
     try {
       const formData = new FormData();
-      files.forEach(({ file, type, title }) => {
+      files.forEach(({ file, type, title }, index) => {
         formData.append('documents', file);
         formData.append('type[]', type);
         formData.append('title[]', title);
+        formData.append('position[]', index); // Add position to preserve drag-and-drop order
         formData.append('purpose', 'offer'); // Ensure the purpose is set to "offer"
       });
       formData.append('uploadedBy', user._id); // Assuming user._id contains the user's ID
@@ -111,6 +122,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
       handleDeleteFile={handleDeleteFile}
       handleFileTypeChange={handleFileTypeChange}
       handleFileTitleChange={handleFileTitleChange}
+      handleDragEnd={handleDragEnd}
       handleUpload={handleUpload}
       accept="application/pdf, image/*"
     />
