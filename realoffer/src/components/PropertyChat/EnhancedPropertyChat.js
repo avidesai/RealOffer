@@ -65,7 +65,7 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
       // Create abort controller for this request
       abortControllerRef.current = new AbortController();
 
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/chat/fast/property/stream`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/chat/enhanced/property/stream`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
