@@ -126,8 +126,25 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments, 
   useEffect(() => {
     if (!hasSignaturePackage) {
       setSignaturePackage(null);
+    } else {
+      // If hasSignaturePackage is true, we need to fetch the signature package data
+      const fetchSignaturePackage = async () => {
+        try {
+          const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (res.data.signaturePackage && res.data.signaturePackage._id) {
+            setSignaturePackage(res.data.signaturePackage);
+          }
+        } catch (error) {
+          console.error('Error fetching signature package:', error);
+        }
+      };
+      fetchSignaturePackage();
     }
-  }, [hasSignaturePackage]);
+  }, [hasSignaturePackage, listingId, token]);
 
   const handlePageSelectionChange = useCallback((updatedDocument) => {
     setDocuments((prevDocuments) =>

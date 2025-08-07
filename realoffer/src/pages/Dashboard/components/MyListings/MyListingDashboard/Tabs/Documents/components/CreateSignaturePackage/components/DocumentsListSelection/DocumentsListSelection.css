@@ -31,6 +31,60 @@
   flex-shrink: 0;
 }
 
+.dls-info-section {
+  padding: 1rem 1.5rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #eaeaea;
+  flex-shrink: 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.dls-info-section h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.dls-info-section p {
+  margin: 0 0 1rem 0;
+  padding: 0;
+  font-size: 0.85rem;
+  color: #555;
+  line-height: 1.4;
+  border: none;
+}
+
+.dls-info-section ul {
+  margin: 0 0 1rem 0;
+  padding-left: 1.5rem;
+  font-size: 0.85rem;
+  color: #555;
+  line-height: 1.4;
+}
+
+.dls-info-section li {
+  margin-bottom: 0.3rem;
+}
+
+.dls-info-section strong {
+  color: #333;
+  font-weight: 600;
+}
+
+.dls-instructions {
+  background-color: #f0f8ff;
+  border: 1px solid #d6e4ff;
+  border-radius: 4px;
+  padding: 0.75rem !important;
+  margin-top: 1rem !important;
+  font-size: 0.85rem !important;
+  color: #2f54eb !important;
+  font-weight: 500;
+  padding-left: 1.5rem !important;
+}
+
 .dls-documents-list-container {
   list-style: none;
   padding: 0;

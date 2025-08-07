@@ -72,7 +72,18 @@ const DocumentsListSelection = ({
   return (
     <div className="dls-documents-list">
       <h3>Documents</h3>
-      <p>Browse documents below and select pages to add to your disclosure signature packet. Drag to reorder.</p>
+      
+      <div className="dls-info-section">
+        <p>
+          A disclosure signature packet is a PDF containing all the pages from your disclosures that require buyer signatures. <br /><br />
+          Once created, it will automatically be included in offers for buyers, allowing them to make offers more quickly.
+        </p>
+        
+        <ul className="dls-instructions">
+          <li>Click on a document to select specific pages to include in your signature packet.</li>
+          <li>Drag documents to reorder where they appear in the signature packet.</li>
+        </ul>
+      </div>
       
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="documents" type="DOCUMENTS">
