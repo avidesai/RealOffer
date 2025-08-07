@@ -73,6 +73,16 @@ const processDocumentForChat = async (document, fileBuffer) => {
       // Process for semantic search (generate chunks and embeddings)
       await processDocumentForSearch(document._id);
       
+      // NEW: Trigger automatic AI analysis for supported documents
+      const AutoDocumentAnalysisController = require('./AutoDocumentAnalysisController');
+      try {
+        await AutoDocumentAnalysisController.autoGenerateAnalysis(document._id, fileBuffer);
+        console.log(`✅ Auto-analysis triggered for ${document.title}`);
+      } catch (analysisError) {
+        console.error(`⚠️ Auto-analysis failed for ${document.title}:`, analysisError.message);
+        // Don't fail the entire upload if analysis fails
+      }
+
       // NEW: Trigger preprocessing for chat
       const DocumentPreprocessingController = require('./DocumentPreprocessingController');
       try {

@@ -39,6 +39,12 @@ class DocumentPreprocessingController {
         throw new Error('Document not found');
       }
 
+      // Skip offer-related documents - they're not property-specific
+      if (document.purpose === 'offer' || document.offer) {
+        console.log(`⏭️ Skipping offer document: ${document.title}`);
+        return null;
+      }
+
       console.log(`🔄 Preprocessing ${document.title} for AI chat...`);
 
       // Step 1: Ensure text content exists
@@ -259,19 +265,25 @@ ${textContent}`;
   async preprocessAllDocumentsForProperty(propertyId) {
     const documents = await Document.find({ 
       propertyListing: propertyId,
+      purpose: { $ne: 'offer' }, // Exclude offer documents
+      offer: { $exists: false }, // Also exclude documents with offer field
       $or: [
         { 'enhancedContent.chatSummary': { $exists: false } },
         { 'enhancedContent.processingVersion': { $ne: '2.0' } }
       ]
     });
 
-    console.log(`🔄 Preprocessing ${documents.length} documents for property ${propertyId}`);
+    console.log(`🔄 Preprocessing ${documents.length} documents for property ${propertyId} (excluding offer docs)`);
 
     const results = [];
     for (const doc of documents) {
       try {
         const summary = await this.preprocessDocumentForChat(doc._id);
-        results.push({ documentId: doc._id, success: true, summaryLength: summary.length });
+        if (summary) {
+          results.push({ documentId: doc._id, success: true, summaryLength: summary.length });
+        } else {
+          results.push({ documentId: doc._id, success: true, skipped: true, reason: 'offer document' });
+        }
       } catch (error) {
         console.error(`Failed to preprocess ${doc.title}:`, error);
         results.push({ documentId: doc._id, success: false, error: error.message });
@@ -287,10 +299,12 @@ ${textContent}`;
   async getPreprocessedSummariesForChat(propertyId, userQuestion = '') {
     const documents = await Document.find({ 
       propertyListing: propertyId,
+      purpose: { $ne: 'offer' }, // Exclude offer documents from chat
+      offer: { $exists: false }, // Also exclude documents with offer field
       'enhancedContent.chatSummary': { $exists: true }
     }).sort({ createdAt: -1 });
 
-    console.log(`📚 Found ${documents.length} preprocessed documents for chat`);
+    console.log(`📚 Found ${documents.length} preprocessed property documents for chat (excluding offers)`);
 
     // Smart selection based on question
     const relevantDocs = this.selectRelevantPreprocessedDocs(documents, userQuestion);
