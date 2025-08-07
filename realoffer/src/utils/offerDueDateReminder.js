@@ -49,17 +49,17 @@ export const calculateOfferDueReminder = (offerDueDate) => {
   // Within 7 days
   if (calendarDaysDiff <= 7) {
     // Use natural language for common cases
-    if (calendarDaysDiff === 2) {
-      return {
-        text: "Offers due tomorrow",
-        type: "warning",
-        urgent: false
-      };
-    } else if (calendarDaysDiff === 1) {
+    if (calendarDaysDiff === 0) {
       return {
         text: "Offers due today",
         type: "urgent",
         urgent: true
+      };
+    } else if (calendarDaysDiff === 1) {
+      return {
+        text: "Offers due tomorrow",
+        type: "warning",
+        urgent: false
       };
     } else {
       return {
