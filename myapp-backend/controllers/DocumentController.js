@@ -1,4 +1,4 @@
-// myapp-backend/controllers/DocumentController.js
+// controllers/DocumentController.js
 
 const Document = require('../models/Document');
 const PropertyListing = require('../models/PropertyListing');
@@ -20,7 +20,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ 
   storage,
   limits: {
-    fileSize: 200 * 1024 * 1024, // 200MB file size limit
+    fileSize: 50 * 1024 * 1024, // 50MB file size limit
     files: 20 // Maximum number of files
   }
 });
@@ -37,118 +37,23 @@ const getPdfPageCount = async (buffer) => {
   }
 };
 
-// Helper function to check if document type is supported for AI analysis
-const isSupportedForAIAnalysis = (documentType) => {
-  const supportedTypes = [
-    'Home Inspection Report',
-    'Roof Inspection Report', 
-    'Pest Inspection Report',
-    'Seller Property Questionnaire',
-    'Real Estate Transfer Disclosure Statement',
-    'Agent Visual Inspection'
-  ];
-  return supportedTypes.includes(documentType);
-};
-
-// Helper function to automatically trigger AI analysis for supported documents
-const triggerAIAnalysisIfSupported = async (document, fileBuffer) => {
-  // Don't await this - make it completely non-blocking
-  if (isSupportedForAIAnalysis(document.type)) {
-    console.log(`🤖 Auto-triggering AI analysis for ${document.title} (${document.type})`);
-    
-    // Use setImmediate to ensure this runs after the current execution context
-    setImmediate(async () => {
-      try {
-        // Add a small delay to ensure upload response is sent first
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // Import the analysis controller dynamically to avoid circular dependencies
-        const DocumentAnalysisController = require('./DocumentAnalysisController');
-        
-        // Create a mock request object for the analysis function
-        const mockReq = {
-          body: {
-            documentId: document._id,
-            forceRefresh: false
-          },
-          user: { id: document.uploadedBy }
-        };
-        
-        // Create a mock response object to capture the result
-        const mockRes = {
-          status: (code) => ({
-            json: (data) => {
-              console.log(`✅ AI analysis initiated for ${document.title}: ${data.status}`);
-              return data;
-            }
-          }),
-          json: (data) => {
-            console.log(`✅ AI analysis completed for ${document.title}: ${data.status}`);
-            return data;
-          }
-        };
-        
-        // Trigger the analysis asynchronously (don't wait for completion)
-        await DocumentAnalysisController.analyzeDocument(mockReq, mockRes);
-      } catch (error) {
-        console.error(`❌ Error auto-triggering AI analysis for ${document.title}:`, error.message);
-      }
-    });
-  } else {
-    console.log(`⏭️ Skipping AI analysis for ${document.title} (${document.type}) - not supported`);
-  }
-};
-
 // Upload document to Claude Files API for enhanced AI processing
 const uploadToClaudeFiles = async (fileBuffer, fileName) => {
   try {
-    const file = await anthropic.files.create({
+    const response = await anthropic.files.create({
       file: fileBuffer,
       purpose: 'assistants'
     });
     
-    console.log(`✅ File uploaded to Claude Files API: ${fileName} (ID: ${file.id})`);
-    return file.id;
+    console.log(`✅ File uploaded to Claude Files API: ${fileName}`);
+    return response.id;
   } catch (error) {
-    console.error(`❌ Error uploading file to Claude Files API: ${fileName}`, error);
+    console.error('Error uploading to Claude Files API:', error);
     return null;
   }
 };
 
-// Enhanced helper function to process document for AI chat with Files API
-const processDocumentForChat = async (document, fileBuffer) => {
-  // Don't await this - make it completely non-blocking
-  setImmediate(async () => {
-    try {
-      // Add a small delay to ensure upload response is sent first
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Extract text from PDF for AI chat
-      if (document.docType === 'pdf') {
-        const text = await extractTextFromPDF(fileBuffer, document._id);
-        document.textContent = text;
-        
-        // Upload to Claude Files API for enhanced processing
-        const claudeFileId = await uploadToClaudeFiles(fileBuffer, document.title);
-        if (claudeFileId) {
-          document.claudeFileId = claudeFileId;
-          console.log(`✅ Document ${document.title} linked to Claude Files API`);
-        }
-        
-        await document.save();
-        
-        // Process for semantic search (generate chunks and embeddings)
-        await processDocumentForSearch(document._id);
-        
-        // Note: Enhanced processing moved to optimizedDocumentProcessor
-        // await enhancedDocumentProcessor.processDocumentForChat(document._id, fileBuffer);
-      }
-    } catch (error) {
-      console.error('Error processing document for AI chat:', error);
-      // Don't fail the upload if AI processing fails
-    }
-  });
-};
+
 
 exports.uploadDocument = async (req, res) => {
   const { propertyListingId, visibility = 'public', purpose = 'listing', offerId } = req.body;
@@ -214,12 +119,6 @@ exports.uploadDocument = async (req, res) => {
       }
       
       propertyListing.documents.push(savedDocument._id);
-      
-      // Process document for AI chat (completely non-blocking)
-      processDocumentForChat(savedDocument, file.buffer);
-      
-      // Trigger AI analysis if the document type is supported (completely non-blocking)
-      triggerAIAnalysisIfSupported(savedDocument, file.buffer);
       
       return savedDocument;
     }));
@@ -289,12 +188,6 @@ exports.addDocumentToPropertyListing = async (req, res) => {
 
       const savedDocument = await newDocument.save();
       propertyListing.documents.push(savedDocument._id);
-      
-      // Process document for AI chat (completely non-blocking)
-      processDocumentForChat(savedDocument, file.buffer);
-      
-      // Trigger AI analysis if the document type is supported (completely non-blocking)
-      triggerAIAnalysisIfSupported(savedDocument, file.buffer);
       
       return savedDocument;
     }));
@@ -1083,12 +976,6 @@ exports.uploadDocumentForBuyerPackage = async (req, res) => {
       });
 
       const savedDocument = await newDocument.save();
-      
-      // Process document for AI chat (completely non-blocking)
-      processDocumentForChat(savedDocument, file.buffer);
-      
-      // Trigger AI analysis if the document type is supported (completely non-blocking)
-      triggerAIAnalysisIfSupported(savedDocument, file.buffer);
       
       return savedDocument;
     }));

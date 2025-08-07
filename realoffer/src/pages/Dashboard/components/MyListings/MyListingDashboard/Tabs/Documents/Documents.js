@@ -616,7 +616,7 @@ const Documents = ({ listingId }) => {
                         handleAIAnalysis(doc);
                       }}
                                       >
-                    View AI Analysis
+                    AI Analysis
                   </button>
                   )}
                   <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">

@@ -368,7 +368,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
                       handleAIAnalysis(doc);
                     }}
                   >
-                    View AI Analysis
+                    AI Analysis
                   </button>
                 )}
                 <button 
