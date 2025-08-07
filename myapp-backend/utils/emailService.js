@@ -838,6 +838,86 @@ class EmailService {
       return { success: false, error: error.message };
     }
   }
+
+  // Send welcome email to agents
+  async sendAgentWelcomeEmail(agentEmail, agentName) {
+    const dashboardUrl = `${process.env.FRONTEND_URL}/dashboard`;
+    
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: agentEmail,
+      subject: 'Welcome to RealOffer - Your Real Estate Success Platform',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">Welcome to RealOffer!</h1>
+            <p style="color: #666; margin: 10px 0 0 0;">Your complete real estate transaction platform</p>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${agentName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              Welcome to RealOffer! We're excited to help you streamline your real estate transactions and provide your clients with a modern, professional experience.
+            </p>
+            
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0;">
+              <h3 style="color: #333; margin: 0 0 15px 0;">🚀 What you can do with RealOffer:</h3>
+              <ul style="color: #666; line-height: 1.8; padding-left: 20px;">
+                <li><strong>Create Professional Listings:</strong> Build beautiful property packages with photos, documents, and detailed information</li>
+                <li><strong>AI-Powered Comps Analysis:</strong> Get instant comparable property analysis to help price your listings competitively</li>
+                <li><strong>AI Disclosure Summaries:</strong> Automatically generate clear, concise summaries of complex disclosure documents</li>
+                <li><strong>AI Chat Assistant:</strong> Provide instant answers to buyer questions about your properties</li>
+                <li><strong>Manage Offers:</strong> Receive and review offers directly through the platform</li>
+                <li><strong>Track Activity & Analytics:</strong> Monitor views, downloads, and buyer engagement with detailed insights</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${dashboardUrl}" 
+                 style="background-color: #007bff; color: white; padding: 15px 40px; 
+                        text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
+                Get Started Now
+              </a>
+            </div>
+            
+            <div style="background-color: #e8f4fd; padding: 15px; border-radius: 8px; margin: 25px 0;">
+              <h4 style="color: #0056b3; margin: 0 0 10px 0;">💡 Quick Start Tips:</h4>
+              <ul style="color: #666; line-height: 1.6; margin: 0; padding-left: 20px;">
+                <li>Create your first listing package in just a few minutes</li>
+                <li>Upload property photos and documents to make your listing stand out</li>
+                <li>Use AI-powered comps analysis to price your listings competitively</li>
+                <li>Generate AI summaries of disclosure documents to help buyers understand key points</li>
+                <li>Enable AI chat on your listings to answer buyer questions instantly</li>
+                <li>Share your listing link with potential buyers and their agents</li>
+                <li>Monitor activity and engagement through your dashboard</li>
+              </ul>
+            </div>
+            
+            <p style="color: #666; line-height: 1.6;">
+              If you have any questions or need help getting started, don't hesitate to reach out to our support team.
+            </p>
+            
+            <p style="color: #666; line-height: 1.6;">
+              Welcome aboard!<br>
+              The RealOffer Team
+            </p>
+            
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('Agent welcome email send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 module.exports = new EmailService(); 

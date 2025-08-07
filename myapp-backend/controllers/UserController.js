@@ -235,6 +235,18 @@ exports.createUser = async (req, res) => {
             }
         }
         
+        // Send welcome email to agents
+        if (savedUser.role === 'agent') {
+            try {
+                const agentName = `${savedUser.firstName} ${savedUser.lastName}`;
+                await emailService.sendAgentWelcomeEmail(savedUser.email, agentName);
+                console.log(`Welcome email sent to agent: ${savedUser.email}`);
+            } catch (emailError) {
+                console.error('Error sending welcome email to agent:', emailError);
+                // Don't fail the signup if email sending fails
+            }
+        }
+        
         // Return user data without password and ensure consistent ID field
         const userResponse = {
             _id: savedUser._id,
