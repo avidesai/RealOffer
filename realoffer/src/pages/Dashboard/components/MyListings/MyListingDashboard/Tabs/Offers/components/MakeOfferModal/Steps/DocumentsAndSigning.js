@@ -148,10 +148,10 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
   const handleDocumentUpload = async (file) => {
     if (!file) return;
     
-    // Validate file size (50MB limit)
-    const maxSize = 50 * 1024 * 1024; // 50MB in bytes
+    // Validate file size (100MB limit)
+    const maxSize = 100 * 1024 * 1024; // 100MB in bytes
     if (file.size > maxSize) {
-      setError('File size must be less than 50MB');
+      setError('File size must be less than 100MB');
       return;
     }
     

@@ -896,6 +896,16 @@ class EmailService {
               If you have any questions or need help getting started, don't hesitate to reach out to our support team.
             </p>
             
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0;">
+              <h4 style="color: #333; margin: 0 0 10px 0;">Need Help?</h4>
+              <p style="color: #666; line-height: 1.6; margin: 0;">
+                <strong>Avi Desai</strong><br>
+                Founder of RealOffer<br>
+                <a href="mailto:avi@realoffer.io" style="color: #007bff; text-decoration: none;">avi@realoffer.io</a><br>
+                <a href="tel:+14086019407" style="color: #007bff; text-decoration: none;">(408) 601-9407</a>
+              </p>
+            </div>
+            
             <p style="color: #666; line-height: 1.6;">
               Welcome aboard!<br>
               The RealOffer Team
