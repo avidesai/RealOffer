@@ -149,7 +149,10 @@ const Documents = ({ listingId }) => {
       }
       
       fetchDocuments(documentOrder.filter(docId => docId !== id));
-      fetchListingData();
+      // Refresh listing data to ensure hasSignaturePackage state is accurate
+      const listingData = await fetchListingData();
+      // Update hasSignaturePackage based on the fresh listing data
+      setHasSignaturePackage(!!listingData.signaturePackage);
     } catch (error) {
       console.error('Error deleting document:', error);
     } finally {
@@ -184,7 +187,10 @@ const Documents = ({ listingId }) => {
       }
       
       fetchDocuments(newOrder);
-      fetchListingData();
+      // Refresh listing data to ensure hasSignaturePackage state is accurate
+      const listingData = await fetchListingData();
+      // Update hasSignaturePackage based on the fresh listing data
+      setHasSignaturePackage(!!listingData.signaturePackage);
     } catch (error) {
       console.error('Error deleting selected documents:', error);
     } finally {
