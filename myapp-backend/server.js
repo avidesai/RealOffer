@@ -69,8 +69,8 @@ app.options('*', cors(corsOptions));
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
 
 // JSON body parsing middleware
-app.use(express.json({ limit: '100mb' }));
-app.use(express.urlencoded({ limit: '100mb', extended: true }));
+app.use(express.json({ limit: '200mb' }));
+app.use(express.urlencoded({ limit: '200mb', extended: true }));
 
 // Add cookie-parser middleware
 app.use(cookieParser());
@@ -204,7 +204,7 @@ app.use((err, req, res, next) => {
   if (err.name === 'MulterError') {
     if (err.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({ 
-        message: 'File too large. Maximum file size is 100MB.',
+        message: 'File too large. Maximum file size is 200MB.',
         error: 'FILE_TOO_LARGE'
       });
     } else if (err.code === 'LIMIT_FILE_COUNT') {
