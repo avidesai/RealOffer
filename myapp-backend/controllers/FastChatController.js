@@ -25,6 +25,56 @@ RESPONSE GUIDELINES:
 
 IMPORTANT: The document summaries provided are comprehensive extracts focused on Q&A scenarios. They contain the most important information from each document including specific costs, dates, findings, and disclosures.`;
 
+// Helper function to build fast context
+function buildFastContext(property, analysis, preprocessedDocs) {
+  // Property context (cached)
+  const propertyContext = `PROPERTY INFORMATION:
+Address: ${property.homeCharacteristics.address}
+Price: $${property.homeCharacteristics.price?.toLocaleString() || 'Not specified'}
+Bedrooms: ${property.homeCharacteristics.beds}
+Bathrooms: ${property.homeCharacteristics.baths}
+Square Footage: ${property.homeCharacteristics.squareFootage?.toLocaleString() || 'Not specified'} sq ft
+Year Built: ${property.homeCharacteristics.yearBuilt}
+Property Type: ${property.homeCharacteristics.propertyType}
+Description: ${property.description || 'No description available'}
+
+VALUATION DATA:
+Estimated Value: $${analysis?.valuation?.estimatedValue?.toLocaleString() || 'Not available'}
+Price Range: $${analysis?.valuation?.priceRangeLow?.toLocaleString() || 'Not available'} - $${analysis?.valuation?.priceRangeHigh?.toLocaleString() || 'Not available'}
+Price per Sq Ft: $${analysis?.valuation?.pricePerSqFt || 'Not available'}
+
+COMPARABLE PROPERTIES:
+${analysis?.valuation?.comparables?.slice(0, 3).map((comp, index) => 
+  `${index + 1}. ${comp.address || 'Address not available'} - $${comp.price?.toLocaleString() || 'Price not available'} (${comp.beds || 'N/A'} beds, ${comp.baths || 'N/A'} baths, ${comp.sqft?.toLocaleString() || 'N/A'} sq ft)`
+).join('\n') || 'No comparable properties available'}
+
+`;
+
+  // Document context using preprocessed summaries
+  let documentContext = `DOCUMENT SUMMARIES (Preprocessed for Q&A):
+Total Documents Analyzed: ${preprocessedDocs.length}
+
+`;
+
+  preprocessedDocs.forEach((doc, index) => {
+    documentContext += `=== DOCUMENT ${index + 1}: ${doc.title} (${doc.type}) ===
+${doc.chatSummary}
+
+`;
+  });
+
+  if (preprocessedDocs.length === 0) {
+    documentContext += `No preprocessed documents available. The documents for this property may need to be processed first.
+
+`;
+  }
+
+  return {
+    propertyContext,
+    documentContext
+  };
+}
+
 class FastChatController {
   
   /**
@@ -60,7 +110,7 @@ class FastChatController {
       const analysis = await PropertyAnalysis.findOne({ propertyId });
 
       // Step 3: Build comprehensive but efficient context
-      const context = this.buildFastContext(property, analysis, preprocessedDocs);
+      const context = buildFastContext(property, analysis, preprocessedDocs);
 
       // Step 4: Stream response immediately
       const messages = [
@@ -137,57 +187,7 @@ class FastChatController {
     }
   }
 
-  /**
-   * Build fast context using preprocessed summaries
-   */
-  buildFastContext(property, analysis, preprocessedDocs) {
-    // Property context (cached)
-    const propertyContext = `PROPERTY INFORMATION:
-Address: ${property.homeCharacteristics.address}
-Price: $${property.homeCharacteristics.price?.toLocaleString() || 'Not specified'}
-Bedrooms: ${property.homeCharacteristics.beds}
-Bathrooms: ${property.homeCharacteristics.baths}
-Square Footage: ${property.homeCharacteristics.squareFootage?.toLocaleString() || 'Not specified'} sq ft
-Year Built: ${property.homeCharacteristics.yearBuilt}
-Property Type: ${property.homeCharacteristics.propertyType}
-Description: ${property.description || 'No description available'}
 
-VALUATION DATA:
-Estimated Value: $${analysis?.valuation?.estimatedValue?.toLocaleString() || 'Not available'}
-Price Range: $${analysis?.valuation?.priceRangeLow?.toLocaleString() || 'Not available'} - $${analysis?.valuation?.priceRangeHigh?.toLocaleString() || 'Not available'}
-Price per Sq Ft: $${analysis?.valuation?.pricePerSqFt || 'Not available'}
-
-COMPARABLE PROPERTIES:
-${analysis?.valuation?.comparables?.slice(0, 3).map((comp, index) => 
-  `${index + 1}. ${comp.address || 'Address not available'} - $${comp.price?.toLocaleString() || 'Price not available'} (${comp.beds || 'N/A'} beds, ${comp.baths || 'N/A'} baths, ${comp.sqft?.toLocaleString() || 'N/A'} sq ft)`
-).join('\n') || 'No comparable properties available'}
-
-`;
-
-    // Document context using preprocessed summaries
-    let documentContext = `DOCUMENT SUMMARIES (Preprocessed for Q&A):
-Total Documents Analyzed: ${preprocessedDocs.length}
-
-`;
-
-    preprocessedDocs.forEach((doc, index) => {
-      documentContext += `=== DOCUMENT ${index + 1}: ${doc.title} (${doc.type}) ===
-${doc.chatSummary}
-
-`;
-    });
-
-    if (preprocessedDocs.length === 0) {
-      documentContext += `No preprocessed documents available. The documents for this property may need to be processed first.
-
-`;
-    }
-
-    return {
-      propertyContext,
-      documentContext
-    };
-  }
 
   /**
    * Trigger preprocessing for documents that haven't been processed
