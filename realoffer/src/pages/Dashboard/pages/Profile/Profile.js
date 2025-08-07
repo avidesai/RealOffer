@@ -53,7 +53,7 @@ const Profile = () => {
           <div className={`pp-profile-content ${profileData.role === 'buyer' ? 'pp-buyer-only' : ''}`}>
             {/* Agent Information Column */}
             <div className="pp-profile-column pp-agent-info">
-              <h3>{profileData.role === 'buyer' ? 'Buyer Information' : 'Agent Information'}</h3>
+              <h3 className='pp-profile-section-title'>{profileData.role === 'buyer' ? 'Buyer Information' : 'Agent Information'}</h3>
               {/* Profile Photo */}
               <div className="pp-form-group">
                 <label htmlFor="profilePhotoUrl" className='pp-photo-text'>Profile Photo</label>
@@ -232,7 +232,7 @@ const Profile = () => {
             {/* Brokerage Information Column - Hidden for buyers */}
             {profileData.role !== 'buyer' && (
               <div className="pp-profile-column pp-brokerage-info">
-                <h3>Brokerage Information</h3>
+                <h3 className='pp-profile-section-title'>Brokerage Information</h3>
               {/* Agency Photo */}
               <div className="pp-form-group">
                 <label htmlFor="agencyImage" className='pp-photo-text'>Agency Logo</label>

@@ -128,13 +128,11 @@
   display: block;
 }
 
-.pp-profile-section h3 {
+.pp-profile-section-title {
   font-size: 1.18rem;
   font-weight: 700;
   margin-bottom: 1.3rem;
   color: #2c3e50;
-  padding-bottom: 0.5rem;
-  border-bottom: 1.5px solid #e2e8f0;
   letter-spacing: -0.5px;
 }
 
