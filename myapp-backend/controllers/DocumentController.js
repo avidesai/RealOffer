@@ -73,8 +73,15 @@ const processDocumentForChat = async (document, fileBuffer) => {
       // Process for semantic search (generate chunks and embeddings)
       await processDocumentForSearch(document._id);
       
-      // Note: Enhanced processing moved to optimizedDocumentProcessor
-      // await enhancedDocumentProcessor.processDocumentForChat(document._id, fileBuffer);
+      // NEW: Trigger preprocessing for chat
+      const DocumentPreprocessingController = require('./DocumentPreprocessingController');
+      try {
+        await DocumentPreprocessingController.preprocessDocumentForChat(document._id);
+        console.log(`✅ Document ${document.title} preprocessed for chat`);
+      } catch (preprocessError) {
+        console.error(`⚠️ Chat preprocessing failed for ${document.title}:`, preprocessError.message);
+        // Don't fail the entire upload if preprocessing fails
+      }
     }
   } catch (error) {
     console.error('Error processing document for AI chat:', error);
