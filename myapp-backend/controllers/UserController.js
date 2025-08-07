@@ -279,16 +279,59 @@ exports.createUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
     const { firstName, lastName, email, role, ...otherDetails } = req.body;
     try {
+        // If email is being updated, check for uniqueness
+        if (email) {
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                return res.status(400).json({ 
+                    message: 'Invalid email format' 
+                });
+            }
+
+            // Check if email already exists for a different user
+            const existingUser = await User.findOne({ 
+                email: email.toLowerCase(),
+                _id: { $ne: req.params.id } // Exclude current user
+            });
+            
+            if (existingUser) {
+                return res.status(409).json({ 
+                    message: 'An account with this email address already exists' 
+                });
+            }
+        }
+
         const updatedUser = await User.findByIdAndUpdate(req.params.id, {
             firstName,
             lastName,
-            email,
+            email: email ? email.toLowerCase() : undefined,
             role,
             ...otherDetails
         }, { new: true });
+        
         res.status(200).json(updatedUser);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        console.error('Error updating user:', error);
+        
+        // Handle specific database errors
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ 
+                message: 'Invalid data provided for user update',
+                details: Object.values(error.errors).map(err => err.message)
+            });
+        }
+        
+        if (error.code === 11000) {
+            return res.status(409).json({ 
+                message: 'An account with this email address already exists' 
+            });
+        }
+        
+        res.status(500).json({ 
+            message: 'Internal server error while updating user',
+            error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
+        });
     }
 };
 
