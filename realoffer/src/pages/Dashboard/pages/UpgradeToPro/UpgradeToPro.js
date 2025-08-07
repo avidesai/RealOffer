@@ -188,7 +188,7 @@ const UpgradeToProContent = () => {
             <div className="coupon-success-message">
               <span className="coupon-success-text">
                 🎉 Promo Applied:<br />
-                Free Access for 2 Months
+                Free Access for 6 Months
               </span>
             </div>
           )}
