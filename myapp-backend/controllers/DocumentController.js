@@ -1,4 +1,4 @@
-// controllers/DocumentController.js
+// myapp-backend/controllers/DocumentController.js
 
 const Document = require('../models/Document');
 const PropertyListing = require('../models/PropertyListing');

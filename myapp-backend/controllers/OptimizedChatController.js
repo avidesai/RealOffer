@@ -1,3 +1,5 @@
+// myapp-backend/controllers/OptimizedChatController.js
+
 const Anthropic = require('@anthropic-ai/sdk');
 const Document = require('../models/Document');
 const DocumentAnalysis = require('../models/DocumentAnalysis');

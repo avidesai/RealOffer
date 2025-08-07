@@ -1,3 +1,5 @@
+// realoffer/src/components/PropertyChat/EnhancedPropertyChat.js
+
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import TabPaywall from '../TabPaywall/TabPaywall';

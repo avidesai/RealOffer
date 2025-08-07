@@ -133,10 +133,6 @@ const Documents = ({ listingId }) => {
   const handleDeleteDocument = async (id) => {
     setLoading(true);
     try {
-      // Get the document details before deleting to check if it's a signature package
-      const documentToDelete = documents.find(doc => doc._id === id);
-      const isSignaturePackage = documentToDelete?.purpose === 'signature_package';
-      
       await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -159,11 +155,6 @@ const Documents = ({ listingId }) => {
   const handleDeleteSelectedDocuments = async () => {
     setLoading(true);
     try {
-      // Check if any of the selected documents are signature packages
-      const selectedSignaturePackages = documents.filter(doc => 
-        selectedDocuments.includes(doc._id) && doc.purpose === 'signature_package'
-      );
-      
       await Promise.all(selectedDocuments.map((id) => 
         axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${id}`, {
           headers: {

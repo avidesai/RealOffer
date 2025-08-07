@@ -1,4 +1,4 @@
-// /models/Document.js
+// myapp-backend/models/Document.js
 
 const mongoose = require('mongoose');
 

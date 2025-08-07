@@ -1,3 +1,5 @@
+// myapp-backend/utils/optimizedDocumentProcessor.js
+
 const Anthropic = require('@anthropic-ai/sdk');
 const Document = require('../models/Document');
 const pdfParse = require('pdf-parse');

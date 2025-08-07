@@ -1,3 +1,5 @@
+// myapp-backend/models/DocumentAnalysis.js
+
 const mongoose = require('mongoose');
 
 const documentAnalysisSchema = new mongoose.Schema({
