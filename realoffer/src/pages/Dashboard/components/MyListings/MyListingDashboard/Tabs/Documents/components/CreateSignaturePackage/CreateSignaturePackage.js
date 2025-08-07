@@ -7,10 +7,11 @@ import DocumentsListSelection from './components/DocumentsListSelection/Document
 import SignaturePDFViewer from './components/SignaturePDFViewer/SignaturePDFViewer';
 import './CreateSignaturePackage.css';
 
-const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }) => {
+const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments, hasSignaturePackage = false }) => {
   const { token } = useAuth();
   const [documents, setDocuments] = useState([]);
   const [documentOrder, setDocumentOrder] = useState([]);
+  const [signaturePackageDocumentOrder, setSignaturePackageDocumentOrder] = useState([]);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [signaturePackage, setSignaturePackage] = useState(null);
@@ -36,10 +37,14 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
                                 typeof res.data.signaturePackage._id === 'string';
       setSignaturePackage(hasSignaturePackage ? res.data.signaturePackage : null);
       
-      // If the listing has a stored document order, use it
-      if (res.data.documentOrder && res.data.documentOrder.length > 0) {
-        setDocumentOrder(res.data.documentOrder);
+      // If the listing has a stored signature package document order, use it; otherwise use the main document order
+      if (res.data.signaturePackageDocumentOrder && res.data.signaturePackageDocumentOrder.length > 0) {
+        setSignaturePackageDocumentOrder(res.data.signaturePackageDocumentOrder);
+      } else if (res.data.documentOrder && res.data.documentOrder.length > 0) {
+        setSignaturePackageDocumentOrder(res.data.documentOrder);
       }
+      // Store the main document order for reference
+      setDocumentOrder(res.data.documentOrder || []);
       // Return the listing data so callers can access documentOrder
       return res.data;
     } catch (error) {
@@ -59,7 +64,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
       });
       const listingDocuments = response.data.filter(doc => doc.purpose === 'listing');
       
-      // If we have a document order, sort the documents accordingly
+      // If we have a signature package document order, sort the documents accordingly
       if (currentOrder.length > 0) {
         const orderMap = new Map(currentOrder.map((id, index) => [id, index]));
         listingDocuments.sort((a, b) => {
@@ -74,14 +79,14 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
         if (missingIds.length > 0) {
           // Add missing documents to the end of the order
           const updatedOrder = [...currentOrder, ...missingIds];
-          setDocumentOrder(updatedOrder);
+          setSignaturePackageDocumentOrder(updatedOrder);
         } else {
-          setDocumentOrder(currentOrder);
+          setSignaturePackageDocumentOrder(currentOrder);
         }
       } else {
         // If no stored order, create order from current document list
         const newOrder = listingDocuments.map(doc => doc._id);
-        setDocumentOrder(newOrder);
+        setSignaturePackageDocumentOrder(newOrder);
       }
       
       setDocuments(listingDocuments);
@@ -105,7 +110,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
       setError(null);
       try {
         const listingData = await fetchListingData();
-        await fetchDocuments(listingData?.documentOrder || []);
+        await fetchDocuments(listingData?.signaturePackageDocumentOrder || listingData?.documentOrder || []);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -130,15 +135,15 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
   }, []);
 
   const handleReorderDocuments = useCallback((reorderedDocs) => {
-    setDocumentOrder(reorderedDocs.map(doc => doc._id));
+    setSignaturePackageDocumentOrder(reorderedDocs.map(doc => doc._id));
   }, []);
 
   const orderedDocuments = useMemo(() => {
     const docMap = new Map(documents.map(doc => [doc._id, doc]));
-    return documentOrder
+    return signaturePackageDocumentOrder
       .filter(id => docMap.has(id))
       .map(id => docMap.get(id));
-  }, [documents, documentOrder]);
+  }, [documents, signaturePackageDocumentOrder]);
 
   const handleCreateSignaturePackage = async () => {
     setIsLoading(true);
@@ -158,7 +163,8 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
         `${process.env.REACT_APP_BACKEND_URL}/api/documents/createBuyerSignaturePacket`, 
         { 
           listingId,
-          documentOrder: documentOrder // Send the document order to the backend
+          documentOrder: documentOrder, // Send the main document order for fallback
+          signaturePackageDocumentOrder: signaturePackageDocumentOrder // Send the signature package document order
         },
         {
           headers: {
@@ -177,7 +183,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
     }
   };
 
-  const buttonText = signaturePackage ? "Update Disclosure Signature Packet" : "Create Disclosure Signature Packet";
+  const buttonText = (signaturePackage || hasSignaturePackage) ? "Update Disclosure Signature Packet" : "Create Disclosure Signature Packet";
 
   return (
     isOpen && (

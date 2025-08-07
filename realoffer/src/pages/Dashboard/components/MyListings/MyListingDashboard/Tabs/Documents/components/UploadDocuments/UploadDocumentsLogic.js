@@ -151,7 +151,7 @@ const getDocumentTypeFromFilename = (filename) => {
   return highestScore > 0.5 ? bestMatch : 'Other';
 };
 
-const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
+const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignaturePackage = false }) => {
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState([]);
@@ -373,6 +373,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess }) => {
         isOpen={showCreateSignaturePackage}
         onClose={closeCreateSignaturePackage}
         refreshDocuments={onUploadSuccess}
+        hasSignaturePackage={hasSignaturePackage}
       />
     );
   }

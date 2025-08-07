@@ -130,6 +130,10 @@ const Documents = ({ listingId }) => {
   const handleDeleteDocument = async (id) => {
     setLoading(true);
     try {
+      // Get the document details before deleting to check if it's a signature package
+      const documentToDelete = documents.find(doc => doc._id === id);
+      const isSignaturePackage = documentToDelete?.purpose === 'signature_package';
+      
       await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -138,6 +142,11 @@ const Documents = ({ listingId }) => {
       
       // Remove from document order as well
       setDocumentOrder(prevOrder => prevOrder.filter(docId => docId !== id));
+      
+      // If we deleted a signature package, update the hasSignaturePackage state
+      if (isSignaturePackage) {
+        setHasSignaturePackage(false);
+      }
       
       fetchDocuments(documentOrder.filter(docId => docId !== id));
       fetchListingData();
@@ -151,6 +160,11 @@ const Documents = ({ listingId }) => {
   const handleDeleteSelectedDocuments = async () => {
     setLoading(true);
     try {
+      // Check if any of the selected documents are signature packages
+      const selectedSignaturePackages = documents.filter(doc => 
+        selectedDocuments.includes(doc._id) && doc.purpose === 'signature_package'
+      );
+      
       await Promise.all(selectedDocuments.map((id) => 
         axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${id}`, {
           headers: {
@@ -163,6 +177,11 @@ const Documents = ({ listingId }) => {
       const newOrder = documentOrder.filter(docId => !selectedDocuments.includes(docId));
       setDocumentOrder(newOrder);
       setSelectedDocuments([]);
+      
+      // If we deleted any signature packages, update the hasSignaturePackage state
+      if (selectedSignaturePackages.length > 0) {
+        setHasSignaturePackage(false);
+      }
       
       fetchDocuments(newOrder);
       fetchListingData();
@@ -453,11 +472,9 @@ const Documents = ({ listingId }) => {
                   <a href={`${doc.thumbnailUrl}?${doc.sasToken}`} target="_blank" rel="noopener noreferrer">
                     <button className="docs-tab-delete-button docs-tab-document-actions-button">Download</button>
                   </a>
-                  {doc.purpose !== 'signature_package' && (
-                    <button className="docs-tab-delete-button docs-tab-document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
-                      Delete
-                    </button>
-                  )}
+                  <button className="docs-tab-delete-button docs-tab-document-actions-button" onClick={() => handleDeleteDocument(doc._id)}>
+                    Delete
+                  </button>
                 </div>
               )}
             </div>
@@ -469,6 +486,7 @@ const Documents = ({ listingId }) => {
           onClose={closeUploadModal}
           listingId={listingId}
           onUploadSuccess={() => refreshDocumentsWithLoading()}
+          hasSignaturePackage={hasSignaturePackage}
         />
       )}
       {showPDFViewer && (

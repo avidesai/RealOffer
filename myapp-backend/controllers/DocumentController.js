@@ -319,7 +319,15 @@ exports.deleteDocument = async (req, res) => {
 
     await Document.deleteOne({ _id: req.params.id });
 
-    await PropertyListing.findByIdAndUpdate(document.propertyListing, { $pull: { documents: document._id } });
+    // If this is a signature package document, also clear the signaturePackage reference
+    if (document.purpose === 'signature_package') {
+      await PropertyListing.findByIdAndUpdate(document.propertyListing, { 
+        $pull: { documents: document._id },
+        $unset: { signaturePackage: 1 }
+      });
+    } else {
+      await PropertyListing.findByIdAndUpdate(document.propertyListing, { $pull: { documents: document._id } });
+    }
 
     res.status(200).json({ message: 'Document deleted' });
   } catch (error) {
@@ -398,7 +406,7 @@ exports.removePageFromSignaturePackage = async (req, res) => {
 };
 
 exports.createBuyerSignaturePacket = async (req, res) => {
-  const { listingId, documentOrder } = req.body;
+  const { listingId, documentOrder, signaturePackageDocumentOrder } = req.body;
 
   try {
     const propertyListing = await PropertyListing.findById(listingId).populate('signaturePackage');
@@ -425,10 +433,11 @@ exports.createBuyerSignaturePacket = async (req, res) => {
       return res.status(400).json({ message: 'No pages selected for the signature package.' });
     }
     
-    // If documentOrder is provided, sort the documents according to the order
-    if (documentOrder && Array.isArray(documentOrder) && documentOrder.length > 0) {
+    // If signaturePackageDocumentOrder is provided, use it; otherwise fall back to documentOrder
+    const orderToUse = signaturePackageDocumentOrder || documentOrder;
+    if (orderToUse && Array.isArray(orderToUse) && orderToUse.length > 0) {
       // Create a map for quick lookup of document order
-      const orderMap = new Map(documentOrder.map((id, index) => [id, index]));
+      const orderMap = new Map(orderToUse.map((id, index) => [id, index]));
       
       // Sort the selected documents based on the order
       selectedDocuments.sort((a, b) => {
@@ -437,8 +446,8 @@ exports.createBuyerSignaturePacket = async (req, res) => {
         return orderA - orderB;
       });
       
-      // Store the document order in the property listing for persistence
-      propertyListing.documentOrder = documentOrder;
+      // Store the signature package document order in the property listing for persistence
+      propertyListing.signaturePackageDocumentOrder = orderToUse;
       await propertyListing.save();
     }
 
@@ -558,7 +567,8 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     const response = {
       document: savedDocument,
       pageCount: mergedPdf.getPageCount(),
-      documentOrder: propertyListing.documentOrder
+      documentOrder: propertyListing.documentOrder,
+      signaturePackageDocumentOrder: propertyListing.signaturePackageDocumentOrder
     };
     
     if (processingErrors.length > 0) {

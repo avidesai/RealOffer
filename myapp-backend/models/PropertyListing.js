@@ -50,6 +50,7 @@ const propertyListingSchema = new mongoose.Schema(
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     publicUrl: { type: String, unique: true },
     documentOrder: { type: [String], default: [] },
+    signaturePackageDocumentOrder: { type: [String], default: [] },
     // Activity visibility settings for buyer parties
     showActivityStatsToBuyers: { type: Boolean, default: false },
     showActivityDetailsToBuyers: { type: Boolean, default: false },
