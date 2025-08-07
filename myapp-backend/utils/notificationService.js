@@ -210,6 +210,30 @@ class NotificationService {
       return { success: false, error: error.message };
     }
   }
+
+  // Send offer submission confirmation to offer creator
+  async sendOfferSubmissionConfirmation(offerCreatorEmail, offerCreatorName, propertyAddress, offerAmount, offerId) {
+    try {
+      const result = await emailService.sendOfferSubmissionConfirmation(
+        offerCreatorEmail,
+        offerCreatorName,
+        propertyAddress,
+        offerAmount,
+        offerId
+      );
+
+      if (result.success) {
+        console.log(`Offer submission confirmation sent to ${offerCreatorEmail} for offer ${offerId}`);
+      } else {
+        console.error(`Failed to send offer submission confirmation to ${offerCreatorEmail}:`, result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('Error sending offer submission confirmation:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 module.exports = new NotificationService(); 

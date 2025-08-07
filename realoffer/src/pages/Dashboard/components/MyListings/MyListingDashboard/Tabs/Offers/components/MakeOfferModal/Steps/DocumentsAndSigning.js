@@ -74,6 +74,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
   const [validation, setValidation] = useState({});
   const [signaturePacketExists, setSignaturePacketExists] = useState(false);
   const [signaturePacketDeleted, setSignaturePacketDeleted] = useState(false);
+  const [uploadingDocuments, setUploadingDocuments] = useState([]); // Track documents being uploaded
 
   // Document type options for dropdown
   const documentTypes = [
@@ -163,6 +164,21 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
     setUploadLoading(true);
     setError(null);
 
+    // Create a temporary document object for immediate display
+    const tempDocument = {
+      id: `temp-${Date.now()}-${Math.random()}`,
+      title: file.name,
+      type: getDocumentTypeFromFilename(file.name),
+      size: file.size,
+      pages: 'Loading...',
+      sendForSigning: false,
+      status: 'uploading',
+      isTemp: true
+    };
+
+    // Add to uploading documents immediately
+    setUploadingDocuments(prev => [...prev, tempDocument]);
+
     try {
       // Auto-determine document type based on filename
       const autoDetectedType = getDocumentTypeFromFilename(file.name);
@@ -198,6 +214,8 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
         status: 'uploaded'
       };
 
+      // Remove from uploading documents and add to actual documents
+      setUploadingDocuments(prev => prev.filter(doc => doc.id !== tempDocument.id));
       updateDocumentWorkflow(prev => ({
         ...prev,
         documents: [...prev.documents, uploadedDocument]
@@ -206,6 +224,8 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
     } catch (error) {
       console.error('Error uploading document:', error);
       setError('Failed to upload document. Please try again.');
+      // Remove the failed document from uploading list
+      setUploadingDocuments(prev => prev.filter(doc => doc.id !== tempDocument.id));
     } finally {
       setUploadLoading(false);
     }
@@ -256,13 +276,8 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
   // Handle file input change
   const handleFileChange = (event) => {
     const files = Array.from(event.target.files);
-    if (files.length > 0) {
-      // Upload each file sequentially
-      files.forEach(file => {
-        handleDocumentUpload(file);
-      });
-    }
-    // Reset the input
+    files.forEach(handleDocumentUpload);
+    // Clear the input
     event.target.value = '';
   };
 
@@ -368,7 +383,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
           </div>
 
           {/* Uploaded Documents List */}
-          {documentWorkflow.documents.length > 0 && (
+          {(documentWorkflow.documents.length > 0 || uploadingDocuments.length > 0) && (
             <div className="ds-uploaded-documents">
               <div className="ds-uploaded-documents-header">
                 <h4>Uploaded Documents</h4>
@@ -382,6 +397,21 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
                   </button>
                 )}
               </div>
+              
+              {/* Show uploading documents first */}
+              {uploadingDocuments.map((doc) => (
+                <div key={doc.id} className="ds-uploaded-document ds-uploading-document">
+                  <div className="ds-document-info">
+                    <div className="ds-document-name">{doc.title}</div>
+                    <div className="ds-document-status">Uploading...</div>
+                  </div>
+                  <div className="ds-document-controls">
+                    <div className="ds-upload-spinner"></div>
+                  </div>
+                </div>
+              ))}
+              
+              {/* Show uploaded documents */}
               {documentWorkflow.documents.map((doc) => (
                 <div key={doc.id} className="ds-uploaded-document">
                   <div className="ds-document-info">
@@ -413,13 +443,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId }) => {
             </div>
           )}
 
-          {/* Progress Indicator */}
-          {uploadLoading && (
-            <div className="ds-upload-progress">
-              <div className="ds-spinner"></div>
-              <span>Uploading document...</span>
-            </div>
-          )}
+
         </div>
       </div>
 

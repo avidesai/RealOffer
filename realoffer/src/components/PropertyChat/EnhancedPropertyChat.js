@@ -10,12 +10,9 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [tokenUsage, setTokenUsage] = useState(null);
-  const [sources, setSources] = useState([]);
-  const [citations, setCitations] = useState([]);
   const [processingTime, setProcessingTime] = useState(null);
   const [error, setError] = useState(null);
   const [isCached, setIsCached] = useState(false);
-  const [relevanceScores, setRelevanceScores] = useState([]);
   
   const messagesEndRef = useRef(null);
   const abortControllerRef = useRef(null);
@@ -111,10 +108,11 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
                 if (data.type === 'content') {
                   fullResponse += data.content;
                   
-                  // Update the streaming message
+                  // Update the streaming message - capture fullResponse in closure
+                  const currentResponse = fullResponse;
                   setMessages(prev => prev.map(msg => 
                     msg.id === assistantMessageId 
-                      ? { ...msg, content: fullResponse }
+                      ? { ...msg, content: currentResponse }
                       : msg
                   ));
                 } else if (data.type === 'complete') {
@@ -132,12 +130,9 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
                   ));
                   
                   // Update global state
-                  setCitations(data.citations || []);
-                  setSources(data.sources || []);
                   setTokenUsage(data.estimatedTokens);
                   setProcessingTime(data.processingTime);
                   setIsCached(data.cached || false);
-                  setRelevanceScores(data.sources?.map(s => s.relevanceScore) || []);
                   
                 } else if (data.type === 'error') {
                   throw new Error(data.error);

@@ -1,7 +1,7 @@
 /* Profile.css */
 
 /* --- Card Shadow & Border --- */
-.profile-container {
+.pp-profile-container {
   background: #fff;
   border-radius: 28px;
   box-shadow: 0 8px 32px rgba(27, 92, 243, 0.13), 0 2px 8px rgba(0,0,0,0.08);
@@ -15,7 +15,7 @@
   gap: 2.5rem;
 }
 
-.profile-title {
+.pp-profile-title {
   font-size: 2.1rem;
   font-weight: 800;
   margin-bottom: 0rem;
@@ -25,7 +25,7 @@
   letter-spacing: -1px;
 }
 
-.profile-autosave-notice {
+.pp-profile-autosave-notice {
   text-align: center;
   color: #64748b;
   font-size: 0.95rem;
@@ -37,15 +37,15 @@
 }
 
 /* --- Account Status Pill --- */
-.account-status-section {
+.pp-account-status-section {
   margin-bottom: 1.5rem;
 }
 
-.account-status-row {
+.pp-account-status-row {
   margin-bottom: 0.7rem;
 }
 
-.pro-status {
+.pp-pro-status {
   display: inline-flex;
   align-items: center;
   gap: 0.4em;
@@ -61,13 +61,13 @@
   text-transform: uppercase;
   vertical-align: middle;
 }
-.pro-status .pro-icon {
+.pp-pro-status .pro-icon {
   display: inline-block;
   font-size: 1.1em;
   margin-right: 0.3em;
   vertical-align: middle;
 }
-.pro-status.disabled {
+.pp-pro-status.pp-disabled {
   background: #f5f6fa;
   color: #7b7e8c;
   box-shadow: none;
@@ -75,7 +75,7 @@
 }
 
 /* --- Button Placement --- */
-.profile-manage-subscription-btn {
+.pp-profile-manage-subscription-btn {
   margin-top: 0.7rem;
   padding: 0.85rem 1.5rem;
   font-size: 1.05rem;
@@ -86,14 +86,14 @@
 
 /* --- Section Alignment --- */
 /* --- Grid Layout for Profile Content --- */
-.profile-content {
+.pp-profile-content {
   display: flex;
   flex-direction: row;
   gap: 6rem;
   width: 100%;
 }
 
-.profile-column {
+.pp-profile-column {
   flex: 1 1 0;
   display: flex;
   flex-direction: column;
@@ -102,7 +102,7 @@
 }
 
 /* Single column layout for buyers (when brokerage info is hidden) */
-.profile-content.buyer-only .profile-column {
+.pp-profile-content.pp-buyer-only .pp-profile-column {
   flex: 1 1 100%;
   max-width: 600px;
   margin: 0 auto;
@@ -110,16 +110,16 @@
 
 /* Mobile spacing for buyer-only layout */
 @media (max-width: 768px) {
-  .profile-content.buyer-only .profile-column {
+  .pp-profile-content.pp-buyer-only .pp-profile-column {
     padding: 0 1rem;
   }
   
-  .profile-content.buyer-only {
+  .pp-profile-content.pp-buyer-only {
     padding: 0 0.5rem;
   }
 }
 
-.profile-section {
+.pp-profile-section {
   width: 100%;
   padding: 0;
   background: none;
@@ -128,28 +128,26 @@
   display: block;
 }
 
-.profile-section h3 {
+.pp-profile-section-title {
   font-size: 1.18rem;
   font-weight: 700;
   margin-bottom: 1.3rem;
-  color: #23272f;
-  padding-bottom: 0.5rem;
-  border-bottom: 1.5px solid #e2e8f0;
+  color: #2c3e50;
   letter-spacing: -0.5px;
 }
 
-.profile-form {
+.pp-profile-form {
   display: flex;
   flex-direction: column;
   gap: 1.15rem;
 }
 
-.form-group {
+.pp-form-group {
   margin-bottom: 0.35rem;
   position: relative;
 }
 
-.form-group label {
+.pp-form-group label {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
@@ -159,8 +157,8 @@
 
 input[type="text"],
 input[type="email"],
-.upload-input,
-.form-control {
+.pp-upload-input,
+.pp-form-control {
   width: 100%;
   padding: 0.875rem 1rem;
   border: 1px solid #dee2e6;
@@ -174,19 +172,19 @@ input[type="email"],
 
 input[type="text"]:focus,
 input[type="email"]:focus,
-.form-control:focus {
+.pp-form-control:focus {
   outline: none;
   border-color: #4a90e2;
   box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
 }
 
-.upload-container {
+.pp-upload-container {
   display: flex;
   align-items: center;
   gap: 1.5rem;
 }
 
-.upload-button {
+.pp-upload-button {
   padding: 0.875rem 1.5rem;
   background-color: #007bff;
   color: #fff;
@@ -198,7 +196,7 @@ input[type="email"]:focus,
   transition: all 0.2s ease;
 }
 
-.upload-button:hover {
+.pp-upload-button:hover {
   background-color: #0056b3;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
@@ -206,7 +204,7 @@ input[type="email"]:focus,
 
 /* Avatar component handles its own styling - no overrides needed */
 
-.profile-checkbox-label {
+.pp-profile-checkbox-label {
   display: flex;
   align-items: center;
   font-weight: 500;
@@ -217,7 +215,7 @@ input[type="email"]:focus,
   margin-top: 0.75rem;
 }
 
-.profile-checkbox-label input[type="checkbox"] {
+.pp-profile-checkbox-label input[type="checkbox"] {
   width: 18px;
   height: 18px;
   border-radius: 5px;
@@ -230,12 +228,12 @@ input[type="email"]:focus,
   transition: box-shadow 0.15s;
 }
 
-.profile-checkbox-label input[type="checkbox"]:focus {
+.pp-profile-checkbox-label input[type="checkbox"]:focus {
   outline: none;
   box-shadow: 0 0 0 2px #b3d4fc;
 }
 
-.input-spinner {
+.pp-input-spinner {
   border: 3px solid rgba(0, 123, 255, 0.1);
   border-top: 3px solid #007bff;
   border-radius: 50%;
@@ -248,7 +246,7 @@ input[type="email"]:focus,
   transform: translateY(-50%);
 }
 
-.email-group {
+.pp-email-group {
   display: flex;
   align-items: center;
   background-color: #f8f9fa;
@@ -257,13 +255,13 @@ input[type="email"]:focus,
   border: 1px solid #dee2e6;
 }
 
-.email-display {
+.pp-email-display {
   flex-grow: 1;
   font-size: 1rem;
   color: #4a5568;
 }
 
-.edit-button {
+.pp-edit-button {
   padding: 0.5rem 1.25rem;
   background-color: #007bff;
   color: #fff;
@@ -275,13 +273,13 @@ input[type="email"]:focus,
   transition: all 0.2s ease;
 }
 
-.edit-button:hover {
+.pp-edit-button:hover {
   background-color: #0056b3;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
 }
 
-.role-display {
+.pp-role-display {
   padding: 0.875rem 1rem;
   background-color: #f8f9fa;
   border-radius: 8px;
@@ -290,8 +288,8 @@ input[type="email"]:focus,
 }
 
 /* Subscription Management Buttons */
-.profile-upgrade-btn,
-.profile-manage-subscription-btn {
+.pp-profile-upgrade-btn,
+.pp-profile-manage-subscription-btn {
   width: 100%;
   margin-top: 0.5rem;
   padding: 1.1rem 2.2rem;
@@ -305,25 +303,25 @@ input[type="email"]:focus,
   min-width: 220px;
 }
 
-.profile-upgrade-btn {
+.pp-profile-upgrade-btn {
   background: linear-gradient(135deg, #9b2ae2 0%, #4078fb 100%);
   color: #fff;
   box-shadow: 0 4px 12px rgba(155, 42, 226, 0.2);
 }
 
-.profile-upgrade-btn:hover {
+.pp-profile-upgrade-btn:hover {
   background: linear-gradient(135deg, #8423c1 0%, #3460c8 100%);
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(155, 42, 226, 0.3);
 }
 
-.profile-manage-subscription-btn {
+.pp-profile-manage-subscription-btn {
   background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
   color: #fff;
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.13);
 }
 
-.profile-manage-subscription-btn:hover {
+.pp-profile-manage-subscription-btn:hover {
   background: linear-gradient(90deg, #0056b3 0%, #004085 100%);
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(0, 123, 255, 0.18);
@@ -335,13 +333,14 @@ input[type="email"]:focus,
 }
 
 @media (max-width: 1200px) {
-  .profile-container {
+  .pp-profile-container {
     max-width: 98vw;
     padding: 2rem 1.2rem 1.2rem 1.2rem;
   }
 }
+
 @media (max-width: 900px) {
-  .profile-container {
+  .pp-profile-container {
     padding: 1.1rem 0.2rem 1.1rem 0.2rem;
     border-radius: 14px;
     margin: 1.2rem 0 1.2rem 0;
@@ -349,18 +348,18 @@ input[type="email"]:focus,
 }
 
 @media (max-width: 1024px) {
-  .profile-content {
+  .pp-profile-content {
     flex-direction: column;
     gap: 2.5rem;
   }
-  .profile-column {
+  .pp-profile-column {
     width: 100%;
     max-width: 100%;
   }
-  .profile-title {
+  .pp-profile-title {
     font-size: 1.5rem;
   }
-  .profile-manage-subscription-btn {
+  .pp-profile-manage-subscription-btn {
     float: none;
     width: 100%;
     margin-bottom: 1.2rem;
@@ -368,36 +367,203 @@ input[type="email"]:focus,
 }
 
 @media (max-width: 768px) {
-  .profile-title {
-    font-size: 1.3rem;
-    margin-bottom: 1.2rem;
+  .pp-profile-container {
+    padding: 1.5rem 1rem 1rem 1rem;
+    margin: 1rem 0.5rem 1rem 0.5rem;
+    border-radius: 12px;
+    gap: 1.5rem;
   }
   
-  .profile-upgrade-btn,
-  .profile-manage-subscription-btn {
+  .pp-profile-title {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    margin-top: 0.25rem;
+  }
+  
+  .pp-profile-autosave-notice {
+    font-size: 0.85rem;
+    margin-top: -0.25rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .pp-profile-upgrade-btn,
+  .pp-profile-manage-subscription-btn {
     min-width: 0;
     width: 100%;
     font-size: 1rem;
     padding: 1rem 0.5rem;
     float: none;
   }
+  
+  .pp-profile-content {
+    gap: 1.5rem;
+  }
+  
+  .pp-profile-column {
+    gap: 0.75rem;
+  }
+  
+  .pp-form-group {
+    margin-bottom: 0.25rem;
+  }
+  
+  .pp-form-group label {
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  .pp-upload-input,
+  .pp-form-control {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.95rem;
+  }
+  
+  .pp-upload-area-profile {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .pp-upload-area-profile .pp-upload-label-profile {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .pp-email-group {
+    padding: 0.75rem 0.875rem;
+  }
+  
+  .pp-email-display {
+    font-size: 0.95rem;
+  }
+  
+  .pp-edit-button {
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+  }
+  
+  .pp-role-display {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.95rem;
+  }
+  
+  .pp-profile-checkbox-label {
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+  }
+  
+  .pp-profile-checkbox-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-right: 0.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pp-profile-container {
+    padding: 1rem 0.75rem 0.75rem 0.75rem;
+    margin: 0.5rem 0.25rem 0.5rem 0.25rem;
+    gap: 1rem;
+  }
+  
+  .pp-profile-title {
+    font-size: 1.2rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .pp-profile-autosave-notice {
+    font-size: 0.8rem;
+    margin-top: -0.2rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .pp-profile-content {
+    gap: 1rem;
+  }
+  
+  .pp-profile-column {
+    gap: 0.5rem;
+  }
+  
+  .pp-form-group {
+    margin-bottom: 0.2rem;
+  }
+  
+  .pp-form-group label {
+    font-size: 0.85rem;
+    margin-bottom: 0.3rem;
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  .pp-upload-input,
+  .pp-form-control {
+    padding: 0.7rem 0.75rem;
+    font-size: 0.9rem;
+  }
+  
+  .pp-upload-area-profile {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+  
+  .pp-upload-area-profile .pp-upload-label-profile {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.85rem;
+  }
+  
+  .pp-email-group {
+    padding: 0.7rem 0.75rem;
+  }
+  
+  .pp-email-display {
+    font-size: 0.9rem;
+  }
+  
+  .pp-edit-button {
+    padding: 0.35rem 0.875rem;
+    font-size: 0.8rem;
+  }
+  
+  .pp-role-display {
+    padding: 0.7rem 0.75rem;
+    font-size: 0.9rem;
+  }
+  
+  .pp-profile-checkbox-label {
+    font-size: 0.85rem;
+    margin-top: 0.4rem;
+  }
+  
+  .pp-profile-checkbox-label input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    margin-right: 0.35rem;
+  }
+  
+  .pp-profile-upgrade-btn,
+  .pp-profile-manage-subscription-btn {
+    padding: 0.875rem 0.5rem;
+    font-size: 0.95rem;
+  }
 }
 
 @media (max-width: 900px) {
-  .profile-content {
+  .pp-profile-content {
     grid-template-columns: 1fr;
     gap: 0.8rem 0;
   }
-  .profile-grid-cell {
+  .pp-profile-grid-cell {
     margin-bottom: 0.7rem;
   }
 }
 
-.upload-row {
+.pp-upload-row {
   display: none;
 }
 
-.upload-area-profile {
+.pp-upload-area-profile {
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -409,19 +575,19 @@ input[type="email"]:focus,
   transition: border-color 0.2s, background 0.2s;
   margin-bottom: 0.5rem;
 }
-.upload-area-profile:hover {
+.pp-upload-area-profile:hover {
   border-color: #4a90e2;
   background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
 }
 
 /* Avatar component handles its own styling in upload areas */
-.upload-area-profile .avatar-upload {
+.pp-upload-area-profile .avatar-upload {
   width: 70px !important;
   height: 70px !important;
   font-size: 24px !important;
 }
 
-.upload-area-profile .upload-label-profile {
+.pp-upload-area-profile .pp-upload-label-profile {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -439,35 +605,27 @@ input[type="email"]:focus,
   align-self: center;
   margin-top: 0.5rem;
 }
-.upload-area-profile .upload-label-profile:hover {
+.pp-upload-area-profile .pp-upload-label-profile:hover {
   background: linear-gradient(135deg, #357abd 0%, #2c5282 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(74, 144, 226, 0.25);
 }
 
-.upload-area-profile .upload-input {
+.pp-upload-area-profile .pp-upload-input {
   display: none;
 }
 
 @media (max-width: 1024px) {
-  .profile-column {
+  .pp-profile-column {
     gap: 0.7rem;
   }
-  .form-group {
+  .pp-form-group {
     margin-bottom: 0.3rem;
-  }
-}
-@media (max-width: 768px) {
-  .profile-column {
-    gap: 0.5rem;
-  }
-  .form-group {
-    margin-bottom: 0.2rem;
   }
 }
 
 /* Logo-specific upload area */
-.logo-upload-area {
+.pp-logo-upload-area {
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
@@ -475,7 +633,7 @@ input[type="email"]:focus,
   padding: 1.25rem 1.5rem;
 }
 
-.logo-preview-container {
+.pp-logo-preview-container {
   width: 120px;
   height: 80px;
   border: 2px solid #e3e8f0;
@@ -489,33 +647,33 @@ input[type="email"]:focus,
   flex-shrink: 0;
 }
 
-.agency-logo-preview {
+.pp-agency-logo-preview {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
   transition: all 0.3s ease;
 }
 
-.agency-logo-preview[data-fit="cover"] {
+.pp-agency-logo-preview[data-fit="cover"] {
   object-fit: cover;
   width: 100%;
   height: 100%;
 }
 
-.agency-logo-preview[data-fit="stretch"] {
+.pp-agency-logo-preview[data-fit="stretch"] {
   object-fit: fill;
   width: 100%;
   height: 100%;
 }
 
-.logo-upload-controls {
+.pp-logo-upload-controls {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   align-self: center;
 }
 
-.logo-fit-options {
+.pp-logo-fit-options {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -524,14 +682,14 @@ input[type="email"]:focus,
   border-radius: 6px;
 }
 
-.fit-option-label {
+.pp-fit-option-label {
   font-size: 0.9rem;
   font-weight: 500;
   color: #475569;
   margin: 0;
 }
 
-.fit-option-select {
+.pp-fit-option-select {
   padding: 0.4rem 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 4px;
@@ -542,7 +700,7 @@ input[type="email"]:focus,
   transition: border-color 0.2s ease;
 }
 
-.fit-option-select:focus {
+.pp-fit-option-select:focus {
   outline: none;
   border-color: #4a90e2;
   box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
@@ -550,26 +708,47 @@ input[type="email"]:focus,
 
 /* Responsive adjustments for logo upload */
 @media (max-width: 768px) {
-  .logo-upload-area {
+  .pp-logo-upload-area {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
     padding: 1rem;
   }
   
-  .logo-preview-container {
+  .pp-logo-preview-container {
     width: 100px;
     height: 70px;
   }
   
-  .logo-upload-controls {
+  .pp-logo-upload-controls {
     align-self: flex-start;
   }
   
-  .logo-fit-options {
+  .pp-logo-fit-options {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pp-logo-upload-area {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+  
+  .pp-logo-preview-container {
+    width: 80px;
+    height: 60px;
+  }
+  
+  .pp-fit-option-label {
+    font-size: 0.8rem;
+  }
+  
+  .pp-fit-option-select {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
   }
 }
 

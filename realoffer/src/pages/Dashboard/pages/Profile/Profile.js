@@ -42,117 +42,117 @@ const Profile = () => {
   return (
     <>
       <ProfileHeader backDestination="/dashboard" />
-      <div className="profile-background">
-        <div className="profile-container">
-          <h2 className="profile-title">Profile</h2>
+      <div className="pp-profile-background">
+        <div className="pp-profile-container">
+          <h2 className="pp-profile-title">Profile</h2>
           {profileData.role !== 'buyer' && (
-            <p className="profile-autosave-notice">
+            <p className="pp-profile-autosave-notice">
               Changes are saved automatically.
             </p>
           )}
-          <div className={`profile-content ${profileData.role === 'buyer' ? 'buyer-only' : ''}`}>
+          <div className={`pp-profile-content ${profileData.role === 'buyer' ? 'pp-buyer-only' : ''}`}>
             {/* Agent Information Column */}
-            <div className="profile-column agent-info">
-              <h3>{profileData.role === 'buyer' ? 'Buyer Information' : 'Agent Information'}</h3>
+            <div className="pp-profile-column pp-agent-info">
+              <h3 className='pp-profile-section-title'>{profileData.role === 'buyer' ? 'Buyer Information' : 'Agent Information'}</h3>
               {/* Profile Photo */}
-              <div className="form-group">
-                <label htmlFor="profilePhotoUrl" className='photo-text'>Profile Photo</label>
-                <div className="upload-area-profile">
+              <div className="pp-form-group">
+                <label htmlFor="profilePhotoUrl" className='pp-photo-text'>Profile Photo</label>
+                <div className="pp-upload-area-profile">
                   <Avatar 
                     src={profileData.profilePhotoUrl}
                     firstName={profileData.firstName}
                     lastName={profileData.lastName}
                     size="upload"
-                    className="profile-photo"
+                    className="pp-profile-photo"
                     alt={`${profileData.firstName} ${profileData.lastName}`}
                   />
-                  <label className="upload-label-profile" htmlFor="profilePhotoUrl">
+                  <label className="pp-upload-label-profile" htmlFor="profilePhotoUrl">
                     Upload Photo
                     <input
                       type="file"
                       id="profilePhotoUrl"
-                      className="upload-input"
+                      className="pp-upload-input"
                       onChange={(e) => handlePhotoUpload(e, 'profilePhotoUrl')}
                     />
                   </label>
                 </div>
-                {isUploading.profilePhotoUrl && <div className="input-spinner"></div>}
+                {isUploading.profilePhotoUrl && <div className="pp-input-spinner"></div>}
               </div>
               {/* Account Status */}
-              <div className="account-status-section">
-                <div className="account-status-row">
+              <div className="pp-account-status-section">
+                <div className="pp-account-status-row">
                   {profileData.isPremium ? (
-                    <span className="pro-status">
+                    <span className="pp-pro-status">
                       Pro Account
                     </span>
                   ) : (
-                    <span className="pro-status disabled">
+                    <span className="pp-pro-status pp-disabled">
                       Free Account
                     </span>
                   )}
                 </div>
                 {profileData.isPremium ? (
-                  <button className="profile-manage-subscription-btn" onClick={handleManageSubscription}>
+                  <button className="pp-profile-manage-subscription-btn" onClick={handleManageSubscription}>
                     Manage Subscription
                   </button>
                 ) : (
-                  <button className="profile-upgrade-btn" onClick={handleUpgradeClick}>
+                  <button className="pp-profile-upgrade-btn" onClick={handleUpgradeClick}>
                     Upgrade to Pro
                   </button>
                 )}
               </div>
               {/* Role */}
-              <div className="form-group">
+              <div className="pp-form-group">
                 <label>Role</label>
-                <div className="role-display">
+                <div className="pp-role-display">
                   {capitalize(profileData.role)}
                 </div>
               </div>
               {/* Agent Status for Buyers */}
               {profileData.role === 'buyer' && profileData.hasAgent !== null && (
-                <div className="form-group">
+                <div className="pp-form-group">
                   <label>Agent Status</label>
-                  <div className="role-display">
+                  <div className="pp-role-display">
                     {profileData.hasAgent ? 'I have an agent' : 'I don\'t have an agent'}
                   </div>
                 </div>
               )}
               {/* First Name */}
-              <div className="form-group">
+              <div className="pp-form-group">
                 <label htmlFor="firstName">First Name</label>
                 <input
                   type="text"
                   id="firstName"
                   value={profileData.firstName || ''}
                   onChange={handleInputChange}
-                  className="form-control"
+                  className="pp-form-control"
                 />
-                {updating.firstName && <div className="input-spinner"></div>}
+                {updating.firstName && <div className="pp-input-spinner"></div>}
               </div>
               {/* Last Name */}
-              <div className="form-group">
+              <div className="pp-form-group">
                 <label htmlFor="lastName">Last Name</label>
                 <input
                   type="text"
                   id="lastName"
                   value={profileData.lastName || ''}
                   onChange={handleInputChange}
-                  className="form-control"
+                  className="pp-form-control"
                 />
-                {updating.lastName && <div className="input-spinner"></div>}
+                {updating.lastName && <div className="pp-input-spinner"></div>}
               </div>
               {/* Email */}
-              <div className="form-group">
+              <div className="pp-form-group">
                 <label>Email</label>
-                <div className="email-group">
-                  <div className="email-display">{profileData.email}</div>
-                  <button className="edit-button" onClick={() => setEmailModalOpen(true)}>Edit</button>
+                <div className="pp-email-group">
+                  <div className="pp-email-display">{profileData.email}</div>
+                  <button className="pp-edit-button" onClick={() => setEmailModalOpen(true)}>Edit</button>
                 </div>
-                {updating.email && <div className="input-spinner"></div>}
+                {updating.email && <div className="pp-input-spinner"></div>}
               </div>
               {/* Agent License Number - Hidden for buyers */}
               {profileData.role !== 'buyer' && (
-                <div className="form-group">
+                <div className="pp-form-group">
                   <label htmlFor="agentLicenseNumber">License Number</label>
                   <input
                     type="text"
@@ -160,10 +160,10 @@ const Profile = () => {
                     value={profileData.agentLicenseNumber || ''}
                     onChange={handleInputChange}
                     disabled={noLicense}
-                    className="form-control"
+                    className="pp-form-control"
                   />
-                  {updating.agentLicenseNumber && <div className="input-spinner"></div>}
-                  <label className="profile-checkbox-label">
+                  {updating.agentLicenseNumber && <div className="pp-input-spinner"></div>}
+                  <label className="pp-profile-checkbox-label">
                     <input
                       type="checkbox"
                       checked={noLicense}
@@ -174,7 +174,7 @@ const Profile = () => {
                 </div>
               )}
               {/* Phone Number */}
-              <div className="form-group">
+              <div className="pp-form-group">
                 <label htmlFor="phone">Phone Number</label>
                 <InputMask
                   mask="(999) 999-9999"
@@ -186,81 +186,81 @@ const Profile = () => {
                       {...inputProps}
                       type="text"
                       id="phone"
-                      className="form-control"
+                      className="pp-form-control"
                     />
                   )}
                 </InputMask>
-                {updating.phone && <div className="input-spinner"></div>}
+                {updating.phone && <div className="pp-input-spinner"></div>}
               </div>
               {/* Address Line 1 */}
-              <div className="form-group">
+              <div className="pp-form-group">
                 <label htmlFor="addressLine1">Address Line 1</label>
                 <input
                   type="text"
                   id="addressLine1"
                   value={profileData.addressLine1 || ''}
                   onChange={handleInputChange}
-                  className="form-control"
+                  className="pp-form-control"
                 />
-                {updating.addressLine1 && <div className="input-spinner"></div>}
+                {updating.addressLine1 && <div className="pp-input-spinner"></div>}
               </div>
               {/* Address Line 2 */}
-              <div className="form-group">
+              <div className="pp-form-group">
                 <label htmlFor="addressLine2">Address Line 2</label>
                 <input
                   type="text"
                   id="addressLine2"
                   value={profileData.addressLine2 || ''}
                   onChange={handleInputChange}
-                  className="form-control"
+                  className="pp-form-control"
                 />
-                {updating.addressLine2 && <div className="input-spinner"></div>}
+                {updating.addressLine2 && <div className="pp-input-spinner"></div>}
               </div>
               {/* Website */}
-              <div className="form-group">
+              <div className="pp-form-group">
                 <label htmlFor="homepage">Website</label>
                 <input
                   type="text"
                   id="homepage"
                   value={profileData.homepage || ''}
                   onChange={handleInputChange}
-                  className="form-control"
+                  className="pp-form-control"
                 />
-                {updating.homepage && <div className="input-spinner"></div>}
+                {updating.homepage && <div className="pp-input-spinner"></div>}
               </div>
             </div>
             {/* Brokerage Information Column - Hidden for buyers */}
             {profileData.role !== 'buyer' && (
-              <div className="profile-column brokerage-info">
-                <h3>Brokerage Information</h3>
+              <div className="pp-profile-column pp-brokerage-info">
+                <h3 className='pp-profile-section-title'>Brokerage Information</h3>
               {/* Agency Photo */}
-              <div className="form-group">
-                <label htmlFor="agencyImage" className='photo-text'>Agency Logo</label>
-                <div className="upload-area-profile logo-upload-area">
-                  <div className="logo-preview-container">
+              <div className="pp-form-group">
+                <label htmlFor="agencyImage" className='pp-photo-text'>Agency Logo</label>
+                <div className="pp-upload-area-profile pp-logo-upload-area">
+                  <div className="pp-logo-preview-container">
                     <img 
                       src={profileData.agencyImage || '/src/assets/images/default-logo.png'}
                       alt={profileData.agencyName || "Agency Logo"}
-                      className="agency-logo-preview"
+                      className="pp-agency-logo-preview"
                       data-fit={profileData.logoFit || 'contain'}
                     />
                   </div>
-                  <div className="logo-upload-controls">
-                    <label className="upload-label-profile" htmlFor="agencyImage">
+                  <div className="pp-logo-upload-controls">
+                    <label className="pp-upload-label-profile" htmlFor="agencyImage">
                       Upload Logo
                       <input
                         type="file"
                         id="agencyImage"
-                        className="upload-input"
+                        className="pp-upload-input"
                         accept="image/*"
                         onChange={(e) => handlePhotoUpload(e, 'agencyImage')}
                       />
                     </label>
                     {profileData.agencyImage && (
-                      <div className="logo-fit-options">
-                        <label className="fit-option-label">Logo Fit:</label>
+                      <div className="pp-logo-fit-options">
+                        <label className="pp-fit-option-label">Logo Fit:</label>
                         <select 
-                          className="fit-option-select"
+                          className="pp-fit-option-select"
                           value={profileData.logoFit || 'contain'}
                           onChange={(e) => handleLogoFitChange(e.target.value)}
                         >
@@ -272,34 +272,34 @@ const Profile = () => {
                     )}
                   </div>
                 </div>
-                {isUploading.agencyImage && <div className="input-spinner"></div>}
+                {isUploading.agencyImage && <div className="pp-input-spinner"></div>}
               </div>
               {/* Agency Name */}
-              <div className="form-group">
+              <div className="pp-form-group">
                 <label htmlFor="agencyName">Brokerage Name</label>
                 <input
                   type="text"
                   id="agencyName"
                   value={profileData.agencyName || ''}
                   onChange={handleInputChange}
-                  className="form-control"
+                  className="pp-form-control"
                 />
-                {updating.agencyName && <div className="input-spinner"></div>}
+                {updating.agencyName && <div className="pp-input-spinner"></div>}
               </div>
               {/* Brokerage License Number */}
-              <div className="form-group">
+              <div className="pp-form-group">
                 <label htmlFor="brokerageLicenseNumber">Brokerage License Number</label>
                 <input
                   type="text"
                   id="brokerageLicenseNumber"
                   value={profileData.brokerageLicenseNumber || ''}
                   onChange={handleInputChange}
-                  className="form-control"
+                  className="pp-form-control"
                 />
-                {updating.brokerageLicenseNumber && <div className="input-spinner"></div>}
+                {updating.brokerageLicenseNumber && <div className="pp-input-spinner"></div>}
               </div>
               {/* Brokerage Phone Number */}
-              <div className="form-group">
+              <div className="pp-form-group">
                 <label htmlFor="brokeragePhoneNumber">Phone Number</label>
                 <InputMask
                   mask="(999) 999-9999"
@@ -311,47 +311,47 @@ const Profile = () => {
                       {...inputProps}
                       type="text"
                       id="brokeragePhoneNumber"
-                      className="form-control"
+                      className="pp-form-control"
                     />
                   )}
                 </InputMask>
-                {updating.brokeragePhoneNumber && <div className="input-spinner"></div>}
+                {updating.brokeragePhoneNumber && <div className="pp-input-spinner"></div>}
               </div>
               {/* Agency Address Line 1 */}
-              <div className="form-group">
+              <div className="pp-form-group">
                 <label htmlFor="agencyAddressLine1">Address Line 1</label>
                 <input
                   type="text"
                   id="agencyAddressLine1"
                   value={profileData.agencyAddressLine1 || ''}
                   onChange={handleInputChange}
-                  className="form-control"
+                  className="pp-form-control"
                 />
-                {updating.agencyAddressLine1 && <div className="input-spinner"></div>}
+                {updating.agencyAddressLine1 && <div className="pp-input-spinner"></div>}
               </div>
               {/* Agency Address Line 2 */}
-              <div className="form-group">
+              <div className="pp-form-group">
                 <label htmlFor="agencyAddressLine2">Address Line 2</label>
                 <input
                   type="text"
                   id="agencyAddressLine2"
                   value={profileData.agencyAddressLine2 || ''}
                   onChange={handleInputChange}
-                  className="form-control"
+                  className="pp-form-control"
                 />
-                {updating.agencyAddressLine2 && <div className="input-spinner"></div>}
+                {updating.agencyAddressLine2 && <div className="pp-input-spinner"></div>}
               </div>
               {/* Brokerage Website */}
-              <div className="form-group">
+              <div className="pp-form-group">
                 <label htmlFor="agencyWebsite">Brokerage Website</label>
                 <input
                   type="text"
                   id="agencyWebsite"
                   value={profileData.agencyWebsite || ''}
                   onChange={handleInputChange}
-                  className="form-control"
+                  className="pp-form-control"
                 />
-                {updating.agencyWebsite && <div className="input-spinner"></div>}
+                {updating.agencyWebsite && <div className="pp-input-spinner"></div>}
               </div>
             </div>
             )}
