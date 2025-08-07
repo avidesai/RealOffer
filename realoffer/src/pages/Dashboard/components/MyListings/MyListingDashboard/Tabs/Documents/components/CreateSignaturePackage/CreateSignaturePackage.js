@@ -31,14 +31,12 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments, 
         }
       });
       
-      // Check if signaturePackage exists and has a valid _id, but also consider the hasSignaturePackage prop
-      const hasSignaturePackageFromAPI = res.data.signaturePackage && 
-                                       res.data.signaturePackage._id && 
-                                       typeof res.data.signaturePackage._id === 'string';
-      
-      // Use the prop value if it's false (indicating deletion), otherwise use the API value
-      const finalHasSignaturePackage = hasSignaturePackage ? hasSignaturePackageFromAPI : false;
-      setSignaturePackage(finalHasSignaturePackage ? res.data.signaturePackage : null);
+      // Set signaturePackage based on API response - let the prop-based useEffect handle the final state
+      if (res.data.signaturePackage && res.data.signaturePackage._id) {
+        setSignaturePackage(res.data.signaturePackage);
+      } else {
+        setSignaturePackage(null);
+      }
       
       // If the listing has a stored signature package document order, use it; otherwise use the main document order
       if (res.data.signaturePackageDocumentOrder && res.data.signaturePackageDocumentOrder.length > 0) {
@@ -55,7 +53,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments, 
       setError('Failed to load listing data. Please try again.');
       return null;
     }
-  }, [listingId, token, hasSignaturePackage]);
+  }, [listingId, token]);
 
   const fetchDocuments = useCallback(async (currentOrder = []) => {
     try {
@@ -122,29 +120,12 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments, 
     fetchAllData();
   }, [isOpen, fetchListingData, fetchDocuments]);
 
-  // Update signaturePackage state when hasSignaturePackage prop changes
+  // Clear signaturePackage state when hasSignaturePackage prop is false (deletion case)
   useEffect(() => {
     if (!hasSignaturePackage) {
       setSignaturePackage(null);
-    } else {
-      // If hasSignaturePackage is true, we need to fetch the signature package data
-      const fetchSignaturePackage = async () => {
-        try {
-          const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-          if (res.data.signaturePackage && res.data.signaturePackage._id) {
-            setSignaturePackage(res.data.signaturePackage);
-          }
-        } catch (error) {
-          console.error('Error fetching signature package:', error);
-        }
-      };
-      fetchSignaturePackage();
     }
-  }, [hasSignaturePackage, listingId, token]);
+  }, [hasSignaturePackage]);
 
   const handlePageSelectionChange = useCallback((updatedDocument) => {
     setDocuments((prevDocuments) =>
@@ -210,7 +191,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments, 
     }
   };
 
-  const buttonText = (signaturePackage && hasSignaturePackage) ? "Update Disclosure Signature Packet" : "Create Disclosure Signature Packet";
+  const buttonText = hasSignaturePackage ? "Update Disclosure Signature Packet" : "Create Disclosure Signature Packet";
 
   return (
     isOpen && (

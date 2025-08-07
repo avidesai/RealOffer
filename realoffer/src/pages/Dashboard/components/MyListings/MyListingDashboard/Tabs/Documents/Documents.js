@@ -83,11 +83,13 @@ const Documents = ({ listingId }) => {
   const refreshDocumentsWithLoading = useCallback(async (orderToUse = documentOrder) => {
     setLoading(true);
     try {
-      await fetchDocuments(orderToUse);
+      // Refresh listing data first to update hasSignaturePackage state
+      const listingData = await fetchListingData();
+      await fetchDocuments(orderToUse.length > 0 ? orderToUse : listingData);
     } finally {
       setLoading(false);
     }
-  }, [fetchDocuments, documentOrder]);
+  }, [fetchDocuments, fetchListingData, documentOrder]);
 
   useEffect(() => {
     if (!token || !listingId) return;
