@@ -239,6 +239,13 @@ class EmailService {
             <p style="color: #666; line-height: 1.6;">
               You can view the buyer package and track their activity through your RealOffer dashboard.
             </p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.FRONTEND_URL}/dashboard" 
+                 style="background-color: #007bff; color: white; padding: 12px 30px; 
+                        text-decoration: none; border-radius: 5px; display: inline-block;">
+                View Activity
+              </a>
+            </div>
             <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
             <p style="color: #999; font-size: 12px;">
               RealOffer - Making real estate transactions simple and secure.
@@ -287,6 +294,13 @@ class EmailService {
             <p style="color: #666; line-height: 1.6;">
               You can track all activity for this property through your RealOffer dashboard.
             </p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.FRONTEND_URL}/dashboard" 
+                 style="background-color: #007bff; color: white; padding: 12px 30px; 
+                        text-decoration: none; border-radius: 5px; display: inline-block;">
+                View Activity
+              </a>
+            </div>
             <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
             <p style="color: #999; font-size: 12px;">
               RealOffer - Making real estate transactions simple and secure.
@@ -338,6 +352,13 @@ class EmailService {
             <p style="color: #666; line-height: 1.6;">
               You can track all document activity for this property through your RealOffer dashboard.
             </p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.FRONTEND_URL}/dashboard" 
+                 style="background-color: #007bff; color: white; padding: 12px 30px; 
+                        text-decoration: none; border-radius: 5px; display: inline-block;">
+                View Activity
+              </a>
+            </div>
             <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
             <p style="color: #999; font-size: 12px;">
               RealOffer - Making real estate transactions simple and secure.
@@ -389,6 +410,13 @@ class EmailService {
             <p style="color: #666; line-height: 1.6;">
               You can review and respond to this offer through your RealOffer dashboard.
             </p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.FRONTEND_URL}/dashboard" 
+                 style="background-color: #007bff; color: white; padding: 12px 30px; 
+                        text-decoration: none; border-radius: 5px; display: inline-block;">
+                Review Offer
+              </a>
+            </div>
             <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
             <p style="color: #999; font-size: 12px;">
               RealOffer - Making real estate transactions simple and secure.
@@ -574,6 +602,13 @@ class EmailService {
             <p style="color: #666; line-height: 1.6;">
               You can view the full details and continue the conversation through your RealOffer dashboard.
             </p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.FRONTEND_URL}/dashboard" 
+                 style="background-color: #007bff; color: white; padding: 12px 30px; 
+                        text-decoration: none; border-radius: 5px; display: inline-block;">
+                View Response
+              </a>
+            </div>
             <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
             <p style="color: #999; font-size: 12px;">
               RealOffer - Making real estate transactions simple and secure.
@@ -776,6 +811,13 @@ class EmailService {
             <p style="color: #666; line-height: 1.6;">
               You will be notified when the listing agent responds to your offer. You can also track the status of your offer through your RealOffer dashboard.
             </p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.FRONTEND_URL}/dashboard" 
+                 style="background-color: #007bff; color: white; padding: 12px 30px; 
+                        text-decoration: none; border-radius: 5px; display: inline-block;">
+                Track Offer
+              </a>
+            </div>
             <p style="color: #666; line-height: 1.6;">
               If you have any questions about your offer, please contact the listing agent directly.
             </p>
