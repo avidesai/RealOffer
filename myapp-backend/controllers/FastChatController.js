@@ -205,4 +205,11 @@ ${doc.chatSummary}
   }
 }
 
-module.exports = new FastChatController();
+const fastChatController = new FastChatController();
+
+// Bind methods to ensure proper 'this' context
+fastChatController.fastChatWithProperty = fastChatController.fastChatWithProperty.bind(fastChatController);
+fastChatController.buildFastContext = fastChatController.buildFastContext.bind(fastChatController);
+fastChatController.triggerPreprocessing = fastChatController.triggerPreprocessing.bind(fastChatController);
+
+module.exports = fastChatController;
