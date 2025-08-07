@@ -14,12 +14,13 @@ const formatPhoneNumber = (phoneNumber) => {
   return phoneNumber;
 };
 
-const ContactInfoModal = ({ isOpen, onClose, agent }) => {
-  if (!isOpen || !agent) return null;
+const ContactInfoModal = ({ isOpen, onClose, user }) => {
+  if (!isOpen || !user) return null;
 
-  const fullName = `${agent.firstName || ''} ${agent.lastName || ''}`.trim();
-  const agencyName = agent.agencyName || 'Independent Agent';
-  const agencyAddress = [agent.agencyAddressLine1, agent.agencyAddressLine2].filter(Boolean).join(', ');
+  const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+  const isAgent = user.role === 'agent';
+  const agencyName = user.agencyName || 'Independent Agent';
+  const agencyAddress = [user.agencyAddressLine1, user.agencyAddressLine2].filter(Boolean).join(', ');
 
   return (
     <div className="cim-overlay">
@@ -32,9 +33,9 @@ const ContactInfoModal = ({ isOpen, onClose, agent }) => {
           <div className="cim-agent-section">
             <div className="cim-avatar-section">
               <Avatar 
-                src={agent.profilePhotoUrl}
-                firstName={agent.firstName}
-                lastName={agent.lastName}
+                src={user.profilePhotoUrl}
+                firstName={user.firstName}
+                lastName={user.lastName}
                 size="large"
                 className="cim-avatar"
                 alt={fullName}
@@ -42,39 +43,48 @@ const ContactInfoModal = ({ isOpen, onClose, agent }) => {
             </div>
             <div className="cim-details-section">
               <h3 className="cim-agent-name">{fullName}</h3>
+              <div className="cim-role-badge">
+                <span className={`role-badge ${user.role}`}>
+                  {user.role === 'agent' ? 'Agent' : 'Buyer'}
+                </span>
+              </div>
               <div className="cim-info-item">
                 <span className="cim-label">Email:</span>
-                <span className="cim-value">{agent.email}</span>
+                <span className="cim-value">{user.email}</span>
               </div>
-              {agent.phone && (
+              {user.phone && (
                 <div className="cim-info-item">
                   <span className="cim-label">Phone:</span>
-                  <span className="cim-value">{formatPhoneNumber(agent.phone)}</span>
+                  <span className="cim-value">{formatPhoneNumber(user.phone)}</span>
                 </div>
               )}
-              {agent.agentLicenseNumber && (
+              {/* Only show agent-specific fields for agents */}
+              {isAgent && user.agentLicenseNumber && (
                 <div className="cim-info-item">
                   <span className="cim-label">Agent License:</span>
-                  <span className="cim-value">{agent.agentLicenseNumber}</span>
+                  <span className="cim-value">{user.agentLicenseNumber}</span>
                 </div>
               )}
             </div>
           </div>
-          <div className="cim-agency-section">
-            <h4 className="cim-agency-name">{agencyName}</h4>
-            {agencyAddress && (
-              <div className="cim-info-item">
-                <span className="cim-label">Address:</span>
-                <span className="cim-value">{agencyAddress}</span>
-              </div>
-            )}
-            {agent.brokerageLicenseNumber && (
-              <div className="cim-info-item">
-                <span className="cim-label">Broker License:</span>
-                <span className="cim-value">{agent.brokerageLicenseNumber}</span>
-              </div>
-            )}
-          </div>
+          {/* Only show agency section for agents */}
+          {isAgent && (
+            <div className="cim-agency-section">
+              <h4 className="cim-agency-name">{agencyName}</h4>
+              {agencyAddress && (
+                <div className="cim-info-item">
+                  <span className="cim-label">Address:</span>
+                  <span className="cim-value">{agencyAddress}</span>
+                </div>
+              )}
+              {user.brokerageLicenseNumber && (
+                <div className="cim-info-item">
+                  <span className="cim-label">Broker License:</span>
+                  <span className="cim-value">{user.brokerageLicenseNumber}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

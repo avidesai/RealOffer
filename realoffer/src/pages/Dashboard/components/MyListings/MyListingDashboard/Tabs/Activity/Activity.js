@@ -22,7 +22,7 @@ const Activity = ({ listingId }) => {
   const [activitiesLoaded, setActivitiesLoaded] = useState(false);
   const [statsLoaded, setStatsLoaded] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
-  const [selectedAgent, setSelectedAgent] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const fetchActivityStats = useCallback(async () => {
     try {
@@ -162,15 +162,15 @@ const Activity = ({ listingId }) => {
     });
   }, []);
 
-  const handleContactInfoClick = useCallback((e, agent) => {
+  const handleContactInfoClick = useCallback((e, user) => {
     e.stopPropagation(); // Prevent triggering the expand/collapse
-    setSelectedAgent(agent);
+    setSelectedUser(user);
     setContactModalOpen(true);
   }, []);
 
   const handleCloseContactModal = useCallback(() => {
     setContactModalOpen(false);
-    setSelectedAgent(null);
+    setSelectedUser(null);
   }, []);
 
   useEffect(() => {
@@ -438,14 +438,14 @@ const Activity = ({ listingId }) => {
                   </div>
                 </div>
                 <div className="user-role-indicator">
-                  {userGroup.user?.role === 'agent' && (
-                                <button
-              className="contact-info-button"
-              onClick={(e) => handleContactInfoClick(e, userGroup.user)}
-              title="View contact information"
-            >
-              Contact Info
-            </button>
+                  {(userGroup.user?.role === 'agent' || userGroup.user?.role === 'buyer') && (
+                    <button
+                      className="contact-info-button"
+                      onClick={(e) => handleContactInfoClick(e, userGroup.user)}
+                      title="View contact information"
+                    >
+                      Contact Info
+                    </button>
                   )}
                 </div>
                 <div className="expand-arrow">
@@ -513,7 +513,7 @@ const Activity = ({ listingId }) => {
       <ContactInfoModal 
         isOpen={contactModalOpen}
         onClose={handleCloseContactModal}
-        agent={selectedAgent}
+        user={selectedUser}
       />
     </div>
   );
