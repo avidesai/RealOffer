@@ -18,4 +18,7 @@ router.post('/check-access', BuyerPackageController.checkAccess);
 // Statistics route (for listing agents)
 router.get('/stats/:propertyListingId', BuyerPackageController.getBuyerPackageStats);
 
+// Admin cleanup route for orphaned buyer packages
+router.post('/cleanup-orphaned', BuyerPackageController.cleanupOrphanedBuyerPackages);
+
 module.exports = router; 

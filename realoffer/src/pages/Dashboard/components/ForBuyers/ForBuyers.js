@@ -200,6 +200,10 @@ function ForBuyers() {
   };
 
   const handleShareListing = (buyerPackage) => {
+    // Don't attempt to share if the listing has been deleted
+    if (!buyerPackage.propertyListing) {
+      return;
+    }
     setShareListingUrl(buyerPackage.propertyListing.publicUrl);
     setShowShareModal(true);
   };

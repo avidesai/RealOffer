@@ -39,7 +39,13 @@ function BuyerPackageDashboard() {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching buyer package details:', error);
-        setError('Failed to fetch buyer package details. Please try again.');
+        
+        // Handle the case where the listing has been deleted
+        if (error.response?.status === 404 && error.response?.data?.deleted) {
+          setError('This property listing is no longer available. The listing has been removed by the listing agent.');
+        } else {
+          setError('Failed to fetch buyer package details. Please try again.');
+        }
         setLoading(false);
       }
     };

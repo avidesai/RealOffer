@@ -50,6 +50,10 @@ function BuyerPackageItem({ buyerPackage, onStatusChange, onShareListing }) {
   }, [buyerPackage.propertyListing, token]);
 
   const handleClick = () => {
+    // Don't navigate if the listing has been deleted
+    if (!buyerPackage.propertyListing) {
+      return;
+    }
     navigate(`/buyerpackage/${buyerPackage._id}`);
   };
 
@@ -101,6 +105,37 @@ function BuyerPackageItem({ buyerPackage, onStatusChange, onShareListing }) {
   }, [confirmationTimeout]);
 
   const { propertyListing } = buyerPackage;
+
+  // Handle deleted listings
+  if (!propertyListing) {
+    return (
+      <div className="buyer-package-item buyer-package-item-deleted">
+        <img 
+          src={basePhoto} 
+          alt="Listing no longer available" 
+          className="buyer-package-item-image" 
+        />
+        <div className="buyer-package-item-details">
+          <div className="buyer-package-item-info">
+            <h3 className="buyer-package-item-title deleted-listing">
+              This listing is no longer available
+            </h3>
+            <p className="buyer-package-item-location">
+              The property listing has been removed by the listing agent
+            </p>
+          </div>
+          <div className="buyer-package-item-action-buttons">
+            <button 
+              className="buyer-package-item-button archive" 
+              onClick={handleArchivePackage}
+            >
+              Remove from List
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="buyer-package-item" onClick={handleClick}>

@@ -153,6 +153,39 @@
   100% { opacity: 1; }
 }
 
+/* Deleted listing styles */
+.buyer-package-item-deleted {
+  opacity: 0.7;
+  background-color: #f8f9fa;
+  border-color: #e9ecef;
+  cursor: default;
+}
+
+.buyer-package-item-deleted:hover {
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-color: #e9ecef;
+}
+
+.buyer-package-item-deleted .buyer-package-item-image {
+  opacity: 0.5;
+  filter: grayscale(100%);
+}
+
+.buyer-package-item-deleted:hover .buyer-package-item-image {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.buyer-package-item-title.deleted-listing {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.buyer-package-item-deleted .buyer-package-item-location {
+  color: #9cb5d8;
+  font-style: italic;
+}
+
 .buyer-package-item-agents {
   display: flex;
   align-items: center;

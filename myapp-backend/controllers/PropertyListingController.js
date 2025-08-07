@@ -506,12 +506,97 @@ exports.updateListing = async (req, res) => {
 // Delete an existing property listing
 exports.deleteListing = async (req, res) => {
   try {
-    const deletedListing = await PropertyListing.findOneAndDelete({ _id: req.params.id, createdBy: req.user.id });
-    if (!deletedListing) {
+    const listingId = req.params.id;
+    
+    // First, verify the listing exists and user has permission
+    const listing = await PropertyListing.findOne({ _id: listingId, createdBy: req.user.id });
+    if (!listing) {
       return res.status(404).json({ message: "Listing not found or you don't have permission to delete it" });
     }
-    res.status(200).json({ message: "Listing deleted" });
+
+    // Import required models
+    const BuyerPackage = require('../models/BuyerPackage');
+    const Activity = require('../models/Activity');
+    const Document = require('../models/Document');
+    const PropertyAnalysis = require('../models/PropertyAnalysis');
+    const Offer = require('../models/Offer');
+    const Message = require('../models/Message');
+    const Viewer = require('../models/Viewer');
+    const { containerClient } = require('../config/azureStorage');
+
+    console.log(`Starting cascade deletion for listing ${listingId}`);
+
+    // 1. Delete all buyer packages for this listing
+    const buyerPackages = await BuyerPackage.find({ propertyListing: listingId });
+    const buyerPackageIds = buyerPackages.map(bp => bp._id);
+    await BuyerPackage.deleteMany({ propertyListing: listingId });
+    console.log(`Deleted ${buyerPackages.length} buyer packages`);
+
+    // 2. Delete all activities related to this listing or its buyer packages
+    await Activity.deleteMany({ 
+      $or: [
+        { propertyListing: listingId },
+        { buyerPackage: { $in: buyerPackageIds } }
+      ]
+    });
+    console.log(`Deleted activities for listing and buyer packages`);
+
+    // 3. Delete all offers for this listing and their messages
+    const offers = await Offer.find({ propertyListing: listingId });
+    const offerIds = offers.map(offer => offer._id);
+    
+    // Delete messages associated with these offers
+    await Message.deleteMany({ offer: { $in: offerIds } });
+    console.log(`Deleted messages for ${offers.length} offers`);
+    
+    // Delete the offers themselves
+    await Offer.deleteMany({ propertyListing: listingId });
+    console.log(`Deleted ${offers.length} offers`);
+
+    // 4. Delete all documents for this listing and cleanup Azure storage
+    const documents = await Document.find({ propertyListing: listingId });
+    console.log(`Found ${documents.length} documents to delete`);
+    
+    for (const document of documents) {
+      try {
+        // Delete from Azure storage
+        if (document.azureKey) {
+          const blockBlobClient = containerClient.getBlockBlobClient(document.azureKey);
+          await blockBlobClient.delete();
+          console.log(`Deleted Azure blob: ${document.azureKey}`);
+        }
+      } catch (azureError) {
+        console.error(`Failed to delete Azure blob ${document.azureKey}:`, azureError);
+        // Continue with deletion even if Azure cleanup fails
+      }
+    }
+    
+    // Delete document records
+    await Document.deleteMany({ propertyListing: listingId });
+    console.log(`Deleted ${documents.length} document records`);
+
+    // 5. Delete property analysis
+    await PropertyAnalysis.deleteMany({ propertyId: listingId });
+    console.log(`Deleted property analysis`);
+
+    // 6. Delete all viewers for this listing
+    await Viewer.deleteMany({ listing: listingId });
+    console.log(`Deleted viewer records`);
+
+    // 7. Finally, delete the listing itself
+    await PropertyListing.findByIdAndDelete(listingId);
+    console.log(`Deleted listing ${listingId}`);
+
+    res.status(200).json({ 
+      message: "Listing and all related data deleted successfully",
+      deletedData: {
+        buyerPackages: buyerPackages.length,
+        offers: offers.length,
+        documents: documents.length
+      }
+    });
   } catch (error) {
+    console.error('Error during cascade deletion:', error);
     res.status(500).json({ message: error.message });
   }
 };

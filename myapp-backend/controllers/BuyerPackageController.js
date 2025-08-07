@@ -158,7 +158,17 @@ exports.getUserBuyerPackages = async (req, res) => {
     .populate('user', 'firstName lastName email profilePhotoUrl role')
     .sort({ updatedAt: -1 });
 
-    res.status(200).json(buyerPackages);
+    // Filter out buyer packages where the property listing was deleted
+    // This provides backend protection against orphaned data
+    const validBuyerPackages = buyerPackages.filter(pkg => pkg.propertyListing !== null);
+    
+    // Log if we found orphaned packages
+    const orphanedCount = buyerPackages.length - validBuyerPackages.length;
+    if (orphanedCount > 0) {
+      console.log(`Found ${orphanedCount} orphaned buyer packages for user ${req.user.id}. Consider running cleanup.`);
+    }
+
+    res.status(200).json(validBuyerPackages);
   } catch (error) {
     console.error('Error fetching buyer packages:', error);
     res.status(500).json({ message: error.message });
@@ -180,6 +190,15 @@ exports.getBuyerPackage = async (req, res) => {
 
     if (!buyerPackage) {
       return res.status(404).json({ message: 'Buyer package not found' });
+    }
+
+    // Check if the property listing has been deleted
+    if (!buyerPackage.propertyListing) {
+      return res.status(404).json({ 
+        message: 'This property listing is no longer available',
+        deleted: true,
+        buyerPackageId: id
+      });
     }
 
     // Only track view if explicitly requested (from my listings dashboard)
@@ -366,6 +385,59 @@ exports.checkAccess = async (req, res) => {
     console.error('Error checking buyer package access:', error);
     res.status(500).json({ 
       message: 'Internal server error while checking access',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
+    });
+  }
+};
+
+// Clean up orphaned buyer packages (admin function)
+exports.cleanupOrphanedBuyerPackages = async (req, res) => {
+  try {
+    // Find buyer packages where the referenced property listing no longer exists
+    const orphanedPackages = await BuyerPackage.aggregate([
+      {
+        $lookup: {
+          from: 'propertylistings',
+          localField: 'propertyListing',
+          foreignField: '_id',
+          as: 'listing'
+        }
+      },
+      {
+        $match: {
+          listing: { $size: 0 }
+        }
+      }
+    ]);
+
+    console.log(`Found ${orphanedPackages.length} orphaned buyer packages`);
+
+    if (orphanedPackages.length > 0) {
+      const orphanedIds = orphanedPackages.map(pkg => pkg._id);
+      
+      // Also cleanup related activities for these orphaned packages
+      const Activity = require('../models/Activity');
+      await Activity.deleteMany({ buyerPackage: { $in: orphanedIds } });
+      
+      // Delete the orphaned buyer packages
+      const deleteResult = await BuyerPackage.deleteMany({ _id: { $in: orphanedIds } });
+      
+      console.log(`Cleaned up ${deleteResult.deletedCount} orphaned buyer packages`);
+      
+      res.status(200).json({
+        message: `Successfully cleaned up ${deleteResult.deletedCount} orphaned buyer packages`,
+        deletedCount: deleteResult.deletedCount
+      });
+    } else {
+      res.status(200).json({
+        message: 'No orphaned buyer packages found',
+        deletedCount: 0
+      });
+    }
+  } catch (error) {
+    console.error('Error cleaning up orphaned buyer packages:', error);
+    res.status(500).json({ 
+      message: 'Internal server error during cleanup',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
     });
   }
