@@ -169,7 +169,7 @@ exports.analyzeDocument = async (req, res) => {
     }
 
     // Check if document type is supported
-    if (!['Home Inspection Report', 'Roof Inspection Report', 'Pest Inspection Report', 'Seller Property Questionnaire', 'Real Estate Transfer Disclosure Statement', 'Agent Visual Inspection'].includes(document.type)) {
+    if (!['Home Inspection Report', 'Roof Inspection Report', 'Pest Inspection Report', 'Seller Property Questionnaire', 'Real Estate Transfer Disclosure Statement', 'Agent Visual Inspection', 'Sewer Lateral Inspection'].includes(document.type)) {
       return res.status(400).json({ message: 'Document type not supported for analysis' });
     }
 
@@ -211,6 +211,8 @@ exports.analyzeDocument = async (req, res) => {
         analysisType = 'transfer_disclosure_statement';
       } else if (document.type === 'Agent Visual Inspection') {
         analysisType = 'agent_visual_inspection_disclosure';
+      } else if (document.type === 'Sewer Lateral Inspection') {
+        analysisType = 'sewer_lateral_inspection';
       }
       
       analysis = new DocumentAnalysis({
@@ -576,6 +578,66 @@ Keep your summary clean, brief, and structured using bullet points or short para
 
 Report content:
 ${text}`;
+    } else if (document.type === 'Sewer Lateral Inspection') {
+      prompt = `You are an expert sewer lateral inspector and real estate advisor. Read the sewer lateral inspection report below and produce a plain-language summary for buyers and agents.
+
+• **No technical jargon.**  
+• **Cost must be the first thing mentioned.**  
+• **Every bullet point should be 1–2 sentences** so readers understand why it matters.
+
+Format your response exactly like this:
+
+## **Total Repair Cost: $X,XXX**
+List the total cost first, prominently displayed. If no cost is listed, state "No overall cost listed in report."
+
+---
+
+## Overall Condition: X/10
+Give a score from 1–10:
+- 9–10 = Excellent (very few issues)  
+- 7–8 = Good (minor wear)  
+- 5–6 = Fair (some important repairs)  
+- 3–4 = Poor (many issues)  
+- 1–2 = Major concerns (not functional)
+
+Write 3–4 sentences summarizing the sewer lateral's general state and biggest strengths or weaknesses.
+
+---
+
+## Key Findings
+Label each finding with ✅ Good, ⚠️ Needs attention, or ❌ Problem found.  
+If ⚠️ or ❌, add 1–2 sentences explaining why.
+
+**Main Line Condition**:  
+**Root Intrusion**:  
+**Pipe Material**:  
+**Connection Points**:  
+**Drainage Flow**:  
+
+---
+
+## Must-Know Issues (Safety or Urgent)
+Bullet each serious problem.  
+For every bullet, give 1–2 sentences that explain the risk or consequence if left unfixed.
+
+---
+
+## Should Fix Soon (Important but Not Urgent)
+List problems that don't block functionality but should be addressed within the next 6–12 months.  
+Provide 1–2 explanatory sentences per bullet.
+
+---
+
+## Cosmetic or Minor Notes
+List low-priority or purely cosmetic items.  
+Include a 1-sentence explanation if useful (max 2 sentences).
+
+---
+
+Write clearly and helpfully. Focus on cost implications and functionality. This summary should let regular buyers and agents quickly grasp what matters most about the sewer lateral condition.
+
+Report content:
+${text}`;
     }
 
     // Call Claude API with Haiku for cost-effective summaries
@@ -608,6 +670,18 @@ ${text}`;
         analysisResult = analysisResult.replace(/## Overall Condition\s*(\d+)\/10/, '## Overall Condition: $1/10');
       }
     } else if (document.type === 'Pest Inspection Report') {
+      // Fix cost formatting and remove placeholders
+      analysisResult = analysisResult.replace(/\$\\1/g, 'No overall cost listed in report');
+      analysisResult = analysisResult.replace(/\*\*Total Repair Cost:\s*\$\\1\*\*/g, '*No overall cost listed in report.*');
+      
+      // Ensure cost formatting is preserved for actual amounts
+      if (analysisResult.includes('Total Repair Cost:')) {
+        analysisResult = analysisResult.replace(/\*\*Total Repair Cost:\s*\$([\d,]+)\*\*/g, '**Total Repair Cost: $\\1**');
+      }
+      
+      // Clean up any malformed cost displays
+      analysisResult = analysisResult.replace(/\*\*Total Repair Cost:\s*\$[^0-9]*\*\*/g, '*No overall cost listed in report.*');
+    } else if (document.type === 'Sewer Lateral Inspection') {
       // Fix cost formatting and remove placeholders
       analysisResult = analysisResult.replace(/\$\\1/g, 'No overall cost listed in report');
       analysisResult = analysisResult.replace(/\*\*Total Repair Cost:\s*\$\\1\*\*/g, '*No overall cost listed in report.*');

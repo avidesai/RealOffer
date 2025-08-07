@@ -22,6 +22,8 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
       return 'Pest Inspection Report Analysis';
     } else if (documentType && documentType.toLowerCase().includes('roof inspection')) {
       return 'Roof Inspection Report Analysis';
+    } else if (documentType && documentType.toLowerCase().includes('sewer lateral')) {
+      return 'Sewer Lateral Inspection Analysis';
     } else if (documentType && documentType.toLowerCase().includes('seller property questionnaire')) {
       return 'Seller Property Questionnaire Analysis';
     } else if (documentType && documentType.toLowerCase().includes('real estate transfer disclosure statement')) {
@@ -261,6 +263,11 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType }) => {
                       // Style pest inspection items (original format)
                       if (documentType && documentType.toLowerCase().includes('pest')) {
                         return <li {...props} className="pest-item-standard">{children}</li>;
+                      }
+                      
+                      // Style sewer lateral inspection items
+                      if (documentType && documentType.toLowerCase().includes('sewer lateral')) {
+                        return <li {...props} className="sewer-lateral-item-standard">{children}</li>;
                       }
                       
                       // Style SPQ items
