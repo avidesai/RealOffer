@@ -137,4 +137,22 @@ class OptimizedDocumentProcessor {
   }
 }
 
+/**
+ * Process a single document right after upload
+ * Used to precompute embeddings and upsert to Pinecone
+ */
+async function processDocumentForSearch(document) {
+  const chunks = this.semanticChunkDocument(document);
+
+  const chunksWithEmbeddings = await Promise.all(
+    chunks.map(async (chunk) => ({
+      ...chunk,
+      embedding: await getClaudeEmbedding(chunk.content)
+    }))
+  );
+
+  await upsertChunksToPinecone(document.propertyListing, document._id, chunksWithEmbeddings);
+}
+OptimizedDocumentProcessor.prototype.processDocumentForSearch = processDocumentForSearch;
+
 module.exports = new OptimizedDocumentProcessor();
