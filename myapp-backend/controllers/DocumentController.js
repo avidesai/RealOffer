@@ -159,6 +159,7 @@ exports.uploadDocument = async (req, res) => {
 
       // Generate thumbnail for PDF documents
       let thumbnailUrl = null; // Default to null, will be set if thumbnail generation succeeds
+      let thumbnailAzureKey = null; // Default to null, will be set if thumbnail generation succeeds
       if (contentType === 'application/pdf') {
         try {
           console.log(`Starting thumbnail generation for: ${file.originalname}`);
@@ -173,6 +174,7 @@ exports.uploadDocument = async (req, res) => {
             });
             
             thumbnailUrl = thumbnailBlockBlobClient.url;
+            thumbnailAzureKey = thumbnailBlobName;
             console.log(`Thumbnail uploaded to Azure: ${thumbnailUrl}`);
           } else {
             console.log(`Thumbnail generation returned null for: ${file.originalname}`);
@@ -190,6 +192,7 @@ exports.uploadDocument = async (req, res) => {
         pages,
         thumbnailUrl: blockBlobClient.url, // Original document URL in Azure Blob Storage
         thumbnailImageUrl: thumbnailUrl || null, // Thumbnail image URL (null if not generated)
+        thumbnailAzureKey: thumbnailAzureKey || null, // Thumbnail Azure blob key
         uploadedBy: req.user.id,
         propertyListing: propertyListingId,
         azureKey: blobName,
@@ -333,6 +336,7 @@ exports.getDocumentsByListing = async (req, res) => {
     const documentsWithSAS = documents.map(doc => ({
       ...doc._doc,
       sasToken: generateSASToken(doc.azureKey, doc.signed),
+      thumbnailSasToken: doc.thumbnailAzureKey ? generateSASToken(doc.thumbnailAzureKey, doc.signed) : null,
     }));
     res.status(200).json(documentsWithSAS);
   } catch (error) {

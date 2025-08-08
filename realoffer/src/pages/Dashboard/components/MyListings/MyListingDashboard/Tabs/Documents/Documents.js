@@ -616,7 +616,7 @@ const Documents = ({ listingId }) => {
               {doc.thumbnailImageUrl && doc.docType === 'pdf' && (
                 <div className="docs-tab-document-thumbnail">
                   <img 
-                    src={`${doc.thumbnailImageUrl}?${doc.sasToken}`} 
+                    src={`${doc.thumbnailImageUrl}?${doc.thumbnailSasToken || doc.sasToken}`} 
                     alt={`Thumbnail of ${doc.title}`}
                     onError={(e) => {
                       e.target.style.display = 'none';

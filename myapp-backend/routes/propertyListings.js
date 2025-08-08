@@ -25,6 +25,7 @@ router.post(
 );
 router.put('/:id', PropertyListingController.updateListing);
 router.put('/:id/photos', PropertyListingController.updatePhotoOrder);
+router.put('/:id/documentOrder', PropertyListingController.updateDocumentOrder);
 router.post(
   '/:id/photos',
   PropertyListingController.uploadPhotos.array('propertyImages', 100),

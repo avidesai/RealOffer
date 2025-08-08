@@ -772,5 +772,55 @@ exports.shareListing = async (req, res) => {
   }
 };
 
+// Update document order for a property listing
+exports.updateDocumentOrder = async (req, res) => {
+  try {
+    const { documentOrder } = req.body;
+    const listingId = req.params.id;
+
+    // Validate required fields
+    if (!documentOrder || !Array.isArray(documentOrder)) {
+      return res.status(400).json({ 
+        message: 'Document order array is required' 
+      });
+    }
+
+    // Find the listing and verify ownership/access
+    const listing = await PropertyListing.findById(listingId);
+    
+    if (!listing) {
+      return res.status(404).json({ 
+        message: 'Listing not found' 
+      });
+    }
+
+    // Check if user is authorized to update this listing
+    const isCreator = listing.createdBy.toString() === req.user.id;
+    const isAgent = listing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = listing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
+    
+    if (!isCreator && !isAgent && !isTeamMember) {
+      return res.status(403).json({ 
+        message: 'Not authorized to update this listing' 
+      });
+    }
+
+    // Update the document order
+    listing.documentOrder = documentOrder;
+    await listing.save();
+
+    res.status(200).json({ 
+      message: 'Document order updated successfully',
+      documentOrder: listing.documentOrder
+    });
+  } catch (error) {
+    console.error('Update document order error:', error);
+    res.status(500).json({ 
+      message: 'Server error during document order update',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
+    });
+  }
+};
+
 // Export multer upload configuration
 exports.uploadPhotos = uploadPhotos;
