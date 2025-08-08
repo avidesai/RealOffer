@@ -173,12 +173,12 @@ const Documents = ({ listingId }) => {
         }
       });
       
-      // Remove from document order as well
+      // Remove from document order and local state immediately
       setDocumentOrder(prevOrder => prevOrder.filter(docId => docId !== id));
+      setDocuments(prevDocuments => prevDocuments.filter(doc => doc._id !== id));
       
-
-      
-      fetchDocuments(documentOrder.filter(docId => docId !== id));
+      // Also remove from selected documents if it was selected
+      setSelectedDocuments(prevSelected => prevSelected.filter(docId => docId !== id));
     } catch (error) {
       console.error('Error deleting document:', error);
     } finally {
@@ -197,14 +197,11 @@ const Documents = ({ listingId }) => {
         })
       ));
       
-      // Remove from document order as well
+      // Remove from document order and local state immediately
       const newOrder = documentOrder.filter(docId => !selectedDocuments.includes(docId));
       setDocumentOrder(newOrder);
+      setDocuments(prevDocuments => prevDocuments.filter(doc => !selectedDocuments.includes(doc._id)));
       setSelectedDocuments([]);
-      
-
-      
-      fetchDocuments(newOrder);
     } catch (error) {
       console.error('Error deleting selected documents:', error);
     } finally {
@@ -430,7 +427,7 @@ const Documents = ({ listingId }) => {
           
           // Create a safe filename
           const safeTitle = (doc.title || 'Untitled').replace(/[^a-zA-Z0-9.-]/g, '_');
-          const extension = doc.type ? `.${doc.type.toLowerCase().replace(/\s+/g, '')}` : '.pdf';
+          const extension = doc.docType ? `.${doc.docType.toLowerCase()}` : '.pdf';
           const filename = `${safeTitle}${extension}`;
           
           zip.file(filename, blob);
@@ -477,7 +474,7 @@ const Documents = ({ listingId }) => {
           
           // Create a safe filename
           const safeTitle = (doc.title || 'Untitled').replace(/[^a-zA-Z0-9.-]/g, '_');
-          const extension = doc.type ? `.${doc.type.toLowerCase().replace(/\s+/g, '')}` : '.pdf';
+          const extension = doc.docType ? `.${doc.docType.toLowerCase()}` : '.pdf';
           const filename = `${safeTitle}${extension}`;
           
           zip.file(filename, blob);
@@ -571,17 +568,17 @@ const Documents = ({ listingId }) => {
               </div>
             )}
           </div>
-          <button className="docs-tab-delete-button" onClick={handleRenameToggle} disabled={isReorderMode}>
+          <button className="docs-tab-delete-button" onClick={handleRenameToggle} disabled={isReorderMode || documents.length === 0}>
             {isRenameMode ? 'Save Document Names' : 'Rename'}
           </button>
-          <button className="docs-tab-delete-button" onClick={handleReorderToggle} disabled={isRenameMode}>
+          <button className="docs-tab-delete-button" onClick={handleReorderToggle} disabled={isRenameMode || documents.length === 0}>
             {isReorderMode ? 'Done Reordering' : 'Reorder'}
           </button>
-          <button className="docs-tab-delete-button" onClick={handleDeleteSelectedDocuments} disabled={isReorderMode || isRenameMode}>
+          <button className="docs-tab-delete-button" onClick={handleDeleteSelectedDocuments} disabled={isReorderMode || isRenameMode || documents.length === 0}>
             Delete
           </button>
         </div>
-        <button className="docs-tab-signature-button" onClick={openSignaturePackageModal} disabled={isReorderMode || isRenameMode}>
+        <button className="docs-tab-signature-button" onClick={openSignaturePackageModal} disabled={isReorderMode || isRenameMode || documents.length === 0}>
           {hasSignaturePackage ? "Update Disclosure Signature Packet" : "Create Disclosure Signature Packet"}
         </button>
       </div>
@@ -612,6 +609,23 @@ const Documents = ({ listingId }) => {
                   checked={isSelected(doc._id)}
                   onChange={() => handleDocumentSelect(doc._id)}
                 />
+              )}
+              {doc.thumbnailImageUrl && doc.docType === 'pdf' && (
+                <div className="docs-tab-document-thumbnail">
+                  <img 
+                    src={`${doc.thumbnailImageUrl}?${doc.thumbnailSasToken || doc.sasToken}`} 
+                    alt={`Thumbnail of ${doc.title}`}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.style.display = 'none';
+                    }}
+                    onLoad={(e) => {
+                      // Ensure thumbnail is visible when loaded successfully
+                      e.target.style.display = 'block';
+                      e.target.parentElement.style.display = 'flex';
+                    }}
+                  />
+                </div>
               )}
               <div className="docs-tab-document-info">
                 <div className="docs-tab-document-details">

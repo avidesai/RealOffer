@@ -188,7 +188,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
           
           // Create a safe filename
           const safeTitle = (doc.title || 'Untitled').replace(/[^a-zA-Z0-9.-]/g, '_');
-          const extension = doc.type ? `.${doc.type.toLowerCase().replace(/\s+/g, '')}` : '.pdf';
+          const extension = doc.docType ? `.${doc.docType.toLowerCase()}` : '.pdf';
           const filename = `${safeTitle}${extension}`;
           
           zip.file(filename, blob);
@@ -235,7 +235,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
           
           // Create a safe filename
           const safeTitle = (doc.title || 'Untitled').replace(/[^a-zA-Z0-9.-]/g, '_');
-          const extension = doc.type ? `.${doc.type.toLowerCase().replace(/\s+/g, '')}` : '.pdf';
+          const extension = doc.docType ? `.${doc.docType.toLowerCase()}` : '.pdf';
           const filename = `${safeTitle}${extension}`;
           
           zip.file(filename, blob);
@@ -345,6 +345,23 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
                 onChange={() => handleDocumentSelect(doc._id)}
                 onClick={(e) => e.stopPropagation()}
               />
+              {doc.thumbnailImageUrl && doc.docType === 'pdf' && (
+                <div className="docs-tab-document-thumbnail">
+                  <img 
+                    src={`${doc.thumbnailImageUrl}?${doc.thumbnailSasToken || doc.sasToken}`} 
+                    alt={`Thumbnail of ${doc.title}`}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.style.display = 'none';
+                    }}
+                    onLoad={(e) => {
+                      // Ensure thumbnail is visible when loaded successfully
+                      e.target.style.display = 'block';
+                      e.target.parentElement.style.display = 'flex';
+                    }}
+                  />
+                </div>
+              )}
               <div className="docs-tab-document-info">
                 <div className="docs-tab-document-details">
                   <p className="docs-tab-document-title">

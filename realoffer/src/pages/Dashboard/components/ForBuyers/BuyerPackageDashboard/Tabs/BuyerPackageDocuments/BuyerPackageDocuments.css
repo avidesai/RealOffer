@@ -140,19 +140,14 @@
 }
 
 .docs-tab-download-button:disabled {
-  background-color: #6c757d;
-  border-color: #6c757d;
-  color: #fff;
+  opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+  transform: none !important;
 }
 
 .docs-tab-download-button:disabled:hover {
-  background-color: #6c757d;
-  border-color: #6c757d;
-  transform: none;
-  box-shadow: none;
+  background-color: inherit;
+  transform: none !important;
 }
 
 
@@ -163,25 +158,27 @@
   left: 0;
   right: 0;
   background: #fff;
-  border: 1px solid #e1e4e8;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   margin-top: 0.5rem;
   overflow: hidden;
-  min-width: 200px;
+  min-width: 240px;
+  animation: fadeIn 0.2s ease;
 }
 
 .docs-tab-dropdown-item {
   width: 100%;
-  padding: 0.8rem 1rem;
+  padding: 0.9rem 1.2rem;
   border: none;
   background: none;
   text-align: left;
   cursor: pointer;
-  font-size: 0.9rem;
-  color: #333;
-  transition: background-color 0.2s ease;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #444;
+  transition: all 0.2s ease;
   border-bottom: 1px solid #f1f3f4;
 }
 
@@ -191,7 +188,7 @@
 
 .docs-tab-dropdown-item:hover {
   background-color: #f8f9fa;
-  color: #007bff;
+  color: #1b5cf3;
 }
 
 .docs-tab-dropdown-item:active {
@@ -207,6 +204,17 @@
 .docs-tab-dropdown-item:disabled:hover {
   background-color: transparent;
   color: #6c757d;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (min-width: 768px) {
@@ -255,8 +263,8 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: 1.8rem 2rem 1.8rem 2rem;
-    min-height: 90px;
+    padding: 2rem 2.5rem;
+    min-height: 100px;
   }
 }
 
@@ -307,7 +315,7 @@
 
 .docs-tab-document-checkbox {
   position: absolute;
-  left: 30px;
+  left: 36px;
   top: 50%;
   width: 20px;
   height: 20px;
@@ -318,6 +326,7 @@
   border-radius: 4px;
   border: 2px solid #e1e4e8;
   transition: all 0.2s ease;
+  z-index: 10;
 }
 
 .docs-tab-document-checkbox:checked {
@@ -327,23 +336,81 @@
 
 @media (min-width: 768px) {
   .docs-tab-document-checkbox {
-    left: 30px;
+    left: 36px;
+  }
+}
+
+/* Professional Document Thumbnail Styles */
+.docs-tab-document-thumbnail {
+  width: 60px;
+  height: 80px;
+  margin-left: 50px;
+  margin-right: 25px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e1e4e8;
+  background-color: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.docs-tab-document-thumbnail:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.docs-tab-document-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 7px;
+  transition: all 0.2s ease;
+  filter: brightness(0.95) contrast(1.05);
+}
+
+.docs-tab-document-thumbnail img:hover {
+  transform: scale(1.02);
+  filter: brightness(1) contrast(1.1);
+}
+
+/* Add a subtle overlay for better visual hierarchy */
+.docs-tab-document-thumbnail::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* Hide thumbnails on small screens and mobile */
+@media (max-width: 767px) {
+  .docs-tab-document-thumbnail {
+    display: none !important;
   }
 }
 
 .docs-tab-document-info {
   display: flex;
   align-items: center;
-  margin-left: 3rem;
+  margin-left: 0;
   margin-top: 0;
   flex: 1;
-  min-height: 60px;
+  min-height: 72px;
 }
 
 @media (min-width: 768px) {
   .docs-tab-document-info {
     align-items: center;
-    margin-left: 3rem;
+    margin-left: 0;
     margin-top: 0.5rem;
     flex: 1;
     min-height: auto;
@@ -865,7 +932,8 @@
 /* Disabled button styles */
 .docs-tab-add-documents-button:disabled,
 .docs-tab-delete-button:disabled,
-.docs-tab-signature-button:disabled {
+.docs-tab-signature-button:disabled,
+.docs-tab-download-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none !important;
@@ -873,7 +941,8 @@
 
 .docs-tab-add-documents-button:disabled:hover,
 .docs-tab-delete-button:disabled:hover,
-.docs-tab-signature-button:disabled:hover {
+.docs-tab-signature-button:disabled:hover,
+.docs-tab-download-button:disabled:hover {
   background-color: inherit;
   transform: none !important;
 }

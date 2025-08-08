@@ -20,7 +20,7 @@ const UploadDocumentsModal = ({
 }) => {
   return (
     <div className="upload-documents-modal" onDragOver={handleDragOver} onDrop={handleDrop}>
-      <div className="udm-modal-content">
+      <div className={`udm-modal-content ${uploading ? 'uploading' : ''}`}>
         <button className="udm-close-button" onClick={onClose}></button>
         <div className='udm-modal-header'>
           <h2>Add Documents</h2>
@@ -73,7 +73,7 @@ const UploadDocumentsModal = ({
                           <div className="udm-file-title">
                             <input
                               type="text"
-                              value={file.title || file.file.name}
+                              value={file.title || ''}
                               onChange={(e) => handleFileTitleChange(index, e.target.value)}
                               placeholder="Document Title"
                               className="udm-file-title-input"
