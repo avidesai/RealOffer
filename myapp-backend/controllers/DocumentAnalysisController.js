@@ -585,10 +585,12 @@ ${text}`;
 • **Cost must be the first thing mentioned.**  
 • **Every bullet point should be 1–2 sentences** so readers understand why it matters.
 
+**IMPORTANT: Calculate the total repair cost by adding up ALL individual costs mentioned in the report. Look for any dollar amounts, repair costs, replacement costs, or service fees and sum them together.**
+
 Format your response exactly like this:
 
 ## **Total Repair Cost: $X,XXX**
-List the total cost first, prominently displayed. If no cost is listed, state "No overall cost listed in report."
+Calculate and list the total cost by adding up ALL individual costs found in the report. If no costs are mentioned, state "No costs listed in report."
 
 ---
 

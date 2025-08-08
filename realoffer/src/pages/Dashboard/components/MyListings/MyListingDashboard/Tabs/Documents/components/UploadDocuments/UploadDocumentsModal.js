@@ -91,6 +91,7 @@ const UploadDocumentsModal = ({
                               <option value="Home Inspection Report">Home Inspection Report</option>
                               <option value="Roof Inspection Report">Roof Inspection Report</option>
                               <option value="Pest Inspection Report">Pest Inspection Report</option>
+                              <option value="Sewer Lateral Inspection">Sewer Lateral Inspection</option>
                               <option value="Natural Hazard Disclosures">Natural Hazard Disclosures</option>
                               <option value="Lead Based Paint Disclosures">Lead Based Paint Disclosures</option>
                               <option value="Seller Property Questionnaire">Seller Property Questionnaire</option>
