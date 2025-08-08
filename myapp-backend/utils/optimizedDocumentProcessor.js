@@ -1,8 +1,10 @@
+// utils/optimizedDocumentProcessor.js
+
 const Document = require('../models/Document');
 const pdfParse = require('pdf-parse');
-const { getClaudeEmbedding } = require('./embeddingClient');
+const { getEmbedding } = require('./embeddingClient');
 const { upsertChunksToPinecone, queryRelevantChunks } = require('./vectorStore');
-const { extractTextWithOCR } = require('./ocrUtils'); // ✅ OCR support enabled
+const { extractTextWithOCR } = require('./ocrUtils'); // OCR fallback
 
 class OptimizedDocumentProcessor {
   constructor() {
@@ -31,20 +33,22 @@ class OptimizedDocumentProcessor {
       const chunks = this.semanticChunkDocument(doc);
 
       const chunksWithEmbeddings = await Promise.all(
-        chunks.map(async (chunk) => ({
-          ...chunk,
-          embedding: await getClaudeEmbedding(chunk.content)
-        }))
+        chunks.map(async (chunk) => {
+          const embedding = await getEmbedding(chunk.content);
+          return { ...chunk, embedding };
+        })
       );
 
       await upsertChunksToPinecone(propertyId, doc._id, chunksWithEmbeddings);
 
-      allChunks.push(...chunksWithEmbeddings.map(chunk => ({
-        ...chunk,
-        documentId: doc._id,
-        documentTitle: doc.title,
-        documentType: doc.type
-      })));
+      allChunks.push(
+        ...chunksWithEmbeddings.map(chunk => ({
+          ...chunk,
+          documentId: doc._id,
+          documentTitle: doc.title,
+          documentType: doc.type
+        }))
+      );
     }
 
     this.chunkCache.set(cacheKey, {
@@ -56,7 +60,7 @@ class OptimizedDocumentProcessor {
   }
 
   semanticChunkDocument(doc) {
-    const rawText = doc.textContent;
+    const rawText = doc.textContent || '';
     const sentences = rawText.split(/(?<=[.?!])\s+/);
     const chunks = [];
 
@@ -66,26 +70,28 @@ class OptimizedDocumentProcessor {
 
     for (const sentence of sentences) {
       if (charCount + sentence.length > 800) {
-        chunks.push({
-          content: buffer.trim(),
-          chunkIndex,
-          pageNumber: null,
-          metadata: {
-            documentTitle: doc.title,
-            documentType: doc.type,
-            uploadedAt: doc.createdAt
-          }
-        });
+        if (buffer.trim().length) {
+          chunks.push({
+            content: buffer.trim(),
+            chunkIndex,
+            pageNumber: null,
+            metadata: {
+              documentTitle: doc.title,
+              documentType: doc.type,
+              uploadedAt: doc.createdAt
+            }
+          });
+          chunkIndex++;
+        }
         buffer = sentence;
         charCount = sentence.length;
-        chunkIndex++;
       } else {
-        buffer += ' ' + sentence;
+        buffer += (buffer ? ' ' : '') + sentence;
         charCount += sentence.length;
       }
     }
 
-    if (buffer.length > 100) {
+    if (buffer.trim().length > 100) {
       chunks.push({
         content: buffer.trim(),
         chunkIndex,
@@ -110,7 +116,7 @@ class OptimizedDocumentProcessor {
       }
     }
 
-    const queryEmbedding = await getClaudeEmbedding(userQuery);
+    const queryEmbedding = await getEmbedding(userQuery);
 
     if (!Array.isArray(queryEmbedding) || queryEmbedding.length === 0) {
       console.warn('[findRelevantChunks] Skipping Pinecone query: invalid embedding for query:', userQuery);
@@ -119,11 +125,7 @@ class OptimizedDocumentProcessor {
 
     const chunks = await queryRelevantChunks(queryEmbedding, propertyId, topK);
 
-    this.queryCache.set(cacheKey, {
-      chunks,
-      timestamp: Date.now()
-    });
-
+    this.queryCache.set(cacheKey, { chunks, timestamp: Date.now() });
     return chunks;
   }
 
@@ -136,10 +138,7 @@ class OptimizedDocumentProcessor {
   /**
    * Process a single document immediately after upload
    * - Extract text if needed (including OCR fallback)
-   * - Chunk
-   * - Embed
-   * - Upsert to Pinecone
-   * - Save to Mongo
+   * - Chunk -> Embed -> Upsert
    */
   async processDocumentForSearch(document, pdfBuffer = null) {
     try {
@@ -148,7 +147,6 @@ class OptimizedDocumentProcessor {
         try {
           const parsed = await pdfParse(pdfBuffer);
           const text = parsed.text?.trim();
-
           if (text?.length > 100) {
             document.textContent = text;
           } else {
@@ -156,10 +154,9 @@ class OptimizedDocumentProcessor {
             const ocrText = await extractTextWithOCR(pdfBuffer);
             document.textContent = ocrText;
           }
-
           await document.save();
         } catch (err) {
-          console.error(`❌ Failed to parse PDF: ${err.message}, switching to OCR...`);
+          console.error(`❌ PDF parse failed for ${document.title}: ${err?.message}. Falling back to OCR.`);
           const ocrText = await extractTextWithOCR(pdfBuffer);
           document.textContent = ocrText;
           await document.save();
@@ -174,17 +171,17 @@ class OptimizedDocumentProcessor {
       const chunks = this.semanticChunkDocument(document);
 
       const chunksWithEmbeddings = await Promise.all(
-        chunks.map(async (chunk) => ({
-          ...chunk,
-          embedding: await getClaudeEmbedding(chunk.content)
-        }))
+        chunks.map(async (chunk) => {
+          const embedding = await getEmbedding(chunk.content);
+          return { ...chunk, embedding };
+        })
       );
 
       await upsertChunksToPinecone(document.propertyListing, document._id, chunksWithEmbeddings);
 
       console.log(`✅ Successfully processed document for search: ${document.title}`);
     } catch (error) {
-      console.error(`🚨 Error in processDocumentForSearch:`, error);
+      console.error('🚨 Error in processDocumentForSearch:', error?.message || error);
     }
   }
 }

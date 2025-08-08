@@ -1,30 +1,41 @@
 // utils/embeddingClient.js
+// Switch to OpenAI embeddings. Safe to use with Claude for chat.
 
-const Anthropic = require('@anthropic-ai/sdk');
+const OpenAI = require('openai');
 
-const anthropic = new Anthropic({
-  apiKey: process.env.CLAUDE_API_KEY
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
 });
 
+// Default to 1536-dim OpenAI models. You can override via env.
+const DEFAULT_EMBEDDING_MODEL = 'text-embedding-3-small';
+
 /**
- * Generate Claude v3.5 Embeddings for a text string
+ * Generate an embedding vector for a text string
  * @param {string} text - The text to embed
- * @returns {Promise<number[]>} - The 1536-dim embedding vector
+ * @returns {Promise<number[]>} - Embedding vector
  */
-async function getClaudeEmbedding(text) {
+async function getEmbedding(text) {
   if (!text || text.trim().length < 5) return [];
 
   try {
-    const response = await anthropic.embeddings.create({
-      model: 'claude-3-embedding-20240229',
-      input: text.substring(0, 2000) // Claude limit is 2000 tokens
+    const resp = await openai.embeddings.create({
+      model: DEFAULT_EMBEDDING_MODEL,
+      input: text
     });
 
-    return response.data[0].embedding;
-  } catch (error) {
-    console.error('Claude embedding error:', error.message);
+    const vec = resp.data?.[0]?.embedding || [];
+    if (!Array.isArray(vec) || vec.length === 0) {
+      console.warn(`[embeddingClient] Empty embedding returned (model=${DEFAULT_EMBEDDING_MODEL})`);
+      return [];
+    }
+
+    return vec;
+  } catch (err) {
+    // Log enough to debug, not secrets
+    console.error('[embeddingClient] OpenAI embedding error:', err?.message || err);
     return [];
   }
 }
 
-module.exports = { getClaudeEmbedding };
+module.exports = { getEmbedding, DEFAULT_EMBEDDING_MODEL };
