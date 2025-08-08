@@ -160,7 +160,6 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
   const [showCreateSignaturePackage, setShowCreateSignaturePackage] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({
-    currentStep: 'uploading',
     currentFile: 0,
     totalFiles: 0,
     currentFileName: '',
@@ -262,7 +261,6 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
     
     // Initialize progress tracking
     setUploadProgress({
-      currentStep: 'uploading',
       currentFile: 1,
       totalFiles: files.length,
       currentFileName: files[0]?.title || files[0]?.file.name || '',
@@ -271,7 +269,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
     setShowProgressModal(true);
     setUploading(true);
     try {
-      // Simulate progress through each step for each file
+      // Simulate document-by-document progress
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         
@@ -279,46 +277,17 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
         setUploadProgress(prev => ({
           ...prev,
           currentFile: i + 1,
-          currentFileName: file.title || file.file.name,
-          currentStep: 'uploading'
+          currentFileName: file.title || file.file.name
         }));
         
-        // Simulate upload time
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Simulate text extraction
-        setUploadProgress(prev => ({
-          ...prev,
-          currentStep: 'extracting_text'
-        }));
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        // Simulate chunking
-        setUploadProgress(prev => ({
-          ...prev,
-          currentStep: 'chunking'
-        }));
-        await new Promise(resolve => setTimeout(resolve, 600));
-        
-        // Simulate embedding generation
-        setUploadProgress(prev => ({
-          ...prev,
-          currentStep: 'generating_embeddings'
-        }));
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Simulate vector storage
-        setUploadProgress(prev => ({
-          ...prev,
-          currentStep: 'storing_vectors'
-        }));
-        await new Promise(resolve => setTimeout(resolve, 400));
+        // Simulate processing time per document
+        await new Promise(resolve => setTimeout(resolve, 1500));
       }
       
-      // Complete the upload
+      // Set to completion state (currentFile = totalFiles + 1 to reach 100%)
       setUploadProgress(prev => ({
         ...prev,
-        currentStep: 'completed'
+        currentFile: files.length + 1
       }));
       
       // Actual upload
@@ -422,12 +391,10 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
         isOpen={showProgressModal}
         onClose={() => {
           setShowProgressModal(false);
-          if (uploadProgress.currentStep === 'completed') {
+          if (uploadProgress.currentFile === uploadProgress.totalFiles && uploadProgress.totalFiles > 0) {
             setShowCSPPrompt(true);
           }
         }}
-        currentStep={uploadProgress.currentStep}
-        progress={uploadProgress.progress}
         totalFiles={uploadProgress.totalFiles}
         currentFile={uploadProgress.currentFile}
         currentFileName={uploadProgress.currentFileName}

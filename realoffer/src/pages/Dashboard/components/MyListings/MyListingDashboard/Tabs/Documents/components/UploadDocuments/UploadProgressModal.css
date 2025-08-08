@@ -79,151 +79,53 @@
 }
 
 .upm-content {
-  padding: 1rem 0;
+  padding: 0.5rem 0.5rem 1.5rem 0.5rem;
+  background: #f7fafd;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  margin-bottom: 1rem;
 }
 
-.upm-progress-section {
-  margin-bottom: 2rem;
+.upm-loading {
+  text-align: center;
+  padding: 2.5rem 0;
+  font-size: 1.08rem;
+  color: #555;
 }
 
 .upm-progress {
   width: 100%;
-  height: 12px;
+  height: 10px;
   background-color: #f0f0f0;
-  border-radius: 6px;
+  border-radius: 5px;
   overflow: hidden;
-  margin-bottom: 1rem;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.2rem;
 }
 
 .upm-progress-bar {
   height: 100%;
   background: linear-gradient(90deg, #007bff, #00c6ff);
-  border-radius: 6px;
-  transition: width 0.5s ease;
-  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
-}
-
-.upm-progress-text {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.upm-percentage {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #007bff;
+  border-radius: 5px;
+  transition: width 0.3s ease;
 }
 
 .upm-status {
   color: #666;
-  font-size: 1rem;
-}
-
-.upm-file-info {
-  background: #f8f9fa;
-  padding: 1rem;
-  border-radius: 10px;
-  margin-bottom: 2rem;
-  border: 1px solid #e9ecef;
-}
-
-.upm-current-file {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.upm-file-label {
-  font-weight: 600;
-  color: #495057;
-  font-size: 0.9rem;
+  font-size: 1.05rem;
+  margin: 0.7rem 0;
 }
 
 .upm-file-name {
   color: #007bff;
   font-weight: 500;
-  font-size: 0.9rem;
-  max-width: 300px;
+  font-size: 0.95rem;
+  margin: 0.5rem 0;
+  max-width: 400px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.upm-file-count {
-  font-size: 0.85rem;
-  color: #6c757d;
-}
-
-.upm-steps {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 2rem;
-  position: relative;
-}
-
-.upm-steps::before {
-  content: '';
-  position: absolute;
-  top: 20px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #e9ecef;
-  z-index: 1;
-}
-
-.upm-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  z-index: 2;
-  transition: all 0.3s ease;
-}
-
-.upm-step-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #f8f9fa;
-  border: 2px solid #e9ecef;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-  transition: all 0.3s ease;
-}
-
-.upm-step-text {
-  font-size: 0.8rem;
-  color: #6c757d;
-  font-weight: 500;
-  text-align: center;
-  max-width: 80px;
-}
-
-.upm-step.active .upm-step-icon {
-  background: #007bff;
-  border-color: #007bff;
-  color: white;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-}
-
-.upm-step.completed .upm-step-icon {
-  background: #28a745;
-  border-color: #28a745;
-  color: white;
-}
-
-.upm-step.active .upm-step-text,
-.upm-step.completed .upm-step-text {
-  color: #007bff;
-  font-weight: 600;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .upm-completion {
@@ -315,22 +217,7 @@
     font-size: 1.3rem;
   }
 
-  .upm-steps {
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  .upm-step {
-    flex: 1;
-    min-width: 60px;
-  }
-
-  .upm-step-text {
-    font-size: 0.7rem;
-    max-width: 60px;
-  }
-
   .upm-file-name {
-    max-width: 200px;
+    max-width: 250px;
   }
 } 
