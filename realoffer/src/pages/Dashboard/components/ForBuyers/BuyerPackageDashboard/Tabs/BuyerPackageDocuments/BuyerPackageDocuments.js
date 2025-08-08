@@ -188,7 +188,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
           
           // Create a safe filename
           const safeTitle = (doc.title || 'Untitled').replace(/[^a-zA-Z0-9.-]/g, '_');
-          const extension = doc.type ? `.${doc.type.toLowerCase().replace(/\s+/g, '')}` : '.pdf';
+          const extension = doc.docType ? `.${doc.docType.toLowerCase()}` : '.pdf';
           const filename = `${safeTitle}${extension}`;
           
           zip.file(filename, blob);
@@ -235,7 +235,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
           
           // Create a safe filename
           const safeTitle = (doc.title || 'Untitled').replace(/[^a-zA-Z0-9.-]/g, '_');
-          const extension = doc.type ? `.${doc.type.toLowerCase().replace(/\s+/g, '')}` : '.pdf';
+          const extension = doc.docType ? `.${doc.docType.toLowerCase()}` : '.pdf';
           const filename = `${safeTitle}${extension}`;
           
           zip.file(filename, blob);

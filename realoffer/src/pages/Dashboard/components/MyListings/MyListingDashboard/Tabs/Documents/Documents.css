@@ -163,25 +163,27 @@
   left: 0;
   right: 0;
   background: #fff;
-  border: 1px solid #e1e4e8;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   margin-top: 0.5rem;
   overflow: hidden;
-  min-width: 200px;
+  min-width: 240px;
+  animation: fadeIn 0.2s ease;
 }
 
 .docs-tab-dropdown-item {
   width: 100%;
-  padding: 0.8rem 1rem;
+  padding: 0.9rem 1.2rem;
   border: none;
   background: none;
   text-align: left;
   cursor: pointer;
-  font-size: 0.9rem;
-  color: #333;
-  transition: background-color 0.2s ease;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #444;
+  transition: all 0.2s ease;
   border-bottom: 1px solid #f1f3f4;
 }
 
@@ -191,7 +193,7 @@
 
 .docs-tab-dropdown-item:hover {
   background-color: #f8f9fa;
-  color: #007bff;
+  color: #1b5cf3;
 }
 
 .docs-tab-dropdown-item:active {
@@ -207,6 +209,17 @@
 .docs-tab-dropdown-item:disabled:hover {
   background-color: transparent;
   color: #6c757d;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (min-width: 768px) {

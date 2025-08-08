@@ -141,7 +141,9 @@ exports.uploadDocument = async (req, res) => {
     const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
     const types = Array.isArray(req.body.type) ? req.body.type : [req.body.type];
 
-    const documents = await Promise.all(files.map(async (file, index) => {
+    const documents = [];
+    for (let index = 0; index < files.length; index++) {
+      const file = files[index];
       const title = titles[index];
       const type = types[index];
       const size = file.size;
@@ -211,8 +213,8 @@ exports.uploadDocument = async (req, res) => {
       
       propertyListing.documents.push(savedDocument._id);
       
-      return savedDocument;
-    }));
+      documents.push(savedDocument);
+    }
 
     await propertyListing.save();
 
@@ -247,7 +249,9 @@ exports.addDocumentToPropertyListing = async (req, res) => {
     const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
     const types = Array.isArray(req.body.type) ? req.body.type : [req.body.type];
 
-    const documents = await Promise.all(files.map(async (file, index) => {
+    const documents = [];
+    for (let index = 0; index < files.length; index++) {
+      const file = files[index];
       const title = titles[index];
       const type = types[index];
       const size = file.size;
@@ -307,8 +311,8 @@ exports.addDocumentToPropertyListing = async (req, res) => {
       const savedDocument = await newDocument.save();
       propertyListing.documents.push(savedDocument._id);
       
-      return savedDocument;
-    }));
+      documents.push(savedDocument);
+    }
 
     await propertyListing.save();
 
@@ -1083,7 +1087,9 @@ exports.uploadDocumentForBuyerPackage = async (req, res) => {
     const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
     const types = Array.isArray(req.body.type) ? req.body.type : [req.body.type];
 
-    const documents = await Promise.all(files.map(async (file, index) => {
+    const documents = [];
+    for (let index = 0; index < files.length; index++) {
+      const file = files[index];
       const title = titles[index];
       const type = types[index];
       const size = file.size;
@@ -1143,8 +1149,8 @@ exports.uploadDocumentForBuyerPackage = async (req, res) => {
 
       const savedDocument = await newDocument.save();
       
-      return savedDocument;
-    }));
+      documents.push(savedDocument);
+    }
 
     res.status(201).json(documents);
   } catch (error) {
