@@ -146,6 +146,22 @@ exports.analyzeRPADocument = async (req, res) => {
     const response = await axios.get(documentUrl, { responseType: 'arraybuffer' });
     const pdfBuffer = Buffer.from(response.data);
 
+    console.log('Document fetched successfully, size:', pdfBuffer.length);
+    console.log('Azure Endpoint:', AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT);
+    console.log('Azure Key length:', AZURE_DOCUMENT_INTELLIGENCE_KEY?.length || 0);
+    
+    // Test Azure credentials with a simple GET request
+    try {
+      const testResponse = await axios.get(`${AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT}formrecognizer/documentModels?api-version=2023-10-31`, {
+        headers: {
+          'Ocp-Apim-Subscription-Key': AZURE_DOCUMENT_INTELLIGENCE_KEY
+        }
+      });
+      console.log('Azure credentials test successful');
+    } catch (testError) {
+      console.error('Azure credentials test failed:', testError.response?.status, testError.response?.data);
+    }
+
     // Prepare form data for Azure Document Intelligence
     const formData = new FormData();
     formData.append('file', pdfBuffer, {
@@ -153,17 +169,30 @@ exports.analyzeRPADocument = async (req, res) => {
       contentType: 'application/pdf'
     });
 
+    const requestUrl = `${AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT}formrecognizer/documentModels/prebuilt-document:analyze?api-version=2023-10-31`;
+    console.log('Request URL:', requestUrl);
+
     // Call Azure Document Intelligence
-    const analysisResponse = await axios.post(
-      `${AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT}formrecognizer/documentModels/prebuilt-document:analyze?api-version=2023-10-31-preview`,
-      formData,
-      {
-        headers: {
-          'Ocp-Apim-Subscription-Key': AZURE_DOCUMENT_INTELLIGENCE_KEY,
-          ...formData.getHeaders()
+    let analysisResponse;
+    try {
+      analysisResponse = await axios.post(
+        requestUrl,
+        formData,
+        {
+          headers: {
+            'Ocp-Apim-Subscription-Key': AZURE_DOCUMENT_INTELLIGENCE_KEY,
+            ...formData.getHeaders()
+          }
         }
-      }
-    );
+      );
+    } catch (error) {
+      console.error('Azure API Error Details:');
+      console.error('Status:', error.response?.status);
+      console.error('Status Text:', error.response?.statusText);
+      console.error('Response Data:', error.response?.data);
+      console.error('Response Headers:', error.response?.headers);
+      throw error;
+    }
 
     // Get the operation location for polling
     const operationLocation = analysisResponse.headers['operation-location'];
