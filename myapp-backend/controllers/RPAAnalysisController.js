@@ -152,7 +152,7 @@ exports.analyzeRPADocument = async (req, res) => {
     
     // Test Azure credentials with a simple GET request
     try {
-      const testResponse = await axios.get(`${AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT}formrecognizer/documentModels?api-version=2023-10-31`, {
+      const testResponse = await axios.get(`${AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT}documentintelligence/documentModels?api-version=2024-02-29-preview`, {
         headers: {
           'Ocp-Apim-Subscription-Key': AZURE_DOCUMENT_INTELLIGENCE_KEY
         }
@@ -169,7 +169,7 @@ exports.analyzeRPADocument = async (req, res) => {
       contentType: 'application/pdf'
     });
 
-    const requestUrl = `${AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT}formrecognizer/documentModels/prebuilt-document:analyze?api-version=2023-10-31`;
+    const requestUrl = `${AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT}documentintelligence/documentModels/prebuilt-document:analyze?api-version=2024-02-29-preview`;
     console.log('Request URL:', requestUrl);
 
     // Call Azure Document Intelligence
