@@ -34,11 +34,16 @@ exports.uploadDocuments = upload.array('documents', 20);
 
 const getPdfPageCount = async (buffer) => {
   try {
-    const pdfDoc = await PDFDocument.load(buffer, { ignoreEncryption: true });
+    const pdfDoc = await PDFDocument.load(buffer, { 
+      ignoreEncryption: true,
+      throwOnInvalidObject: false,
+      updateMetadata: false
+    });
     return pdfDoc.getPageCount();
   } catch (error) {
-    console.error('Error reading PDF:', error);
-    return 0;
+    console.error('Error reading PDF with pdf-lib, falling back to default:', error);
+    // Fallback to 1 page instead of 0 to avoid breaking the upload flow
+    return 1;
   }
 };
 

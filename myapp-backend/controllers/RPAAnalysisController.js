@@ -1,13 +1,24 @@
 // myapp-backend/controllers/RPAAnalysisController.js
 
 const Document = require('../models/Document');
-const { containerClient, generateSASToken } = require('../config/azureStorage');
+const { generateSASToken } = require('../config/azureStorage');
 const axios = require('axios');
-const FormData = require('form-data');
 
-// Azure Document Intelligence configuration
-const AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT = process.env.AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT;
-const AZURE_DOCUMENT_INTELLIGENCE_KEY = process.env.AZURE_DOCUMENT_INTELLIGENCE_KEY;
+// Import the v4 SDK
+const {
+  DocumentAnalysisClient,
+  AzureKeyCredential
+} = require('@azure-rest/ai-document-intelligence');
+
+// Read your endpoint + key from env
+const ENDPOINT = process.env.AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT;
+const API_KEY = process.env.AZURE_DOCUMENT_INTELLIGENCE_KEY;
+
+// Initialize the client once
+const docClient = new DocumentAnalysisClient(
+  ENDPOINT,
+  new AzureKeyCredential(API_KEY)
+);
 
 // Field mapping from RPA form fields to offer data fields
 const RPA_FIELD_MAPPING = {
@@ -54,295 +65,72 @@ const RPA_FIELD_MAPPING = {
   'buyer_message': 'buyersAgentMessage'
 };
 
-// Helper function to extract and clean field values
-const extractFieldValue = (fields, fieldName) => {
-  const field = fields.find(f => f.key?.content?.toLowerCase().includes(fieldName.toLowerCase()));
-  if (field && field.value) {
-    return field.value.content?.trim() || '';
-  }
-  return '';
-};
-
-// Helper function to extract checkbox states
-const extractCheckboxState = (fields, fieldName) => {
-  const field = fields.find(f => f.key?.content?.toLowerCase().includes(fieldName.toLowerCase()));
-  if (field && field.value) {
-    const content = field.value.content?.toLowerCase() || '';
-    return content.includes('checked') || content.includes('yes') || content.includes('x');
-  }
-  return false;
-};
-
-// Helper function to extract date values
-const extractDateValue = (fields, fieldName) => {
-  const field = fields.find(f => f.key?.content?.toLowerCase().includes(fieldName.toLowerCase()));
-  if (field && field.value) {
-    const dateStr = field.value.content?.trim() || '';
-    if (dateStr) {
-      // Try to parse various date formats
-      const date = new Date(dateStr);
-      if (!isNaN(date.getTime())) {
-        return date.toISOString().split('T')[0]; // Return YYYY-MM-DD format
-      }
-    }
-  }
-  return '';
-};
-
-// Helper function to extract numeric values
-const extractNumericValue = (fields, fieldName) => {
-  const field = fields.find(f => f.key?.content?.toLowerCase().includes(fieldName.toLowerCase()));
-  if (field && field.value) {
-    const value = field.value.content?.trim() || '';
-    // Remove currency symbols and commas, then parse
-    const numericValue = value.replace(/[$,]/g, '');
-    const parsed = parseFloat(numericValue);
-    return isNaN(parsed) ? '' : parsed.toString();
-  }
-  return '';
-};
-
-// Helper function to extract percentage values
-const extractPercentageValue = (fields, fieldName) => {
-  const field = fields.find(f => f.key?.content?.toLowerCase().includes(fieldName.toLowerCase()));
-  if (field && field.value) {
-    const value = field.value.content?.trim() || '';
-    // Remove % symbol and parse
-    const numericValue = value.replace(/%/g, '');
-    const parsed = parseFloat(numericValue);
-    return isNaN(parsed) ? '' : parsed.toFixed(2);
-  }
-  return '';
-};
+// Helper functions are no longer needed with v4 SDK - fields come with proper valueType and value properties
 
 // Main function to analyze RPA document
 exports.analyzeRPADocument = async (req, res) => {
   try {
     const { documentId } = req.body;
-
-    if (!AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT || !AZURE_DOCUMENT_INTELLIGENCE_KEY) {
-      return res.status(500).json({ 
-        message: 'Azure Document Intelligence not configured',
-        error: 'Missing Azure Document Intelligence credentials'
-      });
+    if (!ENDPOINT || !API_KEY) {
+      return res.status(500).json({ error: 'Azure credentials not configured' });
     }
 
-    // Get document from database
-    const document = await Document.findById(documentId);
-    if (!document) {
-      return res.status(404).json({ message: 'Document not found' });
+    // Fetch your PDF from blob
+    const doc = await Document.findById(documentId);
+    if (!doc) return res.status(404).json({ error: 'Document not found' });
+    if (doc.docType !== 'pdf') return res.status(400).json({ error: 'Only PDFs supported' });
+
+    const sas = generateSASToken(doc.azureKey);
+    const url = `${doc.thumbnailUrl}?${sas}`;
+    const pdfResponse = await axios.get(url, { responseType: 'arraybuffer' });
+    const pdfBuffer = pdfResponse.data;
+
+    // Kick off the analysis
+    const poller = await docClient.beginAnalyzeDocument(
+      'prebuilt-document',   // the built‐in, zero-training model
+      pdfBuffer,             // raw PDF bytes
+      { onProgress: state => console.log(`Status: ${state.status}`) }
+    );
+
+    // Wait until done
+    const result = await poller.pollUntilDone();
+    if (!result?.documents?.length) {
+      return res.status(500).json({ error: 'No fields detected in the document' });
     }
 
-    // Check if document is a PDF
-    if (document.docType !== 'pdf') {
-      return res.status(400).json({ message: 'Only PDF documents are supported for RPA analysis' });
-    }
+    // Grab the first (and only) document's fields
+    const fields = result.documents[0].fields;
+    // fields is a map: { FieldName: { valueType, content, value } }
 
-    // Generate SAS token for document access
-    const sasToken = generateSASToken(document.azureKey);
-    const documentUrl = `${document.thumbnailUrl}?${sasToken}`;
-
-    // Fetch document from Azure
-    const response = await axios.get(documentUrl, { responseType: 'arraybuffer' });
-    const pdfBuffer = Buffer.from(response.data);
-
-    console.log('Document fetched successfully, size:', pdfBuffer.length);
-    console.log('Azure Endpoint:', AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT);
-    console.log('Azure Key length:', AZURE_DOCUMENT_INTELLIGENCE_KEY?.length || 0);
-    
-    // Test Azure credentials with a simple GET request
-    try {
-      const testResponse = await axios.get(`${AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT}documentintelligence/documentModels?api-version=2024-11-30`, {
-        headers: {
-          'Ocp-Apim-Subscription-Key': AZURE_DOCUMENT_INTELLIGENCE_KEY
+    // Map them into your offerData shape
+    const mapped = {};
+    Object.entries(fields).forEach(([pdfKey, field]) => {
+      const normalized = (() => {
+        switch (field.valueType) {
+          case 'string':  return field.value;
+          case 'number':  return String(field.value);
+          case 'date':    return (field.value instanceof Date)
+                              ? field.value.toISOString().split('T')[0]
+                              : field.content;
+          case 'boolean': return field.value ? 'Waived' : '';
+          default:        return field.content;
         }
-      });
-      console.log('Azure credentials test successful');
-    } catch (testError) {
-      console.error('Azure credentials test failed:', testError.response?.status, testError.response?.data);
-    }
+      })();
 
-    // Convert PDF buffer to base64
-    const base64Document = pdfBuffer.toString('base64');
-
-    const requestUrl = `${AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT}documentintelligence/documentModels/prebuilt-document:analyze?_overload=analyzeDocument&api-version=2024-11-30`;
-    console.log('Request URL:', requestUrl);
-
-    // Call Azure Document Intelligence with correct format
-    let analysisResponse;
-    try {
-      analysisResponse = await axios.post(
-        requestUrl,
-        {
-          base64Source: base64Document
-        },
-        {
-          headers: {
-            'Ocp-Apim-Subscription-Key': AZURE_DOCUMENT_INTELLIGENCE_KEY,
-            'Content-Type': 'application/json'
-          }
+      const offerKey = RPA_FIELD_MAPPING[pdfKey.toLowerCase()];
+      if (offerKey) {
+        // Support nested keys like 'presentedBy.name'
+        const segments = offerKey.split('.');
+        let cur = mapped;
+        while (segments.length > 1) {
+          const seg = segments.shift();
+          cur = cur[seg] = cur[seg] || {};
         }
-      );
-    } catch (error) {
-      console.error('Azure API Error Details:');
-      console.error('Status:', error.response?.status);
-      console.error('Status Text:', error.response?.statusText);
-      console.error('Response Data:', error.response?.data);
-      console.error('Response Headers:', error.response?.headers);
-      throw error;
-    }
-
-    // Get the operation location for polling
-    const operationLocation = analysisResponse.headers['operation-location'];
-    if (!operationLocation) {
-      return res.status(500).json({ message: 'No operation location received from Azure' });
-    }
-
-    // Poll for results
-    let result = null;
-    let attempts = 0;
-    const maxAttempts = 30; // 30 seconds max
-
-    while (attempts < maxAttempts) {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
-
-      const statusResponse = await axios.get(operationLocation, {
-        headers: {
-          'Ocp-Apim-Subscription-Key': AZURE_DOCUMENT_INTELLIGENCE_KEY
-        }
-      });
-
-      if (statusResponse.data.status === 'succeeded') {
-        result = statusResponse.data;
-        break;
-      } else if (statusResponse.data.status === 'failed') {
-        return res.status(500).json({ 
-          message: 'Document analysis failed',
-          error: statusResponse.data.error?.message || 'Unknown error'
-        });
-      }
-
-      attempts++;
-    }
-
-    if (!result) {
-      return res.status(408).json({ message: 'Document analysis timed out' });
-    }
-
-    // Extract form fields from the result
-    const fields = result.analyzeResult?.documents?.[0]?.fields || [];
-    
-    // Map extracted fields to offer data
-    const mappedData = {};
-
-    // Extract basic text fields
-    Object.entries(RPA_FIELD_MAPPING).forEach(([rpaField, offerField]) => {
-      const value = extractFieldValue(fields, rpaField);
-      if (value) {
-        mappedData[offerField] = value;
+        cur[segments[0]] = normalized;
       }
     });
 
-    // Extract numeric fields
-    const numericFields = ['purchase_price', 'initial_deposit', 'loan_amount', 'down_payment', 'balance_of_down_payment', 'buyer_agent_commission'];
-    numericFields.forEach(field => {
-      const offerField = RPA_FIELD_MAPPING[field];
-      if (offerField) {
-        const value = extractNumericValue(fields, field);
-        if (value) {
-          mappedData[offerField] = value;
-        }
-      }
-    });
-
-    // Extract percentage fields
-    const percentageFields = ['initial_deposit_percent', 'down_payment_percent'];
-    percentageFields.forEach(field => {
-      const offerField = RPA_FIELD_MAPPING[field];
-      if (offerField) {
-        const value = extractPercentageValue(fields, field);
-        if (value) {
-          mappedData[offerField] = value;
-        }
-      }
-    });
-
-    // Extract date fields
-    const dateFields = ['close_of_escrow', 'offer_expiry_date'];
-    dateFields.forEach(field => {
-      const offerField = RPA_FIELD_MAPPING[field];
-      if (offerField) {
-        const value = extractDateValue(fields, field);
-        if (value) {
-          mappedData[offerField] = value;
-        }
-      }
-    });
-
-    // Extract contingency information
-    const contingencyFields = [
-      'finance_contingency', 'appraisal_contingency', 'inspection_contingency', 
-      'home_sale_contingency', 'seller_rent_back'
-    ];
-    
-    contingencyFields.forEach(field => {
-      const offerField = RPA_FIELD_MAPPING[field];
-      if (offerField) {
-        const isWaived = extractCheckboxState(fields, `${field}_waived`);
-        const hasDays = extractFieldValue(fields, `${field}_days`);
-        
-        if (isWaived) {
-          mappedData[offerField] = 'Waived';
-          mappedData[`${offerField}Days`] = '';
-        } else if (hasDays) {
-          mappedData[offerField] = hasDays;
-          mappedData[`${offerField}Days`] = extractFieldValue(fields, `${field}_days`);
-        }
-      }
-    });
-
-    // Extract finance type
-    const cashCheckbox = extractCheckboxState(fields, 'cash_purchase');
-    const loanCheckbox = extractCheckboxState(fields, 'loan_purchase');
-    
-    if (cashCheckbox) {
-      mappedData.financeType = 'CASH';
-    } else if (loanCheckbox) {
-      mappedData.financeType = 'LOAN';
-    }
-
-    // Set default values for missing fields
-    if (!mappedData.initialDepositPercent) {
-      mappedData.initialDepositPercent = '3.00';
-    }
-    if (!mappedData.downPaymentPercent) {
-      mappedData.downPaymentPercent = '20.00';
-    }
-    if (!mappedData.homeSaleContingency) {
-      mappedData.homeSaleContingency = 'Waived';
-    }
-
-    // Calculate derived fields
-    if (mappedData.purchasePrice && mappedData.downPayment) {
-      const purchasePrice = parseFloat(mappedData.purchasePrice);
-      const downPayment = parseFloat(mappedData.downPayment);
-      if (!isNaN(purchasePrice) && !isNaN(downPayment) && purchasePrice > 0) {
-        mappedData.percentDown = ((downPayment / purchasePrice) * 100).toFixed(2);
-      }
-    }
-
-    if (mappedData.financeType === 'CASH') {
-      mappedData.downPayment = mappedData.purchasePrice;
-      mappedData.loanAmount = '0';
-      mappedData.percentDown = '100';
-    }
-
-    res.json({
-      success: true,
-      mappedData,
-      extractedFields: fields,
-      message: 'RPA document analyzed successfully'
-    });
+    return res.json({ success: true, mappedData: mapped, extracted: fields });
 
   } catch (error) {
     console.error('Error analyzing RPA document:', error);
