@@ -43,35 +43,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
     }
   }, [buyerPackageId, token]);
 
-  const fetchDocuments = useCallback(async (storedOrder = []) => {
-    try {
-      // Use the new buyer package documents endpoint
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/buyerPackage/${buyerPackageId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      const listingDocuments = response.data.filter(doc => doc.purpose === 'listing' || doc.purpose === 'signature_package');
-      
-      // Sort documents according to stored order, or by creation date if no order exists
-      if (storedOrder.length > 0) {
-        const orderMap = new Map(storedOrder.map((id, index) => [id, index]));
-        listingDocuments.sort((a, b) => {
-          const orderA = orderMap.has(a._id) ? orderMap.get(a._id) : Number.MAX_SAFE_INTEGER;
-          const orderB = orderMap.has(b._id) ? orderMap.get(b._id) : Number.MAX_SAFE_INTEGER;
-          return orderA - orderB;
-        });
-      } else {
-        // If no stored order, sort by creation date
-        listingDocuments.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-      }
-      
-      setDocuments(listingDocuments);
-    } catch (error) {
-      console.error('Error fetching documents:', error);
-    }
-  }, [buyerPackageId, token]);
+
 
   useEffect(() => {
     if (!token || !buyerPackageId) return;
@@ -79,8 +51,33 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
     const loadData = async () => {
       setLoading(true);
       try {
-        const storedOrder = await fetchListingData();
-        await fetchDocuments(storedOrder);
+        // Make both API calls in parallel instead of sequentially
+        const [storedOrder, documentsResponse] = await Promise.all([
+          fetchListingData(),
+          axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/buyerPackage/${buyerPackageId}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          })
+        ]);
+        
+        // Process the documents data
+        const listingDocuments = documentsResponse.data.filter(doc => doc.purpose === 'listing' || doc.purpose === 'signature_package');
+        
+        // Sort documents according to stored order, or by creation date if no order exists
+        if (storedOrder.length > 0) {
+          const orderMap = new Map(storedOrder.map((id, index) => [id, index]));
+          listingDocuments.sort((a, b) => {
+            const orderA = orderMap.has(a._id) ? orderMap.get(a._id) : Number.MAX_SAFE_INTEGER;
+            const orderB = orderMap.has(b._id) ? orderMap.get(b._id) : Number.MAX_SAFE_INTEGER;
+            return orderA - orderB;
+          });
+        } else {
+          // If no stored order, sort by creation date
+          listingDocuments.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        }
+        
+        setDocuments(listingDocuments);
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -89,7 +86,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
     };
     
     loadData();
-  }, [token, buyerPackageId, fetchListingData, fetchDocuments]);
+  }, [token, buyerPackageId, fetchListingData]);
 
   const handleViewDocument = (doc) => {
     const documentUrlWithSAS = `${doc.thumbnailUrl}?${doc.sasToken}`;

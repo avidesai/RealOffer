@@ -127,7 +127,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
     } finally {
       setIsLoading(false);
     }
-  }, [listingId, token, handleDocumentSelect]);
+  }, [listingId, token, handleDocumentSelect, signaturePackage]);
 
   useEffect(() => {
     if (!isOpen) return;

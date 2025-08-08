@@ -100,8 +100,40 @@ const Documents = ({ listingId }) => {
     const loadData = async () => {
       setLoading(true);
       try {
-        const storedOrder = await fetchListingData();
-        await fetchDocuments(storedOrder);
+        // Make both API calls in parallel instead of sequentially
+        const [storedOrder, documentsResponse] = await Promise.all([
+          fetchListingData(),
+          axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          })
+        ]);
+        
+        // Process the documents data
+        const listingDocuments = documentsResponse.data.filter(doc => doc.purpose === 'listing' || doc.purpose === 'signature_package');
+        
+        // Check if a signature package document actually exists
+        const signaturePackageExists = documentsResponse.data.some(doc => doc.purpose === 'signature_package');
+        setHasSignaturePackage(signaturePackageExists);
+        
+        // Sort documents according to stored order, or by creation date if no order exists
+        if (storedOrder.length > 0) {
+          const orderMap = new Map(storedOrder.map((id, index) => [id, index]));
+          listingDocuments.sort((a, b) => {
+            const orderA = orderMap.has(a._id) ? orderMap.get(a._id) : Number.MAX_SAFE_INTEGER;
+            const orderB = orderMap.has(b._id) ? orderMap.get(b._id) : Number.MAX_SAFE_INTEGER;
+            return orderA - orderB;
+          });
+          setDocumentOrder(storedOrder);
+        } else {
+          // If no stored order, create order from current document list
+          listingDocuments.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+          const newOrder = listingDocuments.map(doc => doc._id);
+          setDocumentOrder(newOrder);
+        }
+        
+        setDocuments(listingDocuments);
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -110,7 +142,7 @@ const Documents = ({ listingId }) => {
     };
     
     loadData();
-  }, [token, listingId, fetchListingData, fetchDocuments]);
+  }, [token, listingId, fetchListingData]);
 
   const handleUploadClick = () => {
     setShowUploadModal(true);
