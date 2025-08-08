@@ -110,17 +110,25 @@ class OptimizedDocumentProcessor {
         return cached.chunks;
       }
     }
-
+  
     const queryEmbedding = await getClaudeEmbedding(userQuery);
+  
+    // ✅ Check for empty or invalid embedding
+    if (!Array.isArray(queryEmbedding) || queryEmbedding.length === 0) {
+      console.warn('[findRelevantChunks] Skipping Pinecone query: invalid embedding for query:', userQuery);
+      return [];
+    }
+  
     const chunks = await queryRelevantChunks(queryEmbedding, propertyId, topK);
-
+  
     this.queryCache.set(cacheKey, {
       chunks,
       timestamp: Date.now()
     });
-
+  
     return chunks;
   }
+  
 
   clearCaches() {
     this.chunkCache.clear();
