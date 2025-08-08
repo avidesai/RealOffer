@@ -162,7 +162,8 @@ exports.uploadDocument = async (req, res) => {
         blobHTTPHeaders: { blobContentType: contentType }
       });
 
-      const pages = contentType === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
+      // Skip page count calculation for RPA analysis documents since we don't need it
+      const pages = (contentType === 'application/pdf' && purpose !== 'rpa_analysis') ? await getPdfPageCount(file.buffer) : 0;
 
       // Generate thumbnail for PDF documents
       let thumbnailUrl = null; // Default to null, will be set if thumbnail generation succeeds
@@ -270,11 +271,12 @@ exports.addDocumentToPropertyListing = async (req, res) => {
         blobHTTPHeaders: { blobContentType: contentType }
       });
 
-      const pages = contentType === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
+      // Skip page count calculation for RPA analysis documents since we don't need it
+      const pages = (contentType === 'application/pdf' && purpose !== 'rpa_analysis') ? await getPdfPageCount(file.buffer) : 0;
 
-      // Generate thumbnail for PDF documents
+      // Generate thumbnail for PDF documents (skip for RPA analysis documents)
       let thumbnailUrl = null; // Default to null, will be set if thumbnail generation succeeds
-      if (contentType === 'application/pdf') {
+      if (contentType === 'application/pdf' && purpose !== 'rpa_analysis') {
         try {
           console.log(`Starting thumbnail generation for: ${file.originalname}`);
           const thumbnailBuffer = await generateThumbnail(file.buffer, uuidv4());
@@ -1108,11 +1110,12 @@ exports.uploadDocumentForBuyerPackage = async (req, res) => {
         blobHTTPHeaders: { blobContentType: contentType }
       });
 
-      const pages = contentType === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
+      // Skip page count calculation for RPA analysis documents since we don't need it
+      const pages = (contentType === 'application/pdf' && purpose !== 'rpa_analysis') ? await getPdfPageCount(file.buffer) : 0;
 
-      // Generate thumbnail for PDF documents
+      // Generate thumbnail for PDF documents (skip for RPA analysis documents)
       let thumbnailUrl = null; // Default to null, will be set if thumbnail generation succeeds
-      if (contentType === 'application/pdf') {
+      if (contentType === 'application/pdf' && purpose !== 'rpa_analysis') {
         try {
           console.log(`Starting thumbnail generation for: ${file.originalname}`);
           const thumbnailBuffer = await generateThumbnail(file.buffer, uuidv4());
