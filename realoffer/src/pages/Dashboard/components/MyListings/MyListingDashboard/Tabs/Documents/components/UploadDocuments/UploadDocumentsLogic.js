@@ -1,9 +1,10 @@
 // UploadDocumentsLogic.js
 
 import { useState, useRef } from 'react';
-import axios from 'axios';
+import api from '../../../../../../../../../context/api';
 import { useAuth } from '../../../../../../../../../context/AuthContext';
 import UploadDocumentsModal from './UploadDocumentsModal';
+import UploadProgressModal from './UploadProgressModal';
 import PromptCSPModal from './PromptCSPModal/PromptCSPModal';
 import CreateSignaturePackage from '../CreateSignaturePackage/CreateSignaturePackage';
 
@@ -157,8 +158,16 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
   const [errors, setErrors] = useState([]);
   const [showCSPPrompt, setShowCSPPrompt] = useState(false);
   const [showCreateSignaturePackage, setShowCreateSignaturePackage] = useState(false);
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({
+    currentStep: 'uploading',
+    currentFile: 0,
+    totalFiles: 0,
+    currentFileName: '',
+    error: null
+  });
   const fileInputRef = useRef(null);
-  const { user, token } = useAuth();
+  const { user } = useAuth();
 
   // Removed unused validateAndClearErrors function
 
@@ -250,8 +259,69 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
       setErrors(newErrors);
       return;
     }
+    
+    // Initialize progress tracking
+    setUploadProgress({
+      currentStep: 'uploading',
+      currentFile: 1,
+      totalFiles: files.length,
+      currentFileName: files[0]?.title || files[0]?.file.name || '',
+      error: null
+    });
+    setShowProgressModal(true);
     setUploading(true);
     try {
+      // Simulate progress through each step for each file
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        // Update current file progress
+        setUploadProgress(prev => ({
+          ...prev,
+          currentFile: i + 1,
+          currentFileName: file.title || file.file.name,
+          currentStep: 'uploading'
+        }));
+        
+        // Simulate upload time
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Simulate text extraction
+        setUploadProgress(prev => ({
+          ...prev,
+          currentStep: 'extracting_text'
+        }));
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Simulate chunking
+        setUploadProgress(prev => ({
+          ...prev,
+          currentStep: 'chunking'
+        }));
+        await new Promise(resolve => setTimeout(resolve, 600));
+        
+        // Simulate embedding generation
+        setUploadProgress(prev => ({
+          ...prev,
+          currentStep: 'generating_embeddings'
+        }));
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Simulate vector storage
+        setUploadProgress(prev => ({
+          ...prev,
+          currentStep: 'storing_vectors'
+        }));
+        await new Promise(resolve => setTimeout(resolve, 400));
+      }
+      
+      // Complete the upload
+      setUploadProgress(prev => ({
+        ...prev,
+        currentStep: 'completed'
+      }));
+      
+      // Actual upload
       const formData = new FormData();
       files.forEach(({ file, type, title, docType }) => {
         formData.append('documents', file);
@@ -264,23 +334,14 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
       formData.append('propertyListingId', listingId);
       
       // Upload documents
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}`
-        },
-      });
+      const response = await api.post('/api/documents', formData);
       
       // Get the uploaded document IDs in the order they were uploaded
       const uploadedDocumentIds = response.data.map(doc => doc._id);
       
       // Check if there's already a document order set in the Documents tab
       try {
-        const listingResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const listingResponse = await api.get(`/api/propertyListings/${listingId}`);
         
         const existingDocumentOrder = listingResponse.data.documentOrder || [];
         
@@ -296,27 +357,17 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
         
         // Update the document order in the property listing
         try {
-          await axios.put(
-            `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}/documentOrder`,
-            { documentOrder: finalDocumentOrder },
-            {
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
-            }
-          );
+          await api.put(
+                          `/api/propertyListings/${listingId}/documentOrder`,
+              { documentOrder: finalDocumentOrder }
+            );
         } catch (orderError) {
           console.warn('Could not update document order:', orderError);
           // If the specific endpoint doesn't exist, try the general listing update
           try {
-            await axios.put(
-              `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`,
-              { documentOrder: finalDocumentOrder },
-              {
-                headers: {
-                  'Authorization': `Bearer ${token}`
-                }
-              }
+            await api.put(
+              `/api/propertyListings/${listingId}`,
+              { documentOrder: finalDocumentOrder }
             );
           } catch (fallbackError) {
             console.warn('Could not update document order (fallback):', fallbackError);
@@ -326,14 +377,9 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
         console.error('Error checking existing document order:', error);
         // Fallback to using just the uploaded document order
         try {
-          await axios.put(
-            `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}/documentOrder`,
-            { documentOrder: uploadedDocumentIds },
-            {
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
-            }
+          await api.put(
+            `/api/propertyListings/${listingId}/documentOrder`,
+            { documentOrder: uploadedDocumentIds }
           );
         } catch (fallbackError) {
           console.warn('Could not update document order (fallback):', fallbackError);
@@ -344,6 +390,10 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
       setShowCSPPrompt(true);
     } catch (error) {
       setUploading(false);
+      setUploadProgress(prev => ({
+        ...prev,
+        error: 'An error occurred while uploading. Please try again.'
+      }));
       setErrors(['An error occurred while uploading. Please try again.']);
     }
   };
@@ -365,6 +415,26 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
     onClose();
     onUploadSuccess();
   };
+
+  if (showProgressModal) {
+    return (
+      <UploadProgressModal
+        isOpen={showProgressModal}
+        onClose={() => {
+          setShowProgressModal(false);
+          if (uploadProgress.currentStep === 'completed') {
+            setShowCSPPrompt(true);
+          }
+        }}
+        currentStep={uploadProgress.currentStep}
+        progress={uploadProgress.progress}
+        totalFiles={uploadProgress.totalFiles}
+        currentFile={uploadProgress.currentFile}
+        currentFileName={uploadProgress.currentFileName}
+        error={uploadProgress.error}
+      />
+    );
+  }
 
   if (showCreateSignaturePackage) {
     return (

@@ -1,7 +1,7 @@
 // /Tabs/Documents.js
 
 import React, { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
+import api from '../../../../../../../context/api';
 import JSZip from 'jszip';
 import { useAuth } from '../../../../../../../context/AuthContext';
 import './Documents.css';
@@ -10,7 +10,7 @@ import PDFViewer from './components/PDFViewer/PDFViewer';
 import CreateSignaturePackage from './components/CreateSignaturePackage/CreateSignaturePackage';
 import AIAnalysisModal from './components/AIAnalysisModal/AIAnalysisModal';
 
-axios.defaults.withCredentials = true;
+
 
 const Documents = ({ listingId }) => {
   const { token } = useAuth();
@@ -36,11 +36,7 @@ const Documents = ({ listingId }) => {
 
   const fetchListingData = useCallback(async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await api.get(`/api/propertyListings/${listingId}`);
       
       // Get stored document order if it exists
       return response.data.documentOrder || [];
@@ -48,15 +44,11 @@ const Documents = ({ listingId }) => {
       console.error('Error fetching listing data:', error);
       return [];
     }
-  }, [listingId, token]);
+  }, [listingId]);
 
   const fetchDocuments = useCallback(async (storedOrder = []) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await api.get(`/api/documents/${listingId}`);
       const listingDocuments = response.data.filter(doc => doc.purpose === 'listing' || doc.purpose === 'signature_package');
       
       // Check if a signature package document actually exists
@@ -83,7 +75,7 @@ const Documents = ({ listingId }) => {
     } catch (error) {
       console.error('Error fetching documents:', error);
     }
-  }, [listingId, token]);
+  }, [listingId]);
 
   const refreshDocumentsWithLoading = useCallback(async (orderToUse = documentOrder) => {
     setLoading(true);
@@ -103,11 +95,7 @@ const Documents = ({ listingId }) => {
         // Make both API calls in parallel instead of sequentially
         const [storedOrder, documentsResponse] = await Promise.all([
           fetchListingData(),
-          axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          })
+                  api.get(`/api/documents/${listingId}`)
         ]);
         
         // Process the documents data
@@ -167,11 +155,7 @@ const Documents = ({ listingId }) => {
   const handleDeleteDocument = async (id) => {
     setLoading(true);
     try {
-      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      await api.delete(`/api/documents/${id}`);
       
       // Remove from document order and local state immediately
       setDocumentOrder(prevOrder => prevOrder.filter(docId => docId !== id));
@@ -190,11 +174,7 @@ const Documents = ({ listingId }) => {
     setLoading(true);
     try {
       await Promise.all(selectedDocuments.map((id) => 
-        axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${id}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
+        api.delete(`/api/documents/${id}`)
       ));
       
       // Remove from document order and local state immediately
@@ -268,28 +248,18 @@ const Documents = ({ listingId }) => {
       // Save the current order to the backend
       setLoading(true);
       try {
-        await axios.put(
-          `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}/documentOrder`,
-          { documentOrder },
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          }
+        await api.put(
+          `/api/propertyListings/${listingId}/documentOrder`,
+          { documentOrder }
         );
         await fetchDocuments(documentOrder); // Refresh with saved order
       } catch (error) {
         console.error('Error saving document order:', error);
         // If the specific endpoint doesn't exist, try the general listing update
         try {
-          await axios.put(
-            `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`,
-            { documentOrder },
-            {
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
-            }
+          await api.put(
+            `/api/propertyListings/${listingId}`,
+            { documentOrder }
           );
           await fetchDocuments(documentOrder);
         } catch (fallbackError) {
@@ -310,14 +280,9 @@ const Documents = ({ listingId }) => {
       try {
         const updatePromises = Object.entries(documentTitles).map(([docId, newTitle]) => {
           if (newTitle && newTitle.trim()) {
-            return axios.put(
-              `${process.env.REACT_APP_BACKEND_URL}/api/documents/${docId}`,
-              { title: newTitle.trim() },
-              {
-                headers: {
-                  'Authorization': `Bearer ${token}`
-                }
-              }
+            return api.put(
+              `/api/documents/${docId}`,
+              { title: newTitle.trim() }
             );
           }
           return Promise.resolve();

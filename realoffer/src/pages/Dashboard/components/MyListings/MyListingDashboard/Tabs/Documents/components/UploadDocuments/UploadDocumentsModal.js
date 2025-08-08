@@ -48,7 +48,7 @@ const UploadDocumentsModal = ({
             ))}
           </div>
         )}
-        {uploading && <div className="udm-upload-spinner-container"><div className="udm-upload-spinner"></div></div>}
+
         <div className="udm-file-list-container">
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="file-list">

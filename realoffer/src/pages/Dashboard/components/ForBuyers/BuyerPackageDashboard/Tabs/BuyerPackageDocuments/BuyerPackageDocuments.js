@@ -1,14 +1,14 @@
 // /Tabs/Documents.js
 
 import React, { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
+import api from '../../../../../../../context/api';
 import JSZip from 'jszip';
 import { useAuth } from '../../../../../../../context/AuthContext';
 import './BuyerPackageDocuments.css';
 import PDFViewer from './components/PDFViewer/PDFViewer';
 import AIAnalysisModal from './components/AIAnalysisModal/AIAnalysisModal';
 
-axios.defaults.withCredentials = true;
+
 
 const BuyerPackageDocuments = ({ buyerPackageId }) => {
   const { token } = useAuth();
@@ -25,11 +25,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
 
   const fetchListingData = useCallback(async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/${buyerPackageId}?trackView=false`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await api.get(`/api/buyerPackages/${buyerPackageId}?trackView=false`);
       
       // Get the property listing from the buyer package
       const propertyListing = response.data.propertyListing;
@@ -41,7 +37,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
       console.error('Error fetching buyer package data:', error);
       return [];
     }
-  }, [buyerPackageId, token]);
+  }, [buyerPackageId]);
 
 
 
@@ -54,11 +50,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
         // Make both API calls in parallel instead of sequentially
         const [storedOrder, documentsResponse] = await Promise.all([
           fetchListingData(),
-          axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/buyerPackage/${buyerPackageId}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          })
+          api.get(`/api/documents/buyerPackage/${buyerPackageId}`)
         ]);
         
         // Process the documents data
@@ -111,7 +103,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
     
     try {
       // Record the download activity
-      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/download`, {
+              await api.post(`/api/buyerPackages/download`, {
         buyerPackageId,
         documentId: doc._id,
         documentTitle: doc.title || 'Untitled'
