@@ -144,11 +144,13 @@ exports.uploadDocument = async (req, res) => {
       const pages = contentType === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
 
       // Generate thumbnail for PDF documents
-      let thumbnailUrl = blockBlobClient.url; // Default to original document URL
+      let thumbnailUrl = null; // Default to null, will be set if thumbnail generation succeeds
       if (contentType === 'application/pdf') {
         try {
+          console.log(`Starting thumbnail generation for: ${file.originalname}`);
           const thumbnailBuffer = await generateThumbnail(file.buffer, uuidv4());
           if (thumbnailBuffer) {
+            console.log(`Thumbnail generated successfully for: ${file.originalname}`);
             const thumbnailBlobName = `thumbnails/${uuidv4()}-${file.originalname.replace(/\.[^/.]+$/, '')}-thumb.png`;
             const thumbnailBlockBlobClient = containerClient.getBlockBlobClient(thumbnailBlobName);
             
@@ -157,9 +159,12 @@ exports.uploadDocument = async (req, res) => {
             });
             
             thumbnailUrl = thumbnailBlockBlobClient.url;
+            console.log(`Thumbnail uploaded to Azure: ${thumbnailUrl}`);
+          } else {
+            console.log(`Thumbnail generation returned null for: ${file.originalname}`);
           }
         } catch (error) {
-          console.error('Error generating thumbnail:', error);
+          console.error('Error generating thumbnail for:', file.originalname, error);
           // Continue without thumbnail if generation fails
         }
       }
@@ -170,7 +175,7 @@ exports.uploadDocument = async (req, res) => {
         size,
         pages,
         thumbnailUrl: blockBlobClient.url, // Original document URL in Azure Blob Storage
-        thumbnailImageUrl: thumbnailUrl, // Thumbnail image URL
+        thumbnailImageUrl: thumbnailUrl || null, // Thumbnail image URL (null if not generated)
         uploadedBy: req.user.id,
         propertyListing: propertyListingId,
         azureKey: blobName,
@@ -242,11 +247,13 @@ exports.addDocumentToPropertyListing = async (req, res) => {
       const pages = contentType === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
 
       // Generate thumbnail for PDF documents
-      let thumbnailUrl = blockBlobClient.url; // Default to original document URL
+      let thumbnailUrl = null; // Default to null, will be set if thumbnail generation succeeds
       if (contentType === 'application/pdf') {
         try {
+          console.log(`Starting thumbnail generation for: ${file.originalname}`);
           const thumbnailBuffer = await generateThumbnail(file.buffer, uuidv4());
           if (thumbnailBuffer) {
+            console.log(`Thumbnail generated successfully for: ${file.originalname}`);
             const thumbnailBlobName = `thumbnails/${uuidv4()}-${file.originalname.replace(/\.[^/.]+$/, '')}-thumb.png`;
             const thumbnailBlockBlobClient = containerClient.getBlockBlobClient(thumbnailBlobName);
             
@@ -255,9 +262,12 @@ exports.addDocumentToPropertyListing = async (req, res) => {
             });
             
             thumbnailUrl = thumbnailBlockBlobClient.url;
+            console.log(`Thumbnail uploaded to Azure: ${thumbnailUrl}`);
+          } else {
+            console.log(`Thumbnail generation returned null for: ${file.originalname}`);
           }
         } catch (error) {
-          console.error('Error generating thumbnail:', error);
+          console.error('Error generating thumbnail for:', file.originalname, error);
           // Continue without thumbnail if generation fails
         }
       }
@@ -268,7 +278,7 @@ exports.addDocumentToPropertyListing = async (req, res) => {
         size,
         pages,
         thumbnailUrl: blockBlobClient.url, // Original document URL in Azure Blob Storage
-        thumbnailImageUrl: thumbnailUrl, // Thumbnail image URL
+        thumbnailImageUrl: thumbnailUrl || null, // Thumbnail image URL (null if not generated)
         propertyListing: req.params.id,
         uploadedBy: req.user.id,
         azureKey: blobName,
@@ -1072,11 +1082,13 @@ exports.uploadDocumentForBuyerPackage = async (req, res) => {
       const pages = contentType === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
 
       // Generate thumbnail for PDF documents
-      let thumbnailUrl = blockBlobClient.url; // Default to original document URL
+      let thumbnailUrl = null; // Default to null, will be set if thumbnail generation succeeds
       if (contentType === 'application/pdf') {
         try {
+          console.log(`Starting thumbnail generation for: ${file.originalname}`);
           const thumbnailBuffer = await generateThumbnail(file.buffer, uuidv4());
           if (thumbnailBuffer) {
+            console.log(`Thumbnail generated successfully for: ${file.originalname}`);
             const thumbnailBlobName = `thumbnails/${uuidv4()}-${file.originalname.replace(/\.[^/.]+$/, '')}-thumb.png`;
             const thumbnailBlockBlobClient = containerClient.getBlockBlobClient(thumbnailBlobName);
             
@@ -1085,9 +1097,12 @@ exports.uploadDocumentForBuyerPackage = async (req, res) => {
             });
             
             thumbnailUrl = thumbnailBlockBlobClient.url;
+            console.log(`Thumbnail uploaded to Azure: ${thumbnailUrl}`);
+          } else {
+            console.log(`Thumbnail generation returned null for: ${file.originalname}`);
           }
         } catch (error) {
-          console.error('Error generating thumbnail:', error);
+          console.error('Error generating thumbnail for:', file.originalname, error);
           // Continue without thumbnail if generation fails
         }
       }
@@ -1098,7 +1113,7 @@ exports.uploadDocumentForBuyerPackage = async (req, res) => {
         size,
         pages,
         thumbnailUrl: blockBlobClient.url, // Original document URL in Azure Blob Storage
-        thumbnailImageUrl: thumbnailUrl, // Thumbnail image URL
+        thumbnailImageUrl: thumbnailUrl || null, // Thumbnail image URL (null if not generated)
         uploadedBy: req.user.id,
         propertyListing: propertyListing,
         azureKey: blobName,

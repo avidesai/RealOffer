@@ -6,7 +6,7 @@ import './PromptCSPModal.css';
 const PromptCSPModal = ({ onClose, onCreatePackage, hasSignaturePackage = false }) => {
   console.log('PromptCSPModal - hasSignaturePackage:', hasSignaturePackage);
   const isSignaturePackageCreated = hasSignaturePackage;
-  const title = isSignaturePackageCreated ? "Update Buyer Signature Packet" : "Create Buyer Signature Packet";
+  const title = isSignaturePackageCreated ? "Update Disclosure Signature Packet" : "Create Disclosure Signature Packet";
   const actionText = isSignaturePackageCreated ? "Update" : "Create";
 
   const handlePrimaryButtonClick = () => {
@@ -19,10 +19,10 @@ const PromptCSPModal = ({ onClose, onCreatePackage, hasSignaturePackage = false 
         <button className="prompt-csp-close-button" onClick={onClose}></button>
         <div className='offer-modal-header'>
           <h2>{title}</h2>
-          <p>Would you like to {actionText.toLowerCase()} a buyer signature packet?</p>
+          <p>Would you like to {actionText.toLowerCase()} a disclosure signature packet?</p>
           <ul>
             <li>Select pages from disclosure documents to include in a packet</li>
-            <li>Buyer will sign this packet and include it in their offer</li>
+            <li>It will be included in offers for buyers to sign</li>
           </ul>
         </div>
         <div className="offer-modal-footer">
