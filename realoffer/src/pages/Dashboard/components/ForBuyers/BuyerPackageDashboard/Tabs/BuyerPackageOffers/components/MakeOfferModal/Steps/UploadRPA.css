@@ -1,0 +1,423 @@
+/* UploadRPA.css */
+
+.upload-rpa-step {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.step-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.step-header h2 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.step-description {
+  font-size: 16px;
+  color: #7f8c8d;
+  line-height: 1.5;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.upload-section {
+  margin-bottom: 30px;
+}
+
+.file-upload-area {
+  border: 2px dashed #bdc3c7;
+  border-radius: 12px;
+  padding: 40px 20px;
+  text-align: center;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.file-upload-area:hover {
+  border-color: #3498db;
+  background: #f0f8ff;
+}
+
+.file-upload-area.dragover {
+  border-color: #3498db;
+  background: #e3f2fd;
+}
+
+.upload-icon {
+  margin-bottom: 20px;
+  color: #7f8c8d;
+}
+
+.upload-icon svg {
+  width: 48px;
+  height: 48px;
+}
+
+.file-upload-area h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.file-upload-area p {
+  color: #7f8c8d;
+  margin-bottom: 20px;
+}
+
+.file-input {
+  display: none;
+}
+
+.upload-button {
+  display: inline-block;
+  background: #3498db;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  border: none;
+  font-size: 16px;
+}
+
+.upload-button:hover {
+  background: #2980b9;
+}
+
+.file-preview {
+  border: 1px solid #e1e8ed;
+  border-radius: 12px;
+  padding: 20px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.file-icon {
+  margin-right: 15px;
+  color: #3498db;
+}
+
+.file-details h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 5px 0;
+}
+
+.file-details p {
+  color: #7f8c8d;
+  margin: 0;
+  font-size: 14px;
+}
+
+.remove-file-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.remove-file-btn:hover {
+  background: #fdf2f2;
+}
+
+.analyze-button {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-size: 16px;
+  width: 100%;
+}
+
+.analyze-button:hover:not(:disabled) {
+  background: #229954;
+}
+
+.analyze-button:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.analysis-progress {
+  text-align: center;
+  padding: 30px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.progress-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e1e8ed;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 15px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.analysis-progress p {
+  color: #2c3e50;
+  font-weight: 500;
+  margin: 0;
+}
+
+.analysis-success {
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.success-icon {
+  font-size: 48px;
+  color: #27ae60;
+  margin-bottom: 15px;
+}
+
+.analysis-success h3 {
+  color: #155724;
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.analysis-success p {
+  color: #155724;
+  margin-bottom: 15px;
+}
+
+.extracted-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.extracted-field {
+  background: white;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #c3e6cb;
+}
+
+.field-name {
+  font-weight: 600;
+  color: #2c3e50;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.field-value {
+  color: #27ae60;
+  font-weight: 500;
+}
+
+.error-message {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  color: #721c24;
+}
+
+.error-message p {
+  margin: 0;
+  font-weight: 500;
+}
+
+.step-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+  gap: 15px;
+}
+
+.skip-button {
+  background: #95a5a6;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-size: 16px;
+}
+
+.skip-button:hover:not(:disabled) {
+  background: #7f8c8d;
+}
+
+.skip-button:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.next-button {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-size: 16px;
+}
+
+.next-button:hover {
+  background: #2980b9;
+}
+
+.step-help {
+  margin-top: 40px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border-left: 4px solid #3498db;
+}
+
+.step-help h4 {
+  color: #2c3e50;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.step-help p {
+  color: #7f8c8d;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.step-help ul {
+  color: #7f8c8d;
+  padding-left: 20px;
+}
+
+.step-help li {
+  margin-bottom: 5px;
+  line-height: 1.5;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .upload-rpa-step {
+    padding: 15px;
+  }
+  
+  .step-header h2 {
+    font-size: 24px;
+  }
+  
+  .file-upload-area {
+    padding: 30px 15px;
+  }
+  
+  .step-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .skip-button,
+  .next-button {
+    width: 100%;
+  }
+  
+  .extracted-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .upload-rpa-step {
+    color: #ecf0f1;
+  }
+  
+  .step-header h2 {
+    color: #ecf0f1;
+  }
+  
+  .step-description {
+    color: #bdc3c7;
+  }
+  
+  .file-upload-area {
+    background: #2c3e50;
+    border-color: #34495e;
+  }
+  
+  .file-upload-area:hover {
+    background: #34495e;
+    border-color: #3498db;
+  }
+  
+  .file-preview {
+    background: #2c3e50;
+    border-color: #34495e;
+  }
+  
+  .file-details h4 {
+    color: #ecf0f1;
+  }
+  
+  .file-details p {
+    color: #bdc3c7;
+  }
+  
+  .analysis-progress {
+    background: #2c3e50;
+  }
+  
+  .analysis-progress p {
+    color: #ecf0f1;
+  }
+  
+  .step-help {
+    background: #2c3e50;
+  }
+  
+  .step-help h4 {
+    color: #ecf0f1;
+  }
+  
+  .step-help p,
+  .step-help ul {
+    color: #bdc3c7;
+  }
+} 

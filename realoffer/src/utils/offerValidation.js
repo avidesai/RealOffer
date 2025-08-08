@@ -2,8 +2,14 @@
 
 // Validation rules for each step
 export const stepValidationRules = {
-  // Step 1: Purchase Price
+  // Step 1: Upload RPA (no validation required - optional step)
   1: {
+    required: [],
+    custom: () => []
+  },
+  
+  // Step 2: Purchase Price
+  2: {
     required: ['purchasePrice', 'financeType'],
     custom: (offerData) => {
       const errors = [];
@@ -29,8 +35,8 @@ export const stepValidationRules = {
     }
   },
   
-  // Step 2: Contingencies
-  2: {
+  // Step 3: Contingencies
+  3: {
     required: ['closeOfEscrow'],
     custom: (offerData) => {
       const errors = [];
@@ -44,8 +50,8 @@ export const stepValidationRules = {
     }
   },
   
-  // Step 3: Agent Information
-  3: {
+  // Step 4: Agent Information
+  4: {
     required: [],
     custom: (offerData) => {
       const errors = [];
@@ -79,8 +85,8 @@ export const stepValidationRules = {
     }
   },
   
-  // Step 4: Offer Details
-  4: {
+  // Step 5: Offer Details
+  5: {
     required: ['buyerName', 'buyersAgentCommission', 'offerExpiryDate'],
     custom: (offerData) => {
       const errors = [];
@@ -104,20 +110,20 @@ export const stepValidationRules = {
     }
   },
   
-  // Step 5: Documents (no validation required - optional step)
-  5: {
-    required: [],
-    custom: () => []
-  },
-  
-  // Step 6: Electronic Signatures (no validation required - optional step)
+  // Step 6: Documents (no validation required - optional step)
   6: {
     required: [],
     custom: () => []
   },
   
-  // Step 7: Final Review (no validation required - this is review step)
+  // Step 7: Electronic Signatures (no validation required - optional step)
   7: {
+    required: [],
+    custom: () => []
+  },
+  
+  // Step 8: Final Review (no validation required - this is review step)
+  8: {
     required: [],
     custom: () => []
   }

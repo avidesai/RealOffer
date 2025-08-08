@@ -6,6 +6,7 @@ import { useOffer } from '../../../../../../../../../context/OfferContext';
 import { validateStep } from '../../../../../../../../../utils/offerValidation';
 import './MakeOfferModal.css';
 import './Steps/DocumentsAndSigning.css';
+import UploadRPA from './Steps/UploadRPA';
 import PurchasePrice from './Steps/PurchasePrice';
 import Contingencies from './Steps/Contingencies';
 import AgentInformation from './Steps/AgentInformation';
@@ -25,7 +26,7 @@ const MakeOfferModal = ({ onClose, listingId, buyerPackageId }) => {
 
   const handleNextStep = useCallback(() => {
     // Auto-set contingency fields to "Waived" if days are empty
-    if (step === 2) {
+    if (step === 3) {
       const updatedData = { ...offerData };
       
       // Check finance contingency
@@ -394,6 +395,11 @@ const MakeOfferModal = ({ onClose, listingId, buyerPackageId }) => {
   }, [listingId, updateOfferData]);
 
   const memoizedComponents = useMemo(() => ({
+    uploadRPA: <UploadRPA
+      handleNextStep={handleNextStep}
+      handlePrevStep={handlePrevStep}
+      listingId={listingId}
+    />,
     purchasePrice: <PurchasePrice
       formData={offerData}
       handleChange={handleChange}
@@ -456,13 +462,14 @@ const MakeOfferModal = ({ onClose, listingId, buyerPackageId }) => {
           </button>
           <h1 className="modal-title">Create Offer</h1>
         </div>
-        {step === 1 && memoizedComponents.purchasePrice}
-        {step === 2 && memoizedComponents.contingencies}
-        {step === 3 && memoizedComponents.agentInformation}
-        {step === 4 && memoizedComponents.offerDetails}
-        {step === 5 && memoizedComponents.documents}
-        {step === 6 && memoizedComponents.electronicSignatures}
-        {step === 7 && memoizedComponents.finalReview}
+        {step === 1 && memoizedComponents.uploadRPA}
+        {step === 2 && memoizedComponents.purchasePrice}
+        {step === 3 && memoizedComponents.contingencies}
+        {step === 4 && memoizedComponents.agentInformation}
+        {step === 5 && memoizedComponents.offerDetails}
+        {step === 6 && memoizedComponents.documents}
+        {step === 7 && memoizedComponents.electronicSignatures}
+        {step === 8 && memoizedComponents.finalReview}
       </div>
     </div>
   );

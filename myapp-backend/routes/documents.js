@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const DocumentController = require('../controllers/DocumentController');
+const RPAAnalysisController = require('../controllers/RPAAnalysisController');
 const authMiddleware = require('../middleware/auth');
 
 // Apply auth middleware to all routes except deleteAll
@@ -30,6 +31,9 @@ router.put('/updateSignedStatus', DocumentController.updateDocumentSignedStatus)
 
 // Document download route (specific route before generic ones)
 router.get('/:id/download', DocumentController.downloadDocument);
+
+// RPA Analysis route
+router.post('/analyze-rpa', RPAAnalysisController.analyzeRPADocument);
 
 // Buyer package documents routes (specific routes before generic listing route)
 router.get('/buyerPackage/:buyerPackageId/single/:documentId', DocumentController.getSingleDocumentForBuyerPackage);
