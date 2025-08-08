@@ -140,19 +140,14 @@
 }
 
 .docs-tab-download-button:disabled {
-  background-color: #6c757d;
-  border-color: #6c757d;
-  color: #fff;
+  opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+  transform: none !important;
 }
 
 .docs-tab-download-button:disabled:hover {
-  background-color: #6c757d;
-  border-color: #6c757d;
-  transform: none;
-  box-shadow: none;
+  background-color: inherit;
+  transform: none !important;
 }
 
 
@@ -937,7 +932,8 @@
 /* Disabled button styles */
 .docs-tab-add-documents-button:disabled,
 .docs-tab-delete-button:disabled,
-.docs-tab-signature-button:disabled {
+.docs-tab-signature-button:disabled,
+.docs-tab-download-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none !important;
@@ -945,7 +941,8 @@
 
 .docs-tab-add-documents-button:disabled:hover,
 .docs-tab-delete-button:disabled:hover,
-.docs-tab-signature-button:disabled:hover {
+.docs-tab-signature-button:disabled:hover,
+.docs-tab-download-button:disabled:hover {
   background-color: inherit;
   transform: none !important;
 }

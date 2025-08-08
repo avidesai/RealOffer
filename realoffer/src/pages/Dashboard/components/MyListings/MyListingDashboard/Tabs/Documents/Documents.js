@@ -173,12 +173,12 @@ const Documents = ({ listingId }) => {
         }
       });
       
-      // Remove from document order as well
+      // Remove from document order and local state immediately
       setDocumentOrder(prevOrder => prevOrder.filter(docId => docId !== id));
+      setDocuments(prevDocuments => prevDocuments.filter(doc => doc._id !== id));
       
-
-      
-      fetchDocuments(documentOrder.filter(docId => docId !== id));
+      // Also remove from selected documents if it was selected
+      setSelectedDocuments(prevSelected => prevSelected.filter(docId => docId !== id));
     } catch (error) {
       console.error('Error deleting document:', error);
     } finally {
@@ -197,14 +197,11 @@ const Documents = ({ listingId }) => {
         })
       ));
       
-      // Remove from document order as well
+      // Remove from document order and local state immediately
       const newOrder = documentOrder.filter(docId => !selectedDocuments.includes(docId));
       setDocumentOrder(newOrder);
+      setDocuments(prevDocuments => prevDocuments.filter(doc => !selectedDocuments.includes(doc._id)));
       setSelectedDocuments([]);
-      
-
-      
-      fetchDocuments(newOrder);
     } catch (error) {
       console.error('Error deleting selected documents:', error);
     } finally {
@@ -571,17 +568,17 @@ const Documents = ({ listingId }) => {
               </div>
             )}
           </div>
-          <button className="docs-tab-delete-button" onClick={handleRenameToggle} disabled={isReorderMode}>
+          <button className="docs-tab-delete-button" onClick={handleRenameToggle} disabled={isReorderMode || documents.length === 0}>
             {isRenameMode ? 'Save Document Names' : 'Rename'}
           </button>
-          <button className="docs-tab-delete-button" onClick={handleReorderToggle} disabled={isRenameMode}>
+          <button className="docs-tab-delete-button" onClick={handleReorderToggle} disabled={isRenameMode || documents.length === 0}>
             {isReorderMode ? 'Done Reordering' : 'Reorder'}
           </button>
-          <button className="docs-tab-delete-button" onClick={handleDeleteSelectedDocuments} disabled={isReorderMode || isRenameMode}>
+          <button className="docs-tab-delete-button" onClick={handleDeleteSelectedDocuments} disabled={isReorderMode || isRenameMode || documents.length === 0}>
             Delete
           </button>
         </div>
-        <button className="docs-tab-signature-button" onClick={openSignaturePackageModal} disabled={isReorderMode || isRenameMode}>
+        <button className="docs-tab-signature-button" onClick={openSignaturePackageModal} disabled={isReorderMode || isRenameMode || documents.length === 0}>
           {hasSignaturePackage ? "Update Disclosure Signature Packet" : "Create Disclosure Signature Packet"}
         </button>
       </div>
