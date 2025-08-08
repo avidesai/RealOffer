@@ -256,6 +256,7 @@ const Documents = ({ listingId }) => {
   };
 
   const handleAIAnalysis = (doc) => {
+    console.log('handleAIAnalysis - doc.type:', doc.type);
     setSelectedDocumentForAnalysis(doc);
     setShowAIAnalysis(true);
   };
@@ -690,12 +691,17 @@ const Documents = ({ listingId }) => {
         />
       )}
       {showAIAnalysis && selectedDocumentForAnalysis && (
-        <AIAnalysisModal
-          isOpen={showAIAnalysis}
-          onClose={closeAIAnalysis}
-          documentId={selectedDocumentForAnalysis._id}
-          documentType={selectedDocumentForAnalysis.type}
-        />
+        (() => {
+          console.log('Rendering AIAnalysisModal with documentType:', selectedDocumentForAnalysis.type);
+          return (
+            <AIAnalysisModal
+              isOpen={showAIAnalysis}
+              onClose={closeAIAnalysis}
+              documentId={selectedDocumentForAnalysis._id}
+              documentType={selectedDocumentForAnalysis.type}
+            />
+          );
+        })()
       )}
     </div>
   );

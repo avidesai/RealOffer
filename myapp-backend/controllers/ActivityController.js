@@ -132,28 +132,23 @@ exports.getActivityStats = async (req, res) => {
   try {
     const { listingId } = req.params;
 
-    // First check if the user owns this property listing (for sellers)
-    let listing = await PropertyListing.findOne({
-      _id: listingId,
-      createdBy: req.user.id
-    });
-
-    // If user doesn't own the listing, check if they have a buyer package for it (for buyers)
+    // Get the listing and check authorization
+    const listing = await PropertyListing.findById(listingId);
     if (!listing) {
-      const buyerPackage = await BuyerPackage.findOne({
-        propertyListing: listingId,
-        user: req.user.id
-      });
-
-      if (!buyerPackage) {
-        return res.status(403).json({ message: 'Not authorized to view these statistics' });
-      }
-
-      // Get the listing for reference
-      listing = await PropertyListing.findById(listingId);
-      if (!listing) {
-        return res.status(404).json({ message: 'Property listing not found' });
-      }
+      return res.status(404).json({ message: 'Property listing not found' });
+    }
+    
+    // Check if user owns the listing, is an agent, team member, OR has a buyer package for this listing
+    const isOwner = listing.createdBy.toString() === req.user.id;
+    const isAgent = listing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = listing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
+    const hasBuyerPackage = await BuyerPackage.findOne({
+      propertyListing: listingId,
+      user: req.user.id
+    });
+    
+    if (!isOwner && !isAgent && !isTeamMember && !hasBuyerPackage) {
+      return res.status(403).json({ message: 'Not authorized to view these statistics' });
     }
 
     const activities = await Activity.find({ propertyListing: listingId });

@@ -136,6 +136,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
   };
 
   const handleAIAnalysis = (doc) => {
+    console.log('handleAIAnalysis (BuyerPackage) - doc.type:', doc.type);
     setSelectedDocumentForAnalysis(doc);
     setShowAIAnalysis(true);
   };
@@ -390,12 +391,17 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
         />
       )}
       {showAIAnalysis && selectedDocumentForAnalysis && (
-        <AIAnalysisModal
-          isOpen={showAIAnalysis}
-          onClose={closeAIAnalysis}
-          documentId={selectedDocumentForAnalysis._id}
-          documentType={selectedDocumentForAnalysis.type}
-        />
+        (() => {
+          console.log('Rendering AIAnalysisModal (BuyerPackage) with documentType:', selectedDocumentForAnalysis.type);
+          return (
+            <AIAnalysisModal
+              isOpen={showAIAnalysis}
+              onClose={closeAIAnalysis}
+              documentId={selectedDocumentForAnalysis._id}
+              documentType={selectedDocumentForAnalysis.type}
+            />
+          );
+        })()
       )}
     </div>
   );
