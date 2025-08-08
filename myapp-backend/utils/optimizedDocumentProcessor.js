@@ -1,8 +1,7 @@
 // utils/optimizedDocumentProcessor.js
-
 const Document = require('../models/Document');
 const pdfParse = require('pdf-parse');
-const { getEmbedding } = require('./embeddingClient');
+const { embedBatch, embedOne } = require('./embeddingClient'); // ⬅️ use the proper exports
 const { upsertChunksToPinecone, queryRelevantChunks } = require('./vectorStore');
 const { extractTextWithOCR } = require('./ocrUtils'); // OCR fallback
 
@@ -16,9 +15,7 @@ class OptimizedDocumentProcessor {
     const cacheKey = `chunks_${propertyId}`;
     if (this.chunkCache.has(cacheKey)) {
       const cached = this.chunkCache.get(cacheKey);
-      if (Date.now() - cached.timestamp < 300000) {
-        return cached.chunks;
-      }
+      if (Date.now() - cached.timestamp < 300000) return cached.chunks;
     }
 
     const documents = await Document.find({
@@ -32,12 +29,14 @@ class OptimizedDocumentProcessor {
     for (const doc of documents) {
       const chunks = this.semanticChunkDocument(doc);
 
-      const chunksWithEmbeddings = await Promise.all(
-        chunks.map(async (chunk) => {
-          const embedding = await getEmbedding(chunk.content);
-          return { ...chunk, embedding };
-        })
-      );
+      // ---- Batch embed all chunks for this document (fewer API calls, fewer 429s)
+      const texts = chunks.map(c => c.content);
+      const embeddings = await embedBatch(texts);
+
+      const chunksWithEmbeddings = chunks.map((chunk, i) => ({
+        ...chunk,
+        embedding: Array.isArray(embeddings[i]) ? embeddings[i] : [] // keep shape
+      }));
 
       await upsertChunksToPinecone(propertyId, doc._id, chunksWithEmbeddings);
 
@@ -51,11 +50,7 @@ class OptimizedDocumentProcessor {
       );
     }
 
-    this.chunkCache.set(cacheKey, {
-      chunks: allChunks,
-      timestamp: Date.now()
-    });
-
+    this.chunkCache.set(cacheKey, { chunks: allChunks, timestamp: Date.now() });
     return allChunks;
   }
 
@@ -111,12 +106,11 @@ class OptimizedDocumentProcessor {
     const cacheKey = `${propertyId}_${userQuery}`;
     if (this.queryCache.has(cacheKey)) {
       const cached = this.queryCache.get(cacheKey);
-      if (Date.now() - cached.timestamp < 300000) {
-        return cached.chunks;
-      }
+      if (Date.now() - cached.timestamp < 300000) return cached.chunks;
     }
 
-    const queryEmbedding = await getEmbedding(userQuery);
+    // ---- single embed for the query
+    const queryEmbedding = await embedOne(userQuery);
 
     if (!Array.isArray(queryEmbedding) || queryEmbedding.length === 0) {
       console.warn('[findRelevantChunks] Skipping Pinecone query: invalid embedding for query:', userQuery);
@@ -124,7 +118,6 @@ class OptimizedDocumentProcessor {
     }
 
     const chunks = await queryRelevantChunks(queryEmbedding, propertyId, topK);
-
     this.queryCache.set(cacheKey, { chunks, timestamp: Date.now() });
     return chunks;
   }
@@ -138,7 +131,7 @@ class OptimizedDocumentProcessor {
   /**
    * Process a single document immediately after upload
    * - Extract text if needed (including OCR fallback)
-   * - Chunk -> Embed -> Upsert
+   * - Chunk -> Batch Embed -> Upsert
    */
   async processDocumentForSearch(document, pdfBuffer = null) {
     try {
@@ -170,15 +163,15 @@ class OptimizedDocumentProcessor {
 
       const chunks = this.semanticChunkDocument(document);
 
-      const chunksWithEmbeddings = await Promise.all(
-        chunks.map(async (chunk) => {
-          const embedding = await getEmbedding(chunk.content);
-          return { ...chunk, embedding };
-        })
-      );
+      // ---- Batch embed for the document
+      const texts = chunks.map(c => c.content);
+      const embeddings = await embedBatch(texts);
+      const chunksWithEmbeddings = chunks.map((chunk, i) => ({
+        ...chunk,
+        embedding: Array.isArray(embeddings[i]) ? embeddings[i] : []
+      }));
 
       await upsertChunksToPinecone(document.propertyListing, document._id, chunksWithEmbeddings);
-
       console.log(`✅ Successfully processed document for search: ${document.title}`);
     } catch (error) {
       console.error('🚨 Error in processDocumentForSearch:', error?.message || error);
