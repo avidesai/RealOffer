@@ -4,25 +4,16 @@ const Document = require('../models/Document');
 const { generateSASToken } = require('../config/azureStorage');
 const axios = require('axios');
 
-// Import the v4 SDK
-const {
-  DocumentAnalysisClient,
-  AzureKeyCredential
-} = require('@azure-rest/ai-document-intelligence');
+const createDocumentAnalysisClient = require('@azure-rest/ai-document-intelligence').default;
+const { AzureKeyCredential } = require('@azure-rest/ai-document-intelligence');
 
-// Read your endpoint + key from env
 const ENDPOINT = process.env.AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT;
 const API_KEY = process.env.AZURE_DOCUMENT_INTELLIGENCE_KEY;
 
-// Initialize the client once
-const docClient = new DocumentAnalysisClient(
-  ENDPOINT,
-  new AzureKeyCredential(API_KEY)
-);
+const docClient = createDocumentAnalysisClient(ENDPOINT, new AzureKeyCredential(API_KEY));
 
-// Field mapping from RPA form fields to offer data fields
+// RPA field mappings
 const RPA_FIELD_MAPPING = {
-  // Purchase Price and Financial Terms
   'purchase_price': 'purchasePrice',
   'initial_deposit': 'initialDeposit',
   'initial_deposit_percent': 'initialDepositPercent',
@@ -31,8 +22,6 @@ const RPA_FIELD_MAPPING = {
   'down_payment_percent': 'downPaymentPercent',
   'balance_of_down_payment': 'balanceOfDownPayment',
   'buyer_agent_commission': 'buyersAgentCommission',
-  
-  // Contingencies
   'finance_contingency': 'financeContingency',
   'finance_contingency_days': 'financeContingencyDays',
   'appraisal_contingency': 'appraisalContingency',
@@ -42,15 +31,9 @@ const RPA_FIELD_MAPPING = {
   'home_sale_contingency': 'homeSaleContingency',
   'seller_rent_back': 'sellerRentBack',
   'seller_rent_back_days': 'sellerRentBackDays',
-  
-  // Dates
   'close_of_escrow': 'closeOfEscrow',
   'offer_expiry_date': 'offerExpiryDate',
-  
-  // Buyer Information
   'buyer_name': 'buyerName',
-  
-  // Agent Information
   'agent_name': 'presentedBy.name',
   'agent_license': 'presentedBy.licenseNumber',
   'agent_email': 'presentedBy.email',
@@ -59,15 +42,10 @@ const RPA_FIELD_MAPPING = {
   'brokerage_license': 'brokerageInfo.licenseNumber',
   'brokerage_address1': 'brokerageInfo.addressLine1',
   'brokerage_address2': 'brokerageInfo.addressLine2',
-  
-  // Special Terms
   'special_terms': 'specialTerms',
   'buyer_message': 'buyersAgentMessage'
 };
 
-// Helper functions are no longer needed with v4 SDK - fields come with proper valueType and value properties
-
-// Main function to analyze RPA document
 exports.analyzeRPADocument = async (req, res) => {
   try {
     const { documentId } = req.body;
@@ -75,7 +53,6 @@ exports.analyzeRPADocument = async (req, res) => {
       return res.status(500).json({ error: 'Azure credentials not configured' });
     }
 
-    // Fetch your PDF from blob
     const doc = await Document.findById(documentId);
     if (!doc) return res.status(404).json({ error: 'Document not found' });
     if (doc.docType !== 'pdf') return res.status(400).json({ error: 'Only PDFs supported' });
@@ -85,25 +62,49 @@ exports.analyzeRPADocument = async (req, res) => {
     const pdfResponse = await axios.get(url, { responseType: 'arraybuffer' });
     const pdfBuffer = pdfResponse.data;
 
-    // Kick off the analysis
-    const poller = await docClient.beginAnalyzeDocument(
-      'prebuilt-document',   // the built‐in, zero-training model
-      pdfBuffer,             // raw PDF bytes
-      { onProgress: state => console.log(`Status: ${state.status}`) }
-    );
+    // Send buffer to Azure for analysis
+    const analyzeResponse = await docClient
+      .path('/documentModels/{modelId}:analyze', 'prebuilt-document')
+      .post({
+        body: pdfBuffer,
+        headers: {
+          'Content-Type': 'application/pdf'
+        }
+      });
 
-    // Wait until done
-    const result = await poller.pollUntilDone();
-    if (!result?.documents?.length) {
+    const operationLocation = analyzeResponse.headers['operation-location'];
+    if (!operationLocation) {
+      return res.status(500).json({ error: 'Failed to get operation location from Azure' });
+    }
+
+    // Poll for result
+    let result;
+    let attempts = 0;
+    const maxAttempts = 20;
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    while (attempts < maxAttempts) {
+      const statusResponse = await docClient.path(operationLocation.replace(ENDPOINT, '')).get();
+      const analysis = await statusResponse.json();
+
+      if (analysis.status === 'succeeded') {
+        result = analysis;
+        break;
+      } else if (analysis.status === 'failed') {
+        return res.status(500).json({ error: 'Document analysis failed' });
+      }
+
+      await delay(2000);
+      attempts++;
+    }
+
+    if (!result || !result.documents || result.documents.length === 0) {
       return res.status(500).json({ error: 'No fields detected in the document' });
     }
 
-    // Grab the first (and only) document's fields
     const fields = result.documents[0].fields;
-    // fields is a map: { FieldName: { valueType, content, value } }
-
-    // Map them into your offerData shape
     const mapped = {};
+
     Object.entries(fields).forEach(([pdfKey, field]) => {
       const normalized = (() => {
         switch (field.valueType) {
@@ -119,12 +120,12 @@ exports.analyzeRPADocument = async (req, res) => {
 
       const offerKey = RPA_FIELD_MAPPING[pdfKey.toLowerCase()];
       if (offerKey) {
-        // Support nested keys like 'presentedBy.name'
         const segments = offerKey.split('.');
         let cur = mapped;
         while (segments.length > 1) {
           const seg = segments.shift();
-          cur = cur[seg] = cur[seg] || {};
+          if (typeof cur[seg] !== 'object') cur[seg] = {};
+          cur = cur[seg];
         }
         cur[segments[0]] = normalized;
       }
@@ -134,7 +135,7 @@ exports.analyzeRPADocument = async (req, res) => {
 
   } catch (error) {
     console.error('Error analyzing RPA document:', error);
-    
+
     let errorMessage = 'Error analyzing RPA document';
     if (error.response?.status === 401) {
       errorMessage = 'Azure Document Intelligence authentication failed';
@@ -149,4 +150,4 @@ exports.analyzeRPADocument = async (req, res) => {
       error: error.message
     });
   }
-}; 
+};
