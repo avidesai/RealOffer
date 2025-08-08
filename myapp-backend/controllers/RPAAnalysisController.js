@@ -5,7 +5,7 @@ const { generateSASToken } = require('../config/azureStorage');
 const axios = require('axios');
 
 const createDocumentAnalysisClient = require('@azure-rest/ai-document-intelligence').default;
-const { AzureKeyCredential } = require('@azure-rest/ai-document-intelligence');
+const { AzureKeyCredential } = require('@azure/core-auth');
 
 const ENDPOINT = process.env.AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT;
 const API_KEY = process.env.AZURE_DOCUMENT_INTELLIGENCE_KEY;
