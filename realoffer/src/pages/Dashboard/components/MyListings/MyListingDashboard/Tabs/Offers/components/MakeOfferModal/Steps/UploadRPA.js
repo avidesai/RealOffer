@@ -122,18 +122,16 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
   }, []);
 
   return (
-    <div className="upload-rpa-step">
-      <div className="step-header">
+    <div className="modal-step">
+      <div className="offer-modal-header">
         <h2>Upload RPA Document</h2>
-        <p className="step-description">
-          Upload your completed California Residential Purchase Agreement (RPA) to automatically pre-fill the offer form.
-        </p>
+        <p>Upload your completed California Residential Purchase Agreement (RPA) to automatically pre-fill the offer form.</p>
       </div>
 
-      <div className="upload-section">
+      <div className="form-group">
         {!uploadedFile ? (
-          <div className="file-upload-area">
-            <div className="upload-icon">
+          <div className="rpa-upload-area">
+            <div className="rpa-upload-icon">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M14 2V8H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -148,30 +146,31 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
               type="file"
               accept=".pdf"
               onChange={handleFileUpload}
-              className="file-input"
+              className="rpa-file-input"
               id="rpa-file-input"
             />
-            <label htmlFor="rpa-file-input" className="upload-button">
+            <label htmlFor="rpa-file-input" className="rpa-upload-button">
               Choose PDF File
             </label>
           </div>
         ) : (
-          <div className="file-preview">
-            <div className="file-info">
-              <div className="file-icon">
+          <div className="rpa-file-preview">
+            <div className="rpa-file-info">
+              <div className="rpa-file-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M14 2V8H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <div className="file-details">
+              <div className="rpa-file-details">
                 <h4>{uploadedFile.name}</h4>
                 <p>{(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</p>
               </div>
               <button 
                 onClick={handleRemoveFile}
-                className="remove-file-btn"
+                className="rpa-remove-file-btn"
                 disabled={isAnalyzing}
+                type="button"
               >
                 ×
               </button>
@@ -180,8 +179,9 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
             {!isAnalyzing && !success && (
               <button 
                 onClick={handleAnalyzeRPA}
-                className="analyze-button"
+                className="rpa-analyze-button"
                 disabled={!uploadedFile}
+                type="button"
               >
                 Analyze RPA Document
               </button>
@@ -191,22 +191,22 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
       </div>
 
       {isAnalyzing && (
-        <div className="analysis-progress">
-          <div className="progress-spinner"></div>
+        <div className="rpa-analysis-progress">
+          <div className="rpa-progress-spinner"></div>
           <p>{analysisProgress}</p>
         </div>
       )}
 
       {success && (
-        <div className="analysis-success">
-          <div className="success-icon">✓</div>
+        <div className="rpa-analysis-success">
+          <div className="rpa-success-icon">✓</div>
           <h3>Analysis Complete!</h3>
           <p>The following fields have been pre-filled from your RPA:</p>
-          <div className="extracted-fields">
+          <div className="rpa-extracted-fields">
             {Object.entries(extractedFields).map(([field, value]) => (
-              <div key={field} className="extracted-field">
-                <span className="field-name">{field}:</span>
-                <span className="field-value">{value}</span>
+              <div key={field} className="rpa-extracted-field">
+                <span className="rpa-field-name">{field}:</span>
+                <span className="rpa-field-value">{value}</span>
               </div>
             ))}
           </div>
@@ -219,26 +219,7 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
         </div>
       )}
 
-      <div className="step-actions">
-        <button 
-          onClick={handleSkip}
-          className="skip-button"
-          disabled={isAnalyzing}
-        >
-          Skip RPA Upload
-        </button>
-        
-        {success && (
-          <button 
-            onClick={handleNextStep}
-            className="next-button"
-          >
-            Continue to Purchase Price
-          </button>
-        )}
-      </div>
-
-      <div className="step-help">
+      <div className="rpa-help-section">
         <h4>What is an RPA?</h4>
         <p>
           The California Residential Purchase Agreement (RPA) is the standard form used for residential real estate transactions in California. 
@@ -250,6 +231,27 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
           <li>Maximum file size: 50MB</li>
           <li>Both fillable forms and scanned documents are supported</li>
         </ul>
+      </div>
+
+      <div className="mom-button-container">
+        <button 
+          onClick={handleSkip}
+          className="mom-step-back-button"
+          disabled={isAnalyzing}
+          type="button"
+        >
+          Skip RPA Upload
+        </button>
+        
+        {success && (
+          <button 
+            onClick={handleNextStep}
+            className="mom-next-button"
+            type="button"
+          >
+            Continue to Purchase Price
+          </button>
+        )}
       </div>
     </div>
   );

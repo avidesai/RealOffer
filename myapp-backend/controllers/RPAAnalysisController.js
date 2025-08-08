@@ -155,7 +155,7 @@ exports.analyzeRPADocument = async (req, res) => {
 
     // Call Azure Document Intelligence
     const analysisResponse = await axios.post(
-      `${AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT}/formrecognizer/documentModels/prebuilt-document:analyze?api-version=2023-10-31-preview`,
+      `${AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT}formrecognizer/documentModels/prebuilt-document:analyze?api-version=2023-10-31-preview`,
       formData,
       {
         headers: {
