@@ -582,17 +582,9 @@ ${text}`;
       prompt = `You are an expert sewer lateral inspector and real estate advisor. Read the sewer lateral inspection report below and produce a plain-language summary for buyers and agents.
 
 • **No technical jargon.**  
-• **Cost must be the first thing mentioned.**  
 • **Every bullet point should be 1–2 sentences** so readers understand why it matters.
 
-**IMPORTANT: Calculate the total repair cost by adding up ALL individual costs mentioned in the report. Look for any dollar amounts, repair costs, replacement costs, or service fees and sum them together.**
-
 Format your response exactly like this:
-
-## **Total Repair Cost: $X,XXX**
-Calculate and list the total cost by adding up ALL individual costs found in the report. If no costs are mentioned, state "No costs listed in report."
-
----
 
 ## Overall Condition: X/10
 Give a score from 1–10:
@@ -636,7 +628,7 @@ Include a 1-sentence explanation if useful (max 2 sentences).
 
 ---
 
-Write clearly and helpfully. Focus on cost implications and functionality. This summary should let regular buyers and agents quickly grasp what matters most about the sewer lateral condition.
+Write clearly and helpfully. Focus on functionality and condition. This summary should let regular buyers and agents quickly grasp what matters most about the sewer lateral condition.
 
 Report content:
 ${text}`;
