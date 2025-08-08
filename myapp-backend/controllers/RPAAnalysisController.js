@@ -64,7 +64,7 @@ exports.analyzeRPADocument = async (req, res) => {
 
     // Send buffer to Azure for analysis
     const analyzeResponse = await docClient
-      .path('/documentModels/{modelId}:analyze', 'prebuilt-document')
+      .path('/documentModels/prebuilt-document:analyze')
       .post({
         body: pdfBuffer,
         headers: {
