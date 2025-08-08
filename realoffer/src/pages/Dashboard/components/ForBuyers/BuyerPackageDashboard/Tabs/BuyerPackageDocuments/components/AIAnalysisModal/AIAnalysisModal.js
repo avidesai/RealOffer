@@ -18,6 +18,7 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, isBuyerPac
   const POLLING_INTERVAL = 5000; // 5 seconds
 
   const getModalTitle = () => {
+    console.log('AIAnalysisModal (BuyerPackage) - documentType:', documentType);
     if (documentType && documentType.toLowerCase().includes('pest')) {
       return 'Pest Inspection Report Analysis';
     } else if (documentType && documentType.toLowerCase().includes('roof inspection')) {
