@@ -10,6 +10,10 @@ const { PDFDocument } = require('pdf-lib');
 const { extractTextFromPDF } = require('./DocumentAnalysisController');
 const { processDocumentForSearch } = require('../utils/documentProcessor');
 const Anthropic = require('@anthropic-ai/sdk');
+const { fromPath } = require('pdf2pic');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 
 const anthropic = new Anthropic({
   apiKey: process.env.CLAUDE_API_KEY,
@@ -53,6 +57,49 @@ const uploadToClaudeFiles = async (fileBuffer, fileName) => {
   }
 };
 
+// Helper function to generate thumbnail from PDF first page
+const generateThumbnail = async (pdfBuffer, documentId) => {
+  try {
+    const tempDir = os.tmpdir();
+    const tempPdfPath = path.join(tempDir, `temp_${documentId}_${Date.now()}.pdf`);
+    const tempImagePath = path.join(tempDir, `temp_${documentId}_${Date.now()}_thumbnail.png`);
+
+    // Write PDF buffer to temp file
+    fs.writeFileSync(tempPdfPath, pdfBuffer);
+
+    // Convert first page to image using pdf2pic
+    const convert = fromPath(tempPdfPath, {
+      density: 150, // Lower density for thumbnails
+      saveFilename: `temp_${documentId}_${Date.now()}_thumbnail`,
+      savePath: tempDir,
+      format: 'png',
+      width: 300, // Smaller width for thumbnails
+      height: 400  // Maintain aspect ratio
+    });
+
+    const pageData = await convert(1); // Convert first page
+    
+    // Read the converted image
+    const imageBuffer = fs.readFileSync(pageData.path);
+    
+    // Clean up temp files
+    if (fs.existsSync(tempPdfPath)) fs.unlinkSync(tempPdfPath);
+    if (fs.existsSync(pageData.path)) fs.unlinkSync(pageData.path);
+    
+    return imageBuffer;
+  } catch (error) {
+    // Clean up on error
+    const tempDir = os.tmpdir();
+    const tempPdfPath = path.join(tempDir, `temp_${documentId}_${Date.now()}.pdf`);
+    const tempImagePath = path.join(tempDir, `temp_${documentId}_${Date.now()}_thumbnail.png`);
+    
+    if (fs.existsSync(tempPdfPath)) fs.unlinkSync(tempPdfPath);
+    if (fs.existsSync(tempImagePath)) fs.unlinkSync(tempImagePath);
+    
+    console.error('Error generating thumbnail:', error);
+    return null;
+  }
+};
 
 
 exports.uploadDocument = async (req, res) => {
@@ -96,12 +143,34 @@ exports.uploadDocument = async (req, res) => {
 
       const pages = contentType === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
 
+      // Generate thumbnail for PDF documents
+      let thumbnailUrl = blockBlobClient.url; // Default to original document URL
+      if (contentType === 'application/pdf') {
+        try {
+          const thumbnailBuffer = await generateThumbnail(file.buffer, uuidv4());
+          if (thumbnailBuffer) {
+            const thumbnailBlobName = `thumbnails/${uuidv4()}-${file.originalname.replace(/\.[^/.]+$/, '')}-thumb.png`;
+            const thumbnailBlockBlobClient = containerClient.getBlockBlobClient(thumbnailBlobName);
+            
+            await thumbnailBlockBlobClient.uploadData(thumbnailBuffer, {
+              blobHTTPHeaders: { blobContentType: 'image/png' }
+            });
+            
+            thumbnailUrl = thumbnailBlockBlobClient.url;
+          }
+        } catch (error) {
+          console.error('Error generating thumbnail:', error);
+          // Continue without thumbnail if generation fails
+        }
+      }
+
       const newDocument = new Document({
         title,
         type,
         size,
         pages,
-        thumbnailUrl: blockBlobClient.url,
+        thumbnailUrl: blockBlobClient.url, // Original document URL in Azure Blob Storage
+        thumbnailImageUrl: thumbnailUrl, // Thumbnail image URL
         uploadedBy: req.user.id,
         propertyListing: propertyListingId,
         azureKey: blobName,
@@ -172,12 +241,34 @@ exports.addDocumentToPropertyListing = async (req, res) => {
 
       const pages = contentType === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
 
+      // Generate thumbnail for PDF documents
+      let thumbnailUrl = blockBlobClient.url; // Default to original document URL
+      if (contentType === 'application/pdf') {
+        try {
+          const thumbnailBuffer = await generateThumbnail(file.buffer, uuidv4());
+          if (thumbnailBuffer) {
+            const thumbnailBlobName = `thumbnails/${uuidv4()}-${file.originalname.replace(/\.[^/.]+$/, '')}-thumb.png`;
+            const thumbnailBlockBlobClient = containerClient.getBlockBlobClient(thumbnailBlobName);
+            
+            await thumbnailBlockBlobClient.uploadData(thumbnailBuffer, {
+              blobHTTPHeaders: { blobContentType: 'image/png' }
+            });
+            
+            thumbnailUrl = thumbnailBlockBlobClient.url;
+          }
+        } catch (error) {
+          console.error('Error generating thumbnail:', error);
+          // Continue without thumbnail if generation fails
+        }
+      }
+
       const newDocument = new Document({
         title,
         type,
         size,
         pages,
-        thumbnailUrl: blockBlobClient.url,
+        thumbnailUrl: blockBlobClient.url, // Original document URL in Azure Blob Storage
+        thumbnailImageUrl: thumbnailUrl, // Thumbnail image URL
         propertyListing: req.params.id,
         uploadedBy: req.user.id,
         azureKey: blobName,
@@ -512,12 +603,32 @@ exports.createBuyerSignaturePacket = async (req, res) => {
       }
     }
 
+    // Generate thumbnail for signature package
+    let thumbnailImageUrl = blockBlobClient.url; // Default to original document URL
+    try {
+      const thumbnailBuffer = await generateThumbnail(Buffer.from(pdfBytes), uuidv4());
+      if (thumbnailBuffer) {
+        const thumbnailBlobName = `thumbnails/${uuidv4()}-signature-package-thumb.png`;
+        const thumbnailBlockBlobClient = containerClient.getBlockBlobClient(thumbnailBlobName);
+        
+        await thumbnailBlockBlobClient.uploadData(thumbnailBuffer, {
+          blobHTTPHeaders: { blobContentType: 'image/png' }
+        });
+        
+        thumbnailImageUrl = thumbnailBlockBlobClient.url;
+      }
+    } catch (error) {
+      console.error('Error generating thumbnail for signature package:', error);
+      // Continue without thumbnail if generation fails
+    }
+
     const newDocument = new Document({
       title: 'To Be Signed by Buyer (For Offer)',
       type: 'Disclosure Signature Packet',
       size: pdfBytes.byteLength,
       pages: mergedPdf.getPageCount(),
-      thumbnailUrl: blockBlobClient.url,
+      thumbnailUrl: blockBlobClient.url, // Original document URL in Azure Blob Storage
+      thumbnailImageUrl,
       propertyListing: listingId,
       uploadedBy: req.user.id,
       azureKey: blobName,
@@ -960,12 +1071,34 @@ exports.uploadDocumentForBuyerPackage = async (req, res) => {
 
       const pages = contentType === 'application/pdf' ? await getPdfPageCount(file.buffer) : 0;
 
+      // Generate thumbnail for PDF documents
+      let thumbnailUrl = blockBlobClient.url; // Default to original document URL
+      if (contentType === 'application/pdf') {
+        try {
+          const thumbnailBuffer = await generateThumbnail(file.buffer, uuidv4());
+          if (thumbnailBuffer) {
+            const thumbnailBlobName = `thumbnails/${uuidv4()}-${file.originalname.replace(/\.[^/.]+$/, '')}-thumb.png`;
+            const thumbnailBlockBlobClient = containerClient.getBlockBlobClient(thumbnailBlobName);
+            
+            await thumbnailBlockBlobClient.uploadData(thumbnailBuffer, {
+              blobHTTPHeaders: { blobContentType: 'image/png' }
+            });
+            
+            thumbnailUrl = thumbnailBlockBlobClient.url;
+          }
+        } catch (error) {
+          console.error('Error generating thumbnail:', error);
+          // Continue without thumbnail if generation fails
+        }
+      }
+
       const newDocument = new Document({
         title,
         type,
         size,
         pages,
-        thumbnailUrl: blockBlobClient.url,
+        thumbnailUrl: blockBlobClient.url, // Original document URL in Azure Blob Storage
+        thumbnailImageUrl: thumbnailUrl, // Thumbnail image URL
         uploadedBy: req.user.id,
         propertyListing: propertyListing,
         azureKey: blobName,

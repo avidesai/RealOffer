@@ -345,6 +345,23 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
                 onChange={() => handleDocumentSelect(doc._id)}
                 onClick={(e) => e.stopPropagation()}
               />
+              {doc.thumbnailImageUrl && doc.docType === 'pdf' && (
+                <div className="docs-tab-document-thumbnail">
+                  <img 
+                    src={`${doc.thumbnailImageUrl}?${doc.sasToken}`} 
+                    alt={`Thumbnail of ${doc.title}`}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.style.display = 'none';
+                    }}
+                    onLoad={(e) => {
+                      // Ensure thumbnail is visible when loaded successfully
+                      e.target.style.display = 'block';
+                      e.target.parentElement.style.display = 'flex';
+                    }}
+                  />
+                </div>
+              )}
               <div className="docs-tab-document-info">
                 <div className="docs-tab-document-details">
                   <p className="docs-tab-document-title">

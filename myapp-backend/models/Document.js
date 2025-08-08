@@ -7,7 +7,8 @@ const documentSchema = new mongoose.Schema({
   type: { type: String, required: true },
   size: { type: Number, required: true },
   pages: { type: Number, required: false },
-  thumbnailUrl: { type: String, required: false },
+  thumbnailUrl: { type: String, required: false }, // Original document URL in Azure Blob Storage
+  thumbnailImageUrl: { type: String, required: false }, // Separate field for thumbnail image
   propertyListing: { type: mongoose.Schema.Types.ObjectId, ref: 'PropertyListing', required: false },
   uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
   azureKey: { type: String, required: true },
