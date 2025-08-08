@@ -1,35 +1,11 @@
 // PromptCSPModal.js
 
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useAuth } from '../../../../../../../../../../context/AuthContext';
+import React from 'react';
 import './PromptCSPModal.css';
 
-const PromptCSPModal = ({ onClose, onCreatePackage, listingId }) => {
-  const [signaturePackage, setSignaturePackage] = useState(null);
-  const { token } = useAuth();
-
-  useEffect(() => {
-    const fetchListingStatus = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listingId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        // Check if signaturePackage exists and has a valid _id
-        const hasSignaturePackage = response.data.signaturePackage && 
-                                  response.data.signaturePackage._id && 
-                                  typeof response.data.signaturePackage._id === 'string';
-        setSignaturePackage(hasSignaturePackage ? response.data.signaturePackage : null);
-      } catch (error) {
-        console.error('Error fetching listing status:', error);
-      }
-    };
-    fetchListingStatus();
-  }, [listingId, token]);
-
-  const isSignaturePackageCreated = signaturePackage !== null;
+const PromptCSPModal = ({ onClose, onCreatePackage, hasSignaturePackage = false }) => {
+  console.log('PromptCSPModal - hasSignaturePackage:', hasSignaturePackage);
+  const isSignaturePackageCreated = hasSignaturePackage;
   const title = isSignaturePackageCreated ? "Update Buyer Signature Packet" : "Create Buyer Signature Packet";
   const actionText = isSignaturePackageCreated ? "Update" : "Create";
 

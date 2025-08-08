@@ -668,6 +668,7 @@ const Documents = ({ listingId }) => {
           onClose={closeUploadModal}
           listingId={listingId}
           onUploadSuccess={() => refreshDocumentsWithLoading()}
+          hasSignaturePackage={hasSignaturePackage}
         />
       )}
       {showPDFViewer && (

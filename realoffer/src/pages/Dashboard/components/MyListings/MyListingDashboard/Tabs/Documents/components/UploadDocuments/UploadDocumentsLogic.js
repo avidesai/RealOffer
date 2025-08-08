@@ -379,11 +379,12 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
   }
 
   if (showCSPPrompt) {
+    console.log('UploadDocumentsLogic - hasSignaturePackage prop:', hasSignaturePackage);
     return (
       <PromptCSPModal
         onClose={handleCloseAndRefresh}
         onCreatePackage={openCreateSignaturePackage}
-        listingId={listingId}
+        hasSignaturePackage={hasSignaturePackage}
       />
     );
   }
