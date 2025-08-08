@@ -56,7 +56,18 @@ class OptimizedChatController {
    * Build Claude prompt from chunk context
    */
   buildPromptWithChunks(knowledgeBase, chunks, userMessage, conversationHistory) {
-    const systemPrompt = `You are a helpful real estate AI assistant. Answer clearly and accurately using the provided property details and document excerpts.`;
+    const today = new Date().toISOString().split('T')[0]; // e.g. 2025-08-08
+    const offerDueDate = knowledgeBase.propertyInfo.offerDueDate || null;
+
+    const systemPrompt = [
+      `You are a helpful, trustworthy AI real estate assistant designed to help buyers and agents analyze properties using provided data.`,
+      `Today's date is ${today}.`,
+      offerDueDate ? `The offer due date for this property is ${offerDueDate}.` : null,
+      `You have access to structured property details, valuation data, and key excerpts from disclosure documents.`,
+      `Always reference only the provided data. Never guess, assume, or invent information.`,
+      `If a question can't be answered from the information you have, respond with: "I'm not sure based on the available documents."`,
+      `Your tone should be professional, accurate, clear, and concise.`
+    ].filter(Boolean).join(' ');
 
     const propertyContext = this.createCompactPropertyContext(knowledgeBase);
 
