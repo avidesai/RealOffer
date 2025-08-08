@@ -1,6 +1,6 @@
 // realoffer/src/components/PropertyChat/EnhancedPropertyChat.js
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import TabPaywall from '../TabPaywall/TabPaywall';
 import './EnhancedPropertyChat.css';
@@ -15,9 +15,10 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
   const [processingTime, setProcessingTime] = useState(null);
   const [error, setError] = useState(null);
   const [isCached, setIsCached] = useState(false);
-  
+
   const messagesEndRef = useRef(null);
   const abortControllerRef = useRef(null);
+  const citationRefs = useRef({});
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -27,6 +28,23 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
     scrollToBottom();
   }, [messages]);
 
+  // Scroll handler for clickable [1], [2] markers
+  const handleCitationClick = useCallback((citationIndex) => {
+    const el = citationRefs.current[`citation-${citationIndex}`];
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el.classList.add('highlighted');
+      setTimeout(() => el.classList.remove('highlighted'), 1200);
+    }
+  }, []);
+
+  // Listen for click events from inline marker
+  useEffect(() => {
+    const handler = (e) => handleCitationClick(e.detail);
+    document.addEventListener('citation-click', handler);
+    return () => document.removeEventListener('citation-click', handler);
+  }, [handleCitationClick]);
+
   const sendMessageStream = async () => {
     if (!inputMessage.trim() || isLoading) return;
 
@@ -35,7 +53,7 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
     setIsLoading(true);
     setIsStreaming(true);
     setError(null);
-    
+
     // Add user message to chat
     const newUserMessage = {
       id: Date.now(),
@@ -43,7 +61,7 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
       content: userMessage,
       timestamp: new Date()
     };
-    
+
     setMessages(prev => [...prev, newUserMessage]);
 
     // Create assistant message placeholder
@@ -57,7 +75,7 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
       citations: [],
       sources: []
     };
-    
+
     setMessages(prev => [...prev, assistantMessage]);
 
     try {
@@ -93,10 +111,10 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
 
         // Add new chunk to buffer
         buffer += decoder.decode(value, { stream: true });
-        
+
         // Process complete lines
         const lines = buffer.split('\n');
-        
+
         // Keep the last potentially incomplete line in buffer
         buffer = lines.pop() || '';
 
@@ -106,36 +124,36 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
               const jsonStr = line.slice(6).trim();
               if (jsonStr) {
                 const data = JSON.parse(jsonStr);
-                
+
                 if (data.type === 'content') {
                   fullResponse += data.content;
-                  
+
                   // Update the streaming message - capture fullResponse in closure
                   const currentResponse = fullResponse;
-                  setMessages(prev => prev.map(msg => 
-                    msg.id === assistantMessageId 
+                  setMessages(prev => prev.map(msg =>
+                    msg.id === assistantMessageId
                       ? { ...msg, content: currentResponse }
                       : msg
                   ));
                 } else if (data.type === 'complete') {
                   // Handle completion with citations and metadata
-                  setMessages(prev => prev.map(msg => 
-                    msg.id === assistantMessageId 
-                      ? { 
-                          ...msg, 
-                          content: data.response,
-                          isStreaming: false,
-                          citations: data.citations || [],
-                          sources: data.sources || []
-                        }
+                  setMessages(prev => prev.map(msg =>
+                    msg.id === assistantMessageId
+                      ? {
+                        ...msg,
+                        content: data.response,
+                        isStreaming: false,
+                        citations: data.citations || [],
+                        sources: data.sources || []
+                      }
                       : msg
                   ));
-                  
+
                   // Update global state
                   setTokenUsage(data.estimatedTokens);
                   setProcessingTime(data.processingTime);
                   setIsCached(data.cached || false);
-                  
+
                 } else if (data.type === 'error') {
                   throw new Error(data.error);
                 }
@@ -150,10 +168,10 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
     } catch (error) {
       console.error('Streaming chat error:', error);
       setError(error.message);
-      
+
       // Remove the failed assistant message
       setMessages(prev => prev.filter(msg => msg.id !== assistantMessageId));
-      
+
       // Add error message
       setMessages(prev => [...prev, {
         id: Date.now(),
@@ -178,7 +196,7 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
 
   const handleTextareaChange = (e) => {
     setInputMessage(e.target.value);
-    
+
     // Auto-resize textarea
     const textarea = e.target;
     textarea.style.height = '44px'; // Reset to initial height
@@ -195,20 +213,16 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
     }
   };
 
+  // Updated: formatMessageContent with clickable markers
   const formatMessageContent = (content, citations = []) => {
     if (!content) return '';
-    
-    // Process citations in the content
     let formattedContent = content;
-    
+
     citations.forEach((citation, index) => {
-      const citationMarker = `[Source: ${citation.documentTitle}]`;
-      if (formattedContent.includes(citationMarker)) {
-        formattedContent = formattedContent.replace(
-          citationMarker,
-          `<span class="citation-marker" data-citation="${index}">[${index + 1}]</span>`
-        );
-      }
+      const marker = `[Source: ${citation.documentTitle}]`;
+      // Inline marker with onclick that dispatches a custom event
+      const markerHTML = `<span class="citation-marker" data-citation-index="${index}" onclick="document.dispatchEvent(new CustomEvent('citation-click', { detail: ${index} }))">[${index + 1}]</span>`;
+      formattedContent = formattedContent.replace(marker, markerHTML);
     });
 
     return formattedContent;
@@ -216,7 +230,7 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
 
   const renderMessage = (message) => {
     const isUser = message.role === 'user';
-    
+
     return (
       <div key={message.id} className={`pchat-message ${isUser ? 'user' : 'assistant'}`}>
         <div className="pchat-message-content">
@@ -224,20 +238,25 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
             <p>{message.content}</p>
           ) : (
             <>
-              <div 
+              <div
                 className="pchat-response"
-                dangerouslySetInnerHTML={{ 
-                  __html: formatMessageContent(message.content, message.citations) 
+                dangerouslySetInnerHTML={{
+                  __html: formatMessageContent(message.content, message.citations)
                 }}
               />
-              
+
               {/* Show citations if available */}
               {message.citations && message.citations.length > 0 && (
                 <div className="pchat-citations">
                   <h4>Sources:</h4>
                   <ul>
                     {message.citations.map((citation, index) => (
-                      <li key={index} className="citation-item">
+                      <li
+                        key={index}
+                        className="citation-item"
+                        id={`citation-${index}`}
+                        ref={el => (citationRefs.current[`citation-${index}`] = el)}
+                      >
                         <span className="citation-number">[{index + 1}]</span>
                         <span className="citation-title">{citation.documentTitle}</span>
                         <span className="citation-type">({citation.documentType})</span>
@@ -246,7 +265,7 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
                   </ul>
                 </div>
               )}
-              
+
               {/* Show sources if available */}
               {message.sources && message.sources.length > 0 && !message.citations && (
                 <div className="pchat-sources">
@@ -265,7 +284,7 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
                   </details>
                 </div>
               )}
-              
+
               {/* Show streaming indicator */}
               {message.isStreaming && (
                 <div className="pchat-streaming-indicator">
@@ -278,7 +297,7 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
               )}
             </>
           )}
-          
+
           <div className="pchat-message-time">
             {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </div>
@@ -329,13 +348,13 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
           </div>
           <button className="pchat-close" onClick={onClose}>×</button>
         </div>
-        
+
         <div className="pchat-container">
           <div className="pchat-messages">
             {messages.length === 0 && (
               <div className="pchat-welcome">
                 <p>I can help you analyze this property.</p>
-                
+
                 <p className="ask-me-about">Ask me about:</p>
                 <ul>
                   <li>Property details and features</li>
@@ -345,9 +364,9 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
                 </ul>
               </div>
             )}
-            
+
             {messages.map(renderMessage)}
-            
+
             {error && (
               <div className="pchat-error">
                 <div>
@@ -357,17 +376,17 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
                 <button onClick={() => setError(null)}>Dismiss</button>
               </div>
             )}
-            
+
             <div ref={messagesEndRef} />
           </div>
-          
+
           <div className="pchat-input">
             {isStreaming && (
               <button className="pchat-stop-button" onClick={stopStreaming}>
                 Stop Generation
               </button>
             )}
-            
+
             <div className="pchat-input-wrapper">
               <textarea
                 value={inputMessage}
@@ -376,12 +395,12 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
                 placeholder={isLoading ? "AI is thinking..." : "Ask about this property..."}
                 disabled={isLoading}
               />
-              <button 
-                onClick={sendMessageStream} 
+              <button
+                onClick={sendMessageStream}
                 disabled={isLoading || !inputMessage.trim()}
                 className="pchat-send"
               >
-                              {isLoading ? 'Sending...' : 'Send'}
+                {isLoading ? 'Sending...' : 'Send'}
               </button>
             </div>
           </div>

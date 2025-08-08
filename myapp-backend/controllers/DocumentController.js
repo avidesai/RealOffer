@@ -212,6 +212,12 @@ exports.uploadDocument = async (req, res) => {
       });
 
       const savedDocument = await newDocument.save();
+
+      try {
+        await processDocumentForSearch(savedDocument);
+      } catch (err) {
+        console.error('Embedding failed for document:', savedDocument._id, err.message);
+      }
       
       if (offerId) {
         await Offer.findByIdAndUpdate(offerId, { $push: { documents: savedDocument._id } });
@@ -316,6 +322,11 @@ exports.addDocumentToPropertyListing = async (req, res) => {
       });
 
       const savedDocument = await newDocument.save();
+      try {
+        await processDocumentForSearch(savedDocument);
+      } catch (err) {
+        console.error('Embedding failed for document:', savedDocument._id, err.message);
+      }
       propertyListing.documents.push(savedDocument._id);
       
       documents.push(savedDocument);
@@ -676,6 +687,8 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     });
 
     const savedDocument = await newDocument.save();
+    await processDocumentForSearch(savedDocument);
+
 
     propertyListing.signaturePackage = savedDocument._id;
     await propertyListing.save();
@@ -1156,6 +1169,11 @@ exports.uploadDocumentForBuyerPackage = async (req, res) => {
       });
 
       const savedDocument = await newDocument.save();
+      try {
+        await processDocumentForSearch(savedDocument);
+      } catch (err) {
+        console.error('Embedding failed for document:', savedDocument._id, err.message);
+      }
       
       documents.push(savedDocument);
     }

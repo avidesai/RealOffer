@@ -2,58 +2,60 @@
 
 const mongoose = require('mongoose');
 
+const chunkEmbeddingSchema = new mongoose.Schema({
+  chunkIndex: Number,
+  embedding: [Number],
+  content: String,
+  pageNumber: Number,
+  metadata: {
+    documentType: String,
+    documentTitle: String,
+    uploadedAt: Date
+  }
+}, { _id: false });
+
+const textChunkSchema = new mongoose.Schema({
+  content: String,
+  startIndex: Number,
+  endIndex: Number,
+  pageNumber: Number,
+  section: String,
+  metadata: {
+    documentType: String,
+    documentTitle: String,
+    uploadedAt: Date
+  }
+}, { _id: false });
+
 const documentSchema = new mongoose.Schema({
   title: { type: String, required: true },
   type: { type: String, required: true },
   size: { type: Number, required: true },
-  pages: { type: Number, required: false },
-  thumbnailUrl: { type: String, required: false }, // Original document URL in Azure Blob Storage
-  thumbnailImageUrl: { type: String, required: false }, // Separate field for thumbnail image
-  thumbnailAzureKey: { type: String, required: false }, // Azure blob key for thumbnail
-  propertyListing: { type: mongoose.Schema.Types.ObjectId, ref: 'PropertyListing', required: false },
-  uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
+  pages: { type: Number },
+  thumbnailUrl: { type: String },
+  thumbnailImageUrl: { type: String },
+  thumbnailAzureKey: { type: String },
+  propertyListing: { type: mongoose.Schema.Types.ObjectId, ref: 'PropertyListing' },
+  uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   azureKey: { type: String, required: true },
   updatedAt: { type: Date, default: Date.now },
   visibility: { type: String, default: 'public' },
   signaturePackagePages: { type: [Number], default: [] },
   purpose: { type: String, default: 'listing' },
-  offer: { type: mongoose.Schema.Types.ObjectId, ref: 'Offer', required: false },
+  offer: { type: mongoose.Schema.Types.ObjectId, ref: 'Offer' },
   docType: { type: String, required: true },
   signed: { type: Boolean, default: false },
-  analysis: { type: mongoose.Schema.Types.ObjectId, ref: 'DocumentAnalysis', required: false },
-  
-  // AI Chat feature fields
-  textContent: { type: String }, // Store extracted text
-  textChunks: [{
-    content: String,
-    startIndex: Number,
-    endIndex: Number,
-    pageNumber: Number,
-    section: String,
-    metadata: {
-      documentType: String,
-      documentTitle: String,
-      uploadedAt: Date
-    }
-  }],
-  embeddings: [{
-    chunkIndex: Number,
-    embedding: [Number], // Vector for semantic search
-    content: String
-  }],
-  
-  // Enhanced AI Chat features
+  analysis: { type: mongoose.Schema.Types.ObjectId, ref: 'DocumentAnalysis' },
+  textContent: { type: String },
+  textChunks: [textChunkSchema],
+  embeddings: [chunkEmbeddingSchema],
   enhancedContent: {
-    structured: mongoose.Schema.Types.Mixed, // Structured content analysis
-    summary: String, // AI-generated summary
-    keyFindings: [String] // Key findings extracted by AI
+    structured: mongoose.Schema.Types.Mixed,
+    summary: String,
+    keyFindings: [String]
   },
-  lastProcessed: { type: Date }, // When document was last processed for AI
-  
-  // Claude Files API integration
-  claudeFileId: { type: String }, // Claude Files API file ID for enhanced processing
-  
-  // DocuSign integration fields
+  lastProcessed: { type: Date },
+  claudeFileId: { type: String },
   docusignEnvelopeId: { type: String },
   signingStatus: {
     type: String,
@@ -61,9 +63,9 @@ const documentSchema = new mongoose.Schema({
     default: null
   },
   signedBy: [{
-    name: { type: String },
-    email: { type: String },
-    signedAt: { type: Date }
+    name: String,
+    email: String,
+    signedAt: Date
   }]
 }, { timestamps: true });
 

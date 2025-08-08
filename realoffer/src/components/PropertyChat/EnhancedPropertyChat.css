@@ -1,3 +1,7 @@
+html {
+  scroll-behavior: smooth;
+}
+
 /* realoffer/src/components/PropertyChat/EnhancedPropertyChat.css */
 
 .pchat-overlay {
@@ -367,6 +371,11 @@
 
 .citation-item:last-child {
   border-bottom: none;
+}
+
+.citation-item.highlighted {
+  background-color: #e3f2fd;
+  transition: background-color 0.6s ease;
 }
 
 .citation-number {
