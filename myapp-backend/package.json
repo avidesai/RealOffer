@@ -29,6 +29,7 @@
     "express-session": "^1.18.0",
     "express-validator": "^7.2.0",
     "hellosign-sdk": "^2.1.0",
+    "imagemagick": "^0.1.3",
     "jimp": "^1.6.0",
     "jsonwebtoken": "^9.0.2",
     "langchain": "^0.3.30",

@@ -11,6 +11,7 @@ const { extractTextFromPDF } = require('./DocumentAnalysisController');
 const { processDocumentForSearch } = require('../utils/documentProcessor');
 const Anthropic = require('@anthropic-ai/sdk');
 const { fromPath } = require('pdf2pic');
+const imagemagick = require('imagemagick');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -67,26 +68,39 @@ const generateThumbnail = async (pdfBuffer, documentId) => {
     // Write PDF buffer to temp file
     fs.writeFileSync(tempPdfPath, pdfBuffer);
 
-    // Convert first page to image using pdf2pic
-    const convert = fromPath(tempPdfPath, {
-      density: 150, // Lower density for thumbnails
-      saveFilename: `temp_${documentId}_${Date.now()}_thumbnail`,
-      savePath: tempDir,
-      format: 'png',
-      width: 300, // Smaller width for thumbnails
-      height: 400  // Maintain aspect ratio
+    // Convert first page to image using ImageMagick directly
+    return new Promise((resolve, reject) => {
+      imagemagick.convert([
+        tempPdfPath + '[0]', // Input PDF, first page only
+        '-density', '150',
+        '-quality', '75',
+        '-units', 'PixelsPerInch',
+        '-resize', '300x400!',
+        '-compress', 'jpeg',
+        tempImagePath
+      ], (err, stdout) => {
+        // Clean up temp PDF file
+        if (fs.existsSync(tempPdfPath)) fs.unlinkSync(tempPdfPath);
+        
+        if (err) {
+          console.error('ImageMagick conversion error:', err);
+          // Clean up temp image file if it exists
+          if (fs.existsSync(tempImagePath)) fs.unlinkSync(tempImagePath);
+          reject(err);
+          return;
+        }
+        
+        // Read the converted image
+        if (fs.existsSync(tempImagePath)) {
+          const imageBuffer = fs.readFileSync(tempImagePath);
+          // Clean up temp image file
+          fs.unlinkSync(tempImagePath);
+          resolve(imageBuffer);
+        } else {
+          reject(new Error('ImageMagick did not create output file'));
+        }
+      });
     });
-
-    const pageData = await convert(1); // Convert first page
-    
-    // Read the converted image
-    const imageBuffer = fs.readFileSync(pageData.path);
-    
-    // Clean up temp files
-    if (fs.existsSync(tempPdfPath)) fs.unlinkSync(tempPdfPath);
-    if (fs.existsSync(pageData.path)) fs.unlinkSync(pageData.path);
-    
-    return imageBuffer;
   } catch (error) {
     // Clean up on error
     const tempDir = os.tmpdir();
