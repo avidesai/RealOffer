@@ -152,7 +152,7 @@ exports.analyzeRPADocument = async (req, res) => {
     
     // Test Azure credentials with a simple GET request
     try {
-      const testResponse = await axios.get(`${AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT}documentintelligence/documentModels?api-version=2024-02-29-preview`, {
+      const testResponse = await axios.get(`${AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT}documentintelligence/documentModels?api-version=2024-11-30`, {
         headers: {
           'Ocp-Apim-Subscription-Key': AZURE_DOCUMENT_INTELLIGENCE_KEY
         }
@@ -162,26 +162,24 @@ exports.analyzeRPADocument = async (req, res) => {
       console.error('Azure credentials test failed:', testError.response?.status, testError.response?.data);
     }
 
-    // Prepare form data for Azure Document Intelligence
-    const formData = new FormData();
-    formData.append('file', pdfBuffer, {
-      filename: document.title,
-      contentType: 'application/pdf'
-    });
+    // Convert PDF buffer to base64
+    const base64Document = pdfBuffer.toString('base64');
 
-    const requestUrl = `${AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT}documentintelligence/documentModels/prebuilt-document:analyze?api-version=2024-02-29-preview`;
+    const requestUrl = `${AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT}documentintelligence/documentModels/prebuilt-document:analyze?_overload=analyzeDocument&api-version=2024-11-30`;
     console.log('Request URL:', requestUrl);
 
-    // Call Azure Document Intelligence
+    // Call Azure Document Intelligence with correct format
     let analysisResponse;
     try {
       analysisResponse = await axios.post(
         requestUrl,
-        formData,
+        {
+          base64Source: base64Document
+        },
         {
           headers: {
             'Ocp-Apim-Subscription-Key': AZURE_DOCUMENT_INTELLIGENCE_KEY,
-            ...formData.getHeaders()
+            'Content-Type': 'application/json'
           }
         }
       );
