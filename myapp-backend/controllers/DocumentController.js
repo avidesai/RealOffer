@@ -8,7 +8,7 @@ const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const { PDFDocument } = require('pdf-lib');
 const { extractTextFromPDF } = require('./DocumentAnalysisController');
-const { processDocumentForSearch } = require('../utils/documentProcessor');
+const optimizedDocumentProcessor = require('../utils/optimizedDocumentProcessor');
 const Anthropic = require('@anthropic-ai/sdk');
 const { fromPath } = require('pdf2pic');
 const imagemagick = require('imagemagick');
@@ -214,7 +214,7 @@ exports.uploadDocument = async (req, res) => {
       const savedDocument = await newDocument.save();
 
       try {
-        await processDocumentForSearch(savedDocument);
+        await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
       } catch (err) {
         console.error('Embedding failed for document:', savedDocument._id, err.message);
       }
@@ -323,7 +323,7 @@ exports.addDocumentToPropertyListing = async (req, res) => {
 
       const savedDocument = await newDocument.save();
       try {
-        await processDocumentForSearch(savedDocument);
+        await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
       } catch (err) {
         console.error('Embedding failed for document:', savedDocument._id, err.message);
       }
@@ -687,7 +687,7 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     });
 
     const savedDocument = await newDocument.save();
-    await processDocumentForSearch(savedDocument);
+    await optimizedDocumentProcessor.processDocumentForSearch(savedDocument);
 
 
     propertyListing.signaturePackage = savedDocument._id;
@@ -1170,7 +1170,7 @@ exports.uploadDocumentForBuyerPackage = async (req, res) => {
 
       const savedDocument = await newDocument.save();
       try {
-        await processDocumentForSearch(savedDocument);
+        await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
       } catch (err) {
         console.error('Embedding failed for document:', savedDocument._id, err.message);
       }

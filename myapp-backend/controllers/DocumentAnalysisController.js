@@ -6,6 +6,7 @@ const { containerClient, generateSASToken } = require('../config/azureStorage');
 const pdfParse = require('pdf-parse');
 const { createWorker } = require('tesseract.js');
 const { PDFDocument } = require('pdf-lib');
+const { extractTextWithOCR } = require('../utils/ocrUtils');
 const axios = require('axios');
 const rateLimit = require('express-rate-limit');
 const sharp = require('sharp');
@@ -85,31 +86,7 @@ const convertPDFPageToImage = async (pdfBuffer, pageNumber) => {
   }
 };
 
-// Helper function to extract text from PDF using OCR
-const extractTextWithOCR = async (pdfBuffer) => {
-  const worker = await createWorker();
-  try {
-    const pdfDoc = await PDFDocument.load(pdfBuffer);
-    const pageCount = pdfDoc.getPageCount();
-    let fullText = '';
 
-    for (let i = 0; i < pageCount; i++) {
-      const page = pdfDoc.getPage(i);
-      const { width, height } = page.getSize();
-      
-      // Convert PDF page to image
-      const imageBuffer = await convertPDFPageToImage(pdfBuffer, i);
-      
-      // Perform OCR on the image
-      const { data: { text } } = await worker.recognize(imageBuffer);
-      fullText += text + '\n';
-    }
-
-    return fullText;
-  } finally {
-    await worker.terminate();
-  }
-};
 
 // Helper function to extract text from PDF
 const extractTextFromPDF = async (pdfBuffer, analysisId) => {

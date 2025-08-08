@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Document = require('../models/Document');
-const { processDocumentForSearch } = require('../utils/documentProcessor');
+const optimizedDocumentProcessor = require('../utils/optimizedDocumentProcessor');
 require('dotenv').config();
 
 const migrateExistingDocuments = async () => {
@@ -23,7 +23,7 @@ const migrateExistingDocuments = async () => {
       const document = documents[i];
       try {
         console.log(`Processing document ${i + 1}/${documents.length}: ${document.title} (${document.type})`);
-        await processDocumentForSearch(document._id);
+        await optimizedDocumentProcessor.processDocumentForSearch(document);
         console.log(`Completed: ${document.title}`);
       } catch (error) {
         console.error(`Error processing ${document.title}:`, error);
