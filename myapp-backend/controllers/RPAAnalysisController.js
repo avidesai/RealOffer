@@ -3,6 +3,7 @@
 const Document = require('../models/Document');
 const { generateSASToken } = require('../config/azureStorage');
 const axios = require('axios');
+const { Readable } = require('stream');
 
 const createDocumentAnalysisClient = require('@azure-rest/ai-document-intelligence').default;
 const { AzureKeyCredential } = require('@azure/core-auth');
@@ -62,18 +63,23 @@ exports.analyzeRPADocument = async (req, res) => {
     const pdfResponse = await axios.get(url, { responseType: 'arraybuffer' });
     const pdfBuffer = pdfResponse.data;
 
-    // Send buffer to Azure for analysis
+    const readableStream = Readable.from(pdfBuffer);
+
     const analyzeResponse = await docClient
       .path('/documentModels/prebuilt-document:analyze')
       .post({
-        body: pdfBuffer,
+        body: readableStream,
         headers: {
           'Content-Type': 'application/pdf'
         }
       });
 
+    console.log('Azure status:', analyzeResponse.status);
+    console.log('Azure headers:', analyzeResponse.headers);
+
     const operationLocation = analyzeResponse.headers['operation-location'];
     if (!operationLocation) {
+      console.error('Missing operation-location header from Azure');
       return res.status(500).json({ error: 'Failed to get operation location from Azure' });
     }
 
@@ -94,11 +100,16 @@ exports.analyzeRPADocument = async (req, res) => {
         return res.status(500).json({ error: 'Document analysis failed' });
       }
 
+      console.log(`Polling attempt ${attempts + 1}: status = ${analysis.status}`);
       await delay(2000);
       attempts++;
     }
 
-    if (!result || !result.documents || result.documents.length === 0) {
+    if (!result) {
+      return res.status(500).json({ error: 'Document analysis timed out. Please try again later.' });
+    }
+
+    if (!result.documents || result.documents.length === 0) {
       return res.status(500).json({ error: 'No fields detected in the document' });
     }
 
