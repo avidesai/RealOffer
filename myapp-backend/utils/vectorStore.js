@@ -62,6 +62,62 @@ async function upsertChunksToPinecone(propertyId, documentId, chunksWithEmbeddin
 }
 
 /**
+ * Delete all embeddings for a specific document from Pinecone
+ */
+async function deleteDocumentEmbeddingsFromPinecone(documentId) {
+  try {
+    // Query Pinecone to find all vectors for this document
+    const result = await index.query({
+      vector: new Array(VECTOR_DIM).fill(0), // Dummy vector for metadata-only query
+      topK: 10000, // Large number to get all vectors
+      includeMetadata: true,
+      filter: { documentId: documentId.toString() }
+    });
+
+    if (result.matches && result.matches.length > 0) {
+      const vectorIds = result.matches.map(match => match.id);
+      console.log(`[vectorStore] Deleting ${vectorIds.length} vectors from Pinecone for document ${documentId}`);
+      
+      await index.deleteMany(vectorIds);
+      console.log(`[vectorStore] Successfully deleted ${vectorIds.length} vectors for document ${documentId}`);
+    } else {
+      console.log(`[vectorStore] No vectors found in Pinecone for document ${documentId}`);
+    }
+  } catch (err) {
+    console.error(`[vectorStore] Failed to delete embeddings from Pinecone for document ${documentId}:`, err?.message || err);
+    // Don't throw - we want the document deletion to succeed even if Pinecone cleanup fails
+  }
+}
+
+/**
+ * Delete all embeddings for a property from Pinecone
+ */
+async function deletePropertyEmbeddingsFromPinecone(propertyId) {
+  try {
+    // Query Pinecone to find all vectors for this property
+    const result = await index.query({
+      vector: new Array(VECTOR_DIM).fill(0), // Dummy vector for metadata-only query
+      topK: 10000, // Large number to get all vectors
+      includeMetadata: true,
+      filter: { propertyId: propertyId.toString() }
+    });
+
+    if (result.matches && result.matches.length > 0) {
+      const vectorIds = result.matches.map(match => match.id);
+      console.log(`[vectorStore] Deleting ${vectorIds.length} vectors from Pinecone for property ${propertyId}`);
+      
+      await index.deleteMany(vectorIds);
+      console.log(`[vectorStore] Successfully deleted ${vectorIds.length} vectors for property ${propertyId}`);
+    } else {
+      console.log(`[vectorStore] No vectors found in Pinecone for property ${propertyId}`);
+    }
+  } catch (err) {
+    console.error(`[vectorStore] Failed to delete embeddings from Pinecone for property ${propertyId}:`, err?.message || err);
+    // Don't throw - we want the property deletion to succeed even if Pinecone cleanup fails
+  }
+}
+
+/**
  * Query Pinecone for top relevant chunks
  */
 async function queryRelevantChunks(queryEmbedding, propertyId, topK = 6) {
@@ -94,4 +150,9 @@ async function queryRelevantChunks(queryEmbedding, propertyId, topK = 6) {
   }
 }
 
-module.exports = { upsertChunksToPinecone, queryRelevantChunks };
+module.exports = { 
+  upsertChunksToPinecone, 
+  queryRelevantChunks,
+  deleteDocumentEmbeddingsFromPinecone,
+  deletePropertyEmbeddingsFromPinecone
+};

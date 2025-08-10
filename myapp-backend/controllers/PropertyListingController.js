@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 const crypto = require('crypto'); // For generating unique public URLs
 const emailService = require('../utils/emailService');
 const offerDueDateNotificationService = require('../utils/offerDueDateNotificationService');
+const { deleteDocumentEmbeddingsFromPinecone, deletePropertyEmbeddingsFromPinecone } = require('../utils/vectorStore');
 
 // Configure multer-s3 for photos
 const uploadPhotos = multer({
@@ -553,7 +554,7 @@ exports.deleteListing = async (req, res) => {
     await Offer.deleteMany({ propertyListing: listingId });
     console.log(`Deleted ${offers.length} offers`);
 
-    // 4. Delete all documents for this listing and cleanup Azure storage
+    // 4. Delete all documents for this listing and cleanup Azure storage and Pinecone
     const documents = await Document.find({ propertyListing: listingId });
     console.log(`Found ${documents.length} documents to delete`);
     
@@ -565,15 +566,28 @@ exports.deleteListing = async (req, res) => {
           await blockBlobClient.delete();
           console.log(`Deleted Azure blob: ${document.azureKey}`);
         }
-      } catch (azureError) {
-        console.error(`Failed to delete Azure blob ${document.azureKey}:`, azureError);
-        // Continue with deletion even if Azure cleanup fails
+        
+        // Delete embeddings from Pinecone
+        await deleteDocumentEmbeddingsFromPinecone(document._id);
+        console.log(`Deleted Pinecone embeddings for document: ${document._id}`);
+      } catch (error) {
+        console.error(`Failed to delete document ${document._id}:`, error);
+        // Continue with deletion even if cleanup fails
       }
     }
     
     // Delete document records
     await Document.deleteMany({ propertyListing: listingId });
     console.log(`Deleted ${documents.length} document records`);
+    
+    // 4.5. Clean up any remaining Pinecone embeddings for this property (belt and suspenders)
+    try {
+      await deletePropertyEmbeddingsFromPinecone(listingId);
+      console.log(`Cleaned up any remaining Pinecone embeddings for property: ${listingId}`);
+    } catch (error) {
+      console.error(`Failed to clean up property embeddings from Pinecone:`, error);
+      // Continue with deletion even if Pinecone cleanup fails
+    }
 
     // 5. Delete property analysis
     await PropertyAnalysis.deleteMany({ propertyId: listingId });

@@ -9,6 +9,7 @@ const { v4: uuidv4 } = require('uuid');
 const { PDFDocument } = require('pdf-lib');
 const { extractTextFromPDF } = require('./DocumentAnalysisController');
 const optimizedDocumentProcessor = require('../utils/optimizedDocumentProcessor');
+const { deleteDocumentEmbeddingsFromPinecone, deletePropertyEmbeddingsFromPinecone } = require('../utils/vectorStore');
 const Anthropic = require('@anthropic-ai/sdk');
 const { fromPath } = require('pdf2pic');
 const imagemagick = require('imagemagick');
@@ -462,8 +463,11 @@ exports.deleteDocument = async (req, res) => {
     if (!document) {
       return res.status(404).json({ message: 'Document not found' });
     }
+    
     // Allow the user who originally uploaded the document to delete it
     if (document.uploadedBy && document.uploadedBy.toString() === req.user.id) {
+      // Delete embeddings from Pinecone before deleting the document
+      await deleteDocumentEmbeddingsFromPinecone(document._id);
       await Document.deleteOne({ _id: req.params.id });
       return res.status(200).json({ message: 'Document deleted' });
     }
@@ -480,9 +484,14 @@ exports.deleteDocument = async (req, res) => {
     if (!isCreator && !isAgent && !isTeamMember) {
       return res.status(403).json({ message: 'Not authorized to delete this document' });
     }
+    
+    // Delete from Azure storage
     const blobName = document.azureKey;
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
     await blockBlobClient.delete();
+
+    // Delete embeddings from Pinecone before deleting the document
+    await deleteDocumentEmbeddingsFromPinecone(document._id);
 
     await Document.deleteOne({ _id: req.params.id });
 
@@ -708,6 +717,10 @@ exports.createBuyerSignaturePacket = async (req, res) => {
         const oldBlobName = oldDocument.azureKey;
         const oldBlockBlobClient = containerClient.getBlockBlobClient(oldBlobName);
         await oldBlockBlobClient.delete();
+        
+        // Delete embeddings from Pinecone before deleting the document
+        await deleteDocumentEmbeddingsFromPinecone(oldDocument._id);
+        
         await Document.deleteOne({ _id: oldDocument._id });
       }
     }
@@ -947,9 +960,24 @@ exports.deleteAllDocuments = async (req, res) => {
       return res.status(401).json({ message: 'Unauthorized' });
     }
     console.log('Authorization successful, proceeding with deletion');
+    
+    // Get all documents before deletion to clean up Pinecone
+    const documents = await Document.find({});
+    console.log(`Found ${documents.length} documents to delete`);
+    
+    // Delete embeddings from Pinecone for all documents
+    for (const document of documents) {
+      try {
+        await deleteDocumentEmbeddingsFromPinecone(document._id);
+      } catch (error) {
+        console.error(`Failed to delete Pinecone embeddings for document ${document._id}:`, error);
+        // Continue with other documents even if one fails
+      }
+    }
+    
     const result = await Document.deleteMany({});
     console.log(`Deleted ${result.deletedCount} documents`);
-    res.json({ message: `Deleted ${result.deletedCount} documents` });
+    res.json({ message: `Deleted ${result.deletedCount} documents and cleaned up Pinecone embeddings` });
   } catch (error) {
     console.error('Error in deleteAllDocuments:', error);
     res.status(500).json({ message: 'Error deleting documents', error: error.toString() });
