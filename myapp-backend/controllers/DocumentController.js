@@ -1441,9 +1441,20 @@ exports.uploadDocumentsWithProgress = async (req, res) => {
         let thumbnailAzureKey = null;
         if (file.mimetype === 'application/pdf') {
           try {
-            const thumbnailResult = await generateThumbnail(file.buffer, `thumbnail_${Date.now()}_${index}`);
-            thumbnailUrl = thumbnailResult.url;
-            thumbnailAzureKey = thumbnailResult.key;
+            console.log(`Starting thumbnail generation for: ${file.originalname}`);
+            const thumbnailBuffer = await generateThumbnail(file.buffer, `thumbnail_${Date.now()}_${index}`);
+            if (thumbnailBuffer) {
+              console.log(`Thumbnail generated successfully for: ${file.originalname}`);
+              const thumbnailBlobName = `thumbnails/${Date.now()}_${index}_${file.originalname.replace(/\.[^/.]+$/, '')}-thumb.png`;
+              const thumbnailBlockBlobClient = containerClient.getBlockBlobClient(thumbnailBlobName);
+              
+              await thumbnailBlockBlobClient.uploadData(thumbnailBuffer, {
+                blobHTTPHeaders: { blobContentType: 'image/png' }
+              });
+              
+              thumbnailUrl = thumbnailBlockBlobClient.url;
+              thumbnailAzureKey = thumbnailBlobName;
+            }
           } catch (thumbnailError) {
             console.error('Thumbnail generation failed:', thumbnailError);
           }
@@ -1460,8 +1471,9 @@ exports.uploadDocumentsWithProgress = async (req, res) => {
           type: req.body.type ? req.body.type[index] : 'Other',
           size: file.size,
           pages,
-          thumbnailUrl,
-          thumbnailAzureKey,
+          thumbnailUrl: blockBlobClient.url, // Original document URL in Azure Blob Storage
+          thumbnailImageUrl: thumbnailUrl || null, // Thumbnail image URL (null if not generated)
+          thumbnailAzureKey: thumbnailAzureKey || null, // Thumbnail Azure blob key
           propertyListing: propertyListingId,
           uploadedBy,
           azureKey,

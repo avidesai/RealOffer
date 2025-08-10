@@ -13,12 +13,13 @@ const UploadProgressModal = ({
   if (!isOpen) return null;
 
   const progress = totalFiles > 0 ? (currentFile / totalFiles) * 100 : 0;
+  const isComplete = progress >= 100 && totalFiles > 0 && !processingMessage?.includes('Processing');
 
   return (
     <div className="upm-overlay">
       <div className="upm-modal">
         <div className="upm-header">
-          <h2>Processing Documents</h2>
+          <h2>Uploading Documents</h2>
           <button className="upm-close-button" onClick={onClose} aria-label="Close">×</button>
         </div>
         
@@ -35,30 +36,35 @@ const UploadProgressModal = ({
           ) : (
             <>
               <div className="upm-loading">
-                <div className="upm-progress">
-                  <div 
-                    className="upm-progress-bar"
-                    style={{ width: `${progress}%` }}
-                  />
+                <div className="upm-progress-container">
+                  <div className="upm-progress">
+                    <div 
+                      className="upm-progress-bar"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <div className="upm-progress-text">
+                    <span className="upm-progress-percentage">{Math.round(progress)}%</span>
+                    <span className="upm-progress-fraction">{currentFile} of {totalFiles}</span>
+                  </div>
                 </div>
-                <p className="upm-status">
-                  {totalFiles > 0 ? 
-                    (currentFile <= totalFiles ? 
-                      `Processing document ${currentFile} of ${totalFiles}` : 
-                      'Finalizing upload...'
-                    ) : 
-                    'Processing documents...'
-                  }
-                </p>
-                {currentFileName && (
-                  <p className="upm-file-name">{currentFileName}</p>
-                )}
-                {processingMessage && (
-                  <p className="upm-processing-message">{processingMessage}</p>
-                )}
+                
+                <div className="upm-current-document">
+                  {currentFileName && (
+                    <div className="upm-document-info">
+                      <div className="upm-document-icon">📄</div>
+                      <div className="upm-document-details">
+                        <div className="upm-document-name">{currentFileName}</div>
+                        {processingMessage && (
+                          <div className="upm-document-status">{processingMessage}</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {progress >= 100 && totalFiles > 0 && (
+              {isComplete && (
                 <div className="upm-completion">
                   <div className="upm-success-icon">✅</div>
                   <h3>Upload Complete!</h3>
