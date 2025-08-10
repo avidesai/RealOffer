@@ -356,7 +356,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
       }
       
       setUploading(false);
-      setShowCSPPrompt(true);
+      // The progress modal will handle showing the CSP prompt when closed
     } catch (error) {
       setUploading(false);
       setUploadProgress(prev => ({
@@ -390,8 +390,10 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
       <UploadProgressModal
         isOpen={showProgressModal}
         onClose={() => {
+          const progress = uploadProgress.totalFiles > 0 ? (uploadProgress.currentFile / uploadProgress.totalFiles) * 100 : 0;
           setShowProgressModal(false);
-          if (uploadProgress.currentFile === uploadProgress.totalFiles && uploadProgress.totalFiles > 0) {
+          // Check if upload is complete (progress >= 100 indicates completion)
+          if (progress >= 100 && uploadProgress.totalFiles > 0) {
             setShowCSPPrompt(true);
           }
         }}
@@ -416,7 +418,6 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
   }
 
   if (showCSPPrompt) {
-    console.log('UploadDocumentsLogic - hasSignaturePackage prop:', hasSignaturePackage);
     return (
       <PromptCSPModal
         onClose={handleCloseAndRefresh}

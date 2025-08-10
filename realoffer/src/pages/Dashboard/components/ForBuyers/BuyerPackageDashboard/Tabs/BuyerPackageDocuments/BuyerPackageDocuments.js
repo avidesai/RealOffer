@@ -50,7 +50,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
         // Make both API calls in parallel instead of sequentially
         const [storedOrder, documentsResponse] = await Promise.all([
           fetchListingData(),
-          api.get(`/api/documents/buyerPackage/${buyerPackageId}`)
+          api.get(`/api/documents/buyerPackage/${buyerPackageId}/optimized`)
         ]);
         
         // Process the documents data

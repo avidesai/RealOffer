@@ -38,12 +38,14 @@ router.post('/analyze-rpa', RPAAnalysisController.analyzeRPADocument);
 // Buyer package documents routes (specific routes before generic listing route)
 router.get('/buyerPackage/:buyerPackageId/single/:documentId', DocumentController.getSingleDocumentForBuyerPackage);
 router.get('/buyerPackage/:buyerPackageId', DocumentController.getDocumentsForBuyerPackage);
+router.get('/buyerPackage/:buyerPackageId/optimized', DocumentController.getDocumentsForBuyerPackageOptimized);
 router.post('/buyerPackage/:buyerPackageId', DocumentController.uploadDocuments, DocumentController.uploadDocumentForBuyerPackage);
 
 // Document routes with path parameters - GENERIC ROUTES LAST
 router.post('/propertyListing/:id', DocumentController.uploadDocuments, DocumentController.addDocumentToPropertyListing);
 router.get('/offer/:offerId', DocumentController.getDocumentsByOffer);
 router.get('/:listingId', DocumentController.getDocumentsByListing);
+router.get('/:listingId/optimized', DocumentController.getDocumentsByListingOptimized);
 router.put('/:id', DocumentController.updateDocument);
 router.delete('/:id', DocumentController.deleteDocument);
 

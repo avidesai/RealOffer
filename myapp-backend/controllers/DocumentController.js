@@ -366,6 +366,64 @@ exports.getDocumentsByListing = async (req, res) => {
   }
 };
 
+// Optimized endpoint for documents list view - excludes heavy fields
+exports.getDocumentsByListingOptimized = async (req, res) => {
+  try {
+    const propertyListing = await PropertyListing.findById(req.params.listingId);
+    if (!propertyListing) {
+      return res.status(404).json({ message: 'Property listing not found' });
+    }
+    // Check if the authenticated user is authorized to view these documents
+    const isCreator = propertyListing.createdBy.toString() === req.user.id;
+    const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
+    
+    if (!isCreator && !isAgent && !isTeamMember) {
+      return res.status(403).json({ message: 'Not authorized to view these documents' });
+    }
+    
+    // Only select the fields needed for the documents list view
+    const documents = await Document.find(
+      { propertyListing: req.params.listingId },
+      {
+        title: 1,
+        type: 1,
+        size: 1,
+        pages: 1,
+        thumbnailUrl: 1,
+        thumbnailAzureKey: 1,
+        propertyListing: 1,
+        uploadedBy: 1,
+        azureKey: 1,
+        updatedAt: 1,
+        visibility: 1,
+        signaturePackagePages: 1,
+        purpose: 1,
+        offer: 1,
+        docType: 1,
+        signed: 1,
+        analysis: 1,
+        lastProcessed: 1,
+        claudeFileId: 1,
+        docusignEnvelopeId: 1,
+        signingStatus: 1,
+        signedBy: 1,
+        createdAt: 1
+        // Excluded: textContent, textChunks, embeddings, enhancedContent
+      }
+    );
+    
+    const documentsWithSAS = documents.map(doc => ({
+      ...doc._doc,
+      sasToken: generateSASToken(doc.azureKey, doc.signed),
+      thumbnailSasToken: doc.thumbnailAzureKey ? generateSASToken(doc.thumbnailAzureKey, doc.signed) : null,
+    }));
+    res.status(200).json(documentsWithSAS);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 exports.updateDocumentSignedStatus = async (req, res) => {
   const { documentId, signed } = req.body;
 
@@ -797,6 +855,74 @@ exports.getDocumentsForBuyerPackage = async (req, res) => {
     const documentsWithSAS = documents.map(doc => ({
       ...doc._doc,
       sasToken: generateSASToken(doc.azureKey, doc.signed),
+    }));
+    
+    res.status(200).json(documentsWithSAS);
+  } catch (error) {
+    console.error('Error fetching documents for buyer package:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Optimized endpoint for buyer package documents list view - excludes heavy fields
+exports.getDocumentsForBuyerPackageOptimized = async (req, res) => {
+  try {
+    const { buyerPackageId } = req.params;
+    
+    // First, get the buyer package to verify the user has access
+    const BuyerPackage = require('../models/BuyerPackage');
+    const buyerPackage = await BuyerPackage.findById(buyerPackageId);
+    
+    if (!buyerPackage) {
+      return res.status(404).json({ message: 'Buyer package not found' });
+    }
+    
+    // Check if the authenticated user is the buyer of this package
+    if (buyerPackage.user.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to view this buyer package' });
+    }
+    
+    // Get the property listing from the buyer package
+    const propertyListing = buyerPackage.propertyListing;
+    if (!propertyListing) {
+      return res.status(404).json({ message: 'Property listing not found in buyer package' });
+    }
+    
+    // Get documents for the property listing with only necessary fields
+    const documents = await Document.find(
+      { propertyListing: propertyListing },
+      {
+        title: 1,
+        type: 1,
+        size: 1,
+        pages: 1,
+        thumbnailUrl: 1,
+        thumbnailAzureKey: 1,
+        propertyListing: 1,
+        uploadedBy: 1,
+        azureKey: 1,
+        updatedAt: 1,
+        visibility: 1,
+        signaturePackagePages: 1,
+        purpose: 1,
+        offer: 1,
+        docType: 1,
+        signed: 1,
+        analysis: 1,
+        lastProcessed: 1,
+        claudeFileId: 1,
+        docusignEnvelopeId: 1,
+        signingStatus: 1,
+        signedBy: 1,
+        createdAt: 1
+        // Excluded: textContent, textChunks, embeddings, enhancedContent
+      }
+    );
+    
+    const documentsWithSAS = documents.map(doc => ({
+      ...doc._doc,
+      sasToken: generateSASToken(doc.azureKey, doc.signed),
+      thumbnailSasToken: doc.thumbnailAzureKey ? generateSASToken(doc.thumbnailAzureKey, doc.signed) : null,
     }));
     
     res.status(200).json(documentsWithSAS);

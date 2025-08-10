@@ -59,7 +59,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
   const fetchDocuments = useCallback(async (currentOrder = []) => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}`, {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${listingId}/optimized`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

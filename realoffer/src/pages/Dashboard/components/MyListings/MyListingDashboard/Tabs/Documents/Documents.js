@@ -48,7 +48,7 @@ const Documents = ({ listingId }) => {
 
   const fetchDocuments = useCallback(async (storedOrder = []) => {
     try {
-      const response = await api.get(`/api/documents/${listingId}`);
+      const response = await api.get(`/api/documents/${listingId}/optimized`);
       const listingDocuments = response.data.filter(doc => doc.purpose === 'listing' || doc.purpose === 'signature_package');
       
       // Check if a signature package document actually exists
@@ -95,7 +95,7 @@ const Documents = ({ listingId }) => {
         // Make both API calls in parallel instead of sequentially
         const [storedOrder, documentsResponse] = await Promise.all([
           fetchListingData(),
-                  api.get(`/api/documents/${listingId}`)
+          api.get(`/api/documents/${listingId}/optimized`)
         ]);
         
         // Process the documents data

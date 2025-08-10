@@ -96,7 +96,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId, buyerP
     const fetchSignaturePacket = async () => {
       try {
         // Use buyer package endpoint for buyer context
-        const response = await api.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/buyerPackage/${buyerPackageId}`);
+        const response = await api.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/buyerPackage/${buyerPackageId}/optimized`);
         const documents = response.data;
         
         // Find the signature packet document
@@ -278,7 +278,7 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId, buyerP
     
     try {
       // Use buyer package endpoint for buyer context
-      const response = await api.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/buyerPackage/${buyerPackageId}`);
+      const response = await api.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/buyerPackage/${buyerPackageId}/optimized`);
       const documents = response.data;
       
       // Find the signature packet document
