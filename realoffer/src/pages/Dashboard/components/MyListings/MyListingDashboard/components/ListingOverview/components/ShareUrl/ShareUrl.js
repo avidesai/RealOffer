@@ -1,4 +1,4 @@
-// ShareUrl.js
+// ShareUrl.js - UPDATED VERSION
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import api from '../../../../../../../../../context/api';
@@ -6,6 +6,7 @@ import { useAuth } from '../../../../../../../../../context/AuthContext';
 import './ShareUrl.css';
 
 const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
+  console.log('ShareUrl component loaded - UPDATED VERSION');
   const { user, token } = useAuth();
   const [copied, setCopied] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
@@ -100,29 +101,12 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
         }
       });
       
-      // Filter out current user and agents/team members already on the listing
-      const filteredResults = response.data.filter(agent => {
-        // Don't show current user
-        if (agent._id === user._id) return false;
-        
-        // For listing agents, filter out existing agents and team members
-        if (shareData.role === 'listingAgent') {
-          const isExistingAgent = currentListing?.agentIds?.some(id => id.toString() === agent._id);
-          const isExistingTeamMember = currentListing?.teamMemberIds?.some(id => id.toString() === agent._id);
-          return !isExistingAgent && !isExistingTeamMember;
-        }
-        
-        // For team members, filter out existing agents and team members
-        if (shareData.role === 'teamMember') {
-          const isExistingAgent = currentListing?.agentIds?.some(id => id.toString() === agent._id);
-          const isExistingTeamMember = currentListing?.teamMemberIds?.some(id => id.toString() === agent._id);
-          return !isExistingAgent && !isExistingTeamMember;
-        }
-        
-        // For other roles, filter out existing agents only
-        const isExistingAgent = currentListing?.agentIds?.some(id => id.toString() === agent._id);
-        return !isExistingAgent;
-      });
+      // Filter out current user and already selected agents (same as MoreInfo)
+      const filteredResults = response.data.filter(agent => 
+        agent._id !== user._id && 
+        !currentListing?.agentIds?.some(existing => existing.toString() === agent._id) &&
+        !currentListing?.teamMemberIds?.some(existing => existing.toString() === agent._id)
+      );
       
       setSearchResults(filteredResults);
     } catch (error) {
@@ -221,6 +205,38 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
     setSelectedAgent(null);
   };
 
+  // Remove current user as agent (emergency function)
+  const removeSelfAsAgent = async () => {
+    try {
+      const listingResponse = await api.get(`/api/propertyListings/${listingId}`);
+      const currentListing = listingResponse.data;
+      
+      // Safety check: Never allow the creator to remove themselves as agent
+      if (currentListing.createdBy.toString() === user._id) {
+        setError('Cannot remove yourself as agent because you are the listing creator.');
+        return;
+      }
+      
+      const currentAgentIds = currentListing.agentIds || [];
+      
+      // Remove current user from agents
+      const updatedAgentIds = currentAgentIds.filter(id => id.toString() !== user._id);
+      
+      await api.put(`/api/propertyListings/${listingId}`, {
+        agentIds: updatedAgentIds
+      });
+
+      setShareSuccess(true);
+      setTimeout(() => {
+        setShareSuccess(false);
+        onClose();
+      }, 3000);
+    } catch (error) {
+      console.error('Error removing self as agent:', error);
+      setError('Failed to remove yourself as agent. Please try again.');
+    }
+  };
+
   // Check if listing agent option should be available (max 2 agents)
   const canAddListingAgent = () => {
     // If we haven't fetched the listing data yet, don't show the option
@@ -278,36 +294,89 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
         return;
       }
 
+      // Ensure the selected agent is not an invite option
+      if (selectedAgent.isInvite) {
+        setError('Listing agents must already have an account in the system. Please search for an existing agent.');
+        return;
+      }
+
+      // Check if current user has permission to add listing agents
+      const isCreator = currentListing?.createdBy?.toString() === user._id;
+      const isAgent = currentListing?.agentIds?.some(id => id.toString() === user._id);
+      
+      if (!isCreator && !isAgent) {
+        setError('Only listing agents can add other listing agents.');
+        return;
+      }
+
       setIsSharing(true);
       setError('');
 
       try {
-        // Get current listing to update agentIds
+        // Get current listing to preserve existing agents
         const listingResponse = await api.get(`/api/propertyListings/${listingId}`);
         const currentListing = listingResponse.data;
         const currentAgentIds = currentListing.agentIds || [];
         
-        // Add the selected agent if not already present
-        if (!currentAgentIds.some(id => id.toString() === selectedAgent._id)) {
-          const updatedAgentIds = [...currentAgentIds, selectedAgent._id];
-          
-          await api.put(`/api/propertyListings/${listingId}`, {
-            agentIds: updatedAgentIds
-          });
-
-          setShareSuccess(true);
-          setSelectedAgent(null);
-          
-          // Auto-close after 3 seconds
-          setTimeout(() => {
-            setShareSuccess(false);
-            onClose();
-          }, 3000);
-        } else {
-          setError('This agent is already associated with this listing.');
+        // Check if we're at the maximum agent limit (2 agents total)
+        if (currentAgentIds.length >= 2) {
+          setError('Maximum of 2 listing agents allowed. Please remove an existing agent first.');
+          return;
         }
+        
+        // Check if the selected agent is already an agent
+        if (currentAgentIds.some(id => id.toString() === selectedAgent._id)) {
+          setError('This agent is already associated with this listing.');
+          return;
+        }
+        
+        // Special case: If we're at the limit and current user is not the creator, 
+        // allow replacing the current user with the selected agent
+        if (currentAgentIds.length >= 2) {
+          const isCreator = currentListing.createdBy.toString() === user._id;
+          if (isCreator) {
+            setError('Maximum of 2 listing agents allowed. Please remove an existing agent first.');
+            return;
+          } else {
+            // Replace current user with selected agent
+            const updatedAgentIds = currentAgentIds.filter(id => id.toString() !== user._id);
+            updatedAgentIds.push(selectedAgent._id);
+            
+            await api.put(`/api/propertyListings/${listingId}`, {
+              agentIds: updatedAgentIds
+            });
+
+            setShareSuccess(true);
+            setSelectedAgent(null);
+            
+            // Auto-close after 3 seconds
+            setTimeout(() => {
+              setShareSuccess(false);
+              onClose();
+            }, 3000);
+            return;
+          }
+        }
+        
+        // Normal case: Add the selected agent to existing agents
+        const updatedAgentIds = [...currentAgentIds, selectedAgent._id];
+        
+        await api.put(`/api/propertyListings/${listingId}`, {
+          agentIds: updatedAgentIds
+        });
+
+        setShareSuccess(true);
+        setSelectedAgent(null);
+        
+        // Auto-close after 3 seconds
+        setTimeout(() => {
+          setShareSuccess(false);
+          onClose();
+        }, 3000);
       } catch (error) {
         console.error('Error adding listing agent:', error);
+        console.error('Error response data:', error.response?.data);
+        console.error('Error status:', error.response?.status);
         setError(error.response?.data?.message || 'Failed to add listing agent. Please try again.');
       } finally {
         setIsSharing(false);
@@ -505,16 +574,17 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                       {shareData.role === 'listingAgent' ? 'Search for Agent' : 'Search for Team Member'}
                     </label>
                     <div className="agent-search-container" ref={dropdownRef}>
-                      <input
-                        type="text"
-                        placeholder={shareData.role === 'listingAgent' 
-                          ? "Search for agents by name or email..." 
-                          : "Search for team members by name or email..."}
-                        value={searchQuery}
-                        onChange={handleSearchChange}
-                        onFocus={() => setShowDropdown(true)}
-                        className="agent-search-input"
-                      />
+                                          <input
+                      type="text"
+                      placeholder={shareData.role === 'listingAgent' 
+                        ? "Search for agents by name or email..." 
+                        : "Search for team members by name or email..."}
+                      value={searchQuery}
+                      onChange={handleSearchChange}
+                      onFocus={() => setShowDropdown(true)}
+                      className="agent-search-input"
+                    />
+
                       
                       {showDropdown && (searchQuery.length > 0 || searchLoading) && (
                         <div className="agent-dropdown">
@@ -708,6 +778,26 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
               )}
 
               {error && <div className="share-url-error">{error}</div>}
+
+              {/* Emergency option: Remove self as agent if stuck */}
+              {shareData.role === 'listingAgent' && currentListing && currentListing.agentIds && 
+               currentListing.agentIds.length >= 2 && 
+               currentListing.agentIds.some(id => id.toString() === user._id) &&
+               currentListing.createdBy.toString() !== user._id && (
+                <div className="share-url-emergency-section">
+                  <p className="share-url-emergency-text">
+                    <strong>Emergency:</strong> You are currently a listing agent but not the creator. 
+                    If you need to remove yourself to add the correct agent, click below:
+                  </p>
+                  <button
+                    type="button"
+                    className="share-url-emergency-button"
+                    onClick={removeSelfAsAgent}
+                  >
+                    Remove Myself as Agent
+                  </button>
+                </div>
+              )}
 
               <div className="share-url-actions">
                 <button 

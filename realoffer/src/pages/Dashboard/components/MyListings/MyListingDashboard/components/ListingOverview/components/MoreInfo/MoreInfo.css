@@ -708,6 +708,44 @@ textarea.mlmi-form-control {
   margin-right: 0.75rem;
 }
 
+.mlmi-emergency-section {
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.mlmi-emergency-content h4 {
+  color: #92400e;
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.mlmi-emergency-content p {
+  color: #92400e;
+  font-size: 0.875rem;
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
+
+.mlmi-emergency-button {
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.mlmi-emergency-button:hover {
+  background: #b91c1c;
+}
+
 /* Invite-specific styles */
 .mlmi-invite-item {
   background-color: #f8f9fa;

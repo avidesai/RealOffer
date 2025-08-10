@@ -267,6 +267,18 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
       return;
     }
 
+    // Check if current user has permission to add listing agents
+    const isCreator = listing?.createdBy?.toString() === user._id;
+    const isAgent = listing?.agentIds?.some(id => {
+      const agentId = typeof id === 'object' ? id._id : id;
+      return agentId === user._id;
+    });
+    
+    if (!isCreator && !isAgent) {
+      setError('Only listing agents can add other listing agents.');
+      return;
+    }
+
     try {
       const allAgentIds = [user._id, ...selectedAgents.map(a => a._id), agent._id];
       
@@ -361,6 +373,13 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
   // Remove agent from selected list
   const removeAgent = async (agentId) => {
     try {
+      // Safety check: Never allow removing the creator as an agent
+      const isCreator = listing.createdBy.toString() === agentId;
+      if (isCreator) {
+        setError('Cannot remove the listing creator as an agent.');
+        return;
+      }
+
       const newSelectedAgents = selectedAgents.filter(agent => agent._id !== agentId);
       const allAgentIds = [user._id, ...newSelectedAgents.map(a => a._id)];
       
@@ -374,6 +393,36 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     } catch (error) {
       console.error('Error removing agent:', error);
       setError('Failed to remove agent. Please try again.');
+    }
+  };
+
+  // Emergency function: Remove current user as agent
+  const removeSelfAsAgent = async () => {
+    try {
+      // Safety check: Never allow the creator to remove themselves as agent
+      if (listing.createdBy.toString() === user._id) {
+        setError('Cannot remove yourself as agent because you are the listing creator.');
+        return;
+      }
+
+      const currentAgentIds = listing.agentIds || [];
+      
+      // Remove current user from agents
+      const updatedAgentIds = currentAgentIds.filter(id => {
+        const agentId = typeof id === 'object' ? id._id : id;
+        return agentId !== user._id;
+      });
+      
+      await api.put(`/api/propertyListings/${listingId}`, {
+        agentIds: updatedAgentIds
+      });
+
+      // Refresh the listing data
+      await fetchListing();
+      setError(null);
+    } catch (error) {
+      console.error('Error removing self as agent:', error);
+      setError('Failed to remove yourself as agent. Please try again.');
     }
   };
 
@@ -842,7 +891,8 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                         <span className="mlmi-agent-agency">{agent.agencyName}</span>
                       )}
                     </div>
-                    {(isUserPrimaryAgent() || isUserAdditionalAgent()) && (
+                    {(isUserPrimaryAgent() || isUserAdditionalAgent()) && 
+                     listing.createdBy.toString() !== agent._id && (
                       <button
                         type="button"
                         className="mlmi-remove-agent-btn"
@@ -854,6 +904,31 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                   </div>
                 ))}
               </div>
+
+              {/* Emergency section: Remove self as agent if stuck */}
+              {listing && listing.agentIds && listing.agentIds.length >= 2 && 
+               listing.agentIds.some(id => {
+                 const agentId = typeof id === 'object' ? id._id : id;
+                 return agentId === user._id;
+               }) &&
+               listing.createdBy.toString() !== user._id && (
+                <div className="mlmi-emergency-section">
+                  <div className="mlmi-emergency-content">
+                    <h4>Agent Management</h4>
+                    <p>
+                      You are currently a listing agent but not the creator. If you need to remove yourself 
+                      to add the correct agent, use the button below:
+                    </p>
+                    <button
+                      type="button"
+                      className="mlmi-emergency-button"
+                      onClick={removeSelfAsAgent}
+                    >
+                      Remove Myself as Listing Agent
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
             
             <div className="mlmi-info-section mlmi-team-members-section">
