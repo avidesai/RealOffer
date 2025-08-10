@@ -17,6 +17,7 @@ router.use((req, res, next) => {
 // Document management routes
 router.delete('/deleteAll', DocumentController.deleteAllDocuments);
 router.post('/', DocumentController.uploadDocuments, DocumentController.uploadDocument);
+router.post('/withProgress', DocumentController.uploadDocuments, DocumentController.uploadDocumentsWithProgress);
 
 // Signature package page management routes - SPECIFIC ROUTES FIRST
 router.post('/addPage', DocumentController.addPage);

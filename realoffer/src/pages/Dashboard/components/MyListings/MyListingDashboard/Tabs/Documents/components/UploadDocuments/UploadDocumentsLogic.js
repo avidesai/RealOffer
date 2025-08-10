@@ -163,6 +163,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
     currentFile: 0,
     totalFiles: 0,
     currentFileName: '',
+    processingMessage: '',
     error: null
   });
   const fileInputRef = useRef(null);
@@ -268,29 +269,9 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
     });
     setShowProgressModal(true);
     setUploading(true);
+    
     try {
-      // Simulate document-by-document progress
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        
-        // Update current file progress
-        setUploadProgress(prev => ({
-          ...prev,
-          currentFile: i + 1,
-          currentFileName: file.title || file.file.name
-        }));
-        
-        // Simulate processing time per document
-        await new Promise(resolve => setTimeout(resolve, 1500));
-      }
-      
-      // Set to completion state (currentFile = totalFiles to reach 100%)
-      setUploadProgress(prev => ({
-        ...prev,
-        currentFile: files.length
-      }));
-      
-      // Actual upload
+      // Actual upload with real progress tracking
       const formData = new FormData();
       files.forEach(({ file, type, title, docType }) => {
         formData.append('documents', file);
@@ -302,11 +283,68 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
       formData.append('uploadedBy', user.id);
       formData.append('propertyListingId', listingId);
       
-      // Upload documents
-      const response = await api.post('/api/documents', formData);
-      
-      // Get the uploaded document IDs in the order they were uploaded
-      const uploadedDocumentIds = response.data.map(doc => doc._id);
+      // Upload documents with streaming progress updates
+      const response = await fetch('/api/documents/withProgress', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let uploadedDocumentIds = [];
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              
+              if (data.error) {
+                throw new Error(data.error);
+              }
+              
+              if (data.progress !== undefined) {
+                // Update progress
+                setUploadProgress(prev => ({
+                  ...prev,
+                  currentFile: data.currentFile,
+                  totalFiles: data.totalFiles,
+                  currentFileName: data.fileName
+                }));
+              }
+              
+              if (data.processing) {
+                // Update processing message
+                setUploadProgress(prev => ({
+                  ...prev,
+                  processingMessage: data.processing
+                }));
+              }
+              
+              if (data.complete) {
+                // Upload complete
+                uploadedDocumentIds = data.documents.map(doc => doc._id);
+                break;
+              }
+            } catch (parseError) {
+              console.warn('Failed to parse progress data:', parseError);
+            }
+          }
+        }
+      }
       
       // Check if there's already a document order set in the Documents tab
       try {
@@ -371,10 +409,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
     setShowCSPPrompt(false);
     setShowCreateSignaturePackage(false);
     onClose();
-    // Add a small delay to ensure backend processing is complete
-    setTimeout(() => {
-      onUploadSuccess();
-    }, 2000);
+    onUploadSuccess();
   };
 
   const openCreateSignaturePackage = () => {
@@ -385,10 +420,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
   const closeCreateSignaturePackage = () => {
     setShowCreateSignaturePackage(false);
     onClose();
-    // Add a small delay to ensure backend processing is complete
-    setTimeout(() => {
-      onUploadSuccess();
-    }, 2000);
+    onUploadSuccess();
   };
 
   if (showProgressModal) {
@@ -406,6 +438,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
         totalFiles={uploadProgress.totalFiles}
         currentFile={uploadProgress.currentFile}
         currentFileName={uploadProgress.currentFileName}
+        processingMessage={uploadProgress.processingMessage}
         error={uploadProgress.error}
       />
     );

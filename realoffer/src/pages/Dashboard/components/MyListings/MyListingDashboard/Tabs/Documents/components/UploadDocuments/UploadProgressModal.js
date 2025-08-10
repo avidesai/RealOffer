@@ -7,6 +7,7 @@ const UploadProgressModal = ({
   currentFile, 
   totalFiles, 
   currentFileName,
+  processingMessage,
   error 
 }) => {
   if (!isOpen) return null;
@@ -51,6 +52,9 @@ const UploadProgressModal = ({
                 </p>
                 {currentFileName && (
                   <p className="upm-file-name">{currentFileName}</p>
+                )}
+                {processingMessage && (
+                  <p className="upm-processing-message">{processingMessage}</p>
                 )}
               </div>
 

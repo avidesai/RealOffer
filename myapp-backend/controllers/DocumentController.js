@@ -1356,3 +1356,123 @@ exports.getSingleDocumentForBuyerPackage = async (req, res) => {
     res.status(500).json({ message: 'Error fetching document', error: error.message });
   }
 };
+
+// Streaming upload endpoint with real-time progress
+exports.uploadDocumentsWithProgress = async (req, res) => {
+  try {
+    const { purpose = 'listing', uploadedBy, propertyListingId } = req.body;
+    const files = req.files;
+
+    if (!files || files.length === 0) {
+      return res.status(400).json({ message: 'No files uploaded' });
+    }
+
+    // Set headers for streaming response
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+      'Transfer-Encoding': 'chunked',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive'
+    });
+
+    const documents = [];
+    const propertyListing = await PropertyListing.findById(propertyListingId);
+    
+    if (!propertyListing) {
+      res.write('data: {"error": "Property listing not found"}\n\n');
+      res.end();
+      return;
+    }
+
+    // Check authorization
+    const isCreator = propertyListing.createdBy.toString() === req.user.id;
+    const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
+    
+    if (!isCreator && !isAgent && !isTeamMember) {
+      res.write('data: {"error": "Not authorized to upload documents to this listing"}\n\n');
+      res.end();
+      return;
+    }
+
+    for (let index = 0; index < files.length; index++) {
+      const file = files[index];
+      
+      // Send progress update
+      res.write(`data: {"progress": ${Math.round(((index + 1) / files.length) * 100)}, "currentFile": ${index + 1}, "totalFiles": ${files.length}, "fileName": "${file.originalname}"}\n\n`);
+
+      try {
+        // Get page count for PDFs
+        let pages = 0;
+        if (file.mimetype === 'application/pdf') {
+          pages = await getPdfPageCount(file.buffer);
+        }
+
+        // Generate thumbnail for PDFs
+        let thumbnailUrl = null;
+        let thumbnailAzureKey = null;
+        if (file.mimetype === 'application/pdf') {
+          try {
+            const thumbnailResult = await generateThumbnail(file.buffer, `thumbnail_${Date.now()}_${index}`);
+            thumbnailUrl = thumbnailResult.url;
+            thumbnailAzureKey = thumbnailResult.key;
+          } catch (thumbnailError) {
+            console.error('Thumbnail generation failed:', thumbnailError);
+          }
+        }
+
+        // Upload to Azure
+        const azureKey = `documents/${propertyListingId}/${Date.now()}_${file.originalname}`;
+        const blockBlobClient = containerClient.getBlockBlobClient(azureKey);
+        await blockBlobClient.upload(file.buffer, file.buffer.length);
+
+        // Create document record
+        const newDocument = new Document({
+          title: req.body.title ? req.body.title[index] : file.originalname,
+          type: req.body.type ? req.body.type[index] : 'Other',
+          size: file.size,
+          pages,
+          thumbnailUrl,
+          thumbnailAzureKey,
+          propertyListing: propertyListingId,
+          uploadedBy,
+          azureKey,
+          purpose,
+          docType: file.mimetype === 'application/pdf' ? 'pdf' : 'image'
+        });
+
+        const savedDocument = await newDocument.save();
+
+        // Process document for search (this is the time-consuming part)
+        res.write(`data: {"processing": "Processing ${file.originalname} for AI search..."}\n\n`);
+        
+        try {
+          await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
+          res.write(`data: {"processing": "Completed processing ${file.originalname}"}\n\n`);
+        } catch (err) {
+          console.error('Embedding failed for document:', savedDocument._id, err.message);
+          res.write(`data: {"processing": "Warning: AI processing failed for ${file.originalname}"}\n\n`);
+        }
+
+        propertyListing.documents.push(savedDocument._id);
+        documents.push(savedDocument);
+
+      } catch (error) {
+        console.error('Error processing file:', file.originalname, error);
+        res.write(`data: {"error": "Failed to process ${file.originalname}: ${error.message}"}\n\n`);
+      }
+    }
+
+    // Save property listing
+    await propertyListing.save();
+
+    // Send completion
+    res.write(`data: {"complete": true, "documents": ${JSON.stringify(documents)}}\n\n`);
+    res.end();
+
+  } catch (error) {
+    console.error('Error in streaming upload:', error);
+    res.write(`data: {"error": "${error.message}"}\n\n`);
+    res.end();
+  }
+};
