@@ -78,8 +78,22 @@ async function deleteDocumentEmbeddingsFromPinecone(documentId) {
       const vectorIds = result.matches.map(match => match.id);
       console.log(`[vectorStore] Deleting ${vectorIds.length} vectors from Pinecone for document ${documentId}`);
       
-      await index.deleteMany(vectorIds);
-      console.log(`[vectorStore] Successfully deleted ${vectorIds.length} vectors for document ${documentId}`);
+      // Delete in batches (Pinecone limit is 1000 per request)
+      const BATCH_SIZE = 1000;
+      let deletedCount = 0;
+      
+      for (let i = 0; i < vectorIds.length; i += BATCH_SIZE) {
+        const batch = vectorIds.slice(i, i + BATCH_SIZE);
+        try {
+          await index.deleteMany(batch);
+          deletedCount += batch.length;
+        } catch (error) {
+          console.error(`[vectorStore] Error deleting batch for document ${documentId}:`, error?.message || error);
+          // Continue with next batch even if one fails
+        }
+      }
+      
+      console.log(`[vectorStore] Successfully deleted ${deletedCount} out of ${vectorIds.length} vectors for document ${documentId}`);
     } else {
       console.log(`[vectorStore] No vectors found in Pinecone for document ${documentId}`);
     }
@@ -106,8 +120,22 @@ async function deletePropertyEmbeddingsFromPinecone(propertyId) {
       const vectorIds = result.matches.map(match => match.id);
       console.log(`[vectorStore] Deleting ${vectorIds.length} vectors from Pinecone for property ${propertyId}`);
       
-      await index.deleteMany(vectorIds);
-      console.log(`[vectorStore] Successfully deleted ${vectorIds.length} vectors for property ${propertyId}`);
+      // Delete in batches (Pinecone limit is 1000 per request)
+      const BATCH_SIZE = 1000;
+      let deletedCount = 0;
+      
+      for (let i = 0; i < vectorIds.length; i += BATCH_SIZE) {
+        const batch = vectorIds.slice(i, i + BATCH_SIZE);
+        try {
+          await index.deleteMany(batch);
+          deletedCount += batch.length;
+        } catch (error) {
+          console.error(`[vectorStore] Error deleting batch for property ${propertyId}:`, error?.message || error);
+          // Continue with next batch even if one fails
+        }
+      }
+      
+      console.log(`[vectorStore] Successfully deleted ${deletedCount} out of ${vectorIds.length} vectors for property ${propertyId}`);
     } else {
       console.log(`[vectorStore] No vectors found in Pinecone for property ${propertyId}`);
     }

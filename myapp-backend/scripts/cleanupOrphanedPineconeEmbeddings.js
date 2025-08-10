@@ -78,10 +78,25 @@ const cleanupOrphanedPineconeEmbeddings = async () => {
     
     console.log(`\n🗑️ Deleting ${totalVectorsToDelete} orphaned vectors from Pinecone...`);
     
-    // Delete the orphaned vectors
-    await index.deleteMany(vectorIdsToDelete);
+    // Delete the orphaned vectors in batches (Pinecone limit is 1000 per request)
+    const BATCH_SIZE = 1000;
+    let deletedCount = 0;
     
-    console.log(`✅ Successfully deleted ${totalVectorsToDelete} orphaned vectors`);
+    for (let i = 0; i < vectorIdsToDelete.length; i += BATCH_SIZE) {
+      const batch = vectorIdsToDelete.slice(i, i + BATCH_SIZE);
+      console.log(`  Deleting batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(vectorIdsToDelete.length / BATCH_SIZE)} (${batch.length} vectors)...`);
+      
+      try {
+        await index.deleteMany(batch);
+        deletedCount += batch.length;
+        console.log(`  ✅ Batch ${Math.floor(i / BATCH_SIZE) + 1} completed`);
+      } catch (error) {
+        console.error(`  ❌ Error deleting batch ${Math.floor(i / BATCH_SIZE) + 1}:`, error.message);
+        // Continue with next batch even if one fails
+      }
+    }
+    
+    console.log(`✅ Successfully deleted ${deletedCount} out of ${totalVectorsToDelete} orphaned vectors`);
     
     // Summary
     console.log('\n📈 Summary:');

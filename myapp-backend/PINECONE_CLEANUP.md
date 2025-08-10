@@ -66,6 +66,7 @@ Each vector includes metadata with:
 - All cleanup functions are designed to fail gracefully
 - If Pinecone cleanup fails, the document deletion still proceeds
 - Errors are logged but don't prevent the main operation from completing
+- Large deletions are automatically batched (Pinecone limit: 1000 IDs per request)
 
 ## Usage Examples
 
