@@ -330,12 +330,17 @@ Write 3–4 sentences summarizing the home's general state and biggest strengths
 Label each system with ✅ Good, ⚠️ Needs attention, or ❌ Problem found.  
 If ⚠️ or ❌, add 1–2 sentences explaining why.
 
-**Roof**:  
-**Foundation**:  
-**Plumbing**:  
-**Electrical**:  
-**HVAC**:  
-**Water Heater**:  
+**Roof**: [status] [explanation if needed]
+
+**Foundation**: [status] [explanation if needed]
+
+**Plumbing**: [status] [explanation if needed]
+
+**Electrical**: [status] [explanation if needed]
+
+**HVAC**: [status] [explanation if needed]
+
+**Water Heater**: [status] [explanation if needed]
 
 ---
 
@@ -386,12 +391,17 @@ Write 3–4 sentences summarizing the roof's general state and biggest strengths
 Label each component with ✅ Good, ⚠️ Needs attention, or ❌ Problem found.  
 If ⚠️ or ❌, add 1–2 sentences explaining why.
 
-**Shingles/Tiles**:  
-**Flashing**:  
-**Gutters & Downspouts**:  
-**Ventilation**:  
-**Skylights**:  
-**Chimney**:  
+**Shingles/Tiles**: [status] [explanation if needed]
+
+**Flashing**: [status] [explanation if needed]
+
+**Gutters & Downspouts**: [status] [explanation if needed]
+
+**Ventilation**: [status] [explanation if needed]
+
+**Skylights**: [status] [explanation if needed]
+
+**Chimney**: [status] [explanation if needed]
 
 ---
 
