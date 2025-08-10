@@ -12,11 +12,11 @@ const VECTOR_DIM = Number(process.env.PINECONE_VECTOR_DIM || 1536);
 /**
  * Upsert a batch of document chunks into Pinecone + Mongo
  */
-async function upsertChunksToPinecone(propertyId, documentId, chunksWithEmbeddings) {
+async function upsertChunksToPinecone(propertyId, documentId, chunksWithEmbeddings, chunkType = 'document') {
   // Filter out any empty/invalid vectors
   const vectors = chunksWithEmbeddings
     .map((chunk, i) => ({
-      id: `${documentId}-${i}`,
+      id: `${documentId}-${chunkType}-${i}`,
       values: Array.isArray(chunk.embedding) ? chunk.embedding : [],
       metadata: {
         propertyId: propertyId.toString(),
@@ -25,15 +25,18 @@ async function upsertChunksToPinecone(propertyId, documentId, chunksWithEmbeddin
         content: (chunk.content || '').slice(0, 500), // Preview
         documentTitle: chunk.metadata?.documentTitle || '',
         documentType: chunk.metadata?.documentType || '',
-        pageNumber: chunk.pageNumber || 0
+        pageNumber: chunk.pageNumber || 0,
+        chunkType: chunkType, // 'document' or 'analysis'
+        section: chunk.metadata?.section || '',
+        uploadedAt: chunk.metadata?.uploadedAt || new Date()
       }
     }))
     .filter(v => Array.isArray(v.values) && v.values.length === VECTOR_DIM);
 
   if (vectors.length === 0) {
-    console.warn(`[vectorStore] No valid vectors to upsert for document ${documentId} (after filtering).`);
+    console.warn(`[vectorStore] No valid vectors to upsert for ${chunkType} ${documentId} (after filtering).`);
   } else {
-    console.log(`[vectorStore] Upserting ${vectors.length} vectors to Pinecone for document ${documentId}.`);
+    console.log(`[vectorStore] Upserting ${vectors.length} ${chunkType} vectors to Pinecone for document ${documentId}.`);
     try {
       // New JS SDKs accept an array directly
       await index.upsert(vectors);
@@ -43,21 +46,23 @@ async function upsertChunksToPinecone(propertyId, documentId, chunksWithEmbeddin
     }
   }
 
-  // Also write to Mongo for local fallback/reference
-  try {
-    await Document.findByIdAndUpdate(documentId, {
-      $set: {
-        embeddings: chunksWithEmbeddings.map((chunk, i) => ({
-          chunkIndex: i,
-          embedding: Array.isArray(chunk.embedding) ? chunk.embedding : [],
-          content: chunk.content,
-          pageNumber: chunk.pageNumber,
-          metadata: chunk.metadata || {}
-        }))
-      }
-    });
-  } catch (err) {
-    console.error('[vectorStore] Failed to persist embeddings in Mongo:', err?.message || err);
+  // Also write to Mongo for local fallback/reference (only for document chunks, not analysis)
+  if (chunkType === 'document') {
+    try {
+      await Document.findByIdAndUpdate(documentId, {
+        $set: {
+          embeddings: chunksWithEmbeddings.map((chunk, i) => ({
+            chunkIndex: i,
+            embedding: Array.isArray(chunk.embedding) ? chunk.embedding : [],
+            content: chunk.content,
+            pageNumber: chunk.pageNumber,
+            metadata: chunk.metadata || {}
+          }))
+        }
+      });
+    } catch (err) {
+      console.error('[vectorStore] Failed to persist embeddings in Mongo:', err?.message || err);
+    }
   }
 }
 
@@ -170,7 +175,9 @@ async function queryRelevantChunks(queryEmbedding, propertyId, topK = 6) {
       documentId: match.metadata.documentId,
       documentTitle: match.metadata.documentTitle,
       documentType: match.metadata.documentType,
-      pageNumber: match.metadata.pageNumber
+      pageNumber: match.metadata.pageNumber,
+      chunkType: match.metadata.chunkType || 'document',
+      section: match.metadata.section || ''
     }));
   } catch (err) {
     console.error('[vectorStore] Pinecone query failed:', err?.message || err);
@@ -178,9 +185,48 @@ async function queryRelevantChunks(queryEmbedding, propertyId, topK = 6) {
   }
 }
 
+/**
+ * Query Pinecone specifically for analysis chunks
+ */
+async function queryAnalysisChunks(queryEmbedding, propertyId, topK = 4) {
+  if (!Array.isArray(queryEmbedding) || queryEmbedding.length !== VECTOR_DIM) {
+    console.warn('[vectorStore] Analysis query skipped due to invalid embedding dimension:', queryEmbedding?.length);
+    return [];
+  }
+
+  try {
+    const result = await index.query({
+      vector: queryEmbedding,
+      topK,
+      includeMetadata: true,
+      filter: { 
+        propertyId: propertyId.toString(),
+        chunkType: 'analysis'
+      }
+    });
+
+    const matches = Array.isArray(result?.matches) ? result.matches : [];
+    return matches.map(match => ({
+      score: match.score,
+      chunkIndex: match.metadata.chunkIndex,
+      content: match.metadata.content,
+      documentId: match.metadata.documentId,
+      documentTitle: match.metadata.documentTitle,
+      documentType: match.metadata.documentType,
+      pageNumber: match.metadata.pageNumber,
+      chunkType: 'analysis',
+      section: match.metadata.section || ''
+    }));
+  } catch (err) {
+    console.error('[vectorStore] Pinecone analysis query failed:', err?.message || err);
+    return [];
+  }
+}
+
 module.exports = { 
   upsertChunksToPinecone, 
   queryRelevantChunks,
+  queryAnalysisChunks,
   deleteDocumentEmbeddingsFromPinecone,
   deletePropertyEmbeddingsFromPinecone
 };

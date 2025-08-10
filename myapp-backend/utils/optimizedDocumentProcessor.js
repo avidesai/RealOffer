@@ -2,7 +2,7 @@
 const Document = require('../models/Document');
 const pdfParse = require('pdf-parse');
 const { embedBatch, embedOne } = require('./embeddingClient'); // ⬅️ use the proper exports
-const { upsertChunksToPinecone, queryRelevantChunks } = require('./vectorStore');
+const { upsertChunksToPinecone, queryRelevantChunks, queryAnalysisChunks } = require('./vectorStore');
 const { extractTextWithOCR } = require('./ocrUtils'); // OCR fallback
 
 class OptimizedDocumentProcessor {
@@ -118,6 +118,27 @@ class OptimizedDocumentProcessor {
     }
 
     const chunks = await queryRelevantChunks(queryEmbedding, propertyId, topK);
+    this.queryCache.set(cacheKey, { chunks, timestamp: Date.now() });
+    return chunks;
+  }
+
+  async findAnalysisChunks(propertyId, userQuery, topK = 4) {
+    const cacheKey = `${propertyId}_analysis_${userQuery}`;
+    if (this.queryCache.has(cacheKey)) {
+      const cached = this.queryCache.get(cacheKey);
+      if (Date.now() - cached.timestamp < 300000) return cached.chunks;
+    }
+
+    // ---- single embed for the query
+    const queryEmbedding = await embedOne(userQuery);
+
+    if (!Array.isArray(queryEmbedding) || queryEmbedding.length === 0) {
+      console.warn('[findAnalysisChunks] Skipping Pinecone query: invalid embedding for query:', userQuery);
+      return [];
+    }
+
+    // Query Pinecone specifically for analysis chunks
+    const chunks = await queryAnalysisChunks(queryEmbedding, propertyId, topK);
     this.queryCache.set(cacheKey, { chunks, timestamp: Date.now() });
     return chunks;
   }

@@ -39,12 +39,17 @@ class OptimizedChatController {
 
       const knowledgeBase = await this.getKnowledgeBaseWithCache(propertyId);
 
-      const relevantChunks = await optimizedDocumentProcessor.findRelevantChunks(propertyId, message, 6);
-      console.log(`📌 Retrieved ${relevantChunks.length} relevant chunks`);
+      // Get both document chunks and analysis chunks
+      const relevantChunks = await optimizedDocumentProcessor.findRelevantChunks(propertyId, message, 8);
+      const analysisChunks = await optimizedDocumentProcessor.findAnalysisChunks(propertyId, message, 4);
+      
+      // Combine and prioritize analysis chunks
+      const allChunks = [...analysisChunks, ...relevantChunks];
+      console.log(`📌 Retrieved ${relevantChunks.length} document chunks and ${analysisChunks.length} analysis chunks`);
 
-      const promptComponents = this.buildPromptWithChunks(knowledgeBase, relevantChunks, message, conversationHistory);
+      const promptComponents = this.buildPromptWithChunks(knowledgeBase, allChunks, message, conversationHistory);
 
-      await this.executeStream(res, promptComponents, propertyId, relevantChunks, startTime, cacheKey);
+      await this.executeStream(res, promptComponents, propertyId, allChunks, startTime, cacheKey);
 
     } catch (error) {
       console.error('Error in chatWithPropertyStream:', error);
@@ -64,17 +69,39 @@ class OptimizedChatController {
       `Today's date is ${today}.`,
       offerDueDate ? `The offer due date for this property is ${offerDueDate}.` : null,
       `You have access to structured property details, valuation data, and key excerpts from disclosure documents.`,
+      `You also have access to AI-generated analysis summaries that provide structured insights from documents.`,
       `Always reference only the provided data. Never guess, assume, or invent information.`,
       `If a question can't be answered from the information you have, respond with: "I'm not sure based on the available documents."`,
-      `Your tone should be professional, accurate, clear, and concise.`
+      `Your tone should be professional, accurate, clear, and concise.`,
+      `When referencing analysis summaries, mention that the information comes from an AI analysis of the document.`
     ].filter(Boolean).join(' ');
 
     const propertyContext = this.createCompactPropertyContext(knowledgeBase);
 
-    const documentContext = chunks.map((chunk, i) => (
-      `# ${chunk.documentTitle} (${chunk.documentType}) [Chunk ${chunk.chunkIndex}]\n` +
-      `${chunk.content.trim().slice(0, 800)}\n`
-    )).join('\n---\n');
+    // Separate analysis chunks from document chunks
+    const analysisChunks = chunks.filter(chunk => chunk.chunkType === 'analysis');
+    const documentChunks = chunks.filter(chunk => chunk.chunkType === 'document');
+
+    let documentContext = '';
+    
+    // Add analysis chunks first (prioritized)
+    if (analysisChunks.length > 0) {
+      documentContext += `## AI ANALYSIS SUMMARIES\n`;
+      analysisChunks.forEach((chunk, i) => {
+        documentContext += `\n### ${chunk.documentTitle} - ${chunk.section}\n`;
+        documentContext += `${chunk.content.trim()}\n`;
+      });
+      documentContext += '\n---\n\n';
+    }
+
+    // Add document chunks
+    if (documentChunks.length > 0) {
+      documentContext += `## DOCUMENT EXCERPTS\n`;
+      documentChunks.forEach((chunk, i) => {
+        documentContext += `\n# ${chunk.documentTitle} (${chunk.documentType}) [Chunk ${chunk.chunkIndex}]\n`;
+        documentContext += `${chunk.content.trim().slice(0, 800)}\n`;
+      });
+    }
 
     const chatHistory = conversationHistory
       .slice(-4)
@@ -92,7 +119,7 @@ class OptimizedChatController {
           },
           {
             type: 'text',
-            text: `DOCUMENT EXCERPTS:\n${documentContext}`,
+            text: documentContext,
             cache_control: { type: 'ephemeral' }
           },
           {

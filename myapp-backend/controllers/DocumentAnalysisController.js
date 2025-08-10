@@ -14,6 +14,8 @@ const { fromPath } = require('pdf2pic');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const { embedBatch } = require('../utils/embeddingClient');
+const { upsertChunksToPinecone } = require('../utils/vectorStore');
 
 // Create rate limiters
 const minuteLimiter = rateLimit({
@@ -132,6 +134,76 @@ const extractTextFromPDF = async (pdfBuffer, analysisId) => {
     
     return ocrText;
   }
+};
+
+// Helper function to create embeddings for analysis results
+const createAnalysisEmbeddings = async (analysis, document) => {
+  try {
+    if (!analysis.analysisResult || analysis.status !== 'completed') {
+      console.log('Skipping analysis embeddings - no completed result');
+      return;
+    }
+
+    // Split analysis result into meaningful chunks
+    const analysisChunks = splitAnalysisIntoChunks(analysis.analysisResult, document.type);
+    
+    // Generate embeddings for each chunk
+    const texts = analysisChunks.map(chunk => chunk.content);
+    const embeddings = await embedBatch(texts);
+    
+    const chunksWithEmbeddings = analysisChunks.map((chunk, i) => ({
+      ...chunk,
+      embedding: Array.isArray(embeddings[i]) ? embeddings[i] : []
+    }));
+
+    // Store in Pinecone with special metadata to identify as analysis
+    await upsertChunksToPinecone(
+      document.propertyListing, 
+      document._id, 
+      chunksWithEmbeddings,
+      'analysis' // Special type to distinguish from document chunks
+    );
+
+    console.log(`✅ Created ${chunksWithEmbeddings.length} analysis embeddings for ${document.title}`);
+  } catch (error) {
+    console.error('Error creating analysis embeddings:', error);
+  }
+};
+
+// Helper function to split analysis into semantic chunks
+const splitAnalysisIntoChunks = (analysisText, documentType) => {
+  const chunks = [];
+  
+  // Split by markdown headers (##)
+  const sections = analysisText.split(/(?=^## )/m);
+  
+  sections.forEach((section, index) => {
+    if (section.trim().length < 50) return; // Skip very short sections
+    
+    // Clean up the section
+    const cleanSection = section.trim();
+    
+    chunks.push({
+      content: cleanSection,
+      chunkIndex: index,
+      pageNumber: 0, // Analysis doesn't have pages
+      metadata: {
+        documentType: documentType,
+        documentTitle: `AI Analysis - ${documentType}`,
+        uploadedAt: new Date(),
+        chunkType: 'analysis',
+        section: extractSectionTitle(cleanSection)
+      }
+    });
+  });
+  
+  return chunks;
+};
+
+// Helper function to extract section title
+const extractSectionTitle = (text) => {
+  const headerMatch = text.match(/^## (.+)$/m);
+  return headerMatch ? headerMatch[1].trim() : 'General';
 };
 
 exports.analyzeDocument = async (req, res) => {
@@ -676,6 +748,9 @@ ${text}`;
       message: 'Analysis loading...'
     };
     await analysis.save();
+
+    // Create embeddings for the analysis result
+    await createAnalysisEmbeddings(analysis, document);
 
     // Return the final analysis result
     return res.json({
