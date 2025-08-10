@@ -284,7 +284,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
       formData.append('propertyListingId', listingId);
       
       // Upload documents with streaming progress updates
-      const response = await fetch('/api/documents/withProgress', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/documents/withProgress`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
