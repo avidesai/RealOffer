@@ -4,7 +4,7 @@ require('dotenv').config();
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://api.realoffer.io';
 
 const testEnhancedStreaming = async () => {
-  console.log('🧪 Testing Enhanced Streaming with Files API Integration');
+  console.log('🧪 Testing Enhanced Streaming with Analysis Integration');
   console.log('=' .repeat(60));
   
   // Test data
@@ -15,9 +15,9 @@ const testEnhancedStreaming = async () => {
   };
 
   try {
-    console.log('📡 Testing streaming endpoint with Files API...');
+    console.log('📡 Testing enhanced streaming endpoint...');
     
-    const response = await fetch(`${BACKEND_URL}/api/chat/property/stream`, {
+    const response = await fetch(`${BACKEND_URL}/api/chat/enhanced/property/stream`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ const testEnhancedStreaming = async () => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    console.log('✅ Streaming connection established');
+    console.log('✅ Enhanced streaming connection established');
     console.log('📊 Response headers:', {
       'content-type': response.headers.get('content-type'),
       'cache-control': response.headers.get('cache-control'),
@@ -43,8 +43,9 @@ const testEnhancedStreaming = async () => {
     let fullResponse = '';
     let sources = [];
     let citations = [];
-    let filesApiUsed = false;
-    let claudeFileIds = [];
+    let processingTime = 0;
+    let model = '';
+    let cached = false;
 
     for await (const chunk of reader) {
       const lines = decoder.decode(chunk).split('\n');
@@ -60,27 +61,30 @@ const testEnhancedStreaming = async () => {
             } else if (data.type === 'complete') {
               sources = data.sources || [];
               citations = data.citations || [];
-              filesApiUsed = data.filesApiUsed || false;
-              claudeFileIds = data.claudeFileIds || [];
+              processingTime = data.processingTime || 0;
+              model = data.model || '';
+              cached = data.cached || false;
               
               console.log('\n\n📋 Final Response Summary:');
               console.log(`📝 Response Length: ${fullResponse.length} characters`);
               console.log(`📚 Sources Found: ${sources.length}`);
               console.log(`🔗 Citations: ${citations.length}`);
-              console.log(`📁 Files API Used: ${filesApiUsed}`);
-              console.log(`🆔 Claude File IDs: ${claudeFileIds.length}`);
+              console.log(`⏱️ Processing Time: ${processingTime}ms`);
+              console.log(`🤖 Model: ${model}`);
+              console.log(`💾 Cached: ${cached}`);
               
               if (sources.length > 0) {
                 console.log('\n📖 Sources:');
                 sources.forEach((source, index) => {
-                  console.log(`  ${index + 1}. ${source.documentTitle} (${source.documentType})`);
+                  const chunkType = source.chunkType || 'document';
+                  console.log(`  ${index + 1}. ${source.documentTitle} (${source.documentType}) [${chunkType}]`);
                 });
               }
               
               if (citations.length > 0) {
                 console.log('\n🔗 Citations:');
                 citations.forEach((citation, index) => {
-                  console.log(`  ${index + 1}. ${citation.text} (${citation.start}-${citation.end})`);
+                  console.log(`  ${index + 1}. ${citation.documentTitle} - ${citation.documentType}`);
                 });
               }
               
@@ -98,13 +102,6 @@ const testEnhancedStreaming = async () => {
     
   } catch (error) {
     console.error('❌ Enhanced streaming test failed:', error.message);
-    
-    if (error.message.includes('401')) {
-      console.log('\n💡 To test with authentication:');
-      console.log('1. Get a valid JWT token from your frontend');
-      console.log('2. Replace "YOUR_TOKEN_HERE" with the actual token');
-      console.log('3. Run this script again');
-    }
   }
 };
 
