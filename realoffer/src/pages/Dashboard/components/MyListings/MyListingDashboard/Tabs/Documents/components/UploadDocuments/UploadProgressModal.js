@@ -41,7 +41,13 @@ const UploadProgressModal = ({
                   />
                 </div>
                 <p className="upm-status">
-                  {totalFiles > 0 ? `Processing document ${currentFile} of ${totalFiles}` : 'Processing documents...'}
+                  {totalFiles > 0 ? 
+                    (currentFile <= totalFiles ? 
+                      `Processing document ${currentFile} of ${totalFiles}` : 
+                      'Finalizing upload...'
+                    ) : 
+                    'Processing documents...'
+                  }
                 </p>
                 {currentFileName && (
                   <p className="upm-file-name">{currentFileName}</p>

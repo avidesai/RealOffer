@@ -284,10 +284,10 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
         await new Promise(resolve => setTimeout(resolve, 1500));
       }
       
-      // Set to completion state (currentFile = totalFiles + 1 to reach 100%)
+      // Set to completion state (currentFile = totalFiles to reach 100%)
       setUploadProgress(prev => ({
         ...prev,
-        currentFile: files.length + 1
+        currentFile: files.length
       }));
       
       // Actual upload
@@ -371,7 +371,10 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
     setShowCSPPrompt(false);
     setShowCreateSignaturePackage(false);
     onClose();
-    onUploadSuccess();
+    // Add a small delay to ensure backend processing is complete
+    setTimeout(() => {
+      onUploadSuccess();
+    }, 2000);
   };
 
   const openCreateSignaturePackage = () => {
@@ -382,7 +385,10 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
   const closeCreateSignaturePackage = () => {
     setShowCreateSignaturePackage(false);
     onClose();
-    onUploadSuccess();
+    // Add a small delay to ensure backend processing is complete
+    setTimeout(() => {
+      onUploadSuccess();
+    }, 2000);
   };
 
   if (showProgressModal) {

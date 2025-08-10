@@ -86,6 +86,39 @@ const Documents = ({ listingId }) => {
     }
   }, [fetchDocuments, documentOrder]);
 
+  // Enhanced refresh function with retry mechanism for upload scenarios
+  const refreshDocumentsWithRetry = useCallback(async (orderToUse = documentOrder, retryCount = 0) => {
+    setLoading(true);
+    try {
+      await fetchDocuments(orderToUse);
+      
+      // If this is after an upload and we have no documents, retry once after a delay
+      if (retryCount === 0) {
+        const response = await api.get(`/api/documents/${listingId}/optimized`);
+        const listingDocuments = response.data.filter(doc => doc.purpose === 'listing' || doc.purpose === 'signature_package');
+        
+        if (listingDocuments.length === 0 && retryCount < 2) {
+          // Wait 3 seconds and retry
+          setTimeout(() => {
+            refreshDocumentsWithRetry(orderToUse, retryCount + 1);
+          }, 3000);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error refreshing documents:', error);
+      // Retry on error if we haven't exceeded retry limit
+      if (retryCount < 2) {
+        setTimeout(() => {
+          refreshDocumentsWithRetry(orderToUse, retryCount + 1);
+        }, 3000);
+        return;
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchDocuments, documentOrder, listingId]);
+
   useEffect(() => {
     if (!token || !listingId) return;
     
@@ -647,7 +680,7 @@ const Documents = ({ listingId }) => {
         <UploadDocumentsLogic
           onClose={closeUploadModal}
           listingId={listingId}
-          onUploadSuccess={() => refreshDocumentsWithLoading()}
+          onUploadSuccess={() => refreshDocumentsWithRetry()}
           hasSignaturePackage={hasSignaturePackage}
         />
       )}
@@ -666,7 +699,7 @@ const Documents = ({ listingId }) => {
           listingId={listingId}
           isOpen={showSignaturePackageModal}
           onClose={closeSignaturePackageModal}
-          refreshDocuments={() => refreshDocumentsWithLoading()}
+          refreshDocuments={() => refreshDocumentsWithRetry()}
         />
       )}
       {showAIAnalysis && selectedDocumentForAnalysis && (
