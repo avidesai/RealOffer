@@ -41,7 +41,6 @@ function mapFieldsToOffer(fields) {
     getField(fields, 'InitialDeposit', 'EarnestMoney', 'Deposit') || '';
 
   // Dates
-  // Azure may output ISO or natural language. We pass through, UI can sanitize.
   out.closeOfEscrow =
     getField(fields, 'CloseOfEscrow', 'CloseDate', 'EscrowCloseDate') || '';
 
@@ -62,7 +61,7 @@ function mapFieldsToOffer(fields) {
   out.specialTerms =
     getField(fields, 'AdditionalTerms', 'SpecialTerms', 'OtherTerms') || '';
 
-  // Defaults that your UI logic expects
+  // Defaults your UI expects
   out.financeContingency = '';
   out.appraisalContingency = '';
   out.inspectionContingency = '';
@@ -79,7 +78,6 @@ function collectWordsByPage(layout) {
   const pages = layout?.pages || [];
   return pages.map(p => {
     const words = [];
-    // Words can be present as words array or inferred from lines
     if (Array.isArray(p.lines)) {
       for (const line of p.lines) {
         const text = (line.content || '').trim();
@@ -117,7 +115,7 @@ function bboxFromPolygon(poly) {
 }
 
 /**
- * Check if two bboxes are within a loose proximity.
+ * Simple proximity check.
  */
 function bboxNear(b1, b2, inflate = 12) {
   if (!b1 || !b2) return false;
@@ -139,7 +137,6 @@ function labelSelectionMarks(pagesSurface) {
       let best = { score: Number.POSITIVE_INFINITY, text: '' };
       for (const w of page.words) {
         if (!w.bbox) continue;
-        // Distance heuristic based on vertical alignment and proximity
         const dx = Math.max(0, Math.max(w.bbox[0] - mbox[2], mbox[0] - w.bbox[2]));
         const dy = Math.max(0, Math.max(w.bbox[1] - mbox[3], mbox[1] - w.bbox[3]));
         const dist = dx + dy;
@@ -149,7 +146,7 @@ function labelSelectionMarks(pagesSurface) {
       }
       labeled.push({
         pageNumber: page.pageNumber,
-        state: mark.state, // 'selected' or 'unselected'
+        state: mark.state, // selected or unselected
         label: (best.text || '').toLowerCase(),
         rawContent: (mark.content || '').toLowerCase(),
         bbox: mbox
@@ -161,10 +158,8 @@ function labelSelectionMarks(pagesSurface) {
 
 /**
  * Apply checkbox heuristics to mappedData given labeled selection marks.
- * This is intentionally conservative. Adjust label tokens to fit your RPA versions.
  */
 function applyCheckboxHeuristics(mappedData, labeledMarks) {
-  // Token sets for common CAR RPA checkboxes
   const hints = {
     financeContingency: [
       'loan contingency',
@@ -183,14 +178,13 @@ function applyCheckboxHeuristics(mappedData, labeledMarks) {
     ],
     sellerRentBack: [
       'seller in possession',
-      'seller in posession', // misspelling appears sometimes
+      'seller in posession',
       'sip',
       'seller rent back',
       'rent back'
     ]
   };
 
-  // If a mark with any of the tokens is selected, mark Included
   const selectedLabels = new Set(
     labeledMarks
       .filter(m => m.state === 'selected')
@@ -201,7 +195,7 @@ function applyCheckboxHeuristics(mappedData, labeledMarks) {
   function labelContainsAny(label, tokens) {
     const l = label.toLowerCase();
     return tokens.some(t => l.includes(t));
-  }
+    }
 
   for (const [field, tokens] of Object.entries(hints)) {
     if (!mappedData[field]) {
@@ -230,18 +224,16 @@ exports.analyzeRPADocument = async (req, res) => {
 
     // Build the actual PDF SAS URL
     const sas = generateSASToken(doc.azureKey);
-    // thumbnailUrl in your schema is the real PDF blob URL
-    const pdfUrl = `${doc.thumbnailUrl}?${sas}`;
+    const pdfUrl = `${doc.thumbnailUrl}?${sas}`; // thumbnailUrl is your real blob URL
 
-    // Pass 1: prebuilt-document to extract keyValuePairs and content
+    // Pass 1: prebuilt-document to extract fields and content
     const startGeneral = await client
       .path('/documentModels/{modelId}:analyze', 'prebuilt-document')
       .post({
         contentType: 'application/json',
         body: { urlSource: pdfUrl },
         queryParameters: {
-          stringIndexType: 'utf16CodeUnit',
-          features: ['keyValuePairs']
+          stringIndexType: 'utf16CodeUnit'
         }
       });
 
@@ -327,7 +319,6 @@ exports.analyzeRPADocument = async (req, res) => {
       message = error.response.data.error.message;
     }
 
-    // Try to bubble up Azure innererror details if present
     const inner = error.response?.data?.error?.innererror;
     if (inner) console.error('Azure innererror:', inner);
 
