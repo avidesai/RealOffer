@@ -409,7 +409,7 @@ exports.loginUser = async (req, res) => {
             }
         };
         
-        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '3h' });
         
         // Update last login
         user.lastLogin = new Date();
