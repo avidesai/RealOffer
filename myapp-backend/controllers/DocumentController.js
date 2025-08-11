@@ -727,6 +727,7 @@ exports.createBuyerSignaturePacket = async (req, res) => {
 
     // Generate thumbnail for signature package
     let thumbnailImageUrl = blockBlobClient.url; // Default to original document URL
+    let thumbnailAzureKey = null; // Default to null, will be set if thumbnail generation succeeds
     try {
       const thumbnailBuffer = await generateThumbnail(Buffer.from(pdfBytes), uuidv4());
       if (thumbnailBuffer) {
@@ -738,6 +739,7 @@ exports.createBuyerSignaturePacket = async (req, res) => {
         });
         
         thumbnailImageUrl = thumbnailBlockBlobClient.url;
+        thumbnailAzureKey = thumbnailBlobName;
       }
     } catch (error) {
       console.error('Error generating thumbnail for signature package:', error);
@@ -751,6 +753,7 @@ exports.createBuyerSignaturePacket = async (req, res) => {
       pages: mergedPdf.getPageCount(),
       thumbnailUrl: blockBlobClient.url, // Original document URL in Azure Blob Storage
       thumbnailImageUrl,
+      thumbnailAzureKey: thumbnailAzureKey || null, // Thumbnail Azure blob key
       propertyListing: listingId,
       uploadedBy: req.user.id,
       azureKey: blobName,
