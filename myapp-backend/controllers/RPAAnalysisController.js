@@ -10,11 +10,10 @@ const { AzureKeyCredential } = require('@azure/core-auth');
 const ENDPOINT = process.env.AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT;
 const API_KEY = process.env.AZURE_DOCUMENT_INTELLIGENCE_KEY;
 
-// Initialize once
 const client = createDocumentAnalysisClient(ENDPOINT, new AzureKeyCredential(API_KEY));
 
 /** Normalize SDK response status that can be "202" or 202. */
-function statusCode(resp) {
+function httpStatus(resp) {
   const n = Number(resp?.status);
   return Number.isNaN(n) ? -1 : n;
 }
@@ -30,7 +29,17 @@ function getField(fields, ...keys) {
   return '';
 }
 
-/** Map layout KVP fields to your MakeOfferModal shape. Tweak keys to your RPA. */
+/** Turn free-text keys into stable field IDs (e.g., "Purchase Price" -> "PurchasePrice"). */
+function normalizeKey(key) {
+  return String(key || '')
+    .replace(/[\u200B-\u200D\uFEFF]/g, '') // zero-width chars
+    .replace(/[^A-Za-z0-9]+/g, ' ')
+    .trim()
+    .replace(/\s+([a-z])/g, (_, c) => c.toUpperCase())
+    .replace(/^[a-z]/, c => c.toUpperCase());
+}
+
+/** Map layout KVP fields to your MakeOfferModal shape. Tweak keys for your RPA. */
 function mapFieldsToOffer(fields) {
   const out = {};
 
@@ -51,10 +60,8 @@ function mapFieldsToOffer(fields) {
   // Contingency day counts
   out.financeContingencyDays =
     getField(fields, 'FinanceContingencyDays', 'LoanContingencyDays') || '';
-
   out.appraisalContingencyDays =
     getField(fields, 'AppraisalContingencyDays') || '';
-
   out.inspectionContingencyDays =
     getField(fields, 'InspectionContingencyDays', 'InvestigationContingencyDays') || '';
 
@@ -72,7 +79,7 @@ function mapFieldsToOffer(fields) {
   return out;
 }
 
-/** Build per-page surface from layout for proximity labeling. */
+/** Build per-page surface for proximity labeling. */
 function collectWordsByPage(layout) {
   const pages = layout?.pages || [];
   return pages.map(p => {
@@ -169,6 +176,24 @@ function applyCheckboxHeuristics(mappedData, labeledMarks) {
   return mappedData;
 }
 
+/** Build a fields-like object from result.body.keyValuePairs if documents[0].fields is empty. */
+function buildFieldsFromKvps(resultBody) {
+  const kvps = Array.isArray(resultBody?.keyValuePairs) ? resultBody.keyValuePairs : [];
+  const fields = {};
+  for (const kv of kvps) {
+    const keyText = kv.key?.content?.trim();
+    if (!keyText) continue;
+    const norm = normalizeKey(keyText);
+    const valueText = kv.value?.content?.trim() ?? '';
+    fields[norm] = {
+      valueType: 'string',
+      value: valueText,
+      content: valueText,
+    };
+  }
+  return fields;
+}
+
 exports.analyzeRPADocument = async (req, res) => {
   try {
     if (!ENDPOINT || !API_KEY) {
@@ -181,9 +206,8 @@ exports.analyzeRPADocument = async (req, res) => {
     if (!doc) return res.status(404).json({ error: 'Document not found' });
     if (doc.docType !== 'pdf') return res.status(400).json({ error: 'Only PDFs supported' });
 
-    // Build the actual PDF SAS URL
     const sas = generateSASToken(doc.azureKey);
-    const pdfUrl = `${doc.thumbnailUrl}?${sas}`; // thumbnailUrl is your real blob URL
+    const pdfUrl = `${doc.thumbnailUrl}?${sas}`; // your schema’s real PDF URL
 
     // Single pass: prebuilt-layout with keyValuePairs + ocrHighResolution
     const start = await client
@@ -198,27 +222,31 @@ exports.analyzeRPADocument = async (req, res) => {
         }
       });
 
-    const sc = statusCode(start);
-    if (sc !== 202) {
-      console.error('Analyze start failed', sc, start.body?.error || start.body);
+    if (httpStatus(start) !== 202) {
+      console.error('Analyze start failed', httpStatus(start), start.body?.error || start.body);
       return res.status(500).json({ error: 'Failed to start document analysis' });
     }
 
     const poller = getLongRunningPoller(client, start);
     const result = await poller.pollUntilDone();
 
-    // result.status is a string: 'succeeded' | 'failed' | 'canceled'
-    if (result.status !== 'succeeded') {
+    // Correct success check: look at body.status (not HTTP status)
+    const jobState = (result?.body?.status || '').toLowerCase();
+    if (jobState && jobState !== 'succeeded' && jobState !== 'partiallysucceeded') {
       console.error('Layout analysis did not succeed', {
-        status: result.status,
-        error: result.body?.error
+        http: httpStatus(result),
+        jobState,
+        error: result?.body?.error
       });
       return res.status(500).json({ error: 'Document analysis did not complete successfully' });
     }
 
-    // With keyValuePairs feature, fields show up here
-    const doc0 = result.body?.documents?.[0] || {};
-    const rawFields = doc0.fields || {};
+    // Fields may be under documents[0].fields when keyValuePairs is enabled…
+    let rawFields = result?.body?.documents?.[0]?.fields || {};
+    // …but if the service didn’t populate documents, synthesize from keyValuePairs.
+    if (!rawFields || Object.keys(rawFields).length === 0) {
+      rawFields = buildFieldsFromKvps(result.body);
+    }
 
     // Flatten fields for UI debugging
     const simplifiedFields = {};
@@ -248,11 +276,8 @@ exports.analyzeRPADocument = async (req, res) => {
       rawAzureResponse: { layout: result.body }
     });
   } catch (error) {
-    // Azure style errors often have rich innererror details
     const inner = error?.response?.data?.error?.innererror;
-    if (inner) {
-      console.error('Azure innererror:', inner);
-    }
+    if (inner) console.error('Azure innererror:', inner);
     console.error('Error analyzing RPA document:', {
       message: error.message,
       code: error.code,
