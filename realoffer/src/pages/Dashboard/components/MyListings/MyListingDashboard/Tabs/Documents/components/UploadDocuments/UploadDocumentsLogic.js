@@ -343,7 +343,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
                   ...prev,
                   isFullyComplete: true
                 }));
-                uploadedDocumentIds = data.documents.map(doc => doc._id);
+                uploadedDocumentIds = data.documentIds || data.documents?.map(doc => doc._id) || [];
                 break;
               }
             } catch (parseError) {

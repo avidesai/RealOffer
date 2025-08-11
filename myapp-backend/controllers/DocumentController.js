@@ -1523,8 +1523,9 @@ exports.uploadDocumentsWithProgress = async (req, res) => {
     // Save property listing
     await propertyListing.save();
 
-    // Send completion
-    res.write(`data: {"complete": true, "documents": ${JSON.stringify(documents)}}\n\n`);
+    // Send completion with just document IDs to avoid large JSON payload
+    const documentIds = documents.map(doc => doc._id);
+    res.write(`data: {"complete": true, "documentIds": ${JSON.stringify(documentIds)}}\n\n`);
     res.end();
 
   } catch (error) {
