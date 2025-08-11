@@ -164,7 +164,8 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
     totalFiles: 0,
     currentFileName: '',
     processingMessage: '',
-    error: null
+    error: null,
+    isFullyComplete: false
   });
   const fileInputRef = useRef(null);
   const { user } = useAuth();
@@ -265,7 +266,9 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
       currentFile: 1,
       totalFiles: files.length,
       currentFileName: files[0]?.title || files[0]?.file.name || '',
-      error: null
+      processingMessage: '',
+      error: null,
+      isFullyComplete: false
     });
     setShowProgressModal(true);
     setUploading(true);
@@ -335,7 +338,11 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
               }
               
               if (data.complete) {
-                // Upload complete
+                // Upload complete - set the fully complete flag
+                setUploadProgress(prev => ({
+                  ...prev,
+                  isFullyComplete: true
+                }));
                 uploadedDocumentIds = data.documents.map(doc => doc._id);
                 break;
               }
@@ -428,10 +435,9 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
       <UploadProgressModal
         isOpen={showProgressModal}
         onClose={() => {
-          const progress = uploadProgress.totalFiles > 0 ? (uploadProgress.currentFile / uploadProgress.totalFiles) * 100 : 0;
           setShowProgressModal(false);
-          // Check if upload is complete (progress >= 100 indicates completion)
-          if (progress >= 100 && uploadProgress.totalFiles > 0) {
+          // Check if upload is fully complete (backend sent complete message)
+          if (uploadProgress.isFullyComplete && uploadProgress.totalFiles > 0) {
             setShowCSPPrompt(true);
           }
         }}
@@ -439,6 +445,7 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
         currentFile={uploadProgress.currentFile}
         currentFileName={uploadProgress.currentFileName}
         processingMessage={uploadProgress.processingMessage}
+        isFullyComplete={uploadProgress.isFullyComplete}
         error={uploadProgress.error}
       />
     );

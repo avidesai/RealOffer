@@ -8,12 +8,13 @@ const UploadProgressModal = ({
   totalFiles, 
   currentFileName,
   processingMessage,
+  isFullyComplete,
   error 
 }) => {
   if (!isOpen) return null;
 
   const progress = totalFiles > 0 ? (currentFile / totalFiles) * 100 : 0;
-  const isComplete = progress >= 100 && totalFiles > 0 && !processingMessage?.includes('Processing');
+  const isComplete = isFullyComplete && totalFiles > 0;
 
   return (
     <div className="upm-overlay">
