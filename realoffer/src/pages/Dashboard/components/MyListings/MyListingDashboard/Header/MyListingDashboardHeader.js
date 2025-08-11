@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../../../../../context/AuthContext';
+import { hasPremiumAccess } from '../../../../../../utils/trialUtils';
 import './MyListingDashboardHeader.css';
 import logo from '../../../../../../../src/assets/images/logo.svg';
 import Avatar from '../../../../../../components/Avatar/Avatar';
@@ -69,7 +70,7 @@ function MyListingDashboardHeader({ onBackClick }) {
       </div>
 
       <div className="header-actions">
-        {userData && !userData.isPremium && (
+        {userData && !hasPremiumAccess(userData) && (
           <button className="header-upgrade-btn" onClick={handleUpgradeClick}>
             Upgrade to Pro
           </button>

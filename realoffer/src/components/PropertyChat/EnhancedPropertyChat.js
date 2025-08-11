@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import TabPaywall from '../TabPaywall/TabPaywall';
+import { hasPremiumAccess } from '../../utils/trialUtils';
 import './EnhancedPropertyChat.css';
 
 const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
@@ -308,8 +309,8 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
 
   if (!isOpen) return null;
 
-  // Check if user is pro - if not, show paywall
-  if (!user?.isPremium) {
+  // Check if user has premium access (paid or trial) - if not, show paywall
+  if (!hasPremiumAccess(user)) {
     return (
       <div className="pchat-overlay">
         <div className="pchat-modal paywall-visible">

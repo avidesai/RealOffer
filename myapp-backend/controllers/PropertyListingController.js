@@ -242,7 +242,7 @@ exports.createListing = async (req, res) => {
     }
 
     // Check if user has reached the listing limit for non-pro users
-    if (!user.isPremium) {
+    if (!user.hasPremiumAccess()) {
       const activeListingsCount = await PropertyListing.countDocuments({ 
         createdBy: req.user.id, 
         status: 'active' 

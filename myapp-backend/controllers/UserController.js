@@ -175,6 +175,11 @@ exports.createUser = async (req, res) => {
             });
         }
 
+        // Set up trial period for new users (3 months)
+        const trialStartDate = new Date();
+        const trialEndDate = new Date(trialStartDate);
+        trialEndDate.setMonth(trialEndDate.getMonth() + 3);
+
         const newUser = new User({
             firstName: firstName.trim(),
             lastName: lastName.trim(),
@@ -208,6 +213,10 @@ exports.createUser = async (req, res) => {
             receiveMarketingMaterials: false,
             isPremium: false,
             premiumPlan: '',
+            // Set up trial period
+            trialStartDate: trialStartDate,
+            trialEndDate: trialEndDate,
+            isOnTrial: true,
             templates: [],
             contacts: [],
             listingPackages: []
@@ -257,6 +266,9 @@ exports.createUser = async (req, res) => {
             role: savedUser.role,
             hasAgent: savedUser.hasAgent,
             isPremium: savedUser.isPremium,
+            isOnTrial: savedUser.isOnTrial,
+            trialStartDate: savedUser.trialStartDate,
+            trialEndDate: savedUser.trialEndDate,
             createdAt: savedUser.createdAt
         };
         
@@ -424,6 +436,9 @@ exports.loginUser = async (req, res) => {
             lastName: user.lastName,
             role: user.role,
             isPremium: user.isPremium,
+            isOnTrial: user.isOnTrial,
+            trialStartDate: user.trialStartDate,
+            trialEndDate: user.trialEndDate,
             lastLogin: user.lastLogin
         };
         

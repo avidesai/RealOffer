@@ -7,6 +7,7 @@ import ActivitySortBar from './components/ActivitySortBar/ActivitySortBar';
 import TabPaywall from '../../../../../../../components/TabPaywall/TabPaywall';
 import Avatar from '../../../../../../../components/Avatar/Avatar';
 import ContactInfoModal from './components/ContactInfoModal/ContactInfoModal';
+import { hasPremiumAccess } from '../../../../../../../utils/trialUtils';
 import './Activity.css';
 
 const Activity = ({ listingId }) => {
@@ -293,8 +294,8 @@ const Activity = ({ listingId }) => {
     );
   }
 
-  // Check if user is pro - if not, show paywall
-  if (!user?.isPremium) {
+  // Check if user has premium access (paid or trial) - if not, show paywall
+  if (!hasPremiumAccess(user)) {
     return (
       <div className="activity-tab">
         <TabPaywall feature="activity" />

@@ -123,7 +123,9 @@ exports.createSubscription = async (req, res) => {
       paymentMethodId: paymentMethodId,
       isPremium: subscription.status === 'active' || subscription.status === 'trialing',
       premiumPlan: priceId.includes('annual') ? 'annual' : 'monthly',
-      trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : null
+      trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : null,
+      // End trial when user upgrades to paid subscription
+      isOnTrial: false
     });
 
     res.json({
@@ -371,7 +373,9 @@ async function handleSubscriptionUpdate(subscription) {
       subscriptionCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
       subscriptionCancelAtPeriodEnd: subscription.cancel_at_period_end,
       isPremium: subscription.status === 'active' || subscription.status === 'trialing',
-      trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : null
+      trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : null,
+      // End trial when subscription becomes active
+      isOnTrial: subscription.status === 'active' ? false : undefined
     };
 
     await User.findByIdAndUpdate(userId, updateData);
@@ -418,7 +422,11 @@ async function handlePaymentSucceeded(invoice) {
     // Update user's premium status if not already set
     const user = await User.findById(userId);
     if (!user.isPremium && invoice.subscription) {
-      await User.findByIdAndUpdate(userId, { isPremium: true });
+      await User.findByIdAndUpdate(userId, { 
+        isPremium: true,
+        // End trial when payment succeeds
+        isOnTrial: false
+      });
       console.log(`Activated premium for user ${userId}`);
     }
   } catch (error) {

@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import api from '../../../../../../../../../context/api';
 import { useAuth } from '../../../../../../../../../context/AuthContext';
 import TabPaywall from '../../../../../../../../../components/TabPaywall/TabPaywall';
+import { hasPremiumAccess } from '../../../../../../../../../utils/trialUtils';
 import './AIAnalysisModal.css';
 
 const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, isBuyerPackage = false }) => {
@@ -105,8 +106,8 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, isBuyerPac
     document.body.removeChild(element);
   };
 
-  // Check if user is pro - if not, show paywall
-  if (!user?.isPremium) {
+  // Check if user has premium access (paid or trial) - if not, show paywall
+  if (!hasPremiumAccess(user)) {
     return (
       <div className="aam-overlay" onClick={onClose}>
         <div className="aam-modal" onClick={(e) => e.stopPropagation()}>

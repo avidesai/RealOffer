@@ -9,6 +9,7 @@ import Footer from '../../components/Footer/Footer';
 import ProfileSpinner from './components/ProfileSpinner/ProfileSpinner';
 import EditEmailModal from './components/EditEmailModal/EditEmailModal';
 import Avatar from '../../../../components/Avatar/Avatar';
+import { hasPremiumAccess, getTrialStatus, formatTrialEndDate } from '../../../../utils/trialUtils';
 import './Profile.css';
 
 const Profile = () => {
@@ -81,7 +82,7 @@ const Profile = () => {
               {/* Account Status */}
               <div className="pp-account-status-section">
                 <div className="pp-account-status-row">
-                  {profileData.isPremium ? (
+                  {hasPremiumAccess(profileData) ? (
                     <span className="pp-pro-status">
                       Pro Account
                     </span>
@@ -91,13 +92,20 @@ const Profile = () => {
                     </span>
                   )}
                 </div>
-                {profileData.isPremium ? (
+                {/* Show trial end date if user is on trial */}
+                {getTrialStatus(profileData) === 'active' && profileData.trialEndDate && (
+                  <div className="pp-trial-end-date">
+                    Trial ends: {formatTrialEndDate(profileData.trialEndDate)}
+                  </div>
+                )}
+                {/* Show manage subscription button only for paid premium users */}
+                {profileData.isPremium && !profileData.isOnTrial ? (
                   <button className="pp-profile-manage-subscription-btn" onClick={handleManageSubscription}>
                     Manage Subscription
                   </button>
                 ) : (
                   <button className="pp-profile-upgrade-btn" onClick={handleUpgradeClick}>
-                    Upgrade to Pro
+                    {getTrialStatus(profileData) === 'active' ? 'Upgrade to Pro' : 'Upgrade to Pro'}
                   </button>
                 )}
               </div>

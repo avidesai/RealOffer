@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../../../../../context/AuthContext';
 import TabPaywall from '../../../../../../../components/TabPaywall/TabPaywall';
+import { hasPremiumAccess } from '../../../../../../../utils/trialUtils';
 import './Analysis.css';
 
 const Analysis = ({ listingId }) => {
@@ -245,8 +246,8 @@ const Analysis = ({ listingId }) => {
     );
   }
 
-  // Check if user is pro - if not, show paywall
-  if (!user?.isPremium) {
+  // Check if user has premium access (paid or trial) - if not, show paywall
+  if (!hasPremiumAccess(user)) {
     return (
       <div className="analysis-tab">
         <TabPaywall feature="analysis" />

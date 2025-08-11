@@ -5,6 +5,7 @@ import './Settings.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../../../../../context/AuthContext'; // Import useAuth hook
+import { hasPremiumAccess } from '../../../../../../../utils/trialUtils';
 
 const Settings = ({ listing, onStatusChange }) => {
   const [isConfirmingArchive, setIsConfirmingArchive] = useState(false);
@@ -301,7 +302,7 @@ const Settings = ({ listing, onStatusChange }) => {
         </div>
         
         {/* Only show activity visibility section for premium users */}
-        {user?.isPremium && (
+        {hasPremiumAccess(user) && (
           <div className="settings-section activity-visibility-section">
             <h2 className="settings-title">Activity Visibility</h2>
             <p className="settings-description">Control what buyer parties can see in the activity tab.</p>

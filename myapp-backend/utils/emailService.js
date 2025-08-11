@@ -928,6 +928,178 @@ class EmailService {
       return { success: false, error: error.message };
     }
   }
+
+  // Send trial expiration email
+  async sendTrialExpirationEmail(userEmail, firstName) {
+    const upgradeUrl = `${process.env.FRONTEND_URL}/upgrade-to-pro`;
+    
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: userEmail,
+      subject: 'Your RealOffer trial has ended - Upgrade to continue',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">Trial Period Ended</h1>
+            <p style="color: #666; margin: 10px 0 0 0;">Upgrade to continue enjoying RealOffer's premium features</p>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${firstName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              Your 3-month RealOffer trial period has ended. We hope you've enjoyed experiencing our premium features and found value in our platform.
+            </p>
+            
+            <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #ffc107;">
+              <h3 style="color: #856404; margin: 0 0 15px 0;">What happens now?</h3>
+              <ul style="color: #856404; line-height: 1.8; padding-left: 20px; margin: 0;">
+                <li>You can still access your existing listings and data</li>
+                <li>Premium features are now limited to free tier restrictions</li>
+                <li>Upgrade anytime to restore full access to all features</li>
+              </ul>
+            </div>
+            
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0;">
+              <h3 style="color: #333; margin: 0 0 15px 0;">🚀 Premium Features You'll Get:</h3>
+              <ul style="color: #666; line-height: 1.8; padding-left: 20px;">
+                <li><strong>Unlimited Listings:</strong> Create as many property packages as you need</li>
+                <li><strong>Advanced AI Analysis:</strong> Get detailed property comparisons and market insights</li>
+                <li><strong>AI Document Summaries:</strong> Automatically generate clear summaries of complex documents</li>
+                <li><strong>AI Chat Assistant:</strong> Provide instant answers to buyer questions</li>
+                <li><strong>Priority Support:</strong> Get faster response times from our support team</li>
+                <li><strong>Advanced Analytics:</strong> Detailed insights into buyer engagement and activity</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${upgradeUrl}" 
+                 style="background-color: #007bff; color: white; padding: 15px 40px; 
+                        text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
+                Upgrade to Pro
+              </a>
+            </div>
+            
+            <p style="color: #666; line-height: 1.6;">
+              If you have any questions about upgrading or need assistance, please don't hesitate to reach out to our support team.
+            </p>
+            
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0;">
+              <h4 style="color: #333; margin: 0 0 10px 0;">Need Help?</h4>
+              <p style="color: #666; line-height: 1.6; margin: 0;">
+                <strong>Avi Desai</strong><br>
+                Founder of RealOffer<br>
+                <a href="mailto:avi@realoffer.io" style="color: #007bff; text-decoration: none;">avi@realoffer.io</a><br>
+                <a href="tel:+14086019407" style="color: #007bff; text-decoration: none;">(408) 601-9407</a>
+              </p>
+            </div>
+            
+            <p style="color: #666; line-height: 1.6;">
+              Thank you for trying RealOffer!<br>
+              The RealOffer Team
+            </p>
+            
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('Trial expiration email send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Send trial expiration reminder
+  async sendTrialExpirationReminder(userEmail, firstName, timeRemaining) {
+    const upgradeUrl = `${process.env.FRONTEND_URL}/upgrade-to-pro`;
+    
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: userEmail,
+      subject: `Your RealOffer trial ends in ${timeRemaining} - Don't lose access!`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">Trial Ending Soon</h1>
+            <p style="color: #666; margin: 10px 0 0 0;">Your trial ends in ${timeRemaining} - Upgrade now to keep all features</p>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${firstName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              Your RealOffer trial period will end in ${timeRemaining}. We don't want you to lose access to the premium features you've been enjoying!
+            </p>
+            
+            <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #ffc107;">
+              <h3 style="color: #856404; margin: 0 0 15px 0;">⏰ Time is running out!</h3>
+              <p style="color: #856404; line-height: 1.6; margin: 0;">
+                When your trial ends, you'll lose access to unlimited listings, AI analysis, and other premium features. 
+                Upgrade now to continue enjoying everything RealOffer has to offer.
+              </p>
+            </div>
+            
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0;">
+              <h3 style="color: #333; margin: 0 0 15px 0;">🚀 What you'll keep with Pro:</h3>
+              <ul style="color: #666; line-height: 1.8; padding-left: 20px;">
+                <li><strong>Unlimited Listings:</strong> Create as many property packages as you need</li>
+                <li><strong>AI-Powered Analysis:</strong> Get instant property comparisons and market insights</li>
+                <li><strong>AI Document Summaries:</strong> Automatically generate clear summaries of complex documents</li>
+                <li><strong>AI Chat Assistant:</strong> Provide instant answers to buyer questions</li>
+                <li><strong>Advanced Analytics:</strong> Detailed insights into buyer engagement</li>
+                <li><strong>Priority Support:</strong> Faster response times from our team</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${upgradeUrl}" 
+                 style="background-color: #007bff; color: white; padding: 15px 40px; 
+                        text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
+                Upgrade Now
+              </a>
+            </div>
+            
+            <p style="color: #666; line-height: 1.6;">
+              Upgrade today to ensure uninterrupted access to all RealOffer features. 
+              If you have any questions, our support team is here to help!
+            </p>
+            
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0;">
+              <h4 style="color: #333; margin: 0 0 10px 0;">Questions?</h4>
+              <p style="color: #666; line-height: 1.6; margin: 0;">
+                <strong>Avi Desai</strong><br>
+                Founder of RealOffer<br>
+                <a href="mailto:avi@realoffer.io" style="color: #007bff; text-decoration: none;">avi@realoffer.io</a><br>
+                <a href="tel:+14086019407" style="color: #007bff; text-decoration: none;">(408) 601-9407</a>
+              </p>
+            </div>
+            
+            <p style="color: #666; line-height: 1.6;">
+              Don't let your trial expire!<br>
+              The RealOffer Team
+            </p>
+            
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('Trial expiration reminder send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 module.exports = new EmailService(); 

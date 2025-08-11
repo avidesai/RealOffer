@@ -40,6 +40,10 @@ const userSchema = new mongoose.Schema({
     receiveMarketingMaterials: { type: Boolean, default: false },
     isPremium: { type: Boolean, default: false },
     premiumPlan: { type: String, default: '' },
+    // Trial-related fields
+    trialStartDate: { type: Date },
+    trialEndDate: { type: Date },
+    isOnTrial: { type: Boolean, default: false },
     hasAgent: { type: Boolean, default: null }, // New field for buyers to indicate if they have an agent
     templates: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ListingTemplate', default: [] }],
     contacts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
@@ -61,6 +65,37 @@ const userSchema = new mongoose.Schema({
     subscriptionCancelAtPeriodEnd: { type: Boolean, default: false },
     paymentMethodId: { type: String },
 }, { timestamps: true });
+
+// Virtual field to check if user is currently on trial
+userSchema.virtual('isCurrentlyOnTrial').get(function() {
+    if (!this.isOnTrial || !this.trialEndDate) {
+        return false;
+    }
+    return new Date() < this.trialEndDate;
+});
+
+// Virtual field to get trial status
+userSchema.virtual('trialStatus').get(function() {
+    if (!this.isOnTrial) {
+        return 'no_trial';
+    }
+    
+    if (!this.trialEndDate) {
+        return 'active';
+    }
+    
+    const now = new Date();
+    if (now < this.trialEndDate) {
+        return 'active';
+    } else {
+        return 'expired';
+    }
+});
+
+// Method to check if user has premium access (either paid or on trial)
+userSchema.methods.hasPremiumAccess = function() {
+    return this.isPremium || this.isCurrentlyOnTrial;
+};
 
 userSchema.pre('save', async function (next) {
     if (this.isModified('password')) {

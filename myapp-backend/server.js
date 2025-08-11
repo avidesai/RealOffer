@@ -168,9 +168,13 @@ const buyerPackagesRouter = require('./routes/buyerPackages');
 const adminRouter = require('./routes/admin');
 const offerDueDateNotificationsRouter = require('./routes/offerDueDateNotifications');
 const enhancedChatRouter = require('./routes/enhancedChat');
+const trialManagementRouter = require('./routes/trialManagement');
 
 // Initialize offer due date notification service
 require('./utils/offerDueDateNotificationService');
+
+// Initialize trial expiration service
+require('./utils/trialExpirationService');
 
 // Route Usage
 app.use('/api/users', usersRouter);
@@ -188,6 +192,7 @@ app.use('/api/buyerPackages', buyerPackagesRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/offer-due-date-notifications', offerDueDateNotificationsRouter);
 app.use('/api/chat/enhanced', enhancedChatRouter);
+app.use('/api/trial-management', trialManagementRouter);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
