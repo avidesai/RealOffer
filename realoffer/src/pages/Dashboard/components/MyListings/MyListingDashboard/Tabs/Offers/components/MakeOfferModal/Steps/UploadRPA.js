@@ -80,6 +80,40 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
         }
       });
 
+      // ⬇️ ADD THIS ⬇️
+      console.log('[RPA] full analysis response:', analysisResponse?.data);
+
+      if (analysisResponse?.data?.debug) {
+        console.log('[RPA DEBUG] mappedData:', analysisResponse.data.mappedData);
+        console.log('[RPA DEBUG] candidates:', analysisResponse.data.debug.candidates);
+        console.log(
+          '[RPA DEBUG] kvps (first 40):',
+          analysisResponse.data.debug.kvps.slice(0, 40)
+        );
+        console.log(
+          '[RPA DEBUG] selectionMarks (first 40):',
+          analysisResponse.data.debug.selectionMarks.slice(0, 40)
+        );
+        console.log(
+          '[RPA DEBUG] markdownSample length:',
+          analysisResponse.data.debug.markdownSample?.length || 0
+        );
+
+        // auto-download a JSON you can upload to me
+        const blob = new Blob(
+          [JSON.stringify(analysisResponse.data, null, 2)],
+          { type: 'application/json' }
+        );
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `rpa-debug-${documentId}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } else {
+        console.warn('[RPA DEBUG] No debug payload returned. Did server include it?');
+      }
+
       if (analysisResponse.data.success) {
         const mappedData = analysisResponse.data.mappedData;
         setExtractedFields(mappedData);

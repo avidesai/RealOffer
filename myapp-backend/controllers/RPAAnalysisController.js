@@ -303,6 +303,13 @@ function applyCheckboxHeuristics(mappedData, labeledMarks) {
 
 exports.analyzeRPADocument = async (req, res) => {
   try {
+    // --- DEBUG SWITCH AT TOP OF HANDLER ---
+    const wantDebug =
+      req.query.debug === '1' ||
+      req.body?.debug === true ||
+      req.get('x-debug') === '1' ||
+      process.env.DEBUG_RPA === '1';
+
     if (!ENDPOINT || !API_KEY) {
       return res.status(500).json({ error: 'Azure credentials not configured' });
     }
@@ -389,8 +396,17 @@ exports.analyzeRPADocument = async (req, res) => {
     mappedData.sellerRentBackDays = mappedData.sellerRentBackDays || '';
     applyCheckboxHeuristics(mappedData, labeledMarks);
 
+    // --- PRINT DEBUG TO SERVER CONSOLE IF ENABLED ---
+    if (wantDebug) {
+      console.log('[RPA DEBUG][SERVER] mappedData:', mappedData);
+      console.log('[RPA DEBUG][SERVER] candidates:', JSON.stringify(candidateLog, null, 2));
+      console.log('[RPA DEBUG][SERVER] kvps (first 40):', kvpList.slice(0, 40));
+      console.log('[RPA DEBUG][SERVER] selectionMarks (first 40):', labeledMarks.slice(0, 40));
+      console.log('[RPA DEBUG][SERVER] markdownSample length:', (typeof markdown === 'string' ? markdown.length : 0));
+    }
+
     // Optional debug payload
-    const debug = (req.query.debug === '1')
+    const debug = wantDebug
       ? {
           normalizedFields: simplifiedFields,
           kvps: kvpList,
@@ -404,8 +420,7 @@ exports.analyzeRPADocument = async (req, res) => {
       success: true,
       mappedData,
       extracted: simplifiedFields,
-      debug,
-      rawAzureResponse: undefined // keep responses lean; toggle above if needed
+      debug
     });
   } catch (error) {
     const inner = error?.response?.data?.error?.innererror;

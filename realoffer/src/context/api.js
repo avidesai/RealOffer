@@ -46,8 +46,9 @@ api.interceptors.response.use(
   (response) => {
     console.log('Response received:', {
       status: response.status,
-      url: response.config.url
+      url: response.config?.url
     });
+    console.log('Response data:', response.data);
     return response;
   },
   (error) => {
