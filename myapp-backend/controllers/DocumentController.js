@@ -215,7 +215,7 @@ exports.uploadDocument = async (req, res) => {
       const savedDocument = await newDocument.save();
 
       // Only process embeddings for documents that need to be searchable
-      if (purpose === 'listing' || purpose === 'public' || purpose === 'signature_package') {
+      if (purpose === 'listing' || purpose === 'public') {
         try {
           await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
         } catch (err) {
@@ -328,7 +328,7 @@ exports.addDocumentToPropertyListing = async (req, res) => {
       const savedDocument = await newDocument.save();
       
       // Only process embeddings for documents that need to be searchable
-      if (purpose === 'listing' || purpose === 'public' || purpose === 'signature_package') {
+      if (purpose === 'listing' || purpose === 'public') {
         try {
           await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
         } catch (err) {
@@ -770,7 +770,6 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     });
 
     const savedDocument = await newDocument.save();
-    await optimizedDocumentProcessor.processDocumentForSearch(savedDocument);
 
 
     propertyListing.signaturePackage = savedDocument._id;
@@ -1338,7 +1337,7 @@ exports.uploadDocumentForBuyerPackage = async (req, res) => {
       const savedDocument = await newDocument.save();
       
       // Only process embeddings for documents that need to be searchable
-      if (purpose === 'listing' || purpose === 'public' || purpose === 'signature_package') {
+      if (purpose === 'listing' || purpose === 'public') {
         try {
           await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
         } catch (err) {
@@ -1499,7 +1498,7 @@ exports.uploadDocumentsWithProgress = async (req, res) => {
         const savedDocument = await newDocument.save();
 
         // Only process embeddings for documents that need to be searchable
-        if (purpose === 'listing' || purpose === 'public' || purpose === 'signature_package') {
+        if (purpose === 'listing' || purpose === 'public') {
           // Process document for search (this is the time-consuming part)
           res.write(`data: {"processing": "Processing ${file.originalname} for AI search..."}\n\n`);
           
