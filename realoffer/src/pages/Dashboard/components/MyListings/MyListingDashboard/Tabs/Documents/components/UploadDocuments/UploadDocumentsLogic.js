@@ -302,18 +302,26 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let uploadedDocumentIds = [];
+      let buffer = ''; // Buffer for incomplete chunks
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
         const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
+        buffer += chunk;
+        const lines = buffer.split('\n');
+        
+        // Keep the last line in buffer if it's incomplete
+        buffer = lines.pop() || '';
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
             try {
-              const data = JSON.parse(line.slice(6));
+              const jsonData = line.slice(6).trim();
+              if (!jsonData) continue; // Skip empty lines
+              
+              const data = JSON.parse(jsonData);
               
               if (data.error) {
                 throw new Error(data.error);
@@ -348,6 +356,37 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
               }
             } catch (parseError) {
               console.warn('Failed to parse progress data:', parseError);
+              console.warn('Raw data:', line.slice(6));
+            }
+          }
+        }
+      }
+      
+      // Process any remaining data in buffer
+      if (buffer.trim()) {
+        const lines = buffer.split('\n');
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const jsonData = line.slice(6).trim();
+              if (!jsonData) continue;
+              
+              const data = JSON.parse(jsonData);
+              
+              if (data.error) {
+                throw new Error(data.error);
+              }
+              
+              if (data.complete) {
+                setUploadProgress(prev => ({
+                  ...prev,
+                  isFullyComplete: true
+                }));
+                uploadedDocumentIds = data.documentIds || data.documents?.map(doc => doc._id) || [];
+                break;
+              }
+            } catch (parseError) {
+              console.warn('Failed to parse final buffer data:', parseError);
             }
           }
         }
