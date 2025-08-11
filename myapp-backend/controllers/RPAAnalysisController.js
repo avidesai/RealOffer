@@ -10,9 +10,16 @@ const { AzureKeyCredential } = require('@azure/core-auth');
 const ENDPOINT = process.env.AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT;
 const API_KEY = process.env.AZURE_DOCUMENT_INTELLIGENCE_KEY;
 
+// Initialize once
 const client = createDocumentAnalysisClient(ENDPOINT, new AzureKeyCredential(API_KEY));
 
-// Safely read Azure field values
+/** Normalize SDK response status that can be "202" or 202. */
+function statusCode(resp) {
+  const n = Number(resp?.status);
+  return Number.isNaN(n) ? -1 : n;
+}
+
+/** Safely pluck values from Azure field objects. */
 function getField(fields, ...keys) {
   for (const k of keys) {
     const f = fields?.[k];
@@ -23,26 +30,49 @@ function getField(fields, ...keys) {
   return '';
 }
 
-// Map extracted fields to your MakeOfferModal
+/** Map layout KVP fields to your MakeOfferModal shape. Tweak keys to your RPA. */
 function mapFieldsToOffer(fields) {
   const out = {};
-  out.purchasePrice = getField(fields, 'PurchasePrice', 'OfferPrice', 'TotalAmount', 'Amount') || '';
-  out.initialDeposit = getField(fields, 'InitialDeposit', 'EarnestMoney', 'Deposit') || '';
-  out.closeOfEscrow = getField(fields, 'CloseOfEscrow', 'CloseDate', 'EscrowCloseDate') || '';
+
+  // Money and amounts
+  out.purchasePrice =
+    getField(fields, 'PurchasePrice', 'OfferPrice', 'TotalAmount', 'Amount') || '';
+
+  out.initialDeposit =
+    getField(fields, 'InitialDeposit', 'EarnestMoney', 'Deposit') || '';
+
+  // Dates
+  out.closeOfEscrow =
+    getField(fields, 'CloseOfEscrow', 'CloseDate', 'EscrowCloseDate') || '';
+
+  // Buyer name
   out.buyerName = getField(fields, 'BuyerName', 'Buyer', 'Buyer1Name') || '';
-  out.financeContingencyDays = getField(fields, 'FinanceContingencyDays', 'LoanContingencyDays') || '';
-  out.appraisalContingencyDays = getField(fields, 'AppraisalContingencyDays') || '';
-  out.inspectionContingencyDays = getField(fields, 'InspectionContingencyDays', 'InvestigationContingencyDays') || '';
-  out.specialTerms = getField(fields, 'AdditionalTerms', 'SpecialTerms', 'OtherTerms') || '';
+
+  // Contingency day counts
+  out.financeContingencyDays =
+    getField(fields, 'FinanceContingencyDays', 'LoanContingencyDays') || '';
+
+  out.appraisalContingencyDays =
+    getField(fields, 'AppraisalContingencyDays') || '';
+
+  out.inspectionContingencyDays =
+    getField(fields, 'InspectionContingencyDays', 'InvestigationContingencyDays') || '';
+
+  // Free text
+  out.specialTerms =
+    getField(fields, 'AdditionalTerms', 'SpecialTerms', 'OtherTerms') || '';
+
+  // Flags default empty so UI logic can set Waived if blank days, etc.
   out.financeContingency = '';
   out.appraisalContingency = '';
   out.inspectionContingency = '';
   out.sellerRentBack = '';
   out.sellerRentBackDays = out.sellerRentBackDays || '';
+
   return out;
 }
 
-// Build per page surface
+/** Build per-page surface from layout for proximity labeling. */
 function collectWordsByPage(layout) {
   const pages = layout?.pages || [];
   return pages.map(p => {
@@ -63,6 +93,7 @@ function collectWordsByPage(layout) {
   });
 }
 
+/** Axis-aligned bbox from polygon. */
 function bboxFromPolygon(poly) {
   if (!poly || poly.length < 8) return null;
   let xmin = Infinity, ymin = Infinity, xmax = -Infinity, ymax = -Infinity;
@@ -76,6 +107,7 @@ function bboxFromPolygon(poly) {
   return [xmin, ymin, xmax, ymax];
 }
 
+/** Loose proximity check. */
 function bboxNear(b1, b2, inflate = 12) {
   if (!b1 || !b2) return false;
   const [x1a, y1a, x2a, y2a] = [b1[0] - inflate, b1[1] - inflate, b1[2] + inflate, b1[3] + inflate];
@@ -85,6 +117,7 @@ function bboxNear(b1, b2, inflate = 12) {
   return xOverlap > 0 || yOverlap > 0;
 }
 
+/** Label selection marks by nearest line text. */
 function labelSelectionMarks(pagesSurface) {
   const labeled = [];
   for (const page of pagesSurface) {
@@ -102,7 +135,7 @@ function labelSelectionMarks(pagesSurface) {
       }
       labeled.push({
         pageNumber: page.pageNumber,
-        state: mark.state,
+        state: mark.state, // 'selected' or 'unselected'
         label: (best.text || '').toLowerCase(),
         rawContent: (mark.content || '').toLowerCase(),
         bbox: mbox
@@ -112,6 +145,7 @@ function labelSelectionMarks(pagesSurface) {
   return labeled;
 }
 
+/** Apply checkbox heuristics to mappedData given labeled selection marks. */
 function applyCheckboxHeuristics(mappedData, labeledMarks) {
   const hints = {
     financeContingency: ['loan contingency', 'loan', 'financing contingency', 'financing'],
@@ -147,10 +181,11 @@ exports.analyzeRPADocument = async (req, res) => {
     if (!doc) return res.status(404).json({ error: 'Document not found' });
     if (doc.docType !== 'pdf') return res.status(400).json({ error: 'Only PDFs supported' });
 
+    // Build the actual PDF SAS URL
     const sas = generateSASToken(doc.azureKey);
-    const pdfUrl = `${doc.thumbnailUrl}?${sas}`;
+    const pdfUrl = `${doc.thumbnailUrl}?${sas}`; // thumbnailUrl is your real blob URL
 
-    // Single pass using prebuilt-layout with keyValuePairs
+    // Single pass: prebuilt-layout with keyValuePairs + ocrHighResolution
     const start = await client
       .path('/documentModels/{modelId}:analyze', 'prebuilt-layout')
       .post({
@@ -163,23 +198,29 @@ exports.analyzeRPADocument = async (req, res) => {
         }
       });
 
-    if (start.status !== 202) {
-      console.error('Analyze start failed', start.status, start.body?.error || start.body);
+    const sc = statusCode(start);
+    if (sc !== 202) {
+      console.error('Analyze start failed', sc, start.body?.error || start.body);
       return res.status(500).json({ error: 'Failed to start document analysis' });
     }
 
     const poller = getLongRunningPoller(client, start);
     const result = await poller.pollUntilDone();
 
+    // result.status is a string: 'succeeded' | 'failed' | 'canceled'
     if (result.status !== 'succeeded') {
-      console.error('Layout analysis did not succeed', result);
+      console.error('Layout analysis did not succeed', {
+        status: result.status,
+        error: result.body?.error
+      });
       return res.status(500).json({ error: 'Document analysis did not complete successfully' });
     }
 
-    // KVPs appear as documents[0].fields with key names when keyValuePairs is enabled
+    // With keyValuePairs feature, fields show up here
     const doc0 = result.body?.documents?.[0] || {};
     const rawFields = doc0.fields || {};
 
+    // Flatten fields for UI debugging
     const simplifiedFields = {};
     for (const [key, field] of Object.entries(rawFields)) {
       if (!field) continue;
@@ -192,9 +233,11 @@ exports.analyzeRPADocument = async (req, res) => {
         field.content ?? field.value ?? '';
     }
 
+    // Checkboxes
     const pagesSurface = collectWordsByPage(result.body);
     const labeledMarks = labelSelectionMarks(pagesSurface);
 
+    // Map to your UI shape + apply checkbox heuristics
     let mappedData = mapFieldsToOffer(rawFields);
     mappedData = applyCheckboxHeuristics(mappedData, labeledMarks);
 
@@ -205,7 +248,17 @@ exports.analyzeRPADocument = async (req, res) => {
       rawAzureResponse: { layout: result.body }
     });
   } catch (error) {
-    console.error('Error analyzing RPA document:', error);
+    // Azure style errors often have rich innererror details
+    const inner = error?.response?.data?.error?.innererror;
+    if (inner) {
+      console.error('Azure innererror:', inner);
+    }
+    console.error('Error analyzing RPA document:', {
+      message: error.message,
+      code: error.code,
+      status: error.response?.status,
+      dataError: error.response?.data?.error
+    });
 
     let message = 'Error analyzing RPA document';
     if (error.response?.status === 401) message = 'Azure Document Intelligence authentication failed';
@@ -213,9 +266,6 @@ exports.analyzeRPADocument = async (req, res) => {
     else if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT') message = 'Connection timeout. Please try again.';
     else if (error.response?.data?.error?.message) message = error.response.data.error.message;
 
-    const inner = error.response?.data?.error?.innererror;
-    if (inner) console.error('Azure innererror:', inner);
-
-    res.status(500).json({ message, error: error.message });
+    return res.status(500).json({ message, error: error.message });
   }
 };
