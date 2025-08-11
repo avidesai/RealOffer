@@ -188,25 +188,52 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
         return;
       }
       
-      await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/api/documents/createBuyerSignaturePacket`, 
-        { 
-          listingId,
-          documentOrder: documentOrder, // Send the main document order for fallback
-          signaturePackageDocumentOrder: signaturePackageDocumentOrder // Send the signature package document order
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
+      // Retry logic for network errors
+      let lastError;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          await axios.put(
+            `${process.env.REACT_APP_BACKEND_URL}/api/documents/createBuyerSignaturePacket`, 
+            { 
+              listingId,
+              documentOrder: documentOrder, // Send the main document order for fallback
+              signaturePackageDocumentOrder: signaturePackageDocumentOrder // Send the signature package document order
+            },
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              },
+              timeout: 60000 // 60 second timeout
+            }
+          );
+          
+          onClose();
+          refreshDocuments();
+          return; // Success, exit the retry loop
+        } catch (error) {
+          lastError = error;
+          console.error(`Attempt ${attempt} failed:`, error);
+          
+          // If it's a network error or 502/503/504, retry
+          if (error.code === 'ERR_NETWORK' || 
+              error.response?.status === 502 || 
+              error.response?.status === 503 || 
+              error.response?.status === 504) {
+            if (attempt < 3) {
+              // Wait before retrying (exponential backoff)
+              await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+              continue;
+            }
           }
+          
+          // For other errors, don't retry
+          break;
         }
-      );
+      }
       
-      onClose();
-      refreshDocuments();
-    } catch (error) {
-      console.error('Error creating/updating disclosure signature packet:', error);
-      setError('Failed to create signature package. Please try again.');
+      // If we get here, all attempts failed
+      console.error('All retry attempts failed:', lastError);
+      setError('Failed to create signature package after multiple attempts. Please try again later.');
     } finally {
       setIsLoading(false);
     }

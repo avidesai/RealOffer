@@ -203,6 +203,15 @@ app.use((err, req, res, next) => {
     method: req.method,
   });
   
+  // Ensure CORS headers are set even for errors
+  const origin = req.headers.origin;
+  if (origin && (allowedOrigins.indexOf(origin) !== -1 || origin.includes('docusign.com'))) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With');
+  
   // Handle Multer errors specifically
   if (err.name === 'MulterError') {
     if (err.code === 'LIMIT_FILE_SIZE') {

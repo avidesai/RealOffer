@@ -592,6 +592,17 @@ exports.removePageFromSignaturePackage = async (req, res) => {
 exports.createBuyerSignaturePacket = async (req, res) => {
   const { listingId, documentOrder, signaturePackageDocumentOrder } = req.body;
 
+  // Set a timeout for this operation
+  const timeout = setTimeout(() => {
+    console.error('createBuyerSignaturePacket timeout after 60 seconds');
+    if (!res.headersSent) {
+      res.status(408).json({ 
+        message: 'Request timeout. Please try again.', 
+        error: 'REQUEST_TIMEOUT' 
+      });
+    }
+  }, 60000); // 60 second timeout
+
   try {
     const propertyListing = await PropertyListing.findById(listingId).populate('signaturePackage');
     if (!propertyListing) {
@@ -787,10 +798,43 @@ exports.createBuyerSignaturePacket = async (req, res) => {
       response.warnings = processingErrors;
     }
 
+    // Clear the timeout
+    clearTimeout(timeout);
+    
     res.status(201).json(response);
   } catch (error) {
+    // Clear the timeout
+    clearTimeout(timeout);
+    
     console.error('Error creating/updating disclosure signature packet:', error);
-    res.status(500).json({ message: 'Error creating/updating disclosure signature packet', error: error.message });
+    
+    // Log more detailed error information
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      code: error.code
+    });
+    
+    // Check for specific error types
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ 
+        message: 'Validation error creating signature packet', 
+        error: error.message 
+      });
+    }
+    
+    if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+      return res.status(503).json({ 
+        message: 'Service temporarily unavailable. Please try again.', 
+        error: 'SERVICE_UNAVAILABLE' 
+      });
+    }
+    
+    res.status(500).json({ 
+      message: 'Error creating/updating disclosure signature packet', 
+      error: error.message 
+    });
   }
 };
 
