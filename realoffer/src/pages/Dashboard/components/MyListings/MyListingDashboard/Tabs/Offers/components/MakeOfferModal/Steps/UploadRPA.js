@@ -72,7 +72,7 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
       setAnalysisProgress('Analyzing RPA document with AI...');
 
       // Now analyze the RPA document
-      const analysisResponse = await api.post('/api/documents/analyze-rpa', {
+      const analysisResponse = await api.post('/api/documents/analyze-rpa?debug=1', {
         documentId: documentId
       }, {
         headers: {
