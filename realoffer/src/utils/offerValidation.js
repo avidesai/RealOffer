@@ -2,14 +2,14 @@
 
 // Validation rules for each step
 export const stepValidationRules = {
-  // Step 1: Upload RPA (no validation required - optional step)
-  1: {
-    required: [],
-    custom: () => []
-  },
+  // TEMPORARILY DISABLED - Step 1: Upload RPA (no validation required - optional step)
+  // 1: {
+  //   required: [],
+  //   custom: () => []
+  // },
   
-  // Step 2: Purchase Price
-  2: {
+  // Step 1: Purchase Price (was step 2)
+  1: {
     required: ['purchasePrice', 'financeType'],
     custom: (offerData) => {
       const errors = [];
@@ -35,8 +35,8 @@ export const stepValidationRules = {
     }
   },
   
-  // Step 3: Contingencies
-  3: {
+  // Step 2: Contingencies (was step 3)
+  2: {
     required: ['closeOfEscrow'],
     custom: (offerData) => {
       const errors = [];
@@ -50,8 +50,8 @@ export const stepValidationRules = {
     }
   },
   
-  // Step 4: Agent Information
-  4: {
+  // Step 3: Agent Information (was step 4)
+  3: {
     required: [],
     custom: (offerData) => {
       const errors = [];
@@ -85,8 +85,8 @@ export const stepValidationRules = {
     }
   },
   
-  // Step 5: Offer Details
-  5: {
+  // Step 4: Offer Details (was step 5)
+  4: {
     required: ['buyerName', 'buyersAgentCommission', 'offerExpiryDate'],
     custom: (offerData) => {
       const errors = [];
@@ -110,20 +110,20 @@ export const stepValidationRules = {
     }
   },
   
-  // Step 6: Documents (no validation required - optional step)
+  // Step 5: Documents (was step 6) (no validation required - optional step)
+  5: {
+    required: [],
+    custom: () => []
+  },
+  
+  // Step 6: Electronic Signatures (was step 7) (no validation required - optional step)
   6: {
     required: [],
     custom: () => []
   },
   
-  // Step 7: Electronic Signatures (no validation required - optional step)
+  // Step 7: Final Review (was step 8) (no validation required - this is review step)
   7: {
-    required: [],
-    custom: () => []
-  },
-  
-  // Step 8: Final Review (no validation required - this is review step)
-  8: {
     required: [],
     custom: () => []
   }
