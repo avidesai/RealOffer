@@ -214,10 +214,13 @@ exports.uploadDocument = async (req, res) => {
 
       const savedDocument = await newDocument.save();
 
-      try {
-        await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
-      } catch (err) {
-        console.error('Embedding failed for document:', savedDocument._id, err.message);
+      // Only process embeddings for documents that need to be searchable
+      if (purpose === 'listing' || purpose === 'public' || purpose === 'signature_package') {
+        try {
+          await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
+        } catch (err) {
+          console.error('Embedding failed for document:', savedDocument._id, err.message);
+        }
       }
       
       if (offerId) {
@@ -323,11 +326,16 @@ exports.addDocumentToPropertyListing = async (req, res) => {
       });
 
       const savedDocument = await newDocument.save();
-      try {
-        await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
-      } catch (err) {
-        console.error('Embedding failed for document:', savedDocument._id, err.message);
+      
+      // Only process embeddings for documents that need to be searchable
+      if (purpose === 'listing' || purpose === 'public' || purpose === 'signature_package') {
+        try {
+          await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
+        } catch (err) {
+          console.error('Embedding failed for document:', savedDocument._id, err.message);
+        }
       }
+      
       propertyListing.documents.push(savedDocument._id);
       
       documents.push(savedDocument);
@@ -1328,10 +1336,14 @@ exports.uploadDocumentForBuyerPackage = async (req, res) => {
       });
 
       const savedDocument = await newDocument.save();
-      try {
-        await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
-      } catch (err) {
-        console.error('Embedding failed for document:', savedDocument._id, err.message);
+      
+      // Only process embeddings for documents that need to be searchable
+      if (purpose === 'listing' || purpose === 'public' || purpose === 'signature_package') {
+        try {
+          await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
+        } catch (err) {
+          console.error('Embedding failed for document:', savedDocument._id, err.message);
+        }
       }
       
       documents.push(savedDocument);
@@ -1486,15 +1498,18 @@ exports.uploadDocumentsWithProgress = async (req, res) => {
 
         const savedDocument = await newDocument.save();
 
-        // Process document for search (this is the time-consuming part)
-        res.write(`data: {"processing": "Processing ${file.originalname} for AI search..."}\n\n`);
-        
-        try {
-          await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
-          res.write(`data: {"processing": "Completed processing ${file.originalname}"}\n\n`);
-        } catch (err) {
-          console.error('Embedding failed for document:', savedDocument._id, err.message);
-          res.write(`data: {"processing": "Warning: AI processing failed for ${file.originalname}"}\n\n`);
+        // Only process embeddings for documents that need to be searchable
+        if (purpose === 'listing' || purpose === 'public' || purpose === 'signature_package') {
+          // Process document for search (this is the time-consuming part)
+          res.write(`data: {"processing": "Processing ${file.originalname} for AI search..."}\n\n`);
+          
+          try {
+            await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
+            res.write(`data: {"processing": "Completed processing ${file.originalname}"}\n\n`);
+          } catch (err) {
+            console.error('Embedding failed for document:', savedDocument._id, err.message);
+            res.write(`data: {"processing": "Warning: AI processing failed for ${file.originalname}"}\n\n`);
+          }
         }
 
         propertyListing.documents.push(savedDocument._id);
