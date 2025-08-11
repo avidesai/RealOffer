@@ -142,6 +142,24 @@ app.get('/', (req, res) => {
   res.send('Hello World');
 });
 
+// Health check route with memory info
+app.get('/health', (req, res) => {
+  const memoryUsage = process.memoryUsage();
+  const uptime = process.uptime();
+  
+  res.json({
+    status: 'ok',
+    uptime: Math.round(uptime),
+    memory: {
+      rss: Math.round(memoryUsage.rss / 1024 / 1024) + 'MB',
+      heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024) + 'MB',
+      heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024) + 'MB',
+      external: Math.round(memoryUsage.external / 1024 / 1024) + 'MB'
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Test route for debugging session persistence
 app.get('/test-session', (req, res) => {
   if (!req.session.testValue) {

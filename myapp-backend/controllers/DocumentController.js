@@ -592,6 +592,14 @@ exports.removePageFromSignaturePackage = async (req, res) => {
 exports.createBuyerSignaturePacket = async (req, res) => {
   const { listingId, documentOrder, signaturePackageDocumentOrder } = req.body;
 
+  // Memory monitoring
+  const startMemory = process.memoryUsage();
+  console.log('Memory usage at start:', {
+    rss: Math.round(startMemory.rss / 1024 / 1024) + 'MB',
+    heapUsed: Math.round(startMemory.heapUsed / 1024 / 1024) + 'MB',
+    heapTotal: Math.round(startMemory.heapTotal / 1024 / 1024) + 'MB'
+  });
+
   // Set a timeout for this operation
   const timeout = setTimeout(() => {
     console.error('createBuyerSignaturePacket timeout after 60 seconds');
@@ -620,6 +628,19 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     
     // Get all documents for this listing
     const documents = await Document.find({ propertyListing: listingId });
+    
+    // Check memory usage before processing
+    const currentMemory = process.memoryUsage();
+    const memoryUsageMB = Math.round(currentMemory.heapUsed / 1024 / 1024);
+    console.log(`Current memory usage: ${memoryUsageMB}MB`);
+    
+    // If memory usage is too high, return an error
+    if (memoryUsageMB > 3500) { // 3.5GB limit
+      return res.status(503).json({ 
+        message: 'Server is currently under high load. Please try again in a few minutes.',
+        error: 'HIGH_MEMORY_USAGE'
+      });
+    }
     
     // Filter documents that have pages selected for the signature package
     let selectedDocuments = documents.filter(doc => doc.signaturePackagePages.length > 0);
@@ -650,6 +671,15 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     
     // Track any errors during document processing
     const processingErrors = [];
+    
+    // Limit the number of documents processed at once to prevent memory issues
+    const maxDocumentsPerRequest = 10;
+    if (selectedDocuments.length > maxDocumentsPerRequest) {
+      return res.status(400).json({ 
+        message: `Too many documents selected. Maximum ${maxDocumentsPerRequest} documents allowed per signature package.`,
+        error: 'TOO_MANY_DOCUMENTS'
+      });
+    }
 
     for (const document of selectedDocuments) {
       try {
@@ -675,7 +705,13 @@ exports.createBuyerSignaturePacket = async (req, res) => {
           continue;
         }
 
+        // Process documents one at a time to reduce memory usage
         const existingPdfBytes = await response.arrayBuffer();
+        
+        // Force garbage collection if available
+        if (global.gc) {
+          global.gc();
+        }
         
         try {
           const existingPdf = await PDFDocument.load(existingPdfBytes, { 
@@ -702,11 +738,20 @@ exports.createBuyerSignaturePacket = async (req, res) => {
               processingErrors.push(errorMsg);
             }
           }
+          
+          // Clean up memory after processing each document
+          existingPdf.destroy();
+          
         } catch (pdfError) {
           const errorMsg = `Error loading PDF for document ${document.title}: ${pdfError.message}`;
           console.error(errorMsg);
           processingErrors.push(errorMsg);
           continue;
+        }
+        
+        // Force garbage collection after processing each document
+        if (global.gc) {
+          global.gc();
         }
       } catch (err) {
         const errorMsg = `Error processing document ${document.title}: ${err.message}`;
@@ -798,6 +843,14 @@ exports.createBuyerSignaturePacket = async (req, res) => {
       response.warnings = processingErrors;
     }
 
+    // Memory monitoring at end
+    const endMemory = process.memoryUsage();
+    console.log('Memory usage at end:', {
+      rss: Math.round(endMemory.rss / 1024 / 1024) + 'MB',
+      heapUsed: Math.round(endMemory.heapUsed / 1024 / 1024) + 'MB',
+      heapTotal: Math.round(endMemory.heapTotal / 1024 / 1024) + 'MB'
+    });
+    
     // Clear the timeout
     clearTimeout(timeout);
     
