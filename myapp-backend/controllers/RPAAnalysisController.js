@@ -81,7 +81,12 @@ const FIELD_CONFIG = {
   },
   buyersAgentCommission: {
     labels: [/buyer[’']?s?\s+agent\s+commission/i, /buyer[’']?s?\s+broker/i, /compensate\s+buyer[’']?s?\s+broker/i],
-    want: 'string'
+    want: 'percent',
+    regexMarkdown: [
+      /Seller\s+agrees\s+to\s+pay\s+Buyer[’']?s\s+Broker[^%]{0,300}?(\d{1,2}(?:\.\d{1,3})?)\s*%/i,
+      /Seller\s+Payment[^%]{0,300}Buyer[’']?s\s+Broker[^%]{0,300}?(\d{1,2}(?:\.\d{1,3})?)\s*%/i,
+      /Buyer[’']?s\s+Broker[\s\S]{0,150}?(\d{1,2}(?:\.\d{1,3})?)\s*%/i
+    ]
   }
 };
 
@@ -229,6 +234,16 @@ function parseDateLike(s) {
   }
   return s;
 }
+function parsePercentLike(s) {
+  if (!s) return '';
+  const m = String(s).match(/(\d{1,2}(?:\.\d{1,3})?)\s*%?/);
+  if (!m) return '';
+  const n = parseFloat(m[1]);
+  if (Number.isNaN(n)) return '';
+  if (n < 0 || n > 100) return '';
+  // trim trailing zeros sensibly
+  return String(parseFloat(n.toFixed(3)));
+}
 
 /** Score a label match against a candidate key string. */
 function labelScore(candidate, labelRegexes) {
@@ -285,6 +300,7 @@ function pickForTarget(target, cfg, fields, kvpList, markdown) {
   if (cfg.want === 'currency') finalVal = parseCurrency(finalVal);
   else if (cfg.want === 'int') finalVal = parseIntLike(finalVal);
   else if (cfg.want === 'date') finalVal = parseDateLike(finalVal);
+  else if (cfg.want === 'percent') finalVal = parsePercentLike(finalVal);
 
   return { value: finalVal, source: best.source, raw: best.raw, score: best.score };
 }
@@ -310,8 +326,8 @@ function kvpKeyPick(kvps, keyRegex) {
   return hit ? String(hit.value).trim() : '';
 }
 
-/** Parse Buyer's Broker commission from pages+markdown (curly quotes, multi-line). */
-function extractCommission(analyzeResult, markdown) {
+/** Parse Buyer's Broker commission from markdown and (new) KVP keys. */
+function extractCommission(analyzeResult, markdown, kvps) {
   // 1) Try markdown broad patterns
   const patterns = [
     /Seller\s+agrees\s+to\s+pay\s+Buyer[’']?s\s+Broker[^%]{0,300}?(\d{1,2}(?:\.\d{1,3})?)\s*%/i,
@@ -320,17 +336,35 @@ function extractCommission(analyzeResult, markdown) {
   ];
   for (const re of patterns) {
     const m = markdown && markdown.match(re);
-    if (m) return m[1];
+    if (m) {
+      const pct = parsePercentLike(m[1]);
+      if (pct) return pct;
+    }
   }
 
-  // 2) Walk page lines and look at windows of up to 3 lines
+  // 2) Look directly in the KVP KEY (your debug shows the % lives there)
+  for (const kv of kvps || []) {
+    const key = String(kv.key || '');
+    if (!/Buyer[’']?s\s+Broker/i.test(key)) continue;
+    const m = key.match(/(\d{1,2}(?:\.\d{1,3})?)\s*%/i);
+    if (m) {
+      const pct = parsePercentLike(m[1]);
+      if (pct) return pct;
+    }
+  }
+
+  // 3) Walk page lines (window of up to 3 lines)
   const pages = Array.isArray(analyzeResult?.pages) ? analyzeResult.pages : [];
   for (const p of pages) {
     const lines = Array.isArray(p.lines) ? p.lines.map(l => (l.content || '').trim()).filter(Boolean) : [];
     for (let i = 0; i < lines.length; i++) {
       const window = lines.slice(i, i + 3).join(' ');
-      const m = window.match(/Buyer[’']?s\s+Broker[^%]{0,300}?(\d{1,2}(?:\.\d{1,3})?)\s*%/i);
-      if (m) return m[1];
+      if (!/Buyer[’']?s\s+Broker/i.test(window)) continue;
+      const m = window.match(/(\d{1,2}(?:\.\d{1,3})?)\s*%/);
+      if (m) {
+        const pct = parsePercentLike(m[1]);
+        if (pct) return pct;
+      }
     }
   }
   return '';
@@ -362,7 +396,6 @@ function applyCheckboxHeuristics(mappedData, labeledMarks) {
 
 /** Build a datetime-local string (YYYY-MM-DDTHH:mm) safely */
 function toLocalDateTime(dateIso, hh = 17, mm = 0) {
-  // do not apply timezone; just return local-style string
   if (!dateIso || !/^\d{4}-\d{2}-\d{2}$/.test(dateIso)) return '';
   const pad = (n) => String(n).padStart(2, '0');
   return `${dateIso}T${pad(hh)}:${pad(mm)}`;
@@ -471,7 +504,7 @@ exports.analyzeRPADocument = async (req, res) => {
     const pagesSurface = collectWordsByPage(ar);
     const labeledMarks = labelSelectionMarks(pagesSurface);
 
-    // Config-driven mapping
+    // Config-driven mapping (baseline)
     const mappedData = {};
     const candidateLog = {};
     for (const [target, cfg] of Object.entries(FIELD_CONFIG)) {
@@ -480,35 +513,29 @@ exports.analyzeRPADocument = async (req, res) => {
       candidateLog[target] = { source: pick.source || '', score: pick.score, raw: pick.raw };
     }
 
-    // --- Domain-specific fixes/overrides ---
+    // --- Domain-specific overrides ---
 
-    // Buyer Name: prefer the KVP under "Date Prepared: THIS IS AN OFFER FROM"
-    if (!mappedData.buyerName || isSentinel(mappedData.buyerName)) {
-      const offerFrom = kvpKeyPick(kvpList, /THIS\s+IS\s+AN\s+OFFER\s+FROM/i);
-      if (offerFrom) {
-        const parts = offerFrom.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-        // If first line is a date, second is likely the name
+    // Buyer Name: prefer the KVP under "Date Prepared:\nTHIS IS AN OFFER FROM"
+    {
+      const offerFromVal = kvpKeyPick(kvpList, /THIS\s+IS\s+AN\s+OFFER\s+FROM/i);
+      if (offerFromVal) {
+        const parts = offerFromVal.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
         let candidate = parts[0] || '';
-        if (/^\w+\s+\d{1,2},\s*\d{4}$/.test(candidate) && parts[1]) candidate = parts[1];
-        // Strip trailing buyer label if present
+        // If first line looks like a date, take the next line
+        if (/^[A-Za-z]{3,9}\s+\d{1,2},\s*\d{4}$/.test(candidate) && parts[1]) {
+          candidate = parts[1];
+        }
         candidate = candidate.replace(/\(“?Buyer”?\)\.?$/i, '').trim();
-        if (candidate) mappedData.buyerName = candidate;
-      } else {
-        // Markdown fallback
-        const m = markdown && markdown.match(/THIS\s+IS\s+AN\s+OFFER\s+FROM\s+([^\n\r]+)/i);
-        if (m && m[1]) mappedData.buyerName = m[1].replace(/\(“?Buyer”?\)\.?$/i, '').trim();
+        if (candidate) {
+          mappedData.buyerName = candidate; // override anything earlier (prevents brokerage name leakage)
+        }
       }
     }
 
     // Finance Type: prefer KVP checkbox "All Cash"
     if (!mappedData.financeType) {
-      if (kvpSelected(kvpList, /^All\s*Cash$/i)) {
-        mappedData.financeType = 'CASH';
-      } else {
-        mappedData.financeType = 'LOAN';
-      }
+      mappedData.financeType = kvpSelected(kvpList, /^All\s*Cash$/i) ? 'CASH' : 'LOAN';
     }
-    // If CASH, normalize dependent amounts
     if (mappedData.financeType === 'CASH') {
       mappedData.loanAmount = '0';
       mappedData.percentDown = '100';
@@ -518,9 +545,7 @@ exports.analyzeRPADocument = async (req, res) => {
     }
 
     // Close of Escrow:
-    // 1) If we have a concrete date, keep it as YYYY-MM-DD
-    // 2) If we only have "N Days after Acceptance", set the field to just the number "N"
-    // a) Direct KVP checkbox for "N Days after Acceptance"
+    // - If "N Days after Acceptance" is selected, store just N
     const daysKvp = kvpList.find(
       (kv) =>
         /(\d{1,3})\s*Days\s*after\s*Acceptance/i.test(kv.key || '') &&
@@ -528,14 +553,12 @@ exports.analyzeRPADocument = async (req, res) => {
     );
     if (daysKvp) {
       const m = (daysKvp.key || '').match(/(\d{1,3})\s*Days\s*after\s*Acceptance/i);
-      if (m) mappedData.closeOfEscrow = m[1]; // number only
+      if (m) mappedData.closeOfEscrow = m[1];
     } else if (mappedData.closeOfEscrow && /(\d{1,3})\s*Days\s*after\s*Acceptance/i.test(mappedData.closeOfEscrow)) {
       mappedData.closeOfEscrow = mappedData.closeOfEscrow.match(/(\d{1,3})/)[1];
     }
 
-    // Offer Expiration Date/Time:
-    // - Date: prefer KVP key "or Month DD, YYYY" (already handled in mapping).
-    // - Time: default 5:00 PM unless a specific time + AM/PM is filled and selected.
+    // Offer Expiration Date/Time -> produce datetime-local string
     let expiryDate = mappedData.offerExpiryDate && /^\d{4}-\d{2}-\d{2}$/.test(mappedData.offerExpiryDate)
       ? mappedData.offerExpiryDate
       : '';
@@ -549,61 +572,38 @@ exports.analyzeRPADocument = async (req, res) => {
       }
     }
 
-    // Try to detect explicit time filled (pattern near the date line: "... at 5PM or ____ AM/ PM")
-    let expiryHH = 17;
-    let expiryMM = 0;
-    let explicitTime = null;
-
+    // Default to 5:00 PM unless explicit time captured
+    let expiryHH = 17, expiryMM = 0;
     if (expiryDate && markdown) {
       const datePretty = new Date(expiryDate + 'T00:00:00').toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-      // e.g., "... or July 28, 2025 ... at 5PM or 11 AM/ PM"
       const timeRe = new RegExp(
         `or\\s+${datePretty.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}[\\s\\S]{0,120}?at\\s*5\\s*PM\\s*or\\s*([0-1]?\\d)(?::([0-5]\\d))?\\s*(AM|PM)`,
         'i'
       );
       const mTime = markdown.match(timeRe);
       if (mTime) {
-        explicitTime = { hh: parseInt(mTime[1], 10), mm: mTime[2] ? parseInt(mTime[2], 10) : 0, ampm: mTime[3].toUpperCase() };
-      }
-    }
-
-    // If the AM/PM boxes show a selection, honor it (even if minutes missing)
-    const amSelected = kvpSelected(kvpList, /^AM\/?$/i) || kvpSelected(kvpList, /\bAM\b/i);
-    const pmSelected = kvpSelected(kvpList, /^PM$/i) || kvpSelected(kvpList, /\bPM\b/i);
-
-    if (explicitTime) {
-      let { hh, mm, ampm } = explicitTime;
-      if (ampm === 'PM' && hh < 12) hh += 12;
-      if (ampm === 'AM' && hh === 12) hh = 0;
-      expiryHH = hh;
-      expiryMM = mm;
-    } else if (amSelected || pmSelected) {
-      // If a manual hour was typed (rare to surface in KVP), try a looser markdown catch not tied to the date string
-      const loose = markdown && markdown.match(/at\s*5\s*PM\s*or\s*([0-1]?\d)(?::([0-5]\d))?\s*(AM|PM)/i);
-      if (loose) {
-        let hh = parseInt(loose[1], 10);
-        let mm = loose[2] ? parseInt(loose[2], 10) : 0;
-        const ampm = loose[3].toUpperCase();
+        let hh = parseInt(mTime[1], 10);
+        let mm = mTime[2] ? parseInt(mTime[2], 10) : 0;
+        const ampm = mTime[3].toUpperCase();
         if (ampm === 'PM' && hh < 12) hh += 12;
         if (ampm === 'AM' && hh === 12) hh = 0;
         expiryHH = hh; expiryMM = mm;
-      } else {
-        // If they checked AM/PM but left time blank, still default to 5pm per requirement
-        expiryHH = 17; expiryMM = 0;
       }
-    } else {
-      // No explicit time — default to 5:00 PM local input
-      expiryHH = 17; expiryMM = 0;
     }
-
     if (expiryDate) {
       mappedData.offerExpiryDate = toLocalDateTime(expiryDate, expiryHH, expiryMM);
     }
 
-    // Buyer's Agent Commission (%) robust parsing
-    if (!mappedData.buyersAgentCommission || isSentinel(mappedData.buyersAgentCommission)) {
-      const pct = extractCommission(ar, markdown);
-      if (pct) mappedData.buyersAgentCommission = pct;
+    // Buyer’s Agent Commission (%) — robust extraction & override
+    {
+      const pct = extractCommission(ar, markdown, kvpList);
+      if (pct) {
+        mappedData.buyersAgentCommission = pct; // override any string picked earlier (e.g., a brokerage name)
+      } else if (mappedData.buyersAgentCommission) {
+        // If something non-numeric slipped in, clean it
+        const cleaned = parsePercentLike(mappedData.buyersAgentCommission);
+        mappedData.buyersAgentCommission = cleaned || '';
+      }
     }
 
     // Special Terms: do not auto-fill at all
@@ -641,7 +641,7 @@ exports.analyzeRPADocument = async (req, res) => {
           normalizedFields: simplifiedFields,
           kvps: kvpList,
           selectionMarks: labeledMarks,
-          markdownSample: markdown.slice(0, 6000),
+          markdownSample: (markdown || '').slice(0, 6000),
           candidates: candidateLog
         }
       : undefined;
