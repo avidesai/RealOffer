@@ -55,6 +55,12 @@ const initialOfferState = {
 // Enhanced document workflow state
 const initialDocumentWorkflow = {
   documents: [], // Single array for all documents
+  purchaseAgreement: {
+    document: null,
+    sendForSigning: false
+  },
+  requirements: { documents: [] },
+  additional:   { documents: [] },
   signing: {
     isConfigured: false,
     selectedDocuments: [],

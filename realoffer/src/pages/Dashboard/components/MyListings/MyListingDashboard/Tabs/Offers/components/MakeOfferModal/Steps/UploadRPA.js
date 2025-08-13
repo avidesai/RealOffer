@@ -8,7 +8,8 @@ import './UploadRPA.css';
 
 const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
   const { token } = useAuth();
-  const { updateOfferData } = useOffer();
+  const { updateOfferData, updateDocumentWorkflow } = useOffer();
+
   const [uploadedFile, setUploadedFile] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState('');
@@ -20,13 +21,10 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Validate file type
     if (file.type !== 'application/pdf') {
       setError('Please upload a PDF file');
       return;
     }
-
-    // Validate file size (max 50MB)
     if (file.size > 50 * 1024 * 1024) {
       setError('File size must be less than 50MB');
       return;
@@ -49,7 +47,7 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
     setAnalysisProgress('Uploading document...');
 
     try {
-      // First, upload the document to get a document ID
+      // 1) Upload the PDF to your backend
       const formData = new FormData();
       formData.append('documents', uploadedFile);
       formData.append('title', uploadedFile.name);
@@ -57,76 +55,67 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
       formData.append('propertyListingId', listingId);
       formData.append('purpose', 'rpa_analysis');
 
-      const uploadResponse = await api.post('/api/documents/propertyListing/' + listingId, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}`
+      const uploadResponse = await api.post(
+        '/api/documents/propertyListing/' + listingId,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`
+          }
         }
-      });
+      );
 
       if (!uploadResponse.data || uploadResponse.data.length === 0) {
         throw new Error('Failed to upload document');
       }
 
       const documentId = uploadResponse.data[0]._id;
+
+      // 2) Analyze pages 1 and 3–7 with Azure DI
       setAnalysisProgress('Analyzing RPA document with AI...');
+      const analysisResponse = await api.post(
+        '/api/documents/analyze-rpa?debug=1',
+        { documentId, pages: '1,3-7' },
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
 
-      // Now analyze the RPA document
-      const analysisResponse = await api.post('/api/documents/analyze-rpa?debug=1', {
-        documentId: documentId
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      // ⬇️ ADD THIS ⬇️
+      // Debug bundle (optional auto-download)
       console.log('[RPA] full analysis response:', analysisResponse?.data);
-
       if (analysisResponse?.data?.debug) {
-        console.log('[RPA DEBUG] mappedData:', analysisResponse.data.mappedData);
-        console.log('[RPA DEBUG] candidates:', analysisResponse.data.debug.candidates);
-        console.log(
-          '[RPA DEBUG] kvps (first 40):',
-          analysisResponse.data.debug.kvps.slice(0, 40)
-        );
-        console.log(
-          '[RPA DEBUG] selectionMarks (first 40):',
-          analysisResponse.data.debug.selectionMarks.slice(0, 40)
-        );
-        console.log(
-          '[RPA DEBUG] markdownSample length:',
-          analysisResponse.data.debug.markdownSample?.length || 0
-        );
-
-        // auto-download a JSON you can upload to me
-        const blob = new Blob(
-          [JSON.stringify(analysisResponse.data, null, 2)],
-          { type: 'application/json' }
-        );
+        const blob = new Blob([JSON.stringify(analysisResponse.data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = `rpa-debug-${documentId}.json`;
         a.click();
         URL.revokeObjectURL(url);
-      } else {
-        console.warn('[RPA DEBUG] No debug payload returned. Did server include it?');
       }
 
       if (analysisResponse.data.success) {
-        const mappedData = analysisResponse.data.mappedData;
+        const mappedData = analysisResponse.data.mappedData || {};
         setExtractedFields(mappedData);
-        
-        // Update the offer data with the extracted fields
-        updateOfferData(prevData => ({
-          ...prevData,
-          ...mappedData
+
+        // 3) Prefill the offer data with extracted fields
+        updateOfferData(prev => ({ ...prev, ...mappedData }));
+
+        // 4) Add the RPA into the document workflow so it shows in the Documents step
+        updateDocumentWorkflow(prev => ({
+          ...prev,
+          purchaseAgreement: {
+            ...(prev.purchaseAgreement || {}),
+            document: { id: documentId, title: uploadedFile.name },
+            sendForSigning: false
+          },
+          documents: [
+            ...(prev.documents || []),
+            { id: documentId, title: uploadedFile.name, sendForSigning: false }
+          ]
         }));
 
         setSuccess(true);
         setAnalysisProgress('Analysis complete! Form pre-filled with extracted data.');
-        
+
         // Auto-advance to next step after a short delay
         setTimeout(() => {
           handleNextStep();
@@ -134,14 +123,14 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
       } else {
         throw new Error(analysisResponse.data.message || 'Analysis failed');
       }
-    } catch (error) {
-      console.error('Error analyzing RPA:', error);
-      setError(error.response?.data?.message || error.message || 'Failed to analyze RPA document');
+    } catch (err) {
+      console.error('Error analyzing RPA:', err);
+      setError(err.response?.data?.message || err.message || 'Failed to analyze RPA document');
       setAnalysisProgress('');
     } finally {
       setIsAnalyzing(false);
     }
-  }, [uploadedFile, listingId, token, updateOfferData, handleNextStep]);
+  }, [uploadedFile, listingId, token, updateOfferData, updateDocumentWorkflow, handleNextStep]);
 
   const handleSkip = useCallback(() => {
     handleNextStep();
@@ -200,7 +189,7 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
                 <h4>{uploadedFile.name}</h4>
                 <p>{(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</p>
               </div>
-              <button 
+              <button
                 onClick={handleRemoveFile}
                 className="rpa-remove-file-btn"
                 disabled={isAnalyzing}
@@ -209,9 +198,9 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
                 ×
               </button>
             </div>
-            
+
             {!isAnalyzing && !success && (
-              <button 
+              <button
                 onClick={handleAnalyzeRPA}
                 className="rpa-analyze-button"
                 disabled={!uploadedFile}
@@ -240,7 +229,7 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
             {Object.entries(extractedFields).map(([field, value]) => (
               <div key={field} className="rpa-extracted-field">
                 <span className="rpa-field-name">{field}:</span>
-                <span className="rpa-field-value">{value}</span>
+                <span className="rpa-field-value">{String(value)}</span>
               </div>
             ))}
           </div>
@@ -256,7 +245,7 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
       <div className="rpa-help-section">
         <h4>What is an RPA?</h4>
         <p>
-          The California Residential Purchase Agreement (RPA) is the standard form used for residential real estate transactions in California. 
+          The California Residential Purchase Agreement (RPA) is the standard form used for residential real estate transactions in California.
           Uploading your completed RPA will automatically extract key information like purchase price, contingencies, and dates to pre-fill your offer.
         </p>
         <h4>Supported Formats</h4>
@@ -268,7 +257,7 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
       </div>
 
       <div className="mom-button-container">
-        <button 
+        <button
           onClick={handleSkip}
           className="mom-step-back-button"
           disabled={isAnalyzing}
@@ -276,9 +265,9 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
         >
           Skip RPA Upload
         </button>
-        
+
         {success && (
-          <button 
+          <button
             onClick={handleNextStep}
             className="mom-next-button"
             type="button"
@@ -291,4 +280,4 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
   );
 };
 
-export default UploadRPA; 
+export default UploadRPA;

@@ -3,14 +3,13 @@
 const Document = require('../models/Document');
 const { generateSASToken } = require('../config/azureStorage');
 
-const createDocumentAnalysisClient = require('@azure-rest/ai-document-intelligence').default;
-const { getLongRunningPoller } = require('@azure-rest/ai-document-intelligence');
-const { AzureKeyCredential } = require('@azure/core-auth');
+const DocumentIntelligence = require('@azure-rest/ai-document-intelligence').default;
+const { getLongRunningPoller, isUnexpected } = require('@azure-rest/ai-document-intelligence');
 
 const ENDPOINT = process.env.AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT;
 const API_KEY = process.env.AZURE_DOCUMENT_INTELLIGENCE_KEY;
 
-const client = createDocumentAnalysisClient(ENDPOINT, new AzureKeyCredential(API_KEY));
+const client = DocumentIntelligence(ENDPOINT, { key: API_KEY });
 
 /** Normalize SDK response status that can be "202" or 202. */
 function httpStatus(resp) {
@@ -97,8 +96,8 @@ function normalizeKey(key) {
 }
 
 /** Build per-page surface for proximity labeling. */
-function collectWordsByPage(layout) {
-  const pages = layout?.pages || [];
+function collectWordsByPage(analyzeResult) {
+  const pages = analyzeResult?.pages || [];
   return pages.map(p => {
     const words = [];
     if (Array.isArray(p.lines)) {
@@ -167,9 +166,9 @@ function labelSelectionMarks(pagesSurface) {
   return labeled;
 }
 
-/** Build a fields-like object from result.body.keyValuePairs if documents[0].fields is empty. */
-function buildFieldsFromKvps(resultBody) {
-  const kvps = Array.isArray(resultBody?.keyValuePairs) ? resultBody.keyValuePairs : [];
+/** Build a fields-like object from analyzeResult.keyValuePairs if documents[0].fields is empty. */
+function buildFieldsFromKvps(analyzeResult) {
+  const kvps = Array.isArray(analyzeResult?.keyValuePairs) ? analyzeResult.keyValuePairs : [];
   const fields = {};
   for (const kv of kvps) {
     const keyText = kv.key?.content?.trim();
@@ -187,8 +186,8 @@ function buildFieldsFromKvps(resultBody) {
 }
 
 /** Build a debug list of KVPs with pages and confidences. */
-function makeKvpList(resultBody) {
-  const kvps = Array.isArray(resultBody?.keyValuePairs) ? resultBody.keyValuePairs : [];
+function makeKvpList(analyzeResult) {
+  const kvps = Array.isArray(analyzeResult?.keyValuePairs) ? analyzeResult.keyValuePairs : [];
   return kvps.map(kv => ({
     key: kv.key?.content || '',
     value: kv.value?.content || '',
@@ -303,7 +302,6 @@ function applyCheckboxHeuristics(mappedData, labeledMarks) {
 
 exports.analyzeRPADocument = async (req, res) => {
   try {
-    // --- DEBUG SWITCH AT TOP OF HANDLER ---
     const wantDebug =
       req.query.debug === '1' ||
       req.body?.debug === true ||
@@ -321,8 +319,9 @@ exports.analyzeRPADocument = async (req, res) => {
     if (doc.docType !== 'pdf') return res.status(400).json({ error: 'Only PDFs supported' });
 
     const sas = generateSASToken(doc.azureKey);
-    const pdfUrl = `${doc.thumbnailUrl}?${sas}`; // original blob URL
+    const pdfUrl = `${doc.thumbnailUrl}?${sas}`; // original PDF in your setup
 
+    const pages = req.body?.pages || '1,3-7';
     const start = await client
       .path('/documentModels/{modelId}:analyze', 'prebuilt-layout')
       .post({
@@ -330,12 +329,18 @@ exports.analyzeRPADocument = async (req, res) => {
         body: { urlSource: pdfUrl },
         queryParameters: {
           stringIndexType: 'utf16CodeUnit',
-          features: ['keyValuePairs', 'ocrHighResolution'],
+          pages,
+          features: ['keyValuePairs', 'queryFields', 'ocrHighResolution'],
+          queryFields: [
+            'Purchase Price', 'Initial Deposit', 'Close Of Escrow', 'Loan Amount',
+            'Percent Down', 'Down Payment', 'Appraisal contingency', 'No appraisal contingency',
+            'Loan contingency', 'No loan contingency', 'Expiration of Offer', 'Seller rent back'
+          ],
           outputContentFormat: 'markdown'
         }
       });
 
-    if (httpStatus(start) !== 202) {
+    if (isUnexpected(start)) {
       console.error('Analyze start failed', httpStatus(start), start.body?.error || start.body);
       return res.status(500).json({ error: 'Failed to start document analysis' });
     }
@@ -343,26 +348,27 @@ exports.analyzeRPADocument = async (req, res) => {
     const poller = getLongRunningPoller(client, start);
     const result = await poller.pollUntilDone();
 
-    const jobState = (result?.body?.status || '').toLowerCase();
+    const body = result?.body || {};
+    const ar = body?.analyzeResult || {};
+    const jobState = (body?.status || '').toLowerCase();
     if (jobState && jobState !== 'succeeded' && jobState !== 'partiallysucceeded') {
       console.error('Layout analysis did not succeed', {
         http: httpStatus(result),
         jobState,
-        error: result?.body?.error
+        error: body?.error
       });
       return res.status(500).json({ error: 'Document analysis did not complete successfully' });
     }
 
-    // Raw pieces from Azure
-    const body = result.body || {};
-    const markdown = typeof body.content === 'string' ? body.content : '';
-    let rawFields = body?.documents?.[0]?.fields || {};
+    // Raw pieces from Azure analyzeResult
+    const markdown = typeof ar.content === 'string' ? ar.content : '';
+    let rawFields = ar?.documents?.[0]?.fields || {};
     if (!rawFields || Object.keys(rawFields).length === 0) {
-      rawFields = buildFieldsFromKvps(body);
+      rawFields = buildFieldsFromKvps(ar);
     }
-    const kvpList = makeKvpList(body);
+    const kvpList = makeKvpList(ar);
 
-    // Flatten fields for UI/debug
+    // Flatten fields for UI or debug
     const simplifiedFields = {};
     for (const [key, field] of Object.entries(rawFields)) {
       if (!field) continue;
@@ -375,11 +381,11 @@ exports.analyzeRPADocument = async (req, res) => {
         field.content ?? field.value ?? '';
     }
 
-    // Selection marks (checkboxes)
-    const pagesSurface = collectWordsByPage(body);
+    // Selection marks
+    const pagesSurface = collectWordsByPage(ar);
     const labeledMarks = labelSelectionMarks(pagesSurface);
 
-    // Config-driven mapping
+    // Config driven mapping
     const mappedData = {};
     const candidateLog = {};
     for (const [target, cfg] of Object.entries(FIELD_CONFIG)) {
@@ -388,7 +394,7 @@ exports.analyzeRPADocument = async (req, res) => {
       candidateLog[target] = { source: pick.source || '', score: pick.score, raw: pick.raw };
     }
 
-    // Defaults expected by UI + checkbox heuristics
+    // Defaults expected by UI plus checkbox heuristics
     mappedData.financeContingency = mappedData.financeContingency || '';
     mappedData.appraisalContingency = mappedData.appraisalContingency || '';
     mappedData.inspectionContingency = mappedData.inspectionContingency || '';
@@ -396,7 +402,6 @@ exports.analyzeRPADocument = async (req, res) => {
     mappedData.sellerRentBackDays = mappedData.sellerRentBackDays || '';
     applyCheckboxHeuristics(mappedData, labeledMarks);
 
-    // --- PRINT DEBUG TO SERVER CONSOLE IF ENABLED ---
     if (wantDebug) {
       console.log('[RPA DEBUG][SERVER] mappedData:', mappedData);
       console.log('[RPA DEBUG][SERVER] candidates:', JSON.stringify(candidateLog, null, 2));
@@ -405,13 +410,12 @@ exports.analyzeRPADocument = async (req, res) => {
       console.log('[RPA DEBUG][SERVER] markdownSample length:', (typeof markdown === 'string' ? markdown.length : 0));
     }
 
-    // Optional debug payload
     const debug = wantDebug
       ? {
           normalizedFields: simplifiedFields,
           kvps: kvpList,
           selectionMarks: labeledMarks,
-          markdownSample: markdown.slice(0, 6000), // avoid massive payloads
+          markdownSample: markdown.slice(0, 6000),
           candidates: candidateLog
         }
       : undefined;
