@@ -71,6 +71,19 @@ const FIELD_CONFIG = {
   specialTerms: {
     labels: [/additional\s*terms/i, /special\s*terms/i, /other\s*terms/i, /addenda?/i],
     want: 'string'
+  },
+  // New: support for Offer Expiration (sometimes appears as a date literal in KVP key)
+  offerExpiryDate: {
+    labels: [/expiration\s*of\s*offer/i, /\boffer\s*expires/i],
+    want: 'date',
+    regexMarkdown: [
+      /expiration\s*of\s*offer[\s\S]{0,120}?\bor\b[^A-Za-z0-9]{0,8}([A-Za-z]{3,9}\s+\d{1,2},\s*\d{4}|\d{1,2}[/-]\d{1,2}[/-]\d{2,4})/i
+    ]
+  },
+  // We'll also try to parse this from markdown; left here for symmetry with schema
+  buyersAgentCommission: {
+    labels: [/buyer'?s?\s+agent\s+commission/i, /buyer'?s?\s+broker/i, /compensate\s+buyer'?s?\s+broker/i],
+    want: 'string'
   }
 };
 
@@ -276,7 +289,28 @@ function pickForTarget(target, cfg, fields, kvpList, markdown) {
   return { value: finalVal, source: best.source, raw: best.raw, score: best.score };
 }
 
-/** Apply checkbox heuristics to mappedData given labeled selection marks. */
+/** --- Helpers that make KVPs the first-class signal for checkboxes/choices --- */
+function kvpSelected(kvps, keyRegex) {
+  return kvps.some(
+    (kv) =>
+      keyRegex.test(kv.key || '') &&
+      String(kv.value || '').trim().toLowerCase() === ':selected:'
+  );
+}
+function kvpKeyPick(kvps, keyRegex) {
+  const hit = kvps.find((kv) => {
+    const v = String(kv.value || '').trim();
+    return (
+      keyRegex.test(kv.key || '') &&
+      v &&
+      v.toLowerCase() !== ':selected:' &&
+      v.toLowerCase() !== ':unselected:'
+    );
+  });
+  return hit ? String(hit.value).trim() : '';
+}
+
+/** Apply checkbox heuristics to mappedData given labeled selection marks (fallback only). */
 function applyCheckboxHeuristics(mappedData, labeledMarks) {
   const hints = {
     financeContingency: ['loan contingency', 'loan', 'financing contingency', 'financing'],
@@ -321,7 +355,8 @@ exports.analyzeRPADocument = async (req, res) => {
     const sas = generateSASToken(doc.azureKey);
     const pdfUrl = `${doc.thumbnailUrl}?${sas}`; // original PDF in your setup
 
-    const pages = req.body?.pages || '1,3-7';
+    // Include p2 (G(3) buyer broker comp) and drop page 7
+    const pages = req.body?.pages || '1-6';
     const start = await client
       .path('/documentModels/{modelId}:analyze', 'prebuilt-layout')
       .post({
@@ -331,7 +366,7 @@ exports.analyzeRPADocument = async (req, res) => {
           stringIndexType: 'utf16CodeUnit',
           pages,
           features: ['keyValuePairs', 'queryFields', 'ocrHighResolution'],
-          // v4 requires tokens to match ^[\\p{L}\\p{M}\\p{N}_]{1,64}$ (no spaces/punctuation)
+          // v4 requires tokens to match ^[\p{L}\p{M}\p{N}_]{1,64}$ (no spaces/punctuation)
           queryFields: [
             'PurchasePrice',
             'InitialDeposit',
@@ -398,11 +433,11 @@ exports.analyzeRPADocument = async (req, res) => {
         field.content ?? field.value ?? '';
     }
 
-    // Selection marks
+    // Selection marks surface (fallback only)
     const pagesSurface = collectWordsByPage(ar);
     const labeledMarks = labelSelectionMarks(pagesSurface);
 
-    // Config driven mapping
+    // Config driven mapping (generic)
     const mappedData = {};
     const candidateLog = {};
     for (const [target, cfg] of Object.entries(FIELD_CONFIG)) {
@@ -411,7 +446,88 @@ exports.analyzeRPADocument = async (req, res) => {
       candidateLog[target] = { source: pick.source || '', score: pick.score, raw: pick.raw };
     }
 
-    // Defaults expected by UI plus checkbox heuristics
+    // --- Domain-specific fixes using KVPs and markdown ---
+
+    // Buyer Name: KVP where key contains "THIS IS AN OFFER FROM" and value has date + name on next line
+    if (!mappedData.buyerName) {
+      const offerFrom = kvpKeyPick(kvpList, /THIS\s+IS\s+AN\s+OFFER\s+FROM/i);
+      if (offerFrom) {
+        const parts = offerFrom.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+        // Often value looks like: "July 28, 2025\nYnot Investment LLC"
+        const nameCandidate = parts.length > 1 ? parts[1] : parts[0];
+        if (nameCandidate && !/^July|January|February|March|April|May|June|August|September|October|November|December/i.test(nameCandidate)) {
+          mappedData.buyerName = nameCandidate;
+        } else if (parts[0]) {
+          // If first line is date, second is likely the name, else fallback to any non-empty
+          mappedData.buyerName = parts.find((p) => !/\d{4}/.test(p)) || parts[0];
+        }
+      }
+    }
+
+    // Finance Type: prefer KVP checkbox "All Cash"
+    if (!mappedData.financeType) {
+      if (kvpSelected(kvpList, /^All\s*Cash$/i)) {
+        mappedData.financeType = 'CASH';
+      } else {
+        mappedData.financeType = 'LOAN';
+      }
+    }
+    // If CASH, normalize dependent amounts
+    if (mappedData.financeType === 'CASH') {
+      mappedData.loanAmount = '0';
+      mappedData.percentDown = '100';
+      if (mappedData.purchasePrice && (!mappedData.downPayment || Number(mappedData.downPayment) === 0)) {
+        mappedData.downPayment = mappedData.purchasePrice;
+      }
+    }
+
+    // Close of Escrow: if not a concrete date, support "N Days after Acceptance" via KVP key
+    if (!mappedData.closeOfEscrow || /:unselected:/i.test(mappedData.closeOfEscrow)) {
+      const daysHit = kvpList.find(
+        (kv) =>
+          /(\d{1,3})\s*Days\s*after\s*Acceptance/i.test(kv.key || '') &&
+          String(kv.value || '').trim().toLowerCase() === ':selected:'
+      );
+      if (daysHit) {
+        const m = (daysHit.key || '').match(/(\d{1,3})\s*Days\s*after\s*Acceptance/i);
+        if (m) mappedData.closeOfEscrow = `${m[1]} Days after Acceptance`;
+      }
+    }
+
+    // Expiration of Offer: sometimes the date literal exists in the KEY (e.g., "or July 28, 2025")
+    if (!mappedData.offerExpiryDate) {
+      const dFromKey = kvpList.find((kv) => /or\s+[A-Za-z]{3,9}\s+\d{1,2},\s*\d{4}/i.test(kv.key || ''));
+      if (dFromKey) {
+        const m = (dFromKey.key || '').match(
+          /(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*\d{4}/i
+        );
+        if (m) mappedData.offerExpiryDate = parseDateLike(m[0]);
+      }
+    }
+
+    // Buyer's Agent Commission (%): parse from markdown (lives on p2 G(3))
+    if (!mappedData.buyersAgentCommission) {
+      let m =
+        markdown &&
+        markdown.match(
+          /Seller\s+Payment[^%]{0,240}Buyer'?s\s+Broker[^%]{0,240}?(\d{1,2}(?:\.\d{1,3})?)\s*%/i
+        );
+      if (!m) {
+        // Alternate: sometimes printed near "G(3)" with an "X" next to the numeric
+        m = markdown && markdown.match(/G\(3\)[\s\S]{0,200}?\b[Xx]\s*([0-9]{1,2}(?:\.[0-9]{1,3})?)(?!\d)/);
+      }
+      if (!m) {
+        // Very loose fallback: a % near 'Buyer' and 'Broker'
+        m =
+          markdown &&
+          markdown.match(/Buyer'?s?\s+Broker[\s\S]{0,120}?(\d{1,2}(?:\.\d{1,3})?)\s*%/i);
+      }
+      if (m) {
+        mappedData.buyersAgentCommission = m[1];
+      }
+    }
+
+    // Defaults expected by UI plus checkbox heuristics (fallback last)
     mappedData.financeContingency = mappedData.financeContingency || '';
     mappedData.appraisalContingency = mappedData.appraisalContingency || '';
     mappedData.inspectionContingency = mappedData.inspectionContingency || '';
