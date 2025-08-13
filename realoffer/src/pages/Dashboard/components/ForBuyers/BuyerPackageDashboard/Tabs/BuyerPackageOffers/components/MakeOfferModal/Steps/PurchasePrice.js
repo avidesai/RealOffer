@@ -52,7 +52,7 @@ const PurchasePrice = ({ handleNextStep, handlePrevStep, errors = [] }) => {
   // NEW: auto-switch DP to $ mode if we received a dollar value and no % was provided
   useEffect(() => {
     const dp = parseNumber(offerData.downPayment);
-    const dpPct = parsePercentage(offerData.downPaymentPercent || '');
+    const dpPct = parsePercentage(offerData.downPaymentPercent || offerData.percentDown || '');
     if (offerData.financeType !== 'CASH' && dp > 0 && (!dpPct || dpPct === 0)) {
       setInputModes(prev => ({ ...prev, downPayment: 'dollar' }));
     }

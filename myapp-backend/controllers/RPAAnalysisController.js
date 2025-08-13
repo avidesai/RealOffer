@@ -548,11 +548,16 @@ exports.analyzeRPADocument = async (req, res) => {
         const down = Math.max(0, Math.round(purchasePriceNum - loanNum));
         mappedData.loanAmount = String(Math.round(loanNum));
         mappedData.downPayment = String(down);
-        mappedData.percentDown = ((down / purchasePriceNum) * 100).toFixed(2);
+        const pctDown = (down / purchasePriceNum) * 100;
+        mappedData.percentDown = pctDown.toFixed(2);
+        // NEW: feed the UI's percent input
+        mappedData.downPaymentPercent = mappedData.percentDown;
       }
     } else if (mappedData.financeType === 'CASH') {
       mappedData.loanAmount = '0';
       mappedData.percentDown = '100';
+      // NEW: keep UI in percent mode on cash
+      mappedData.downPaymentPercent = '100';
       if (mappedData.purchasePrice && (!mappedData.downPayment || Number(mappedData.downPayment) === 0)) {
         mappedData.downPayment = mappedData.purchasePrice;
       }
@@ -622,6 +627,11 @@ exports.analyzeRPADocument = async (req, res) => {
     // Clean any lingering sentinel tokens
     for (const k of Object.keys(mappedData)) {
       if (isSentinel(mappedData[k])) mappedData[k] = '';
+    }
+
+    // NEW: final safety — if analyzer only produced percentDown, mirror it to downPaymentPercent
+    if (!mappedData.downPaymentPercent && mappedData.percentDown) {
+      mappedData.downPaymentPercent = mappedData.percentDown;
     }
 
     if (wantDebug) {
