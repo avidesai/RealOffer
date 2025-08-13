@@ -30,9 +30,9 @@ This is a summary of the test analysis report. The PDF should be properly format
   }
 };
 
-export const generateAnalysisPDF = async (analysisContent, documentType, documentTitle) => {
+export const generateAnalysisPDF = async (analysisContent, documentType, documentTitle, addressLine) => {
   try {
-    console.log('generateAnalysisPDF called with:', { documentType, documentTitle, contentLength: analysisContent?.length });
+    console.log('generateAnalysisPDF called with:', { documentType, documentTitle, addressLine, contentLength: analysisContent?.length });
     
     // Create a new PDF document
     const pdfDoc = await PDFDocument.create();
@@ -235,6 +235,14 @@ export const generateAnalysisPDF = async (analysisContent, documentType, documen
     drawText(headerText, (width - headerWidth) / 2, currentY, boldFont, headerFontSize, rgb(0.2, 0.2, 0.2), page);
     currentY -= headerFontSize * 1.5;
     
+    // Add address line (above Document: line)
+    if (addressLine) {
+      const addressText = `Address: ${sanitizeTextForPdf(addressLine)}`;
+      const addressFontSize = 14;
+      drawText(addressText, margin, currentY, font, addressFontSize, rgb(0.4, 0.4, 0.4), page);
+      currentY -= addressFontSize * 1.5;
+    }
+
     // Add document title
     if (documentTitle) {
       const titleText = `Document: ${documentTitle}`;
@@ -416,10 +424,10 @@ export const generateAnalysisPDF = async (analysisContent, documentType, documen
   }
 };
 
-export const downloadAnalysisPDF = async (analysisContent, documentType, documentTitle) => {
+export const downloadAnalysisPDF = async (analysisContent, documentType, documentTitle, addressLine) => {
   try {
     console.log('Starting PDF generation...', { documentType, documentTitle });
-    const pdfBytes = await generateAnalysisPDF(analysisContent, documentType, documentTitle);
+    const pdfBytes = await generateAnalysisPDF(analysisContent, documentType, documentTitle, addressLine);
     console.log('PDF generated successfully, size:', pdfBytes.length);
     
     // Create blob and download
@@ -428,7 +436,9 @@ export const downloadAnalysisPDF = async (analysisContent, documentType, documen
     
     const element = document.createElement('a');
     element.href = url;
-    element.download = `${documentType} Analysis.pdf`;
+    const baseName = `${documentType} Analysis`;
+    const prefix = addressLine && addressLine.trim() ? `${addressLine.trim()} - ` : '';
+    element.download = `${prefix}${baseName}.pdf`;
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);

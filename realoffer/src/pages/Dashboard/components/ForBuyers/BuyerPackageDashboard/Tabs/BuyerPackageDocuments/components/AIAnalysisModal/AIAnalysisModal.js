@@ -9,7 +9,7 @@ import { hasPremiumAccess } from '../../../../../../../../../utils/trialUtils';
 import { downloadAnalysisPDF } from '../../../../../../../../../utils/pdfGenerator';
 import './AIAnalysisModal.css';
 
-const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTitle, isBuyerPackage = false }) => {
+const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTitle, addressLine, isBuyerPackage = false }) => {
   const { user } = useAuth();
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -101,7 +101,7 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTi
     console.log('handleDownload called with:', { documentType, documentTitle, resultLength: analysis.result?.length });
 
     try {
-      await downloadAnalysisPDF(analysis.result, documentType, documentTitle);
+      await downloadAnalysisPDF(analysis.result, documentType, documentTitle, addressLine);
     } catch (error) {
       console.error('Error downloading PDF, falling back to text:', error);
       // Fallback to text download if PDF generation fails

@@ -41,6 +41,8 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
 
 
 
+  const [addressLine, setAddressLine] = useState('');
+
   useEffect(() => {
     if (!token || !buyerPackageId) return;
     
@@ -48,15 +50,22 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
       setLoading(true);
       try {
         // Make both API calls in parallel instead of sequentially
-        const [storedOrder, documentsResponse] = await Promise.all([
-          fetchListingData(),
+        const [buyerPkgResp, documentsResponse] = await Promise.all([
+          api.get(`/api/buyerPackages/${buyerPackageId}?trackView=false`),
           api.get(`/api/documents/buyerPackage/${buyerPackageId}/optimized`)
         ]);
         
+        // Address line from property listing, if available
+        try {
+          const propAddr = buyerPkgResp?.data?.propertyListing?.homeCharacteristics?.address;
+          if (propAddr) setAddressLine(propAddr);
+        } catch (e) { /* noop */ }
+
         // Process the documents data
         const listingDocuments = documentsResponse.data.filter(doc => doc.purpose === 'listing' || doc.purpose === 'signature_package');
         
         // Sort documents according to stored order, or by creation date if no order exists
+        const storedOrder = (buyerPkgResp?.data?.propertyListing?.documentOrder) || [];
         if (storedOrder.length > 0) {
           const orderMap = new Map(storedOrder.map((id, index) => [id, index]));
           listingDocuments.sort((a, b) => {
@@ -418,6 +427,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
               documentId={selectedDocumentForAnalysis._id}
               documentType={selectedDocumentForAnalysis.type}
               documentTitle={selectedDocumentForAnalysis.title}
+              addressLine={addressLine}
             />
           );
         })()

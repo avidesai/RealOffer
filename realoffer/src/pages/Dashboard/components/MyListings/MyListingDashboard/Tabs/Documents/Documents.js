@@ -46,6 +46,8 @@ const Documents = ({ listingId }) => {
     }
   }, [listingId]);
 
+  const [addressLine, setAddressLine] = useState('');
+
   const fetchDocuments = useCallback(async (storedOrder = []) => {
     try {
       const response = await api.get(`/api/documents/${listingId}/optimized`);
@@ -95,8 +97,8 @@ const Documents = ({ listingId }) => {
       setLoading(true);
       try {
         // Make both API calls in parallel instead of sequentially
-        const [storedOrder, documentsResponse] = await Promise.all([
-          fetchListingData(),
+        const [listingResp, documentsResponse] = await Promise.all([
+          api.get(`/api/propertyListings/${listingId}`),
           api.get(`/api/documents/${listingId}/optimized`)
         ]);
         
@@ -106,8 +108,15 @@ const Documents = ({ listingId }) => {
         // Check if a signature package document actually exists
         const signaturePackageExists = documentsResponse.data.some(doc => doc.purpose === 'signature_package');
         setHasSignaturePackage(signaturePackageExists);
+
+        // Address line from listing
+        try {
+          const propAddr = listingResp?.data?.homeCharacteristics?.address;
+          if (propAddr) setAddressLine(propAddr);
+        } catch (e) { /* noop */ }
         
         // Sort documents according to stored order, or by creation date if no order exists
+        const storedOrder = (listingResp?.data?.documentOrder) || [];
         if (storedOrder.length > 0) {
           const orderMap = new Map(storedOrder.map((id, index) => [id, index]));
           listingDocuments.sort((a, b) => {
@@ -690,6 +699,7 @@ const Documents = ({ listingId }) => {
               documentId={selectedDocumentForAnalysis._id}
               documentType={selectedDocumentForAnalysis.type}
               documentTitle={selectedDocumentForAnalysis.title}
+              addressLine={addressLine}
             />
           );
         })()
