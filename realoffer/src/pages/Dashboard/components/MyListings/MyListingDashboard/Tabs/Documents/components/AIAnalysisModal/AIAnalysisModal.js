@@ -98,10 +98,12 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTi
   const handleDownload = async () => {
     if (!analysis?.result) return;
 
+    console.log('handleDownload called with:', { documentType, documentTitle, resultLength: analysis.result?.length });
+
     try {
       await downloadAnalysisPDF(analysis.result, documentType, documentTitle);
     } catch (error) {
-      console.error('Error downloading PDF:', error);
+      console.error('Error downloading PDF, falling back to text:', error);
       // Fallback to text download if PDF generation fails
       const element = document.createElement('a');
       const file = new Blob([analysis.result], { type: 'text/plain' });

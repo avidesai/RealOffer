@@ -32,8 +32,11 @@ This is a summary of the test analysis report. The PDF should be properly format
 
 export const generateAnalysisPDF = async (analysisContent, documentType, documentTitle) => {
   try {
+    console.log('generateAnalysisPDF called with:', { documentType, documentTitle, contentLength: analysisContent?.length });
+    
     // Create a new PDF document
     const pdfDoc = await PDFDocument.create();
+    console.log('PDF document created');
     
     // Embed the standard font
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
@@ -54,11 +57,15 @@ export const generateAnalysisPDF = async (analysisContent, documentType, documen
       const lines = [];
       let currentLine = '';
       
+      // Simple word wrapping based on character count estimation
+      // This is a simplified approach since pdf-lib doesn't have widthOfTextAtSize
+      const avgCharWidth = fontSize * 0.6; // Rough estimation
+      const maxChars = Math.floor(maxWidth / avgCharWidth);
+      
       for (const word of words) {
         const testLine = currentLine ? `${currentLine} ${word}` : word;
-        const testWidth = font.widthOfTextAtSize(testLine, fontSize);
         
-        if (testWidth <= maxWidth) {
+        if (testLine.length <= maxChars) {
           currentLine = testLine;
         } else {
           if (currentLine) {
@@ -90,7 +97,7 @@ export const generateAnalysisPDF = async (analysisContent, documentType, documen
       });
     };
     
-    // Helper function to draw wrapped text
+    // Helper function to draw wrapped text (single style)
     const drawWrappedText = (text, x, y, font, fontSize, maxWidth, color = rgb(0, 0, 0), currentPageRef) => {
       const lines = addWrappedText(text, font, fontSize, maxWidth, y, color);
       let currentY = y;
@@ -115,11 +122,116 @@ export const generateAnalysisPDF = async (analysisContent, documentType, documen
       
       return { currentY, currentPage };
     };
+
+    // Parse markdown bold segments **...** into runs
+    const parseBoldSegments = (text) => {
+      const segments = [];
+      const regex = /\*\*(.*?)\*\*/g;
+      let lastIndex = 0;
+      let match;
+      while ((match = regex.exec(text)) !== null) {
+        if (match.index > lastIndex) {
+          segments.push({ text: text.slice(lastIndex, match.index), bold: false });
+        }
+        segments.push({ text: match[1], bold: true });
+        lastIndex = regex.lastIndex;
+      }
+      if (lastIndex < text.length) {
+        segments.push({ text: text.slice(lastIndex), bold: false });
+      }
+      return segments.filter(seg => seg.text.length > 0);
+    };
+
+    // Replace unsupported characters (emoji etc.) with safe fallbacks for WinAnsi fonts
+    const sanitizeTextForPdf = (input) => {
+      if (!input) return '';
+      let t = input
+        .replace(/✅/g, '[OK]')
+        .replace(/⚠️/g, '[Warning]')
+        .replace(/❌/g, '[Issue]')
+        .replace(/\uFE0F/g, '') // variation selector
+        .replace(/[\uD800-\uDFFF]/g, ''); // remove surrogate pairs (most emoji)
+      // Common typography fallbacks
+      t = t
+        .replace(/[–—]/g, '-')
+        .replace(/[“”]/g, '"')
+        .replace(/[’]/g, "'");
+      return t;
+    };
+
+    // Draw wrapped text with mixed bold/regular segments
+    const drawRichWrappedText = (text, x, y, regularFont, boldFontObj, fontSize, maxWidth, color = rgb(0,0,0), currentPageRef) => {
+      const safeText = sanitizeTextForPdf(text);
+      let currentY = y;
+      let currentX = x;
+      let currentPage = currentPageRef || page;
+      const lineHeight = fontSize * 1.2;
+      const maxX = x + maxWidth;
+
+      const segments = parseBoldSegments(safeText);
+
+      const estimateWidth = (t, isBold) => {
+        const factor = isBold ? 0.62 : 0.6; // slight tweak for bold
+        return t.length * fontSize * factor;
+      };
+
+      const ensureSpace = () => {
+        if (currentY < margin + 20) {
+          currentPage = pdfDoc.addPage([595.28, 841.89]);
+          currentY = height - margin;
+          currentX = x;
+        }
+      };
+
+      for (const seg of segments) {
+        const segFont = seg.bold ? boldFontObj : regularFont;
+        const tokens = seg.text.split(/(\s+)/); // keep spaces as tokens
+        for (let token of tokens) {
+          if (token.length === 0) continue;
+          const isSpace = /^\s+$/.test(token);
+          if (!isSpace) {
+            // May need to split long token across lines
+            while (token.length > 0) {
+              const available = Math.max(0, maxX - currentX);
+              if (available <= 0) {
+                currentY -= lineHeight;
+                ensureSpace();
+                currentX = x;
+              }
+              const factor = seg.bold ? 0.62 : 0.6;
+              const approxChars = Math.max(1, Math.floor(available / (fontSize * factor)));
+              const chunk = token.slice(0, approxChars);
+              const chunkWidth = estimateWidth(chunk, seg.bold);
+              currentPage.drawText(chunk, { x: currentX, y: currentY, size: fontSize, font: segFont, color });
+              currentX += chunkWidth;
+              token = token.slice(chunk.length);
+              if (token.length > 0) {
+                currentY -= lineHeight;
+                ensureSpace();
+                currentX = x;
+              }
+            }
+          } else {
+            const w = estimateWidth(token, seg.bold);
+            if (currentX + w > maxX) {
+              currentY -= lineHeight;
+              ensureSpace();
+              currentX = x;
+            } else {
+              currentPage.drawText(token, { x: currentX, y: currentY, size: fontSize, font: segFont, color });
+              currentX += w;
+            }
+          }
+        }
+      }
+
+      return { currentY, currentPage };
+    };
     
     // Add header
     const headerText = `${documentType} Analysis`;
     const headerFontSize = 24;
-    const headerWidth = boldFont.widthOfTextAtSize(headerText, headerFontSize);
+    const headerWidth = headerText.length * headerFontSize * 0.6; // Rough estimation
     drawText(headerText, (width - headerWidth) / 2, currentY, boldFont, headerFontSize, rgb(0.2, 0.2, 0.2), page);
     currentY -= headerFontSize * 1.5;
     
@@ -165,6 +277,8 @@ export const generateAnalysisPDF = async (analysisContent, documentType, documen
       }
       
       const trimmedLine = line.trim();
+      // Remove markdown bold markers and unsupported emoji
+      const cleanLine = sanitizeTextForPdf(trimmedLine.replace(/\*\*(.*?)\*\*/g, '$1'));
       
       if (!trimmedLine) {
         currentY -= 12; // Empty line spacing
@@ -172,23 +286,32 @@ export const generateAnalysisPDF = async (analysisContent, documentType, documen
       }
       
       // Check if this is a heading (starts with # or is all caps)
-      const isHeading = trimmedLine.startsWith('#') || 
-                       (trimmedLine.length > 3 && trimmedLine === trimmedLine.toUpperCase() && !trimmedLine.includes('.')) ||
-                       trimmedLine.match(/^[A-Z][a-z]+.*:$/);
+      const isHeading = cleanLine.startsWith('#') || 
+                       (cleanLine.length > 3 && cleanLine === cleanLine.toUpperCase() && !cleanLine.includes('.')) ||
+                       cleanLine.match(/^[A-Z][a-z]+.*:$/);
       
       if (isHeading) {
         // Handle headings
-        const headingText = trimmedLine.replace(/^#+\s*/, ''); // Remove markdown # symbols
+        const headingText = sanitizeTextForPdf(trimmedLine.replace(/^#+\s*/, '').replace(/\*\*(.*?)\*\*/g, '$1'));
         const headingFontSize = 16;
         const headingColor = rgb(0.2, 0.4, 0.6);
         
-        const result = drawWrappedText(headingText, boldFont, headingFontSize, contentWidth, currentY, headingColor, currentPage);
+        const result = drawWrappedText(
+          headingText,
+          margin,
+          currentY,
+          boldFont,
+          headingFontSize,
+          contentWidth,
+          headingColor,
+          currentPage
+        );
         currentY = result.currentY;
         currentPage = result.currentPage;
         currentY -= 8; // Extra spacing after heading
       } else if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
         // Handle bullet points
-        const bulletText = trimmedLine.substring(2);
+        const bulletText = sanitizeTextForPdf(trimmedLine.substring(2).replace(/\*\*(.*?)\*\*/g, '$1'));
         const bulletFontSize = 12;
         
         // Draw bullet point
@@ -201,13 +324,22 @@ export const generateAnalysisPDF = async (analysisContent, documentType, documen
         });
         
         // Draw bullet text
-        const result = drawWrappedText(bulletText, font, bulletFontSize, contentWidth - 20, currentY, rgb(0.2, 0.2, 0.2), currentPage);
+        const result = drawWrappedText(
+          bulletText,
+          margin + 15,
+          currentY,
+          font,
+          bulletFontSize,
+          contentWidth - 20,
+          rgb(0.2, 0.2, 0.2),
+          currentPage
+        );
         currentY = result.currentY;
         currentPage = result.currentPage;
         currentY -= 4; // Spacing between bullet points
       } else if (trimmedLine.match(/^\d+\./)) {
         // Handle numbered lists
-        const numberedText = trimmedLine.replace(/^\d+\.\s*/, '');
+        const numberedText = sanitizeTextForPdf(trimmedLine.replace(/^\d+\.\s*/, '').replace(/\*\*(.*?)\*\*/g, '$1'));
         const numberedFontSize = 12;
         
         // Extract the number
@@ -224,14 +356,32 @@ export const generateAnalysisPDF = async (analysisContent, documentType, documen
         });
         
         // Draw numbered text
-        const result = drawWrappedText(numberedText, font, numberedFontSize, contentWidth - 30, currentY, rgb(0.2, 0.2, 0.2), currentPage);
+        const result = drawWrappedText(
+          numberedText,
+          margin + 20,
+          currentY,
+          font,
+          numberedFontSize,
+          contentWidth - 30,
+          rgb(0.2, 0.2, 0.2),
+          currentPage
+        );
         currentY = result.currentY;
         currentPage = result.currentPage;
         currentY -= 4; // Spacing between numbered items
       } else {
         // Regular paragraph text
         const paragraphFontSize = 12;
-        const result = drawWrappedText(trimmedLine, font, paragraphFontSize, contentWidth, currentY, rgb(0.2, 0.2, 0.2), currentPage);
+        const result = drawWrappedText(
+          cleanLine,
+          margin,
+          currentY,
+          font,
+          paragraphFontSize,
+          contentWidth,
+          rgb(0.2, 0.2, 0.2),
+          currentPage
+        );
         currentY = result.currentY;
         currentPage = result.currentPage;
         currentY -= 6; // Spacing between paragraphs
@@ -243,7 +393,7 @@ export const generateAnalysisPDF = async (analysisContent, documentType, documen
     pages.forEach((page, index) => {
       const footerText = `Page ${index + 1} of ${pages.length}`;
       const footerFontSize = 10;
-      const footerWidth = font.widthOfTextAtSize(footerText, footerFontSize);
+      const footerWidth = footerText.length * footerFontSize * 0.6; // Rough estimation
       
       page.drawText(footerText, {
         x: (width - footerWidth) / 2,
@@ -255,7 +405,9 @@ export const generateAnalysisPDF = async (analysisContent, documentType, documen
     });
     
     // Save the PDF
+    console.log('Saving PDF document...');
     const pdfBytes = await pdfDoc.save();
+    console.log('PDF saved successfully, bytes:', pdfBytes.length);
     return pdfBytes;
     
   } catch (error) {
@@ -266,7 +418,9 @@ export const generateAnalysisPDF = async (analysisContent, documentType, documen
 
 export const downloadAnalysisPDF = async (analysisContent, documentType, documentTitle) => {
   try {
+    console.log('Starting PDF generation...', { documentType, documentTitle });
     const pdfBytes = await generateAnalysisPDF(analysisContent, documentType, documentTitle);
+    console.log('PDF generated successfully, size:', pdfBytes.length);
     
     // Create blob and download
     const blob = new Blob([pdfBytes], { type: 'application/pdf' });
@@ -281,6 +435,7 @@ export const downloadAnalysisPDF = async (analysisContent, documentType, documen
     
     // Clean up
     URL.revokeObjectURL(url);
+    console.log('PDF download completed successfully');
     
   } catch (error) {
     console.error('Error downloading PDF:', error);
