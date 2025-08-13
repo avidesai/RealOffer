@@ -6,9 +6,10 @@ import api from '../../../../../../../../../context/api';
 import { useAuth } from '../../../../../../../../../context/AuthContext';
 import TabPaywall from '../../../../../../../../../components/TabPaywall/TabPaywall';
 import { hasPremiumAccess } from '../../../../../../../../../utils/trialUtils';
+import { downloadAnalysisPDF } from '../../../../../../../../../utils/pdfGenerator';
 import './AIAnalysisModal.css';
 
-const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, isBuyerPackage = false }) => {
+const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTitle, isBuyerPackage = false }) => {
   const { user } = useAuth();
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -94,16 +95,22 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, isBuyerPac
     };
   }, [isOpen, fetchAnalysis, stopPolling]);
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!analysis?.result) return;
 
-    const element = document.createElement('a');
-    const file = new Blob([analysis.result], { type: 'text/plain' });
-    element.href = URL.createObjectURL(file);
-    element.download = `${documentType} Analysis.txt`;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+    try {
+      await downloadAnalysisPDF(analysis.result, documentType, documentTitle);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      // Fallback to text download if PDF generation fails
+      const element = document.createElement('a');
+      const file = new Blob([analysis.result], { type: 'text/plain' });
+      element.href = URL.createObjectURL(file);
+      element.download = `${documentType} Analysis.txt`;
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    }
   };
 
   // Check if user has premium access (paid or trial) - if not, show paywall

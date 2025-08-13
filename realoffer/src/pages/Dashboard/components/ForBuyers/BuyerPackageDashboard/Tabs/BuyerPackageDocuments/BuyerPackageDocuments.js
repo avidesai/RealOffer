@@ -417,6 +417,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
               onClose={closeAIAnalysis}
               documentId={selectedDocumentForAnalysis._id}
               documentType={selectedDocumentForAnalysis.type}
+              documentTitle={selectedDocumentForAnalysis.title}
             />
           );
         })()
