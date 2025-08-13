@@ -182,7 +182,9 @@ class OptimizedChatController {
 
     } catch (error) {
       console.error('Streaming Claude error:', error.message);
-      this.sendError(res, error.message);
+      // Pass through structured overloaded error when available
+      const maybeStructured = this.normalizeAnthropicError(error);
+      this.sendError(res, maybeStructured);
     }
   }
 
@@ -329,9 +331,28 @@ class OptimizedChatController {
     res.end();
   }
 
-  sendError(res, message) {
-    res.write(`data: ${JSON.stringify({ type: 'error', error: message })}\n\n`);
+  sendError(res, error) {
+    // Ensure error payload is consistently an object with type/message
+    let errorPayload = error;
+    if (typeof error === 'string') {
+      errorPayload = { type: 'unknown_error', message: error };
+    }
+    res.write(`data: ${JSON.stringify({ type: 'error', error: errorPayload })}\n\n`);
     res.end();
+  }
+
+  normalizeAnthropicError(err) {
+    // Anthropic SDK errors may have .error with { type, message }
+    if (err && err.error && typeof err.error === 'object') {
+      const { type, message, details } = err.error;
+      return { type: type || 'api_error', message: message || String(err), details: details || null };
+    }
+    // Some environments yield plain strings
+    if (typeof err === 'string') {
+      return { type: 'unknown_error', message: err };
+    }
+    // Fallback
+    return { type: err?.type || 'unknown_error', message: err?.message || 'Unknown error' };
   }
 
   setupStreamingHeaders(res) {

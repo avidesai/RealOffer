@@ -156,7 +156,34 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
                   setIsCached(data.cached || false);
 
                 } else if (data.type === 'error') {
-                  throw new Error(data.error);
+                  // Normalize error payloads: handle string, nested JSON string, or object
+                  let errorMessage = 'An error occurred';
+                  let errorType = null;
+
+                  if (typeof data.error === 'string') {
+                    // Try to parse nested JSON if present
+                    try {
+                      const inner = JSON.parse(data.error);
+                      if (inner && inner.error) {
+                        errorType = inner.error.type || null;
+                        errorMessage = inner.error.message || JSON.stringify(inner.error);
+                      } else {
+                        errorType = inner.type || null;
+                        errorMessage = inner.message || JSON.stringify(inner);
+                      }
+                    } catch {
+                      errorMessage = data.error;
+                    }
+                  } else if (data.error && typeof data.error === 'object') {
+                    errorType = data.error.type || null;
+                    errorMessage = data.error.message || JSON.stringify(data.error);
+                  }
+
+                  if (errorType === 'overloaded_error') {
+                    errorMessage = 'The AI service is temporarily overloaded. Please try again in a few seconds.';
+                  }
+
+                  throw new Error(errorMessage);
                 }
               }
             } catch (parseError) {
