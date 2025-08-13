@@ -72,30 +72,23 @@ const FIELD_CONFIG = {
     labels: [/additional\s*terms/i, /special\s*terms/i, /other\s*terms/i, /addenda?/i],
     want: 'string'
   },
-  // New: support for Offer Expiration (sometimes appears as a date literal in KVP key)
   offerExpiryDate: {
     labels: [/expiration\s*of\s*offer/i, /\boffer\s*expires/i],
     want: 'date',
     regexMarkdown: [
-      /expiration\s*of\s*offer[\s\S]{0,120}?\bor\b[^A-Za-z0-9]{0,8}([A-Za-z]{3,9}\s+\d{1,2},\s*\d{4}|\d{1,2}[/-]\d{1,2}[/-]\d{2,4})/i
+      /expiration\s*of\s*offer[\s\S]{0,160}?\bor\b[^A-Za-z0-9]{0,8}([A-Za-z]{3,9}\s+\d{1,2},\s*\d{4}|\d{1,2}[/-]\d{1,2}[/-]\d{2,4})/i
     ]
   },
-  // We'll also try to parse this from markdown; left here for symmetry with schema
   buyersAgentCommission: {
-    labels: [/buyer'?s?\s+agent\s+commission/i, /buyer'?s?\s+broker/i, /compensate\s+buyer'?s?\s+broker/i],
+    labels: [/buyer[’']?s?\s+agent\s+commission/i, /buyer[’']?s?\s+broker/i, /compensate\s+buyer[’']?s?\s+broker/i],
     want: 'string'
   }
 };
 
-/** Safely pluck values from Azure field objects. */
-function getField(fields, ...keys) {
-  for (const k of keys) {
-    const f = fields?.[k];
-    if (!f) continue;
-    if (f.value !== undefined && f.value !== null) return String(f.value).trim();
-    if (f.content) return String(f.content).trim();
-  }
-  return '';
+/** Utility: treat :selected: / :unselected: / blank as empty */
+function isSentinel(v) {
+  const s = String(v || '').trim().toLowerCase();
+  return !s || s === ':selected:' || s === ':unselected:';
 }
 
 /** Turn free-text keys into stable field IDs (e.g., "Purchase Price" -> "PurchasePrice"). */
@@ -249,20 +242,27 @@ function labelScore(candidate, labelRegexes) {
 
 /** Try to fill one target using fields -> kvps -> markdown in that order. */
 function pickForTarget(target, cfg, fields, kvpList, markdown) {
-  // 1) from pre-normalized fields (documents[0].fields or kvp-synthesized)
   let best = { value: '', source: '', score: -1, raw: null };
 
+  // 1) from pre-normalized fields (documents[0].fields or kvp-synthesized)
   for (const [k, v] of Object.entries(fields || {})) {
-    const s = labelScore(k.replace(/([a-z])([A-Z])/g, '$1 $2'), cfg.labels);
+    const labelCandidate = k.replace(/([a-z])([A-Z])/g, '$1 $2');
+    const s = labelScore(labelCandidate, cfg.labels);
+    if (s <= 0) continue; // require a positive label hit
+    const val = v?.value ?? v?.content ?? '';
+    if (isSentinel(val)) continue; // skip :selected:/unselected:
     if (s > best.score) {
-      best = { value: v?.value ?? v?.content ?? '', source: `fields:${k}`, score: s, raw: v };
+      best = { value: val, source: `fields:${k}`, score: s, raw: v };
     }
   }
 
   // 2) fall back to kvp list keys
+  if (isSentinel(best.value)) best.value = '';
   if (!best.value) {
     for (const kv of kvpList) {
       const s = labelScore(kv.key, cfg.labels);
+      if (s <= 0) continue;
+      if (isSentinel(kv.value)) continue;
       if (s > best.score && kv.value) {
         best = { value: kv.value, source: `kvp:${kv.key}`, score: s, raw: kv };
       }
@@ -272,7 +272,7 @@ function pickForTarget(target, cfg, fields, kvpList, markdown) {
   // 3) markdown regexes
   if ((!best.value || best.score <= 0) && Array.isArray(cfg.regexMarkdown)) {
     for (const re of cfg.regexMarkdown) {
-      const m = markdown.match(re);
+      const m = markdown && markdown.match(re);
       if (m && m[1]) {
         best = { value: m[1], source: `markdown:${re}`, score: 1, raw: m[0] };
         break;
@@ -289,7 +289,7 @@ function pickForTarget(target, cfg, fields, kvpList, markdown) {
   return { value: finalVal, source: best.source, raw: best.raw, score: best.score };
 }
 
-/** --- Helpers that make KVPs the first-class signal for checkboxes/choices --- */
+/** --- Helpers that make KVPs first-class for checkboxes/choices --- */
 function kvpSelected(kvps, keyRegex) {
   return kvps.some(
     (kv) =>
@@ -308,6 +308,32 @@ function kvpKeyPick(kvps, keyRegex) {
     );
   });
   return hit ? String(hit.value).trim() : '';
+}
+
+/** Parse Buyer's Broker commission from pages+markdown (curly quotes, multi-line). */
+function extractCommission(analyzeResult, markdown) {
+  // 1) Try markdown broad patterns
+  const patterns = [
+    /Seller\s+agrees\s+to\s+pay\s+Buyer[’']?s\s+Broker[^%]{0,300}?(\d{1,2}(?:\.\d{1,3})?)\s*%/i,
+    /Seller\s+Payment[^%]{0,300}Buyer[’']?s\s+Broker[^%]{0,300}?(\d{1,2}(?:\.\d{1,3})?)\s*%/i,
+    /Buyer[’']?s\s+Broker[\s\S]{0,150}?(\d{1,2}(?:\.\d{1,3})?)\s*%/i
+  ];
+  for (const re of patterns) {
+    const m = markdown && markdown.match(re);
+    if (m) return m[1];
+  }
+
+  // 2) Walk page lines and look at windows of up to 3 lines
+  const pages = Array.isArray(analyzeResult?.pages) ? analyzeResult.pages : [];
+  for (const p of pages) {
+    const lines = Array.isArray(p.lines) ? p.lines.map(l => (l.content || '').trim()).filter(Boolean) : [];
+    for (let i = 0; i < lines.length; i++) {
+      const window = lines.slice(i, i + 3).join(' ');
+      const m = window.match(/Buyer[’']?s\s+Broker[^%]{0,300}?(\d{1,2}(?:\.\d{1,3})?)\s*%/i);
+      if (m) return m[1];
+    }
+  }
+  return '';
 }
 
 /** Apply checkbox heuristics to mappedData given labeled selection marks (fallback only). */
@@ -334,6 +360,14 @@ function applyCheckboxHeuristics(mappedData, labeledMarks) {
   return mappedData;
 }
 
+/** Build a datetime-local string (YYYY-MM-DDTHH:mm) safely */
+function toLocalDateTime(dateIso, hh = 17, mm = 0) {
+  // do not apply timezone; just return local-style string
+  if (!dateIso || !/^\d{4}-\d{2}-\d{2}$/.test(dateIso)) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${dateIso}T${pad(hh)}:${pad(mm)}`;
+}
+
 exports.analyzeRPADocument = async (req, res) => {
   try {
     const wantDebug =
@@ -355,7 +389,7 @@ exports.analyzeRPADocument = async (req, res) => {
     const sas = generateSASToken(doc.azureKey);
     const pdfUrl = `${doc.thumbnailUrl}?${sas}`; // original PDF in your setup
 
-    // Include p2 (G(3) buyer broker comp) and drop page 7
+    // Include the core pages (drop p7)
     const pages = req.body?.pages || '1-6';
     const start = await client
       .path('/documentModels/{modelId}:analyze', 'prebuilt-layout')
@@ -366,7 +400,7 @@ exports.analyzeRPADocument = async (req, res) => {
           stringIndexType: 'utf16CodeUnit',
           pages,
           features: ['keyValuePairs', 'queryFields', 'ocrHighResolution'],
-          // v4 requires tokens to match ^[\p{L}\p{M}\p{N}_]{1,64}$ (no spaces/punctuation)
+          // v4 requires tokens matching ^[\p{L}\p{M}\p{N}_]{1,64}$
           queryFields: [
             'PurchasePrice',
             'InitialDeposit',
@@ -420,7 +454,7 @@ exports.analyzeRPADocument = async (req, res) => {
     }
     const kvpList = makeKvpList(ar);
 
-    // Flatten fields for UI or debug
+    // Flatten fields for UI/debug
     const simplifiedFields = {};
     for (const [key, field] of Object.entries(rawFields)) {
       if (!field) continue;
@@ -433,11 +467,11 @@ exports.analyzeRPADocument = async (req, res) => {
         field.content ?? field.value ?? '';
     }
 
-    // Selection marks surface (fallback only)
+    // Selection marks (fallback surface)
     const pagesSurface = collectWordsByPage(ar);
     const labeledMarks = labelSelectionMarks(pagesSurface);
 
-    // Config driven mapping (generic)
+    // Config-driven mapping
     const mappedData = {};
     const candidateLog = {};
     for (const [target, cfg] of Object.entries(FIELD_CONFIG)) {
@@ -446,21 +480,23 @@ exports.analyzeRPADocument = async (req, res) => {
       candidateLog[target] = { source: pick.source || '', score: pick.score, raw: pick.raw };
     }
 
-    // --- Domain-specific fixes using KVPs and markdown ---
+    // --- Domain-specific fixes/overrides ---
 
-    // Buyer Name: KVP where key contains "THIS IS AN OFFER FROM" and value has date + name on next line
-    if (!mappedData.buyerName) {
+    // Buyer Name: prefer the KVP under "Date Prepared: THIS IS AN OFFER FROM"
+    if (!mappedData.buyerName || isSentinel(mappedData.buyerName)) {
       const offerFrom = kvpKeyPick(kvpList, /THIS\s+IS\s+AN\s+OFFER\s+FROM/i);
       if (offerFrom) {
         const parts = offerFrom.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-        // Often value looks like: "July 28, 2025\nYnot Investment LLC"
-        const nameCandidate = parts.length > 1 ? parts[1] : parts[0];
-        if (nameCandidate && !/^July|January|February|March|April|May|June|August|September|October|November|December/i.test(nameCandidate)) {
-          mappedData.buyerName = nameCandidate;
-        } else if (parts[0]) {
-          // If first line is date, second is likely the name, else fallback to any non-empty
-          mappedData.buyerName = parts.find((p) => !/\d{4}/.test(p)) || parts[0];
-        }
+        // If first line is a date, second is likely the name
+        let candidate = parts[0] || '';
+        if (/^\w+\s+\d{1,2},\s*\d{4}$/.test(candidate) && parts[1]) candidate = parts[1];
+        // Strip trailing buyer label if present
+        candidate = candidate.replace(/\(“?Buyer”?\)\.?$/i, '').trim();
+        if (candidate) mappedData.buyerName = candidate;
+      } else {
+        // Markdown fallback
+        const m = markdown && markdown.match(/THIS\s+IS\s+AN\s+OFFER\s+FROM\s+([^\n\r]+)/i);
+        if (m && m[1]) mappedData.buyerName = m[1].replace(/\(“?Buyer”?\)\.?$/i, '').trim();
       }
     }
 
@@ -481,51 +517,97 @@ exports.analyzeRPADocument = async (req, res) => {
       }
     }
 
-    // Close of Escrow: if not a concrete date, support "N Days after Acceptance" via KVP key
-    if (!mappedData.closeOfEscrow || /:unselected:/i.test(mappedData.closeOfEscrow)) {
-      const daysHit = kvpList.find(
-        (kv) =>
-          /(\d{1,3})\s*Days\s*after\s*Acceptance/i.test(kv.key || '') &&
-          String(kv.value || '').trim().toLowerCase() === ':selected:'
-      );
-      if (daysHit) {
-        const m = (daysHit.key || '').match(/(\d{1,3})\s*Days\s*after\s*Acceptance/i);
-        if (m) mappedData.closeOfEscrow = `${m[1]} Days after Acceptance`;
-      }
+    // Close of Escrow:
+    // 1) If we have a concrete date, keep it as YYYY-MM-DD
+    // 2) If we only have "N Days after Acceptance", set the field to just the number "N"
+    // a) Direct KVP checkbox for "N Days after Acceptance"
+    const daysKvp = kvpList.find(
+      (kv) =>
+        /(\d{1,3})\s*Days\s*after\s*Acceptance/i.test(kv.key || '') &&
+        String(kv.value || '').trim().toLowerCase() === ':selected:'
+    );
+    if (daysKvp) {
+      const m = (daysKvp.key || '').match(/(\d{1,3})\s*Days\s*after\s*Acceptance/i);
+      if (m) mappedData.closeOfEscrow = m[1]; // number only
+    } else if (mappedData.closeOfEscrow && /(\d{1,3})\s*Days\s*after\s*Acceptance/i.test(mappedData.closeOfEscrow)) {
+      mappedData.closeOfEscrow = mappedData.closeOfEscrow.match(/(\d{1,3})/)[1];
     }
 
-    // Expiration of Offer: sometimes the date literal exists in the KEY (e.g., "or July 28, 2025")
-    if (!mappedData.offerExpiryDate) {
+    // Offer Expiration Date/Time:
+    // - Date: prefer KVP key "or Month DD, YYYY" (already handled in mapping).
+    // - Time: default 5:00 PM unless a specific time + AM/PM is filled and selected.
+    let expiryDate = mappedData.offerExpiryDate && /^\d{4}-\d{2}-\d{2}$/.test(mappedData.offerExpiryDate)
+      ? mappedData.offerExpiryDate
+      : '';
+    if (!expiryDate) {
       const dFromKey = kvpList.find((kv) => /or\s+[A-Za-z]{3,9}\s+\d{1,2},\s*\d{4}/i.test(kv.key || ''));
       if (dFromKey) {
         const m = (dFromKey.key || '').match(
           /(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*\d{4}/i
         );
-        if (m) mappedData.offerExpiryDate = parseDateLike(m[0]);
+        if (m) expiryDate = parseDateLike(m[0]);
       }
     }
 
-    // Buyer's Agent Commission (%): parse from markdown (lives on p2 G(3))
-    if (!mappedData.buyersAgentCommission) {
-      let m =
-        markdown &&
-        markdown.match(
-          /Seller\s+Payment[^%]{0,240}Buyer'?s\s+Broker[^%]{0,240}?(\d{1,2}(?:\.\d{1,3})?)\s*%/i
-        );
-      if (!m) {
-        // Alternate: sometimes printed near "G(3)" with an "X" next to the numeric
-        m = markdown && markdown.match(/G\(3\)[\s\S]{0,200}?\b[Xx]\s*([0-9]{1,2}(?:\.[0-9]{1,3})?)(?!\d)/);
-      }
-      if (!m) {
-        // Very loose fallback: a % near 'Buyer' and 'Broker'
-        m =
-          markdown &&
-          markdown.match(/Buyer'?s?\s+Broker[\s\S]{0,120}?(\d{1,2}(?:\.\d{1,3})?)\s*%/i);
-      }
-      if (m) {
-        mappedData.buyersAgentCommission = m[1];
+    // Try to detect explicit time filled (pattern near the date line: "... at 5PM or ____ AM/ PM")
+    let expiryHH = 17;
+    let expiryMM = 0;
+    let explicitTime = null;
+
+    if (expiryDate && markdown) {
+      const datePretty = new Date(expiryDate + 'T00:00:00').toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      // e.g., "... or July 28, 2025 ... at 5PM or 11 AM/ PM"
+      const timeRe = new RegExp(
+        `or\\s+${datePretty.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}[\\s\\S]{0,120}?at\\s*5\\s*PM\\s*or\\s*([0-1]?\\d)(?::([0-5]\\d))?\\s*(AM|PM)`,
+        'i'
+      );
+      const mTime = markdown.match(timeRe);
+      if (mTime) {
+        explicitTime = { hh: parseInt(mTime[1], 10), mm: mTime[2] ? parseInt(mTime[2], 10) : 0, ampm: mTime[3].toUpperCase() };
       }
     }
+
+    // If the AM/PM boxes show a selection, honor it (even if minutes missing)
+    const amSelected = kvpSelected(kvpList, /^AM\/?$/i) || kvpSelected(kvpList, /\bAM\b/i);
+    const pmSelected = kvpSelected(kvpList, /^PM$/i) || kvpSelected(kvpList, /\bPM\b/i);
+
+    if (explicitTime) {
+      let { hh, mm, ampm } = explicitTime;
+      if (ampm === 'PM' && hh < 12) hh += 12;
+      if (ampm === 'AM' && hh === 12) hh = 0;
+      expiryHH = hh;
+      expiryMM = mm;
+    } else if (amSelected || pmSelected) {
+      // If a manual hour was typed (rare to surface in KVP), try a looser markdown catch not tied to the date string
+      const loose = markdown && markdown.match(/at\s*5\s*PM\s*or\s*([0-1]?\d)(?::([0-5]\d))?\s*(AM|PM)/i);
+      if (loose) {
+        let hh = parseInt(loose[1], 10);
+        let mm = loose[2] ? parseInt(loose[2], 10) : 0;
+        const ampm = loose[3].toUpperCase();
+        if (ampm === 'PM' && hh < 12) hh += 12;
+        if (ampm === 'AM' && hh === 12) hh = 0;
+        expiryHH = hh; expiryMM = mm;
+      } else {
+        // If they checked AM/PM but left time blank, still default to 5pm per requirement
+        expiryHH = 17; expiryMM = 0;
+      }
+    } else {
+      // No explicit time — default to 5:00 PM local input
+      expiryHH = 17; expiryMM = 0;
+    }
+
+    if (expiryDate) {
+      mappedData.offerExpiryDate = toLocalDateTime(expiryDate, expiryHH, expiryMM);
+    }
+
+    // Buyer's Agent Commission (%) robust parsing
+    if (!mappedData.buyersAgentCommission || isSentinel(mappedData.buyersAgentCommission)) {
+      const pct = extractCommission(ar, markdown);
+      if (pct) mappedData.buyersAgentCommission = pct;
+    }
+
+    // Special Terms: do not auto-fill at all
+    mappedData.specialTerms = '';
 
     // Defaults expected by UI plus checkbox heuristics (fallback last)
     mappedData.financeContingency = mappedData.financeContingency || '';
@@ -534,6 +616,17 @@ exports.analyzeRPADocument = async (req, res) => {
     mappedData.sellerRentBack = mappedData.sellerRentBack || '';
     mappedData.sellerRentBackDays = mappedData.sellerRentBackDays || '';
     applyCheckboxHeuristics(mappedData, labeledMarks);
+
+    // Auto-waive when day-counts are empty (as requested)
+    if (!mappedData.financeContingencyDays) mappedData.financeContingency = 'Waived';
+    if (!mappedData.appraisalContingencyDays) mappedData.appraisalContingency = 'Waived';
+    if (!mappedData.inspectionContingencyDays) mappedData.inspectionContingency = 'Waived';
+    if (!mappedData.sellerRentBackDays) mappedData.sellerRentBack = 'Waived';
+
+    // Clean any lingering sentinel tokens that may have slipped in
+    for (const k of Object.keys(mappedData)) {
+      if (isSentinel(mappedData[k])) mappedData[k] = '';
+    }
 
     if (wantDebug) {
       console.log('[RPA DEBUG][SERVER] mappedData:', mappedData);

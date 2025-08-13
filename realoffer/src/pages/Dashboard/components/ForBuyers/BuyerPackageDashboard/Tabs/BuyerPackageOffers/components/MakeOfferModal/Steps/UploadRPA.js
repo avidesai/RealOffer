@@ -73,7 +73,7 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
       const documentId = uploadResponse.data[0]._id;
 
       // 2) Analyze pages 1 and 3–7 with Azure DI
-      setAnalysisProgress('Analyzing RPA document with AI...');
+      setAnalysisProgress('Analyzing document...');
       const analysisResponse = await api.post(
         '/api/documents/analyze-rpa?debug=1',
         { documentId, pages: '1,3-7' },
