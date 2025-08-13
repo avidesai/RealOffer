@@ -47,8 +47,10 @@ const FIELD_CONFIG = {
     labels: [/buyer(?:'s)?\s*name/i, /\bbuyer\b/i, /buyer\s*1\s*name/i],
     want: 'string'
   },
+
+  /** tightened: require "loan contingency" to avoid hitting "Loan Amount(s)" */
   financeContingencyDays: {
-    labels: [/loan\s*contingency/i, /financing\s*contingency/i, /\bloan\b/i, /\bfinancing\b/i],
+    labels: [/loan\s*contingency/i, /financing\s*contingency/i],
     want: 'int',
     regexMarkdown: [
       /(loan|financing)\s*contingency[^0-9]{0,30}(\d{1,3})\s*day/i
@@ -79,6 +81,16 @@ const FIELD_CONFIG = {
       /expiration\s*of\s*offer[\s\S]{0,160}?\bor\b[^A-Za-z0-9]{0,8}([A-Za-z]{3,9}\s+\d{1,2},\s*\d{4}|\d{1,2}[/-]\d{1,2}[/-]\d{2,4})/i
     ]
   },
+
+  /** new: pull a numeric loan amount for LOAN math */
+  loanAmount: {
+    labels: [/loan\s*amount/i],
+    want: 'currency',
+    regexMarkdown: [
+      /loan\s*amount\(s\)[\s\S]{0,40}\$?\s*([\d,]+(?:\.\d{2})?)/i
+    ]
+  },
+
   buyersAgentCommission: {
     labels: [/buyer[’']?s?\s+agent\s+commission/i, /buyer[’']?s?\s+broker/i, /compensate\s+buyer[’']?s?\s+broker/i],
     want: 'percent',
@@ -221,7 +233,6 @@ function parseIntLike(s) {
 }
 function parseDateLike(s) {
   if (!s) return '';
-  // try ISO-ish first, else mm/dd/yy or "Jan 1, 2025"
   const t = Date.parse(s);
   if (!Number.isNaN(t)) {
     const d = new Date(t);
@@ -241,7 +252,6 @@ function parsePercentLike(s) {
   const n = parseFloat(m[1]);
   if (Number.isNaN(n)) return '';
   if (n < 0 || n > 100) return '';
-  // trim trailing zeros sensibly
   return String(parseFloat(n.toFixed(3)));
 }
 
@@ -328,7 +338,6 @@ function kvpKeyPick(kvps, keyRegex) {
 
 /** Parse Buyer's Broker commission from markdown and (new) KVP keys. */
 function extractCommission(analyzeResult, markdown, kvps) {
-  // 1) Try markdown broad patterns
   const patterns = [
     /Seller\s+agrees\s+to\s+pay\s+Buyer[’']?s\s+Broker[^%]{0,300}?(\d{1,2}(?:\.\d{1,3})?)\s*%/i,
     /Seller\s+Payment[^%]{0,300}Buyer[’']?s\s+Broker[^%]{0,300}?(\d{1,2}(?:\.\d{1,3})?)\s*%/i,
@@ -341,8 +350,6 @@ function extractCommission(analyzeResult, markdown, kvps) {
       if (pct) return pct;
     }
   }
-
-  // 2) Look directly in the KVP KEY (your debug shows the % lives there)
   for (const kv of kvps || []) {
     const key = String(kv.key || '');
     if (!/Buyer[’']?s\s+Broker/i.test(key)) continue;
@@ -352,8 +359,6 @@ function extractCommission(analyzeResult, markdown, kvps) {
       if (pct) return pct;
     }
   }
-
-  // 3) Walk page lines (window of up to 3 lines)
   const pages = Array.isArray(analyzeResult?.pages) ? analyzeResult.pages : [];
   for (const p of pages) {
     const lines = Array.isArray(p.lines) ? p.lines.map(l => (l.content || '').trim()).filter(Boolean) : [];
@@ -420,9 +425,8 @@ exports.analyzeRPADocument = async (req, res) => {
     if (doc.docType !== 'pdf') return res.status(400).json({ error: 'Only PDFs supported' });
 
     const sas = generateSASToken(doc.azureKey);
-    const pdfUrl = `${doc.thumbnailUrl}?${sas}`; // original PDF in your setup
+    const pdfUrl = `${doc.thumbnailUrl}?${sas}`;
 
-    // Include the core pages (drop p7)
     const pages = req.body?.pages || '1-6';
     const start = await client
       .path('/documentModels/{modelId}:analyze', 'prebuilt-layout')
@@ -433,7 +437,6 @@ exports.analyzeRPADocument = async (req, res) => {
           stringIndexType: 'utf16CodeUnit',
           pages,
           features: ['keyValuePairs', 'queryFields', 'ocrHighResolution'],
-          // v4 requires tokens matching ^[\p{L}\p{M}\p{N}_]{1,64}$
           queryFields: [
             'PurchasePrice',
             'InitialDeposit',
@@ -515,20 +518,17 @@ exports.analyzeRPADocument = async (req, res) => {
 
     // --- Domain-specific overrides ---
 
-    // Buyer Name: prefer the KVP under "Date Prepared:\nTHIS IS AN OFFER FROM"
+    // Buyer Name from "THIS IS AN OFFER FROM", strip trailing punctuation
     {
       const offerFromVal = kvpKeyPick(kvpList, /THIS\s+IS\s+AN\s+OFFER\s+FROM/i);
       if (offerFromVal) {
         const parts = offerFromVal.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
         let candidate = parts[0] || '';
-        // If first line looks like a date, take the next line
         if (/^[A-Za-z]{3,9}\s+\d{1,2},\s*\d{4}$/.test(candidate) && parts[1]) {
           candidate = parts[1];
         }
-        candidate = candidate.replace(/\(“?Buyer”?\)\.?$/i, '').trim();
-        if (candidate) {
-          mappedData.buyerName = candidate; // override anything earlier (prevents brokerage name leakage)
-        }
+        candidate = candidate.replace(/\(“?Buyer”?\)\.?$/i, '').replace(/[,\s]+$/,'').trim();
+        if (candidate) mappedData.buyerName = candidate;
       }
     }
 
@@ -536,7 +536,21 @@ exports.analyzeRPADocument = async (req, res) => {
     if (!mappedData.financeType) {
       mappedData.financeType = kvpSelected(kvpList, /^All\s*Cash$/i) ? 'CASH' : 'LOAN';
     }
-    if (mappedData.financeType === 'CASH') {
+
+    // Loan math for LOAN offers — parse loan amount from "Loan Amount(s)" KVP and compute down payment
+    const purchasePriceNum = parseFloat(mappedData.purchasePrice || '0') || 0;
+    if (mappedData.financeType !== 'CASH' && purchasePriceNum > 0) {
+      const loanBlock = kvpKeyPick(kvpList, /Loan\s*Amount\(s\)/i); // e.g., "First\n$ 750,000.00\n( 60.00 % of purchase price)"
+      let loanFromKvp = parseCurrency(loanBlock); // "750000.00" -> "750000"
+      const loanNum = parseFloat(loanFromKvp || mappedData.loanAmount || '0') || 0;
+
+      if (loanNum > 0 && loanNum <= purchasePriceNum) {
+        const down = Math.max(0, Math.round(purchasePriceNum - loanNum));
+        mappedData.loanAmount = String(Math.round(loanNum));
+        mappedData.downPayment = String(down);
+        mappedData.percentDown = ((down / purchasePriceNum) * 100).toFixed(2);
+      }
+    } else if (mappedData.financeType === 'CASH') {
       mappedData.loanAmount = '0';
       mappedData.percentDown = '100';
       if (mappedData.purchasePrice && (!mappedData.downPayment || Number(mappedData.downPayment) === 0)) {
@@ -544,8 +558,7 @@ exports.analyzeRPADocument = async (req, res) => {
       }
     }
 
-    // Close of Escrow:
-    // - If "N Days after Acceptance" is selected, store just N
+    // Close of Escrow: convert "N Days after Acceptance" → just "N"
     const daysKvp = kvpList.find(
       (kv) =>
         /(\d{1,3})\s*Days\s*after\s*Acceptance/i.test(kv.key || '') &&
@@ -558,7 +571,7 @@ exports.analyzeRPADocument = async (req, res) => {
       mappedData.closeOfEscrow = mappedData.closeOfEscrow.match(/(\d{1,3})/)[1];
     }
 
-    // Offer Expiration Date/Time -> produce datetime-local string
+    // Offer Expiration → datetime-local (default 5:00 PM)
     let expiryDate = mappedData.offerExpiryDate && /^\d{4}-\d{2}-\d{2}$/.test(mappedData.offerExpiryDate)
       ? mappedData.offerExpiryDate
       : '';
@@ -571,45 +584,24 @@ exports.analyzeRPADocument = async (req, res) => {
         if (m) expiryDate = parseDateLike(m[0]);
       }
     }
-
-    // Default to 5:00 PM unless explicit time captured
     let expiryHH = 17, expiryMM = 0;
-    if (expiryDate && markdown) {
-      const datePretty = new Date(expiryDate + 'T00:00:00').toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-      const timeRe = new RegExp(
-        `or\\s+${datePretty.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}[\\s\\S]{0,120}?at\\s*5\\s*PM\\s*or\\s*([0-1]?\\d)(?::([0-5]\\d))?\\s*(AM|PM)`,
-        'i'
-      );
-      const mTime = markdown.match(timeRe);
-      if (mTime) {
-        let hh = parseInt(mTime[1], 10);
-        let mm = mTime[2] ? parseInt(mTime[2], 10) : 0;
-        const ampm = mTime[3].toUpperCase();
-        if (ampm === 'PM' && hh < 12) hh += 12;
-        if (ampm === 'AM' && hh === 12) hh = 0;
-        expiryHH = hh; expiryMM = mm;
-      }
-    }
-    if (expiryDate) {
-      mappedData.offerExpiryDate = toLocalDateTime(expiryDate, expiryHH, expiryMM);
-    }
+    if (expiryDate) mappedData.offerExpiryDate = toLocalDateTime(expiryDate, expiryHH, expiryMM);
 
     // Buyer’s Agent Commission (%) — robust extraction & override
     {
       const pct = extractCommission(ar, markdown, kvpList);
       if (pct) {
-        mappedData.buyersAgentCommission = pct; // override any string picked earlier (e.g., a brokerage name)
+        mappedData.buyersAgentCommission = pct;
       } else if (mappedData.buyersAgentCommission) {
-        // If something non-numeric slipped in, clean it
         const cleaned = parsePercentLike(mappedData.buyersAgentCommission);
         mappedData.buyersAgentCommission = cleaned || '';
       }
     }
 
-    // Special Terms: do not auto-fill at all
+    // Special Terms: never auto-fill
     mappedData.specialTerms = '';
 
-    // Defaults expected by UI plus checkbox heuristics (fallback last)
+    // Apply checkbox heuristics
     mappedData.financeContingency = mappedData.financeContingency || '';
     mappedData.appraisalContingency = mappedData.appraisalContingency || '';
     mappedData.inspectionContingency = mappedData.inspectionContingency || '';
@@ -617,22 +609,24 @@ exports.analyzeRPADocument = async (req, res) => {
     mappedData.sellerRentBackDays = mappedData.sellerRentBackDays || '';
     applyCheckboxHeuristics(mappedData, labeledMarks);
 
-    // Auto-waive when day-counts are empty (as requested)
-    if (!mappedData.financeContingencyDays) mappedData.financeContingency = 'Waived';
-    if (!mappedData.appraisalContingencyDays) mappedData.appraisalContingency = 'Waived';
-    if (!mappedData.inspectionContingencyDays) mappedData.inspectionContingency = 'Waived';
-    if (!mappedData.sellerRentBackDays) mappedData.sellerRentBack = 'Waived';
+    // Explicit waiver signals
+    if (kvpSelected(kvpList, /No\s*Loan\s*Contingency/i)) {
+      mappedData.financeContingency = 'Waived';
+      mappedData.financeContingencyDays = '';
+    }
+    if (!mappedData.financeContingencyDays) mappedData.financeContingency = mappedData.financeContingency || 'Waived';
+    if (!mappedData.appraisalContingencyDays) mappedData.appraisalContingency = mappedData.appraisalContingency || 'Waived';
+    if (!mappedData.inspectionContingencyDays) mappedData.inspectionContingency = mappedData.inspectionContingency || 'Waived';
+    if (!mappedData.sellerRentBackDays) mappedData.sellerRentBack = mappedData.sellerRentBack || 'Waived';
 
-    // Clean any lingering sentinel tokens that may have slipped in
+    // Clean any lingering sentinel tokens
     for (const k of Object.keys(mappedData)) {
       if (isSentinel(mappedData[k])) mappedData[k] = '';
     }
 
     if (wantDebug) {
       console.log('[RPA DEBUG][SERVER] mappedData:', mappedData);
-      console.log('[RPA DEBUG][SERVER] candidates:', JSON.stringify(candidateLog, null, 2));
-      console.log('[RPA DEBUG][SERVER] kvps (first 40):', kvpList.slice(0, 40));
-      console.log('[RPA DEBUG][SERVER] selectionMarks (first 40):', labeledMarks.slice(0, 40));
+      console.log('[RPA DEBUG][SERVER] kvps (first 60):', kvpList.slice(0, 60));
       console.log('[RPA DEBUG][SERVER] markdownSample length:', (typeof markdown === 'string' ? markdown.length : 0));
     }
 
@@ -641,8 +635,7 @@ exports.analyzeRPADocument = async (req, res) => {
           normalizedFields: simplifiedFields,
           kvps: kvpList,
           selectionMarks: labeledMarks,
-          markdownSample: (markdown || '').slice(0, 6000),
-          candidates: candidateLog
+          markdownSample: (markdown || '').slice(0, 6000)
         }
       : undefined;
 

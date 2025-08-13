@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useOffer } from '../../../../../../../../../../context/OfferContext';
 
 const formatCurrency = (value) => {
+  if (value === 0) return '$0';
   if (!value) return '';
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -25,28 +26,37 @@ const parseNumber = (value) => {
 };
 
 const parsePercentage = (value) => {
-  return parseFloat(value.replace(/[^0-9.-]+/g, '')) || 0;
+  return parseFloat((value || '').toString().replace(/[^0-9.-]+/g, '')) || 0;
 };
 
 const PurchasePrice = ({ handleNextStep, handlePrevStep, errors = [] }) => {
   const { offerData, updateOfferData } = useOffer();
+
   const [displayValues, setDisplayValues] = useState({
     purchasePrice: '',
     initialDeposit: '',
     downPayment: '',
   });
-  
-  // Track input modes for deposit and down payment
+
+  // Default to % but we will auto-switch Down Payment to $ if analyzer provided a dollar value
   const [inputModes, setInputModes] = useState({
-    initialDeposit: 'percent', // Default to percentage
-    downPayment: 'percent'     // Default to percentage
+    initialDeposit: 'percent',
+    downPayment: 'percent'
   });
 
-  // Track raw input values for percentage fields (for better editing experience)
   const [rawInputValues, setRawInputValues] = useState({
     initialDeposit: '',
     downPayment: '',
   });
+
+  // NEW: auto-switch DP to $ mode if we received a dollar value and no % was provided
+  useEffect(() => {
+    const dp = parseNumber(offerData.downPayment);
+    const dpPct = parsePercentage(offerData.downPaymentPercent || '');
+    if (offerData.financeType !== 'CASH' && dp > 0 && (!dpPct || dpPct === 0)) {
+      setInputModes(prev => ({ ...prev, downPayment: 'dollar' }));
+    }
+  }, [offerData.financeType, offerData.downPayment, offerData.downPaymentPercent]);
 
   useEffect(() => {
     setDisplayValues({
@@ -62,8 +72,7 @@ const PurchasePrice = ({ handleNextStep, handlePrevStep, errors = [] }) => {
 
   const calculatedValues = useMemo(() => {
     const purchasePrice = parseNumber(offerData.purchasePrice);
-    
-    // Calculate down payment dollar amount (either from direct input or percentage)
+
     let downPaymentDollar;
     if (inputModes.downPayment === 'percent') {
       const downPaymentPercent = parsePercentage(offerData.downPaymentPercent || '0');
@@ -71,8 +80,7 @@ const PurchasePrice = ({ handleNextStep, handlePrevStep, errors = [] }) => {
     } else {
       downPaymentDollar = parseNumber(offerData.downPayment);
     }
-    
-    // Calculate initial deposit dollar amount (either from direct input or percentage)
+
     let initialDepositDollar;
     if (inputModes.initialDeposit === 'percent') {
       const initialDepositPercent = parsePercentage(offerData.initialDepositPercent || '0');
@@ -80,11 +88,11 @@ const PurchasePrice = ({ handleNextStep, handlePrevStep, errors = [] }) => {
     } else {
       initialDepositDollar = parseNumber(offerData.initialDeposit);
     }
-    
+
     const loanAmount = purchasePrice - downPaymentDollar;
     const percentDown = purchasePrice > 0 ? ((downPaymentDollar / purchasePrice) * 100).toFixed(2) : '0.00';
     const balanceOfDownPayment = downPaymentDollar - initialDepositDollar;
-    
+
     return {
       loanAmount: isNaN(loanAmount) || loanAmount < 0 ? '' : formatCurrency(loanAmount.toFixed(0)),
       percentDown: isNaN(percentDown) ? '0.00' : percentDown,
@@ -95,55 +103,42 @@ const PurchasePrice = ({ handleNextStep, handlePrevStep, errors = [] }) => {
 
   const { loanAmount, percentDown, downPaymentDollar, balanceOfDownPayment } = calculatedValues;
 
-  // Update offer data with calculated values whenever they change
+  // Push calculated values back into offerData
   useEffect(() => {
     const purchasePrice = parseNumber(offerData.purchasePrice);
     if (purchasePrice > 0) {
       const updates = {};
-      
-      // Only update if we have valid calculated values
-      if (percentDown !== '0.00' && !isNaN(parseFloat(percentDown))) {
-        updates.percentDown = parseFloat(percentDown);
-      }
-      
+      if (percentDown !== '0.00' && !isNaN(parseFloat(percentDown))) updates.percentDown = parseFloat(percentDown);
       if (balanceOfDownPayment && !isNaN(parseNumber(balanceOfDownPayment.replace(/[^0-9.-]+/g, '')))) {
         updates.balanceOfDownPayment = parseNumber(balanceOfDownPayment.replace(/[^0-9.-]+/g, ''));
       }
-      
       if (loanAmount && !isNaN(parseNumber(loanAmount.replace(/[^0-9.-]+/g, '')))) {
         updates.loanAmount = parseNumber(loanAmount.replace(/[^0-9.-]+/g, ''));
       }
-      
-      // Only update if we have changes to make
-      if (Object.keys(updates).length > 0) {
-        updateOfferData(updates);
-      }
+      if (Object.keys(updates).length > 0) updateOfferData(updates);
     }
   }, [percentDown, balanceOfDownPayment, loanAmount, offerData.purchasePrice, updateOfferData]);
 
   const handleBlur = (e) => {
     const { name, value } = e.target;
     const isPercentMode = inputModes[name] === 'percent';
-    
+
     if (isPercentMode) {
-      // For percentage mode, use the raw input value
       const percentValue = parsePercentage(rawInputValues[name] || value);
       const purchasePrice = parseNumber(offerData.purchasePrice);
       const dollarValue = (purchasePrice * percentValue / 100).toFixed(0);
-      
+
       updateOfferData({ 
         [name]: dollarValue,
         [`${name}Percent`]: percentValue.toString()
       });
-      
-      // Clear raw input and show formatted value
+
       setRawInputValues(prev => ({ ...prev, [name]: '' }));
       setDisplayValues((prevValues) => ({
         ...prevValues,
         [name]: formatPercentage(percentValue),
       }));
     } else {
-      // For dollar mode, use existing logic
       const rawValue = parseNumber(value);
       updateOfferData({ [name]: rawValue.toString() });
       setDisplayValues((prevValues) => ({
@@ -156,9 +151,8 @@ const PurchasePrice = ({ handleNextStep, handlePrevStep, errors = [] }) => {
   const handleFocus = (e) => {
     const { name } = e.target;
     const isPercentMode = inputModes[name] === 'percent';
-    
+
     if (isPercentMode) {
-      // For percentage mode, show raw value for editing
       const percentValue = offerData[`${name}Percent`] || '';
       setRawInputValues(prev => ({ ...prev, [name]: percentValue }));
       setDisplayValues((prevValues) => ({
@@ -166,7 +160,6 @@ const PurchasePrice = ({ handleNextStep, handlePrevStep, errors = [] }) => {
         [name]: percentValue,
       }));
     } else {
-      // For dollar mode, use existing logic
       setDisplayValues((prevValues) => ({
         ...prevValues,
         [name]: offerData[name] || '',
@@ -192,31 +185,27 @@ const PurchasePrice = ({ handleNextStep, handlePrevStep, errors = [] }) => {
       updatedData.downPayment = purchasePrice.toString();
       updatedData.downPaymentPercent = '100';
       updatedData.loanAmount = '0';
-      updatedData.percentDown = 100; // Set as number, not string
+      updatedData.percentDown = 100;
       updatedData.balanceOfDownPayment = (purchasePrice - parseNumber(offerData.initialDeposit || 0)).toString();
+      setInputModes(prev => ({ ...prev, downPayment: 'dollar' })); // ensure $ mode on cash
     }
     updateOfferData(updatedData);
   };
 
   const toggleInputMode = (fieldName) => {
-    const currentMode = inputModes[fieldName];
-    const newMode = currentMode === 'percent' ? 'dollar' : 'percent';
-    
+    const newMode = inputModes[fieldName] === 'percent' ? 'dollar' : 'percent';
     setInputModes(prev => ({ ...prev, [fieldName]: newMode }));
-    
-    // Convert the current value when switching modes
+
     const purchasePrice = parseNumber(offerData.purchasePrice);
     const currentValue = parseNumber(offerData[fieldName]);
-    
+
     if (newMode === 'percent') {
-      // Convert dollar to percent
       const percentValue = purchasePrice > 0 ? ((currentValue / purchasePrice) * 100).toFixed(2) : '0';
       updateOfferData({ 
         [fieldName]: percentValue,
         [`${fieldName}Percent`]: percentValue 
       });
     } else {
-      // Convert percent to dollar
       const percentValue = offerData[`${fieldName}Percent`] || '0';
       const dollarValue = (purchasePrice * parsePercentage(percentValue) / 100).toFixed(0);
       updateOfferData({ 
@@ -228,11 +217,7 @@ const PurchasePrice = ({ handleNextStep, handlePrevStep, errors = [] }) => {
 
   const handlePercentChange = (e) => {
     const { name, value } = e.target;
-    
-    // Allow only numbers and decimal points
     const cleanValue = value.replace(/[^0-9.]/g, '');
-    
-    // Update raw input value for better editing experience
     setRawInputValues(prev => ({ ...prev, [name]: cleanValue }));
     setDisplayValues((prevValues) => ({
       ...prevValues,
@@ -245,21 +230,14 @@ const PurchasePrice = ({ handleNextStep, handlePrevStep, errors = [] }) => {
     const currentValue = isPercentMode 
       ? (offerData[`${fieldName}Percent`] || '')
       : (offerData[fieldName] || '');
-    
-    // Determine what to show in the input field
+
     let inputValue;
     if (isPercentMode) {
-      // If we have a raw input value (user is typing), use that
-      if (rawInputValues[fieldName] !== '') {
-        inputValue = rawInputValues[fieldName];
-      } else {
-        // Otherwise show the formatted percentage
-        inputValue = formatPercentage(currentValue);
-      }
+      inputValue = rawInputValues[fieldName] !== '' ? rawInputValues[fieldName] : formatPercentage(currentValue);
     } else {
       inputValue = formatCurrency(currentValue);
     }
-    
+
     return (
       <div className="form-group amount-input">
         <label>{label}</label>
@@ -307,9 +285,7 @@ const PurchasePrice = ({ handleNextStep, handlePrevStep, errors = [] }) => {
         <h2>Purchase Price</h2>
         <p>Provide your offer price, terms, and financing.</p>
       </div>
-      
 
-      
       <div className="form-group dollar-input">
         <label>Purchase Price</label>
         <input
@@ -327,9 +303,9 @@ const PurchasePrice = ({ handleNextStep, handlePrevStep, errors = [] }) => {
           </div>
         )}
       </div>
-      
+
       {renderAmountInput('initialDeposit', 'Initial Deposit', 'Enter amount')}
-      
+
       <div className="form-group">
         <label>Finance Type</label>
         <select
@@ -348,11 +324,11 @@ const PurchasePrice = ({ handleNextStep, handlePrevStep, errors = [] }) => {
           </div>
         )}
       </div>
-      
+
       {offerData.financeType !== 'CASH' && (
         renderAmountInput('downPayment', 'Down Payment', 'Enter amount')
       )}
-      
+
       {offerData.financeType !== 'CASH' && (
         <div className="calculated-values">
           <p><strong>Finances</strong></p>
