@@ -28,7 +28,7 @@ const parsePercentage = (value) => {
   return parseFloat(value.replace(/[^0-9.-]+/g, '')) || 0;
 };
 
-const PurchasePrice = ({ handleNextStep, errors = [] }) => {
+const PurchasePrice = ({ handleNextStep, handlePrevStep, errors = [] }) => {
   const { offerData, updateOfferData } = useOffer();
   const [displayValues, setDisplayValues] = useState({
     purchasePrice: '',
@@ -363,7 +363,7 @@ const PurchasePrice = ({ handleNextStep, errors = [] }) => {
         </div>
       )}
       <div className="mom-button-container">
-        <button className="mom-step-back-button" disabled>
+        <button className="mom-step-back-button" onClick={handlePrevStep}>
           Back
         </button>
         <button 

@@ -34,10 +34,16 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
     setSuccess(false);
     setUploadedFile(file);
     setExtractedFields({});
+    
+    // Auto-start analysis when file is selected
+    setTimeout(() => {
+      handleAnalyzeRPA(file);
+    }, 100);
   }, []);
 
-  const handleAnalyzeRPA = useCallback(async () => {
-    if (!uploadedFile) {
+  const handleAnalyzeRPA = useCallback(async (file = uploadedFile) => {
+    const fileToAnalyze = file || uploadedFile;
+    if (!fileToAnalyze) {
       setError('Please upload a file first');
       return;
     }
@@ -49,8 +55,8 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
     try {
       // 1) Upload the PDF to your backend
       const formData = new FormData();
-      formData.append('documents', uploadedFile);
-      formData.append('title', uploadedFile.name);
+      formData.append('documents', fileToAnalyze);
+      formData.append('title', fileToAnalyze.name);
       formData.append('type', 'RPA Document');
       formData.append('propertyListingId', listingId);
       formData.append('purpose', 'rpa_analysis');
@@ -104,22 +110,22 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
           ...prev,
           purchaseAgreement: {
             ...(prev.purchaseAgreement || {}),
-            document: { id: documentId, title: uploadedFile.name },
+            document: { id: documentId, title: fileToAnalyze.name },
             sendForSigning: false
           },
           documents: [
             ...(prev.documents || []),
-            { id: documentId, title: uploadedFile.name, sendForSigning: false }
+            { id: documentId, title: fileToAnalyze.name, sendForSigning: false }
           ]
         }));
 
         setSuccess(true);
         setAnalysisProgress('Analysis complete! Form pre-filled with extracted data.');
 
-        // Auto-advance to next step after a short delay
+        // Auto-advance to next step immediately without showing extracted fields
         setTimeout(() => {
           handleNextStep();
-        }, 2000);
+        }, 500);
       } else {
         throw new Error(analysisResponse.data.message || 'Analysis failed');
       }
@@ -199,16 +205,7 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
               </button>
             </div>
 
-            {!isAnalyzing && !success && (
-              <button
-                onClick={handleAnalyzeRPA}
-                className="rpa-analyze-button"
-                disabled={!uploadedFile}
-                type="button"
-              >
-                Analyze RPA Document
-              </button>
-            )}
+
           </div>
         )}
       </div>
@@ -220,21 +217,7 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
         </div>
       )}
 
-      {success && (
-        <div className="rpa-analysis-success">
-          <div className="rpa-success-icon">✓</div>
-          <h3>Analysis Complete!</h3>
-          <p>The following fields have been pre-filled from your RPA:</p>
-          <div className="rpa-extracted-fields">
-            {Object.entries(extractedFields).map(([field, value]) => (
-              <div key={field} className="rpa-extracted-field">
-                <span className="rpa-field-name">{field}:</span>
-                <span className="rpa-field-value">{String(value)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+
 
       {error && (
         <div className="error-message">

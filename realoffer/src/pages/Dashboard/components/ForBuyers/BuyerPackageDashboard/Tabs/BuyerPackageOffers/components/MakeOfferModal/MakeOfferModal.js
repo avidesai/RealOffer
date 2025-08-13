@@ -398,6 +398,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       handleChange={handleChange}
       handleFinanceTypeChange={handleFinanceTypeChange}
       handleNextStep={handleNextStep}
+      handlePrevStep={handlePrevStep}
       errors={stepErrors[2] || []}
     />,
     contingencies: <Contingencies
