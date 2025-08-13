@@ -147,13 +147,13 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
   return (
     <div className="modal-step">
       <div className="offer-modal-header">
-        <h2>Upload RPA Document</h2>
-        <p>Upload your completed California Residential Purchase Agreement (RPA) to automatically pre-fill the offer form.</p>
+        <h2>Upload Purchase Agreement</h2>
+        <p>Upload your completed purchase agreement to autofill your offer.</p>
       </div>
 
       <div className="form-group">
         {!uploadedFile ? (
-          <div className="rpa-upload-area">
+          <div className="rpa-upload-area" onClick={() => document.getElementById('rpa-file-input').click()}>
             <div className="rpa-upload-icon">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -163,8 +163,8 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
                 <path d="M10 9H9H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <h3>Upload RPA Document</h3>
-            <p>Drag and drop your completed RPA PDF here, or click to browse</p>
+            <h3>Upload Purchase Agreement</h3>
+            <p>Drag and drop files or click to browse</p>
             <input
               type="file"
               accept=".pdf"
@@ -172,7 +172,7 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
               className="rpa-file-input"
               id="rpa-file-input"
             />
-            <label htmlFor="rpa-file-input" className="rpa-upload-button">
+            <label htmlFor="rpa-file-input" className="rpa-upload-button" onClick={(e) => e.stopPropagation()}>
               Choose PDF File
             </label>
           </div>
@@ -242,19 +242,7 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
         </div>
       )}
 
-      <div className="rpa-help-section">
-        <h4>What is an RPA?</h4>
-        <p>
-          The California Residential Purchase Agreement (RPA) is the standard form used for residential real estate transactions in California.
-          Uploading your completed RPA will automatically extract key information like purchase price, contingencies, and dates to pre-fill your offer.
-        </p>
-        <h4>Supported Formats</h4>
-        <ul>
-          <li>PDF files only</li>
-          <li>Maximum file size: 50MB</li>
-          <li>Both fillable forms and scanned documents are supported</li>
-        </ul>
-      </div>
+
 
       <div className="mom-button-container">
         <button
@@ -263,7 +251,7 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
           disabled={isAnalyzing}
           type="button"
         >
-          Skip RPA Upload
+          Enter Offer Details Manually
         </button>
 
         {success && (
