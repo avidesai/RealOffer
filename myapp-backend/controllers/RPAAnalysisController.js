@@ -331,10 +331,27 @@ exports.analyzeRPADocument = async (req, res) => {
           stringIndexType: 'utf16CodeUnit',
           pages,
           features: ['keyValuePairs', 'queryFields', 'ocrHighResolution'],
+          // v4 requires tokens to match ^[\\p{L}\\p{M}\\p{N}_]{1,64}$ (no spaces/punctuation)
           queryFields: [
-            'Purchase Price', 'Initial Deposit', 'Close Of Escrow', 'Loan Amount',
-            'Percent Down', 'Down Payment', 'Appraisal contingency', 'No appraisal contingency',
-            'Loan contingency', 'No loan contingency', 'Expiration of Offer', 'Seller rent back'
+            'PurchasePrice',
+            'InitialDeposit',
+            'CloseOfEscrow',
+            'LoanAmount',
+            'PercentDown',
+            'DownPayment',
+            'FinanceContingencyDays',
+            'AppraisalContingencyDays',
+            'InspectionContingencyDays',
+            'AppraisalContingency',
+            'NoAppraisalContingency',
+            'LoanContingency',
+            'NoLoanContingency',
+            'SellerRentBack',
+            'SellerRentBackDays',
+            'OfferExpiryDate',
+            'BuyerName',
+            'BuyersAgentCommission',
+            'SpecialTerms'
           ],
           outputContentFormat: 'markdown'
         }
