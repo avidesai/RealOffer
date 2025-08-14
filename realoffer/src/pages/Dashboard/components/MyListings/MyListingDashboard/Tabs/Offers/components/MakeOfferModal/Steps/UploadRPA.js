@@ -15,6 +15,7 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
   const [analysisProgress, setAnalysisProgress] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   // Define handleAnalyzeRPA first so it can be safely added to dependencies
   const handleAnalyzeRPA = useCallback(
@@ -94,7 +95,12 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
             },
             documents: [
               ...(prev.documents || []),
-              { id: documentId, title: fileToAnalyze.name, sendForSigning: false },
+              { 
+                id: documentId, 
+                title: fileToAnalyze.name, 
+                type: 'Purchase Agreement',
+                sendForSigning: false 
+              },
             ],
           }));
 
@@ -147,6 +153,44 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
     [handleAnalyzeRPA]
   );
 
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      const file = files[0];
+      
+      if (file.type !== 'application/pdf') {
+        setError('Please upload a PDF file');
+        return;
+      }
+      if (file.size > 50 * 1024 * 1024) {
+        setError('File size must be less than 50MB');
+        return;
+      }
+
+      setError('');
+      setSuccess(false);
+      setUploadedFile(file);
+
+      // Auto-start analysis when file is dropped
+      setTimeout(() => {
+        handleAnalyzeRPA(file);
+      }, 100);
+    }
+  }, [handleAnalyzeRPA]);
+
   const handleSkip = useCallback(() => {
     handleNextStep();
   }, [handleNextStep]);
@@ -168,8 +212,11 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
       <div className="form-group">
         {!uploadedFile ? (
           <div
-            className="rpa-upload-area"
+            className={`rpa-upload-area ${isDragOver ? 'dragover' : ''}`}
             onClick={() => document.getElementById('rpa-file-input').click()}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
           >
             <div className="rpa-upload-icon">
               <svg
