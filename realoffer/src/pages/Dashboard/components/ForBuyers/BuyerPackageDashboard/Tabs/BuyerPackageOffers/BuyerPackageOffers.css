@@ -24,6 +24,30 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 
+.offers-tab-no-offers-message {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.offers-tab-no-offers-message svg {
+  margin-bottom: 1rem;
+  color: #6c757d;
+}
+
+.offers-tab-no-offers-message p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #6c757d;
+}
+
 .offer-item {
   display: flex;
   flex-direction: column;
