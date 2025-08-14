@@ -6,9 +6,9 @@ import { useOffer } from '../../../../../../../../../../context/OfferContext';
 import api from '../../../../../../../../../../context/api';
 import './UploadRPA.css';
 
-const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
+const UploadRPA = ({ handleNextStep, handlePrevStep, listingId, handleResetOffer }) => {
   const { token } = useAuth();
-  const { updateOfferData, updateDocumentWorkflow } = useOffer();
+  const { updateOfferData, updateDocumentWorkflow, documentWorkflow } = useOffer();
 
   const [uploadedFile, setUploadedFile] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -16,6 +16,10 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+
+  // Check if there's an existing RPA document in the workflow
+  const existingRPADocument = documentWorkflow?.purchaseAgreement?.document || 
+                             documentWorkflow?.documents?.find(doc => doc.type === 'Purchase Agreement');
 
   // Define handleAnalyzeRPA first so it can be safely added to dependencies
   const handleAnalyzeRPA = useCallback(
@@ -107,10 +111,8 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
           setSuccess(true);
           setAnalysisProgress('Analysis complete! Form pre-filled with extracted data.');
 
-          // Auto-advance to next step immediately without showing extracted fields
-          setTimeout(() => {
-            handleNextStep();
-          }, 500);
+          // Auto-advance to next step immediately
+          handleNextStep();
         } else {
           throw new Error(analysisResponse.data.message || 'Analysis failed');
         }
@@ -146,9 +148,7 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
       setUploadedFile(file);
 
       // Auto-start analysis when file is selected
-      setTimeout(() => {
-        handleAnalyzeRPA(file);
-      }, 100);
+      handleAnalyzeRPA(file);
     },
     [handleAnalyzeRPA]
   );
@@ -185,9 +185,7 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
       setUploadedFile(file);
 
       // Auto-start analysis when file is dropped
-      setTimeout(() => {
-        handleAnalyzeRPA(file);
-      }, 100);
+      handleAnalyzeRPA(file);
     }
   }, [handleAnalyzeRPA]);
 
@@ -202,6 +200,22 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
     setAnalysisProgress('');
   }, []);
 
+  const handleRemoveExistingDocument = useCallback(() => {
+    // Remove the document from the workflow
+    updateDocumentWorkflow(prev => ({
+      ...prev,
+      purchaseAgreement: {
+        ...(prev.purchaseAgreement || {}),
+        document: null,
+        sendForSigning: false
+      },
+      documents: prev.documents?.filter(doc => doc.type !== 'Purchase Agreement') || []
+    }));
+
+    // Reset the offer data to clear any extracted fields
+    handleResetOffer();
+  }, [updateDocumentWorkflow, handleResetOffer]);
+
   return (
     <div className="modal-step">
       <div className="offer-modal-header">
@@ -210,7 +224,7 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
       </div>
 
       <div className="form-group">
-        {!uploadedFile ? (
+        {!uploadedFile && !existingRPADocument ? (
           <div
             className={`rpa-upload-area ${isDragOver ? 'dragover' : ''}`}
             onClick={() => document.getElementById('rpa-file-input').click()}
@@ -308,14 +322,15 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
                 </svg>
               </div>
               <div className="rpa-file-details">
-                <h4>{uploadedFile.name}</h4>
-                <p>{(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                <h4>{uploadedFile ? uploadedFile.name : existingRPADocument?.title}</h4>
+                <p>{uploadedFile ? `${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB` : 'Document uploaded'}</p>
               </div>
               <button
-                onClick={handleRemoveFile}
+                onClick={uploadedFile ? handleRemoveFile : handleRemoveExistingDocument}
                 className="rpa-remove-file-btn"
                 disabled={isAnalyzing}
                 type="button"
+                title={uploadedFile ? "Remove file" : "Remove document and reset offer"}
               >
                 ×
               </button>
@@ -338,22 +353,24 @@ const UploadRPA = ({ handleNextStep, handlePrevStep, listingId }) => {
       )}
 
       <div className="mom-button-container">
-        <button
-          onClick={handleSkip}
-          className="mom-step-back-button"
-          disabled={isAnalyzing}
-          type="button"
-        >
-          Enter Offer Details Manually
-        </button>
+        {!existingRPADocument && (
+          <button
+            onClick={handleSkip}
+            className="mom-step-back-button"
+            disabled={isAnalyzing}
+            type="button"
+          >
+            Enter Offer Details Manually
+          </button>
+        )}
 
-        {success && (
+        {(success || existingRPADocument) && (
           <button
             onClick={handleNextStep}
             className="mom-next-button"
             type="button"
           >
-            Continue to Purchase Price
+            Next
           </button>
         )}
       </div>

@@ -393,6 +393,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       handleNextStep={handleNextStep}
       handlePrevStep={handlePrevStep}
       listingId={listingId}
+      handleResetOffer={handleResetOffer}
     />,
     purchasePrice: <PurchasePrice
       formData={offerData}
