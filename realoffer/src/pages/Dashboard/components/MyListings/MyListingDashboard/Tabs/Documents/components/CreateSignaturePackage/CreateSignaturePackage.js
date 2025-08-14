@@ -188,6 +188,18 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
         return;
       }
       
+      // Check if any documents failed to load preview
+      const documentsWithLoadingIssues = documents.filter(doc => 
+        doc.signaturePackagePages.length > 0 && 
+        (!doc.thumbnailUrl || !doc.sasToken)
+      );
+      
+      if (documentsWithLoadingIssues.length > 0) {
+        setError('Some documents have loading issues. Please refresh the page and try again, or contact support if the problem persists.');
+        setIsLoading(false);
+        return;
+      }
+      
       // Retry logic for network errors
       let lastError;
       for (let attempt = 1; attempt <= 3; attempt++) {
@@ -203,7 +215,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
               headers: {
                 'Authorization': `Bearer ${token}`
               },
-              timeout: 60000 // 60 second timeout
+              timeout: 90000 // 90 second timeout for up to 20 documents
             }
           );
           
@@ -233,7 +245,35 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
       
       // If we get here, all attempts failed
       console.error('All retry attempts failed:', lastError);
-      setError('Failed to create signature package after multiple attempts. Please try again later.');
+      
+      // Provide more specific error messages based on the error type
+      if (lastError.response?.status === 400) {
+        const errorData = lastError.response.data;
+        if (errorData.error === 'TOO_MANY_DOCUMENTS') {
+          setError('Too many documents selected. Please reduce the number of documents to 20 or fewer.');
+        } else if (errorData.error === 'NO_PAGES_SELECTED') {
+          setError('No pages were selected for the signature package. Please select at least one page.');
+        } else if (errorData.message) {
+          setError(errorData.message);
+        } else {
+          setError('Invalid request. Please check your document selections and try again.');
+        }
+      } else if (lastError.response?.status === 503) {
+        const errorData = lastError.response.data;
+        if (errorData.error === 'HIGH_MEMORY_USAGE') {
+          setError('Server is currently under high load. Please try again in a few minutes.');
+        } else if (errorData.error === 'SERVICE_UNAVAILABLE') {
+          setError('Service temporarily unavailable. Please try again in a few minutes.');
+        } else {
+          setError('Service temporarily unavailable. Please try again later.');
+        }
+      } else if (lastError.response?.status === 408) {
+        setError('Request timed out. Please try again with fewer documents or contact support.');
+      } else if (lastError.code === 'ERR_NETWORK') {
+        setError('Network connection error. Please check your internet connection and try again.');
+      } else {
+        setError('Failed to create signature package after multiple attempts. Please try again later or contact support if the issue persists.');
+      }
     } finally {
       setIsLoading(false);
     }

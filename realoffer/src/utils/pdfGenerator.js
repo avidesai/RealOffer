@@ -160,6 +160,7 @@ export const generateAnalysisPDF = async (analysisContent, documentType, documen
     };
 
     // Draw wrapped text with mixed bold/regular segments
+    // eslint-disable-next-line no-unused-vars
     const drawRichWrappedText = (text, x, y, regularFont, boldFontObj, fontSize, maxWidth, color = rgb(0,0,0), currentPageRef) => {
       const safeText = sanitizeTextForPdf(text);
       let currentY = y;

@@ -69,6 +69,11 @@ const DocumentsListSelection = ({
     }
   }, []);
 
+  // Function to check if document has loading issues
+  const hasLoadingIssues = useCallback((document) => {
+    return !document.thumbnailUrl || !document.sasToken;
+  }, []);
+
   return (
     <div className="dls-documents-list">
       <h3>Documents</h3>
@@ -102,17 +107,29 @@ const DocumentsListSelection = ({
                     <li
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      className={`dls-document-item ${selectedDocumentId === document._id ? 'selected' : ''} ${snapshot.isDragging ? 'dragging' : ''}`}
+                      className={`dls-document-item ${selectedDocumentId === document._id ? 'selected' : ''} ${snapshot.isDragging ? 'dragging' : ''} ${hasLoadingIssues(document) ? 'loading-issue' : ''}`}
                     >
                       <div 
                         className="dls-document-info"
                         onClick={() => handleDocumentClick(document)}
                       >
-                        <span className="dls-document-title">{document.title}</span>
+                        <span className="dls-document-title">
+                          {document.title}
+                          {hasLoadingIssues(document) && (
+                            <span className="dls-loading-warning" title="This document may have loading issues">
+                              ⚠️
+                            </span>
+                          )}
+                        </span>
                         <span className="dls-document-type">{document.type}</span>
                         <span className={`dls-document-pages ${document.signaturePackagePages.length > 0 ? 'morethanzero' : ''}`}>
                           {renderPageSelectionStatus(document)}
                         </span>
+                        {hasLoadingIssues(document) && (
+                          <span className="dls-loading-error-text">
+                            Loading issue detected
+                          </span>
+                        )}
                       </div>
                       <div className="dls-document-controls">
                         <div {...provided.dragHandleProps} className="dls-drag-handle">

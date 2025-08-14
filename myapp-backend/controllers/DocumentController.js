@@ -602,14 +602,14 @@ exports.createBuyerSignaturePacket = async (req, res) => {
 
   // Set a timeout for this operation
   const timeout = setTimeout(() => {
-    console.error('createBuyerSignaturePacket timeout after 60 seconds');
+    console.error('createBuyerSignaturePacket timeout after 90 seconds');
     if (!res.headersSent) {
       res.status(408).json({ 
         message: 'Request timeout. Please try again.', 
         error: 'REQUEST_TIMEOUT' 
       });
     }
-  }, 60000); // 60 second timeout
+  }, 90000); // 90 second timeout for up to 20 documents
 
   try {
     const propertyListing = await PropertyListing.findById(listingId).populate('signaturePackage');
@@ -646,7 +646,36 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     let selectedDocuments = documents.filter(doc => doc.signaturePackagePages.length > 0);
 
     if (selectedDocuments.length === 0) {
-      return res.status(400).json({ message: 'No pages selected for the signature package.' });
+      return res.status(400).json({ 
+        message: 'No pages selected for the signature package.',
+        error: 'NO_PAGES_SELECTED'
+      });
+    }
+    
+    // Pre-check document accessibility to identify issues early
+    const accessibilityErrors = [];
+    for (const document of selectedDocuments) {
+      try {
+        const sasToken = generateSASToken(document.azureKey);
+        const documentUrlWithSAS = `${document.thumbnailUrl}?${sasToken}`;
+        
+        const fetch = (await import('node-fetch')).default;
+        const response = await fetch(documentUrlWithSAS, { method: 'HEAD' });
+        
+        if (!response.ok) {
+          accessibilityErrors.push(`Document "${document.title}" is not accessible (${response.status}: ${response.statusText})`);
+        }
+      } catch (error) {
+        accessibilityErrors.push(`Document "${document.title}" could not be accessed: ${error.message}`);
+      }
+    }
+    
+    if (accessibilityErrors.length > 0) {
+      return res.status(400).json({
+        message: 'Some documents are not accessible. Please refresh the page and try again.',
+        error: 'DOCUMENTS_NOT_ACCESSIBLE',
+        errors: accessibilityErrors
+      });
     }
     
     // If signaturePackageDocumentOrder is provided, use it; otherwise fall back to documentOrder
@@ -673,7 +702,7 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     const processingErrors = [];
     
     // Limit the number of documents processed at once to prevent memory issues
-    const maxDocumentsPerRequest = 10;
+    const maxDocumentsPerRequest = 20;
     if (selectedDocuments.length > maxDocumentsPerRequest) {
       return res.status(400).json({ 
         message: `Too many documents selected. Maximum ${maxDocumentsPerRequest} documents allowed per signature package.`,
@@ -765,8 +794,14 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     if (mergedPdf.getPageCount() === 0) {
       return res.status(400).json({ 
         message: 'Failed to create signature package. No pages could be processed.',
+        error: 'NO_PAGES_PROCESSED',
         errors: processingErrors
       });
+    }
+
+    // If there were processing errors but some pages were added, log them but continue
+    if (processingErrors.length > 0) {
+      console.warn('Signature package created with warnings:', processingErrors);
     }
 
     const pdfBytes = await mergedPdf.save();
@@ -1206,9 +1241,10 @@ exports.getSingleDocument = async (req, res) => {
     }
     
     // Check authorization based on the document's purpose and ownership
+    let propertyListing = null;
     if (document.propertyListing) {
       // For listing documents, check if user owns the listing
-      const propertyListing = await PropertyListing.findById(document.propertyListing);
+      propertyListing = await PropertyListing.findById(document.propertyListing);
       if (!propertyListing) {
         return res.status(404).json({ message: 'Property listing not found' });
       }
@@ -1223,20 +1259,18 @@ exports.getSingleDocument = async (req, res) => {
     } else if (document.offer) {
       // For offer documents, check if user owns the listing the offer is for
       const offer = await Offer.findById(document.offer).populate('propertyListing');
-      if (!offer || !offer.propertyListing) {
-        return res.status(404).json({ message: 'Offer or property listing not found' });
+      if (!offer) {
+        return res.status(404).json({ message: 'Offer not found' });
       }
       
-      const isCreator = offer.propertyListing.createdBy.toString() === req.user.id;
-      const isAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+      const isListingCreator = offer.propertyListing.createdBy.toString() === req.user.id;
+      const isListingAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
       const isTeamMember = offer.propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
+      const isBuyersAgent = offer.buyersAgent && offer.buyersAgent.toString() === req.user.id;
       
-      if (!isCreator && !isAgent && !isTeamMember) {
+      if (!isListingCreator && !isListingAgent && !isTeamMember && !isBuyersAgent) {
         return res.status(403).json({ message: 'Not authorized to access this document' });
       }
-    } else {
-      // Document has no associated listing or offer
-      return res.status(403).json({ message: 'Not authorized to access this document' });
     }
     
     // Generate SAS token for the document
@@ -1250,6 +1284,61 @@ exports.getSingleDocument = async (req, res) => {
   } catch (error) {
     console.error('Error fetching document:', error);
     res.status(500).json({ message: 'Error fetching document', error: error.message });
+  }
+};
+
+// New endpoint to refresh SAS token for a document
+exports.refreshDocumentToken = async (req, res) => {
+  try {
+    const document = await Document.findById(req.params.id);
+    
+    if (!document) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+    
+    // Check authorization based on the document's purpose and ownership
+    let propertyListing = null;
+    if (document.propertyListing) {
+      // For listing documents, check if user owns the listing
+      propertyListing = await PropertyListing.findById(document.propertyListing);
+      if (!propertyListing) {
+        return res.status(404).json({ message: 'Property listing not found' });
+      }
+      
+      const isCreator = propertyListing.createdBy.toString() === req.user.id;
+      const isAgent = propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+      const isTeamMember = propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
+      
+      if (!isCreator && !isAgent && !isTeamMember) {
+        return res.status(403).json({ message: 'Not authorized to access this document' });
+      }
+    } else if (document.offer) {
+      // For offer documents, check if user owns the listing the offer is for
+      const offer = await Offer.findById(document.offer).populate('propertyListing');
+      if (!offer) {
+        return res.status(404).json({ message: 'Offer not found' });
+      }
+      
+      const isListingCreator = offer.propertyListing.createdBy.toString() === req.user.id;
+      const isListingAgent = offer.propertyListing.agentIds.some(agentId => agentId.toString() === req.user.id);
+      const isTeamMember = offer.propertyListing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
+      const isBuyersAgent = offer.buyersAgent && offer.buyersAgent.toString() === req.user.id;
+      
+      if (!isListingCreator && !isListingAgent && !isTeamMember && !isBuyersAgent) {
+        return res.status(403).json({ message: 'Not authorized to access this document' });
+      }
+    }
+    
+    // Generate fresh SAS token for the document
+    const sasToken = generateSASToken(document.azureKey, document.signed);
+    
+    res.json({ 
+      sasToken: sasToken,
+      message: 'Token refreshed successfully'
+    });
+  } catch (error) {
+    console.error('Error refreshing document token:', error);
+    res.status(500).json({ message: 'Error refreshing document token', error: error.message });
   }
 };
 

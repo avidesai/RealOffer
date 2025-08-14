@@ -56,7 +56,7 @@ const PurchasePrice = ({ handleNextStep, handlePrevStep, errors = [] }) => {
     if (offerData.financeType !== 'CASH' && dp > 0 && (!dpPct || dpPct === 0)) {
       setInputModes(prev => ({ ...prev, downPayment: 'dollar' }));
     }
-  }, [offerData.financeType, offerData.downPayment, offerData.downPaymentPercent]);
+  }, [offerData.financeType, offerData.downPayment, offerData.downPaymentPercent, offerData.percentDown]);
 
   useEffect(() => {
     setDisplayValues({

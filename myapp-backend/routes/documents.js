@@ -26,6 +26,9 @@ router.post('/setAllPages', DocumentController.setAllPages);
 router.post('/clearPages', DocumentController.clearPages);
 router.get('/single/:id', DocumentController.getSingleDocument);
 
+// Token refresh route
+router.get('/:id/refresh-token', DocumentController.refreshDocumentToken);
+
 // Signature package creation route
 router.put('/createBuyerSignaturePacket', DocumentController.createBuyerSignaturePacket);
 router.put('/updateSignedStatus', DocumentController.updateDocumentSignedStatus);

@@ -21,6 +21,8 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
   const [visiblePages, setVisiblePages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const [currentFileUrl, setCurrentFileUrl] = useState(fileUrl);
   const containerRef = useRef(null);
   const observerRef = useRef(null);
   const pageRefs = useRef({});
@@ -60,6 +62,8 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
     setIsLoading(true);
     setError(null);
     setVisiblePages([]);
+    setRetryCount(0);
+    setCurrentFileUrl(fileUrl);
     pageRefs.current = {};
     
     // Cleanup previous observer
@@ -68,17 +72,64 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
     }
   }, [fileUrl, documentId]);
 
+  // Function to refresh SAS token
+  const refreshSasToken = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/api/documents/${documentId}/refresh-token`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      
+      if (response.data.sasToken) {
+        // Extract the base URL from the current fileUrl
+        const baseUrl = fileUrl.split('?')[0];
+        const newFileUrl = `${baseUrl}?${response.data.sasToken}`;
+        setCurrentFileUrl(newFileUrl);
+        setError(null);
+        setRetryCount(0);
+        return true;
+      }
+    } catch (error) {
+      console.error('Failed to refresh SAS token:', error);
+    }
+    return false;
+  }, [documentId, token, fileUrl]);
+
   const handleDocumentLoadSuccess = useCallback(({ numPages }) => {
     setNumPages(numPages);
     setCurrentPage(1);
     setIsLoading(false);
+    setError(null);
+    setRetryCount(0);
   }, []);
 
-  const handleDocumentLoadError = useCallback((error) => {
+  const handleDocumentLoadError = useCallback(async (error) => {
     console.error('Error loading PDF:', error);
-    setError('Failed to load the document. Please try again.');
+    
+    // Check if it's likely a token expiration error
+    const isTokenError = error.message?.includes('403') || 
+                        error.message?.includes('401') || 
+                        error.message?.includes('expired') ||
+                        error.message?.includes('forbidden');
+    
+    if (isTokenError && retryCount < 2) {
+      setRetryCount(prev => prev + 1);
+      setError('Refreshing document access...');
+      
+      const success = await refreshSasToken();
+      if (success) {
+        // The component will re-render with the new URL and retry loading
+        return;
+      }
+    }
+    
+    setError('Failed to load the document. Please try refreshing the page or contact support if the issue persists.');
     setIsLoading(false);
-  }, []);
+  }, [retryCount, refreshSasToken]);
 
   // Wrap handlePageSelect in useCallback to prevent it from changing on every render
   const handlePageSelect = useCallback(async (pageIndex, isSelected) => {
@@ -476,7 +527,7 @@ const SignaturePDFViewer = ({ fileUrl, documentTitle, documentId, signaturePacka
         )}
         
         <Document
-          file={fileUrl}
+          file={currentFileUrl}
           onLoadSuccess={handleDocumentLoadSuccess}
           onLoadError={handleDocumentLoadError}
           loading={null}

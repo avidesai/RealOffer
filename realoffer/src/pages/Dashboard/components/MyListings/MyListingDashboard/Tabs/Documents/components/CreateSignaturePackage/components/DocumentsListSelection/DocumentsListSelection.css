@@ -89,6 +89,28 @@
   margin-bottom: 0.5rem;
 }
 
+/* Loading issue styles */
+.dls-document-item.loading-issue {
+  border-left: 3px solid #ff6b6b;
+  background-color: #fff5f5;
+}
+
+.dls-loading-warning {
+  margin-left: 0.5rem;
+  font-size: 0.9rem;
+  color: #ff6b6b;
+  cursor: help;
+}
+
+.dls-loading-error-text {
+  display: block;
+  font-size: 0.75rem;
+  color: #ff6b6b;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
 /* Hide info section on mobile and smaller screens */
 @media (max-width: 768px) {
   .dls-info-section {
