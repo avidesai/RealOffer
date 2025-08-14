@@ -188,7 +188,7 @@ const Contingencies = ({ formData, handleChange, handleNextStep, handlePrevStep,
         </div>
       </div>
       <div className="form-group">
-        <label>Close of Escrow</label>
+        <label>Close of Escrow *</label>
         <div className="close-of-escrow-container">
           <input
             type="text"

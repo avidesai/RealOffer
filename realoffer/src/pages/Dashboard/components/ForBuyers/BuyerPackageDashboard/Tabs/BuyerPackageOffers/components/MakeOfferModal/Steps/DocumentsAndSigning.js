@@ -9,12 +9,12 @@ import './DocumentsAndSigning.css';
 
 // Utility function to intelligently determine document type based on filename
 const getDocumentTypeFromFilename = (filename) => {
-  const lowerFilename = filename.toLowerCase();
+  const lowerFilename = filename.toLowerCase().replace(/_/g, ' ').replace(/-/g, ' ');
   
   // Define keyword patterns for each document type with confidence scores
   const patterns = {
     'Purchase Agreement': {
-      keywords: ['purchase', 'agreement', 'contract', 'offer', 'buy', 'sale', 'purchase agreement', 'sales contract', 'buyer agreement'],
+      keywords: ['purchase', 'agreement', 'contract', 'offer', 'buy', 'sale', 'purchase agreement', 'sales contract', 'buyer agreement', 'rpa'],
       score: 0
     },
     'Pre-Approval Letter': {

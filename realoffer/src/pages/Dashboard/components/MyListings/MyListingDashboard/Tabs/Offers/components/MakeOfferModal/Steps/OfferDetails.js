@@ -57,7 +57,7 @@ const OfferDetails = ({ handleNextStep, handlePrevStep, errors = [] }) => {
         />
       </div>
       <div className="form-group">
-        <label htmlFor="offerExpiryDate">Offer Expiration</label>
+        <label htmlFor="offerExpiryDate">Offer Expiration *</label>
         <input
           type="datetime-local"
           name="offerExpiryDate"
@@ -73,7 +73,7 @@ const OfferDetails = ({ handleNextStep, handlePrevStep, errors = [] }) => {
         )}
       </div>
       <div className="form-group">
-        <label htmlFor="buyersAgentCommission">Buyer's Agent Commission (%)</label>
+        <label htmlFor="buyersAgentCommission">Buyer's Agent Commission (%) *</label>
         <input
           type="number"
           name="buyersAgentCommission"
@@ -90,7 +90,7 @@ const OfferDetails = ({ handleNextStep, handlePrevStep, errors = [] }) => {
         )}
       </div>
       <div className="form-group">
-        <label htmlFor="buyerName">Buyer's Full Name</label>
+        <label htmlFor="buyerName">Buyer's Full Name *</label>
         <input
           type="text"
           name="buyerName"

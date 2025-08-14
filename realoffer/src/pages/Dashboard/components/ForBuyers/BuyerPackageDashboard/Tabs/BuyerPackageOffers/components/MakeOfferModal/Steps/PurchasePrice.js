@@ -287,7 +287,7 @@ const PurchasePrice = ({ handleNextStep, handlePrevStep, errors = [] }) => {
       </div>
 
       <div className="form-group dollar-input">
-        <label>Purchase Price</label>
+        <label>Purchase Price *</label>
         <input
           type="text"
           name="purchasePrice"
@@ -307,7 +307,7 @@ const PurchasePrice = ({ handleNextStep, handlePrevStep, errors = [] }) => {
       {renderAmountInput('initialDeposit', 'Initial Deposit', 'Enter amount')}
 
       <div className="form-group">
-        <label>Finance Type</label>
+        <label>Finance Type *</label>
         <select
           name="financeType"
           value={offerData.financeType}

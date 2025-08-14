@@ -1739,11 +1739,7 @@
   position: relative;
 }
 
-.ds-recipient-form .ds-form-group label::after {
-  content: ' *';
-  color: #dc2626;
-  font-weight: 700;
-}
+/* Removed red asterisk - keeping only the black asterisk from HTML */
 
 .ds-recipients-actions {
   display: flex;

@@ -102,7 +102,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
         <input
           type="text"
           name="name"
-          placeholder="Agent Name"
+          placeholder="Agent Name *"
           className={errors.some(err => err.toLowerCase().includes('agent name')) ? 'agent-info-input error' : 'agent-info-input'}
           value={formData.presentedBy.name || ''}
           onChange={(e) => handleNestedChange(e, 'presentedBy')}
@@ -115,7 +115,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
         <input
           type="text"
           name="licenseNumber"
-          placeholder="License Number"
+          placeholder="License Number *"
           className={errors.some(err => err.toLowerCase().includes('agent license number')) ? 'agent-info-input error' : 'agent-info-input'}
           value={formData.presentedBy.licenseNumber || ''}
           onChange={(e) => handleNestedChange(e, 'presentedBy')}
@@ -128,7 +128,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
         <input
           type="email"
           name="email"
-          placeholder="Email"
+          placeholder="Email *"
           className={errors.some(err => err.toLowerCase().includes('agent email')) ? 'agent-info-input error' : 'agent-info-input'}
           value={formData.presentedBy.email || ''}
           onChange={(e) => handleNestedChange(e, 'presentedBy')}
@@ -148,7 +148,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
               {...inputProps}
               type="text"
               name="phoneNumber"
-              placeholder="Phone Number"
+              placeholder="Phone Number *"
               className={errors.some(err => err.toLowerCase().includes('agent phone number')) ? 'agent-info-input error' : 'agent-info-input'}
             />
           )}
@@ -164,7 +164,7 @@ const AgentInformation = ({ formData, handleNestedChange, handleNextStep, handle
         <input
           type="text"
           name="name"
-          placeholder="Brokerage Name"
+          placeholder="Brokerage Name *"
           className={errors.some(err => err.toLowerCase().includes('brokerage name')) ? 'agent-info-input error' : 'agent-info-input'}
           value={formData.brokerageInfo.name || ''}
           onChange={(e) => handleNestedChange(e, 'brokerageInfo')}
