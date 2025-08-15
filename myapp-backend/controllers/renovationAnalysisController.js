@@ -9,8 +9,8 @@ const sharp = require('sharp');
 const compressImage = async (imageBuffer) => {
   try {
     const compressed = await sharp(imageBuffer)
-      .resize(800, 600, { fit: 'inside', withoutEnlargement: true })
-      .jpeg({ quality: 80 })
+      .resize(600, 400, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 60, progressive: true })
       .toBuffer();
     return compressed;
   } catch (error) {
@@ -32,7 +32,7 @@ const imageToBase64 = async (imageUrl) => {
 };
 
 // Helper function to process photos in batches
-const processPhotosInBatches = async (photoUrls, batchSize = 10) => {
+const processPhotosInBatches = async (photoUrls, batchSize = 5) => {
   const batches = [];
   for (let i = 0; i < photoUrls.length; i += batchSize) {
     batches.push(photoUrls.slice(i, i + batchSize));
@@ -105,7 +105,9 @@ exports.generateRenovationEstimate = async (req, res) => {
     const locationInfo = `${property.homeCharacteristics.city}, ${property.homeCharacteristics.state} ${property.homeCharacteristics.zip}`;
     const propertyInfo = `${property.homeCharacteristics.beds} bed, ${property.homeCharacteristics.baths} bath, ${property.homeCharacteristics.squareFootage} sqft`;
     
-    const systemPrompt = `You are a professional home renovation estimator. Analyze the provided property photos and provide a detailed renovation cost estimate.
+    const systemPrompt = `You are a professional home renovation estimator with expertise in local market costs. Analyze the provided property photos and provide a detailed renovation cost estimate.
+
+IMPORTANT: Use the specific location provided to give accurate local market estimates.
 
 Location: ${locationInfo}
 Property: ${propertyInfo}
@@ -122,7 +124,7 @@ Provide estimates for the following categories:
 For each category, assess:
 1. Current condition (Excellent/Good/Fair/Poor/New)
 2. Whether renovation is needed
-3. Estimated cost for renovation
+3. Estimated cost for renovation (use local market rates for ${locationInfo})
 4. Brief description of work needed
 5. Priority level (High/Medium/Low/None)
 
@@ -175,7 +177,8 @@ Please provide your response in the following JSON format:
             'Content-Type': 'application/json',
             'x-api-key': process.env.CLAUDE_API_KEY,
             'anthropic-version': '2023-06-01'
-          }
+          },
+          timeout: 60000 // 60 second timeout
         });
         
         // Parse the response to extract renovation breakdown
@@ -189,12 +192,66 @@ Please provide your response in the following JSON format:
         
       } catch (error) {
         console.error('Error processing photo batch:', error);
-        throw new Error('Failed to analyze photos with AI');
+        console.error('Error details:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: error.message
+        });
+        
+        // If it's a 400 error, it might be due to request size, try with fewer images
+        if (error.response?.status === 400 && batch.length > 1) {
+          console.log('Retrying with smaller batch size...');
+          // Try processing images one by one
+          for (const img of batch) {
+            try {
+              const singleResponse = await axios.post('https://api.anthropic.com/v1/messages', {
+                model: 'claude-3-haiku-20240307',
+                max_tokens: 4000,
+                messages: [
+                  { role: 'system', content: systemPrompt },
+                  { 
+                    role: 'user', 
+                    content: [
+                      { type: 'text', text: 'Please analyze this photo of the property and provide renovation estimates in JSON format.' },
+                      { type: 'image_url', image_url: { url: img } }
+                    ]
+                  }
+                ]
+              }, {
+                headers: {
+                  'Content-Type': 'application/json',
+                  'x-api-key': process.env.CLAUDE_API_KEY,
+                  'anthropic-version': '2023-06-01'
+                },
+                timeout: 60000
+              });
+              
+              const content = singleResponse.data.content[0].text;
+              const breakdown = parseRenovationBreakdown(content);
+              allBreakdowns.push(...breakdown);
+              
+              renovationAnalysis.processingDetails.photosProcessed += 1;
+              await renovationAnalysis.save();
+              
+            } catch (singleError) {
+              console.error('Error processing single image:', singleError);
+              // Continue with other images even if one fails
+            }
+          }
+        } else {
+          throw new Error('Failed to analyze photos with AI');
+        }
       }
     }
     
     // Combine and aggregate results from all batches
     const finalBreakdown = aggregateRenovationResults(allBreakdowns);
+    
+    // Check if we have any breakdown data
+    if (finalBreakdown.length === 0) {
+      throw new Error('No renovation analysis data could be extracted from the AI response');
+    }
+    
     const totalCost = finalBreakdown.reduce((sum, item) => sum + item.estimatedCost, 0);
     
     // Update renovation analysis with results
@@ -238,20 +295,27 @@ Please provide your response in the following JSON format:
 // Helper function to parse renovation breakdown from Claude response
 const parseRenovationBreakdown = (content) => {
   try {
+    console.log('Parsing AI response:', content.substring(0, 500) + '...');
+    
     // Try to extract JSON from the response
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0]);
-      if (parsed.breakdown && Array.isArray(parsed.breakdown)) {
-        return parsed.breakdown.map(item => ({
-          category: item.category,
-          estimatedCost: item.estimatedCost || 0,
-          description: item.description || '',
-          condition: item.condition || 'Fair',
-          renovationNeeded: item.renovationNeeded || false,
-          notes: item.notes || '',
-          priority: item.priority || 'None'
-        }));
+      try {
+        const parsed = JSON.parse(jsonMatch[0]);
+        if (parsed.breakdown && Array.isArray(parsed.breakdown)) {
+          console.log('Successfully parsed JSON breakdown with', parsed.breakdown.length, 'items');
+          return parsed.breakdown.map(item => ({
+            category: item.category,
+            estimatedCost: item.estimatedCost || 0,
+            description: item.description || '',
+            condition: item.condition || 'Fair',
+            renovationNeeded: item.renovationNeeded || false,
+            notes: item.notes || '',
+            priority: item.priority || 'None'
+          }));
+        }
+      } catch (jsonError) {
+        console.error('Error parsing JSON:', jsonError);
       }
     }
     
@@ -260,6 +324,7 @@ const parseRenovationBreakdown = (content) => {
     const categoryMatches = content.match(/(?:^|\n)([A-Za-z\s]+):\s*\$\s*([0-9,]+)/g);
     
     if (categoryMatches) {
+      console.log('Using fallback text parsing, found', categoryMatches.length, 'matches');
       categoryMatches.forEach(match => {
         const [category, costStr] = match.split(':').map(s => s.trim());
         const cost = parseInt(costStr.replace(/[$,]/g, ''));
@@ -275,6 +340,7 @@ const parseRenovationBreakdown = (content) => {
       });
     }
     
+    console.log('Final breakdown items:', breakdown.length);
     return breakdown;
   } catch (error) {
     console.error('Error parsing renovation breakdown:', error);
