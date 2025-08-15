@@ -128,42 +128,16 @@ const convertPageWithImageMagick = async (pdfPath, pageNumber) => {
     
     console.log(`Running ImageMagick: convert ${args.join(' ')}`);
     
-    // Try using the newer magick command if available
-    const { spawn } = require('child_process');
-    
-    // First try with magick command
-    const magickProcess = spawn('magick', args);
-    let stdout = '';
-    let stderr = '';
-    
-    magickProcess.stdout.on('data', (data) => {
-      stdout += data.toString();
-    });
-    
-    magickProcess.stderr.on('data', (data) => {
-      stderr += data.toString();
-    });
-    
-    magickProcess.on('close', (code) => {
-      if (code !== 0) {
-        console.error(`ImageMagick failed with code ${code}:`);
-        console.error(`stderr: ${stderr}`);
-        console.error(`stdout: ${stdout}`);
-        
-        // Fallback to old imagemagick module
-        console.log('Trying fallback with imagemagick module...');
-        imagemagick.convert(args, (err, stdout) => {
-          if (err) {
-            console.error(`ImageMagick module conversion failed:`, err);
-            resolve(null);
-            return;
-          }
-          
-          handleImageMagickSuccess();
-        });
+    // Use the imagemagick module directly (more reliable than spawning processes)
+    imagemagick.convert(args, (err, stdout) => {
+      if (err) {
+        console.error(`ImageMagick module conversion failed:`, err);
+        console.error(`Command was: convert ${args.join(' ')}`);
+        resolve(null);
         return;
       }
       
+      console.log(`ImageMagick stdout:`, stdout);
       handleImageMagickSuccess();
     });
     
