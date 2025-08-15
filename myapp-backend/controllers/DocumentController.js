@@ -205,8 +205,27 @@ const removePasswordRestrictions = async (pdfBytes, documentTitle) => {
   const outputPath = path.join(tempDir, `unrestricted_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.pdf`);
   
   try {
+    // Convert ArrayBuffer to Buffer if necessary
+    let pdfBuffer;
+    if (pdfBytes instanceof ArrayBuffer) {
+      pdfBuffer = Buffer.from(pdfBytes);
+    } else if (Buffer.isBuffer(pdfBytes)) {
+      pdfBuffer = pdfBytes;
+    } else {
+      pdfBuffer = Buffer.from(pdfBytes);
+    }
+    
     // Write the restricted PDF to a temporary file
-    fs.writeFileSync(inputPath, pdfBytes);
+    fs.writeFileSync(inputPath, pdfBuffer);
+    console.log(`${documentTitle}: Written PDF to temp file (${pdfBuffer.length} bytes) at ${inputPath}`);
+    
+    // Verify the file was written correctly
+    if (!fs.existsSync(inputPath)) {
+      throw new Error('Failed to write temporary PDF file');
+    }
+    
+    const fileSize = fs.statSync(inputPath).size;
+    console.log(`${documentTitle}: Temp file verified (${fileSize} bytes)`);
     
     // Try qpdf to remove restrictions (works for permission-only restrictions, not user passwords)
     console.log(`${documentTitle}: Attempting to remove PDF restrictions using qpdf...`);
@@ -219,23 +238,44 @@ const removePasswordRestrictions = async (pdfBytes, documentTitle) => {
     const qpdfCommand = `qpdf --decrypt "${inputPath}" "${outputPath}"`;
     
     try {
-      await execAsync(qpdfCommand);
+      console.log(`${documentTitle}: Running qpdf command: ${qpdfCommand}`);
+      const { stdout, stderr } = await execAsync(qpdfCommand);
+      
+      if (stderr && stderr.trim()) {
+        console.log(`${documentTitle}: qpdf stderr: ${stderr.trim()}`);
+      }
+      if (stdout && stdout.trim()) {
+        console.log(`${documentTitle}: qpdf stdout: ${stdout.trim()}`);
+      }
       
       // Check if the output file was created and has content
       if (fs.existsSync(outputPath)) {
-        const unrestrictedBytes = fs.readFileSync(outputPath);
+        const outputFileSize = fs.statSync(outputPath).size;
+        console.log(`${documentTitle}: qpdf output file created (${outputFileSize} bytes)`);
         
-        // Clean up temporary files
-        try { fs.unlinkSync(inputPath); } catch (e) {}
-        try { fs.unlinkSync(outputPath); } catch (e) {}
-        
-        if (unrestrictedBytes.length > 0) {
-          console.log(`${documentTitle}: Successfully removed PDF restrictions`);
+        if (outputFileSize > 0) {
+          const unrestrictedBytes = fs.readFileSync(outputPath);
+          
+          // Clean up temporary files
+          try { fs.unlinkSync(inputPath); } catch (e) {}
+          try { fs.unlinkSync(outputPath); } catch (e) {}
+          
+          console.log(`${documentTitle}: Successfully removed PDF restrictions (${unrestrictedBytes.length} bytes)`);
           return unrestrictedBytes;
+        } else {
+          console.log(`${documentTitle}: qpdf output file is empty`);
         }
+      } else {
+        console.log(`${documentTitle}: qpdf output file was not created`);
       }
     } catch (qpdfError) {
       console.log(`${documentTitle}: qpdf restriction removal failed - ${qpdfError.message}`);
+      if (qpdfError.code) {
+        console.log(`${documentTitle}: qpdf exit code: ${qpdfError.code}`);
+      }
+      if (qpdfError.stderr) {
+        console.log(`${documentTitle}: qpdf stderr: ${qpdfError.stderr}`);
+      }
     }
     
     // Clean up temporary files if qpdf failed
