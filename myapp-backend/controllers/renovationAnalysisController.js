@@ -282,7 +282,6 @@ Please provide your response in the following JSON format:
       const userMessage = `Please analyze these ${batch.length} photos of the property and provide renovation estimates in JSON format.`;
       
       const messages = [
-        { role: 'system', content: systemPrompt },
         { 
           role: 'user', 
           content: [
@@ -298,6 +297,7 @@ Please provide your response in the following JSON format:
         const response = await axios.post('https://api.anthropic.com/v1/messages', {
           model: 'claude-3-haiku-20240307',
           max_tokens: 4000,
+          system: systemPrompt,
           messages: messages
         }, {
           headers: {
@@ -338,8 +338,8 @@ Please provide your response in the following JSON format:
               const singleResponse = await axios.post('https://api.anthropic.com/v1/messages', {
                 model: 'claude-3-haiku-20240307',
                 max_tokens: 4000,
+                system: systemPrompt,
                 messages: [
-                  { role: 'system', content: systemPrompt },
                   { 
                     role: 'user', 
                     content: [
