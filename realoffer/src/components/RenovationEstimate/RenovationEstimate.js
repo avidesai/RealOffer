@@ -70,6 +70,21 @@ const RenovationEstimate = ({ propertyId }) => {
     }
   }, [propertyId, fetchRenovationEstimate]);
 
+  // Poll for updates when analysis is processing
+  useEffect(() => {
+    let interval;
+    if (renovationData?.status === 'processing') {
+      interval = setInterval(() => {
+        fetchRenovationEstimate();
+      }, 5000); // Check every 5 seconds
+    }
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [renovationData?.status, fetchRenovationEstimate]);
+
   const formatCurrency = (value) => {
     if (!value) return '$0';
     return value.toLocaleString('en-US', {
@@ -137,6 +152,19 @@ const RenovationEstimate = ({ propertyId }) => {
   }
 
   if (!renovationData?.renovationEstimate) {
+    // Check if analysis is currently processing
+    if (renovationData?.status === 'processing') {
+      return (
+        <div className="renovation-estimate">
+          <div className="renovation-loading">
+            <div className="spinner"></div>
+            <p>Generating renovation estimate...</p>
+            <p className="processing-note">This happens automatically when photos are uploaded</p>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="renovation-estimate">
         <div className="renovation-empty">

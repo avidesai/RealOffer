@@ -268,6 +268,23 @@ exports.createListing = async (req, res) => {
     const savedListing = await newListing.save();
     user.listingPackages.push(savedListing._id);
     await user.save();
+
+    // Trigger renovation analysis if photos were uploaded
+    if (propertyImages.length > 0) {
+      try {
+        await renovationAnalysisController.generateRenovationEstimate({
+          params: { propertyId: savedListing._id },
+          user: { id: req.user.id }
+        }, {
+          json: () => {},
+          status: () => ({ json: () => {} })
+        });
+      } catch (error) {
+        console.error('Error triggering renovation analysis on listing creation:', error);
+        // Don't fail the listing creation if renovation analysis fails
+      }
+    }
+
     res.status(201).json(savedListing);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -658,8 +675,19 @@ exports.updatePhotoOrder = async (req, res) => {
     listing.imagesUrls = req.body.imageUrls;
     await listing.save();
 
-    // Trigger renovation analysis update
-    await renovationAnalysisController.triggerRenovationAnalysis(listing._id);
+    // Automatically generate renovation analysis with reordered photos
+    try {
+      await renovationAnalysisController.generateRenovationEstimate({
+        params: { propertyId: listing._id },
+        user: { id: req.user.id }
+      }, {
+        json: () => {},
+        status: () => ({ json: () => {} })
+      });
+    } catch (error) {
+      console.error('Error generating renovation analysis after reordering photos:', error);
+      // Don't fail the photo reorder if renovation analysis fails
+    }
 
     res.status(200).json(listing);
   } catch (error) {
@@ -695,8 +723,19 @@ exports.addPhotosToListing = async (req, res) => {
     listing.imagesUrls = [...listing.imagesUrls, ...newPhotoUrls];
     await listing.save();
 
-    // Trigger renovation analysis update
-    await renovationAnalysisController.triggerRenovationAnalysis(listing._id);
+    // Automatically generate renovation analysis with new photos
+    try {
+      await renovationAnalysisController.generateRenovationEstimate({
+        params: { propertyId: listing._id },
+        user: { id: req.user.id }
+      }, {
+        json: () => {},
+        status: () => ({ json: () => {} })
+      });
+    } catch (error) {
+      console.error('Error generating renovation analysis after adding photos:', error);
+      // Don't fail the photo upload if renovation analysis fails
+    }
 
     res.status(200).json({
       message: "Photos added successfully",
