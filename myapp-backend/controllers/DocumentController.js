@@ -27,11 +27,11 @@ const upload = multer({
   storage,
   limits: {
     fileSize: 50 * 1024 * 1024, // 50MB file size limit
-    files: 20 // Maximum number of files
+    files: 30 // Maximum number of files
   }
 });
 
-exports.uploadDocuments = upload.array('documents', 20);
+exports.uploadDocuments = upload.array('documents', 30);
 
 const getPdfPageCount = async (buffer) => {
   try {
@@ -602,14 +602,14 @@ exports.createBuyerSignaturePacket = async (req, res) => {
 
   // Set a timeout for this operation
   const timeout = setTimeout(() => {
-    console.error('createBuyerSignaturePacket timeout after 90 seconds');
+    console.error('createBuyerSignaturePacket timeout after 120 seconds');
     if (!res.headersSent) {
       res.status(408).json({ 
         message: 'Request timeout. Please try again.', 
         error: 'REQUEST_TIMEOUT' 
       });
     }
-  }, 90000); // 90 second timeout for up to 20 documents
+  }, 120000); // 120 second timeout for up to 30 documents
 
   try {
     const propertyListing = await PropertyListing.findById(listingId).populate('signaturePackage');
@@ -702,7 +702,7 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     const processingErrors = [];
     
     // Limit the number of documents processed at once to prevent memory issues
-    const maxDocumentsPerRequest = 20;
+    const maxDocumentsPerRequest = 30;
     if (selectedDocuments.length > maxDocumentsPerRequest) {
       return res.status(400).json({ 
         message: `Too many documents selected. Maximum ${maxDocumentsPerRequest} documents allowed per signature package.`,
@@ -712,6 +712,8 @@ exports.createBuyerSignaturePacket = async (req, res) => {
 
     for (const document of selectedDocuments) {
       try {
+        console.log(`Processing document: ${document.title}`);
+        
         const sasToken = generateSASToken(document.azureKey);
         const documentUrlWithSAS = `${document.thumbnailUrl}?${sasToken}`;
 
@@ -743,9 +745,18 @@ exports.createBuyerSignaturePacket = async (req, res) => {
         }
         
         try {
+          // Add additional validation for PDF content
+          if (existingPdfBytes.byteLength === 0) {
+            const errorMsg = `Document ${document.title} appears to be empty or corrupted`;
+            console.error(errorMsg);
+            processingErrors.push(errorMsg);
+            continue;
+          }
+
           const existingPdf = await PDFDocument.load(existingPdfBytes, { 
             ignoreEncryption: true,
-            throwOnInvalidObject: false
+            throwOnInvalidObject: false,
+            updateMetadata: false
           });
 
           // Sort the page numbers in ascending order
@@ -769,7 +780,7 @@ exports.createBuyerSignaturePacket = async (req, res) => {
           }
           
           // Clean up memory after processing each document
-          existingPdf.destroy();
+          // Note: pdf-lib doesn't have a destroy() method, so we just let it be garbage collected
           
         } catch (pdfError) {
           const errorMsg = `Error loading PDF for document ${document.title}: ${pdfError.message}`;
@@ -802,6 +813,16 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     // If there were processing errors but some pages were added, log them but continue
     if (processingErrors.length > 0) {
       console.warn('Signature package created with warnings:', processingErrors);
+      
+      // If more than 50% of documents failed, consider it a failure
+      const failureRate = processingErrors.length / selectedDocuments.length;
+      if (failureRate > 0.5) {
+        return res.status(400).json({ 
+          message: 'Too many documents failed to process. Please check your documents and try again.',
+          error: 'HIGH_FAILURE_RATE',
+          errors: processingErrors
+        });
+      }
     }
 
     const pdfBytes = await mergedPdf.save();

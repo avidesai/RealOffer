@@ -215,7 +215,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
               headers: {
                 'Authorization': `Bearer ${token}`
               },
-              timeout: 90000 // 90 second timeout for up to 20 documents
+              timeout: 120000 // 120 second timeout for up to 30 documents
             }
           );
           
