@@ -7,6 +7,7 @@ const { containerClient, generateSASToken } = require('../config/azureStorage');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const { PDFDocument } = require('pdf-lib');
+const pdfParse = require('pdf-parse');
 const { extractTextFromPDF } = require('./DocumentAnalysisController');
 const optimizedDocumentProcessor = require('../utils/optimizedDocumentProcessor');
 const { deleteDocumentEmbeddingsFromPinecone, deletePropertyEmbeddingsFromPinecone } = require('../utils/vectorStore');
@@ -32,6 +33,17 @@ const upload = multer({
 });
 
 exports.uploadDocuments = upload.array('documents', 30);
+
+// Helper function to check if PDF is corrupted using pdf-parse
+const isPdfCorrupted = async (buffer) => {
+  try {
+    const data = await pdfParse(buffer);
+    return false; // PDF is not corrupted
+  } catch (error) {
+    console.warn('PDF appears to be corrupted:', error.message);
+    return true; // PDF is corrupted
+  }
+};
 
 const getPdfPageCount = async (buffer) => {
   try {
@@ -753,27 +765,69 @@ exports.createBuyerSignaturePacket = async (req, res) => {
             continue;
           }
 
-          const existingPdf = await PDFDocument.load(existingPdfBytes, { 
-            ignoreEncryption: true,
-            throwOnInvalidObject: false,
-            updateMetadata: false
-          });
+          // Check if PDF is corrupted using pdf-parse
+          const isCorrupted = await isPdfCorrupted(Buffer.from(existingPdfBytes));
+          if (isCorrupted) {
+            console.warn(`PDF ${document.title} is corrupted, skipping...`);
+            const errorMsg = `Skipped corrupted PDF: ${document.title} - file contains invalid object references`;
+            processingErrors.push(errorMsg);
+            continue;
+          }
 
+          // Try to load the PDF with error suppression
+          let existingPdf = null;
+          
+          // Suppress console warnings during PDF loading to reduce noise
+          const originalConsoleWarn = console.warn;
+          console.warn = () => {}; // Suppress warnings during loading
+          
+          try {
+            existingPdf = await PDFDocument.load(existingPdfBytes, { 
+              ignoreEncryption: true,
+              throwOnInvalidObject: false,
+              updateMetadata: false,
+              parseSpeed: 'fastest'
+            });
+          } catch (loadError) {
+            console.warn = originalConsoleWarn; // Restore console.warn
+            console.warn(`PDF ${document.title} failed to load:`, loadError.message);
+            
+            // Skip this corrupted PDF
+            const errorMsg = `Skipped corrupted PDF: ${document.title} - file contains invalid object references`;
+            processingErrors.push(errorMsg);
+            continue;
+          }
+          
+          console.warn = originalConsoleWarn; // Restore console.warn
+
+          // Get page count safely
+          let pageCount = 0;
+          try {
+            pageCount = existingPdf.getPageCount();
+            console.log(`Document ${document.title} has ${pageCount} pages`);
+          } catch (countError) {
+            console.error(`Cannot get page count for ${document.title}:`, countError.message);
+            const errorMsg = `Cannot determine page count for ${document.title} - document may be corrupted`;
+            processingErrors.push(errorMsg);
+            continue;
+          }
+          
           // Sort the page numbers in ascending order
           const sortedPageNumbers = [...document.signaturePackagePages].sort((a, b) => a - b);
           
           for (const pageNumber of sortedPageNumbers) {
-            if (pageNumber > 0 && pageNumber <= existingPdf.getPageCount()) {
+            if (pageNumber > 0 && pageNumber <= pageCount) {
               try {
                 const [copiedPage] = await mergedPdf.copyPages(existingPdf, [pageNumber - 1]);
                 mergedPdf.addPage(copiedPage);
+                console.log(`Successfully copied page ${pageNumber} from ${document.title}`);
               } catch (pageError) {
                 const errorMsg = `Error copying page ${pageNumber} from document ${document.title}: ${pageError.message}`;
                 console.error(errorMsg);
                 processingErrors.push(errorMsg);
               }
             } else {
-              const errorMsg = `Invalid page number ${pageNumber} for document ${document.title}`;
+              const errorMsg = `Invalid page number ${pageNumber} for document ${document.title} (document has ${pageCount} pages)`;
               console.error(errorMsg);
               processingErrors.push(errorMsg);
             }
@@ -820,6 +874,15 @@ exports.createBuyerSignaturePacket = async (req, res) => {
         return res.status(400).json({ 
           message: 'Too many documents failed to process. Please check your documents and try again.',
           error: 'HIGH_FAILURE_RATE',
+          errors: processingErrors
+        });
+      }
+      
+      // If no pages were successfully added, return an error
+      if (mergedPdf.getPageCount() === 0) {
+        return res.status(400).json({ 
+          message: 'No valid pages could be extracted from the selected documents. Please check your documents and try again.',
+          error: 'NO_VALID_PAGES',
           errors: processingErrors
         });
       }
@@ -887,12 +950,24 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     propertyListing.signaturePackage = savedDocument._id;
     await propertyListing.save();
 
+    // Calculate success statistics
+    const successfulDocuments = selectedDocuments.length - processingErrors.length;
+    const totalPages = mergedPdf.getPageCount();
+    
+    console.log(`Signature package created successfully: ${successfulDocuments}/${selectedDocuments.length} documents processed, ${totalPages} pages total`);
+    
     // Return the saved document along with any processing errors
     const response = {
       document: savedDocument,
       pageCount: mergedPdf.getPageCount(),
       documentOrder: propertyListing.documentOrder,
-      signaturePackageDocumentOrder: propertyListing.signaturePackageDocumentOrder
+      signaturePackageDocumentOrder: propertyListing.signaturePackageDocumentOrder,
+      statistics: {
+        totalDocuments: selectedDocuments.length,
+        successfulDocuments: successfulDocuments,
+        failedDocuments: processingErrors.length,
+        totalPages: totalPages
+      }
     };
     
     if (processingErrors.length > 0) {
