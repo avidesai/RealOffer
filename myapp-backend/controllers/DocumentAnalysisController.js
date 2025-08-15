@@ -391,17 +391,17 @@ Write 3–4 sentences summarizing the roof's general state and biggest strengths
 Label each component with ✅ Good, ⚠️ Needs attention, or ❌ Problem found.  
 If ⚠️ or ❌, add 1–2 sentences explaining why.
 
-**Shingles/Tiles**: [status] [explanation if needed]
+- **Shingles/Tiles**: [status] [explanation if needed]
 
-**Flashing**: [status] [explanation if needed]
+- **Flashing**: [status] [explanation if needed]
 
-**Gutters & Downspouts**: [status] [explanation if needed]
+- **Gutters & Downspouts**: [status] [explanation if needed]
 
-**Ventilation**: [status] [explanation if needed]
+- **Ventilation**: [status] [explanation if needed]
 
-**Skylights**: [status] [explanation if needed]
+- **Skylights**: [status] [explanation if needed]
 
-**Chimney**: [status] [explanation if needed]
+- **Chimney**: [status] [explanation if needed]
 
 ---
 

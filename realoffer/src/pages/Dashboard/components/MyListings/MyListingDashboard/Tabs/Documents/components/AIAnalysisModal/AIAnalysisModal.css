@@ -485,6 +485,29 @@
   color: #1f2937;
 }
 
+/* Key Roof Components formatting */
+.aam-result h2:contains("Key Roof Components") + ul li,
+.aam-result h2:contains("Key Roof Components") + ol li {
+  display: block;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.aam-result h2:contains("Key Roof Components") + ul li:last-child,
+.aam-result h2:contains("Key Roof Components") + ol li:last-child {
+  border-bottom: none;
+}
+
+/* Ensure roof component names are bold and on their own line */
+.aam-result h2:contains("Key Roof Components") + ul li strong,
+.aam-result h2:contains("Key Roof Components") + ol li strong {
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
 /* Pest Inspection Report Standard Styling (Original Format) */
 .pest-item-standard {
   margin-bottom: 0.8rem;
