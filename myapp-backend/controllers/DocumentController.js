@@ -110,6 +110,83 @@ const attemptSinglePageImageExtraction = async (document, existingPdfBytes, page
   }
 };
 
+// Helper function to convert a page using ImageMagick directly
+const convertPageWithImageMagick = async (pdfPath, pageNumber) => {
+  return new Promise((resolve, reject) => {
+    const tempDir = os.tmpdir();
+    const outputImagePath = path.join(tempDir, `page_${Date.now()}_${pageNumber}.png`);
+    
+    // Use ImageMagick to convert specific page to PNG
+    const args = [
+      `${pdfPath}[${pageNumber - 1}]`, // PDF file with page index (0-based)
+      '-density', '300',              // High DPI
+      '-quality', '90',               // High quality
+      '-alpha', 'remove',             // Remove transparency
+      '-background', 'white',         // White background
+      outputImagePath
+    ];
+    
+    console.log(`Running ImageMagick: convert ${args.join(' ')}`);
+    
+    // Try using the newer magick command if available
+    const { spawn } = require('child_process');
+    
+    // First try with magick command
+    const magickProcess = spawn('magick', args);
+    let stdout = '';
+    let stderr = '';
+    
+    magickProcess.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+    
+    magickProcess.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+    
+    magickProcess.on('close', (code) => {
+      if (code !== 0) {
+        console.error(`ImageMagick failed with code ${code}:`);
+        console.error(`stderr: ${stderr}`);
+        console.error(`stdout: ${stdout}`);
+        
+        // Fallback to old imagemagick module
+        console.log('Trying fallback with imagemagick module...');
+        imagemagick.convert(args, (err, stdout) => {
+          if (err) {
+            console.error(`ImageMagick module conversion failed:`, err);
+            resolve(null);
+            return;
+          }
+          
+          handleImageMagickSuccess();
+        });
+        return;
+      }
+      
+      handleImageMagickSuccess();
+    });
+    
+    const handleImageMagickSuccess = () => {
+      try {
+        if (fs.existsSync(outputImagePath)) {
+          const imageBuffer = fs.readFileSync(outputImagePath);
+          // Clean up temp image file
+          fs.unlinkSync(outputImagePath);
+          console.log(`ImageMagick successfully converted page ${pageNumber}, buffer size: ${imageBuffer.length}`);
+          resolve(imageBuffer);
+        } else {
+          console.error(`ImageMagick output file not found: ${outputImagePath}`);
+          resolve(null);
+        }
+      } catch (readError) {
+        console.error(`Error reading ImageMagick output:`, readError);
+        resolve(null);
+      }
+    };
+  });
+};
+
 // NEW MAIN FUNCTION: Convert selected pages directly to images, then add to PDF
 const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPdf, processingErrors) => {
   const tempDir = os.tmpdir();
@@ -129,7 +206,13 @@ const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPd
       throw new Error('Failed to write temporary PDF file');
     }
     
-    console.log(`Successfully wrote temp file for ${document.title}`);
+    // Verify file size
+    const stats = fs.statSync(tempPdfPath);
+    if (stats.size === 0) {
+      throw new Error('Temporary PDF file is empty');
+    }
+    
+    console.log(`Successfully wrote temp file for ${document.title} (${stats.size} bytes)`);
     
     // Sort the page numbers in ascending order
     const sortedPageNumbers = [...document.signaturePackagePages].sort((a, b) => a - b);
@@ -141,15 +224,29 @@ const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPd
       savePath: tempDir,
       format: "png",
       width: 2480,           // High resolution
-      height: 3508           // A4 size at 300 DPI
+      height: 3508,          // A4 size at 300 DPI
+      quality: 90            // High quality
     });
     
     for (const pageNumber of sortedPageNumbers) {
       try {
         console.log(`Converting page ${pageNumber} of ${document.title} to image...`);
         
-        // Convert the specific page to image
-        const result = await convert(pageNumber, { responseType: "buffer" });
+        // Convert the specific page to image with better error handling
+        let result;
+        try {
+          result = await convert(pageNumber, { responseType: "buffer" });
+        } catch (conversionError) {
+          console.error(`pdf2pic conversion error for page ${pageNumber}:`, conversionError);
+          throw new Error(`pdf2pic failed: ${conversionError.message || 'Unknown conversion error'}`);
+        }
+        
+        console.log(`pdf2pic result for page ${pageNumber}:`, {
+          hasResult: !!result,
+          hasBuffer: !!(result && result.buffer),
+          bufferSize: result && result.buffer ? result.buffer.length : 0,
+          resultKeys: result ? Object.keys(result) : []
+        });
         
         if (result && result.buffer) {
           // Create a new PDF page from the image
@@ -191,7 +288,50 @@ const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPd
           
           console.log(`Successfully added page ${pageNumber} from ${document.title} as image`);
         } else {
-          throw new Error('pdf2pic returned no image buffer');
+          // Fallback: Try direct ImageMagick conversion
+          console.log(`pdf2pic failed, trying direct ImageMagick for page ${pageNumber}...`);
+          
+          const imageBuffer = await convertPageWithImageMagick(tempPdfPath, pageNumber);
+          if (imageBuffer) {
+            // Create a new PDF page from the image
+            const imagePdf = await PDFDocument.create();
+            const pngImage = await imagePdf.embedPng(imageBuffer);
+            
+            // Create page with proper size (A4)
+            const page = imagePdf.addPage([595, 842]); // A4 size in points
+            
+            // Calculate scaling to fit image on page while maintaining aspect ratio
+            const imageAspectRatio = pngImage.width / pngImage.height;
+            const pageAspectRatio = 595 / 842;
+            
+            let imageWidth, imageHeight;
+            if (imageAspectRatio > pageAspectRatio) {
+              imageWidth = 555; // Leave 20pt margin
+              imageHeight = imageWidth / imageAspectRatio;
+            } else {
+              imageHeight = 802; // Leave 20pt margin
+              imageWidth = imageHeight * imageAspectRatio;
+            }
+            
+            // Center the image on the page
+            const x = (595 - imageWidth) / 2;
+            const y = (842 - imageHeight) / 2;
+            
+            page.drawImage(pngImage, {
+              x: x,
+              y: y,
+              width: imageWidth,
+              height: imageHeight,
+            });
+            
+            // Copy this page to the merged PDF
+            const [copiedPage] = await mergedPdf.copyPages(imagePdf, [0]);
+            mergedPdf.addPage(copiedPage);
+            
+            console.log(`Successfully added page ${pageNumber} from ${document.title} using ImageMagick fallback`);
+          } else {
+            throw new Error('Both pdf2pic and ImageMagick failed to convert page');
+          }
         }
       } catch (pageError) {
         console.error(`Failed to convert page ${pageNumber} of ${document.title}:`, pageError.message);
