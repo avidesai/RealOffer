@@ -95,34 +95,9 @@ const RenovationEstimate = ({ propertyId }) => {
     });
   };
 
-  const getConditionColor = (condition) => {
-    switch (condition) {
-      case 'Excellent':
-      case 'New':
-        return '#10b981';
-      case 'Good':
-        return '#3b82f6';
-      case 'Fair':
-        return '#f59e0b';
-      case 'Poor':
-        return '#ef4444';
-      default:
-        return '#6b7280';
-    }
-  };
 
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case 'High':
-        return '#ef4444';
-      case 'Medium':
-        return '#f59e0b';
-      case 'Low':
-        return '#10b981';
-      default:
-        return '#6b7280';
-    }
-  };
+
+
 
   if (loading) {
     return (
@@ -197,60 +172,49 @@ const RenovationEstimate = ({ propertyId }) => {
           >
             {generating ? 'Regenerating...' : 'Regenerate Estimate'}
           </button>
-          <div className="renovation-total">
-            <span className="total-label">Total Estimated Cost:</span>
-            <span className="total-amount">
-              {formatCurrency(renovationEstimate.totalEstimatedCost)}
-            </span>
-          </div>
         </div>
       </div>
 
-      {renovationEstimate.summary && (
-        <div className="renovation-summary">
-          <p>{renovationEstimate.summary}</p>
+      <div className="renovation-content">
+        <div className="renovation-main-value">
+          <div className="main-value">
+            {formatCurrency(renovationEstimate.totalEstimatedCost)}
+          </div>
+          <div className="value-label">Total Estimated Renovation Cost</div>
         </div>
-      )}
 
-      <div className="renovation-breakdown">
-        <h4>Cost Breakdown</h4>
-        <div className="breakdown-grid">
-          {renovationEstimate.breakdown.map((item, index) => (
-            <div key={index} className="breakdown-item">
-              <div className="item-header">
-                <h5>{item.category}</h5>
-                <div className="item-cost">
-                  {formatCurrency(item.estimatedCost)}
-                </div>
-              </div>
-              
-              <div className="item-details">
-                <div className="condition-badge" style={{ backgroundColor: getConditionColor(item.condition) }}>
-                  {item.condition}
+
+
+        <div className="renovation-breakdown">
+          <h4>Cost Breakdown</h4>
+          <div className="breakdown-grid">
+            {renovationEstimate.breakdown.map((item, index) => (
+              <div key={index} className="breakdown-item">
+                <div className="item-header">
+                  <h5>{item.category}</h5>
+                  <div className="item-cost">
+                    {formatCurrency(item.estimatedCost)}
+                  </div>
                 </div>
                 
-                {item.renovationNeeded && (
-                  <div className="priority-badge" style={{ backgroundColor: getPriorityColor(item.priority) }}>
-                    {item.priority} Priority
-                  </div>
+                <div className="item-details">
+                  {!item.renovationNeeded && (
+                    <div className="no-renovation-badge">
+                      No Renovation Needed
+                    </div>
+                  )}
+                </div>
+                
+                {item.description && (
+                  <p className="item-description">{item.description}</p>
                 )}
                 
-                {!item.renovationNeeded && (
-                  <div className="no-renovation-badge">
-                    No Renovation Needed
-                  </div>
+                {item.notes && (
+                  <p className="item-notes">{item.notes}</p>
                 )}
               </div>
-              
-              {item.description && (
-                <p className="item-description">{item.description}</p>
-              )}
-              
-              {item.notes && (
-                <p className="item-notes">{item.notes}</p>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
