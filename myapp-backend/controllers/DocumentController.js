@@ -48,11 +48,21 @@ const isPdfCorrupted = async (buffer) => {
 // Helper function to extract a single page using image-based conversion
 const attemptSinglePageImageExtraction = async (document, existingPdfBytes, pageNumber, mergedPdf) => {
   const tempDir = os.tmpdir();
-  const tempPdfPath = path.join(tempDir, `temp_single_page_${Date.now()}.pdf`);
+  const tempPdfPath = path.join(tempDir, `temp_single_page_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.pdf`);
   
   try {
+    // Ensure temp directory exists
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+    
     // Write PDF to temp file for pdf2pic
     fs.writeFileSync(tempPdfPath, Buffer.from(existingPdfBytes));
+    
+    // Verify file was written
+    if (!fs.existsSync(tempPdfPath)) {
+      throw new Error('Failed to write temporary PDF file');
+    }
     
     // Convert specific page to image
     const convert = fromPath(tempPdfPath, {
@@ -85,10 +95,17 @@ const attemptSinglePageImageExtraction = async (document, existingPdfBytes, page
     } else {
       throw new Error('Failed to convert page to image');
     }
+  } catch (error) {
+    console.error(`Image extraction failed for page ${pageNumber} of ${document.title}:`, error.message);
+    throw error;
   } finally {
     // Clean up temp file
-    if (fs.existsSync(tempPdfPath)) {
-      fs.unlinkSync(tempPdfPath);
+    try {
+      if (fs.existsSync(tempPdfPath)) {
+        fs.unlinkSync(tempPdfPath);
+      }
+    } catch (cleanupError) {
+      console.warn(`Failed to cleanup temp file ${tempPdfPath}:`, cleanupError.message);
     }
   }
 };
@@ -1001,9 +1018,43 @@ exports.createBuyerSignaturePacket = async (req, res) => {
                   await attemptSinglePageImageExtraction(document, existingPdfBytes, pageNumber, mergedPdf);
                   console.log(`Successfully extracted page ${pageNumber} from ${document.title} using image method`);
                 } catch (imageError) {
-                  const errorMsg = `Failed to extract page ${pageNumber} from ${document.title} using all methods: ${pageError.message}`;
-                  console.error(errorMsg);
-                  processingErrors.push(errorMsg);
+                  console.error(`Image extraction also failed for page ${pageNumber} of ${document.title}:`, imageError.message);
+                  
+                  // Final fallback: create a placeholder page
+                  try {
+                    console.log(`Creating placeholder for page ${pageNumber} of ${document.title}`);
+                    const placeholderPdf = await PDFDocument.create();
+                    const placeholderPage = placeholderPdf.addPage([612, 792]); // Standard letter size
+                    
+                    // Add placeholder text
+                    placeholderPage.drawText(`${document.title}`, {
+                      x: 50,
+                      y: 700,
+                      size: 12
+                    });
+                    placeholderPage.drawText(`Page ${pageNumber} could not be extracted due to corruption.`, {
+                      x: 50,
+                      y: 670,
+                      size: 10
+                    });
+                    placeholderPage.drawText(`Please review the original document.`, {
+                      x: 50,
+                      y: 650,
+                      size: 10
+                    });
+                    
+                    // Copy placeholder to merged PDF
+                    const [placeholder] = await mergedPdf.copyPages(placeholderPdf, [0]);
+                    mergedPdf.addPage(placeholder);
+                    
+                    const warningMsg = `Created placeholder for page ${pageNumber} of ${document.title} - original page corrupted`;
+                    console.warn(warningMsg);
+                    processingErrors.push(warningMsg);
+                  } catch (placeholderError) {
+                    const errorMsg = `Failed to create placeholder for page ${pageNumber} of ${document.title}: ${placeholderError.message}`;
+                    console.error(errorMsg);
+                    processingErrors.push(errorMsg);
+                  }
                 }
               }
             } else if (!useEstimatedPageCount) {
@@ -1039,6 +1090,11 @@ exports.createBuyerSignaturePacket = async (req, res) => {
           global.gc();
         }
       } catch (err) {
+        // Restore console functions in case of error
+        console.warn = originalConsoleWarn;
+        console.error = originalConsoleError;
+        console.log = originalConsoleLog;
+        
         const errorMsg = `Error processing document ${document.title}: ${err.message}`;
         console.error(errorMsg);
         processingErrors.push(errorMsg);
@@ -1206,10 +1262,20 @@ exports.createBuyerSignaturePacket = async (req, res) => {
       });
     }
     
-    res.status(500).json({ 
-      message: 'Error creating/updating disclosure signature packet', 
-      error: error.message 
-    });
+    if (error.code === 'ENOENT') {
+      return res.status(500).json({ 
+        message: 'File system error during signature packet creation. Please try again.', 
+        error: 'FILE_SYSTEM_ERROR' 
+      });
+    }
+    
+    // Prevent server crashes from unhandled errors
+    if (!res.headersSent) {
+      res.status(500).json({ 
+        message: 'Error creating/updating disclosure signature packet', 
+        error: error.message 
+      });
+    }
   }
 };
 
