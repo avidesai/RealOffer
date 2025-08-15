@@ -198,12 +198,8 @@ const convertPageWithImageMagick = async (pdfPath, pageNumber) => {
   });
 };
 
-// HELPER FUNCTION: Attempt to remove permission restrictions from PDF
+// HELPER FUNCTION: Attempt to remove permission restrictions using pdf-lib ignoreEncryption
 const removePasswordRestrictions = async (pdfBytes, documentTitle) => {
-  const tempDir = os.tmpdir();
-  const inputPath = path.join(tempDir, `restricted_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.pdf`);
-  const outputPath = path.join(tempDir, `unrestricted_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.pdf`);
-  
   try {
     // Convert ArrayBuffer to Buffer if necessary
     let pdfBuffer;
@@ -215,83 +211,80 @@ const removePasswordRestrictions = async (pdfBytes, documentTitle) => {
       pdfBuffer = Buffer.from(pdfBytes);
     }
     
-    // Write the restricted PDF to a temporary file
-    fs.writeFileSync(inputPath, pdfBuffer);
-    console.log(`${documentTitle}: Written PDF to temp file (${pdfBuffer.length} bytes) at ${inputPath}`);
+    console.log(`${documentTitle}: Attempting to bypass PDF restrictions using pdf-lib ignoreEncryption...`);
     
-    // Verify the file was written correctly
-    if (!fs.existsSync(inputPath)) {
-      throw new Error('Failed to write temporary PDF file');
-    }
-    
-    const fileSize = fs.statSync(inputPath).size;
-    console.log(`${documentTitle}: Temp file verified (${fileSize} bytes)`);
-    
-    // Try qpdf to remove restrictions (works for permission-only restrictions, not user passwords)
-    console.log(`${documentTitle}: Attempting to remove PDF restrictions using qpdf...`);
-    
-    const { exec } = require('child_process');
-    const util = require('util');
-    const execAsync = util.promisify(exec);
-    
-    // qpdf --decrypt removes owner password restrictions but not user passwords
-    const qpdfCommand = `qpdf --decrypt "${inputPath}" "${outputPath}"`;
-    
+    // Method 1: Try to load with ignoreEncryption and copy pages to new PDF
     try {
-      console.log(`${documentTitle}: Running qpdf command: ${qpdfCommand}`);
-      const { stdout, stderr } = await execAsync(qpdfCommand);
+      const restrictedPdf = await PDFDocument.load(pdfBuffer, { 
+        ignoreEncryption: true,
+        updateMetadata: false,
+        parseSpeed: ParseSpeeds.Fastest
+      });
       
-      if (stderr && stderr.trim()) {
-        console.log(`${documentTitle}: qpdf stderr: ${stderr.trim()}`);
-      }
-      if (stdout && stdout.trim()) {
-        console.log(`${documentTitle}: qpdf stdout: ${stdout.trim()}`);
-      }
+      console.log(`${documentTitle}: Successfully loaded restricted PDF with ignoreEncryption`);
       
-      // Check if the output file was created and has content
-      if (fs.existsSync(outputPath)) {
-        const outputFileSize = fs.statSync(outputPath).size;
-        console.log(`${documentTitle}: qpdf output file created (${outputFileSize} bytes)`);
+      // Test if we can access pages
+      const pageCount = restrictedPdf.getPageCount();
+      console.log(`${documentTitle}: Page count: ${pageCount}`);
+      
+      if (pageCount > 0) {
+        const pages = restrictedPdf.getPages();
+        console.log(`${documentTitle}: Accessible pages: ${pages.length}`);
         
-        if (outputFileSize > 0) {
-          const unrestrictedBytes = fs.readFileSync(outputPath);
+        if (pages.length > 0) {
+          // Create a new unrestricted PDF and copy all pages
+          const unrestrictedPdf = await PDFDocument.create();
           
-          // Clean up temporary files
-          try { fs.unlinkSync(inputPath); } catch (e) {}
-          try { fs.unlinkSync(outputPath); } catch (e) {}
+          // Copy all pages to remove restrictions
+          const pageIndices = Array.from({length: pageCount}, (_, i) => i);
+          const copiedPages = await unrestrictedPdf.copyPages(restrictedPdf, pageIndices);
           
-          console.log(`${documentTitle}: Successfully removed PDF restrictions (${unrestrictedBytes.length} bytes)`);
-          return unrestrictedBytes;
-        } else {
-          console.log(`${documentTitle}: qpdf output file is empty`);
+          copiedPages.forEach(page => unrestrictedPdf.addPage(page));
+          
+          // Save as unrestricted PDF
+          const unrestrictedBytes = await unrestrictedPdf.save();
+          
+          console.log(`${documentTitle}: Successfully bypassed PDF restrictions using page copying (${unrestrictedBytes.length} bytes)`);
+          return Buffer.from(unrestrictedBytes);
         }
-      } else {
-        console.log(`${documentTitle}: qpdf output file was not created`);
       }
-    } catch (qpdfError) {
-      console.log(`${documentTitle}: qpdf restriction removal failed - ${qpdfError.message}`);
-      if (qpdfError.code) {
-        console.log(`${documentTitle}: qpdf exit code: ${qpdfError.code}`);
-      }
-      if (qpdfError.stderr) {
-        console.log(`${documentTitle}: qpdf stderr: ${qpdfError.stderr}`);
-      }
+    } catch (method1Error) {
+      console.log(`${documentTitle}: Method 1 (page copying) failed - ${method1Error.message}`);
     }
     
-    // Clean up temporary files if qpdf failed
-    try { fs.unlinkSync(inputPath); } catch (e) {}
-    try { fs.unlinkSync(outputPath); } catch (e) {}
+    // Method 2: Try to load with ignoreEncryption and immediately save to strip restrictions
+    try {
+      console.log(`${documentTitle}: Attempting method 2 - load and save to strip restrictions...`);
+      
+      const restrictedPdf = await PDFDocument.load(pdfBuffer, { 
+        ignoreEncryption: true,
+        updateMetadata: false
+      });
+      
+      // Immediately save to strip restrictions
+      const cleanedBytes = await restrictedPdf.save({
+        useObjectStreams: false,
+        addDefaultPage: false
+      });
+      
+      // Test if the cleaned version works normally
+      const testCleanPdf = await PDFDocument.load(cleanedBytes);
+      const cleanPageCount = testCleanPdf.getPageCount();
+      
+      if (cleanPageCount > 0) {
+        console.log(`${documentTitle}: Successfully bypassed PDF restrictions using save method (${cleanedBytes.length} bytes)`);
+        return Buffer.from(cleanedBytes);
+      }
+    } catch (method2Error) {
+      console.log(`${documentTitle}: Method 2 (save stripping) failed - ${method2Error.message}`);
+    }
     
-    // If qpdf fails, return null to indicate we should use image conversion
+    // If both methods fail, return null to use image conversion
+    console.log(`${documentTitle}: All PDF restriction bypass methods failed, will use image conversion`);
     return null;
     
   } catch (error) {
     console.error(`${documentTitle}: Error in restriction removal process - ${error.message}`);
-    
-    // Clean up temporary files
-    try { fs.unlinkSync(inputPath); } catch (e) {}
-    try { fs.unlinkSync(outputPath); } catch (e) {}
-    
     return null;
   }
 };
