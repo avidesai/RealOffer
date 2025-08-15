@@ -368,53 +368,57 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
 
   return (
     isOpen && (
-      <div className={`csp-modal ${isLoading ? 'loading' : ''}`}>
-        {isLoading && (
-          <div className="csp-spinner-overlay">
-            <div className="csp-spinner"></div>
+      <div className="csp-modal">
+        <div className={`csp-modal-container ${isLoading ? 'loading' : ''}`}>
+          {isLoading && (
+            <div className="csp-spinner-overlay">
+              <div className="csp-spinner"></div>
+            </div>
+          )}
+          
+          <div className="csp-header">
+            <h2>{buttonText}</h2>
+            <button className="csp-close-button" onClick={onClose} title="Close"></button>
           </div>
-        )}
-        <div className="csp-header">
-          <h2>{buttonText}</h2>
-          <button className="csp-close-button" onClick={onClose} title="Close"></button>
-        </div>
-        
-        {error && (
-          <div className="csp-error-message">
-            {error}
-          </div>
-        )}
-        
-        <div className="csp-body">
-          <div className="csp-documents-list">
-            <DocumentsListSelection
-              documents={orderedDocuments}
-              onDocumentSelect={handleDocumentSelect}
-              onReorderDocuments={handleReorderDocuments}
-            />
-          </div>
-          <div className="csp-pdf-viewer">
-            {selectedDocument && (
-              <SignaturePDFViewer
-                fileUrl={selectedDocument.fileUrl}
-                documentTitle={selectedDocument.title}
-                documentId={selectedDocument._id}
-                signaturePackagePages={selectedDocument.signaturePackagePages}
-                onPageSelectionChange={handlePageSelectionChange}
-                onClose={onClose}
+          
+          {error && (
+            <div className="csp-error-message">
+              {error}
+            </div>
+          )}
+          
+          <div className="csp-body">
+            <div className="csp-documents-list">
+              <DocumentsListSelection
+                documents={orderedDocuments}
+                onDocumentSelect={handleDocumentSelect}
+                onReorderDocuments={handleReorderDocuments}
               />
-            )}
+            </div>
+            <div className="csp-pdf-viewer">
+              {selectedDocument && (
+                <SignaturePDFViewer
+                  fileUrl={selectedDocument.fileUrl}
+                  documentTitle={selectedDocument.title}
+                  documentId={selectedDocument._id}
+                  signaturePackagePages={selectedDocument.signaturePackagePages}
+                  onPageSelectionChange={handlePageSelectionChange}
+                  onClose={onClose}
+                />
+              )}
+            </div>
           </div>
-        </div>
-        <div className="csp-footer">
-          <button 
-            className="csp-create-button" 
-            onClick={handleCreateSignaturePackage} 
-            disabled={isLoading}
-            title={signaturePackage ? "Update the signature package with selected pages" : "Create a new signature package with selected pages"}
-          >
-            {buttonText}
-          </button>
+          
+          <div className="csp-footer">
+            <button 
+              className="csp-create-button" 
+              onClick={handleCreateSignaturePackage} 
+              disabled={isLoading}
+              title={signaturePackage ? "Update the signature package with selected pages" : "Create a new signature package with selected pages"}
+            >
+              {buttonText}
+            </button>
+          </div>
         </div>
       </div>
     )

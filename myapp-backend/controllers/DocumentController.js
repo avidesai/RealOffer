@@ -119,12 +119,16 @@ const convertPageWithImageMagick = async (pdfPath, pageNumber) => {
     // Use ImageMagick to convert specific page to PNG
     const args = [
       `${pdfPath}[${pageNumber - 1}]`, // PDF file with page index (0-based)
-      '-density', '600',              // Very high DPI for excellent quality (2x normal)
-      '-quality', '100',              // Maximum quality
+      '-density', '300',              // High DPI for crisp text
+      '-quality', '100',              // Maximum quality (no compression)
       '-alpha', 'remove',             // Remove transparency
       '-background', 'white',         // White background
       '-colorspace', 'RGB',           // Ensure RGB color space
-      '-resample', '300',             // Resample to 300 DPI for final output
+      '-units', 'PixelsPerInch',      // Ensure DPI units are correct
+      '-compress', 'None',            // No compression for maximum quality
+      '-antialias',                   // Enable antialiasing for smoother text
+      '-render',                      // High-quality rendering
+      '-sharpen', '0x0.5',           // Slight sharpening for text clarity
       outputImagePath
     ];
     
@@ -209,33 +213,15 @@ const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPd
           const imagePdf = await PDFDocument.create();
           const pngImage = await imagePdf.embedPng(imageBuffer);
           
-          // Create page with proper size (A4)
-          const page = imagePdf.addPage([595, 842]); // A4 size in points
+          // Create page that matches the image size for maximum quality
+          const page = imagePdf.addPage([pngImage.width, pngImage.height]);
           
-          // Calculate scaling to fit image on page while maintaining aspect ratio
-          const imageAspectRatio = pngImage.width / pngImage.height;
-          const pageAspectRatio = 595 / 842;
-          
-          let imageWidth, imageHeight;
-          if (imageAspectRatio > pageAspectRatio) {
-            // Image is wider relative to page
-            imageWidth = 555; // Leave 20pt margin
-            imageHeight = imageWidth / imageAspectRatio;
-          } else {
-            // Image is taller relative to page
-            imageHeight = 802; // Leave 20pt margin
-            imageWidth = imageHeight * imageAspectRatio;
-          }
-          
-          // Center the image on the page
-          const x = (595 - imageWidth) / 2;
-          const y = (842 - imageHeight) / 2;
-          
+          // Draw the image at full size (no scaling = no quality loss)
           page.drawImage(pngImage, {
-            x: x,
-            y: y,
-            width: imageWidth,
-            height: imageHeight,
+            x: 0,
+            y: 0,
+            width: pngImage.width,
+            height: pngImage.height,
           });
           
           // Copy this page to the merged PDF
