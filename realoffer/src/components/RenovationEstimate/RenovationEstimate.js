@@ -189,11 +189,20 @@ const RenovationEstimate = ({ propertyId }) => {
     <div className="renovation-estimate">
       <div className="renovation-header">
         <h3>Renovation Estimate</h3>
-        <div className="renovation-total">
-          <span className="total-label">Total Estimated Cost:</span>
-          <span className="total-amount">
-            {formatCurrency(renovationEstimate.totalEstimatedCost)}
-          </span>
+        <div className="renovation-actions">
+          <button 
+            onClick={generateRenovationEstimate}
+            disabled={generating}
+            className="regenerate-estimate-button"
+          >
+            {generating ? 'Regenerating...' : 'Regenerate Estimate'}
+          </button>
+          <div className="renovation-total">
+            <span className="total-label">Total Estimated Cost:</span>
+            <span className="total-amount">
+              {formatCurrency(renovationEstimate.totalEstimatedCost)}
+            </span>
+          </div>
         </div>
       </div>
 
