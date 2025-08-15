@@ -6,7 +6,7 @@ const Offer = require('../models/Offer');
 const { containerClient, generateSASToken } = require('../config/azureStorage');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
-const { PDFDocument } = require('pdf-lib');
+const { PDFDocument, ParseSpeeds } = require('pdf-lib');
 const pdfParse = require('pdf-parse');
 const { extractTextFromPDF } = require('./DocumentAnalysisController');
 const optimizedDocumentProcessor = require('../utils/optimizedDocumentProcessor');
@@ -119,16 +119,16 @@ const convertPageWithImageMagick = async (pdfPath, pageNumber) => {
     // Use ImageMagick to convert specific page to PNG
     const args = [
       `${pdfPath}[${pageNumber - 1}]`, // PDF file with page index (0-based)
-      '-density', '300',              // High DPI for crisp text
+      '-density', '600',              // Very high DPI for crisp vector text
       '-quality', '100',              // Maximum quality (no compression)
       '-alpha', 'remove',             // Remove transparency
       '-background', 'white',         // White background
       '-colorspace', 'RGB',           // Ensure RGB color space
-      '-units', 'PixelsPerInch',      // Ensure DPI units are correct
       '-compress', 'None',            // No compression for maximum quality
-      '-antialias',                   // Enable antialiasing for smoother text
-      '-render',                      // High-quality rendering
-      '-sharpen', '0x0.5',           // Slight sharpening for text clarity
+      '-interpolate', 'bicubic',      // High-quality interpolation
+      '-filter', 'Lanczos',           // High-quality scaling filter
+      '-define', 'pdf:use-cropbox=true', // Use PDF crop box for better rendering
+      '-define', 'pdf:use-trimbox=true', // Use PDF trim box
       outputImagePath
     ];
     
@@ -167,8 +167,91 @@ const convertPageWithImageMagick = async (pdfPath, pageNumber) => {
   });
 };
 
-// MAIN FUNCTION: Convert selected pages directly to images using ImageMagick, then add to PDF
+// MAIN FUNCTION: First try direct PDF page copying, fallback to image conversion if needed
 const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPdf, processingErrors, progressCallback) => {
+  // First attempt: Try direct PDF page copying (preserves vector quality)
+  try {
+    const existingPdf = await PDFDocument.load(existingPdfBytes, { 
+      updateMetadata: false,
+      parseSpeed: ParseSpeeds.Fastest
+    });
+    
+    const sortedPageNumbers = [...document.signaturePackagePages].sort((a, b) => a - b);
+    
+    for (const pageNumber of sortedPageNumbers) {
+      try {
+        if (progressCallback) {
+          progressCallback(`Copying page ${pageNumber} of ${document.title} (preserving vector quality)...`);
+        }
+        
+        const pageIndex = pageNumber - 1;
+        if (pageIndex >= 0 && pageIndex < existingPdf.getPageCount()) {
+          const [copiedPage] = await mergedPdf.copyPages(existingPdf, [pageIndex]);
+          mergedPdf.addPage(copiedPage);
+          console.log(`Successfully copied page ${pageNumber} from ${document.title} with vector quality`);
+        } else {
+          throw new Error(`Page ${pageNumber} is out of range`);
+        }
+      } catch (pageError) {
+        console.warn(`Direct copy failed for page ${pageNumber} of ${document.title}, falling back to image conversion`);
+        // If direct copy fails, fall back to image conversion for this page
+        await convertSinglePageToImage(document, existingPdfBytes, mergedPdf, pageNumber, progressCallback);
+      }
+    }
+    
+    return; // Success with direct copying
+  } catch (error) {
+    console.warn(`Direct PDF copying failed for ${document.title}, falling back to full image conversion:`, error.message);
+    // Fall back to the original image conversion method
+    return await convertDocumentToImages(document, existingPdfBytes, mergedPdf, processingErrors, progressCallback);
+  }
+};
+
+// HELPER FUNCTION: Convert a single page to image (for fallback)
+const convertSinglePageToImage = async (document, existingPdfBytes, mergedPdf, pageNumber, progressCallback) => {
+  const tempDir = os.tmpdir();
+  const tempPdfPath = path.join(tempDir, `temp_single_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.pdf`);
+  
+  try {
+    fs.writeFileSync(tempPdfPath, Buffer.from(existingPdfBytes));
+    
+    if (progressCallback) {
+      progressCallback(`Converting page ${pageNumber} of ${document.title} to high-quality image (fallback)...`);
+    }
+    
+    const imageBuffer = await convertPageWithImageMagick(tempPdfPath, pageNumber);
+    if (imageBuffer) {
+      const imagePdf = await PDFDocument.create();
+      const pngImage = await imagePdf.embedPng(imageBuffer);
+      const page = imagePdf.addPage([pngImage.width, pngImage.height]);
+      
+      page.drawImage(pngImage, {
+        x: 0,
+        y: 0,
+        width: pngImage.width,
+        height: pngImage.height,
+      });
+      
+      const [copiedPage] = await mergedPdf.copyPages(imagePdf, [0]);
+      mergedPdf.addPage(copiedPage);
+      console.log(`Successfully converted page ${pageNumber} from ${document.title} to image (fallback)`);
+    }
+  } catch (error) {
+    console.error(`Failed to convert page ${pageNumber} of ${document.title}:`, error.message);
+    throw error;
+  } finally {
+    try {
+      if (fs.existsSync(tempPdfPath)) {
+        fs.unlinkSync(tempPdfPath);
+      }
+    } catch (cleanupError) {
+      console.warn(`Failed to cleanup temp file ${tempPdfPath}:`, cleanupError.message);
+    }
+  }
+};
+
+// FALLBACK FUNCTION: Convert entire document to images (original method)
+const convertDocumentToImages = async (document, existingPdfBytes, mergedPdf, processingErrors, progressCallback) => {
   const tempDir = os.tmpdir();
   const tempPdfPath = path.join(tempDir, `temp_convert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.pdf`);
   
