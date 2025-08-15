@@ -17,6 +17,10 @@ const BuyerPackageAnalysis = ({ buyerPackageId }) => {
     subjectProperty: null,
     lastUpdated: null
   });
+  
+  // Pagination state for comparables
+  const [currentPage, setCurrentPage] = useState(0);
+  const COMPARABLES_PER_PAGE = 3;
 
   const fetchAnalysisData = useCallback(async (force = false) => {
     try {
@@ -85,6 +89,27 @@ const BuyerPackageAnalysis = ({ buyerPackageId }) => {
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  // Pagination functions for comparables
+  const totalPages = Math.ceil((analysisData.valuation?.comparables?.length || 0) / COMPARABLES_PER_PAGE);
+  
+  const handlePreviousPage = () => {
+    setCurrentPage(prev => Math.max(0, prev - 1));
+  };
+  
+  const handleNextPage = () => {
+    setCurrentPage(prev => Math.min(totalPages - 1, prev + 1));
+  };
+  
+  const handlePageClick = (pageIndex) => {
+    setCurrentPage(pageIndex);
+  };
+  
+  const getCurrentComparables = () => {
+    if (!analysisData.valuation?.comparables) return [];
+    const startIndex = currentPage * COMPARABLES_PER_PAGE;
+    return analysisData.valuation.comparables.slice(startIndex, startIndex + COMPARABLES_PER_PAGE);
   };
 
 
@@ -226,77 +251,118 @@ const BuyerPackageAnalysis = ({ buyerPackageId }) => {
         )}
 
         <div className="comparable-sales">
-          <h3>Comparable Sales</h3>
+          <div className="comparable-sales-header">
+            <h3>Comparable Sales</h3>
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="comps-pagination">
+                <button 
+                  className="pagination-arrow prev" 
+                  onClick={handlePreviousPage}
+                  disabled={currentPage === 0}
+                  aria-label="Previous page"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                
+                <div className="pagination-dots">
+                  {Array.from({ length: totalPages }, (_, index) => (
+                    <button
+                      key={index}
+                      className={`pagination-dot ${currentPage === index ? 'active' : ''}`}
+                      onClick={() => handlePageClick(index)}
+                      aria-label={`Go to page ${index + 1}`}
+                    />
+                  ))}
+                </div>
+                
+                <button 
+                  className="pagination-arrow next" 
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages - 1}
+                  aria-label="Next page"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
           {analysisData.valuation?.comparables?.length > 0 ? (
-            <div className="comps-grid">
-              {analysisData.valuation.comparables.slice(0, 6).map((comp, index) => (
-                <div key={index} className="comp-card">
-                  <div className="comp-header">
-                    <h4>{comp.formattedAddress}</h4>
-                    <div className="comp-distance">{Number(comp.distance).toFixed(2)} mi</div>
-                  </div>
-                  
-                  <div className="comp-price">
-                    <div className="price-main">
-                      {formatCurrency(comp.displayPrice || comp.price)}
-                      {comp.soldPrice && (
-                        <span className="price-type-indicator">Sold</span>
+            <>
+              <div className="comps-grid">
+                {getCurrentComparables().map((comp, index) => (
+                  <div key={index} className="comp-card">
+                    <div className="comp-header">
+                      <h4>{comp.formattedAddress}</h4>
+                      <div className="comp-distance">{Number(comp.distance).toFixed(2)} mi</div>
+                    </div>
+                    
+                    <div className="comp-price">
+                      <div className="price-main">
+                        {formatCurrency(comp.displayPrice || comp.price)}
+                        {comp.soldPrice && (
+                          <span className="price-type-indicator">Sold</span>
+                        )}
+                      </div>
+                      {comp.priceDifference && (
+                        <div className={`price-difference ${comp.priceDifference > 0 ? 'positive' : 'negative'}`}>
+                          {comp.priceDifference > 0 ? '+' : ''}{formatCurrency(comp.priceDifference)}
+                          <span className="price-percent">({Math.round(comp.priceDifferencePercent)}%)</span>
+                        </div>
                       )}
                     </div>
-                    {comp.priceDifference && (
-                      <div className={`price-difference ${comp.priceDifference > 0 ? 'positive' : 'negative'}`}>
-                        {comp.priceDifference > 0 ? '+' : ''}{formatCurrency(comp.priceDifference)}
-                        <span className="price-percent">({Math.round(comp.priceDifferencePercent)}%)</span>
+
+                    <div className="comp-specs">
+                      <div className="spec-item">
+                        <span className="spec-label">Beds / Baths</span>
+                        <span className="spec-value">{comp.beds} / {comp.baths}</span>
                       </div>
-                    )}
-                  </div>
+                      <div className="spec-item">
+                        <span className="spec-label">Square Feet</span>
+                        <span className="spec-value">{comp.sqft?.toLocaleString()} sqft</span>
+                      </div>
+                      <div className="spec-item">
+                        <span className="spec-label">Lot Size</span>
+                        <span className="spec-value">{comp.lotSize?.toLocaleString()} sqft</span>
+                      </div>
+                      <div className="spec-item">
+                        <span className="spec-label">Price/Sq Ft</span>
+                        <span className="spec-value">
+                          {(comp.displayPrice || comp.price) && comp.sqft
+                            ? formatCurrency(Math.round((comp.displayPrice || comp.price) / comp.sqft))
+                            : 'N/A'}
+                        </span>
+                      </div>
+                      <div className="spec-item">
+                        <span className="spec-label">Year Built</span>
+                        <span className="spec-value">{comp.yearBuilt}</span>
+                      </div>
+                    </div>
 
-                  <div className="comp-specs">
-                    <div className="spec-item">
-                      <span className="spec-label">Beds / Baths</span>
-                      <span className="spec-value">{comp.beds} / {comp.baths}</span>
-                    </div>
-                    <div className="spec-item">
-                      <span className="spec-label">Square Feet</span>
-                      <span className="spec-value">{comp.sqft?.toLocaleString()} sqft</span>
-                    </div>
-                    <div className="spec-item">
-                      <span className="spec-label">Lot Size</span>
-                      <span className="spec-value">{comp.lotSize?.toLocaleString()} sqft</span>
-                    </div>
-                    <div className="spec-item">
-                      <span className="spec-label">Price/Sq Ft</span>
-                      <span className="spec-value">
-                        {(comp.displayPrice || comp.price) && comp.sqft
-                          ? formatCurrency(Math.round((comp.displayPrice || comp.price) / comp.sqft))
-                          : 'N/A'}
-                      </span>
-                    </div>
-                    <div className="spec-item">
-                      <span className="spec-label">Year Built</span>
-                      <span className="spec-value">{comp.yearBuilt}</span>
-                    </div>
-                  </div>
-
-                  <div className="comp-details">
-                    <div className="detail-row">
-                      <span className="detail-label">Date Listed</span>
-                      <span className="detail-value">{formatDate(comp.listedDate)}</span>
-                    </div>
-                    {comp.removedDate && (
+                    <div className="comp-details">
                       <div className="detail-row">
-                        <span className="detail-label">Date Sold</span>
-                        <span className="detail-value">{formatDate(comp.removedDate)}</span>
+                        <span className="detail-label">Date Listed</span>
+                        <span className="detail-value">{formatDate(comp.listedDate)}</span>
                       </div>
-                    )}
-                    <div className="detail-row">
-                      <span className="detail-label">Days on Market</span>
-                      <span className="detail-value">{comp.daysOnMarket} days</span>
+                      {comp.removedDate && (
+                        <div className="detail-row">
+                          <span className="detail-label">Date Sold</span>
+                          <span className="detail-value">{formatDate(comp.removedDate)}</span>
+                        </div>
+                      )}
+                      <div className="detail-row">
+                        <span className="detail-label">Days on Market</span>
+                        <span className="detail-value">{comp.daysOnMarket} days</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </>
           ) : (
             <div className="no-comps">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
