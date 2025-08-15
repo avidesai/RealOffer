@@ -6,6 +6,7 @@ import { useAuth } from '../../../../../../../context/AuthContext';
 import TabPaywall from '../../../../../../../components/TabPaywall/TabPaywall';
 import { hasPremiumAccess } from '../../../../../../../utils/trialUtils';
 import './BuyerPackageAnalysis.css';
+import RenovationEstimate from '../../../../../../../components/RenovationEstimate/RenovationEstimate';
 
 const BuyerPackageAnalysis = ({ buyerPackageId }) => {
   const { token, user } = useAuth();
@@ -372,6 +373,9 @@ const BuyerPackageAnalysis = ({ buyerPackageId }) => {
             </div>
           )}
         </div>
+
+        {/* Renovation Estimate Section */}
+        <RenovationEstimate propertyId={analysisData.subjectProperty?._id} />
       </div>
     </div>
   );

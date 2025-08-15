@@ -6,6 +6,7 @@ import { useAuth } from '../../../../../../../context/AuthContext';
 import TabPaywall from '../../../../../../../components/TabPaywall/TabPaywall';
 import { hasPremiumAccess } from '../../../../../../../utils/trialUtils';
 import './Analysis.css';
+import RenovationEstimate from '../../../../../../../components/RenovationEstimate/RenovationEstimate';
 
 const Analysis = ({ listingId }) => {
   const { token, user } = useAuth();
@@ -557,6 +558,9 @@ const Analysis = ({ listingId }) => {
             </div>
           )}
         </div>
+
+        {/* Renovation Estimate Section */}
+        <RenovationEstimate propertyId={listingId} />
       </div>
     </div>
   );

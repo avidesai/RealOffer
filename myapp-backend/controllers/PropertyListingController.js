@@ -10,6 +10,7 @@ const crypto = require('crypto'); // For generating unique public URLs
 const emailService = require('../utils/emailService');
 const offerDueDateNotificationService = require('../utils/offerDueDateNotificationService');
 const { deleteDocumentEmbeddingsFromPinecone, deletePropertyEmbeddingsFromPinecone } = require('../utils/vectorStore');
+const renovationAnalysisController = require('./renovationAnalysisController');
 
 // Configure multer-s3 for photos
 const uploadPhotos = multer({
@@ -657,6 +658,9 @@ exports.updatePhotoOrder = async (req, res) => {
     listing.imagesUrls = req.body.imageUrls;
     await listing.save();
 
+    // Trigger renovation analysis update
+    await renovationAnalysisController.triggerRenovationAnalysis(listing._id);
+
     res.status(200).json(listing);
   } catch (error) {
     console.error('Error updating photo order:', error);
@@ -690,6 +694,9 @@ exports.addPhotosToListing = async (req, res) => {
     // Add the new photos to the existing imagesUrls array
     listing.imagesUrls = [...listing.imagesUrls, ...newPhotoUrls];
     await listing.save();
+
+    // Trigger renovation analysis update
+    await renovationAnalysisController.triggerRenovationAnalysis(listing._id);
 
     res.status(200).json({
       message: "Photos added successfully",

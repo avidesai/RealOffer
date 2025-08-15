@@ -1,0 +1,227 @@
+/* RenovationEstimate.css */
+
+.renovation-estimate {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.renovation-loading,
+.renovation-error,
+.renovation-empty {
+  padding: 2rem;
+  text-align: center;
+}
+
+.renovation-loading .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.renovation-error svg {
+  color: #ef4444;
+  margin-bottom: 1rem;
+}
+
+.renovation-error p {
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+.retry-button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.retry-button:hover {
+  background: #2563eb;
+}
+
+.renovation-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.renovation-empty h3 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+}
+
+.renovation-empty p {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+.generate-estimate-button {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.generate-estimate-button:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.generate-estimate-button:disabled {
+  background: #6b7280;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.renovation-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #f1f3f5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.renovation-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.renovation-total {
+  text-align: right;
+}
+
+.total-label {
+  display: block;
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.total-amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.renovation-summary {
+  padding: 1rem 1.5rem;
+  background: #f8fafd;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.renovation-summary p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 0.9rem;
+}
+
+.renovation-breakdown {
+  padding: 1.5rem;
+}
+
+.renovation-breakdown h4 {
+  margin: 0 0 1rem 0;
+  color: #2c3e50;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.breakdown-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #fafafa;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.item-header h5 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.item-cost {
+  font-weight: 700;
+  color: #10b981;
+  font-size: 1rem;
+}
+
+.item-details {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.condition-badge,
+.priority-badge,
+.no-renovation-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+}
+
+.no-renovation-badge {
+  background: #6b7280;
+}
+
+.item-description,
+.item-notes {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.85rem;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+.item-notes {
+  font-style: italic;
+  color: #6b7280;
+}
+
+@media (max-width: 768px) {
+  .renovation-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .breakdown-grid {
+    grid-template-columns: 1fr;
+  }
+}
