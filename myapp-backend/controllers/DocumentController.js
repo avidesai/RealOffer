@@ -119,16 +119,21 @@ const convertPageWithImageMagick = async (pdfPath, pageNumber) => {
     // Use ImageMagick to convert specific page to PNG
     const args = [
       `${pdfPath}[${pageNumber - 1}]`, // PDF file with page index (0-based)
-      '-density', '600',              // Very high DPI for crisp vector text
+      '-density', '450',              // Optimal DPI for text clarity without excessive size
       '-quality', '100',              // Maximum quality (no compression)
       '-alpha', 'remove',             // Remove transparency
       '-background', 'white',         // White background
       '-colorspace', 'RGB',           // Ensure RGB color space
       '-compress', 'None',            // No compression for maximum quality
-      '-interpolate', 'bicubic',      // High-quality interpolation
-      '-filter', 'Lanczos',           // High-quality scaling filter
+      '-type', 'TrueColor',           // Force full color depth
+      '-depth', '8',                  // 8-bit depth for crisp rendering
       '-define', 'pdf:use-cropbox=true', // Use PDF crop box for better rendering
       '-define', 'pdf:use-trimbox=true', // Use PDF trim box
+      '-define', 'pdf:fit-page=true', // Fit page properly
+      '-antialias',                   // Enable antialiasing for smooth text edges
+      '-sharpen', '0x1.0',           // More aggressive sharpening for text
+      '-enhance',                     // Enhance contrast and clarity
+      '-normalize',                   // Normalize contrast for better readability
       outputImagePath
     ];
     
@@ -139,7 +144,33 @@ const convertPageWithImageMagick = async (pdfPath, pageNumber) => {
       if (err) {
         console.error(`ImageMagick module conversion failed:`, err);
         console.error(`Command was: convert ${args.join(' ')}`);
-        resolve(null);
+        
+        // Try alternative approach for better text rendering
+        console.log('Trying alternative ImageMagick settings for better text...');
+        const alternativeArgs = [
+          `${pdfPath}[${pageNumber - 1}]`,
+          '-density', '300',
+          '-quality', '100',
+          '-alpha', 'remove',
+          '-background', 'white',
+          '-colorspace', 'sRGB',
+          '-compress', 'None',
+          '-strip',                     // Remove all profiles and comments
+          '-trim',                      // Trim whitespace
+          '+repage',                    // Reset page geometry
+          '-unsharp', '0x0.75+0.75+0.008', // Unsharp mask for text clarity
+          outputImagePath
+        ];
+        
+        imagemagick.convert(alternativeArgs, (altErr, altStdout) => {
+          if (altErr) {
+            console.error(`Alternative ImageMagick conversion also failed:`, altErr);
+            resolve(null);
+            return;
+          }
+          console.log(`Alternative ImageMagick succeeded:`, altStdout);
+          handleImageMagickSuccess();
+        });
         return;
       }
       
