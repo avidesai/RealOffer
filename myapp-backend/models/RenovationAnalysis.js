@@ -14,7 +14,12 @@ const renovationCategorySchema = new mongoose.Schema({
       'Landscaping',
       'Exterior',
       'Other'
-    ]
+    ],
+    set: function(val) {
+      // Map unexpected categories to 'Other'
+      const validCategories = ['Kitchen', 'Bathrooms', 'Flooring', 'Paint', 'Landscaping', 'Exterior', 'Other'];
+      return validCategories.includes(val) ? val : 'Other';
+    }
   },
   estimatedCost: {
     type: Number,

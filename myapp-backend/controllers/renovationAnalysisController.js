@@ -246,14 +246,29 @@ Provide estimates for the following categories:
 - Exterior
 - Other
 
+CRITICAL ASSESSMENT GUIDELINES:
+1. **Be conservative and realistic** - Only suggest renovations if there are clear signs of wear, damage, or outdated features
+2. **Recognize recently renovated properties** - If you see modern finishes, new appliances, fresh paint, or updated features, mark those areas as "Excellent" or "New" condition
+3. **Condition Assessment**:
+   - "New" = Recently renovated/updated (updated within last 5 years)
+   - "Excellent" = Very good condition, modern features, no visible wear (updated within last 10 years)
+   - "Good" = Minor wear but still in good condition
+   - "Fair" = Moderate wear, some outdated features
+   - "Poor" = Significant wear, damage, or very outdated
+
+4. **Renovation Need Assessment**:
+   - Only mark renovationNeeded = true if there are clear issues or outdated features
+   - If an area looks modern, updated, or in good condition, mark renovationNeeded = false and estimatedCost = 0
+   - Don't suggest renovations just because something could be "improved" - only if it actually needs work
+
 For each category, assess:
 1. Current condition (Excellent/Good/Fair/Poor/New)
-2. Whether renovation is needed
+2. Whether renovation is needed (be conservative - only if clearly needed)
 3. Estimated cost for renovation (use local market rates for ${locationInfo})
-4. Brief description of work needed
+4. Brief description of work needed (if any)
 5. Priority level (High/Medium/Low/None)
 
-If a category is in excellent or new condition and doesn't need renovation, mark renovationNeeded as false and estimatedCost as 0.
+If a category is in excellent, good, or new condition and doesn't need renovation, mark renovationNeeded as false and estimatedCost as 0.
 
 Consider local market costs for ${locationInfo} when providing estimates.
 
@@ -262,12 +277,12 @@ Please provide your response in the following JSON format:
   "breakdown": [
     {
       "category": "Kitchen",
-      "estimatedCost": 15000,
-      "description": "New countertops, appliances, and cabinet refinishing",
-      "condition": "Fair",
-      "renovationNeeded": true,
-      "notes": "Kitchen shows wear and outdated appliances",
-      "priority": "High"
+      "estimatedCost": 0,
+      "description": "Kitchen appears recently updated with modern appliances and finishes",
+      "condition": "Excellent",
+      "renovationNeeded": false,
+      "notes": "No renovation needed - kitchen is in excellent condition",
+      "priority": "None"
     }
   ]
 }`;
@@ -502,15 +517,21 @@ const parseRenovationBreakdown = (content) => {
         const parsed = JSON.parse(jsonMatch[0]);
         if (parsed.breakdown && Array.isArray(parsed.breakdown)) {
           console.log('Successfully parsed JSON breakdown with', parsed.breakdown.length, 'items');
-          return parsed.breakdown.map(item => ({
-            category: item.category,
-            estimatedCost: item.estimatedCost || 0,
-            description: item.description || '',
-            condition: item.condition || 'Fair',
-            renovationNeeded: item.renovationNeeded || false,
-            notes: item.notes || '',
-            priority: item.priority || 'None'
-          }));
+          return parsed.breakdown.map(item => {
+            // Handle unexpected categories by mapping them to 'Other'
+            const validCategories = ['Kitchen', 'Bathrooms', 'Flooring', 'Paint', 'Landscaping', 'Exterior', 'Other'];
+            const category = validCategories.includes(item.category) ? item.category : 'Other';
+            
+            return {
+              category: category,
+              estimatedCost: item.estimatedCost || 0,
+              description: item.description || '',
+              condition: item.condition || 'Fair',
+              renovationNeeded: item.renovationNeeded || false,
+              notes: item.notes || '',
+              priority: item.priority || 'None'
+            };
+          });
         }
       } catch (jsonError) {
         console.error('Error parsing JSON:', jsonError);
