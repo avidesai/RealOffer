@@ -28,6 +28,8 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
     sqFootage: '',
     lotSize: '',
     description: '',
+    sellerName: '',
+    sellerEmail: '',
     offerDueDate: '',
     agent1: user ? (user._id || user.id) : '',
     agentIds: [], // New field for multiple agents
@@ -63,6 +65,11 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
       if (!formData.yearBuilt) newErrors.yearBuilt = 'Year Built is required';
       if (!formData.sqFootage) newErrors.sqFootage = 'Square Footage is required';
       if (!formData.lotSize) newErrors.lotSize = 'Lot Size is required';
+      
+      // Validate seller email if provided
+      if (formData.sellerEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.sellerEmail)) {
+        newErrors.sellerEmail = 'Please enter a valid email address';
+      }
     }
     if (step === 4) { // Listing Agents step
       if (!formData.agent1) newErrors.agent1 = 'At least one agent is required';

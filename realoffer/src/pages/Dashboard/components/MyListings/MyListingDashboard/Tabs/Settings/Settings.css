@@ -308,6 +308,144 @@ input:disabled + .toggle-slider:before {
   100% { transform: rotate(360deg); }
 }
 
+/* Seller Notification Settings */
+.seller-notification-settings-section {
+  margin-bottom: 1.5rem;
+}
+
+.settings-warning {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.settings-warning p {
+  color: #856404;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.frequency-setting {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: #f8fafd;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+}
+
+.frequency-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.frequency-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  line-height: 1.3;
+}
+
+.frequency-description {
+  font-size: 0.95rem;
+  color: #6c757d;
+  line-height: 1.4;
+}
+
+.frequency-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #2c3e50;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.frequency-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.notification-info {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: #f8fafd;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 0.95rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 0.95rem;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.test-notification-section {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: #f8fafd;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  text-align: center;
+}
+
+.test-notification-button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 1rem;
+}
+
+.test-notification-button:hover:not(:disabled) {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.test-notification-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.test-notification-description {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin: 0;
+  line-height: 1.4;
+}
+
 @media (max-width: 900px) {
   .settings-container {
     padding: 1rem;

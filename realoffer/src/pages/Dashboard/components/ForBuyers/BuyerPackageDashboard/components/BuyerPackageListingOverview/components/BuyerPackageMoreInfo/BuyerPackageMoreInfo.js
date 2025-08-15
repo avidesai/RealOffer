@@ -185,6 +185,8 @@ const BuyerPackageMoreInfo = ({ buyerPackage, onClose }) => {
           {renderField('Zip Code', 'homeCharacteristics.zip', listing.homeCharacteristics.zip)}
         </div>
         
+
+        
         <div className="info-section">
           <h3>Listing Agents</h3>
           <div className="selected-agents-list">

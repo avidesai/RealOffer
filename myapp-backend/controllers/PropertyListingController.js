@@ -138,6 +138,8 @@ exports.createListing = async (req, res) => {
     sqFootage,
     lotSize,
     description,
+    sellerName,
+    sellerEmail,
     agentIds, // Changed from agent2 to agentIds array
     teamMemberIds, // New field for team members
     companyName,
@@ -220,6 +222,10 @@ exports.createListing = async (req, res) => {
       squareFootage: sqFootage,
       lotSize,
       yearBuilt,
+    },
+    sellerInfo: {
+      name: sellerName || '',
+      email: sellerEmail || '',
     },
     description: description || '',
     scheduleShowingUrl: scheduleShowingUrl || '',
@@ -833,6 +839,114 @@ exports.updateDocumentOrder = async (req, res) => {
       message: 'Server error during document order update',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
     });
+  }
+};
+
+// Get seller notification settings
+exports.getSellerNotificationSettings = async (req, res) => {
+  try {
+    const listing = await PropertyListing.findById(req.params.id);
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+
+    // Check if user has permission to view settings
+    const isCreator = listing.createdBy.toString() === req.user.id;
+    const isAgent = listing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = listing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
+
+    if (!isCreator && !isAgent && !isTeamMember) {
+      return res.status(403).json({ message: "You don't have permission to view these settings" });
+    }
+
+    res.status(200).json({
+      enabled: listing.sellerNotifications?.enabled || false,
+      frequency: listing.sellerNotifications?.frequency || 7,
+      lastSent: listing.sellerNotifications?.lastSent || null,
+      nextScheduled: listing.sellerNotifications?.nextScheduled || null
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Update seller notification settings
+exports.updateSellerNotificationSettings = async (req, res) => {
+  try {
+    const { enabled, frequency } = req.body;
+    
+    // Validate frequency
+    if (frequency && (frequency < 1 || frequency > 30)) {
+      return res.status(400).json({ message: "Frequency must be between 1 and 30 days" });
+    }
+
+    const listing = await PropertyListing.findById(req.params.id);
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+
+    // Check if user has permission to update settings
+    const isCreator = listing.createdBy.toString() === req.user.id;
+    const isAgent = listing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = listing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
+
+    if (!isCreator && !isAgent && !isTeamMember) {
+      return res.status(403).json({ message: "You don't have permission to update these settings" });
+    }
+
+    // Check if seller email exists
+    if (enabled && (!listing.sellerInfo || !listing.sellerInfo.email)) {
+      return res.status(400).json({ message: "Seller email is required to enable notifications" });
+    }
+
+    const sellerNotificationService = require('../utils/sellerNotificationService');
+    const success = await sellerNotificationService.updateSellerNotificationSettings(req.params.id, {
+      enabled: enabled !== undefined ? enabled : listing.sellerNotifications?.enabled,
+      frequency: frequency || listing.sellerNotifications?.frequency || 7
+    });
+
+    if (success) {
+      res.status(200).json({ message: "Seller notification settings updated successfully" });
+    } else {
+      res.status(500).json({ message: "Failed to update seller notification settings" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Send test seller notification
+exports.sendTestSellerNotification = async (req, res) => {
+  try {
+    const listing = await PropertyListing.findById(req.params.id);
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+
+    // Check if user has permission
+    const isCreator = listing.createdBy.toString() === req.user.id;
+    const isAgent = listing.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = listing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
+
+    if (!isCreator && !isAgent && !isTeamMember) {
+      return res.status(403).json({ message: "You don't have permission to send test notifications" });
+    }
+
+    // Check if seller email exists
+    if (!listing.sellerInfo || !listing.sellerInfo.email) {
+      return res.status(400).json({ message: "Seller email is required to send notifications" });
+    }
+
+    const sellerNotificationService = require('../utils/sellerNotificationService');
+    const success = await sellerNotificationService.sendSellerNotification(req.params.id);
+
+    if (success) {
+      res.status(200).json({ message: "Test seller notification sent successfully" });
+    } else {
+      res.status(500).json({ message: "Failed to send test seller notification" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 

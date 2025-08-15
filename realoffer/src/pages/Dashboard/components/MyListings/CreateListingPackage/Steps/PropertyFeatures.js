@@ -29,6 +29,22 @@ const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, hand
     });
   };
 
+  const validateEmail = (email) => {
+    if (!email) return true; // Empty email is valid (optional field)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleEmailChange = (e) => {
+    const { name, value } = e.target;
+    handleChange(e);
+    
+    // Clear error if email is valid or empty
+    if (name === 'sellerEmail' && value && !validateEmail(value)) {
+      // Error will be handled in validation
+    }
+  };
+
   return (
     <div className="clp-step">
       <h2>Property Features</h2>
@@ -185,6 +201,39 @@ const PropertyFeatures = ({ formData, errors, handleChange, handleNextStep, hand
               onChange={handleChange}
               className="clp-input"
             />
+          </div>
+        </div>
+
+        {/* Seller Information Section */}
+        <div className="clp-form-section-divider">
+          <h3>Seller Information (Optional)</h3>
+        </div>
+
+        <div className="clp-form-row">
+          <div className="clp-form-group">
+            <label>Seller Name</label>
+            <input
+              type="text"
+              name="sellerName"
+              placeholder="Seller Name"
+              value={formData.sellerName}
+              onChange={handleChange}
+              className="clp-input"
+            />
+            {errors.sellerName && <div className="clp-error">{errors.sellerName}</div>}
+          </div>
+
+          <div className="clp-form-group">
+            <label>Seller Email</label>
+            <input
+              type="email"
+              name="sellerEmail"
+              placeholder="Seller Email"
+              value={formData.sellerEmail}
+              onChange={handleEmailChange}
+              className="clp-input"
+            />
+            {errors.sellerEmail && <div className="clp-error">{errors.sellerEmail}</div>}
           </div>
         </div>
       </div>

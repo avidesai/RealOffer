@@ -1100,6 +1100,112 @@ class EmailService {
       return { success: false, error: error.message };
     }
   }
+
+  // Send seller activity notification
+  async sendSellerActivityNotification(sellerEmail, sellerName, activityData) {
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: sellerEmail,
+      subject: `Property Activity Update - ${activityData.propertyAddress}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">Property Activity Report</h1>
+            <p style="color: #666; margin: 10px 0 0 0;">${activityData.propertyAddress}</p>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${sellerName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              Here's your ${activityData.period} activity report for your property. 
+              ${activityData.agentName} is working hard to market your property effectively.
+            </p>
+            
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0;">
+              <h3 style="color: #333; margin: 0 0 20px 0; text-align: center;">📊 Activity Summary</h3>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div style="text-align: center; padding: 15px; background: white; border-radius: 6px; border: 1px solid #e9ecef;">
+                  <div style="font-size: 24px; font-weight: bold; color: #007bff; margin-bottom: 5px;">
+                    ${activityData.stats.buyerParties.current}
+                  </div>
+                  <div style="font-size: 14px; color: #666;">Buyer Parties</div>
+                  <div style="font-size: 12px; color: ${activityData.stats.buyerParties.change.startsWith('+') ? '#28a745' : activityData.stats.buyerParties.change.startsWith('-') ? '#dc3545' : '#666'}; margin-top: 5px;">
+                    ${activityData.stats.buyerParties.change}
+                  </div>
+                </div>
+                
+                <div style="text-align: center; padding: 15px; background: white; border-radius: 6px; border: 1px solid #e9ecef;">
+                  <div style="font-size: 24px; font-weight: bold; color: #007bff; margin-bottom: 5px;">
+                    ${activityData.stats.views.current}
+                  </div>
+                  <div style="font-size: 14px; color: #666;">Property Views</div>
+                  <div style="font-size: 12px; color: ${activityData.stats.views.change.startsWith('+') ? '#28a745' : activityData.stats.views.change.startsWith('-') ? '#dc3545' : '#666'}; margin-top: 5px;">
+                    ${activityData.stats.views.change}
+                  </div>
+                </div>
+                
+                <div style="text-align: center; padding: 15px; background: white; border-radius: 6px; border: 1px solid #e9ecef;">
+                  <div style="font-size: 24px; font-weight: bold; color: #007bff; margin-bottom: 5px;">
+                    ${activityData.stats.downloads.current}
+                  </div>
+                  <div style="font-size: 14px; color: #666;">Document Downloads</div>
+                  <div style="font-size: 12px; color: ${activityData.stats.downloads.change.startsWith('+') ? '#28a745' : activityData.stats.downloads.change.startsWith('-') ? '#dc3545' : '#666'}; margin-top: 5px;">
+                    ${activityData.stats.downloads.change}
+                  </div>
+                </div>
+                
+                <div style="text-align: center; padding: 15px; background: white; border-radius: 6px; border: 1px solid #e9ecef;">
+                  <div style="font-size: 24px; font-weight: bold; color: #007bff; margin-bottom: 5px;">
+                    ${activityData.stats.offers.current}
+                  </div>
+                  <div style="font-size: 14px; color: #666;">Offers Received</div>
+                  <div style="font-size: 12px; color: ${activityData.stats.offers.change.startsWith('+') ? '#28a745' : activityData.stats.offers.change.startsWith('-') ? '#dc3545' : '#666'}; margin-top: 5px;">
+                    ${activityData.stats.offers.change}
+                  </div>
+                </div>
+              </div>
+              
+              <div style="text-align: center; margin-top: 20px;">
+                <a href="${activityData.listingUrl}" 
+                   style="background-color: #007bff; color: white; padding: 12px 25px; 
+                          text-decoration: none; border-radius: 5px; display: inline-block;">
+                  View Property Listing
+                </a>
+              </div>
+            </div>
+            
+            <div style="background-color: #e7f3ff; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #007bff;">
+              <h4 style="color: #0056b3; margin: 0 0 10px 0;">💡 What This Means</h4>
+              <p style="color: #0056b3; line-height: 1.6; margin: 0;">
+                <strong>Buyer Parties:</strong> Number of potential buyers who have shown interest<br>
+                <strong>Property Views:</strong> How many times your listing has been viewed<br>
+                <strong>Document Downloads:</strong> Buyers downloading property information<br>
+                <strong>Offers Received:</strong> Formal offers submitted by interested buyers
+              </p>
+            </div>
+            
+            <p style="color: #666; line-height: 1.6;">
+              ${activityData.agentName} is actively marketing your property and will keep you updated on any significant developments. 
+              If you have any questions about the market activity, please don't hesitate to reach out.
+            </p>
+            
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              This is an automated report from RealOffer. You can manage your notification preferences in your listing settings.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('Seller activity notification send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 module.exports = new EmailService(); 

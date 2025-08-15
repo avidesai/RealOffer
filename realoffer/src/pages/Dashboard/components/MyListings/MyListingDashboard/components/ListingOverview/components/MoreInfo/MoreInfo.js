@@ -659,6 +659,7 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     const isDate = field === 'offerDueDate';
     const isPrice = field === 'homeCharacteristics.price';
     const isFormattedNumber = field === 'homeCharacteristics.squareFootage' || field === 'homeCharacteristics.lotSize';
+    const isEmail = field === 'sellerInfo.email' || field === 'escrowInfo.company.email';
     
     // Define realistic increments for different fields
     const getFieldConfig = (fieldName) => {
@@ -754,6 +755,14 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                 />
               )}
             </InputMask>
+          ) : isEmail ? (
+            <input
+              type="email"
+              value={value || ''}
+              onChange={(e) => handleInputChange(e, field)}
+              className="mlmi-form-control"
+              placeholder="email@example.com"
+            />
           ) : (
             <input
               type="text"
@@ -811,6 +820,12 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
               {renderField('City', 'homeCharacteristics.city', listing.homeCharacteristics.city)}
               {renderField('State', 'homeCharacteristics.state', listing.homeCharacteristics.state)}
               {renderField('Zip Code', 'homeCharacteristics.zip', listing.homeCharacteristics.zip)}
+            </div>
+            
+            <div className="mlmi-info-section">
+              <h3>Seller Information</h3>
+              {renderField('Seller Name', 'sellerInfo.name', listing.sellerInfo?.name)}
+              {renderField('Seller Email', 'sellerInfo.email', listing.sellerInfo?.email)}
             </div>
             
             <div className="mlmi-info-section">

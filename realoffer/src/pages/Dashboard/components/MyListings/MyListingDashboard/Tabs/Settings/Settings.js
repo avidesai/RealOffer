@@ -21,6 +21,14 @@ const Settings = ({ listing, onStatusChange }) => {
     offers: true,
     offerDueDateReminders: true
   });
+  const [sellerNotificationSettings, setSellerNotificationSettings] = useState({
+    enabled: true,
+    frequency: 7,
+    lastSent: null,
+    nextScheduled: null
+  });
+  const [isLoadingSellerSettings, setIsLoadingSellerSettings] = useState(false);
+  const [isSendingTestNotification, setIsSendingTestNotification] = useState(false);
   const navigate = useNavigate();
   const { token, user } = useAuth(); // Get the token and user from AuthContext
 
@@ -38,6 +46,33 @@ const Settings = ({ listing, onStatusChange }) => {
       });
     }
   }, [listing]);
+
+  // Load seller notification settings
+  useEffect(() => {
+    const loadSellerNotificationSettings = async () => {
+      if (!listing?._id) return;
+      
+      setIsLoadingSellerSettings(true);
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listing._id}/seller-notifications`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          }
+        );
+        setSellerNotificationSettings(response.data);
+      } catch (error) {
+        console.error('Error loading seller notification settings:', error);
+        setError('Failed to load seller notification settings.');
+      } finally {
+        setIsLoadingSellerSettings(false);
+      }
+    };
+
+    loadSellerNotificationSettings();
+  }, [listing?._id, token]);
 
   const handleActivitySettingsUpdate = async (newStatsSetting, newDetailsSetting) => {
     setError('');
@@ -119,6 +154,77 @@ const Settings = ({ listing, onStatusChange }) => {
     const newSettings = { ...notificationSettings, [setting]: checked };
     setNotificationSettings(newSettings);
     await handleNotificationSettingsUpdate(newSettings);
+  };
+
+  const handleSellerNotificationToggle = async (enabled) => {
+    setError('');
+    try {
+      const newSettings = { ...sellerNotificationSettings, enabled };
+      setSellerNotificationSettings(newSettings);
+      
+      await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listing._id}/seller-notifications`,
+        newSettings,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        }
+      );
+      console.log('Seller notification settings updated');
+    } catch (error) {
+      console.error('Error updating seller notification settings:', error);
+      setError('Failed to update seller notification settings. Please try again.');
+      // Revert the state on error
+      setSellerNotificationSettings(prev => ({ ...prev, enabled: !enabled }));
+    }
+  };
+
+  const handleSellerNotificationFrequencyChange = async (frequency) => {
+    setError('');
+    try {
+      const newSettings = { ...sellerNotificationSettings, frequency };
+      setSellerNotificationSettings(newSettings);
+      
+      await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listing._id}/seller-notifications`,
+        newSettings,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        }
+      );
+      console.log('Seller notification frequency updated');
+    } catch (error) {
+      console.error('Error updating seller notification frequency:', error);
+      setError('Failed to update seller notification frequency. Please try again.');
+      // Revert the state on error
+      setSellerNotificationSettings(prev => ({ ...prev, frequency: sellerNotificationSettings.frequency }));
+    }
+  };
+
+  const handleSendTestNotification = async () => {
+    setError('');
+    setIsSendingTestNotification(true);
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listing._id}/seller-notifications/test`,
+        {},
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        }
+      );
+      console.log('Test seller notification sent');
+      setError(''); // Clear any previous errors
+    } catch (error) {
+      console.error('Error sending test seller notification:', error);
+      setError('Failed to send test notification. Please try again.');
+    } finally {
+      setIsSendingTestNotification(false);
+    }
   };
 
   const handleArchivePackage = async () => {
@@ -299,6 +405,100 @@ const Settings = ({ listing, onStatusChange }) => {
               </label>
             </div>
           </div>
+        </div>
+        
+        {/* Seller Notification Settings Section */}
+        <div className="settings-section seller-notification-settings-section">
+          <h2 className="settings-title">Seller Notifications</h2>
+          <p className="settings-description">Configure automated activity reports sent to the seller.</p>
+          
+          {isLoadingSellerSettings ? (
+            <div className="settings-loading">Loading seller notification settings...</div>
+          ) : (
+            <>
+              <div className="toggle-settings">
+                <div className="toggle-setting">
+                  <div className="toggle-label">
+                    <span className="toggle-title">Enable seller notifications</span>
+                    <span className="toggle-description">Send periodic activity reports to the seller's email address</span>
+                  </div>
+                  <label className="toggle-switch">
+                    <input
+                      type="checkbox"
+                      checked={sellerNotificationSettings.enabled}
+                      onChange={(e) => handleSellerNotificationToggle(e.target.checked)}
+                      disabled={!listing?.sellerInfo?.email}
+                    />
+                    <span className="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+              
+              {!listing?.sellerInfo?.email && (
+                <div className="settings-warning">
+                  <p>⚠️ Seller email address is required to enable notifications. Please add a seller email in the More Info section.</p>
+                </div>
+              )}
+              
+              {sellerNotificationSettings.enabled && listing?.sellerInfo?.email && (
+                <>
+                  <div className="frequency-setting">
+                    <label className="frequency-label">
+                      <span className="frequency-title">Notification frequency</span>
+                      <span className="frequency-description">How often to send activity reports</span>
+                    </label>
+                    <select
+                      value={sellerNotificationSettings.frequency}
+                      onChange={(e) => handleSellerNotificationFrequencyChange(parseInt(e.target.value))}
+                      className="frequency-select"
+                    >
+                      <option value={1}>Daily</option>
+                      <option value={3}>Every 3 days</option>
+                      <option value={7}>Weekly</option>
+                      <option value={14}>Every 2 weeks</option>
+                      <option value={30}>Monthly</option>
+                    </select>
+                  </div>
+                  
+                  <div className="notification-info">
+                    <div className="info-item">
+                      <span className="info-label">Seller email:</span>
+                      <span className="info-value">{listing.sellerInfo.email}</span>
+                    </div>
+                    {sellerNotificationSettings.lastSent && (
+                      <div className="info-item">
+                        <span className="info-label">Last sent:</span>
+                        <span className="info-value">
+                          {new Date(sellerNotificationSettings.lastSent).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                    {sellerNotificationSettings.nextScheduled && (
+                      <div className="info-item">
+                        <span className="info-label">Next scheduled:</span>
+                        <span className="info-value">
+                          {new Date(sellerNotificationSettings.nextScheduled).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="test-notification-section">
+                    <button
+                      className="test-notification-button"
+                      onClick={handleSendTestNotification}
+                      disabled={isSendingTestNotification}
+                    >
+                      {isSendingTestNotification ? 'Sending...' : 'Send Test Notification'}
+                    </button>
+                    <p className="test-notification-description">
+                      Send a test notification to verify the seller will receive the activity report.
+                    </p>
+                  </div>
+                </>
+              )}
+            </>
+          )}
         </div>
         
         {/* Only show activity visibility section for premium users */}

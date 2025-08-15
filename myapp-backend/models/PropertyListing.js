@@ -27,6 +27,10 @@ const propertyListingSchema = new mongoose.Schema(
       propertyType: String,
       yearBuilt: { type: Number, required: true },
     },
+    sellerInfo: {
+      name: String,
+      email: String,
+    },
     imagesUrls: [String],
     status: String,
     escrowInfo: {
@@ -61,6 +65,13 @@ const propertyListingSchema = new mongoose.Schema(
       downloads: { type: Boolean, default: true },
       offers: { type: Boolean, default: true },
       offerDueDateReminders: { type: Boolean, default: true }
+    },
+    // Seller notification settings
+    sellerNotifications: {
+      enabled: { type: Boolean, default: true },
+      frequency: { type: Number, default: 7 }, // Days between notifications (default: weekly)
+      lastSent: { type: Date, default: null },
+      nextScheduled: { type: Date, default: null }
     },
     // Track sent offer due date notifications to prevent duplicates
     sentOfferDueDateNotifications: {
