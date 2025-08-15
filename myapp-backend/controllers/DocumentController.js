@@ -248,7 +248,7 @@ const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPd
           resultKeys: result ? Object.keys(result) : []
         });
         
-        if (result && result.buffer) {
+        if (result && result.buffer && result.buffer.length > 0) {
           // Create a new PDF page from the image
           const imagePdf = await PDFDocument.create();
           const pngImage = await imagePdf.embedPng(result.buffer);
@@ -289,7 +289,7 @@ const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPd
           console.log(`Successfully added page ${pageNumber} from ${document.title} as image`);
         } else {
           // Fallback: Try direct ImageMagick conversion
-          console.log(`pdf2pic failed, trying direct ImageMagick for page ${pageNumber}...`);
+          console.log(`pdf2pic returned empty buffer (${result && result.buffer ? result.buffer.length : 'no'} bytes), trying direct ImageMagick for page ${pageNumber}...`);
           
           const imageBuffer = await convertPageWithImageMagick(tempPdfPath, pageNumber);
           if (imageBuffer) {
