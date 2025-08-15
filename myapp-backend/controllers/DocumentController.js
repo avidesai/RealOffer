@@ -223,57 +223,119 @@ const removePasswordRestrictions = async (pdfBytes, documentTitle) => {
       
       console.log(`${documentTitle}: Successfully loaded restricted PDF with ignoreEncryption`);
       
-      // Test if we can access pages
-      const pageCount = restrictedPdf.getPageCount();
-      console.log(`${documentTitle}: Page count: ${pageCount}`);
+      // Try different approaches to access page information
+      let pageCount = 0;
+      let pages = [];
+      
+      // Try multiple methods to get page count
+      try {
+        pageCount = restrictedPdf.getPageCount();
+        console.log(`${documentTitle}: Page count via getPageCount(): ${pageCount}`);
+      } catch (pageCountError) {
+        console.log(`${documentTitle}: getPageCount() failed, trying alternative methods`);
+        
+        // Try to access pages directly
+        try {
+          pages = restrictedPdf.getPages();
+          pageCount = pages.length;
+          console.log(`${documentTitle}: Page count via getPages().length: ${pageCount}`);
+        } catch (getPagesError) {
+          console.log(`${documentTitle}: getPages() also failed, trying catalog inspection`);
+          
+          // Last resort: try to inspect the PDF catalog structure
+          try {
+            // Access internal PDF structure (this is more advanced)
+            const catalog = restrictedPdf.catalog;
+            if (catalog && catalog.Pages) {
+              // Try to estimate page count from document structure
+              pageCount = 3; // Conservative estimate for disclosure documents
+              console.log(`${documentTitle}: Using estimated page count: ${pageCount}`);
+            }
+          } catch (catalogError) {
+            console.log(`${documentTitle}: Catalog inspection failed`);
+          }
+        }
+      }
       
       if (pageCount > 0) {
-        const pages = restrictedPdf.getPages();
-        console.log(`${documentTitle}: Accessible pages: ${pages.length}`);
-        
-        if (pages.length > 0) {
-          // Create a new unrestricted PDF and copy all pages
+        try {
+          // Create a new unrestricted PDF and copy pages
           const unrestrictedPdf = await PDFDocument.create();
           
-          // Copy all pages to remove restrictions
-          const pageIndices = Array.from({length: pageCount}, (_, i) => i);
-          const copiedPages = await unrestrictedPdf.copyPages(restrictedPdf, pageIndices);
+          // Try to copy pages one by one (safer approach)
+          let successfulPages = 0;
+          for (let i = 0; i < pageCount; i++) {
+            try {
+              const [copiedPage] = await unrestrictedPdf.copyPages(restrictedPdf, [i]);
+              unrestrictedPdf.addPage(copiedPage);
+              successfulPages++;
+              console.log(`${documentTitle}: Successfully copied page ${i + 1}`);
+            } catch (pageError) {
+              console.log(`${documentTitle}: Failed to copy page ${i + 1}: ${pageError.message}`);
+            }
+          }
           
-          copiedPages.forEach(page => unrestrictedPdf.addPage(page));
-          
-          // Save as unrestricted PDF
-          const unrestrictedBytes = await unrestrictedPdf.save();
-          
-          console.log(`${documentTitle}: Successfully bypassed PDF restrictions using page copying (${unrestrictedBytes.length} bytes)`);
-          return Buffer.from(unrestrictedBytes);
+          if (successfulPages > 0) {
+            // Save as unrestricted PDF
+            const unrestrictedBytes = await unrestrictedPdf.save();
+            console.log(`${documentTitle}: Successfully bypassed PDF restrictions - copied ${successfulPages}/${pageCount} pages (${unrestrictedBytes.length} bytes)`);
+            return Buffer.from(unrestrictedBytes);
+          }
+        } catch (copyError) {
+          console.log(`${documentTitle}: Page copying process failed: ${copyError.message}`);
         }
       }
     } catch (method1Error) {
       console.log(`${documentTitle}: Method 1 (page copying) failed - ${method1Error.message}`);
     }
     
-    // Method 2: Try to load with ignoreEncryption and immediately save to strip restrictions
+    // Method 2: Try alternative save approaches to strip restrictions
     try {
-      console.log(`${documentTitle}: Attempting method 2 - load and save to strip restrictions...`);
+      console.log(`${documentTitle}: Attempting method 2 - alternative save approaches...`);
       
       const restrictedPdf = await PDFDocument.load(pdfBuffer, { 
         ignoreEncryption: true,
         updateMetadata: false
       });
       
-      // Immediately save to strip restrictions
-      const cleanedBytes = await restrictedPdf.save({
-        useObjectStreams: false,
-        addDefaultPage: false
-      });
+      // Try multiple save configurations
+      const saveConfigs = [
+        {
+          useObjectStreams: false,
+          addDefaultPage: false,
+          compress: false
+        },
+        {
+          useObjectStreams: true,
+          addDefaultPage: false
+        },
+        {
+          // Minimal config - just basic save
+        }
+      ];
       
-      // Test if the cleaned version works normally
-      const testCleanPdf = await PDFDocument.load(cleanedBytes);
-      const cleanPageCount = testCleanPdf.getPageCount();
-      
-      if (cleanPageCount > 0) {
-        console.log(`${documentTitle}: Successfully bypassed PDF restrictions using save method (${cleanedBytes.length} bytes)`);
-        return Buffer.from(cleanedBytes);
+      for (let configIndex = 0; configIndex < saveConfigs.length; configIndex++) {
+        try {
+          const config = saveConfigs[configIndex];
+          console.log(`${documentTitle}: Trying save config ${configIndex + 1}...`);
+          
+          const cleanedBytes = await restrictedPdf.save(config);
+          
+          // Test if the cleaned version works normally (without ignoreEncryption)
+          try {
+            const testCleanPdf = await PDFDocument.load(cleanedBytes);
+            const cleanPageCount = testCleanPdf.getPageCount();
+            
+            if (cleanPageCount > 0) {
+              console.log(`${documentTitle}: Successfully bypassed PDF restrictions using save config ${configIndex + 1} (${cleanedBytes.length} bytes)`);
+              return Buffer.from(cleanedBytes);
+            }
+          } catch (testError) {
+            console.log(`${documentTitle}: Save config ${configIndex + 1} still produces encrypted PDF`);
+          }
+        } catch (saveError) {
+          console.log(`${documentTitle}: Save config ${configIndex + 1} failed: ${saveError.message}`);
+        }
       }
     } catch (method2Error) {
       console.log(`${documentTitle}: Method 2 (save stripping) failed - ${method2Error.message}`);
