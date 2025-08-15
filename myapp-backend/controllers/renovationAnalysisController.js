@@ -286,7 +286,7 @@ Please provide your response in the following JSON format:
           role: 'user', 
           content: [
             { type: 'text', text: userMessage },
-            ...batch.map(img => ({ type: 'image_url', image_url: { url: img } }))
+            ...batch.map(img => ({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: img.split(',')[1] } }))
           ]
         }
       ];
@@ -344,7 +344,7 @@ Please provide your response in the following JSON format:
                     role: 'user', 
                     content: [
                       { type: 'text', text: 'Please analyze this photo of the property and provide renovation estimates in JSON format.' },
-                      { type: 'image_url', image_url: { url: img } }
+                      { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: img.split(',')[1] } }
                     ]
                   }
                 ]
