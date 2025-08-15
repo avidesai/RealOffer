@@ -45,22 +45,18 @@ const isPdfCorrupted = async (buffer) => {
   }
 };
 
-// Helper function to extract pages using image-based conversion as a fallback
-const attemptImageBasedExtraction = async (document, existingPdfBytes, mergedPdf, processingErrors) => {
-  console.log(`Attempting image-based extraction for ${document.title}`);
+// Helper function to extract a single page using image-based conversion
+const attemptSinglePageImageExtraction = async (document, existingPdfBytes, pageNumber, mergedPdf) => {
+  const tempDir = os.tmpdir();
+  const tempPdfPath = path.join(tempDir, `temp_single_page_${Date.now()}.pdf`);
   
   try {
     // Write PDF to temp file for pdf2pic
-    const tempDir = os.tmpdir();
-    const tempPdfPath = path.join(tempDir, `temp_corrupted_${Date.now()}.pdf`);
     fs.writeFileSync(tempPdfPath, Buffer.from(existingPdfBytes));
     
-    // Sort the page numbers in ascending order
-    const sortedPageNumbers = [...document.signaturePackagePages].sort((a, b) => a - b);
-    
-    // Convert specific pages to images and then back to PDF
+    // Convert specific page to image
     const convert = fromPath(tempPdfPath, {
-      density: 200,           // High quality
+      density: 200,
       saveFilename: "page",
       savePath: tempDir,
       format: "png",
@@ -68,43 +64,54 @@ const attemptImageBasedExtraction = async (document, existingPdfBytes, mergedPdf
       height: 2600
     });
     
+    // Convert the specific page to image
+    const result = await convert(pageNumber, { responseType: "buffer" });
+    
+    if (result && result.buffer) {
+      // Create a new PDF page from the image
+      const imagePdf = await PDFDocument.create();
+      const pngImage = await imagePdf.embedPng(result.buffer);
+      const page = imagePdf.addPage([pngImage.width, pngImage.height]);
+      page.drawImage(pngImage, {
+        x: 0,
+        y: 0,
+        width: pngImage.width,
+        height: pngImage.height,
+      });
+      
+      // Copy this page to the merged PDF
+      const [copiedPage] = await mergedPdf.copyPages(imagePdf, [0]);
+      mergedPdf.addPage(copiedPage);
+    } else {
+      throw new Error('Failed to convert page to image');
+    }
+  } finally {
+    // Clean up temp file
+    if (fs.existsSync(tempPdfPath)) {
+      fs.unlinkSync(tempPdfPath);
+    }
+  }
+};
+
+// Helper function to extract pages using image-based conversion as a fallback
+const attemptImageBasedExtraction = async (document, existingPdfBytes, mergedPdf, processingErrors) => {
+  console.log(`Attempting image-based extraction for ${document.title}`);
+  
+  try {
+    // Sort the page numbers in ascending order
+    const sortedPageNumbers = [...document.signaturePackagePages].sort((a, b) => a - b);
+    
     for (const pageNumber of sortedPageNumbers) {
       try {
         console.log(`Converting page ${pageNumber} of ${document.title} to image...`);
-        
-        // Convert the specific page to image
-        const result = await convert(pageNumber, { responseType: "buffer" });
-        
-        if (result && result.buffer) {
-          // Create a new PDF page from the image
-          const imagePdf = await PDFDocument.create();
-          const pngImage = await imagePdf.embedPng(result.buffer);
-          const page = imagePdf.addPage([pngImage.width, pngImage.height]);
-          page.drawImage(pngImage, {
-            x: 0,
-            y: 0,
-            width: pngImage.width,
-            height: pngImage.height,
-          });
-          
-          // Copy this page to the merged PDF
-          const [copiedPage] = await mergedPdf.copyPages(imagePdf, [0]);
-          mergedPdf.addPage(copiedPage);
-          
-          console.log(`Successfully converted page ${pageNumber} of ${document.title} via image method`);
-        }
+        await attemptSinglePageImageExtraction(document, existingPdfBytes, pageNumber, mergedPdf);
+        console.log(`Successfully converted page ${pageNumber} of ${document.title} via image method`);
       } catch (pageError) {
         const errorMsg = `Error converting page ${pageNumber} from ${document.title} via image method: ${pageError.message}`;
         console.error(errorMsg);
         processingErrors.push(errorMsg);
       }
     }
-    
-    // Clean up temp file
-    if (fs.existsSync(tempPdfPath)) {
-      fs.unlinkSync(tempPdfPath);
-    }
-    
   } catch (error) {
     const errorMsg = `Image-based extraction failed for ${document.title}: ${error.message}`;
     console.error(errorMsg);
@@ -953,36 +960,67 @@ exports.createBuyerSignaturePacket = async (req, res) => {
           
           console.log(`Successfully loaded ${document.title} using ${loadMethod} method`);
 
-          // Get page count safely
+          // Get page count safely with fallback
           let pageCount = 0;
+          let useEstimatedPageCount = false;
+          
           try {
             pageCount = existingPdf.getPageCount();
             console.log(`Document ${document.title} has ${pageCount} pages`);
           } catch (countError) {
-            console.error(`Cannot get page count for ${document.title}:`, countError.message);
-            const errorMsg = `Cannot determine page count for ${document.title} - document may be corrupted`;
-            processingErrors.push(errorMsg);
-            continue;
+            console.warn(`Cannot get page count for ${document.title}:`, countError.message);
+            
+            // Fallback: assume the document has enough pages for the selected page numbers
+            const maxSelectedPage = Math.max(...document.signaturePackagePages);
+            pageCount = maxSelectedPage; // Use the highest selected page as the estimated page count
+            useEstimatedPageCount = true;
+            
+            console.log(`Using estimated page count ${pageCount} for ${document.title} based on selected pages`);
+            const warningMsg = `Using estimated page count for ${document.title} due to page structure corruption`;
+            processingErrors.push(warningMsg);
           }
           
           // Sort the page numbers in ascending order
           const sortedPageNumbers = [...document.signaturePackagePages].sort((a, b) => a - b);
           
           for (const pageNumber of sortedPageNumbers) {
-            if (pageNumber > 0 && pageNumber <= pageCount) {
+            // For estimated page counts, be more lenient with page validation
+            const isValidPage = useEstimatedPageCount ? pageNumber > 0 : (pageNumber > 0 && pageNumber <= pageCount);
+            
+            if (isValidPage) {
               try {
                 const [copiedPage] = await mergedPdf.copyPages(existingPdf, [pageNumber - 1]);
                 mergedPdf.addPage(copiedPage);
                 console.log(`Successfully copied page ${pageNumber} from ${document.title}`);
               } catch (pageError) {
-                const errorMsg = `Error copying page ${pageNumber} from document ${document.title}: ${pageError.message}`;
-                console.error(errorMsg);
-                processingErrors.push(errorMsg);
+                console.error(`Error copying page ${pageNumber} from ${document.title}:`, pageError.message);
+                
+                // If page copying fails, try the image-based extraction for this specific page
+                try {
+                  console.log(`Attempting image-based extraction for page ${pageNumber} of ${document.title}`);
+                  await attemptSinglePageImageExtraction(document, existingPdfBytes, pageNumber, mergedPdf);
+                  console.log(`Successfully extracted page ${pageNumber} from ${document.title} using image method`);
+                } catch (imageError) {
+                  const errorMsg = `Failed to extract page ${pageNumber} from ${document.title} using all methods: ${pageError.message}`;
+                  console.error(errorMsg);
+                  processingErrors.push(errorMsg);
+                }
               }
-            } else {
+            } else if (!useEstimatedPageCount) {
               const errorMsg = `Invalid page number ${pageNumber} for document ${document.title} (document has ${pageCount} pages)`;
               console.error(errorMsg);
               processingErrors.push(errorMsg);
+            } else {
+              // For estimated page counts, try anyway since we don't know the real count
+              try {
+                const [copiedPage] = await mergedPdf.copyPages(existingPdf, [pageNumber - 1]);
+                mergedPdf.addPage(copiedPage);
+                console.log(`Successfully copied page ${pageNumber} from ${document.title} (estimated page count)`);
+              } catch (pageError) {
+                const errorMsg = `Page ${pageNumber} not found in ${document.title} (estimated page count was incorrect)`;
+                console.warn(errorMsg);
+                processingErrors.push(errorMsg);
+              }
             }
           }
           
