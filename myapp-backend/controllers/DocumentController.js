@@ -198,9 +198,183 @@ const convertPageWithImageMagick = async (pdfPath, pageNumber) => {
   });
 };
 
-// MAIN FUNCTION: First try direct PDF page copying, fallback to image conversion if needed
+// HELPER FUNCTION: Attempt to remove permission restrictions from PDF
+const removePasswordRestrictions = async (pdfBytes, documentTitle) => {
+  const tempDir = os.tmpdir();
+  const inputPath = path.join(tempDir, `restricted_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.pdf`);
+  const outputPath = path.join(tempDir, `unrestricted_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.pdf`);
+  
+  try {
+    // Write the restricted PDF to a temporary file
+    fs.writeFileSync(inputPath, pdfBytes);
+    
+    // Try qpdf to remove restrictions (works for permission-only restrictions, not user passwords)
+    console.log(`${documentTitle}: Attempting to remove PDF restrictions using qpdf...`);
+    
+    const { exec } = require('child_process');
+    const util = require('util');
+    const execAsync = util.promisify(exec);
+    
+    // qpdf --decrypt removes owner password restrictions but not user passwords
+    const qpdfCommand = `qpdf --decrypt "${inputPath}" "${outputPath}"`;
+    
+    try {
+      await execAsync(qpdfCommand);
+      
+      // Check if the output file was created and has content
+      if (fs.existsSync(outputPath)) {
+        const unrestrictedBytes = fs.readFileSync(outputPath);
+        
+        // Clean up temporary files
+        try { fs.unlinkSync(inputPath); } catch (e) {}
+        try { fs.unlinkSync(outputPath); } catch (e) {}
+        
+        if (unrestrictedBytes.length > 0) {
+          console.log(`${documentTitle}: Successfully removed PDF restrictions`);
+          return unrestrictedBytes;
+        }
+      }
+    } catch (qpdfError) {
+      console.log(`${documentTitle}: qpdf restriction removal failed - ${qpdfError.message}`);
+    }
+    
+    // Clean up temporary files if qpdf failed
+    try { fs.unlinkSync(inputPath); } catch (e) {}
+    try { fs.unlinkSync(outputPath); } catch (e) {}
+    
+    // If qpdf fails, return null to indicate we should use image conversion
+    return null;
+    
+  } catch (error) {
+    console.error(`${documentTitle}: Error in restriction removal process - ${error.message}`);
+    
+    // Clean up temporary files
+    try { fs.unlinkSync(inputPath); } catch (e) {}
+    try { fs.unlinkSync(outputPath); } catch (e) {}
+    
+    return null;
+  }
+};
+
+// HELPER FUNCTION: Check if PDF has restrictions and attempt removal
+const checkIfPasswordProtected = async (pdfBytes, documentTitle) => {
+  try {
+    // Try to load with pdf-lib first (most restrictive)
+    await PDFDocument.load(pdfBytes, { 
+      updateMetadata: false,
+      parseSpeed: ParseSpeeds.Fastest
+    });
+    
+    // If that succeeds, try to get page count (this often fails on protected PDFs)
+    const testPdf = await PDFDocument.load(pdfBytes);
+    const pageCount = testPdf.getPageCount();
+    
+    if (pageCount === 0) {
+      console.log(`${documentTitle}: Page count is 0, likely password-protected`);
+      return true;
+    }
+    
+    // Try to access the first page (this tests for content access restrictions)
+    const pages = testPdf.getPages();
+    if (pages.length === 0) {
+      console.log(`${documentTitle}: Cannot access pages, likely password-protected`);
+      return true;
+    }
+    
+    console.log(`${documentTitle}: Successfully loaded and analyzed, not password-protected`);
+    return false;
+    
+  } catch (error) {
+    const errorMessage = error.message.toLowerCase();
+    
+    // Check for specific password/security-related errors
+    if (errorMessage.includes('password') || 
+        errorMessage.includes('encrypted') ||
+        errorMessage.includes('security') ||
+        errorMessage.includes('permission') ||
+        errorMessage.includes('pdfdict') ||
+        errorMessage.includes('invalid object') ||
+        errorMessage.includes('parse invalid') ||
+        errorMessage.includes('crypt') ||
+        errorMessage.includes('filter')) {
+      console.log(`${documentTitle}: Detected password protection - ${error.message}`);
+      return true;
+    }
+    
+    // For other errors, assume it's password-protected to be safe
+    console.log(`${documentTitle}: Unknown PDF error, treating as password-protected - ${error.message}`);
+    return true;
+  }
+};
+
+// MAIN FUNCTION: Smart PDF processing with restriction bypass
 const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPdf, processingErrors, progressCallback) => {
-  // First attempt: Try direct PDF page copying (preserves vector quality)
+  // First, check if this is a password-protected PDF
+  const isPasswordProtected = await checkIfPasswordProtected(existingPdfBytes, document.title);
+  
+  if (isPasswordProtected) {
+    console.log(`${document.title} has restrictions, attempting to bypass...`);
+    if (progressCallback) {
+      progressCallback(`${document.title} has security restrictions - attempting to bypass for better quality...`);
+    }
+    
+    // Try to remove permission restrictions (works for owner passwords, not user passwords)
+    const unrestrictedBytes = await removePasswordRestrictions(existingPdfBytes, document.title);
+    
+    if (unrestrictedBytes) {
+      console.log(`${document.title}: Successfully bypassed restrictions, using vector copying!`);
+      if (progressCallback) {
+        progressCallback(`${document.title}: Bypassed restrictions - using high-quality vector copying...`);
+      }
+      
+      // Try to process the unrestricted PDF with direct copying
+      try {
+        const unrestrictedPdf = await PDFDocument.load(unrestrictedBytes, { 
+          updateMetadata: false,
+          parseSpeed: ParseSpeeds.Fastest
+        });
+        
+        const sortedPageNumbers = [...document.signaturePackagePages].sort((a, b) => a - b);
+        
+        for (const pageNumber of sortedPageNumbers) {
+          if (progressCallback) {
+            progressCallback(`Copying page ${pageNumber} of ${document.title} (vector quality restored)...`);
+          }
+          
+          const pageIndex = pageNumber - 1;
+          if (pageIndex >= 0 && pageIndex < unrestrictedPdf.getPageCount()) {
+            const [copiedPage] = await mergedPdf.copyPages(unrestrictedPdf, [pageIndex]);
+            mergedPdf.addPage(copiedPage);
+            console.log(`Successfully copied page ${pageNumber} from ${document.title} with restored vector quality`);
+          }
+        }
+        
+        // Add success message to processing info
+        const successMsg = `${document.title}: Security restrictions bypassed, preserved original vector quality`;
+        processingErrors.push(successMsg);
+        
+        return; // Success with bypassed restrictions
+      } catch (error) {
+        console.warn(`${document.title}: Even after restriction removal, direct copying failed:`, error.message);
+        // Fall back to image conversion using the unrestricted PDF
+        return await convertDocumentToImages(document, unrestrictedBytes, mergedPdf, processingErrors, progressCallback);
+      }
+    } else {
+      console.log(`${document.title}: Could not bypass restrictions, using enhanced image conversion`);
+      if (progressCallback) {
+        progressCallback(`${document.title}: Restrictions could not be bypassed - using enhanced image conversion...`);
+      }
+      
+      // Add informational message to processing errors (not really an error, just info)
+      const infoMsg = `${document.title}: Document has unbypassable security restrictions, converted to high-quality images`;
+      processingErrors.push(infoMsg);
+      
+      // Skip direct copying and go straight to image conversion for password-protected PDFs
+      return await convertDocumentToImages(document, existingPdfBytes, mergedPdf, processingErrors, progressCallback);
+    }
+  }
+  
+  // For non-protected PDFs, try direct PDF page copying (preserves vector quality)
   try {
     const existingPdf = await PDFDocument.load(existingPdfBytes, { 
       updateMetadata: false,
@@ -232,8 +406,8 @@ const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPd
     
     return; // Success with direct copying
   } catch (error) {
-    console.warn(`Direct PDF copying failed for ${document.title}, falling back to full image conversion:`, error.message);
-    // Fall back to the original image conversion method
+    console.warn(`Direct PDF copying failed for ${document.title}, falling back to image conversion:`, error.message);
+    // Fall back to the image conversion method
     return await convertDocumentToImages(document, existingPdfBytes, mergedPdf, processingErrors, progressCallback);
   }
 };
