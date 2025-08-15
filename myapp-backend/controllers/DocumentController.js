@@ -119,10 +119,12 @@ const convertPageWithImageMagick = async (pdfPath, pageNumber) => {
     // Use ImageMagick to convert specific page to PNG
     const args = [
       `${pdfPath}[${pageNumber - 1}]`, // PDF file with page index (0-based)
-      '-density', '300',              // High DPI
-      '-quality', '90',               // High quality
+      '-density', '600',              // Very high DPI for excellent quality (2x normal)
+      '-quality', '100',              // Maximum quality
       '-alpha', 'remove',             // Remove transparency
       '-background', 'white',         // White background
+      '-colorspace', 'RGB',           // Ensure RGB color space
+      '-resample', '300',             // Resample to 300 DPI for final output
       outputImagePath
     ];
     
@@ -161,8 +163,8 @@ const convertPageWithImageMagick = async (pdfPath, pageNumber) => {
   });
 };
 
-// NEW MAIN FUNCTION: Convert selected pages directly to images, then add to PDF
-const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPdf, processingErrors) => {
+// MAIN FUNCTION: Convert selected pages directly to images using ImageMagick, then add to PDF
+const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPdf, processingErrors, progressCallback) => {
   const tempDir = os.tmpdir();
   const tempPdfPath = path.join(tempDir, `temp_convert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.pdf`);
   
@@ -191,41 +193,21 @@ const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPd
     // Sort the page numbers in ascending order
     const sortedPageNumbers = [...document.signaturePackagePages].sort((a, b) => a - b);
     
-    // Configure pdf2pic for high quality conversion
-    const convert = fromPath(tempPdfPath, {
-      density: 300,           // High DPI for quality
-      saveFilename: "page",
-      savePath: tempDir,
-      format: "png",
-      width: 2480,           // High resolution
-      height: 3508,          // A4 size at 300 DPI
-      quality: 90            // High quality
-    });
-    
-    for (const pageNumber of sortedPageNumbers) {
+    for (let i = 0; i < sortedPageNumbers.length; i++) {
+      const pageNumber = sortedPageNumbers[i];
+      
       try {
-        console.log(`Converting page ${pageNumber} of ${document.title} to image...`);
-        
-        // Convert the specific page to image with better error handling
-        let result;
-        try {
-          result = await convert(pageNumber, { responseType: "buffer" });
-        } catch (conversionError) {
-          console.error(`pdf2pic conversion error for page ${pageNumber}:`, conversionError);
-          throw new Error(`pdf2pic failed: ${conversionError.message || 'Unknown conversion error'}`);
+        if (progressCallback) {
+          progressCallback(`Converting page ${pageNumber} of ${document.title} to high-quality image...`);
         }
+        console.log(`Converting page ${pageNumber} of ${document.title} to high-quality image...`);
         
-        console.log(`pdf2pic result for page ${pageNumber}:`, {
-          hasResult: !!result,
-          hasBuffer: !!(result && result.buffer),
-          bufferSize: result && result.buffer ? result.buffer.length : 0,
-          resultKeys: result ? Object.keys(result) : []
-        });
-        
-        if (result && result.buffer && result.buffer.length > 0) {
+        // Use ImageMagick directly for conversion
+        const imageBuffer = await convertPageWithImageMagick(tempPdfPath, pageNumber);
+        if (imageBuffer) {
           // Create a new PDF page from the image
           const imagePdf = await PDFDocument.create();
-          const pngImage = await imagePdf.embedPng(result.buffer);
+          const pngImage = await imagePdf.embedPng(imageBuffer);
           
           // Create page with proper size (A4)
           const page = imagePdf.addPage([595, 842]); // A4 size in points
@@ -260,52 +242,9 @@ const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPd
           const [copiedPage] = await mergedPdf.copyPages(imagePdf, [0]);
           mergedPdf.addPage(copiedPage);
           
-          console.log(`Successfully added page ${pageNumber} from ${document.title} as image`);
+          console.log(`Successfully added page ${pageNumber} from ${document.title} as high-quality image`);
         } else {
-          // Fallback: Try direct ImageMagick conversion
-          console.log(`pdf2pic returned empty buffer (${result && result.buffer ? result.buffer.length : 'no'} bytes), trying direct ImageMagick for page ${pageNumber}...`);
-          
-          const imageBuffer = await convertPageWithImageMagick(tempPdfPath, pageNumber);
-          if (imageBuffer) {
-            // Create a new PDF page from the image
-            const imagePdf = await PDFDocument.create();
-            const pngImage = await imagePdf.embedPng(imageBuffer);
-            
-            // Create page with proper size (A4)
-            const page = imagePdf.addPage([595, 842]); // A4 size in points
-            
-            // Calculate scaling to fit image on page while maintaining aspect ratio
-            const imageAspectRatio = pngImage.width / pngImage.height;
-            const pageAspectRatio = 595 / 842;
-            
-            let imageWidth, imageHeight;
-            if (imageAspectRatio > pageAspectRatio) {
-              imageWidth = 555; // Leave 20pt margin
-              imageHeight = imageWidth / imageAspectRatio;
-            } else {
-              imageHeight = 802; // Leave 20pt margin
-              imageWidth = imageHeight * imageAspectRatio;
-            }
-            
-            // Center the image on the page
-            const x = (595 - imageWidth) / 2;
-            const y = (842 - imageHeight) / 2;
-            
-            page.drawImage(pngImage, {
-              x: x,
-              y: y,
-              width: imageWidth,
-              height: imageHeight,
-            });
-            
-            // Copy this page to the merged PDF
-            const [copiedPage] = await mergedPdf.copyPages(imagePdf, [0]);
-            mergedPdf.addPage(copiedPage);
-            
-            console.log(`Successfully added page ${pageNumber} from ${document.title} using ImageMagick fallback`);
-          } else {
-            throw new Error('Both pdf2pic and ImageMagick failed to convert page');
-          }
+          throw new Error('ImageMagick failed to convert page');
         }
       } catch (pageError) {
         console.error(`Failed to convert page ${pageNumber} of ${document.title}:`, pageError.message);
@@ -375,7 +314,14 @@ const attemptImageBasedExtraction = async (document, existingPdfBytes, mergedPdf
   
   try {
     // Use the new streamlined approach
-    await convertSelectedPagesToImages(document, existingPdfBytes, mergedPdf, processingErrors);
+    await convertSelectedPagesToImages(document, existingPdfBytes, mergedPdf, processingErrors, (status) => {
+      console.log(`Progress: ${status}`);
+      if (progressCallback) {
+        progressCallback({
+          status: status
+        });
+      }
+    });
   } catch (error) {
     const errorMsg = `Image-based extraction failed for ${document.title}: ${error.message}`;
     console.error(errorMsg);
@@ -939,7 +885,41 @@ exports.removePageFromSignaturePackage = async (req, res) => {
   }
 };
 
+// Progress-enabled version of createBuyerSignaturePacket
+exports.createBuyerSignaturePacketWithProgress = async (req, res) => {
+  // Set headers for streaming
+  res.setHeader('Content-Type', 'text/plain');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  
+  const sendProgress = (data) => {
+    res.write(`data: ${JSON.stringify(data)}\n\n`);
+  };
+  
+  try {
+    await createBuyerSignaturePacketInternal(req, res, sendProgress);
+  } catch (error) {
+    sendProgress({ error: error.message });
+    res.end();
+  }
+};
+
+// Original version without progress tracking (for backward compatibility)
 exports.createBuyerSignaturePacket = async (req, res) => {
+  try {
+    await createBuyerSignaturePacketInternal(req, res, null);
+  } catch (error) {
+    if (!res.headersSent) {
+      res.status(500).json({
+        message: 'Error creating signature packet',
+        error: error.message
+      });
+    }
+  }
+};
+
+// Internal function that handles both progress and non-progress versions
+const createBuyerSignaturePacketInternal = async (req, res, progressCallback) => {
   const { listingId, documentOrder, signaturePackageDocumentOrder } = req.body;
 
   // Memory monitoring
@@ -1060,9 +1040,22 @@ exports.createBuyerSignaturePacket = async (req, res) => {
       });
     }
 
-    for (const document of selectedDocuments) {
+    for (let docIndex = 0; docIndex < selectedDocuments.length; docIndex++) {
+      const document = selectedDocuments[docIndex];
       try {
+        const currentDoc = docIndex + 1;
         console.log(`Processing document: ${document.title}`);
+        
+        // Send progress update
+        if (progressCallback) {
+          progressCallback({
+            progress: docIndex,
+            currentDocument: currentDoc,
+            totalDocuments: selectedDocuments.length,
+            documentName: document.title,
+            status: `Processing document ${currentDoc} of ${selectedDocuments.length}: ${document.title}`
+          });
+        }
         
         const sasToken = generateSASToken(document.azureKey);
         const documentUrlWithSAS = `${document.thumbnailUrl}?${sasToken}`;
@@ -1107,7 +1100,14 @@ exports.createBuyerSignaturePacket = async (req, res) => {
           // This completely bypasses PDF corruption issues
           console.log(`Converting selected pages from ${document.title} to images first...`);
           
-          await convertSelectedPagesToImages(document, existingPdfBytes, mergedPdf, processingErrors);
+          await convertSelectedPagesToImages(document, existingPdfBytes, mergedPdf, processingErrors, (status) => {
+      console.log(`Progress: ${status}`);
+      if (progressCallback) {
+        progressCallback({
+          status: status
+        });
+      }
+    });
           
         } catch (pdfError) {
           const errorMsg = `Error loading PDF for document ${document.title}: ${pdfError.message}`;
@@ -1233,6 +1233,18 @@ exports.createBuyerSignaturePacket = async (req, res) => {
     const totalPages = mergedPdf.getPageCount();
     
     console.log(`Signature package created successfully: ${successfulDocuments}/${selectedDocuments.length} documents processed, ${totalPages} pages total`);
+    
+    // Send final progress update
+    if (progressCallback) {
+      progressCallback({
+        complete: true,
+        currentDocument: selectedDocuments.length,
+        totalDocuments: selectedDocuments.length,
+        status: 'Signature package created successfully!'
+      });
+      res.end();
+      return;
+    }
     
     // Return the saved document along with any processing errors
     const response = {

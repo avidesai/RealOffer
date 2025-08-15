@@ -1,0 +1,285 @@
+/* CreateSignaturePackageProgress.css */
+
+.csp-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  font-family: 'Inter', sans-serif;
+}
+
+.csp-modal {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 16px;
+  width: 900px;
+  max-width: 95%;
+  height: 90vh;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow-y: auto;
+  animation: csp-fadeIn 0.3s ease-in-out;
+}
+
+@keyframes csp-fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.csp-header {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.csp-header h2 {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 1.5em;
+  margin: 0;
+  color: #333;
+  font-weight: 600;
+}
+
+.csp-close-button {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  font-weight: 400;
+  z-index: 2;
+}
+
+.csp-close-button:hover,
+.csp-close-button:focus {
+  color: #fff;
+  background-color: #e74c3c;
+  border-color: #e74c3c;
+  box-shadow: 0 6px 16px rgba(231, 76, 60, 0.2);
+  outline: none;
+}
+
+.csp-content {
+  padding: 0.5rem 0.5rem 1.5rem 0.5rem;
+  background: #f7fafd;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  margin-bottom: 1rem;
+}
+
+.csp-loading {
+  padding: 3rem 0;
+}
+
+.csp-progress-container {
+  margin-bottom: 3rem;
+}
+
+.csp-progress {
+  width: 100%;
+  height: 8px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.csp-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.csp-progress-text {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.csp-progress-percentage {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.csp-progress-fraction {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+.csp-current-document {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e9ecef;
+}
+
+.csp-document-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.csp-document-icon {
+  font-size: 1.5rem;
+  margin-top: 0.125rem;
+}
+
+.csp-document-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.csp-document-name {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.csp-document-status {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 0.875rem;
+  color: #28a745;
+  font-weight: 500;
+  background: #d4edda;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  display: inline-block;
+  border-left: 3px solid #28a745;
+}
+
+.csp-completion {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.csp-success-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.csp-completion h3 {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #28a745;
+  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.csp-completion p {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #666;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.csp-close-button-success {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.csp-close-button-success:hover {
+  background: #218838;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.csp-error {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.csp-error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.csp-error h3 {
+  color: #dc3545;
+  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
+}
+
+.csp-error p {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.csp-retry-button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.csp-retry-button:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .csp-modal {
+    width: 98%;
+    padding: 1.25rem;
+    border-radius: 12px;
+  }
+
+  .csp-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .csp-current-document {
+    padding: 1rem;
+  }
+  
+  .csp-document-name {
+    font-size: 0.9rem;
+  }
+  
+  .csp-document-status {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
+  }
+}

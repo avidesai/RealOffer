@@ -31,6 +31,7 @@ router.get('/:id/refresh-token', DocumentController.refreshDocumentToken);
 
 // Signature package creation route
 router.put('/createBuyerSignaturePacket', DocumentController.createBuyerSignaturePacket);
+router.put('/createBuyerSignaturePacketWithProgress', DocumentController.createBuyerSignaturePacketWithProgress);
 router.put('/updateSignedStatus', DocumentController.updateDocumentSignedStatus);
 
 // Document download route (specific route before generic ones)

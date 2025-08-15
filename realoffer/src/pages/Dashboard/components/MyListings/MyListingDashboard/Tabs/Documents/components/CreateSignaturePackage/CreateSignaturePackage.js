@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useAuth } from '../../../../../../../../../context/AuthContext';
 import DocumentsListSelection from './components/DocumentsListSelection/DocumentsListSelection';
 import SignaturePDFViewer from './components/SignaturePDFViewer/SignaturePDFViewer';
+import CreateSignaturePackageProgress from './CreateSignaturePackageProgress';
 import './CreateSignaturePackage.css';
 
 const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }) => {
@@ -17,6 +18,15 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
   const [signaturePackage, setSignaturePackage] = useState(null);
   const [hasSignaturePackage, setHasSignaturePackage] = useState(false);
   const [error, setError] = useState(null);
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [creationProgress, setCreationProgress] = useState({
+    currentDocument: 0,
+    totalDocuments: 0,
+    currentDocumentName: '',
+    processingMessage: '',
+    isComplete: false,
+    error: null
+  });
 
   const handleDocumentSelect = useCallback((document) => {
     if (!document || !document.thumbnailUrl) return;
@@ -200,86 +210,161 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
         return;
       }
       
-      // Retry logic for network errors
-      let lastError;
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        try {
-          await axios.put(
-            `${process.env.REACT_APP_BACKEND_URL}/api/documents/createBuyerSignaturePacket`, 
-            { 
-              listingId,
-              documentOrder: documentOrder, // Send the main document order for fallback
-              signaturePackageDocumentOrder: signaturePackageDocumentOrder // Send the signature package document order
-            },
-            {
-              headers: {
-                'Authorization': `Bearer ${token}`
-              },
-              timeout: 120000 // 120 second timeout for up to 30 documents
-            }
-          );
+      // Count selected documents for progress tracking
+      const selectedDocuments = documents.filter(doc => doc.signaturePackagePages.length > 0);
+      
+      // Initialize progress tracking
+      setCreationProgress({
+        currentDocument: 0,
+        totalDocuments: selectedDocuments.length,
+        currentDocumentName: '',
+        processingMessage: 'Initializing signature package creation...',
+        isComplete: false,
+        error: null
+      });
+      setShowProgressModal(true);
+      
+      // Use streaming API call to track progress
+      try {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/documents/createBuyerSignaturePacketWithProgress`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            listingId,
+            documentOrder: documentOrder,
+            signaturePackageDocumentOrder: signaturePackageDocumentOrder
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Signature package creation failed');
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          buffer += chunk;
+          const lines = buffer.split('\n');
           
-          onClose();
-          refreshDocuments();
-          return; // Success, exit the retry loop
-        } catch (error) {
-          lastError = error;
-          console.error(`Attempt ${attempt} failed:`, error);
-          
-          // If it's a network error or 502/503/504, retry
-          if (error.code === 'ERR_NETWORK' || 
-              error.response?.status === 502 || 
-              error.response?.status === 503 || 
-              error.response?.status === 504) {
-            if (attempt < 3) {
-              // Wait before retrying (exponential backoff)
-              await new Promise(resolve => setTimeout(resolve, attempt * 1000));
-              continue;
+          // Keep the last line in buffer if it's incomplete
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const jsonData = line.slice(6).trim();
+                if (!jsonData) continue;
+                
+                const data = JSON.parse(jsonData);
+                
+                if (data.error) {
+                  throw new Error(data.error);
+                }
+                
+                if (data.progress !== undefined) {
+                  // Update progress
+                  setCreationProgress(prev => ({
+                    ...prev,
+                    currentDocument: data.currentDocument,
+                    totalDocuments: data.totalDocuments,
+                    currentDocumentName: data.documentName || prev.currentDocumentName
+                  }));
+                }
+                
+                if (data.status) {
+                  // Update processing message
+                  setCreationProgress(prev => ({
+                    ...prev,
+                    processingMessage: data.status
+                  }));
+                }
+                
+                if (data.complete) {
+                  // Creation complete
+                  setCreationProgress(prev => ({
+                    ...prev,
+                    isComplete: true,
+                    processingMessage: 'Signature package created successfully!'
+                  }));
+                  break;
+                }
+              } catch (parseError) {
+                console.warn('Failed to parse progress data:', parseError);
+              }
             }
           }
-          
-          // For other errors, don't retry
-          break;
         }
+        
+        // Process any remaining data in buffer
+        if (buffer.trim()) {
+          const lines = buffer.split('\n');
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const jsonData = line.slice(6).trim();
+                if (!jsonData) continue;
+                
+                const data = JSON.parse(jsonData);
+                
+                if (data.complete) {
+                  setCreationProgress(prev => ({
+                    ...prev,
+                    isComplete: true,
+                    processingMessage: 'Signature package created successfully!'
+                  }));
+                  break;
+                }
+              } catch (parseError) {
+                console.warn('Failed to parse final buffer data:', parseError);
+              }
+            }
+          }
+        }
+        
+      } catch (error) {
+        console.error('Signature package creation failed:', error);
+        setCreationProgress(prev => ({
+          ...prev,
+          error: error.message || 'An error occurred during signature package creation. Please try again.'
+        }));
       }
       
-      // If we get here, all attempts failed
-      console.error('All retry attempts failed:', lastError);
-      
-      // Provide more specific error messages based on the error type
-      if (lastError.response?.status === 400) {
-        const errorData = lastError.response.data;
-        if (errorData.error === 'TOO_MANY_DOCUMENTS') {
-          setError('Too many documents selected. Please reduce the number of documents to 20 or fewer.');
-        } else if (errorData.error === 'NO_PAGES_SELECTED') {
-          setError('No pages were selected for the signature package. Please select at least one page.');
-        } else if (errorData.message) {
-          setError(errorData.message);
-        } else {
-          setError('Invalid request. Please check your document selections and try again.');
-        }
-      } else if (lastError.response?.status === 503) {
-        const errorData = lastError.response.data;
-        if (errorData.error === 'HIGH_MEMORY_USAGE') {
-          setError('Server is currently under high load. Please try again in a few minutes.');
-        } else if (errorData.error === 'SERVICE_UNAVAILABLE') {
-          setError('Service temporarily unavailable. Please try again in a few minutes.');
-        } else {
-          setError('Service temporarily unavailable. Please try again later.');
-        }
-      } else if (lastError.response?.status === 408) {
-        setError('Request timed out. Please try again with fewer documents or contact support.');
-      } else if (lastError.code === 'ERR_NETWORK') {
-        setError('Network connection error. Please check your internet connection and try again.');
-      } else {
-        setError('Failed to create signature package after multiple attempts. Please try again later or contact support if the issue persists.');
-      }
     } finally {
       setIsLoading(false);
     }
   };
 
   const buttonText = hasSignaturePackage ? "Update Disclosure Signature Packet" : "Create Disclosure Signature Packet";
+
+  if (showProgressModal) {
+    return (
+      <CreateSignaturePackageProgress
+        isOpen={showProgressModal}
+        onClose={() => {
+          setShowProgressModal(false);
+          if (creationProgress.isComplete) {
+            onClose();
+            refreshDocuments();
+          }
+        }}
+        currentDocument={creationProgress.currentDocument}
+        totalDocuments={creationProgress.totalDocuments}
+        currentDocumentName={creationProgress.currentDocumentName}
+        processingMessage={creationProgress.processingMessage}
+        isComplete={creationProgress.isComplete}
+        error={creationProgress.error}
+      />
+    );
+  }
 
   return (
     isOpen && (
