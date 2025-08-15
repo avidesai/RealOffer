@@ -110,25 +110,158 @@ const attemptSinglePageImageExtraction = async (document, existingPdfBytes, page
   }
 };
 
+// NEW MAIN FUNCTION: Convert selected pages directly to images, then add to PDF
+const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPdf, processingErrors) => {
+  const tempDir = os.tmpdir();
+  const tempPdfPath = path.join(tempDir, `temp_convert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.pdf`);
+  
+  try {
+    // Ensure temp directory exists
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+    
+    // Write PDF to temp file for pdf2pic
+    fs.writeFileSync(tempPdfPath, Buffer.from(existingPdfBytes));
+    
+    // Verify file was written
+    if (!fs.existsSync(tempPdfPath)) {
+      throw new Error('Failed to write temporary PDF file');
+    }
+    
+    console.log(`Successfully wrote temp file for ${document.title}`);
+    
+    // Sort the page numbers in ascending order
+    const sortedPageNumbers = [...document.signaturePackagePages].sort((a, b) => a - b);
+    
+    // Configure pdf2pic for high quality conversion
+    const convert = fromPath(tempPdfPath, {
+      density: 300,           // High DPI for quality
+      saveFilename: "page",
+      savePath: tempDir,
+      format: "png",
+      width: 2480,           // High resolution
+      height: 3508           // A4 size at 300 DPI
+    });
+    
+    for (const pageNumber of sortedPageNumbers) {
+      try {
+        console.log(`Converting page ${pageNumber} of ${document.title} to image...`);
+        
+        // Convert the specific page to image
+        const result = await convert(pageNumber, { responseType: "buffer" });
+        
+        if (result && result.buffer) {
+          // Create a new PDF page from the image
+          const imagePdf = await PDFDocument.create();
+          const pngImage = await imagePdf.embedPng(result.buffer);
+          
+          // Create page with proper size (A4)
+          const page = imagePdf.addPage([595, 842]); // A4 size in points
+          
+          // Calculate scaling to fit image on page while maintaining aspect ratio
+          const imageAspectRatio = pngImage.width / pngImage.height;
+          const pageAspectRatio = 595 / 842;
+          
+          let imageWidth, imageHeight;
+          if (imageAspectRatio > pageAspectRatio) {
+            // Image is wider relative to page
+            imageWidth = 555; // Leave 20pt margin
+            imageHeight = imageWidth / imageAspectRatio;
+          } else {
+            // Image is taller relative to page
+            imageHeight = 802; // Leave 20pt margin
+            imageWidth = imageHeight * imageAspectRatio;
+          }
+          
+          // Center the image on the page
+          const x = (595 - imageWidth) / 2;
+          const y = (842 - imageHeight) / 2;
+          
+          page.drawImage(pngImage, {
+            x: x,
+            y: y,
+            width: imageWidth,
+            height: imageHeight,
+          });
+          
+          // Copy this page to the merged PDF
+          const [copiedPage] = await mergedPdf.copyPages(imagePdf, [0]);
+          mergedPdf.addPage(copiedPage);
+          
+          console.log(`Successfully added page ${pageNumber} from ${document.title} as image`);
+        } else {
+          throw new Error('pdf2pic returned no image buffer');
+        }
+      } catch (pageError) {
+        console.error(`Failed to convert page ${pageNumber} of ${document.title}:`, pageError.message);
+        
+        // Create a placeholder page for failed conversions
+        try {
+          const placeholderPdf = await PDFDocument.create();
+          const placeholderPage = placeholderPdf.addPage([595, 842]); // A4 size
+          
+          // Add placeholder text
+          placeholderPage.drawText(`${document.title}`, {
+            x: 50,
+            y: 750,
+            size: 14
+          });
+          placeholderPage.drawText(`Page ${pageNumber} could not be converted from PDF.`, {
+            x: 50,
+            y: 720,
+            size: 12
+          });
+          placeholderPage.drawText(`This may be due to PDF corruption or security restrictions.`, {
+            x: 50,
+            y: 690,
+            size: 10
+          });
+          placeholderPage.drawText(`Please review the original document.`, {
+            x: 50,
+            y: 660,
+            size: 10
+          });
+          
+          // Copy placeholder to merged PDF
+          const [placeholder] = await mergedPdf.copyPages(placeholderPdf, [0]);
+          mergedPdf.addPage(placeholder);
+          
+          const warningMsg = `Created placeholder for page ${pageNumber} of ${document.title} - conversion failed`;
+          console.warn(warningMsg);
+          processingErrors.push(warningMsg);
+        } catch (placeholderError) {
+          const errorMsg = `Failed to create placeholder for page ${pageNumber} of ${document.title}: ${placeholderError.message}`;
+          console.error(errorMsg);
+          processingErrors.push(errorMsg);
+        }
+      }
+    }
+    
+  } catch (error) {
+    console.error(`Image conversion failed for ${document.title}:`, error.message);
+    const errorMsg = `Could not process ${document.title}: ${error.message}`;
+    processingErrors.push(errorMsg);
+  } finally {
+    // Clean up temp file
+    try {
+      if (fs.existsSync(tempPdfPath)) {
+        fs.unlinkSync(tempPdfPath);
+        console.log(`Cleaned up temp file for ${document.title}`);
+      }
+    } catch (cleanupError) {
+      console.warn(`Failed to cleanup temp file ${tempPdfPath}:`, cleanupError.message);
+    }
+  }
+};
+
 // Helper function to extract pages using image-based conversion as a fallback
 const attemptImageBasedExtraction = async (document, existingPdfBytes, mergedPdf, processingErrors) => {
   console.log(`Attempting image-based extraction for ${document.title}`);
   
   try {
-    // Sort the page numbers in ascending order
-    const sortedPageNumbers = [...document.signaturePackagePages].sort((a, b) => a - b);
-    
-    for (const pageNumber of sortedPageNumbers) {
-      try {
-        console.log(`Converting page ${pageNumber} of ${document.title} to image...`);
-        await attemptSinglePageImageExtraction(document, existingPdfBytes, pageNumber, mergedPdf);
-        console.log(`Successfully converted page ${pageNumber} of ${document.title} via image method`);
-      } catch (pageError) {
-        const errorMsg = `Error converting page ${pageNumber} from ${document.title} via image method: ${pageError.message}`;
-        console.error(errorMsg);
-        processingErrors.push(errorMsg);
-      }
-    }
+    // Use the new streamlined approach
+    await convertSelectedPagesToImages(document, existingPdfBytes, mergedPdf, processingErrors);
   } catch (error) {
     const errorMsg = `Image-based extraction failed for ${document.title}: ${error.message}`;
     console.error(errorMsg);
@@ -856,227 +989,11 @@ exports.createBuyerSignaturePacket = async (req, res) => {
             continue;
           }
 
-          // Don't skip corrupted PDFs - try to repair and use them
-          // We'll handle corruption during the loading process instead
-
-          // Multi-layered approach to handle corrupted PDFs
-          let existingPdf = null;
-          let loadMethod = 'unknown';
+          // NEW APPROACH: Convert selected pages directly to images, then to PDF
+          // This completely bypasses PDF corruption issues
+          console.log(`Converting selected pages from ${document.title} to images first...`);
           
-          // Suppress console warnings during PDF loading to reduce noise
-          const originalConsoleWarn = console.warn;
-          const originalConsoleError = console.error;
-          const originalConsoleLog = console.log;
-          
-          // Suppress all PDF parsing noise
-          console.warn = (message) => {
-            // Only suppress known PDF parsing warnings
-            if (typeof message === 'string' && (
-              message.includes('filter "Crypt" not supported') ||
-              message.includes('TT: undefined function') ||
-              message.includes('Trying to parse invalid object') ||
-              message.includes('Invalid object ref')
-            )) {
-              return; // Suppress these specific warnings
-            }
-            originalConsoleWarn(message); // Keep other warnings
-          };
-          console.error = () => {}; // Suppress errors during loading
-          
-          // Method 1: Try standard pdf-lib loading
-          try {
-            existingPdf = await PDFDocument.load(existingPdfBytes, { 
-              ignoreEncryption: true,
-              throwOnInvalidObject: false,
-              updateMetadata: false
-            });
-            loadMethod = 'standard';
-          } catch (error1) {
-            // Method 2: Try creating a new PDF and copying content
-            try {
-              // Create a completely new PDF document
-              const cleanPdf = await PDFDocument.create();
-              
-              // Try to load the corrupted PDF with very lenient settings
-              const corruptedPdf = await PDFDocument.load(existingPdfBytes, { 
-                ignoreEncryption: true,
-                throwOnInvalidObject: false,
-                updateMetadata: false
-              });
-              
-              // Copy all pages to a new clean PDF
-              const pageCount = corruptedPdf.getPageCount();
-              for (let i = 0; i < pageCount; i++) {
-                try {
-                  const [copiedPage] = await cleanPdf.copyPages(corruptedPdf, [i]);
-                  cleanPdf.addPage(copiedPage);
-                } catch (pageError) {
-                  console.warn(`Failed to copy page ${i + 1} during repair: ${pageError.message}`);
-                }
-              }
-              
-              existingPdf = cleanPdf;
-              loadMethod = 'repair-and-copy';
-            } catch (error2) {
-              // Method 3: Use image-based extraction as a last resort
-              try {
-                console.log(`Attempting image-based extraction for highly corrupted PDF: ${document.title}`);
-                await attemptImageBasedExtraction(document, existingPdfBytes, mergedPdf, processingErrors);
-                continue; // Skip the normal PDF processing since we handled it differently
-              } catch (error3) {
-                // Method 4: Final fallback - include entire PDF as-is
-                try {
-                  console.log(`Final fallback: including entire PDF ${document.title} as-is`);
-                  
-                  // Create a simple PDF page with a message indicating the issue
-                  const fallbackPdf = await PDFDocument.create();
-                  const page = fallbackPdf.addPage([612, 792]); // Standard letter size
-                  
-                  // Add a simple text message
-                  page.drawText(`Document: ${document.title}`, {
-                    x: 50,
-                    y: 700,
-                    size: 12
-                  });
-                  page.drawText(`This document contains corrupted data and could not be fully processed.`, {
-                    x: 50,
-                    y: 670,
-                    size: 10
-                  });
-                  page.drawText(`Please review the original document separately.`, {
-                    x: 50,
-                    y: 650,
-                    size: 10
-                  });
-                  
-                  // Copy this placeholder page to the merged PDF
-                  const [placeholderPage] = await mergedPdf.copyPages(fallbackPdf, [0]);
-                  mergedPdf.addPage(placeholderPage);
-                  
-                  const warningMsg = `Included placeholder for corrupted PDF: ${document.title}`;
-                  console.warn(warningMsg);
-                  processingErrors.push(warningMsg);
-                  continue;
-                } catch (error4) {
-                  console.warn = originalConsoleWarn; // Restore console functions
-                  console.error = originalConsoleError;
-                  console.log = originalConsoleLog;
-                  
-                  console.error(`All methods failed for ${document.title}:`, error4.message);
-                  const errorMsg = `Cannot process PDF ${document.title} - tried all available repair methods`;
-                  processingErrors.push(errorMsg);
-                  continue;
-                }
-              }
-            }
-          }
-          
-          console.warn = originalConsoleWarn; // Restore console functions
-          console.error = originalConsoleError;
-          console.log = originalConsoleLog;
-          
-          console.log(`Successfully loaded ${document.title} using ${loadMethod} method`);
-
-          // Get page count safely with fallback
-          let pageCount = 0;
-          let useEstimatedPageCount = false;
-          
-          try {
-            pageCount = existingPdf.getPageCount();
-            console.log(`Document ${document.title} has ${pageCount} pages`);
-          } catch (countError) {
-            console.warn(`Cannot get page count for ${document.title}:`, countError.message);
-            
-            // Fallback: assume the document has enough pages for the selected page numbers
-            const maxSelectedPage = Math.max(...document.signaturePackagePages);
-            pageCount = maxSelectedPage; // Use the highest selected page as the estimated page count
-            useEstimatedPageCount = true;
-            
-            console.log(`Using estimated page count ${pageCount} for ${document.title} based on selected pages`);
-            const warningMsg = `Using estimated page count for ${document.title} due to page structure corruption`;
-            processingErrors.push(warningMsg);
-          }
-          
-          // Sort the page numbers in ascending order
-          const sortedPageNumbers = [...document.signaturePackagePages].sort((a, b) => a - b);
-          
-          for (const pageNumber of sortedPageNumbers) {
-            // For estimated page counts, be more lenient with page validation
-            const isValidPage = useEstimatedPageCount ? pageNumber > 0 : (pageNumber > 0 && pageNumber <= pageCount);
-            
-            if (isValidPage) {
-              try {
-                const [copiedPage] = await mergedPdf.copyPages(existingPdf, [pageNumber - 1]);
-                mergedPdf.addPage(copiedPage);
-                console.log(`Successfully copied page ${pageNumber} from ${document.title}`);
-              } catch (pageError) {
-                console.error(`Error copying page ${pageNumber} from ${document.title}:`, pageError.message);
-                
-                // If page copying fails, try the image-based extraction for this specific page
-                try {
-                  console.log(`Attempting image-based extraction for page ${pageNumber} of ${document.title}`);
-                  await attemptSinglePageImageExtraction(document, existingPdfBytes, pageNumber, mergedPdf);
-                  console.log(`Successfully extracted page ${pageNumber} from ${document.title} using image method`);
-                } catch (imageError) {
-                  console.error(`Image extraction also failed for page ${pageNumber} of ${document.title}:`, imageError.message);
-                  
-                  // Final fallback: create a placeholder page
-                  try {
-                    console.log(`Creating placeholder for page ${pageNumber} of ${document.title}`);
-                    const placeholderPdf = await PDFDocument.create();
-                    const placeholderPage = placeholderPdf.addPage([612, 792]); // Standard letter size
-                    
-                    // Add placeholder text
-                    placeholderPage.drawText(`${document.title}`, {
-                      x: 50,
-                      y: 700,
-                      size: 12
-                    });
-                    placeholderPage.drawText(`Page ${pageNumber} could not be extracted due to corruption.`, {
-                      x: 50,
-                      y: 670,
-                      size: 10
-                    });
-                    placeholderPage.drawText(`Please review the original document.`, {
-                      x: 50,
-                      y: 650,
-                      size: 10
-                    });
-                    
-                    // Copy placeholder to merged PDF
-                    const [placeholder] = await mergedPdf.copyPages(placeholderPdf, [0]);
-                    mergedPdf.addPage(placeholder);
-                    
-                    const warningMsg = `Created placeholder for page ${pageNumber} of ${document.title} - original page corrupted`;
-                    console.warn(warningMsg);
-                    processingErrors.push(warningMsg);
-                  } catch (placeholderError) {
-                    const errorMsg = `Failed to create placeholder for page ${pageNumber} of ${document.title}: ${placeholderError.message}`;
-                    console.error(errorMsg);
-                    processingErrors.push(errorMsg);
-                  }
-                }
-              }
-            } else if (!useEstimatedPageCount) {
-              const errorMsg = `Invalid page number ${pageNumber} for document ${document.title} (document has ${pageCount} pages)`;
-              console.error(errorMsg);
-              processingErrors.push(errorMsg);
-            } else {
-              // For estimated page counts, try anyway since we don't know the real count
-              try {
-                const [copiedPage] = await mergedPdf.copyPages(existingPdf, [pageNumber - 1]);
-                mergedPdf.addPage(copiedPage);
-                console.log(`Successfully copied page ${pageNumber} from ${document.title} (estimated page count)`);
-              } catch (pageError) {
-                const errorMsg = `Page ${pageNumber} not found in ${document.title} (estimated page count was incorrect)`;
-                console.warn(errorMsg);
-                processingErrors.push(errorMsg);
-              }
-            }
-          }
-          
-          // Clean up memory after processing each document
-          // Note: pdf-lib doesn't have a destroy() method, so we just let it be garbage collected
+          await convertSelectedPagesToImages(document, existingPdfBytes, mergedPdf, processingErrors);
           
         } catch (pdfError) {
           const errorMsg = `Error loading PDF for document ${document.title}: ${pdfError.message}`;
