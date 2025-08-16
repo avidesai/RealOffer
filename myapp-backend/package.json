@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node --max-old-space-size=4096 --expose-gc server.js",
-    "dev": "node --max-old-space-size=4096 --expose-gc server.js"
+    "dev": "node --max-old-space-size=4096 --expose-gc server.js",
+    "build:docker": "docker build -t realoffer-backend .",
+    "run:docker": "docker run -p 4000:4000 --env-file .env realoffer-backend"
   },
   "keywords": [],
   "author": "",

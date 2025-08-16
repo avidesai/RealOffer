@@ -198,7 +198,7 @@ const convertPageWithImageMagick = async (pdfPath, pageNumber) => {
   });
 };
 
-// HELPER FUNCTION: Attempt to remove permission restrictions using pdf-lib ignoreEncryption
+// HELPER FUNCTION: Attempt to remove permission restrictions using qpdf/ghostscript if available, else pdf-lib
 const removePasswordRestrictions = async (pdfBytes, documentTitle) => {
   try {
     // Convert ArrayBuffer to Buffer if necessary
@@ -210,30 +210,90 @@ const removePasswordRestrictions = async (pdfBytes, documentTitle) => {
     } else {
       pdfBuffer = Buffer.from(pdfBytes);
     }
-    
+
+    const tempDir = os.tmpdir();
+    const inputPath = path.join(tempDir, `restricted_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.pdf`);
+    const qpdfOutputPath = path.join(tempDir, `unrestricted_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.pdf`);
+    const gsOutputPath = path.join(tempDir, `gs_unrestricted_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.pdf`);
+
+    // Write input
+    try {
+      fs.writeFileSync(inputPath, pdfBuffer);
+    } catch (e) {
+      console.log(`${documentTitle}: Failed to write temp input file: ${e.message}`);
+    }
+
+    // Try qpdf if present
+    try {
+      const { exec } = require('child_process');
+      const util = require('util');
+      const execAsync = util.promisify(exec);
+
+      console.log(`${documentTitle}: Attempting qpdf --decrypt...`);
+      await execAsync(`qpdf --decrypt "${inputPath}" "${qpdfOutputPath}"`);
+      if (fs.existsSync(qpdfOutputPath) && fs.statSync(qpdfOutputPath).size > 0) {
+        const unrestricted = fs.readFileSync(qpdfOutputPath);
+        try { fs.unlinkSync(inputPath); } catch (_) {}
+        try { fs.unlinkSync(qpdfOutputPath); } catch (_) {}
+        console.log(`${documentTitle}: qpdf succeeded (${unrestricted.length} bytes)`);
+        return unrestricted;
+      }
+      console.log(`${documentTitle}: qpdf produced no output, trying ghostscript...`);
+    } catch (qerr) {
+      console.log(`${documentTitle}: qpdf not available or failed: ${qerr.message}`);
+    }
+
+    // Try ghostscript to rewrite and strip permissions (owner password)
+    try {
+      const { exec } = require('child_process');
+      const util = require('util');
+      const execAsync = util.promisify(exec);
+
+      console.log(`${documentTitle}: Attempting Ghostscript rewrite...`);
+      // -dPDFSETTINGS is optional; this command rewrites PDF and often drops permission bits
+      const gsCmd = `gs -o "${gsOutputPath}" -sDEVICE=pdfwrite -dSAFER -dNOPAUSE -dBATCH "${inputPath}"`;
+      await execAsync(gsCmd);
+      if (fs.existsSync(gsOutputPath) && fs.statSync(gsOutputPath).size > 0) {
+        const unrestricted = fs.readFileSync(gsOutputPath);
+        try { fs.unlinkSync(inputPath); } catch (_) {}
+        try { fs.unlinkSync(gsOutputPath); } catch (_) {}
+        console.log(`${documentTitle}: Ghostscript succeeded (${unrestricted.length} bytes)`);
+        return unrestricted;
+      }
+      console.log(`${documentTitle}: Ghostscript produced no output, falling back to pdf-lib...`);
+    } catch (gserr) {
+      console.log(`${documentTitle}: Ghostscript not available or failed: ${gserr.message}`);
+    }
+
+    // Cleanup temp inputs from CLI branch
+    try { fs.unlinkSync(inputPath); } catch (_) {}
+    try { fs.unlinkSync(qpdfOutputPath); } catch (_) {}
+    try { fs.unlinkSync(gsOutputPath); } catch (_) {}
+
+    // pdf-lib bypass methods
     console.log(`${documentTitle}: Attempting to bypass PDF restrictions using pdf-lib ignoreEncryption...`);
-    
+
     // Method 1: Try to load with ignoreEncryption and copy pages to new PDF
     try {
-      const restrictedPdf = await PDFDocument.load(pdfBuffer, { 
+      const restrictedPdf = await PDFDocument.load(pdfBuffer, {
         ignoreEncryption: true,
         updateMetadata: false,
         parseSpeed: ParseSpeeds.Fastest
       });
-      
+
       console.log(`${documentTitle}: Successfully loaded restricted PDF with ignoreEncryption`);
-      
+
       // Try different approaches to access page information
       let pageCount = 0;
       let pages = [];
-      
+
       // Try multiple methods to get page count
       try {
         pageCount = restrictedPdf.getPageCount();
         console.log(`${documentTitle}: Page count via getPageCount(): ${pageCount}`);
       } catch (pageCountError) {
         console.log(`${documentTitle}: getPageCount() failed, trying alternative methods`);
-        
+
         // Try to access pages directly
         try {
           pages = restrictedPdf.getPages();
@@ -241,28 +301,23 @@ const removePasswordRestrictions = async (pdfBytes, documentTitle) => {
           console.log(`${documentTitle}: Page count via getPages().length: ${pageCount}`);
         } catch (getPagesError) {
           console.log(`${documentTitle}: getPages() also failed, trying catalog inspection`);
-          
+
           // Last resort: try to inspect the PDF catalog structure
           try {
-            // Access internal PDF structure (this is more advanced)
             const catalog = restrictedPdf.catalog;
             if (catalog && catalog.Pages) {
-              // Try to estimate page count from document structure
-              pageCount = 3; // Conservative estimate for disclosure documents
+              pageCount = 3; // Conservative estimate
               console.log(`${documentTitle}: Using estimated page count: ${pageCount}`);
             }
-          } catch (catalogError) {
-            console.log(`${documentTitle}: Catalog inspection failed`);
+          } catch (_) {
+            // ignore
           }
         }
       }
-      
+
       if (pageCount > 0) {
         try {
-          // Create a new unrestricted PDF and copy pages
           const unrestrictedPdf = await PDFDocument.create();
-          
-          // Try to copy pages one by one (safer approach)
           let successfulPages = 0;
           for (let i = 0; i < pageCount; i++) {
             try {
@@ -274,9 +329,8 @@ const removePasswordRestrictions = async (pdfBytes, documentTitle) => {
               console.log(`${documentTitle}: Failed to copy page ${i + 1}: ${pageError.message}`);
             }
           }
-          
+
           if (successfulPages > 0) {
-            // Save as unrestricted PDF
             const unrestrictedBytes = await unrestrictedPdf.save();
             console.log(`${documentTitle}: Successfully bypassed PDF restrictions - copied ${successfulPages}/${pageCount} pages (${unrestrictedBytes.length} bytes)`);
             return Buffer.from(unrestrictedBytes);
@@ -288,63 +342,47 @@ const removePasswordRestrictions = async (pdfBytes, documentTitle) => {
     } catch (method1Error) {
       console.log(`${documentTitle}: Method 1 (page copying) failed - ${method1Error.message}`);
     }
-    
+
     // Method 2: Try alternative save approaches to strip restrictions
     try {
       console.log(`${documentTitle}: Attempting method 2 - alternative save approaches...`);
-      
-      const restrictedPdf = await PDFDocument.load(pdfBuffer, { 
+
+      const restrictedPdf = await PDFDocument.load(pdfBuffer, {
         ignoreEncryption: true,
         updateMetadata: false
       });
-      
-      // Try multiple save configurations
+
       const saveConfigs = [
-        {
-          useObjectStreams: false,
-          addDefaultPage: false,
-          compress: false
-        },
-        {
-          useObjectStreams: true,
-          addDefaultPage: false
-        },
-        {
-          // Minimal config - just basic save
-        }
+        { useObjectStreams: false, addDefaultPage: false, compress: false },
+        { useObjectStreams: true, addDefaultPage: false },
+        {}
       ];
-      
-      for (let configIndex = 0; configIndex < saveConfigs.length; configIndex++) {
+
+      for (let i = 0; i < saveConfigs.length; i++) {
         try {
-          const config = saveConfigs[configIndex];
-          console.log(`${documentTitle}: Trying save config ${configIndex + 1}...`);
-          
-          const cleanedBytes = await restrictedPdf.save(config);
-          
-          // Test if the cleaned version works normally (without ignoreEncryption)
+          console.log(`${documentTitle}: Trying save config ${i + 1}...`);
+          const cleanedBytes = await restrictedPdf.save(saveConfigs[i]);
           try {
             const testCleanPdf = await PDFDocument.load(cleanedBytes);
             const cleanPageCount = testCleanPdf.getPageCount();
-            
             if (cleanPageCount > 0) {
-              console.log(`${documentTitle}: Successfully bypassed PDF restrictions using save config ${configIndex + 1} (${cleanedBytes.length} bytes)`);
+              console.log(`${documentTitle}: Successfully bypassed PDF restrictions using save config ${i + 1} (${cleanedBytes.length} bytes)`);
               return Buffer.from(cleanedBytes);
             }
-          } catch (testError) {
-            console.log(`${documentTitle}: Save config ${configIndex + 1} still produces encrypted PDF`);
+          } catch (_) {
+            console.log(`${documentTitle}: Save config ${i + 1} still produces encrypted PDF`);
           }
-        } catch (saveError) {
-          console.log(`${documentTitle}: Save config ${configIndex + 1} failed: ${saveError.message}`);
+        } catch (saveErr) {
+          console.log(`${documentTitle}: Save config ${i + 1} failed: ${saveErr.message}`);
         }
       }
     } catch (method2Error) {
       console.log(`${documentTitle}: Method 2 (save stripping) failed - ${method2Error.message}`);
     }
-    
-    // If both methods fail, return null to use image conversion
+
     console.log(`${documentTitle}: All PDF restriction bypass methods failed, will use image conversion`);
     return null;
-    
+
   } catch (error) {
     console.error(`${documentTitle}: Error in restriction removal process - ${error.message}`);
     return null;
@@ -1460,8 +1498,8 @@ const createBuyerSignaturePacketInternal = async (req, res, progressCallback) =>
           // Add additional validation for PDF content
           if (existingPdfBytes.byteLength === 0) {
             const errorMsg = `Document ${document.title} appears to be empty or corrupted`;
-            console.error(errorMsg);
-            processingErrors.push(errorMsg);
+                console.error(errorMsg);
+                processingErrors.push(errorMsg);
             continue;
           }
 
@@ -1614,7 +1652,7 @@ const createBuyerSignaturePacketInternal = async (req, res, progressCallback) =>
       res.end();
       return;
     }
-    
+
     // Return the saved document along with any processing errors
     const response = {
       document: savedDocument,
@@ -1683,10 +1721,10 @@ const createBuyerSignaturePacketInternal = async (req, res, progressCallback) =>
     
     // Prevent server crashes from unhandled errors
     if (!res.headersSent) {
-      res.status(500).json({ 
-        message: 'Error creating/updating disclosure signature packet', 
-        error: error.message 
-      });
+    res.status(500).json({ 
+      message: 'Error creating/updating disclosure signature packet', 
+      error: error.message 
+    });
     }
   }
 };
