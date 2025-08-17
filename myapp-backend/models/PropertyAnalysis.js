@@ -59,7 +59,11 @@ const propertyAnalysisSchema = new mongoose.Schema({
     rentRangeHigh: Number,
     latitude: Number,
     longitude: Number,
-    comparables: [rentalComparableSchema]
+    comparables: [rentalComparableSchema],
+    // Custom rent fields for user editing
+    customRent: Number,
+    originalRent: Number, // Store the original API value
+    isCustomRent: { type: Boolean, default: false }
   },
   subjectProperty: {
     address: String,

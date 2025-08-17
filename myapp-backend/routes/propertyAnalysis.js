@@ -11,4 +11,7 @@ router.get('/:propertyId', authMiddleware, propertyAnalysisController.getPropert
 // Update custom property value
 router.put('/:propertyId/custom-value', authMiddleware, propertyAnalysisController.updateCustomValue);
 
+// Update custom rent value
+router.put('/:propertyId/custom-rent', authMiddleware, propertyAnalysisController.updateCustomRent);
+
 module.exports = router; 

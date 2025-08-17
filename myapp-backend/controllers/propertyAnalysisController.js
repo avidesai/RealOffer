@@ -195,6 +195,18 @@ exports.getPropertyAnalysis = async (req, res) => {
         freshData.valuation.isCustomValue = false;
       }
       
+      // Preserve custom rent if it exists
+      if (analysis && analysis.rentEstimate && analysis.rentEstimate.isCustomRent) {
+        // Keep the custom rent and original rent, but update everything else
+        freshData.rentEstimate.customRent = analysis.rentEstimate.customRent;
+        freshData.rentEstimate.originalRent = analysis.rentEstimate.originalRent;
+        freshData.rentEstimate.isCustomRent = true;
+      } else {
+        // Store the original API rent when first fetched
+        freshData.rentEstimate.originalRent = freshData.rentEstimate.rent;
+        freshData.rentEstimate.isCustomRent = false;
+      }
+      
       // Create or update analysis document
       analysis = await PropertyAnalysis.findOneAndUpdate(
         { propertyId },
@@ -211,12 +223,20 @@ exports.getPropertyAnalysis = async (req, res) => {
       ? analysis.valuation.customValue 
       : analysis.valuation.estimatedValue;
 
+    // Determine which rent to return (custom or API)
+    const displayRent = analysis.rentEstimate.isCustomRent 
+      ? analysis.rentEstimate.customRent 
+      : analysis.rentEstimate.rent;
+
     res.json({
       valuation: {
         ...analysis.valuation.toObject(),
         estimatedValue: displayValue
       },
-      rentEstimate: analysis.rentEstimate,
+      rentEstimate: {
+        ...analysis.rentEstimate.toObject(),
+        rent: displayRent
+      },
       subjectProperty: analysis.subjectProperty,
       lastUpdated: analysis.lastUpdated
     });
@@ -296,6 +316,83 @@ exports.updateCustomValue = async (req, res) => {
     console.error('Error updating custom value:', error);
     res.status(500).json({
       message: 'Error updating custom value',
+      error: error.message
+    });
+  }
+};
+
+// Update custom rent value
+exports.updateCustomRent = async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+    const { customRent, revertToOriginal } = req.body;
+
+    // Get property details to verify ownership
+    const property = await PropertyListing.findById(propertyId);
+    if (!property) {
+      return res.status(404).json({ message: 'Property not found' });
+    }
+
+    // Check if user owns this property
+    const isCreator = property.createdBy.toString() === req.user.id;
+    const isAgent = property.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = property.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
+    
+    if (!isCreator && !isAgent && !isTeamMember) {
+      return res.status(403).json({ message: 'Not authorized to modify this property' });
+    }
+
+    // Find or create analysis document
+    let analysis = await PropertyAnalysis.findOne({ propertyId });
+    
+    if (!analysis) {
+      return res.status(404).json({ message: 'Property analysis not found' });
+    }
+
+    if (revertToOriginal) {
+      // Revert to original API rent
+      analysis.rentEstimate.isCustomRent = false;
+      analysis.rentEstimate.customRent = null;
+    } else {
+      // Set custom rent
+      if (typeof customRent !== 'number' || customRent <= 0) {
+        return res.status(400).json({ message: 'Custom rent must be a positive number' });
+      }
+      
+      analysis.rentEstimate.isCustomRent = true;
+      analysis.rentEstimate.customRent = customRent;
+      
+      // Store original rent if not already stored
+      if (!analysis.rentEstimate.originalRent) {
+        analysis.rentEstimate.originalRent = analysis.rentEstimate.rent;
+      }
+    }
+
+    await analysis.save();
+
+    // Return updated analysis data
+    const displayRent = analysis.rentEstimate.isCustomRent 
+      ? analysis.rentEstimate.customRent 
+      : analysis.rentEstimate.rent;
+
+    res.json({
+      valuation: {
+        ...analysis.valuation.toObject(),
+        estimatedValue: analysis.valuation.isCustomValue 
+          ? analysis.valuation.customValue 
+          : analysis.valuation.estimatedValue
+      },
+      rentEstimate: {
+        ...analysis.rentEstimate.toObject(),
+        rent: displayRent
+      },
+      subjectProperty: analysis.subjectProperty,
+      lastUpdated: analysis.lastUpdated
+    });
+  } catch (error) {
+    console.error('Error updating custom rent:', error);
+    res.status(500).json({
+      message: 'Error updating custom rent',
       error: error.message
     });
   }

@@ -21,6 +21,9 @@ const Analysis = ({ listingId }) => {
   const [editingValue, setEditingValue] = useState(false);
   const [editValue, setEditValue] = useState('');
   const [savingValue, setSavingValue] = useState(false);
+  const [editingRent, setEditingRent] = useState(false);
+  const [editRent, setEditRent] = useState('');
+  const [savingRent, setSavingRent] = useState(false);
   
   // Pagination state for comparables
   const [currentPage, setCurrentPage] = useState(0);
@@ -224,6 +227,125 @@ const Analysis = ({ listingId }) => {
     setEditValue(value);
   };
 
+  // Rent editing functions
+  const handleEditRent = () => {
+    const currentRent = analysisData.rentEstimate?.rent || 0;
+    setEditRent(formatCurrencyInput(currentRent));
+    setEditingRent(true);
+  };
+
+  const handleSaveRent = async () => {
+    // Remove dollar sign and commas, then convert to number
+    const numericRent = parseFloat(editRent.replace(/[$,]/g, ''));
+    if (!editRent || isNaN(numericRent) || numericRent <= 0) {
+      return;
+    }
+
+    try {
+      setSavingRent(true);
+      const response = await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/api/property-analysis/${listingId}/custom-rent`,
+        {
+          customRent: numericRent
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      setAnalysisData({
+        valuation: response.data.valuation,
+        rentEstimate: response.data.rentEstimate,
+        subjectProperty: response.data.subjectProperty,
+        lastUpdated: response.data.lastUpdated
+      });
+
+      setEditingRent(false);
+      setEditRent('');
+    } catch (err) {
+      console.error('Error saving custom rent:', err);
+      setError('Failed to save custom rent. Please try again.');
+    } finally {
+      setSavingRent(false);
+    }
+  };
+
+  const handleRevertRent = async () => {
+    try {
+      setSavingRent(true);
+      const response = await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/api/property-analysis/${listingId}/custom-rent`,
+        {
+          revertToOriginal: true
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      setAnalysisData({
+        valuation: response.data.valuation,
+        rentEstimate: response.data.rentEstimate,
+        subjectProperty: response.data.subjectProperty,
+        lastUpdated: response.data.lastUpdated
+      });
+
+      setEditingRent(false);
+      setEditRent('');
+    } catch (err) {
+      console.error('Error reverting rent:', err);
+      setError('Failed to revert rent. Please try again.');
+    } finally {
+      setSavingRent(false);
+    }
+  };
+
+  const handleCancelRentEdit = () => {
+    setEditingRent(false);
+    setEditRent('');
+  };
+
+  const handleRentKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSaveRent();
+    } else if (e.key === 'Escape') {
+      handleCancelRentEdit();
+    }
+  };
+
+  const handleRentInputChange = (e) => {
+    let value = e.target.value;
+    
+    // Remove all non-numeric characters except dollar sign and commas
+    value = value.replace(/[^\d$,]/g, '');
+    
+    // Remove leading dollar signs (keep only the first one)
+    value = value.replace(/^\$+/, '$');
+    
+    // If no dollar sign at the beginning, add one
+    if (!value.startsWith('$')) {
+      value = '$' + value;
+    }
+    
+    // Remove all commas first
+    value = value.replace(/,/g, '');
+    
+    // Remove the dollar sign temporarily for processing
+    const numericPart = value.substring(1);
+    
+    // Add commas in the correct positions
+    if (numericPart.length > 0) {
+      const formattedNumeric = numericPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      value = '$' + formattedNumeric;
+    }
+    
+    setEditRent(value);
+  };
+
   // Pagination functions for comparables
   const totalPages = Math.ceil((analysisData.valuation?.comparables?.length || 0) / COMPARABLES_PER_PAGE);
   
@@ -386,8 +508,81 @@ const Analysis = ({ listingId }) => {
 
                 <div className="value-section">
                   <div className="main-value">
-                    {formatCurrency(analysisData.rentEstimate?.rent)}
-                    <div className="value-label">Estimated Monthly Rent</div>
+                    {editingRent ? (
+                      <div className="value-edit-container">
+                        <input
+                          type="text"
+                          value={editRent}
+                          onChange={handleRentInputChange}
+                          onKeyDown={handleRentKeyPress}
+                          className="value-edit-input"
+                          placeholder="Enter rent"
+                          autoFocus
+                        />
+                        <div className="value-edit-actions">
+                          <button
+                            onClick={handleSaveRent}
+                            disabled={savingRent || !editRent || isNaN(parseFloat(editRent.replace(/[$,]/g, ''))) || parseFloat(editRent.replace(/[$,]/g, '')) <= 0}
+                            className="value-edit-save"
+                          >
+                            {savingRent ? 'Saving...' : 'Save'}
+                          </button>
+                          <button
+                            onClick={handleCancelRentEdit}
+                            disabled={savingRent}
+                            className="value-edit-cancel"
+                          >
+                            Cancel
+                          </button>
+                          {analysisData.rentEstimate?.isCustomRent && (
+                            <button
+                              onClick={handleRevertRent}
+                              disabled={savingRent}
+                              className="value-revert-button"
+                              title="Revert to original API rent"
+                            >
+                              Reset Rent
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="value-display-container">
+                        {formatCurrency(analysisData.rentEstimate?.rent)}
+                        <button
+                          onClick={handleEditRent}
+                          className="value-edit-button"
+                          title="Edit rent estimate"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M18.5 2.50023C18.8978 2.10243 19.4374 1.87891 20 1.87891C20.5626 1.87891 21.1022 2.10243 21.5 2.50023C21.8978 2.89804 22.1213 3.43762 22.1213 4.00023C22.1213 4.56284 21.8978 5.10243 21.5 5.50023L12 15.0002L8 16.0002L9 12.0002L18.5 2.50023Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </button>
+                      </div>
+                    )}
+                    <div className="value-label">
+                      Estimated Monthly Rent
+                      {analysisData.rentEstimate?.isCustomRent && (
+                        <div className="info-tooltip-container">
+                          <svg 
+                            className="info-icon" 
+                            width="16" 
+                            height="16" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                            <path d="M12 16V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M12 8H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          <div className="info-tooltip">
+                            This is a custom rent estimate set by the listing agent
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   {analysisData.rentEstimate?.rentRangeLow && analysisData.rentEstimate?.rentRangeHigh && (
                     <div className="value-range">
