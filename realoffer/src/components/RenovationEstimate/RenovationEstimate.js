@@ -231,7 +231,7 @@ const RenovationEstimate = ({ propertyId }) => {
   return (
     <div className="renovation-estimate">
       <div className="renovation-header">
-        <h3>Renovation Analysis</h3>
+        <h3>Renovation Estimate</h3>
         <div className="renovation-actions">
           <button 
             onClick={generateRenovationEstimate}
