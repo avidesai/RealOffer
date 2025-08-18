@@ -262,7 +262,7 @@ const processRenovationAnalysisInBackground = async (propertyId, property) => {
         console.log(`Sending batch ${i + 1} to Claude API with ${batch.length} images`);
         
         const response = await axios.post('https://api.anthropic.com/v1/messages', {
-          model: 'claude-3-5-sonnet-20241022',
+          model: 'claude-3-5-haiku-20241022',
           max_tokens: 4000,
           system: systemPrompt,
           messages: messages
@@ -300,7 +300,7 @@ const processRenovationAnalysisInBackground = async (propertyId, property) => {
             try {
               console.log('Processing single image...');
               const singleResponse = await axios.post('https://api.anthropic.com/v1/messages', {
-                model: 'claude-3-5-sonnet-20241022',
+                model: 'claude-3-5-haiku-20241022',
                 max_tokens: 4000,
                 system: systemPrompt,
                 messages: [
