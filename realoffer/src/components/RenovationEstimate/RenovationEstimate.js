@@ -287,19 +287,19 @@ const RenovationEstimate = ({ propertyId }) => {
             className={`filter-button ${selectedFilter === 'all' ? 'active' : ''}`}
             onClick={() => setSelectedFilter('all')}
           >
-            All Items ({renovationEstimate.breakdown.length})
+            All Categories ({renovationEstimate.breakdown.length})
           </button>
           <button 
             className={`filter-button ${selectedFilter === 'needed' ? 'active' : ''}`}
             onClick={() => setSelectedFilter('needed')}
           >
-            Needs Attention ({stats.neededItems})
+            Needs Work ({stats.neededItems})
           </button>
           <button 
             className={`filter-button ${selectedFilter === 'not-needed' ? 'active' : ''}`}
             onClick={() => setSelectedFilter('not-needed')}
           >
-            No Renovation Needed ({renovationEstimate.breakdown.length - stats.neededItems})
+            No Work Needed ({renovationEstimate.breakdown.length - stats.neededItems})
           </button>
           <button 
             className={`filter-button ${selectedFilter === 'high-priority' ? 'active' : ''}`}
