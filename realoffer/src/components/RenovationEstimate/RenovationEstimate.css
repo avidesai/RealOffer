@@ -19,18 +19,27 @@
 .renovation-loading,
 .renovation-error,
 .renovation-empty {
-  padding: 2rem;
+  padding: 3rem 2rem;
   text-align: center;
 }
 
+.renovation-loading p {
+  color: #2c3e50;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.4;
+}
+
 .renovation-loading .spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #f3f4f6;
-  border-top: 3px solid #007bff;
+  width: 48px;
+  height: 48px;
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #007bff;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
+  margin: 0 auto 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
 }
 
 .processing-note {
@@ -281,83 +290,98 @@
 .processing-status {
   background: #f8fafd;
   border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 1.5rem;
+  border-radius: 12px;
+  padding: 2rem;
   margin-bottom: 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: 2rem;
 }
 
 .processing-info {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
   flex: 1;
+  min-width: 0; /* Allow text to shrink if needed */
 }
 
 .processing-info .spinner {
-  width: 24px;
-  height: 24px;
-  border: 2px solid #e9ecef;
-  border-top: 2px solid #007bff;
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e9ecef;
+  border-top: 3px solid #007bff;
   border-radius: 50%;
   animation: spin 1s linear infinite;
+  flex-shrink: 0; /* Prevent spinner from shrinking */
+}
+
+.processing-text {
+  flex: 1;
+  min-width: 0; /* Allow text to shrink if needed */
 }
 
 .processing-text p {
   margin: 0;
   color: #2c3e50;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 500;
+  line-height: 1.4;
 }
 
 .processing-text .processing-note {
   color: #6c757d;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 400;
-  margin-top: 0.25rem;
+  margin-top: 0.5rem;
+  line-height: 1.3;
 }
 
 .manual-refresh-button {
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.25rem;
   background: #007bff;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
 }
 
 .manual-refresh-button:hover {
   background: #0056b3;
   transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
 }
 
 /* Progress Container */
 .progress-container {
-  margin: 1.5rem 0;
+  margin: 2rem 0;
   width: 100%;
+  flex-shrink: 0;
 }
 
 .progress-bar-container {
   width: 100%;
-  height: 8px;
-  background-color: #f5f5f5;
-  border-radius: 4px;
+  height: 10px;
+  background-color: #f0f0f0;
+  border-radius: 6px;
   overflow: hidden;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .progress-bar {
   height: 100%;
   background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
-  border-radius: 4px;
-  transition: width 0.3s ease;
+  border-radius: 6px;
+  transition: width 0.5s ease;
+  box-shadow: 0 1px 3px rgba(0, 123, 255, 0.3);
 }
 
 .progress-text {
@@ -365,18 +389,76 @@
   justify-content: space-between;
   align-items: center;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: 0 0.25rem;
 }
 
 .progress-percentage {
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 1.2rem;
+  font-weight: 700;
   color: #2c3e50;
 }
 
 .progress-fraction {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #6c757d;
   font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .processing-status {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+  
+  .processing-info {
+    gap: 1rem;
+  }
+  
+  .processing-info .spinner {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .processing-text p {
+    font-size: 0.95rem;
+  }
+  
+  .processing-text .processing-note {
+    font-size: 0.8rem;
+  }
+  
+  .progress-container {
+    margin: 1.5rem 0;
+  }
+  
+  .progress-bar-container {
+    height: 8px;
+  }
+  
+  .progress-percentage {
+    font-size: 1.1rem;
+  }
+  
+  .progress-fraction {
+    font-size: 0.85rem;
+  }
+  
+  .manual-refresh-button {
+    padding: 0.625rem 1rem;
+    font-size: 0.85rem;
+  }
+  
+  .renovation-loading .spinner {
+    width: 40px;
+    height: 40px;
+    border-width: 3px;
+  }
+  
+  .renovation-loading p {
+    font-size: 1rem;
+  }
 }
 
 /* Filter Controls */
