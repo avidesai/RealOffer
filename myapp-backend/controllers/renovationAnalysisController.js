@@ -262,7 +262,7 @@ const processRenovationAnalysisInBackground = async (propertyId, property) => {
         console.log(`Sending batch ${i + 1} to Claude API with ${batch.length} images`);
         
         const response = await axios.post('https://api.anthropic.com/v1/messages', {
-          model: 'claude-3-haiku-20240307',
+          model: 'claude-3-5-sonnet-20241022',
           max_tokens: 4000,
           system: systemPrompt,
           messages: messages
@@ -300,7 +300,7 @@ const processRenovationAnalysisInBackground = async (propertyId, property) => {
             try {
               console.log('Processing single image...');
               const singleResponse = await axios.post('https://api.anthropic.com/v1/messages', {
-                model: 'claude-3-haiku-20240307',
+                model: 'claude-3-5-sonnet-20241022',
                 max_tokens: 4000,
                 system: systemPrompt,
                 messages: [
@@ -371,7 +371,7 @@ const processRenovationAnalysisInBackground = async (propertyId, property) => {
     
     const totalCost = finalBreakdown.reduce((sum, item) => sum + item.estimatedCost, 0);
     
-    // Update renovation analysis with results
+    // Update renovation analysis with results - ONLY when completely finished
     renovationAnalysis.renovationEstimate = {
       totalEstimatedCost: totalCost,
       breakdown: finalBreakdown,
@@ -812,11 +812,18 @@ exports.getRenovationEstimate = async (req, res) => {
       return res.status(404).json({ message: 'Renovation analysis not found' });
     }
     
-    res.json({
-      renovationEstimate: renovationAnalysis.renovationEstimate,
+    // Only return the renovation estimate if analysis is completed
+    const response = {
       status: renovationAnalysis.status,
       processingDetails: renovationAnalysis.processingDetails
-    });
+    };
+    
+    // Only include renovation estimate if status is 'completed'
+    if (renovationAnalysis.status === 'completed' && renovationAnalysis.renovationEstimate) {
+      response.renovationEstimate = renovationAnalysis.renovationEstimate;
+    }
+    
+    res.json(response);
     
   } catch (error) {
     console.error('Error fetching renovation estimate:', error);

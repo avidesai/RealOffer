@@ -189,7 +189,8 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true }) => {
     );
   }
 
-  if (!renovationData?.renovationEstimate) {
+  // Only show estimate if status is 'completed' AND we have a renovation estimate
+  if (!renovationData?.renovationEstimate || renovationData?.status !== 'completed') {
     // Check if analysis is currently processing
     if (renovationData?.status === 'processing') {
       const processingDetails = renovationData?.processingDetails || {};
