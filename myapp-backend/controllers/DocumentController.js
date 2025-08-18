@@ -1641,6 +1641,17 @@ const createBuyerSignaturePacketInternal = async (req, res, progressCallback) =>
     
     console.log(`Signature package created successfully: ${successfulDocuments}/${selectedDocuments.length} documents processed, ${totalPages} pages total`);
     
+    // Memory monitoring at end
+    const endMemory = process.memoryUsage();
+    console.log('Memory usage at end:', {
+      rss: Math.round(endMemory.rss / 1024 / 1024) + 'MB',
+      heapUsed: Math.round(endMemory.heapUsed / 1024 / 1024) + 'MB',
+      heapTotal: Math.round(endMemory.heapTotal / 1024 / 1024) + 'MB'
+    });
+    
+    // Clear the timeout
+    clearTimeout(timeout);
+    
     // Send final progress update
     if (progressCallback) {
       progressCallback({
@@ -1670,17 +1681,6 @@ const createBuyerSignaturePacketInternal = async (req, res, progressCallback) =>
     if (processingErrors.length > 0) {
       response.warnings = processingErrors;
     }
-
-    // Memory monitoring at end
-    const endMemory = process.memoryUsage();
-    console.log('Memory usage at end:', {
-      rss: Math.round(endMemory.rss / 1024 / 1024) + 'MB',
-      heapUsed: Math.round(endMemory.heapUsed / 1024 / 1024) + 'MB',
-      heapTotal: Math.round(endMemory.heapTotal / 1024 / 1024) + 'MB'
-    });
-    
-    // Clear the timeout
-    clearTimeout(timeout);
     
     res.status(201).json(response);
   } catch (error) {
