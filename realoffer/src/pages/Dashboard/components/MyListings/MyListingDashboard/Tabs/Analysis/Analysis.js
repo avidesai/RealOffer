@@ -413,9 +413,6 @@ const Analysis = ({ listingId }) => {
           <div className="valuation-card primary">
             <div className="card-header">
               <h3>Property Value & Rent Estimate</h3>
-              <div className="header-actions">
-                <span className="last-updated">Updated {formatLastUpdated(analysisData.lastUpdated)}</span>
-              </div>
             </div>
             <div className="card-content">
               <div className="value-sections">
