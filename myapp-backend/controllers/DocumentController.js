@@ -785,10 +785,13 @@ const uploadToClaudeFiles = async (fileBuffer, fileName) => {
 
 // Helper function to generate thumbnail from PDF first page
 const generateThumbnail = async (pdfBuffer, documentId) => {
+  let tempPdfPath = null;
+  let tempImagePath = null;
+  
   try {
     const tempDir = os.tmpdir();
-    const tempPdfPath = path.join(tempDir, `temp_${documentId}_${Date.now()}.pdf`);
-    const tempImagePath = path.join(tempDir, `temp_${documentId}_${Date.now()}_thumbnail.png`);
+    tempPdfPath = path.join(tempDir, `temp_${documentId}_${Date.now()}.pdf`);
+    tempImagePath = path.join(tempDir, `temp_${documentId}_${Date.now()}_thumbnail.png`);
 
     // Write PDF buffer to temp file
     fs.writeFileSync(tempPdfPath, pdfBuffer);
@@ -804,9 +807,6 @@ const generateThumbnail = async (pdfBuffer, documentId) => {
         '-compress', 'jpeg',
         tempImagePath
       ], async (err, stdout) => {
-        // Clean up temp PDF file
-        if (fs.existsSync(tempPdfPath)) fs.unlinkSync(tempPdfPath);
-        
         if (err) {
           console.error('ImageMagick conversion error:', err);
           
@@ -826,8 +826,6 @@ const generateThumbnail = async (pdfBuffer, documentId) => {
               // Check if Ghostscript succeeded
               if (fs.existsSync(tempImagePath)) {
                 const imageBuffer = fs.readFileSync(tempImagePath);
-                // Clean up temp image file
-                fs.unlinkSync(tempImagePath);
                 console.log('Ghostscript thumbnail generation succeeded');
                 resolve(imageBuffer);
                 return;
@@ -837,8 +835,28 @@ const generateThumbnail = async (pdfBuffer, documentId) => {
             }
           }
           
-          // Clean up temp image file if it exists
-          if (fs.existsSync(tempImagePath)) fs.unlinkSync(tempImagePath);
+          // If both ImageMagick and Ghostscript fail, create a simple placeholder
+          console.log('Both ImageMagick and Ghostscript failed, creating placeholder thumbnail');
+          try {
+            // Create a simple placeholder image using sharp
+            const sharp = require('sharp');
+            const placeholderBuffer = await sharp({
+              create: {
+                width: 300,
+                height: 400,
+                channels: 3,
+                background: { r: 240, g: 240, b: 240 }
+              }
+            })
+            .png()
+            .toBuffer();
+            
+            resolve(placeholderBuffer);
+            return;
+          } catch (placeholderErr) {
+            console.error('Failed to create placeholder thumbnail:', placeholderErr);
+          }
+          
           reject(err);
           return;
         }
@@ -846,8 +864,6 @@ const generateThumbnail = async (pdfBuffer, documentId) => {
         // Read the converted image
         if (fs.existsSync(tempImagePath)) {
           const imageBuffer = fs.readFileSync(tempImagePath);
-          // Clean up temp image file
-          fs.unlinkSync(tempImagePath);
           resolve(imageBuffer);
         } else {
           reject(new Error('ImageMagick did not create output file'));
@@ -855,16 +871,20 @@ const generateThumbnail = async (pdfBuffer, documentId) => {
       });
     });
   } catch (error) {
-    // Clean up on error
-    const tempDir = os.tmpdir();
-    const tempPdfPath = path.join(tempDir, `temp_${documentId}_${Date.now()}.pdf`);
-    const tempImagePath = path.join(tempDir, `temp_${documentId}_${Date.now()}_thumbnail.png`);
-    
-    if (fs.existsSync(tempPdfPath)) fs.unlinkSync(tempPdfPath);
-    if (fs.existsSync(tempImagePath)) fs.unlinkSync(tempImagePath);
-    
     console.error('Error generating thumbnail:', error);
     return null;
+  } finally {
+    // Clean up temp files in finally block to ensure they're always cleaned up
+    try {
+      if (tempPdfPath && fs.existsSync(tempPdfPath)) {
+        fs.unlinkSync(tempPdfPath);
+      }
+      if (tempImagePath && fs.existsSync(tempImagePath)) {
+        fs.unlinkSync(tempImagePath);
+      }
+    } catch (cleanupError) {
+      console.error('Error cleaning up temp files:', cleanupError);
+    }
   }
 };
 
@@ -903,12 +923,23 @@ exports.uploadDocument = async (req, res) => {
       const contentType = file.mimetype;
       const docType = contentType === 'application/pdf' ? 'pdf' : 'image';
 
-      const blobName = `documents/${uuidv4()}-${file.originalname}`;
+      const sanitizedFilename = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const blobName = `documents/${uuidv4()}-${sanitizedFilename}`;
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
-      await blockBlobClient.uploadData(file.buffer, {
-        blobHTTPHeaders: { blobContentType: contentType }
-      });
+      try {
+              try {
+        await blockBlobClient.uploadData(file.buffer, {
+          blobHTTPHeaders: { blobContentType: contentType }
+        });
+      } catch (uploadError) {
+        console.error('Azure upload error:', uploadError);
+        throw new Error(`Failed to upload file to Azure: ${uploadError.message}`);
+      }
+      } catch (uploadError) {
+        console.error('Azure upload error:', uploadError);
+        throw new Error(`Failed to upload file to Azure: ${uploadError.message}`);
+      }
 
       // Skip page count calculation for RPA analysis documents since we don't need it
       const pages = (contentType === 'application/pdf' && purpose !== 'rpa_analysis') ? await getPdfPageCount(file.buffer) : 0;
@@ -922,7 +953,7 @@ exports.uploadDocument = async (req, res) => {
           const thumbnailBuffer = await generateThumbnail(file.buffer, uuidv4());
           if (thumbnailBuffer) {
             console.log(`Thumbnail generated successfully for: ${file.originalname}`);
-            const thumbnailBlobName = `thumbnails/${uuidv4()}-${file.originalname.replace(/\.[^/.]+$/, '')}-thumb.png`;
+            const thumbnailBlobName = `thumbnails/${uuidv4()}-${sanitizedFilename.replace(/\.[^/.]+$/, '')}-thumb.png`;
             const thumbnailBlockBlobClient = containerClient.getBlockBlobClient(thumbnailBlobName);
             
             await thumbnailBlockBlobClient.uploadData(thumbnailBuffer, {
@@ -1021,12 +1052,18 @@ exports.addDocumentToPropertyListing = async (req, res) => {
       const contentType = file.mimetype;
       const docType = contentType === 'application/pdf' ? 'pdf' : 'image';
 
-      const blobName = `documents/${uuidv4()}-${file.originalname}`;
+      const sanitizedFilename = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const blobName = `documents/${uuidv4()}-${sanitizedFilename}`;
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
-      await blockBlobClient.uploadData(file.buffer, {
-        blobHTTPHeaders: { blobContentType: contentType }
-      });
+      try {
+        await blockBlobClient.uploadData(file.buffer, {
+          blobHTTPHeaders: { blobContentType: contentType }
+        });
+      } catch (uploadError) {
+        console.error('Azure upload error:', uploadError);
+        throw new Error(`Failed to upload file to Azure: ${uploadError.message}`);
+      }
 
       // Skip page count calculation for RPA analysis documents since we don't need it
       const pages = (contentType === 'application/pdf' && purpose !== 'rpa_analysis') ? await getPdfPageCount(file.buffer) : 0;
@@ -1039,7 +1076,7 @@ exports.addDocumentToPropertyListing = async (req, res) => {
           const thumbnailBuffer = await generateThumbnail(file.buffer, uuidv4());
           if (thumbnailBuffer) {
             console.log(`Thumbnail generated successfully for: ${file.originalname}`);
-            const thumbnailBlobName = `thumbnails/${uuidv4()}-${file.originalname.replace(/\.[^/.]+$/, '')}-thumb.png`;
+            const thumbnailBlobName = `thumbnails/${uuidv4()}-${sanitizedFilename.replace(/\.[^/.]+$/, '')}-thumb.png`;
             const thumbnailBlockBlobClient = containerClient.getBlockBlobClient(thumbnailBlobName);
             
             await thumbnailBlockBlobClient.uploadData(thumbnailBuffer, {
@@ -2522,25 +2559,40 @@ exports.uploadDocumentsWithProgress = async (req, res) => {
             const thumbnailBuffer = await generateThumbnail(file.buffer, `thumbnail_${Date.now()}_${index}`);
             if (thumbnailBuffer) {
               console.log(`Thumbnail generated successfully for: ${file.originalname}`);
-              const thumbnailBlobName = `thumbnails/${Date.now()}_${index}_${file.originalname.replace(/\.[^/.]+$/, '')}-thumb.png`;
+              const sanitizedFilename = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+              const thumbnailBlobName = `thumbnails/${Date.now()}_${index}_${sanitizedFilename.replace(/\.[^/.]+$/, '')}-thumb.png`;
               const thumbnailBlockBlobClient = containerClient.getBlockBlobClient(thumbnailBlobName);
               
-              await thumbnailBlockBlobClient.uploadData(thumbnailBuffer, {
-                blobHTTPHeaders: { blobContentType: 'image/png' }
-              });
-              
-              thumbnailUrl = thumbnailBlockBlobClient.url;
-              thumbnailAzureKey = thumbnailBlobName;
+              try {
+                await thumbnailBlockBlobClient.uploadData(thumbnailBuffer, {
+                  blobHTTPHeaders: { blobContentType: 'image/png' }
+                });
+                
+                thumbnailUrl = thumbnailBlockBlobClient.url;
+                thumbnailAzureKey = thumbnailBlobName;
+              } catch (thumbnailUploadError) {
+                console.error('Thumbnail upload error:', thumbnailUploadError);
+                // Continue without thumbnail if upload fails
+                thumbnailUrl = null;
+                thumbnailAzureKey = null;
+              }
             }
           } catch (thumbnailError) {
             console.error('Thumbnail generation failed:', thumbnailError);
           }
         }
 
-        // Upload to Azure
-        const azureKey = `documents/${propertyListingId}/${Date.now()}_${file.originalname}`;
+        // Upload to Azure with sanitized filename
+        const sanitizedFilename = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const azureKey = `documents/${propertyListingId}/${Date.now()}_${sanitizedFilename}`;
         const blockBlobClient = containerClient.getBlockBlobClient(azureKey);
-        await blockBlobClient.upload(file.buffer, file.buffer.length);
+        
+        try {
+          await blockBlobClient.upload(file.buffer, file.buffer.length);
+        } catch (uploadError) {
+          console.error('Azure upload error:', uploadError);
+          throw new Error(`Failed to upload file to Azure: ${uploadError.message}`);
+        }
 
         // Create document record
         const newDocument = new Document({
