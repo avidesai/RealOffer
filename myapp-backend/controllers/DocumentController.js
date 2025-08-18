@@ -794,7 +794,7 @@ const generateThumbnail = async (pdfBuffer, documentId) => {
     fs.writeFileSync(tempPdfPath, pdfBuffer);
 
     // Convert first page to image using ImageMagick directly
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       imagemagick.convert([
         tempPdfPath + '[0]', // Input PDF, first page only
         '-density', '150',
@@ -803,12 +803,40 @@ const generateThumbnail = async (pdfBuffer, documentId) => {
         '-resize', '300x400!',
         '-compress', 'jpeg',
         tempImagePath
-      ], (err, stdout) => {
+      ], async (err, stdout) => {
         // Clean up temp PDF file
         if (fs.existsSync(tempPdfPath)) fs.unlinkSync(tempPdfPath);
         
         if (err) {
           console.error('ImageMagick conversion error:', err);
+          
+          // If ImageMagick is blocked by policy for PDFs, try Ghostscript as fallback
+          const errMsg = String(err?.message || '').toLowerCase();
+          if (errMsg.includes('not allowed by the security policy') || errMsg.includes('iscoderauthorized')) {
+            try {
+              console.log('ImageMagick blocked by policy, trying Ghostscript for thumbnail...');
+              const { exec } = require('child_process');
+              const util = require('util');
+              const execAsync = util.promisify(exec);
+              
+              // Use Ghostscript to render first page as PNG
+              const gsCmd = `gs -sDEVICE=png16m -dSAFER -dNOPAUSE -dBATCH -r150 -dFirstPage=1 -dLastPage=1 -o "${tempImagePath}" "${tempPdfPath}"`;
+              await execAsync(gsCmd);
+              
+              // Check if Ghostscript succeeded
+              if (fs.existsSync(tempImagePath)) {
+                const imageBuffer = fs.readFileSync(tempImagePath);
+                // Clean up temp image file
+                fs.unlinkSync(tempImagePath);
+                console.log('Ghostscript thumbnail generation succeeded');
+                resolve(imageBuffer);
+                return;
+              }
+            } catch (gsErr) {
+              console.error('Ghostscript thumbnail generation also failed:', gsErr);
+            }
+          }
+          
           // Clean up temp image file if it exists
           if (fs.existsSync(tempImagePath)) fs.unlinkSync(tempImagePath);
           reject(err);
