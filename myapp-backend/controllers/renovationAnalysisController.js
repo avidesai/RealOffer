@@ -269,12 +269,12 @@ CRITICAL ASSESSMENT GUIDELINES - BE EXTREMELY CONSERVATIVE:
      * "Could be improved" scenarios
      * Modern, functional, clean areas
      * Areas that are simply not "trendy" but are in good condition
+     * Areas that are in "New", "Excellent", or "Good" condition
 
-4. **MARKET CONTEXT CONSIDERATIONS**:
-   - Consider the property's price point and market segment
-   - Higher-end properties may have higher standards
-   - Starter homes should be assessed more leniently
-   - Focus on functionality and livability over luxury upgrades
+4. **COST ASSIGNMENT RULES**:
+   - If renovationNeeded = false, ALWAYS set estimatedCost = 0
+   - If renovationNeeded = true, provide realistic local market costs
+   - Items with estimatedCost = 0 should NOT be included in total cost calculations
 
 5. **SPECIFIC CATEGORY GUIDELINES**:
    - **Kitchen**: Only renovate if appliances are broken, cabinets are damaged, or layout is severely dysfunctional
@@ -293,11 +293,11 @@ CRITICAL ASSESSMENT GUIDELINES - BE EXTREMELY CONSERVATIVE:
 For each category, assess:
 1. Current condition (New/Excellent/Good/Fair/Poor)
 2. Whether renovation is needed (be extremely conservative)
-3. Estimated cost for renovation (use local market rates for ${locationInfo})
+3. Estimated cost for renovation (use local market rates for ${locationInfo}) - MUST be 0 if no renovation needed
 4. Brief description of work needed (if any)
 5. Priority level (High/Medium/Low/None)
 
-If a category is in excellent, good, or new condition and doesn't need renovation, mark renovationNeeded as false and estimatedCost as 0.
+CRITICAL: If a category is in excellent, good, or new condition and doesn't need renovation, mark renovationNeeded as false and estimatedCost as 0.
 
 Consider local market costs for ${locationInfo} when providing estimates.
 
@@ -642,16 +642,17 @@ const aggregateRenovationResults = (breakdowns) => {
 
 // Helper function to generate summary
 const generateRenovationSummary = (breakdown) => {
-  const totalCost = breakdown.reduce((sum, item) => sum + item.estimatedCost, 0);
-  const categoriesNeedingRenovation = breakdown.filter(item => item.renovationNeeded);
-  const highPriorityItems = breakdown.filter(item => item.priority === 'High' && item.renovationNeeded);
+  const itemsNeedingRenovation = breakdown.filter(item => item.renovationNeeded);
+  const totalCost = itemsNeedingRenovation.reduce((sum, item) => sum + item.estimatedCost, 0);
+  const categoriesNeedingRenovation = itemsNeedingRenovation.length;
+  const highPriorityItems = itemsNeedingRenovation.filter(item => item.priority === 'High');
   
   let summary = `Total estimated renovation cost: $${totalCost.toLocaleString()}. `;
   
-  if (categoriesNeedingRenovation.length === 0) {
+  if (categoriesNeedingRenovation === 0) {
     summary += "Excellent news! This property appears to be in move-in ready condition with no major renovations needed.";
   } else {
-    summary += `${categoriesNeedingRenovation.length} categories require attention. `;
+    summary += `${categoriesNeedingRenovation} categories require attention. `;
     
     if (highPriorityItems.length > 0) {
       summary += `${highPriorityItems.length} high-priority items identified. `;
@@ -659,8 +660,8 @@ const generateRenovationSummary = (breakdown) => {
   }
   
   // Add market positioning insight
-  const moveInReady = categoriesNeedingRenovation.length === 0;
-  const minorRenovations = categoriesNeedingRenovation.length <= 2 && totalCost < 15000;
+  const moveInReady = categoriesNeedingRenovation === 0;
+  const minorRenovations = categoriesNeedingRenovation <= 2 && totalCost < 15000;
   const majorRenovations = totalCost > 30000;
   
   if (moveInReady) {

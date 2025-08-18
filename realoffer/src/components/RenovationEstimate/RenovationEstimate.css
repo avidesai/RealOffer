@@ -6,7 +6,7 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   overflow: hidden;
   margin-bottom: 1.5rem;
-  border-left: 4px solid #dc3545;
+  border-left: 4px solid #6f42c1;
   animation: fadeIn 0.3s ease;
 }
 
@@ -27,7 +27,7 @@
   width: 40px;
   height: 40px;
   border: 3px solid #f3f4f6;
-  border-top: 3px solid #dc3545;
+  border-top: 3px solid #6f42c1;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 1rem;
@@ -57,7 +57,7 @@
 
 .retry-button {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -65,13 +65,13 @@
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+  box-shadow: 0 2px 8px rgba(111, 66, 193, 0.3);
 }
 
 .retry-button:hover {
-  background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+  background: linear-gradient(135deg, #5a32a3 0%, #4c2a8a 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+  box-shadow: 0 4px 12px rgba(111, 66, 193, 0.4);
 }
 
 .renovation-empty-icon {
@@ -94,7 +94,7 @@
 
 .generate-estimate-button {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -102,13 +102,13 @@
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+  box-shadow: 0 2px 8px rgba(111, 66, 193, 0.3);
 }
 
 .generate-estimate-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+  background: linear-gradient(135deg, #5a32a3 0%, #4c2a8a 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+  box-shadow: 0 4px 12px rgba(111, 66, 193, 0.4);
 }
 
 .generate-estimate-button:disabled {
@@ -194,9 +194,9 @@
 }
 
 .stat-card.primary {
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
   color: white;
-  border-color: #dc3545;
+  border-color: #6f42c1;
 }
 
 .stat-card.primary .stat-value {
@@ -241,6 +241,67 @@
 .move-in-ready-badge svg {
   width: 20px;
   height: 20px;
+}
+
+/* Processing Status */
+.processing-status {
+  background: #f8fafd;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.processing-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.processing-info .spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e9ecef;
+  border-top: 2px solid #6f42c1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.processing-text p {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.processing-text .processing-note {
+  color: #6c757d;
+  font-size: 0.8rem;
+  font-weight: 400;
+  margin-top: 0.25rem;
+}
+
+.manual-refresh-button {
+  padding: 0.5rem 1rem;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.manual-refresh-button:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
 }
 
 /* Filter Controls */
@@ -368,67 +429,6 @@
   font-size: 0.8rem;
 }
 
-/* Processing Status */
-.processing-status {
-  background: #f8fafd;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-}
-
-.processing-info {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex: 1;
-}
-
-.processing-info .spinner {
-  width: 24px;
-  height: 24px;
-  border: 2px solid #e9ecef;
-  border-top: 2px solid #007bff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-.processing-text p {
-  margin: 0;
-  color: #2c3e50;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.processing-text .processing-note {
-  color: #6c757d;
-  font-size: 0.8rem;
-  font-weight: 400;
-  margin-top: 0.25rem;
-}
-
-.manual-refresh-button {
-  padding: 0.5rem 1rem;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.manual-refresh-button:hover {
-  background: #0056b3;
-  transform: translateY(-1px);
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .renovation-header {
@@ -483,12 +483,6 @@
     width: 100%;
   }
   
-  .roi-value-display {
-    flex-direction: column;
-    gap: 0.25rem;
-    text-align: center;
-  }
-
   .processing-status {
     flex-direction: column;
     align-items: stretch;

@@ -152,15 +152,16 @@ const RenovationEstimate = ({ propertyId }) => {
     if (!renovationData?.renovationEstimate?.breakdown) return null;
     
     const breakdown = renovationData.renovationEstimate.breakdown;
-    const totalCost = breakdown.reduce((sum, item) => sum + item.estimatedCost, 0);
-    const neededItems = breakdown.filter(item => item.renovationNeeded);
-    const highPriorityItems = breakdown.filter(item => item.priority === 'High' && item.renovationNeeded);
+    const itemsNeedingRenovation = breakdown.filter(item => item.renovationNeeded);
+    const totalCost = itemsNeedingRenovation.reduce((sum, item) => sum + item.estimatedCost, 0);
+    const neededItems = itemsNeedingRenovation.length;
+    const highPriorityItems = itemsNeedingRenovation.filter(item => item.priority === 'High');
     
     return {
       totalCost,
-      neededItems: neededItems.length,
+      neededItems: neededItems,
       highPriorityItems: highPriorityItems.length,
-      moveInReady: neededItems.length === 0
+      moveInReady: neededItems === 0
     };
   };
 
