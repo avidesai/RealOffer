@@ -112,8 +112,13 @@ app.use(
   })
 );
 
-// Middleware to log cookies and session details
+// Middleware to log cookies and session details (skip health checks)
 app.use((req, res, next) => {
+  // Skip logging for health checks to reduce noise
+  if (req.originalUrl === '/health') {
+    return next();
+  }
+  
   console.log('--- Request Start ---');
   console.log('Request URL:', req.originalUrl);
   console.log('Request Method:', req.method);
