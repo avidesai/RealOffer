@@ -75,6 +75,10 @@ const renovationAnalysisSchema = new mongoose.Schema({
     city: String,
     state: String,
     zipCode: String
+  },
+  hiddenFromBuyers: {
+    type: Boolean,
+    default: false
   }
 });
 

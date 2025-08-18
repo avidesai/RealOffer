@@ -631,7 +631,7 @@ const Documents = ({ listingId }) => {
           documents.map((doc, index) => (
             <div
               key={doc._id}
-              className={`docs-tab-document-item ${isSelected(doc._id) ? 'docs-tab-selected' : ''} ${doc.purpose === 'signature_package' ? 'docs-tab-signature-package' : ''} ${isReorderMode ? 'docs-tab-reorder-mode' : ''} ${isRenameMode ? 'docs-tab-rename-mode' : ''} ${draggedItem === index ? 'docs-tab-dragging' : ''} ${dragOverIndex === index ? 'docs-tab-drag-over' : ''}`}
+              className={`docs-tab-document-item ${isSelected(doc._id) ? 'docs-tab-selected' : ''} ${doc.purpose === 'signature_package' ? 'docs-tab-signature-package' : ''} ${isReorderMode ? 'docs-tab-reorder-mode' : ''} ${isRenameMode ? 'docs-tab-rename-mode' : ''} ${draggedItem === index ? 'docs-tab-dragging' : ''} ${dragOverIndex === index ? 'docs-tab-drag-over' : ''} ${!(doc.thumbnailImageUrl && doc.docType === 'pdf') ? 'docs-tab-no-thumb' : ''}`}
               onClick={(e) => handleItemClick(e, doc)}
               draggable={isReorderMode}
               onDragStart={(e) => handleDragStart(e, index)}
@@ -659,12 +659,16 @@ const Documents = ({ listingId }) => {
                     alt={`Thumbnail of ${doc.title}`}
                     onError={(e) => {
                       e.target.style.display = 'none';
-                      e.target.parentElement.style.display = 'none';
+                      if (e.target.parentElement) e.target.parentElement.style.display = 'none';
+                      const container = e.target.closest('.docs-tab-document-item');
+                      if (container) container.classList.add('docs-tab-no-thumb');
                     }}
                     onLoad={(e) => {
                       // Ensure thumbnail is visible when loaded successfully
                       e.target.style.display = 'block';
-                      e.target.parentElement.style.display = 'flex';
+                      if (e.target.parentElement) e.target.parentElement.style.display = 'flex';
+                      const container = e.target.closest('.docs-tab-document-item');
+                      if (container) container.classList.remove('docs-tab-no-thumb');
                     }}
                   />
                 </div>

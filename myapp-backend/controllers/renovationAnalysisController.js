@@ -815,7 +815,8 @@ exports.getRenovationEstimate = async (req, res) => {
     // Only return the renovation estimate if analysis is completed
     const response = {
       status: renovationAnalysis.status,
-      processingDetails: renovationAnalysis.processingDetails
+      processingDetails: renovationAnalysis.processingDetails,
+      hiddenFromBuyers: renovationAnalysis.hiddenFromBuyers
     };
     
     // Only include renovation estimate if status is 'completed'
@@ -829,6 +830,48 @@ exports.getRenovationEstimate = async (req, res) => {
     console.error('Error fetching renovation estimate:', error);
     res.status(500).json({
       message: 'Error fetching renovation estimate',
+      error: error.message
+    });
+  }
+};
+
+// Update renovation estimate visibility
+exports.updateRenovationEstimateVisibility = async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+    const { hiddenFromBuyers } = req.body;
+    
+    // Get property details to check authorization
+    const property = await PropertyListing.findById(propertyId);
+    if (!property) {
+      return res.status(404).json({ message: 'Property not found' });
+    }
+    
+    // Check if user has access to this property
+    const isCreator = property.createdBy.toString() === req.user.id;
+    const isAgent = property.agentIds.some(agentId => agentId.toString() === req.user.id);
+    const isTeamMember = property.teamMemberIds.some(teamMemberId => teamMemberId.toString() === req.user.id);
+    
+    if (!isCreator && !isAgent && !isTeamMember) {
+      return res.status(403).json({ message: 'Not authorized to access this property' });
+    }
+    
+    // Update the renovation analysis
+    const renovationAnalysis = await RenovationAnalysis.findOneAndUpdate(
+      { propertyId },
+      { hiddenFromBuyers },
+      { new: true, upsert: true }
+    );
+    
+    res.json({
+      message: 'Renovation estimate visibility updated',
+      hiddenFromBuyers: renovationAnalysis.hiddenFromBuyers
+    });
+    
+  } catch (error) {
+    console.error('Error updating renovation estimate visibility:', error);
+    res.status(500).json({
+      message: 'Error updating renovation estimate visibility',
       error: error.message
     });
   }

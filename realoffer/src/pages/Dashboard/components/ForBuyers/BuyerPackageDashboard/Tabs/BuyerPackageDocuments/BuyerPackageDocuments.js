@@ -345,7 +345,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
           documents.map((doc, index) => (
             <div
               key={doc._id}
-              className={`docs-tab-document-item ${isSelected(doc._id) ? 'docs-tab-selected' : ''} ${doc.purpose === 'signature_package' ? 'docs-tab-signature-package' : ''}`}
+              className={`docs-tab-document-item ${isSelected(doc._id) ? 'docs-tab-selected' : ''} ${doc.purpose === 'signature_package' ? 'docs-tab-signature-package' : ''} ${!(doc.thumbnailImageUrl && doc.docType === 'pdf') ? 'docs-tab-no-thumb' : ''}`}
               onClick={(e) => handleItemClick(e, doc)}
             >
               <input
@@ -362,12 +362,16 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
                     alt={`Thumbnail of ${doc.title}`}
                     onError={(e) => {
                       e.target.style.display = 'none';
-                      e.target.parentElement.style.display = 'none';
+                      if (e.target.parentElement) e.target.parentElement.style.display = 'none';
+                      const container = e.target.closest('.docs-tab-document-item');
+                      if (container) container.classList.add('docs-tab-no-thumb');
                     }}
                     onLoad={(e) => {
                       // Ensure thumbnail is visible when loaded successfully
                       e.target.style.display = 'block';
-                      e.target.parentElement.style.display = 'flex';
+                      if (e.target.parentElement) e.target.parentElement.style.display = 'flex';
+                      const container = e.target.closest('.docs-tab-document-item');
+                      if (container) container.classList.remove('docs-tab-no-thumb');
                     }}
                   />
                 </div>

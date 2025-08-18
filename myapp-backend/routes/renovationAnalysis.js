@@ -17,4 +17,7 @@ router.post('/:propertyId/generate', authMiddleware, renovationAnalysisControlle
 // Get renovation estimate
 router.get('/:propertyId', authMiddleware, renovationAnalysisController.getRenovationEstimate);
 
+// Update renovation estimate visibility
+router.patch('/:propertyId/visibility', authMiddleware, renovationAnalysisController.updateRenovationEstimateVisibility);
+
 module.exports = router;

@@ -440,6 +440,17 @@
   }
 }
 
+/* When there is no thumbnail, reserve the same horizontal space so text doesn't overlap checkbox */
+.docs-tab-document-item.docs-tab-no-thumb .docs-tab-document-info {
+  margin-left: 135px; /* 36px checkbox left + ~20px checkbox width + 50px gap + 60px thumb + 25px gap ~> 135px */
+}
+
+@media (max-width: 767px) {
+  .docs-tab-document-item.docs-tab-no-thumb .docs-tab-document-info {
+    margin-left: 0; /* mobile stacks; no left offset needed */
+  }
+}
+
 .docs-tab-document-details {
   display: flex;
   flex-direction: column;

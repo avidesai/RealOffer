@@ -11,6 +11,7 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState(null);
+  const [hiddenFromBuyers, setHiddenFromBuyers] = useState(false);
   // const [selectedFilter, setSelectedFilter] = useState('all'); // Removed filter state
 
   const fetchRenovationEstimate = useCallback(async () => {
@@ -28,10 +29,12 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
       );
       
       setRenovationData(response.data);
+      setHiddenFromBuyers(response.data.hiddenFromBuyers || false);
     } catch (err) {
       if (err.response?.status === 404) {
         // No renovation analysis exists yet
         setRenovationData(null);
+        setHiddenFromBuyers(false);
       } else {
         setError('Failed to load renovation estimate');
         console.error('Error fetching renovation estimate:', err);
@@ -40,6 +43,31 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
       setLoading(false);
     }
   }, [propertyId, token]);
+
+  const updateVisibility = async (hidden) => {
+    try {
+      await axios.patch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/renovation-analysis/${propertyId}/visibility`,
+        { hiddenFromBuyers: hidden },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      setHiddenFromBuyers(hidden);
+      if (onToggleVisibility) {
+        onToggleVisibility();
+      }
+    } catch (err) {
+      console.error('Error updating renovation estimate visibility:', err);
+      setError('Failed to update visibility preference');
+    }
+  };
+
+  const handleToggleVisibility = () => {
+    updateVisibility(!hiddenFromBuyers);
+  };
 
   const generateRenovationEstimate = async () => {
     try {
@@ -163,7 +191,7 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
   };
 
   // If hidden and this is the buyer package side, don't render at all
-  if (isHidden && !showRegenerateButton) {
+  if (hiddenFromBuyers) {
     return null;
   }
 
@@ -281,10 +309,10 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
         <div className="renovation-actions">
           {showRegenerateButton && (
             <button 
-              onClick={onToggleVisibility}
+              onClick={handleToggleVisibility}
               className="toggle-visibility-button"
             >
-              {isHidden ? 'Show Renovation Estimate' : 'Hide Renovation Estimate'}
+              {hiddenFromBuyers ? 'Show Renovation Estimate' : 'Hide Renovation Estimate'}
             </button>
           )}
         </div>
@@ -428,7 +456,7 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
       </div>
 
       {/* Hidden State Overlay */}
-      {isHidden && (
+      {hiddenFromBuyers && (
         <div className="renovation-hidden-overlay">
           <div className="renovation-hidden-content">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

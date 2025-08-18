@@ -18,7 +18,7 @@ const BuyerPackageAnalysis = ({ buyerPackageId }) => {
     subjectProperty: null,
     lastUpdated: null
   });
-  const [renovationHidden, setRenovationHidden] = useState(false);
+  const [propertyListingId, setPropertyListingId] = useState(null);
   
   // Pagination state for comparables
   const [currentPage, setCurrentPage] = useState(0);
@@ -43,6 +43,9 @@ const BuyerPackageAnalysis = ({ buyerPackageId }) => {
       if (!propertyListing || !propertyListing._id) {
         throw new Error('No property listing found for this buyer package');
       }
+
+      // Store the property listing ID for the renovation estimate
+      setPropertyListingId(propertyListing._id);
 
       // Then get the analysis data for the property
       const response = await axios.get(
@@ -377,10 +380,10 @@ const BuyerPackageAnalysis = ({ buyerPackageId }) => {
 
         {/* Renovation Estimate Section */}
         <RenovationEstimate 
-          propertyId={analysisData.subjectProperty?._id} 
+          propertyId={propertyListingId} 
           showRegenerateButton={false} 
-          isHidden={renovationHidden}
-          onToggleVisibility={() => setRenovationHidden(!renovationHidden)}
+          isHidden={false}
+          onToggleVisibility={() => {}}
         />
       </div>
     </div>
