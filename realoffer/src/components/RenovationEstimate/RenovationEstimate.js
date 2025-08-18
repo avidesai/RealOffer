@@ -5,13 +5,13 @@ import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import './RenovationEstimate.css';
 
-const RenovationEstimate = ({ propertyId }) => {
+const RenovationEstimate = ({ propertyId, showRegenerateButton = true }) => {
   const { token } = useAuth();
   const [renovationData, setRenovationData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedFilter, setSelectedFilter] = useState('all');
+  // const [selectedFilter, setSelectedFilter] = useState('all'); // Removed filter state
 
   const fetchRenovationEstimate = useCallback(async () => {
     try {
@@ -136,16 +136,13 @@ const RenovationEstimate = ({ propertyId }) => {
   };
 
   const filterBreakdownItems = (items) => {
-    if (selectedFilter === 'all') return items;
-    if (selectedFilter === 'needed') return items.filter(item => item.renovationNeeded);
-    if (selectedFilter === 'not-needed') return items.filter(item => !item.renovationNeeded);
-    if (selectedFilter === 'high-priority') return items.filter(item => item.priority === 'High' && item.renovationNeeded);
+    // Show all items since filters are removed
     return items;
   };
 
   const getFilteredBreakdown = () => {
     if (!renovationData?.renovationEstimate?.breakdown) return [];
-    return filterBreakdownItems(renovationData.renovationEstimate.breakdown);
+    return renovationData.renovationEstimate.breakdown; // Show all items
   };
 
   const getSummaryStats = () => {
@@ -236,13 +233,15 @@ const RenovationEstimate = ({ propertyId }) => {
           <span className="beta-badge">Beta</span>
         </h3>
         <div className="renovation-actions">
-          <button 
-            onClick={generateRenovationEstimate}
-            disabled={generating}
-            className="regenerate-estimate-button"
-          >
-            {generating ? 'Regenerating...' : 'Regenerate Analysis'}
-          </button>
+          {showRegenerateButton && (
+            <button 
+              onClick={generateRenovationEstimate}
+              disabled={generating}
+              className="regenerate-estimate-button"
+            >
+              {generating ? 'Regenerating...' : 'Regenerate Analysis'}
+            </button>
+          )}
         </div>
       </div>
 
@@ -285,7 +284,7 @@ const RenovationEstimate = ({ propertyId }) => {
         )}
 
         {/* Filter Controls */}
-        <div className="renovation-filters">
+        {/* <div className="renovation-filters">
           <button 
             className={`filter-button ${selectedFilter === 'all' ? 'active' : ''}`}
             onClick={() => setSelectedFilter('all')}
@@ -316,11 +315,10 @@ const RenovationEstimate = ({ propertyId }) => {
               High Priority ({stats.highPriorityItems})
             </button>
           )}
-        </div>
+        </div> */}
 
         {/* Breakdown Grid */}
         <div className="renovation-breakdown">
-          <h4>Detailed Analysis</h4>
           <div className="breakdown-grid">
             {filteredBreakdown.map((item, index) => (
               <div key={index} className="breakdown-item">
