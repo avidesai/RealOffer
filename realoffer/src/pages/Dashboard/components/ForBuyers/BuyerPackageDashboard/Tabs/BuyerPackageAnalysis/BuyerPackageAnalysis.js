@@ -375,7 +375,7 @@ const BuyerPackageAnalysis = ({ buyerPackageId }) => {
         </div>
 
         {/* Renovation Estimate Section */}
-        <RenovationEstimate propertyId={analysisData.subjectProperty?._id} />
+        <RenovationEstimate propertyId={analysisData.subjectProperty?._id} showRegenerateButton={false} />
       </div>
     </div>
   );
