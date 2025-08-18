@@ -1664,25 +1664,28 @@ const createBuyerSignaturePacketInternal = async (req, res, progressCallback) =>
       return;
     }
 
-    // Return the saved document along with any processing errors
-    const response = {
-      document: savedDocument,
-      pageCount: mergedPdf.getPageCount(),
-      documentOrder: propertyListing.documentOrder,
-      signaturePackageDocumentOrder: propertyListing.signaturePackageDocumentOrder,
-      statistics: {
-        totalDocuments: selectedDocuments.length,
-        successfulDocuments: successfulDocuments,
-        failedDocuments: processingErrors.length,
-        totalPages: totalPages
+    // Only send JSON response if we're not using progress callback
+    if (!progressCallback) {
+      // Return the saved document along with any processing errors
+      const response = {
+        document: savedDocument,
+        pageCount: mergedPdf.getPageCount(),
+        documentOrder: propertyListing.documentOrder,
+        signaturePackageDocumentOrder: propertyListing.signaturePackageDocumentOrder,
+        statistics: {
+          totalDocuments: selectedDocuments.length,
+          successfulDocuments: successfulDocuments,
+          failedDocuments: processingErrors.length,
+          totalPages: totalPages
+        }
+      };
+      
+      if (processingErrors.length > 0) {
+        response.warnings = processingErrors;
       }
-    };
-    
-    if (processingErrors.length > 0) {
-      response.warnings = processingErrors;
+      
+      res.status(201).json(response);
     }
-    
-    res.status(201).json(response);
   } catch (error) {
     // Clear the timeout
     clearTimeout(timeout);
