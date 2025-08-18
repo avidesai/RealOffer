@@ -1640,7 +1640,7 @@ const createBuyerSignaturePacketInternal = async (req, res, progressCallback) =>
     const totalPages = mergedPdf.getPageCount();
     
     console.log(`Signature package created successfully: ${successfulDocuments}/${selectedDocuments.length} documents processed, ${totalPages} pages total`);
-    
+
     // Memory monitoring at end
     const endMemory = process.memoryUsage();
     console.log('Memory usage at end:', {
@@ -1683,8 +1683,8 @@ const createBuyerSignaturePacketInternal = async (req, res, progressCallback) =>
       if (processingErrors.length > 0) {
         response.warnings = processingErrors;
       }
-      
-      res.status(201).json(response);
+    
+    res.status(201).json(response);
     }
   } catch (error) {
     // Clear the timeout
