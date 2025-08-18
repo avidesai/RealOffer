@@ -18,6 +18,7 @@ const BuyerPackageAnalysis = ({ buyerPackageId }) => {
     subjectProperty: null,
     lastUpdated: null
   });
+  const [renovationHidden, setRenovationHidden] = useState(false);
   
   // Pagination state for comparables
   const [currentPage, setCurrentPage] = useState(0);
@@ -375,7 +376,12 @@ const BuyerPackageAnalysis = ({ buyerPackageId }) => {
         </div>
 
         {/* Renovation Estimate Section */}
-        <RenovationEstimate propertyId={analysisData.subjectProperty?._id} showRegenerateButton={false} />
+        <RenovationEstimate 
+          propertyId={analysisData.subjectProperty?._id} 
+          showRegenerateButton={false} 
+          isHidden={renovationHidden}
+          onToggleVisibility={() => setRenovationHidden(!renovationHidden)}
+        />
       </div>
     </div>
   );

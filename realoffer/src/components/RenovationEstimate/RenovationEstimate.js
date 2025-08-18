@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import './RenovationEstimate.css';
 
-const RenovationEstimate = ({ propertyId, showRegenerateButton = true }) => {
+const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden = false, onToggleVisibility }) => {
   const { token } = useAuth();
   const [renovationData, setRenovationData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -162,6 +162,11 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true }) => {
     };
   };
 
+  // If hidden and this is the buyer package side, don't render at all
+  if (isHidden && !showRegenerateButton) {
+    return null;
+  }
+
   if (loading) {
     return (
       <div className="renovation-estimate">
@@ -268,7 +273,7 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true }) => {
   const filteredBreakdown = getFilteredBreakdown();
 
   return (
-    <div className="renovation-estimate">
+    <div className={`renovation-estimate ${isHidden ? 'renovation-hidden' : ''}`}>
       <div className="renovation-header">
         <h3>
           Renovation Estimate
@@ -284,132 +289,151 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true }) => {
               {generating ? 'Regenerating...' : 'Regenerate Analysis'}
             </button>
           )}
+          {showRegenerateButton && (
+            <button 
+              onClick={onToggleVisibility}
+              className="toggle-visibility-button"
+            >
+              {isHidden ? 'Show Renovation Estimate' : 'Hide Renovation Estimate'}
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="renovation-content">
-        {/* Summary Stats */}
-        <div className="renovation-summary-stats">
-          <div className="stat-card primary">
-            <div className="stat-value">{formatCurrency(renovationEstimate.totalEstimatedCost)}</div>
-            <div className="stat-label">Total Estimated Cost</div>
-          </div>
-        </div>
-
-        {/* Move-in Ready Badge */}
-        {stats.moveInReady && (
-          <div className="move-in-ready-badge">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      {isHidden ? (
+        <div className="renovation-hidden-overlay">
+          <div className="renovation-hidden-content">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 12H15M9 16H15M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H12.5858C12.851 3 13.1054 3.10536 13.2929 3.29289L19.7071 9.70711C19.8946 9.89464 20 10.149 20 10.4142V19C20 20.1046 19.1046 21 18 21H17Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span>Move-In Ready Property</span>
-          </div>
-        )}
-
-        {/* Processing Status */}
-        {renovationData?.status === 'processing' && (
-          <div className="processing-status">
-            <div className="processing-info">
-              <div className="spinner"></div>
-              <div className="processing-text">
-                <p>Analyzing property photos...</p>
-                <p className="processing-note">This may take a few minutes. You can manually refresh below.</p>
-              </div>
-            </div>
-            <button 
-              onClick={fetchRenovationEstimate}
-              className="manual-refresh-button"
-            >
-              Check Status
-            </button>
-          </div>
-        )}
-
-        {/* Filter Controls */}
-        {/* <div className="renovation-filters">
-          <button 
-            className={`filter-button ${selectedFilter === 'all' ? 'active' : ''}`}
-            onClick={() => setSelectedFilter('all')}
-          >
-            All Categories ({renovationEstimate.breakdown.length})
-          </button>
-          {stats.neededItems > 0 && (
-            <button 
-              className={`filter-button ${selectedFilter === 'needed' ? 'active' : ''}`}
-              onClick={() => setSelectedFilter('needed')}
-            >
-              Needs Work ({stats.neededItems})
-            </button>
-          )}
-          {(renovationEstimate.breakdown.length - stats.neededItems) > 0 && (
-            <button 
-              className={`filter-button ${selectedFilter === 'not-needed' ? 'active' : ''}`}
-              onClick={() => setSelectedFilter('not-needed')}
-            >
-              No Work Needed ({renovationEstimate.breakdown.length - stats.neededItems})
-            </button>
-          )}
-          {stats.highPriorityItems > 0 && (
-            <button 
-              className={`filter-button ${selectedFilter === 'high-priority' ? 'active' : ''}`}
-              onClick={() => setSelectedFilter('high-priority')}
-            >
-              High Priority ({stats.highPriorityItems})
-            </button>
-          )}
-        </div> */}
-
-        {/* Breakdown Grid */}
-        <div className="renovation-breakdown">
-          <div className="breakdown-grid">
-            {filteredBreakdown.map((item, index) => (
-              <div key={index} className="breakdown-item">
-                <div className="item-header">
-                  <h5>{item.category}</h5>
-                  <div className="item-cost">
-                    {formatCurrency(item.estimatedCost)}
-                  </div>
-                </div>
-                
-                <div className="item-badges">
-                  {/* Condition Badge */}
-                  <div 
-                    className="condition-badge"
-                    style={{ backgroundColor: getConditionBadgeColor(item.condition) }}
-                  >
-                    {item.condition} Condition
-                  </div>
-                  
-                  {/* Renovation Needed Badge */}
-                  {!item.renovationNeeded && (
-                    <div className="no-renovation-badge">
-                      No Renovation Needed
-                    </div>
-                  )}
-                  
-                  {/* Priority Badge */}
-                  {item.renovationNeeded && (
-                    <div 
-                      className="priority-badge"
-                      style={{ backgroundColor: getPriorityBadgeColor(item.priority) }}
-                    >
-                      {item.priority} Priority
-                    </div>
-                  )}
-                </div>
-                
-                {item.description && (
-                  <p className="item-description">{item.description}</p>
-                )}
-                
-                {item.notes && (
-                  <p className="item-notes">{item.notes}</p>
-                )}
-              </div>
-            ))}
+            <p>Renovation Estimate Hidden</p>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="renovation-content">
+          {/* Summary Stats */}
+          <div className="renovation-summary-stats">
+            <div className="stat-card primary">
+              <div className="stat-value">{formatCurrency(renovationEstimate.totalEstimatedCost)}</div>
+              <div className="stat-label">Total Estimated Cost</div>
+            </div>
+          </div>
+
+          {/* Move-in Ready Badge */}
+          {stats.moveInReady && (
+            <div className="move-in-ready-badge">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span>Move-In Ready Property</span>
+            </div>
+          )}
+
+          {/* Processing Status */}
+          {renovationData?.status === 'processing' && (
+            <div className="processing-status">
+              <div className="processing-info">
+                <div className="spinner"></div>
+                <div className="processing-text">
+                  <p>Analyzing property photos...</p>
+                  <p className="processing-note">This may take a few minutes. You can manually refresh below.</p>
+                </div>
+              </div>
+              <button 
+                onClick={fetchRenovationEstimate}
+                className="manual-refresh-button"
+              >
+                Check Status
+              </button>
+            </div>
+          )}
+
+          {/* Filter Controls */}
+          {/* <div className="renovation-filters">
+            <button 
+              className={`filter-button ${selectedFilter === 'all' ? 'active' : ''}`}
+              onClick={() => setSelectedFilter('all')}
+            >
+              All Categories ({renovationEstimate.breakdown.length})
+            </button>
+            {stats.neededItems > 0 && (
+              <button 
+                className={`filter-button ${selectedFilter === 'needed' ? 'active' : ''}`}
+                onClick={() => setSelectedFilter('needed')}
+              >
+                Needs Work ({stats.neededItems})
+              </button>
+            )}
+            {(renovationEstimate.breakdown.length - stats.neededItems) > 0 && (
+              <button 
+                className={`filter-button ${selectedFilter === 'not-needed' ? 'active' : ''}`}
+                onClick={() => setSelectedFilter('not-needed')}
+              >
+                No Work Needed ({renovationEstimate.breakdown.length - stats.neededItems})
+              </button>
+            )}
+            {stats.highPriorityItems > 0 && (
+              <button 
+                className={`filter-button ${selectedFilter === 'high-priority' ? 'active' : ''}`}
+                onClick={() => setSelectedFilter('high-priority')}
+              >
+                High Priority ({stats.highPriorityItems})
+              </button>
+            )}
+          </div> */}
+
+          {/* Breakdown Grid */}
+          <div className="renovation-breakdown">
+            <div className="breakdown-grid">
+              {filteredBreakdown.map((item, index) => (
+                <div key={index} className="breakdown-item">
+                  <div className="item-header">
+                    <h5>{item.category}</h5>
+                    <div className="item-cost">
+                      {formatCurrency(item.estimatedCost)}
+                    </div>
+                  </div>
+                  
+                  <div className="item-badges">
+                    {/* Condition Badge */}
+                    <div 
+                      className="condition-badge"
+                      style={{ backgroundColor: getConditionBadgeColor(item.condition) }}
+                    >
+                      {item.condition} Condition
+                    </div>
+                    
+                    {/* Renovation Needed Badge */}
+                    {!item.renovationNeeded && (
+                      <div className="no-renovation-badge">
+                        No Renovation Needed
+                      </div>
+                    )}
+                    
+                    {/* Priority Badge */}
+                    {item.renovationNeeded && (
+                      <div 
+                        className="priority-badge"
+                        style={{ backgroundColor: getPriorityBadgeColor(item.priority) }}
+                      >
+                        {item.priority} Priority
+                      </div>
+                    )}
+                  </div>
+                  
+                  {item.description && (
+                    <p className="item-description">{item.description}</p>
+                  )}
+                  
+                  {item.notes && (
+                    <p className="item-notes">{item.notes}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -206,6 +206,12 @@
   color: #6c757d;
 }
 
+/* Delete Dropdown Styles */
+.docs-tab-delete-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

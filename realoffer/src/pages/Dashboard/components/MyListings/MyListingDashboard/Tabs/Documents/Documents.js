@@ -33,6 +33,7 @@ const Documents = ({ listingId }) => {
   const [draggedItem, setDraggedItem] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
   const [showDownloadDropdown, setShowDownloadDropdown] = useState(false);
+  const [showDeleteDropdown, setShowDeleteDropdown] = useState(false);
 
   const fetchListingData = useCallback(async () => {
     try {
@@ -476,8 +477,32 @@ const Documents = ({ listingId }) => {
     }
   };
 
+  const handleDeleteAllDocuments = async () => {
+    if (documents.length === 0) return;
+    
+    setLoading(true);
+    try {
+      await Promise.all(documents.map((doc) => 
+        api.delete(`/api/documents/${doc._id}`)
+      ));
+      
+      // Clear all documents and order
+      setDocumentOrder([]);
+      setDocuments([]);
+      setSelectedDocuments([]);
+    } catch (error) {
+      console.error('Error deleting all documents:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const toggleDownloadDropdown = () => {
     setShowDownloadDropdown(!showDownloadDropdown);
+  };
+
+  const toggleDeleteDropdown = () => {
+    setShowDeleteDropdown(!showDeleteDropdown);
   };
 
   // Close dropdown when clicking outside
@@ -486,13 +511,16 @@ const Documents = ({ listingId }) => {
       if (showDownloadDropdown && !event.target.closest('.docs-tab-download-dropdown')) {
         setShowDownloadDropdown(false);
       }
+      if (showDeleteDropdown && !event.target.closest('.docs-tab-delete-dropdown')) {
+        setShowDeleteDropdown(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showDownloadDropdown]);
+  }, [showDownloadDropdown, showDeleteDropdown]);
 
   if (loading) {
     return (
@@ -550,9 +578,38 @@ const Documents = ({ listingId }) => {
           <button className="docs-tab-delete-button" onClick={handleReorderToggle} disabled={isRenameMode || documents.length === 0}>
             {isReorderMode ? 'Done Reordering' : 'Reorder'}
           </button>
-          <button className="docs-tab-delete-button" onClick={handleDeleteSelectedDocuments} disabled={isReorderMode || isRenameMode || documents.length === 0}>
-            Delete
-          </button>
+          <div className="docs-tab-delete-dropdown">
+            <button 
+              className="docs-tab-delete-button" 
+              onClick={toggleDeleteDropdown}
+              disabled={isReorderMode || isRenameMode || documents.length === 0}
+            >
+              Delete
+            </button>
+            {showDeleteDropdown && (
+              <div className="docs-tab-dropdown-menu">
+                <button 
+                  className="docs-tab-dropdown-item"
+                  onClick={() => {
+                    handleDeleteSelectedDocuments();
+                    setShowDeleteDropdown(false);
+                  }}
+                  disabled={selectedDocuments.length === 0}
+                >
+                  Delete Selected ({selectedDocuments.length})
+                </button>
+                <button 
+                  className="docs-tab-dropdown-item"
+                  onClick={() => {
+                    handleDeleteAllDocuments();
+                    setShowDeleteDropdown(false);
+                  }}
+                >
+                  Delete All ({documents.length})
+                </button>
+              </div>
+            )}
+          </div>
         </div>
         <button className="docs-tab-signature-button" onClick={openSignaturePackageModal} disabled={isReorderMode || isRenameMode || documents.length === 0}>
           {hasSignaturePackage ? "Update Disclosure Signature Packet" : "Create Disclosure Signature Packet"}

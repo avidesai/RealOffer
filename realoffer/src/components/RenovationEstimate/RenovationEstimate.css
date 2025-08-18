@@ -8,11 +8,87 @@
   margin-bottom: 1.5rem;
   border-left: 4px solid #dc3545;
   animation: fadeIn 0.3s ease;
+  position: relative;
 }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Hidden State */
+.renovation-estimate.renovation-hidden {
+  border-left-color: #6c757d;
+}
+
+.renovation-hidden-overlay {
+  position: relative;
+  min-height: 200px;
+  background: linear-gradient(135deg, rgba(108, 117, 125, 0.1) 0%, rgba(108, 117, 125, 0.05) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+}
+
+.renovation-hidden-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(108, 117, 125, 0.3);
+  backdrop-filter: blur(2px);
+  z-index: 1;
+}
+
+.renovation-hidden-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: #6c757d;
+}
+
+.renovation-hidden-content svg {
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.renovation-hidden-content p {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #6c757d;
+}
+
+/* Toggle Visibility Button */
+.toggle-visibility-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-visibility-button:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+.renovation-estimate.renovation-hidden .toggle-visibility-button {
+  background: #007bff;
+}
+
+.renovation-estimate.renovation-hidden .toggle-visibility-button:hover {
+  background: #0056b3;
 }
 
 /* Loading, Error, and Empty States */
@@ -615,6 +691,11 @@
     align-items: flex-start;
     gap: 0.75rem;
     width: 100%;
+  }
+  
+  .toggle-visibility-button {
+    width: 100%;
+    justify-content: center;
   }
   
   .renovation-summary-stats {

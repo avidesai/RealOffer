@@ -24,6 +24,7 @@ const Analysis = ({ listingId }) => {
   const [editingRent, setEditingRent] = useState(false);
   const [editRent, setEditRent] = useState('');
   const [savingRent, setSavingRent] = useState(false);
+  const [renovationHidden, setRenovationHidden] = useState(false);
   
   // Pagination state for comparables
   const [currentPage, setCurrentPage] = useState(0);
@@ -752,7 +753,11 @@ const Analysis = ({ listingId }) => {
         </div>
 
         {/* Renovation Estimate Section */}
-        <RenovationEstimate propertyId={listingId} />
+        <RenovationEstimate 
+          propertyId={listingId} 
+          isHidden={renovationHidden}
+          onToggleVisibility={() => setRenovationHidden(!renovationHidden)}
+        />
       </div>
     </div>
   );
