@@ -341,10 +341,18 @@ Please provide your response in the following JSON format:
 
     // Process each batch and combine results
     let allBreakdowns = [];
+    let failedBatches = 0;
+    const maxFailedBatches = 3; // Stop if too many batches fail
     
     for (let i = 0; i < photoBatches.length; i++) {
       const batch = photoBatches[i];
       if (batch.length === 0) continue;
+      
+      // Stop processing if too many batches have failed
+      if (failedBatches >= maxFailedBatches) {
+        console.log(`Stopping processing - ${failedBatches} batches failed`);
+        break;
+      }
       
       const userMessage = `Please analyze these ${batch.length} photos of the property and provide renovation estimates in JSON format.`;
       
@@ -372,7 +380,7 @@ Please provide your response in the following JSON format:
             'x-api-key': process.env.CLAUDE_API_KEY,
             'anthropic-version': '2023-06-01'
           },
-          timeout: 90000 // 90 second timeout
+          timeout: 60000 // Reduced timeout to 60 seconds
         });
         
         console.log('Claude API response received successfully');
@@ -388,16 +396,13 @@ Please provide your response in the following JSON format:
         
       } catch (error) {
         console.error('Error processing photo batch:', error.message);
-        console.error('Error details:', {
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data,
-          headers: error.response?.headers
-        });
+        failedBatches++;
         
-        // If it's a 400 error, it might be due to request size, try with fewer images
-        if (error.response?.status === 400 && batch.length > 1) {
-          console.log('Retrying with single images due to 400 error...');
+        // If it's a timeout or 400 error, try with single images
+        if ((error.code === 'ECONNABORTED' || error.response?.status === 400) && batch.length > 1) {
+          console.log('Retrying with single images due to timeout or 400 error...');
+          
+          let singleImageSuccess = false;
           // Try processing images one by one
           for (const img of batch) {
             try {
@@ -421,7 +426,7 @@ Please provide your response in the following JSON format:
                   'x-api-key': process.env.CLAUDE_API_KEY,
                   'anthropic-version': '2023-06-01'
                 },
-                timeout: 90000
+                timeout: 45000 // 45 second timeout for single images
               });
               
               console.log('Single image processed successfully');
@@ -431,14 +436,28 @@ Please provide your response in the following JSON format:
               
               renovationAnalysis.processingDetails.photosProcessed += 1;
               await renovationAnalysis.save();
+              singleImageSuccess = true;
+              
+              // Small delay between single image requests
+              await new Promise(resolve => setTimeout(resolve, 1000));
               
             } catch (singleError) {
               console.error('Error processing single image:', singleError.message);
               // Continue with other images even if one fails
             }
           }
+          
+          // If we had some success with single images, don't count this as a failed batch
+          if (singleImageSuccess) {
+            failedBatches--;
+          }
         } else {
-          throw new Error(`Failed to analyze photos with AI: ${error.message}`);
+          // For other errors, log but continue
+          console.error('Error details:', {
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            data: error.response?.data
+          });
         }
       }
     }
@@ -449,6 +468,13 @@ Please provide your response in the following JSON format:
     // Check if we have any breakdown data
     if (finalBreakdown.length === 0) {
       console.log('No AI analysis data available, creating fallback estimate');
+      
+      // Update status to indicate fallback was used
+      renovationAnalysis.status = 'completed';
+      renovationAnalysis.processingDetails.completedAt = new Date();
+      renovationAnalysis.processingDetails.errorMessage = 'AI analysis failed, using fallback estimate';
+      await renovationAnalysis.save();
+      
       // Create a basic fallback estimate
       finalBreakdown = [
         {

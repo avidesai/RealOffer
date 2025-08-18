@@ -74,11 +74,29 @@ const RenovationEstimate = ({ propertyId }) => {
   // Poll for updates when analysis is processing
   useEffect(() => {
     let interval;
+    let pollCount = 0;
+    const maxPolls = 60; // Maximum 5 minutes of polling (60 * 5 seconds)
+    
     if (renovationData?.status === 'processing') {
-      interval = setInterval(() => {
-        fetchRenovationEstimate();
-      }, 5000); // Check every 5 seconds
+      interval = setInterval(async () => {
+        pollCount++;
+        
+        // Stop polling after max attempts
+        if (pollCount >= maxPolls) {
+          console.log('Stopping renovation analysis polling - max attempts reached');
+          clearInterval(interval);
+          return;
+        }
+        
+        try {
+          await fetchRenovationEstimate();
+        } catch (error) {
+          console.error('Error during polling:', error);
+          // Don't stop polling on individual errors, but log them
+        }
+      }, 10000); // Check every 10 seconds instead of 5
     }
+    
     return () => {
       if (interval) {
         clearInterval(interval);
@@ -285,6 +303,25 @@ const RenovationEstimate = ({ propertyId }) => {
         {renovationEstimate.summary && (
           <div className="renovation-summary">
             <p>{renovationEstimate.summary}</p>
+          </div>
+        )}
+
+        {/* Processing Status */}
+        {renovationData?.status === 'processing' && (
+          <div className="processing-status">
+            <div className="processing-info">
+              <div className="spinner"></div>
+              <div className="processing-text">
+                <p>Analyzing property photos...</p>
+                <p className="processing-note">This may take a few minutes. You can manually refresh below.</p>
+              </div>
+            </div>
+            <button 
+              onClick={fetchRenovationEstimate}
+              className="manual-refresh-button"
+            >
+              Check Status
+            </button>
           </div>
         )}
 
