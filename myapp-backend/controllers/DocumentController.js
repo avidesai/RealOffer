@@ -482,9 +482,9 @@ const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPd
           }
         }
         
-        // Add success message to processing info
+        // Add success message to processing info (not an error, just informational)
         const successMsg = `${document.title}: Security restrictions bypassed, preserved original vector quality`;
-        processingErrors.push(successMsg);
+        processingInfo.push(successMsg);
         
         return; // Success with bypassed restrictions
       } catch (error) {
@@ -498,9 +498,9 @@ const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPd
         progressCallback(`${document.title}: Restrictions could not be bypassed - using enhanced image conversion...`);
       }
       
-      // Add informational message to processing errors (not really an error, just info)
+      // Add informational message to processing info (not really an error, just info)
       const infoMsg = `${document.title}: Document has unbypassable security restrictions, converted to high-quality images`;
-      processingErrors.push(infoMsg);
+      processingInfo.push(infoMsg);
       
       // Skip direct copying and go straight to image conversion for password-protected PDFs
       return await convertDocumentToImages(document, existingPdfBytes, mergedPdf, processingErrors, progressCallback);
@@ -1437,6 +1437,8 @@ const createBuyerSignaturePacketInternal = async (req, res, progressCallback) =>
     
     // Track any errors during document processing
     const processingErrors = [];
+    // Track informational messages (like successful bypasses)
+    const processingInfo = [];
     
     // Limit the number of documents processed at once to prevent memory issues
     const maxDocumentsPerRequest = 30;
@@ -1549,10 +1551,14 @@ const createBuyerSignaturePacketInternal = async (req, res, progressCallback) =>
       });
     }
 
-    // If there were processing errors but some pages were added, log them but continue
+    // Log any warnings
+    if (processingInfo.length > 0 || processingErrors.length > 0) {
+      const tempAllMessages = [...processingInfo, ...processingErrors];
+      console.warn('Signature package created with warnings:', tempAllMessages);
+    }
+    
+    // Only count actual errors (not info messages) for failure rate calculation
     if (processingErrors.length > 0) {
-      console.warn('Signature package created with warnings:', processingErrors);
-      
       // If more than 50% of documents failed, consider it a failure
       const failureRate = processingErrors.length / selectedDocuments.length;
       if (failureRate > 0.5) {
@@ -1639,6 +1645,9 @@ const createBuyerSignaturePacketInternal = async (req, res, progressCallback) =>
     const successfulDocuments = selectedDocuments.length - processingErrors.length;
     const totalPages = mergedPdf.getPageCount();
     
+    // Combine processing info and errors for final response
+    const allMessages = [...processingInfo, ...processingErrors];
+    
     console.log(`Signature package created successfully: ${successfulDocuments}/${selectedDocuments.length} documents processed, ${totalPages} pages total`);
 
     // Memory monitoring at end
@@ -1680,8 +1689,8 @@ const createBuyerSignaturePacketInternal = async (req, res, progressCallback) =>
         }
       };
       
-      if (processingErrors.length > 0) {
-        response.warnings = processingErrors;
+      if (allMessages.length > 0) {
+        response.warnings = allMessages;
       }
     
     res.status(201).json(response);
