@@ -28,7 +28,7 @@ const renovationCategorySchema = new mongoose.Schema({
   description: String,
   condition: {
     type: String,
-    enum: ['Excellent', 'Good', 'Fair', 'Poor', 'New'],
+    enum: ['New', 'Excellent', 'Good', 'Fair', 'Poor'],
     required: true
   },
   renovationNeeded: {
@@ -39,6 +39,20 @@ const renovationCategorySchema = new mongoose.Schema({
   priority: {
     type: String,
     enum: ['High', 'Medium', 'Low', 'None'],
+    default: 'None'
+  },
+  roiPotential: {
+    type: String,
+    enum: ['High', 'Medium', 'Low', 'None'],
+    default: 'None'
+  },
+  estimatedRoiValue: {
+    type: Number,
+    default: 0
+  },
+  urgencyLevel: {
+    type: String,
+    enum: ['Immediate', 'Within 1 Year', 'Within 3 Years', 'Optional', 'None'],
     default: 'None'
   }
 });

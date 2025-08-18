@@ -148,7 +148,10 @@ exports.generateRenovationEstimate = async (req, res) => {
           condition: 'Fair',
           renovationNeeded: true,
           notes: 'Fallback estimate - photos could not be processed',
-          priority: 'Medium'
+          priority: 'Medium',
+          roiPotential: 'Medium',
+          estimatedRoiValue: 12750,
+          urgencyLevel: 'Within 1 Year'
         },
         {
           category: 'Bathrooms',
@@ -157,7 +160,10 @@ exports.generateRenovationEstimate = async (req, res) => {
           condition: 'Fair',
           renovationNeeded: true,
           notes: 'Fallback estimate - photos could not be processed',
-          priority: 'Medium'
+          priority: 'Medium',
+          roiPotential: 'Medium',
+          estimatedRoiValue: 6000,
+          urgencyLevel: 'Within 1 Year'
         },
         {
           category: 'Flooring',
@@ -166,7 +172,10 @@ exports.generateRenovationEstimate = async (req, res) => {
           condition: 'Fair',
           renovationNeeded: true,
           notes: 'Fallback estimate - photos could not be processed',
-          priority: 'Low'
+          priority: 'Low',
+          roiPotential: 'Low',
+          estimatedRoiValue: 3500,
+          urgencyLevel: 'Within 3 Years'
         },
         {
           category: 'Paint',
@@ -175,7 +184,10 @@ exports.generateRenovationEstimate = async (req, res) => {
           condition: 'Fair',
           renovationNeeded: true,
           notes: 'Fallback estimate - photos could not be processed',
-          priority: 'Low'
+          priority: 'Low',
+          roiPotential: 'Low',
+          estimatedRoiValue: 1800,
+          urgencyLevel: 'Within 3 Years'
         },
         {
           category: 'Landscaping',
@@ -184,7 +196,10 @@ exports.generateRenovationEstimate = async (req, res) => {
           condition: 'Fair',
           renovationNeeded: true,
           notes: 'Fallback estimate - photos could not be processed',
-          priority: 'Low'
+          priority: 'Low',
+          roiPotential: 'Low',
+          estimatedRoiValue: 1300,
+          urgencyLevel: 'Within 3 Years'
         },
         {
           category: 'Exterior',
@@ -193,7 +208,10 @@ exports.generateRenovationEstimate = async (req, res) => {
           condition: 'Fair',
           renovationNeeded: true,
           notes: 'Fallback estimate - photos could not be processed',
-          priority: 'Medium'
+          priority: 'Medium',
+          roiPotential: 'Medium',
+          estimatedRoiValue: 3200,
+          urgencyLevel: 'Within 1 Year'
         },
         {
           category: 'Other',
@@ -202,7 +220,10 @@ exports.generateRenovationEstimate = async (req, res) => {
           condition: 'Fair',
           renovationNeeded: true,
           notes: 'Fallback estimate - photos could not be processed',
-          priority: 'Low'
+          priority: 'Low',
+          roiPotential: 'Low',
+          estimatedRoiValue: 500,
+          urgencyLevel: 'Within 3 Years'
         }
       ];
       
@@ -230,7 +251,7 @@ exports.generateRenovationEstimate = async (req, res) => {
     const locationInfo = `${property.homeCharacteristics.city}, ${property.homeCharacteristics.state} ${property.homeCharacteristics.zip}`;
     const propertyInfo = `${property.homeCharacteristics.beds} bed, ${property.homeCharacteristics.baths} bath, ${property.homeCharacteristics.squareFootage} sqft`;
     
-    const systemPrompt = `You are a professional home renovation estimator with expertise in local market costs. Analyze the provided property photos and provide a detailed renovation cost estimate.
+    const systemPrompt = `You are a professional home renovation estimator with expertise in local market costs and property valuation. Analyze the provided property photos and provide a detailed renovation cost estimate.
 
 IMPORTANT: Use the specific location provided to give accurate local market estimates.
 
@@ -246,27 +267,57 @@ Provide estimates for the following categories:
 - Exterior
 - Other
 
-CRITICAL ASSESSMENT GUIDELINES:
-1. **Be conservative and realistic** - Only suggest renovations if there are clear signs of wear, damage, or outdated features
-2. **Recognize recently renovated properties** - If you see modern finishes, new appliances, fresh paint, or updated features, mark those areas as "Excellent" or "New" condition
-3. **Condition Assessment**:
-   - "New" = Recently renovated/updated (updated within last 5 years)
-   - "Excellent" = Very good condition, modern features, no visible wear (updated within last 10 years)
-   - "Good" = Minor wear but still in good condition
-   - "Fair" = Moderate wear, some outdated features
-   - "Poor" = Significant wear, damage, or very outdated
+CRITICAL ASSESSMENT GUIDELINES - BE EXTREMELY CONSERVATIVE:
 
-4. **Renovation Need Assessment**:
-   - Only mark renovationNeeded = true if there are clear issues or outdated features
-   - If an area looks modern, updated, or in good condition, mark renovationNeeded = false and estimatedCost = 0
-   - Don't suggest renovations just because something could be "improved" - only if it actually needs work
+1. **MOVE-IN READY STANDARD**: Only suggest renovations if the property would NOT be considered "move-in ready" for most buyers. If a room/area looks clean, functional, and reasonably modern, DO NOT suggest renovation.
+
+2. **CONDITION ASSESSMENT CRITERIA**:
+   - "New" = Recently renovated/updated (within last 3 years) with modern finishes
+   - "Excellent" = Very good condition, modern features, no visible wear (within last 8 years)
+   - "Good" = Minor wear but still in good condition, functional and presentable
+   - "Fair" = Moderate wear, some outdated features, but still functional
+   - "Poor" = Significant wear, damage, or very outdated features that affect livability
+
+3. **RENOVATION NEED ASSESSMENT - EXTREMELY CONSERVATIVE**:
+   - Only mark renovationNeeded = true if there are CLEAR issues that would:
+     * Prevent the property from being move-in ready
+     * Significantly impact resale value
+     * Create safety or functionality problems
+     * Show obvious signs of damage, severe wear, or extreme outdatedness
+   
+   - DO NOT suggest renovation for:
+     * Cosmetic preferences (different style, color choices)
+     * "Could be improved" scenarios
+     * Modern, functional, clean areas
+     * Areas that are simply not "trendy" but are in good condition
+
+4. **MARKET CONTEXT CONSIDERATIONS**:
+   - Consider the property's price point and market segment
+   - Higher-end properties may have higher standards
+   - Starter homes should be assessed more leniently
+   - Focus on functionality and livability over luxury upgrades
+
+5. **SPECIFIC CATEGORY GUIDELINES**:
+   - **Kitchen**: Only renovate if appliances are broken, cabinets are damaged, or layout is severely dysfunctional
+   - **Bathrooms**: Only renovate if fixtures are broken, there's water damage, or severe mold issues
+   - **Flooring**: Only replace if damaged, severely stained, or unsafe
+   - **Paint**: Only repaint if walls are severely damaged, stained, or have peeling paint
+   - **Landscaping**: Only renovate if yard is severely overgrown, unsafe, or has drainage issues
+   - **Exterior**: Only renovate if there's structural damage, severe wear, or safety issues
+
+6. **PRIORITY ASSESSMENT**:
+   - "High" = Safety issues, structural problems, or severe damage
+   - "Medium" = Significant wear that affects functionality or appearance
+   - "Low" = Minor cosmetic issues or outdated features
+   - "None" = No renovation needed
 
 For each category, assess:
-1. Current condition (Excellent/Good/Fair/Poor/New)
-2. Whether renovation is needed (be conservative - only if clearly needed)
+1. Current condition (New/Excellent/Good/Fair/Poor)
+2. Whether renovation is needed (be extremely conservative)
 3. Estimated cost for renovation (use local market rates for ${locationInfo})
 4. Brief description of work needed (if any)
 5. Priority level (High/Medium/Low/None)
+6. ROI potential (High/Medium/Low/None) - how much value the renovation would add
 
 If a category is in excellent, good, or new condition and doesn't need renovation, mark renovationNeeded as false and estimatedCost as 0.
 
@@ -282,7 +333,8 @@ Please provide your response in the following JSON format:
       "condition": "Excellent",
       "renovationNeeded": false,
       "notes": "No renovation needed - kitchen is in excellent condition",
-      "priority": "None"
+      "priority": "None",
+      "roiPotential": "None"
     }
   ]
 }`;
@@ -406,7 +458,10 @@ Please provide your response in the following JSON format:
           condition: 'Fair',
           renovationNeeded: true,
           notes: 'Fallback estimate - AI analysis unavailable',
-          priority: 'Medium'
+          priority: 'Medium',
+          roiPotential: 'Medium',
+          estimatedRoiValue: 12750,
+          urgencyLevel: 'Within 1 Year'
         },
         {
           category: 'Bathrooms',
@@ -415,7 +470,10 @@ Please provide your response in the following JSON format:
           condition: 'Fair',
           renovationNeeded: true,
           notes: 'Fallback estimate - AI analysis unavailable',
-          priority: 'Medium'
+          priority: 'Medium',
+          roiPotential: 'Medium',
+          estimatedRoiValue: 6000,
+          urgencyLevel: 'Within 1 Year'
         },
         {
           category: 'Flooring',
@@ -424,7 +482,10 @@ Please provide your response in the following JSON format:
           condition: 'Fair',
           renovationNeeded: true,
           notes: 'Fallback estimate - AI analysis unavailable',
-          priority: 'Low'
+          priority: 'Low',
+          roiPotential: 'Low',
+          estimatedRoiValue: 3500,
+          urgencyLevel: 'Within 3 Years'
         },
         {
           category: 'Paint',
@@ -433,7 +494,10 @@ Please provide your response in the following JSON format:
           condition: 'Fair',
           renovationNeeded: true,
           notes: 'Fallback estimate - AI analysis unavailable',
-          priority: 'Low'
+          priority: 'Low',
+          roiPotential: 'Low',
+          estimatedRoiValue: 1800,
+          urgencyLevel: 'Within 3 Years'
         },
         {
           category: 'Landscaping',
@@ -442,7 +506,10 @@ Please provide your response in the following JSON format:
           condition: 'Fair',
           renovationNeeded: true,
           notes: 'Fallback estimate - AI analysis unavailable',
-          priority: 'Low'
+          priority: 'Low',
+          roiPotential: 'Low',
+          estimatedRoiValue: 1300,
+          urgencyLevel: 'Within 3 Years'
         },
         {
           category: 'Exterior',
@@ -451,7 +518,10 @@ Please provide your response in the following JSON format:
           condition: 'Fair',
           renovationNeeded: true,
           notes: 'Fallback estimate - AI analysis unavailable',
-          priority: 'Medium'
+          priority: 'Medium',
+          roiPotential: 'Medium',
+          estimatedRoiValue: 3200,
+          urgencyLevel: 'Within 1 Year'
         },
         {
           category: 'Other',
@@ -460,7 +530,10 @@ Please provide your response in the following JSON format:
           condition: 'Fair',
           renovationNeeded: true,
           notes: 'Fallback estimate - AI analysis unavailable',
-          priority: 'Low'
+          priority: 'Low',
+          roiPotential: 'Low',
+          estimatedRoiValue: 500,
+          urgencyLevel: 'Within 3 Years'
         }
       ];
     }
@@ -522,6 +595,12 @@ const parseRenovationBreakdown = (content) => {
             const validCategories = ['Kitchen', 'Bathrooms', 'Flooring', 'Paint', 'Landscaping', 'Exterior', 'Other'];
             const category = validCategories.includes(item.category) ? item.category : 'Other';
             
+            // Calculate estimated ROI value based on category and cost
+            const estimatedRoiValue = calculateEstimatedRoiValue(category, item.estimatedCost || 0);
+            
+            // Determine urgency level based on priority and condition
+            const urgencyLevel = determineUrgencyLevel(item.priority || 'None', item.condition || 'Fair');
+            
             return {
               category: category,
               estimatedCost: item.estimatedCost || 0,
@@ -529,7 +608,10 @@ const parseRenovationBreakdown = (content) => {
               condition: item.condition || 'Fair',
               renovationNeeded: item.renovationNeeded || false,
               notes: item.notes || '',
-              priority: item.priority || 'None'
+              priority: item.priority || 'None',
+              roiPotential: item.roiPotential || 'None',
+              estimatedRoiValue: estimatedRoiValue,
+              urgencyLevel: urgencyLevel
             };
           });
         }
@@ -548,13 +630,19 @@ const parseRenovationBreakdown = (content) => {
         const [category, costStr] = match.split(':').map(s => s.trim());
         const cost = parseInt(costStr.replace(/[$,]/g, ''));
         
+        const estimatedRoiValue = calculateEstimatedRoiValue(category, cost);
+        const urgencyLevel = determineUrgencyLevel(cost > 10000 ? 'High' : cost > 5000 ? 'Medium' : 'Low', 'Fair');
+        
         breakdown.push({
           category: category,
           estimatedCost: cost,
           condition: 'Fair',
           renovationNeeded: cost > 0,
           notes: '',
-          priority: cost > 10000 ? 'High' : cost > 5000 ? 'Medium' : 'Low'
+          priority: cost > 10000 ? 'High' : cost > 5000 ? 'Medium' : 'Low',
+          roiPotential: cost > 10000 ? 'High' : cost > 5000 ? 'Medium' : 'Low',
+          estimatedRoiValue: estimatedRoiValue,
+          urgencyLevel: urgencyLevel
         });
       });
     }
@@ -565,6 +653,33 @@ const parseRenovationBreakdown = (content) => {
     console.error('Error parsing renovation breakdown:', error);
     return [];
   }
+};
+
+// Helper function to calculate estimated ROI value
+const calculateEstimatedRoiValue = (category, cost) => {
+  if (cost === 0) return 0;
+  
+  // ROI percentages based on category (industry averages)
+  const roiPercentages = {
+    'Kitchen': 0.85, // 85% ROI
+    'Bathrooms': 0.75, // 75% ROI
+    'Flooring': 0.70, // 70% ROI
+    'Paint': 0.60, // 60% ROI
+    'Landscaping': 0.65, // 65% ROI
+    'Exterior': 0.80, // 80% ROI
+    'Other': 0.50 // 50% ROI
+  };
+  
+  const roiPercentage = roiPercentages[category] || 0.50;
+  return Math.round(cost * roiPercentage);
+};
+
+// Helper function to determine urgency level
+const determineUrgencyLevel = (priority, condition) => {
+  if (priority === 'High' || condition === 'Poor') return 'Immediate';
+  if (priority === 'Medium' || condition === 'Fair') return 'Within 1 Year';
+  if (priority === 'Low') return 'Within 3 Years';
+  return 'Optional';
 };
 
 // Helper function to aggregate results from multiple batches
@@ -589,8 +704,45 @@ const aggregateRenovationResults = (breakdowns) => {
 const generateRenovationSummary = (breakdown) => {
   const totalCost = breakdown.reduce((sum, item) => sum + item.estimatedCost, 0);
   const categoriesNeedingRenovation = breakdown.filter(item => item.renovationNeeded);
+  const totalRoiValue = breakdown.reduce((sum, item) => sum + item.estimatedRoiValue, 0);
+  const highPriorityItems = breakdown.filter(item => item.priority === 'High' && item.renovationNeeded);
+  const immediateItems = breakdown.filter(item => item.urgencyLevel === 'Immediate');
   
-  return `Total estimated renovation cost: $${totalCost.toLocaleString()}. ${categoriesNeedingRenovation.length} categories require renovation work.`;
+  let summary = `Total estimated renovation cost: $${totalCost.toLocaleString()}. `;
+  
+  if (categoriesNeedingRenovation.length === 0) {
+    summary += "Excellent news! This property appears to be in move-in ready condition with no major renovations needed.";
+  } else {
+    summary += `${categoriesNeedingRenovation.length} categories require attention. `;
+    
+    if (highPriorityItems.length > 0) {
+      summary += `${highPriorityItems.length} high-priority items identified. `;
+    }
+    
+    if (immediateItems.length > 0) {
+      summary += `${immediateItems.length} items require immediate attention. `;
+    }
+    
+    if (totalRoiValue > 0) {
+      const roiPercentage = totalCost > 0 ? Math.round((totalRoiValue / totalCost) * 100) : 0;
+      summary += `Estimated ROI: $${totalRoiValue.toLocaleString()} (${roiPercentage}% return on investment). `;
+    }
+  }
+  
+  // Add market positioning insight
+  const moveInReady = categoriesNeedingRenovation.length === 0;
+  const minorRenovations = categoriesNeedingRenovation.length <= 2 && totalCost < 15000;
+  const majorRenovations = totalCost > 30000;
+  
+  if (moveInReady) {
+    summary += "This property is well-positioned for immediate sale or rental.";
+  } else if (minorRenovations) {
+    summary += "Minor renovations could enhance market appeal and value.";
+  } else if (majorRenovations) {
+    summary += "Significant renovations may be needed to maximize market value.";
+  }
+  
+  return summary;
 };
 
 // Get renovation estimate

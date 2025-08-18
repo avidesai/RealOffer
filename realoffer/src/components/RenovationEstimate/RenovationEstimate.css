@@ -171,39 +171,130 @@
   padding: 1.5rem;
 }
 
-.renovation-main-value {
-  text-align: center;
+/* Summary Stats */
+.renovation-summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
   margin-bottom: 1.5rem;
-  padding: 1.5rem 0;
-  border-bottom: 1px solid #f1f3f5;
 }
 
-.main-value {
-  font-size: 2.25rem;
+.stat-card {
+  background: #f8fafd;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card.primary {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  border-color: #dc3545;
+}
+
+.stat-card.primary .stat-value {
+  color: white;
+}
+
+.stat-card.primary .stat-label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.stat-value {
+  font-size: 1.5rem;
   font-weight: 700;
   color: #2c3e50;
-  margin-bottom: 0.5rem;
-  line-height: 1.2;
+  margin-bottom: 0.25rem;
 }
 
-.value-label {
-  font-size: 0.9rem;
+.stat-label {
+  font-size: 0.85rem;
   color: #6c757d;
   font-weight: 500;
-  margin-top: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.renovation-summary {
-  padding: 1rem 0;
+/* Move-in Ready Badge */
+.move-in-ready-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid #f1f3f5;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.move-in-ready-badge svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Summary Text */
+.renovation-summary {
+  background: #f8fafd;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .renovation-summary p {
   margin: 0;
-  color: #6c757d;
+  color: #2c3e50;
   font-size: 0.9rem;
   line-height: 1.5;
+  font-weight: 500;
+}
+
+/* Filter Controls */
+.renovation-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8fafd;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.filter-button {
+  padding: 0.5rem 1rem;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  color: #6c757d;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.filter-button:hover {
+  background: #e9ecef;
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.filter-button.active {
+  background: #007bff;
+  border-color: #007bff;
+  color: white;
 }
 
 /* Breakdown Section */
@@ -216,7 +307,7 @@
 
 .breakdown-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 1rem;
 }
 
@@ -224,7 +315,7 @@
   background: #f8fafd;
   border: 1px solid #e9ecef;
   border-radius: 8px;
-  padding: 1rem;
+  padding: 1.25rem;
   transition: all 0.2s ease;
 }
 
@@ -237,7 +328,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid #e9ecef;
 }
@@ -255,15 +346,19 @@
   font-size: 1.1rem;
 }
 
-.item-details {
+/* Badges */
+.item-badges {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
   flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .condition-badge,
-.no-renovation-badge {
+.no-renovation-badge,
+.priority-badge,
+.roi-badge,
+.urgency-badge {
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
   font-size: 0.75rem;
@@ -271,10 +366,35 @@
   color: white;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .no-renovation-badge {
   background: #6c757d;
+}
+
+/* ROI Value Display */
+.roi-value-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #e8f5e8;
+  border: 1px solid #28a745;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.roi-label {
+  color: #2c3e50;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.roi-value {
+  color: #28a745;
+  font-weight: 700;
+  font-size: 0.9rem;
 }
 
 .item-description,
@@ -306,11 +426,66 @@
     width: 100%;
   }
   
+  .renovation-summary-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  .stat-value {
+    font-size: 1.25rem;
+  }
+  
+  .stat-label {
+    font-size: 0.8rem;
+  }
+  
+  .renovation-filters {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .filter-button {
+    text-align: center;
+    width: 100%;
+  }
+  
   .breakdown-grid {
     grid-template-columns: 1fr;
   }
   
-  .main-value {
-    font-size: 1.75rem;
+  .item-badges {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .condition-badge,
+  .no-renovation-badge,
+  .priority-badge,
+  .roi-badge,
+  .urgency-badge {
+    text-align: center;
+    width: 100%;
+  }
+  
+  .roi-value-display {
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .renovation-summary-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .stat-value {
+    font-size: 1.1rem;
+  }
+  
+  .move-in-ready-badge {
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: center;
   }
 }
