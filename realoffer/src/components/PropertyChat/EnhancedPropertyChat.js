@@ -12,8 +12,7 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [tokenUsage, setTokenUsage] = useState(null);
-  const [processingTime, setProcessingTime] = useState(null);
+  const [usagePercentage, setUsagePercentage] = useState(0);
   const [error, setError] = useState(null);
   const [isCached, setIsCached] = useState(false);
 
@@ -29,6 +28,12 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    if (isOpen) {
+      fetchCurrentUsage();
+    }
+  }, [isOpen, fetchCurrentUsage]);
+
   // Scroll handler for clickable [1], [2] markers
   const handleCitationClick = useCallback((citationIndex) => {
     const el = citationRefs.current[`citation-${citationIndex}`];
@@ -36,6 +41,23 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       el.classList.add('highlighted');
       setTimeout(() => el.classList.remove('highlighted'), 1200);
+    }
+  }, []);
+
+  const fetchCurrentUsage = useCallback(async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/chat/enhanced/usage`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setUsagePercentage(data.usagePercentage);
+      }
+    } catch (error) {
+      console.error('Error fetching usage:', error);
     }
   }, []);
 
@@ -147,6 +169,8 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
                       ? { ...msg, content: currentResponse }
                       : msg
                   ));
+                } else if (data.type === 'usage_update') {
+                  setUsagePercentage(data.usagePercentage);
                 } else if (data.type === 'complete') {
                   // Handle completion with citations and metadata
                   setMessages(prev => prev.map(msg =>
@@ -162,8 +186,6 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
                   ));
 
                   // Update global state
-                  setTokenUsage(data.estimatedTokens);
-                  setProcessingTime(data.processingTime);
                   setIsCached(data.cached || false);
 
                 } else if (data.type === 'error') {
@@ -192,6 +214,8 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
 
                   if (errorType === 'overloaded_error') {
                     errorMessage = 'The AI service is temporarily overloaded. Please try again in a few seconds.';
+                  } else if (errorType === 'usage_limit_exceeded') {
+                    errorMessage = 'Daily AI chat limit exceeded. Please try again tomorrow.';
                   }
 
                   throw new Error(errorMessage);
@@ -375,15 +399,35 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
             <h3>AI Assistant</h3>
             <span className="beta-badge">Beta</span>
           </div>
-          <div className="pchat-header-info">
-            {tokenUsage && (
-              <span className="pchat-token-count">Tokens: {tokenUsage}</span>
-            )}
-            {processingTime && (
-              <span className={`pchat-processing-time ${isCached ? 'cached' : ''}`}>
-                {processingTime}ms {isCached && '⚡️ (cached)'}
-              </span>
-            )}
+          <div className="usage-indicator">
+            <div 
+              className="usage-circle"
+              data-usage={usagePercentage >= 80 ? 'high' : usagePercentage >= 50 ? 'medium' : 'low'}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24">
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  fill="none"
+                  stroke="#e5e7eb"
+                  strokeWidth="2"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  fill="none"
+                  stroke={usagePercentage >= 80 ? '#ef4444' : usagePercentage >= 50 ? '#f59e0b' : '#007bff'}
+                  strokeWidth="2"
+                  strokeDasharray={`${2 * Math.PI * 10}`}
+                  strokeDashoffset={`${2 * Math.PI * 10 * (1 - usagePercentage / 100)}`}
+                  strokeLinecap="round"
+                  transform="rotate(-90 12 12)"
+                />
+              </svg>
+              <span className="usage-text">{usagePercentage}%</span>
+            </div>
           </div>
           <button className="pchat-close" onClick={onClose}>×</button>
         </div>

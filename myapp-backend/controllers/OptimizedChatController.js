@@ -4,6 +4,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 const PropertyListing = require('../models/PropertyListing');
 const PropertyAnalysis = require('../models/PropertyAnalysis');
 const RenovationAnalysis = require('../models/RenovationAnalysis');
+const UserUsage = require('../models/UserUsage');
 const optimizedDocumentProcessor = require('../utils/optimizedDocumentProcessor');
 
 const anthropic = new Anthropic({
@@ -50,7 +51,7 @@ class OptimizedChatController {
 
       const promptComponents = this.buildPromptWithChunks(knowledgeBase, allChunks, message, conversationHistory);
 
-      await this.executeStream(res, promptComponents, propertyId, allChunks, startTime, cacheKey);
+      await this.executeStream(res, promptComponents, propertyId, allChunks, startTime, cacheKey, req.user.id);
 
     } catch (error) {
       console.error('Error in chatWithPropertyStream:', error);
@@ -176,7 +177,7 @@ class OptimizedChatController {
   /**
    * Execute Claude streaming response
    */
-  async executeStream(res, promptComponents, propertyId, chunks, startTime, cacheKey) {
+  async executeStream(res, promptComponents, propertyId, chunks, startTime, cacheKey, userId) {
     try {
       const stream = await anthropic.messages.create({
         model: 'claude-3-5-sonnet-20241022',
@@ -189,6 +190,7 @@ class OptimizedChatController {
 
       let fullResponse = '';
       let tokenCount = 0;
+      let totalTokens = 0;
 
       for await (const chunk of stream) {
         if (chunk.type === 'content_block_delta') {
@@ -198,6 +200,38 @@ class OptimizedChatController {
           res.write(`data: ${JSON.stringify({ type: 'content', content })}\n\n`);
         } else if (chunk.type === 'message_delta' && chunk.usage) {
           this.trackTokenUsage(propertyId, chunk.usage);
+          totalTokens = (chunk.usage.input_tokens || 0) + (chunk.usage.output_tokens || 0);
+        }
+      }
+
+      // Track user usage
+      if (userId && totalTokens > 0) {
+        try {
+          const userUsage = await UserUsage.getOrCreateDailyUsage(userId);
+          
+          // Check if user has exceeded daily limit
+          if (userUsage.hasExceededLimit()) {
+            return this.sendError(res, {
+              type: 'usage_limit_exceeded',
+              message: 'Daily AI chat limit exceeded. Please try again tomorrow.'
+            });
+          }
+          
+          // Add tokens to daily usage
+          await userUsage.addTokens(totalTokens);
+          
+          // Send usage info in response
+          const usagePercentage = userUsage.getUsagePercentage();
+          res.write(`data: ${JSON.stringify({
+            type: 'usage_update',
+            usagePercentage: Math.round(usagePercentage),
+            tokensUsed: userUsage.aiChatTokens,
+            dailyLimit: 10000
+          })}\n\n`);
+          
+        } catch (error) {
+          console.error('Error tracking user usage:', error);
+          // Continue with response even if usage tracking fails
         }
       }
 
@@ -436,6 +470,22 @@ class OptimizedChatController {
       },
       tokenUsage: tokenStats
     });
+  }
+
+  async getCurrentUsage(req, res) {
+    try {
+      const userUsage = await UserUsage.getOrCreateDailyUsage(req.user.id);
+      
+      res.json({
+        usagePercentage: Math.round(userUsage.getUsagePercentage()),
+        tokensUsed: userUsage.aiChatTokens,
+        dailyLimit: 10000,
+        requestsToday: userUsage.aiChatRequests
+      });
+    } catch (error) {
+      console.error('Error getting current usage:', error);
+      res.status(500).json({ message: 'Error getting usage data' });
+    }
   }
 
   clearCaches() {

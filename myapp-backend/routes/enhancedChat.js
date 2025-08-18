@@ -11,6 +11,9 @@ router.post('/property/stream', auth, optimizedChatController.chatWithPropertySt
 // Performance statistics endpoint
 router.get('/property/:propertyId/stats', auth, optimizedChatController.getPerformanceStats.bind(optimizedChatController));
 
+// Get current usage endpoint
+router.get('/usage', auth, optimizedChatController.getCurrentUsage.bind(optimizedChatController));
+
 // Clear caches endpoint (for debugging)
 router.post('/clear-cache', auth, (req, res) => {
   optimizedChatController.clearCaches();
