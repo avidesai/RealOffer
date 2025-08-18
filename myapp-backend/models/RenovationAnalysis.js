@@ -40,20 +40,6 @@ const renovationCategorySchema = new mongoose.Schema({
     type: String,
     enum: ['High', 'Medium', 'Low', 'None'],
     default: 'None'
-  },
-  roiPotential: {
-    type: String,
-    enum: ['High', 'Medium', 'Low', 'None'],
-    default: 'None'
-  },
-  estimatedRoiValue: {
-    type: Number,
-    default: 0
-  },
-  urgencyLevel: {
-    type: String,
-    enum: ['Immediate', 'Within 1 Year', 'Within 3 Years', 'Optional', 'None'],
-    default: 'None'
   }
 });
 

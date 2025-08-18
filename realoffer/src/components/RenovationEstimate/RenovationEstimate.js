@@ -135,33 +135,11 @@ const RenovationEstimate = ({ propertyId }) => {
     }
   };
 
-  const getRoiBadgeColor = (roi) => {
-    switch (roi) {
-      case 'High': return '#28a745';
-      case 'Medium': return '#ffc107';
-      case 'Low': return '#6c757d';
-      case 'None': return '#6c757d';
-      default: return '#6c757d';
-    }
-  };
-
-  const getUrgencyBadgeColor = (urgency) => {
-    switch (urgency) {
-      case 'Immediate': return '#dc3545';
-      case 'Within 1 Year': return '#fd7e14';
-      case 'Within 3 Years': return '#ffc107';
-      case 'Optional': return '#6c757d';
-      case 'None': return '#6c757d';
-      default: return '#6c757d';
-    }
-  };
-
   const filterBreakdownItems = (items) => {
     if (selectedFilter === 'all') return items;
     if (selectedFilter === 'needed') return items.filter(item => item.renovationNeeded);
     if (selectedFilter === 'not-needed') return items.filter(item => !item.renovationNeeded);
     if (selectedFilter === 'high-priority') return items.filter(item => item.priority === 'High' && item.renovationNeeded);
-    if (selectedFilter === 'immediate') return items.filter(item => item.urgencyLevel === 'Immediate');
     return items;
   };
 
@@ -175,17 +153,13 @@ const RenovationEstimate = ({ propertyId }) => {
     
     const breakdown = renovationData.renovationEstimate.breakdown;
     const totalCost = breakdown.reduce((sum, item) => sum + item.estimatedCost, 0);
-    const totalRoi = breakdown.reduce((sum, item) => sum + item.estimatedRoiValue, 0);
     const neededItems = breakdown.filter(item => item.renovationNeeded);
     const highPriorityItems = breakdown.filter(item => item.priority === 'High' && item.renovationNeeded);
-    const immediateItems = breakdown.filter(item => item.urgencyLevel === 'Immediate');
     
     return {
       totalCost,
-      totalRoi,
       neededItems: neededItems.length,
       highPriorityItems: highPriorityItems.length,
-      immediateItems: immediateItems.length,
       moveInReady: neededItems.length === 0
     };
   };
@@ -275,18 +249,6 @@ const RenovationEstimate = ({ propertyId }) => {
             <div className="stat-value">{formatCurrency(renovationEstimate.totalEstimatedCost)}</div>
             <div className="stat-label">Total Estimated Cost</div>
           </div>
-          <div className="stat-card">
-            <div className="stat-value">{formatCurrency(stats.totalRoi)}</div>
-            <div className="stat-label">Estimated ROI</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{stats.neededItems}</div>
-            <div className="stat-label">Items Needing Attention</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{stats.highPriorityItems}</div>
-            <div className="stat-label">High Priority</div>
-          </div>
         </div>
 
         {/* Move-in Ready Badge */}
@@ -296,13 +258,6 @@ const RenovationEstimate = ({ propertyId }) => {
               <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <span>Move-In Ready Property</span>
-          </div>
-        )}
-
-        {/* Summary Text */}
-        {renovationEstimate.summary && (
-          <div className="renovation-summary">
-            <p>{renovationEstimate.summary}</p>
           </div>
         )}
 
@@ -351,12 +306,6 @@ const RenovationEstimate = ({ propertyId }) => {
           >
             High Priority ({stats.highPriorityItems})
           </button>
-          <button 
-            className={`filter-button ${selectedFilter === 'immediate' ? 'active' : ''}`}
-            onClick={() => setSelectedFilter('immediate')}
-          >
-            Immediate ({stats.immediateItems})
-          </button>
         </div>
 
         {/* Breakdown Grid */}
@@ -397,35 +346,7 @@ const RenovationEstimate = ({ propertyId }) => {
                       {item.priority} Priority
                     </div>
                   )}
-                  
-                  {/* ROI Badge */}
-                  {item.renovationNeeded && item.roiPotential !== 'None' && (
-                    <div 
-                      className="roi-badge"
-                      style={{ backgroundColor: getRoiBadgeColor(item.roiPotential) }}
-                    >
-                      {item.roiPotential} ROI
-                    </div>
-                  )}
-                  
-                  {/* Urgency Badge */}
-                  {item.renovationNeeded && item.urgencyLevel !== 'None' && (
-                    <div 
-                      className="urgency-badge"
-                      style={{ backgroundColor: getUrgencyBadgeColor(item.urgencyLevel) }}
-                    >
-                      {item.urgencyLevel}
-                    </div>
-                  )}
                 </div>
-                
-                {/* ROI Value Display */}
-                {item.renovationNeeded && item.estimatedRoiValue > 0 && (
-                  <div className="roi-value-display">
-                    <span className="roi-label">Estimated ROI Value:</span>
-                    <span className="roi-value">{formatCurrency(item.estimatedRoiValue)}</span>
-                  </div>
-                )}
                 
                 {item.description && (
                   <p className="item-description">{item.description}</p>

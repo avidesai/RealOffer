@@ -243,23 +243,6 @@
   height: 20px;
 }
 
-/* Summary Text */
-.renovation-summary {
-  background: #f8fafd;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.renovation-summary p {
-  margin: 0;
-  color: #2c3e50;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  font-weight: 500;
-}
-
 /* Filter Controls */
 .renovation-filters {
   display: flex;
@@ -356,9 +339,7 @@
 
 .condition-badge,
 .no-renovation-badge,
-.priority-badge,
-.roi-badge,
-.urgency-badge {
+.priority-badge {
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
   font-size: 0.75rem;
@@ -371,30 +352,6 @@
 
 .no-renovation-badge {
   background: #6c757d;
-}
-
-/* ROI Value Display */
-.roi-value-display {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem;
-  background: #e8f5e8;
-  border: 1px solid #28a745;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-}
-
-.roi-label {
-  color: #2c3e50;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.roi-value {
-  color: #28a745;
-  font-weight: 700;
-  font-size: 0.9rem;
 }
 
 .item-description,
@@ -521,9 +478,7 @@
   
   .condition-badge,
   .no-renovation-badge,
-  .priority-badge,
-  .roi-badge,
-  .urgency-badge {
+  .priority-badge {
     text-align: center;
     width: 100%;
   }
