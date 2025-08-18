@@ -162,9 +162,25 @@ const convertPageWithImageMagick = async (pdfPath, pageNumber) => {
           outputImagePath
         ];
         
-        imagemagick.convert(alternativeArgs, (altErr, altStdout) => {
+        imagemagick.convert(alternativeArgs, async (altErr, altStdout) => {
           if (altErr) {
             console.error(`Alternative ImageMagick conversion also failed:`, altErr);
+            // If ImageMagick is blocked by policy for PDFs, try Ghostscript as a last resort
+            const errMsg = String(altErr?.message || err?.message || '').toLowerCase();
+            if (errMsg.includes('not allowed by the security policy') || errMsg.includes('iscoderauthorized')) {
+              try {
+                const { exec } = require('child_process');
+                const util = require('util');
+                const execAsync = util.promisify(exec);
+                const gsOutPath = outputImagePath; // same path
+                const gsCmd = `gs -sDEVICE=png16m -dSAFER -dNOPAUSE -dBATCH -r300 -dFirstPage=${pageNumber} -dLastPage=${pageNumber} -o "${gsOutPath}" "${pdfPath}"`;
+                await execAsync(gsCmd);
+                handleImageMagickSuccess();
+                return;
+              } catch (gsErr) {
+                console.error('Ghostscript image rendering also failed:', gsErr);
+              }
+            }
             resolve(null);
             return;
           }
@@ -441,7 +457,7 @@ const checkIfPasswordProtected = async (pdfBytes, documentTitle) => {
 };
 
 // MAIN FUNCTION: Smart PDF processing with restriction bypass
-const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPdf, processingErrors, progressCallback) => {
+const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPdf, processingErrors, processingInfo, progressCallback) => {
   // First, check if this is a password-protected PDF
   const isPasswordProtected = await checkIfPasswordProtected(existingPdfBytes, document.title);
   
@@ -1509,7 +1525,7 @@ const createBuyerSignaturePacketInternal = async (req, res, progressCallback) =>
           // This completely bypasses PDF corruption issues
           console.log(`Converting selected pages from ${document.title} to images first...`);
           
-          await convertSelectedPagesToImages(document, existingPdfBytes, mergedPdf, processingErrors, (status) => {
+          await convertSelectedPagesToImages(document, existingPdfBytes, mergedPdf, processingErrors, processingInfo, (status) => {
       console.log(`Progress: ${status}`);
       if (progressCallback) {
         progressCallback({
@@ -1544,6 +1560,12 @@ const createBuyerSignaturePacketInternal = async (req, res, progressCallback) =>
     
     // If no pages were successfully added to the merged PDF
     if (mergedPdf.getPageCount() === 0) {
+      if (progressCallback) {
+        progressCallback({ error: 'Failed to create signature packet. No pages could be processed.' });
+        clearTimeout(timeout);
+        res.end();
+        return;
+      }
       return res.status(400).json({ 
         message: 'Failed to create signature package. No pages could be processed.',
         error: 'NO_PAGES_PROCESSED',
@@ -1562,6 +1584,12 @@ const createBuyerSignaturePacketInternal = async (req, res, progressCallback) =>
       // If more than 50% of documents failed, consider it a failure
       const failureRate = processingErrors.length / selectedDocuments.length;
       if (failureRate > 0.5) {
+        if (progressCallback && !res.headersSent) {
+          progressCallback({ error: 'Too many documents failed to process. Please check your documents and try again.' });
+          clearTimeout(timeout);
+          res.end();
+          return;
+        }
         return res.status(400).json({ 
           message: 'Too many documents failed to process. Please check your documents and try again.',
           error: 'HIGH_FAILURE_RATE',
@@ -1571,6 +1599,12 @@ const createBuyerSignaturePacketInternal = async (req, res, progressCallback) =>
       
       // If no pages were successfully added, return an error
       if (mergedPdf.getPageCount() === 0) {
+        if (progressCallback && !res.headersSent) {
+          progressCallback({ error: 'No valid pages could be extracted from the selected documents. Please check your documents and try again.' });
+          clearTimeout(timeout);
+          res.end();
+          return;
+        }
         return res.status(400).json({ 
           message: 'No valid pages could be extracted from the selected documents. Please check your documents and try again.',
           error: 'NO_VALID_PAGES',
