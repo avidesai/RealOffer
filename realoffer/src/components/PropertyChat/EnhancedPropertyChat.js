@@ -39,6 +39,17 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
     }
   }, []);
 
+  const handleSuggestedQuestion = (question) => {
+    if (isLoading) return; // Prevent multiple submissions
+    
+    setInputMessage(question);
+    
+    // Use setTimeout to ensure the input state is updated before sending
+    setTimeout(() => {
+      sendMessageStream();
+    }, 100);
+  };
+
   // Listen for click events from inline marker
   useEffect(() => {
     const handler = (e) => handleCitationClick(e.detail);
@@ -381,15 +392,50 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
           <div className="pchat-messages">
             {messages.length === 0 && (
               <div className="pchat-welcome">
-                <p>I can help you analyze this property.</p>
+                <p>Ask me anything about this property.</p>
 
-                <p className="ask-me-about">Ask me about:</p>
-                <ul>
-                  <li>Property details and features</li>
-                  <li>Valuation data and comparable properties</li>
-                  <li>Information from inspection reports (pest, home, etc.)</li>
-                  <li>Specific questions about any uploaded documents</li>
-                </ul>
+                <p className="ask-me-about">Try asking me:</p>
+                <div className="suggested-questions">
+                  <button 
+                    className="suggested-question"
+                    onClick={() => handleSuggestedQuestion("What renovations are needed and how much will they cost?")}
+                    disabled={isLoading}
+                    aria-label="Ask about renovation costs and needs"
+                  >
+                    <span className="question-emoji" aria-hidden="true">🔨</span>
+                    <span className="question-text">What renovations are needed and how much will they cost?</span>
+                  </button>
+                  
+                  <button 
+                    className="suggested-question"
+                    onClick={() => handleSuggestedQuestion("What are the major issues found in the inspection reports?")}
+                    disabled={isLoading}
+                    aria-label="Ask about major issues from inspection reports"
+                  >
+                    <span className="question-emoji" aria-hidden="true">⚠️</span>
+                    <span className="question-text">What are the major issues found in the inspection reports?</span>
+                  </button>
+                  
+                  <button 
+                    className="suggested-question"
+                    onClick={() => handleSuggestedQuestion("What are the comparable sales and how much is the property worth?")}
+                    disabled={isLoading}
+                    aria-label="Ask about comparable sales and property worth"
+                  >
+                    <span className="question-emoji" aria-hidden="true">📊</span>
+                    <span className="question-text">What are the comparable sales and how much is the property worth?</span>
+                  </button>
+                  
+                  <button 
+                    className="suggested-question"
+                    onClick={() => handleSuggestedQuestion("What termite damage was found and what will it cost to repair?")}
+                    disabled={isLoading}
+                    aria-label="Ask about termite damage and repair costs"
+                  >
+                    <span className="question-emoji" aria-hidden="true">🔍</span>
+                    <span className="question-text">What termite damage was found and what will it cost to repair?</span>
+                  </button>
+                </div>
               </div>
             )}
 
