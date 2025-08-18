@@ -483,7 +483,7 @@ const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPd
         }
         
         // Add success message to processing info (not an error, just informational)
-        const successMsg = `${document.title}: Security restrictions bypassed, preserved original vector quality`;
+        const successMsg = `${document.title}: Password protection removed successfully`;
         processingInfo.push(successMsg);
         
         return; // Success with bypassed restrictions
@@ -499,7 +499,7 @@ const convertSelectedPagesToImages = async (document, existingPdfBytes, mergedPd
       }
       
       // Add informational message to processing info (not really an error, just info)
-      const infoMsg = `${document.title}: Document has unbypassable security restrictions, converted to high-quality images`;
+      const infoMsg = `${document.title}: Converted to images for compatibility`;
       processingInfo.push(infoMsg);
       
       // Skip direct copying and go straight to image conversion for password-protected PDFs

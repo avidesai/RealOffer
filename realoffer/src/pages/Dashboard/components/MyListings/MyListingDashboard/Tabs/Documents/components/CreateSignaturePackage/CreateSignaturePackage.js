@@ -218,7 +218,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
         currentDocument: 0,
         totalDocuments: selectedDocuments.length,
         currentDocumentName: '',
-        processingMessage: 'Initializing signature package creation...',
+        processingMessage: 'Starting to build your signature packet...',
         isComplete: false,
         error: null
       });
@@ -293,7 +293,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
                   setCreationProgress(prev => ({
                     ...prev,
                     isComplete: true,
-                    processingMessage: 'Signature package created successfully!'
+                    processingMessage: 'Your signature packet is ready!'
                   }));
                   break;
                 }
@@ -319,7 +319,7 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
                   setCreationProgress(prev => ({
                     ...prev,
                     isComplete: true,
-                    processingMessage: 'Signature package created successfully!'
+                    processingMessage: 'Your signature packet is ready!'
                   }));
                   break;
                 }

@@ -19,7 +19,7 @@ const CreateSignaturePackageProgress = ({
     <div className="csp-progress-overlay">
       <div className="csp-progress-modal">
         <div className="csp-progress-header">
-          <h2>Creating Signature Package</h2>
+          <h2>Creating Signature Packet</h2>
           <button className="csp-progress-close-button" onClick={onClose} aria-label="Close">×</button>
         </div>
         
@@ -67,8 +67,8 @@ const CreateSignaturePackageProgress = ({
               {isComplete && (
                 <div className="csp-progress-completion">
                   <div className="csp-progress-success-icon">✅</div>
-                  <h3>Signature Package Created!</h3>
-                  <p>Your signature package has been created successfully and is ready for use.</p>
+                  <h3>Signature Packet Ready!</h3>
+                  <p>Your signature packet has been created successfully and is ready to download or send to buyers.</p>
                   <button className="csp-progress-close-button-success" onClick={onClose}>
                     Continue
                   </button>
