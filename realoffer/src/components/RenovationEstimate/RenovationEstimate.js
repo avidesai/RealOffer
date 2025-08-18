@@ -75,7 +75,7 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true }) => {
   useEffect(() => {
     let interval;
     let pollCount = 0;
-    const maxPolls = 60; // Maximum 5 minutes of polling (60 * 5 seconds)
+    const maxPolls = 120; // Maximum 10 minutes of polling (120 * 5 seconds)
     
     if (renovationData?.status === 'processing') {
       interval = setInterval(async () => {
@@ -94,7 +94,7 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true }) => {
           console.error('Error during polling:', error);
           // Don't stop polling on individual errors, but log them
         }
-      }, 10000); // Check every 10 seconds instead of 5
+      }, 5000); // Check every 5 seconds for more responsive updates
     }
     
     return () => {
@@ -192,12 +192,53 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true }) => {
   if (!renovationData?.renovationEstimate) {
     // Check if analysis is currently processing
     if (renovationData?.status === 'processing') {
+      const processingDetails = renovationData?.processingDetails || {};
+      const progress = processingDetails.totalPhotos > 0 ? 
+        (processingDetails.photosProcessed / processingDetails.totalPhotos) * 100 : 0;
+      
       return (
         <div className="renovation-estimate">
-          <div className="renovation-loading">
-            <div className="spinner"></div>
-            <p>Generating renovation estimate...</p>
-            <p className="processing-note">This happens automatically when photos are uploaded</p>
+          <div className="renovation-header">
+            <h3>
+              Renovation Estimate
+              <span className="beta-badge">Beta</span>
+            </h3>
+          </div>
+          <div className="renovation-content">
+            <div className="processing-status">
+              <div className="processing-info">
+                <div className="spinner"></div>
+                <div className="processing-text">
+                  <p>
+                    {processingDetails.processingMessage || 'Analyzing property photos...'}
+                  </p>
+                  {processingDetails.currentBatch && processingDetails.totalBatches && (
+                    <p className="processing-note">
+                      Processing batch {processingDetails.currentBatch} of {processingDetails.totalBatches}
+                    </p>
+                  )}
+                </div>
+              </div>
+              
+              <div className="progress-container">
+                <div className="progress-bar-container">
+                  <div className="progress-bar" style={{ width: `${Math.max(5, progress)}%` }}></div>
+                </div>
+                <div className="progress-text">
+                  <span className="progress-percentage">{Math.round(progress)}%</span>
+                  <span className="progress-fraction">
+                    {processingDetails.photosProcessed || 0} of {processingDetails.totalPhotos || 0} photos
+                  </span>
+                </div>
+              </div>
+              
+              <button 
+                onClick={fetchRenovationEstimate}
+                className="manual-refresh-button"
+              >
+                Check Status
+              </button>
+            </div>
           </div>
         </div>
       );

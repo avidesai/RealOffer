@@ -129,83 +129,80 @@ exports.generateRenovationEstimate = async (req, res) => {
     renovationAnalysis.processingDetails = {
       photosProcessed: 0,
       totalPhotos: property.imagesUrls.length,
-      startedAt: new Date()
+      startedAt: new Date(),
+      currentBatch: 1,
+      totalBatches: Math.ceil(property.imagesUrls.length / 3),
+      processingMessage: 'Starting analysis...'
     };
     await renovationAnalysis.save();
     
+    // Start background processing (don't await - let it run in background)
+    processRenovationAnalysisInBackground(propertyId, property);
+    
+    // Return immediately with processing status
+    res.json({
+      message: 'Renovation analysis started',
+      status: 'processing',
+      processingDetails: renovationAnalysis.processingDetails
+    });
+
+
+    
+  } catch (error) {
+    console.error('Error generating renovation estimate:', error);
+    
+    // Update status to failed if we have a renovation analysis record
+    if (req.params.propertyId) {
+      await RenovationAnalysis.findOneAndUpdate(
+        { propertyId: req.params.propertyId },
+        { 
+          status: 'failed',
+          'processingDetails.errorMessage': error.message
+        }
+      );
+    }
+    
+    res.status(500).json({
+      message: 'Error generating renovation estimate',
+      error: error.message
+    });
+  }
+};
+
+// Background processing function
+const processRenovationAnalysisInBackground = async (propertyId, property) => {
+  try {
+    console.log(`Starting background renovation analysis for property: ${propertyId}`);
+    
+    // Get the analysis record
+    let renovationAnalysis = await RenovationAnalysis.findOne({ propertyId });
+    if (!renovationAnalysis) {
+      console.error('Renovation analysis record not found');
+      return;
+    }
+
+    // Update processing message
+    renovationAnalysis.processingDetails.processingMessage = 'Processing property photos...';
+    await renovationAnalysis.save();
+
     // Process photos in batches
     const photoBatches = await processPhotosInBatches(property.imagesUrls);
+    
+    // Update total batches count
+    renovationAnalysis.processingDetails.totalBatches = photoBatches.length;
+    renovationAnalysis.processingDetails.processingMessage = 'Analyzing photos with AI...';
+    await renovationAnalysis.save();
     
     // Check if we have any processed photos
     if (photoBatches.length === 0 || photoBatches.every(batch => batch.length === 0)) {
       console.log('No photos could be processed, creating fallback estimate');
-      // Create fallback estimate without AI analysis
-      const fallbackBreakdown = [
-        {
-          category: 'Kitchen',
-          estimatedCost: 15000,
-          description: 'Basic kitchen renovation estimate',
-          condition: 'Fair',
-          renovationNeeded: true,
-          notes: 'Fallback estimate - photos could not be processed',
-          priority: 'Medium'
-        },
-        {
-          category: 'Bathrooms',
-          estimatedCost: 8000,
-          description: 'Basic bathroom renovation estimate',
-          condition: 'Fair',
-          renovationNeeded: true,
-          notes: 'Fallback estimate - photos could not be processed',
-          priority: 'Medium'
-        },
-        {
-          category: 'Flooring',
-          estimatedCost: 5000,
-          description: 'Basic flooring replacement estimate',
-          condition: 'Fair',
-          renovationNeeded: true,
-          notes: 'Fallback estimate - photos could not be processed',
-          priority: 'Low'
-        },
-        {
-          category: 'Paint',
-          estimatedCost: 3000,
-          description: 'Basic interior painting estimate',
-          condition: 'Fair',
-          renovationNeeded: true,
-          notes: 'Fallback estimate - photos could not be processed',
-          priority: 'Low'
-        },
-        {
-          category: 'Landscaping',
-          estimatedCost: 2000,
-          description: 'Basic landscaping estimate',
-          condition: 'Fair',
-          renovationNeeded: true,
-          notes: 'Fallback estimate - photos could not be processed',
-          priority: 'Low'
-        },
-        {
-          category: 'Exterior',
-          estimatedCost: 4000,
-          description: 'Basic exterior maintenance estimate',
-          condition: 'Fair',
-          renovationNeeded: true,
-          notes: 'Fallback estimate - photos could not be processed',
-          priority: 'Medium'
-        },
-        {
-          category: 'Other',
-          estimatedCost: 1000,
-          description: 'Miscellaneous renovation costs',
-          condition: 'Fair',
-          renovationNeeded: true,
-          notes: 'Fallback estimate - photos could not be processed',
-          priority: 'Low'
-        }
-      ];
       
+      // Update message
+      renovationAnalysis.processingDetails.processingMessage = 'Creating fallback estimate...';
+      await renovationAnalysis.save();
+      
+      // Create fallback estimate without AI analysis
+      const fallbackBreakdown = createFallbackBreakdown();
       const totalCost = fallbackBreakdown.reduce((sum, item) => sum + item.estimatedCost, 0);
       
       // Update renovation analysis with fallback results
@@ -217,20 +214,196 @@ exports.generateRenovationEstimate = async (req, res) => {
       };
       renovationAnalysis.status = 'completed';
       renovationAnalysis.processingDetails.completedAt = new Date();
+      renovationAnalysis.processingDetails.processingMessage = 'Analysis complete';
       await renovationAnalysis.save();
       
-      return res.json({
-        message: 'Fallback renovation estimate generated',
-        renovationEstimate: renovationAnalysis.renovationEstimate,
-        status: renovationAnalysis.status
-      });
+      return;
     }
     
     // Prepare the prompt for Claude Haiku
     const locationInfo = `${property.homeCharacteristics.city}, ${property.homeCharacteristics.state} ${property.homeCharacteristics.zip}`;
     const propertyInfo = `${property.homeCharacteristics.beds} bed, ${property.homeCharacteristics.baths} bath, ${property.homeCharacteristics.squareFootage} sqft`;
     
-    const systemPrompt = `You are a professional home renovation estimator with expertise in local market costs and property valuation. Analyze the provided property photos and provide a detailed renovation cost estimate.
+    const systemPrompt = generateSystemPrompt(locationInfo, propertyInfo);
+
+    // Process each batch and combine results
+    let allBreakdowns = [];
+    let failedBatches = 0;
+    const maxFailedBatches = 3; // Stop if too many batches fail
+    
+    for (let i = 0; i < photoBatches.length; i++) {
+      const batch = photoBatches[i];
+      if (batch.length === 0) continue;
+      
+      // Update progress
+      renovationAnalysis.processingDetails.currentBatch = i + 1;
+      renovationAnalysis.processingDetails.processingMessage = `Analyzing batch ${i + 1} of ${photoBatches.length}...`;
+      await renovationAnalysis.save();
+      
+      // Stop processing if too many batches have failed
+      if (failedBatches >= maxFailedBatches) {
+        console.log(`Stopping processing - ${failedBatches} batches failed`);
+        break;
+      }
+      
+      const userMessage = `Please analyze these ${batch.length} photos of the property and provide renovation estimates in JSON format.`;
+      
+      const messages = [
+        { 
+          role: 'user', 
+          content: [
+            { type: 'text', text: userMessage },
+            ...batch.map(img => ({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: img.split(',')[1] } }))
+          ]
+        }
+      ];
+      
+      try {
+        console.log(`Sending batch ${i + 1} to Claude API with ${batch.length} images`);
+        
+        const response = await axios.post('https://api.anthropic.com/v1/messages', {
+          model: 'claude-3-haiku-20240307',
+          max_tokens: 4000,
+          system: systemPrompt,
+          messages: messages
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': process.env.CLAUDE_API_KEY,
+            'anthropic-version': '2023-06-01'
+          },
+          timeout: 60000 // 60 seconds
+        });
+        
+        console.log('Claude API response received successfully');
+        
+        // Parse the response to extract renovation breakdown
+        const content = response.data.content[0].text;
+        const breakdown = parseRenovationBreakdown(content);
+        allBreakdowns.push(...breakdown);
+        
+        // Update progress
+        renovationAnalysis.processingDetails.photosProcessed += batch.length;
+        await renovationAnalysis.save();
+        
+      } catch (error) {
+        console.error('Error processing photo batch:', error.message);
+        failedBatches++;
+        
+        // Try with single images if batch fails
+        if ((error.code === 'ECONNABORTED' || error.response?.status === 400) && batch.length > 1) {
+          console.log('Retrying with single images due to timeout or 400 error...');
+          
+          let singleImageSuccess = false;
+          // Try processing images one by one
+          for (const img of batch) {
+            try {
+              console.log('Processing single image...');
+              const singleResponse = await axios.post('https://api.anthropic.com/v1/messages', {
+                model: 'claude-3-haiku-20240307',
+                max_tokens: 4000,
+                system: systemPrompt,
+                messages: [
+                  { 
+                    role: 'user', 
+                    content: [
+                      { type: 'text', text: 'Please analyze this photo of the property and provide renovation estimates in JSON format.' },
+                      { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: img.split(',')[1] } }
+                    ]
+                  }
+                ]
+              }, {
+                headers: {
+                  'Content-Type': 'application/json',
+                  'x-api-key': process.env.CLAUDE_API_KEY,
+                  'anthropic-version': '2023-06-01'
+                },
+                timeout: 45000 // 45 second timeout for single images
+              });
+              
+              console.log('Single image processed successfully');
+              const content = singleResponse.data.content[0].text;
+              const breakdown = parseRenovationBreakdown(content);
+              allBreakdowns.push(...breakdown);
+              
+              renovationAnalysis.processingDetails.photosProcessed += 1;
+              await renovationAnalysis.save();
+              singleImageSuccess = true;
+              
+              // Small delay between single image requests
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              
+            } catch (singleError) {
+              console.error('Error processing single image:', singleError.message);
+              // Continue with other images even if one fails
+            }
+          }
+          
+          // If we had some success with single images, don't count this as a failed batch
+          if (singleImageSuccess) {
+            failedBatches--;
+          }
+        }
+      }
+    }
+    
+    // Update processing message
+    renovationAnalysis.processingDetails.processingMessage = 'Finalizing analysis...';
+    await renovationAnalysis.save();
+    
+    // Combine and aggregate results from all batches
+    let finalBreakdown = aggregateRenovationResults(allBreakdowns);
+    
+    // Check if we have any breakdown data
+    if (finalBreakdown.length === 0) {
+      console.log('No AI analysis data available, creating fallback estimate');
+      
+      // Update status to indicate fallback was used
+      renovationAnalysis.status = 'completed';
+      renovationAnalysis.processingDetails.completedAt = new Date();
+      renovationAnalysis.processingDetails.errorMessage = 'AI analysis failed, using fallback estimate';
+      renovationAnalysis.processingDetails.processingMessage = 'Analysis complete (fallback)';
+      await renovationAnalysis.save();
+      
+      // Create a basic fallback estimate
+      finalBreakdown = createFallbackBreakdown();
+    }
+    
+    const totalCost = finalBreakdown.reduce((sum, item) => sum + item.estimatedCost, 0);
+    
+    // Update renovation analysis with results
+    renovationAnalysis.renovationEstimate = {
+      totalEstimatedCost: totalCost,
+      breakdown: finalBreakdown,
+      summary: generateRenovationSummary(finalBreakdown),
+      lastUpdated: new Date()
+    };
+    renovationAnalysis.status = 'completed';
+    renovationAnalysis.processingDetails.completedAt = new Date();
+    renovationAnalysis.processingDetails.processingMessage = 'Analysis complete';
+    await renovationAnalysis.save();
+    
+    console.log(`Background renovation analysis completed for property: ${propertyId}`);
+    
+  } catch (error) {
+    console.error('Error in background renovation analysis:', error);
+    
+    // Update status to failed
+    await RenovationAnalysis.findOneAndUpdate(
+      { propertyId },
+      { 
+        status: 'failed',
+        'processingDetails.errorMessage': error.message,
+        'processingDetails.completedAt': new Date(),
+        'processingDetails.processingMessage': 'Analysis failed'
+      }
+    );
+  }
+};
+
+// Helper function to generate system prompt
+const generateSystemPrompt = (locationInfo, propertyInfo) => {
+  return `You are a professional home renovation estimator with expertise in local market costs and property valuation. Analyze the provided property photos and provide a detailed renovation cost estimate.
 
 IMPORTANT: Use the specific location provided to give accurate local market estimates.
 
@@ -323,249 +496,75 @@ Please provide your response in the following JSON format:
     }
   ]
 }`;
+};
 
-    // Process each batch and combine results
-    let allBreakdowns = [];
-    let failedBatches = 0;
-    const maxFailedBatches = 3; // Stop if too many batches fail
-    
-    for (let i = 0; i < photoBatches.length; i++) {
-      const batch = photoBatches[i];
-      if (batch.length === 0) continue;
-      
-      // Stop processing if too many batches have failed
-      if (failedBatches >= maxFailedBatches) {
-        console.log(`Stopping processing - ${failedBatches} batches failed`);
-        break;
-      }
-      
-      const userMessage = `Please analyze these ${batch.length} photos of the property and provide renovation estimates in JSON format.`;
-      
-      const messages = [
-        { 
-          role: 'user', 
-          content: [
-            { type: 'text', text: userMessage },
-            ...batch.map(img => ({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: img.split(',')[1] } }))
-          ]
-        }
-      ];
-      
-      try {
-        console.log(`Sending batch ${i + 1} to Claude API with ${batch.length} images`);
-        
-        const response = await axios.post('https://api.anthropic.com/v1/messages', {
-          model: 'claude-3-haiku-20240307',
-          max_tokens: 4000,
-          system: systemPrompt,
-          messages: messages
-        }, {
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': process.env.CLAUDE_API_KEY,
-            'anthropic-version': '2023-06-01'
-          },
-          timeout: 60000 // Reduced timeout to 60 seconds
-        });
-        
-        console.log('Claude API response received successfully');
-        
-        // Parse the response to extract renovation breakdown
-        const content = response.data.content[0].text;
-        const breakdown = parseRenovationBreakdown(content);
-        allBreakdowns.push(...breakdown);
-        
-        // Update progress
-        renovationAnalysis.processingDetails.photosProcessed += batch.length;
-        await renovationAnalysis.save();
-        
-      } catch (error) {
-        console.error('Error processing photo batch:', error.message);
-        failedBatches++;
-        
-        // If it's a timeout or 400 error, try with single images
-        if ((error.code === 'ECONNABORTED' || error.response?.status === 400) && batch.length > 1) {
-          console.log('Retrying with single images due to timeout or 400 error...');
-          
-          let singleImageSuccess = false;
-          // Try processing images one by one
-          for (const img of batch) {
-            try {
-              console.log('Processing single image...');
-              const singleResponse = await axios.post('https://api.anthropic.com/v1/messages', {
-                model: 'claude-3-haiku-20240307',
-                max_tokens: 4000,
-                system: systemPrompt,
-                messages: [
-                  { 
-                    role: 'user', 
-                    content: [
-                      { type: 'text', text: 'Please analyze this photo of the property and provide renovation estimates in JSON format.' },
-                      { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: img.split(',')[1] } }
-                    ]
-                  }
-                ]
-              }, {
-                headers: {
-                  'Content-Type': 'application/json',
-                  'x-api-key': process.env.CLAUDE_API_KEY,
-                  'anthropic-version': '2023-06-01'
-                },
-                timeout: 45000 // 45 second timeout for single images
-              });
-              
-              console.log('Single image processed successfully');
-              const content = singleResponse.data.content[0].text;
-              const breakdown = parseRenovationBreakdown(content);
-              allBreakdowns.push(...breakdown);
-              
-              renovationAnalysis.processingDetails.photosProcessed += 1;
-              await renovationAnalysis.save();
-              singleImageSuccess = true;
-              
-              // Small delay between single image requests
-              await new Promise(resolve => setTimeout(resolve, 1000));
-              
-            } catch (singleError) {
-              console.error('Error processing single image:', singleError.message);
-              // Continue with other images even if one fails
-            }
-          }
-          
-          // If we had some success with single images, don't count this as a failed batch
-          if (singleImageSuccess) {
-            failedBatches--;
-          }
-        } else {
-          // For other errors, log but continue
-          console.error('Error details:', {
-            status: error.response?.status,
-            statusText: error.response?.statusText,
-            data: error.response?.data
-          });
-        }
-      }
+// Helper function to create fallback breakdown
+const createFallbackBreakdown = () => {
+  return [
+    {
+      category: 'Kitchen',
+      estimatedCost: 15000,
+      description: 'Basic kitchen renovation estimate',
+      condition: 'Fair',
+      renovationNeeded: true,
+      notes: 'Fallback estimate - AI analysis unavailable',
+      priority: 'Medium'
+    },
+    {
+      category: 'Bathrooms',
+      estimatedCost: 8000,
+      description: 'Basic bathroom renovation estimate',
+      condition: 'Fair',
+      renovationNeeded: true,
+      notes: 'Fallback estimate - AI analysis unavailable',
+      priority: 'Medium'
+    },
+    {
+      category: 'Flooring',
+      estimatedCost: 5000,
+      description: 'Basic flooring replacement estimate',
+      condition: 'Fair',
+      renovationNeeded: true,
+      notes: 'Fallback estimate - AI analysis unavailable',
+      priority: 'Low'
+    },
+    {
+      category: 'Paint',
+      estimatedCost: 3000,
+      description: 'Basic interior painting estimate',
+      condition: 'Fair',
+      renovationNeeded: true,
+      notes: 'Fallback estimate - AI analysis unavailable',
+      priority: 'Low'
+    },
+    {
+      category: 'Landscaping',
+      estimatedCost: 2000,
+      description: 'Basic landscaping estimate',
+      condition: 'Fair',
+      renovationNeeded: true,
+      notes: 'Fallback estimate - AI analysis unavailable',
+      priority: 'Low'
+    },
+    {
+      category: 'Exterior',
+      estimatedCost: 4000,
+      description: 'Basic exterior maintenance estimate',
+      condition: 'Fair',
+      renovationNeeded: true,
+      notes: 'Fallback estimate - AI analysis unavailable',
+      priority: 'Medium'
+    },
+    {
+      category: 'Other',
+      estimatedCost: 1000,
+      description: 'Miscellaneous renovation costs',
+      condition: 'Fair',
+      renovationNeeded: true,
+      notes: 'Fallback estimate - AI analysis unavailable',
+      priority: 'Low'
     }
-    
-    // Combine and aggregate results from all batches
-    let finalBreakdown = aggregateRenovationResults(allBreakdowns);
-    
-    // Check if we have any breakdown data
-    if (finalBreakdown.length === 0) {
-      console.log('No AI analysis data available, creating fallback estimate');
-      
-      // Update status to indicate fallback was used
-      renovationAnalysis.status = 'completed';
-      renovationAnalysis.processingDetails.completedAt = new Date();
-      renovationAnalysis.processingDetails.errorMessage = 'AI analysis failed, using fallback estimate';
-      await renovationAnalysis.save();
-      
-      // Create a basic fallback estimate
-      finalBreakdown = [
-        {
-          category: 'Kitchen',
-          estimatedCost: 15000,
-          description: 'Basic kitchen renovation estimate',
-          condition: 'Fair',
-          renovationNeeded: true,
-          notes: 'Fallback estimate - AI analysis unavailable',
-          priority: 'Medium'
-        },
-        {
-          category: 'Bathrooms',
-          estimatedCost: 8000,
-          description: 'Basic bathroom renovation estimate',
-          condition: 'Fair',
-          renovationNeeded: true,
-          notes: 'Fallback estimate - AI analysis unavailable',
-          priority: 'Medium'
-        },
-        {
-          category: 'Flooring',
-          estimatedCost: 5000,
-          description: 'Basic flooring replacement estimate',
-          condition: 'Fair',
-          renovationNeeded: true,
-          notes: 'Fallback estimate - AI analysis unavailable',
-          priority: 'Low'
-        },
-        {
-          category: 'Paint',
-          estimatedCost: 3000,
-          description: 'Basic interior painting estimate',
-          condition: 'Fair',
-          renovationNeeded: true,
-          notes: 'Fallback estimate - AI analysis unavailable',
-          priority: 'Low'
-        },
-        {
-          category: 'Landscaping',
-          estimatedCost: 2000,
-          description: 'Basic landscaping estimate',
-          condition: 'Fair',
-          renovationNeeded: true,
-          notes: 'Fallback estimate - AI analysis unavailable',
-          priority: 'Low'
-        },
-        {
-          category: 'Exterior',
-          estimatedCost: 4000,
-          description: 'Basic exterior maintenance estimate',
-          condition: 'Fair',
-          renovationNeeded: true,
-          notes: 'Fallback estimate - AI analysis unavailable',
-          priority: 'Medium'
-        },
-        {
-          category: 'Other',
-          estimatedCost: 1000,
-          description: 'Miscellaneous renovation costs',
-          condition: 'Fair',
-          renovationNeeded: true,
-          notes: 'Fallback estimate - AI analysis unavailable',
-          priority: 'Low'
-        }
-      ];
-    }
-    
-    const totalCost = finalBreakdown.reduce((sum, item) => sum + item.estimatedCost, 0);
-    
-    // Update renovation analysis with results
-    renovationAnalysis.renovationEstimate = {
-      totalEstimatedCost: totalCost,
-      breakdown: finalBreakdown,
-      summary: generateRenovationSummary(finalBreakdown),
-      lastUpdated: new Date()
-    };
-    renovationAnalysis.status = 'completed';
-    renovationAnalysis.processingDetails.completedAt = new Date();
-    await renovationAnalysis.save();
-    
-    res.json({
-      message: 'Renovation estimate generated successfully',
-      renovationEstimate: renovationAnalysis.renovationEstimate,
-      status: renovationAnalysis.status
-    });
-    
-  } catch (error) {
-    console.error('Error generating renovation estimate:', error);
-    
-    // Update status to failed if we have a renovation analysis record
-    if (req.params.propertyId) {
-      await RenovationAnalysis.findOneAndUpdate(
-        { propertyId: req.params.propertyId },
-        { 
-          status: 'failed',
-          'processingDetails.errorMessage': error.message
-        }
-      );
-    }
-    
-    res.status(500).json({
-      message: 'Error generating renovation estimate',
-      error: error.message
-    });
-  }
+  ];
 };
 
 // Helper function to parse renovation breakdown from Claude response
@@ -573,11 +572,23 @@ const parseRenovationBreakdown = (content) => {
   try {
     console.log('Parsing AI response:', content.substring(0, 500) + '...');
     
-    // Try to extract JSON from the response
+    // Try to extract JSON from the response with better error handling
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       try {
-        const parsed = JSON.parse(jsonMatch[0]);
+        // Try to fix common JSON issues before parsing
+        let jsonString = jsonMatch[0];
+        
+        // Remove trailing commas before closing braces/brackets
+        jsonString = jsonString.replace(/,(\s*[}\]])/g, '$1');
+        
+        // Fix unclosed quotes by finding the last complete object
+        const lastCompleteObject = findLastCompleteObject(jsonString);
+        if (lastCompleteObject) {
+          jsonString = lastCompleteObject;
+        }
+        
+        const parsed = JSON.parse(jsonString);
         if (parsed.breakdown && Array.isArray(parsed.breakdown)) {
           console.log('Successfully parsed JSON breakdown with', parsed.breakdown.length, 'items');
           return parsed.breakdown.map(item => {
@@ -597,7 +608,8 @@ const parseRenovationBreakdown = (content) => {
           });
         }
       } catch (jsonError) {
-        console.error('Error parsing JSON:', jsonError);
+        console.error('Error parsing JSON:', jsonError.message);
+        console.error('JSON string that failed:', jsonMatch[0].substring(0, 200) + '...');
       }
     }
     
@@ -628,6 +640,37 @@ const parseRenovationBreakdown = (content) => {
     console.error('Error parsing renovation breakdown:', error);
     return [];
   }
+};
+
+// Helper function to find the last complete object in a JSON string
+const findLastCompleteObject = (jsonString) => {
+  try {
+    // Try to find the last complete object by looking for balanced braces
+    let braceCount = 0;
+    let lastCompleteIndex = -1;
+    
+    for (let i = 0; i < jsonString.length; i++) {
+      if (jsonString[i] === '{') {
+        braceCount++;
+      } else if (jsonString[i] === '}') {
+        braceCount--;
+        if (braceCount === 0) {
+          lastCompleteIndex = i;
+        }
+      }
+    }
+    
+    if (lastCompleteIndex > 0) {
+      const completeJson = jsonString.substring(0, lastCompleteIndex + 1);
+      // Validate it's parseable
+      JSON.parse(completeJson);
+      return completeJson;
+    }
+  } catch (error) {
+    // If this fails, return null and use the original fallback
+  }
+  
+  return null;
 };
 
 // Helper function to aggregate results from multiple batches

@@ -64,6 +64,9 @@ const renovationAnalysisSchema = new mongoose.Schema({
   processingDetails: {
     photosProcessed: Number,
     totalPhotos: Number,
+    currentBatch: Number,
+    totalBatches: Number,
+    processingMessage: String,
     errorMessage: String,
     startedAt: Date,
     completedAt: Date
