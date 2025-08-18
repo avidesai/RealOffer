@@ -11,10 +11,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY myapp-backend/package*.json ./
 RUN npm install --omit=dev
 
-COPY . .
+COPY myapp-backend/ .
 
 ENV NODE_ENV=production
 
