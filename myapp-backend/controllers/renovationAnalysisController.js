@@ -268,12 +268,12 @@ CRITICAL ASSESSMENT GUIDELINES - BE EXTREMELY CONSERVATIVE:
      * Cosmetic preferences (different style, color choices)
      * "Could be improved" scenarios
      * Modern, functional, clean areas
-     * Areas that are simply not "trendy" but are in good condition
      * Areas that are in "New", "Excellent", or "Good" condition
 
 4. **COST ASSIGNMENT RULES**:
    - If renovationNeeded = false, ALWAYS set estimatedCost = 0
-   - If renovationNeeded = true, provide realistic local market costs
+   - If renovationNeeded = true, provide REALISTIC local market costs for ${locationInfo}
+   - Use current market rates for the specific area - research typical costs for this location
    - Items with estimatedCost = 0 should NOT be included in total cost calculations
 
 5. **SPECIFIC CATEGORY GUIDELINES**:
@@ -290,16 +290,24 @@ CRITICAL ASSESSMENT GUIDELINES - BE EXTREMELY CONSERVATIVE:
    - "Low" = Minor cosmetic issues or outdated features
    - "None" = No renovation needed
 
+7. **COST ACCURACY GUIDELINES**:
+   - Research and use current local market rates for ${locationInfo}
+   - Consider the property's price point and market segment
+   - Higher-end areas may have higher labor and material costs
+   - Include realistic labor costs, materials, and contractor overhead
+   - Account for local building codes and permit requirements
+   - Consider seasonal variations in construction costs
+
 For each category, assess:
 1. Current condition (New/Excellent/Good/Fair/Poor)
 2. Whether renovation is needed (be extremely conservative)
-3. Estimated cost for renovation (use local market rates for ${locationInfo}) - MUST be 0 if no renovation needed
+3. Estimated cost for renovation (use accurate local market rates for ${locationInfo}) - MUST be 0 if no renovation needed
 4. Brief description of work needed (if any)
 5. Priority level (High/Medium/Low/None)
 
 CRITICAL: If a category is in excellent, good, or new condition and doesn't need renovation, mark renovationNeeded as false and estimatedCost as 0.
 
-Consider local market costs for ${locationInfo} when providing estimates.
+Consider local market costs for ${locationInfo} when providing estimates. Research typical renovation costs in this area to ensure accuracy.
 
 Please provide your response in the following JSON format:
 {

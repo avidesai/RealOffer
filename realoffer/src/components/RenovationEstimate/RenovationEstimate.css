@@ -6,6 +6,7 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   overflow: hidden;
   margin-bottom: 1.5rem;
+  border-left: 4px solid #dc3545;
   animation: fadeIn 0.3s ease;
 }
 
@@ -126,6 +127,32 @@
   color: #2c3e50;
   font-size: 1.2rem;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.beta-badge {
+  position: relative;
+  z-index: 1;
+  background: white;
+  color: #262626;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: default;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  background-image:
+    linear-gradient(white, white),
+    linear-gradient(90deg, #007bff, #00c6ff, #10b981, #f59e42, #e34d8c, #007bff);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .renovation-actions {
@@ -205,27 +232,28 @@
   border: none;
 }
 
+.stat-card.primary:hover {
+  transform: none;
+  box-shadow: none;
+}
+
 .stat-value {
-  font-size: 2.2rem;
+  font-size: 2.25rem;
   font-weight: 700;
   color: #2c3e50;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  margin-bottom: 0.2rem;
+  line-height: 1.2;
 }
 
 .stat-card.primary .stat-value {
-  color: #28a745;
-  font-size: 2rem;
+  color: #2c3e50;
+  font-size: 2.25rem;
 }
 
 .stat-label {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: #6c757d;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  opacity: 0.8;
+  font-weight: 500;
+  margin-top: 0.25rem;
 }
 
 /* Move-in Ready Badge */

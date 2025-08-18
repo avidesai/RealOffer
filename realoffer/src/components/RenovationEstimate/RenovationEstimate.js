@@ -231,7 +231,10 @@ const RenovationEstimate = ({ propertyId }) => {
   return (
     <div className="renovation-estimate">
       <div className="renovation-header">
-        <h3>Renovation Estimate</h3>
+        <h3>
+          Renovation Estimate
+          <span className="beta-badge">Beta</span>
+        </h3>
         <div className="renovation-actions">
           <button 
             onClick={generateRenovationEstimate}
@@ -289,24 +292,30 @@ const RenovationEstimate = ({ propertyId }) => {
           >
             All Categories ({renovationEstimate.breakdown.length})
           </button>
-          <button 
-            className={`filter-button ${selectedFilter === 'needed' ? 'active' : ''}`}
-            onClick={() => setSelectedFilter('needed')}
-          >
-            Needs Work ({stats.neededItems})
-          </button>
-          <button 
-            className={`filter-button ${selectedFilter === 'not-needed' ? 'active' : ''}`}
-            onClick={() => setSelectedFilter('not-needed')}
-          >
-            No Work Needed ({renovationEstimate.breakdown.length - stats.neededItems})
-          </button>
-          <button 
-            className={`filter-button ${selectedFilter === 'high-priority' ? 'active' : ''}`}
-            onClick={() => setSelectedFilter('high-priority')}
-          >
-            High Priority ({stats.highPriorityItems})
-          </button>
+          {stats.neededItems > 0 && (
+            <button 
+              className={`filter-button ${selectedFilter === 'needed' ? 'active' : ''}`}
+              onClick={() => setSelectedFilter('needed')}
+            >
+              Needs Work ({stats.neededItems})
+            </button>
+          )}
+          {(renovationEstimate.breakdown.length - stats.neededItems) > 0 && (
+            <button 
+              className={`filter-button ${selectedFilter === 'not-needed' ? 'active' : ''}`}
+              onClick={() => setSelectedFilter('not-needed')}
+            >
+              No Work Needed ({renovationEstimate.breakdown.length - stats.neededItems})
+            </button>
+          )}
+          {stats.highPriorityItems > 0 && (
+            <button 
+              className={`filter-button ${selectedFilter === 'high-priority' ? 'active' : ''}`}
+              onClick={() => setSelectedFilter('high-priority')}
+            >
+              High Priority ({stats.highPriorityItems})
+            </button>
+          )}
         </div>
 
         {/* Breakdown Grid */}
