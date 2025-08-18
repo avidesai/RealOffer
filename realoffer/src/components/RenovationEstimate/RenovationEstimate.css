@@ -22,17 +22,6 @@
 }
 
 .renovation-hidden-overlay {
-  position: relative;
-  min-height: 200px;
-  background: linear-gradient(135deg, rgba(108, 117, 125, 0.1) 0%, rgba(108, 117, 125, 0.05) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 2rem;
-}
-
-.renovation-hidden-overlay::before {
-  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -40,26 +29,48 @@
   bottom: 0;
   background: rgba(108, 117, 125, 0.3);
   backdrop-filter: blur(2px);
-  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 12px;
 }
 
 .renovation-hidden-content {
-  position: relative;
-  z-index: 2;
   text-align: center;
   color: #6c757d;
+  background: white;
+  padding: 3rem 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  min-width: 450px;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .renovation-hidden-content svg {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   opacity: 0.6;
+  width: 64px;
+  height: 64px;
 }
 
 .renovation-hidden-content p {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.5rem;
   font-weight: 500;
   color: #6c757d;
+}
+
+.renovation-hidden-subtext {
+  font-size: 1rem !important;
+  font-weight: 400 !important;
+  color: #adb5bd !important;
+  margin-top: 1.5rem !important;
+  line-height: 1.4;
 }
 
 /* Toggle Visibility Button */
@@ -76,6 +87,8 @@
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  position: relative;
+  z-index: 20;
 }
 
 .toggle-visibility-button:hover {
@@ -203,8 +216,10 @@
   padding: 1.5rem 1.5rem 0 1.5rem;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 1rem;
+  position: relative;
+  z-index: 20;
 }
 
 .renovation-header h3 {
@@ -243,7 +258,7 @@
 .renovation-actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.25rem;
 }
 
 .regenerate-estimate-button {
@@ -275,6 +290,39 @@
 /* Content */
 .renovation-content {
   padding: 1.5rem;
+}
+
+/* Regenerate Button Container */
+.regenerate-button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.regenerate-button-container .regenerate-estimate-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.regenerate-button-container .regenerate-estimate-button:hover:not(:disabled) {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+.regenerate-button-container .regenerate-estimate-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* Summary Stats */
@@ -689,11 +737,20 @@
   .renovation-actions {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.75rem;
+    gap: 0.5rem;
     width: 100%;
   }
   
   .toggle-visibility-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .regenerate-button-container {
+    justify-content: center;
+  }
+  
+  .regenerate-button-container .regenerate-estimate-button {
     width: 100%;
     justify-content: center;
   }

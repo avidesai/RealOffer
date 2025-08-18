@@ -59,12 +59,21 @@ html {
   margin-bottom: 0;
   border-bottom: 1px solid #eee;
   background: white;
+  min-height: 60px;
 }
 
 .header-title-container {
   display: flex;
   align-items: center;
-  gap: 0.9rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
 }
 
 .pchat-header h3 {
@@ -111,8 +120,8 @@ html {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
 }
 
 .usage-circle svg {
@@ -129,7 +138,7 @@ html {
 
 .usage-text {
   position: absolute;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: #6b7280;
   line-height: 1;
@@ -151,16 +160,7 @@ html {
 /* Responsive design for usage indicator */
 @media (max-width: 768px) {
   .usage-indicator {
-    gap: 0.25rem;
-  }
-  
-  .usage-circle {
-    width: 20px;
-    height: 20px;
-  }
-  
-  .usage-text {
-    font-size: 0.6rem;
+    display: none;
   }
 }
 
@@ -600,7 +600,7 @@ html {
   font-weight: 400;
   font-size: 1rem;
   color: #666;
-  margin-top: 4rem;
+  margin-top: 3rem;
   margin-bottom: 1rem;
 }
 
@@ -663,7 +663,7 @@ html {
 .suggested-questions {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
   max-width: 600px;
   margin: 0 auto;
 }
@@ -672,19 +672,19 @@ html {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem 1.25rem;
+  padding: 0.875rem 1rem;
   background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
   border: 1px solid #e9ecef;
-  border-radius: 12px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   text-align: left;
   width: 100%;
   font-family: inherit;
-  font-size: 0.95rem;
-  line-height: 1.4;
-  color: #2c3e50;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  color: #666;
 }
 
 .suggested-question:hover {
@@ -729,7 +729,7 @@ html {
 .question-text {
   flex: 1;
   font-weight: 500;
-  color: #2c3e50;
+  color: #666;
 }
 
 .suggested-question:hover .question-text {

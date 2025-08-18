@@ -24,16 +24,6 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchCurrentUsage();
-    }
-  }, [isOpen, fetchCurrentUsage]);
-
   // Scroll handler for clickable [1], [2] markers
   const handleCitationClick = useCallback((citationIndex) => {
     const el = citationRefs.current[`citation-${citationIndex}`];
@@ -60,6 +50,16 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
       console.error('Error fetching usage:', error);
     }
   }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchCurrentUsage();
+    }
+  }, [isOpen, fetchCurrentUsage]);
 
   const handleSuggestedQuestion = (question) => {
     if (isLoading) return; // Prevent multiple submissions
@@ -397,39 +397,40 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
         <div className="pchat-header">
           <div className="header-title-container">
             <h3>AI Assistant</h3>
-            <span className="beta-badge">Beta</span>
           </div>
-          <div className="usage-indicator">
-            <div 
-              className="usage-circle"
-              data-usage={usagePercentage >= 80 ? 'high' : usagePercentage >= 50 ? 'medium' : 'low'}
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24">
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  fill="none"
-                  stroke="#e5e7eb"
-                  strokeWidth="2"
-                />
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  fill="none"
-                  stroke={usagePercentage >= 80 ? '#ef4444' : usagePercentage >= 50 ? '#f59e0b' : '#007bff'}
-                  strokeWidth="2"
-                  strokeDasharray={`${2 * Math.PI * 10}`}
-                  strokeDashoffset={`${2 * Math.PI * 10 * (1 - usagePercentage / 100)}`}
-                  strokeLinecap="round"
-                  transform="rotate(-90 12 12)"
-                />
-              </svg>
-              <span className="usage-text">{usagePercentage}%</span>
+          <div className="header-actions">
+            <div className="usage-indicator">
+              <div 
+                className="usage-circle"
+                data-usage={usagePercentage >= 80 ? 'high' : usagePercentage >= 50 ? 'medium' : 'low'}
+              >
+                <svg width="32" height="32" viewBox="0 0 24 24">
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    fill="none"
+                    stroke="#e5e7eb"
+                    strokeWidth="2"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    fill="none"
+                    stroke={usagePercentage >= 80 ? '#ef4444' : usagePercentage >= 50 ? '#f59e0b' : '#007bff'}
+                    strokeWidth="2"
+                    strokeDasharray={`${2 * Math.PI * 10}`}
+                    strokeDashoffset={`${2 * Math.PI * 10 * (1 - usagePercentage / 100)}`}
+                    strokeLinecap="round"
+                    transform="rotate(-90 12 12)"
+                  />
+                </svg>
+                <span className="usage-text">{usagePercentage}%</span>
+              </div>
             </div>
+            <button className="pchat-close" onClick={onClose}>×</button>
           </div>
-          <button className="pchat-close" onClick={onClose}>×</button>
         </div>
 
         <div className="pchat-container">
