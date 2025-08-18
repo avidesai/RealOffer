@@ -790,86 +790,186 @@ const generateThumbnail = async (pdfBuffer, documentId) => {
   
   try {
     const tempDir = os.tmpdir();
-    tempPdfPath = path.join(tempDir, `temp_${documentId}_${Date.now()}.pdf`);
-    tempImagePath = path.join(tempDir, `temp_${documentId}_${Date.now()}_thumbnail.png`);
+    const timestamp = Date.now();
+    const randomId = Math.random().toString(36).substr(2, 9);
+    tempPdfPath = path.join(tempDir, `temp_thumbnail_${timestamp}_${randomId}.pdf`);
+    tempImagePath = path.join(tempDir, `temp_thumbnail_${timestamp}_${randomId}_thumbnail.png`);
 
     // Write PDF buffer to temp file
     fs.writeFileSync(tempPdfPath, pdfBuffer);
+    
+    // Verify the file was written successfully
+    if (!fs.existsSync(tempPdfPath)) {
+      throw new Error('Failed to write temporary PDF file');
+    }
+    
+    const fileStats = fs.statSync(tempPdfPath);
+    console.log(`Temporary PDF file created: ${tempPdfPath} (${fileStats.size} bytes, permissions: ${fileStats.mode.toString(8)})`);
+    
+    // Verify the file is readable
+    try {
+      fs.accessSync(tempPdfPath, fs.constants.R_OK);
+      console.log('Temporary PDF file is readable');
+    } catch (accessError) {
+      throw new Error(`Temporary PDF file is not readable: ${accessError.message}`);
+    }
 
-    // Convert first page to image using ImageMagick directly
-    return new Promise(async (resolve, reject) => {
-      imagemagick.convert([
-        tempPdfPath + '[0]', // Input PDF, first page only
-        '-density', '150',
-        '-quality', '75',
-        '-units', 'PixelsPerInch',
-        '-resize', '300x400!',
-        '-compress', 'jpeg',
-        tempImagePath
-      ], async (err, stdout) => {
-        if (err) {
-          console.error('ImageMagick conversion error:', err);
+    // Try multiple methods to generate thumbnail
+    const methods = [
+      // Method 1: ImageMagick
+      async () => {
+        return new Promise((resolve, reject) => {
+          // Verify file still exists before ImageMagick conversion
+          if (!fs.existsSync(tempPdfPath)) {
+            reject(new Error('Temporary PDF file was deleted before ImageMagick conversion'));
+            return;
+          }
           
-          // If ImageMagick is blocked by policy for PDFs, try Ghostscript as fallback
-          const errMsg = String(err?.message || '').toLowerCase();
-          if (errMsg.includes('not allowed by the security policy') || errMsg.includes('iscoderauthorized')) {
-            try {
-              console.log('ImageMagick blocked by policy, trying Ghostscript for thumbnail...');
-              const { exec } = require('child_process');
-              const util = require('util');
-              const execAsync = util.promisify(exec);
-              
-              // Use Ghostscript to render first page as PNG
-              const gsCmd = `gs -sDEVICE=png16m -dSAFER -dNOPAUSE -dBATCH -r150 -dFirstPage=1 -dLastPage=1 -o "${tempImagePath}" "${tempPdfPath}"`;
-              await execAsync(gsCmd);
-              
-              // Check if Ghostscript succeeded
-              if (fs.existsSync(tempImagePath)) {
-                const imageBuffer = fs.readFileSync(tempImagePath);
-                console.log('Ghostscript thumbnail generation succeeded');
-                resolve(imageBuffer);
+          console.log(`ImageMagick: Converting ${tempPdfPath} to ${tempImagePath}`);
+          console.log(`ImageMagick: Input file exists: ${fs.existsSync(tempPdfPath)}, size: ${fs.statSync(tempPdfPath).size} bytes`);
+          
+          // First, let's test if ImageMagick can read the PDF at all
+          imagemagick.identify([tempPdfPath], (identifyErr, identifyStdout) => {
+            if (identifyErr) {
+              console.error('ImageMagick identify failed:', identifyErr);
+              reject(new Error(`ImageMagick cannot read PDF: ${identifyErr.message}`));
+              return;
+            }
+            
+            console.log('ImageMagick identify succeeded:', identifyStdout);
+            
+            const convertArgs = [
+              tempPdfPath + '[0]', // Input PDF, first page only
+              '-density', '150',
+              '-quality', '75',
+              '-units', 'PixelsPerInch',
+              '-resize', '300x400!',
+              '-compress', 'jpeg',
+              tempImagePath
+            ];
+            
+            console.log(`ImageMagick command args:`, convertArgs);
+            
+            imagemagick.convert(convertArgs, (err, stdout) => {
+              if (err) {
+                console.error('ImageMagick conversion error details:', {
+                  message: err.message,
+                  code: err.code,
+                  signal: err.signal,
+                  stdout: stdout
+                });
+                reject(err);
                 return;
               }
-            } catch (gsErr) {
-              console.error('Ghostscript thumbnail generation also failed:', gsErr);
-            }
-          }
-          
-          // If both ImageMagick and Ghostscript fail, create a simple placeholder
-          console.log('Both ImageMagick and Ghostscript failed, creating placeholder thumbnail');
-          try {
-            // Create a simple placeholder image using sharp
-            const sharp = require('sharp');
-            const placeholderBuffer = await sharp({
-              create: {
-                width: 300,
-                height: 400,
-                channels: 3,
-                background: { r: 240, g: 240, b: 240 }
+              
+              console.log(`ImageMagick stdout: ${stdout}`);
+              
+              // Read the converted image
+              if (fs.existsSync(tempImagePath)) {
+                const imageBuffer = fs.readFileSync(tempImagePath);
+                console.log(`ImageMagick thumbnail generated: ${tempImagePath} (${imageBuffer.length} bytes)`);
+                resolve(imageBuffer);
+              } else {
+                console.error(`ImageMagick output file not found: ${tempImagePath}`);
+                reject(new Error('ImageMagick did not create output file'));
               }
-            })
-            .png()
-            .toBuffer();
-            
-            resolve(placeholderBuffer);
-            return;
-          } catch (placeholderErr) {
-            console.error('Failed to create placeholder thumbnail:', placeholderErr);
-          }
-          
-          reject(err);
-          return;
-        }
+            });
+          });
+        });
+      },
+      
+      // Method 2: Ghostscript
+      async () => {
+        console.log('Trying Ghostscript for thumbnail generation...');
+        const { exec } = require('child_process');
+        const util = require('util');
+        const execAsync = util.promisify(exec);
         
-        // Read the converted image
+        // Use Ghostscript to render first page as PNG
+        const gsCmd = `gs -sDEVICE=png16m -dSAFER -dNOPAUSE -dBATCH -r150 -dFirstPage=1 -dLastPage=1 -o "${tempImagePath}" "${tempPdfPath}"`;
+        await execAsync(gsCmd);
+        
+        // Check if Ghostscript succeeded
         if (fs.existsSync(tempImagePath)) {
           const imageBuffer = fs.readFileSync(tempImagePath);
-          resolve(imageBuffer);
+          console.log('Ghostscript thumbnail generation succeeded');
+          return imageBuffer;
         } else {
-          reject(new Error('ImageMagick did not create output file'));
+          throw new Error('Ghostscript did not create output file');
         }
-      });
-    });
+      },
+      
+      // Method 3: pdf2pic
+      async () => {
+        console.log('Trying pdf2pic for thumbnail generation...');
+        const { fromPath } = require('pdf2pic');
+        
+        const convert = fromPath(tempPdfPath, {
+          density: 150,
+          saveFilename: path.basename(tempImagePath, '.png'),
+          savePath: tempDir,
+          format: 'png',
+          width: 300,
+          height: 400
+        });
+        
+        const result = await convert(1); // First page
+        if (result && result.path && fs.existsSync(result.path)) {
+          const imageBuffer = fs.readFileSync(result.path);
+          // Clean up the pdf2pic output file
+          try {
+            fs.unlinkSync(result.path);
+          } catch (cleanupErr) {
+            console.warn('Failed to cleanup pdf2pic temp file:', cleanupErr.message);
+          }
+          console.log('pdf2pic thumbnail generation succeeded');
+          return imageBuffer;
+        } else {
+          throw new Error('pdf2pic did not create output file');
+        }
+      },
+      
+      // Method 4: Sharp placeholder
+      async () => {
+        console.log('Creating placeholder thumbnail with Sharp...');
+        const sharp = require('sharp');
+        const placeholderBuffer = await sharp({
+          create: {
+            width: 300,
+            height: 400,
+            channels: 3,
+            background: { r: 240, g: 240, b: 240 }
+          }
+        })
+        .png()
+        .toBuffer();
+        
+        console.log('Sharp placeholder thumbnail created');
+        return placeholderBuffer;
+      }
+    ];
+
+    // Try each method in order until one succeeds
+    for (let i = 0; i < methods.length; i++) {
+      try {
+        console.log(`Trying thumbnail generation method ${i + 1}...`);
+        const result = await methods[i]();
+        if (result) {
+          console.log(`Thumbnail generation succeeded with method ${i + 1}`);
+          return result;
+        }
+      } catch (methodError) {
+        console.error(`Thumbnail generation method ${i + 1} failed:`, methodError.message);
+        if (i === methods.length - 1) {
+          // Last method failed, throw the error
+          throw methodError;
+        }
+        // Continue to next method
+      }
+    }
+    
+    throw new Error('All thumbnail generation methods failed');
+    
   } catch (error) {
     console.error('Error generating thumbnail:', error);
     return null;
@@ -878,9 +978,11 @@ const generateThumbnail = async (pdfBuffer, documentId) => {
     try {
       if (tempPdfPath && fs.existsSync(tempPdfPath)) {
         fs.unlinkSync(tempPdfPath);
+        console.log(`Cleaned up temporary PDF: ${tempPdfPath}`);
       }
       if (tempImagePath && fs.existsSync(tempImagePath)) {
         fs.unlinkSync(tempImagePath);
+        console.log(`Cleaned up temporary image: ${tempImagePath}`);
       }
     } catch (cleanupError) {
       console.error('Error cleaning up temp files:', cleanupError);
@@ -2555,26 +2657,39 @@ exports.uploadDocumentsWithProgress = async (req, res) => {
         let thumbnailAzureKey = null;
         if (file.mimetype === 'application/pdf') {
           try {
-            console.log(`Starting thumbnail generation for: ${file.originalname}`);
-            const thumbnailBuffer = await generateThumbnail(file.buffer, `thumbnail_${Date.now()}_${index}`);
-            if (thumbnailBuffer) {
-              console.log(`Thumbnail generated successfully for: ${file.originalname}`);
-              const sanitizedFilename = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
-              const thumbnailBlobName = `thumbnails/${Date.now()}_${index}_${sanitizedFilename.replace(/\.[^/.]+$/, '')}-thumb.png`;
-              const thumbnailBlockBlobClient = containerClient.getBlockBlobClient(thumbnailBlobName);
+            console.log(`Starting thumbnail generation for: ${file.originalname} (buffer size: ${file.buffer.length} bytes)`);
+            
+            // Verify the buffer is valid
+            if (!file.buffer || file.buffer.length === 0) {
+              console.error('Invalid file buffer for thumbnail generation');
+            } else {
+              // Create a copy of the buffer to avoid any potential issues
+              const bufferCopy = Buffer.from(file.buffer);
+              console.log(`Buffer copy created: ${bufferCopy.length} bytes`);
               
-              try {
-                await thumbnailBlockBlobClient.uploadData(thumbnailBuffer, {
-                  blobHTTPHeaders: { blobContentType: 'image/png' }
-                });
+              const thumbnailBuffer = await generateThumbnail(bufferCopy, `thumbnail_${Date.now()}_${index}`);
+              if (thumbnailBuffer) {
+                console.log(`Thumbnail generated successfully for: ${file.originalname} (thumbnail size: ${thumbnailBuffer.length} bytes)`);
+                const sanitizedFilename = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+                const thumbnailBlobName = `thumbnails/${Date.now()}_${index}_${sanitizedFilename.replace(/\.[^/.]+$/, '')}-thumb.png`;
+                const thumbnailBlockBlobClient = containerClient.getBlockBlobClient(thumbnailBlobName);
                 
-                thumbnailUrl = thumbnailBlockBlobClient.url;
-                thumbnailAzureKey = thumbnailBlobName;
-              } catch (thumbnailUploadError) {
-                console.error('Thumbnail upload error:', thumbnailUploadError);
-                // Continue without thumbnail if upload fails
-                thumbnailUrl = null;
-                thumbnailAzureKey = null;
+                try {
+                  await thumbnailBlockBlobClient.uploadData(thumbnailBuffer, {
+                    blobHTTPHeaders: { blobContentType: 'image/png' }
+                  });
+                  
+                  thumbnailUrl = thumbnailBlockBlobClient.url;
+                  thumbnailAzureKey = thumbnailBlobName;
+                  console.log(`Thumbnail uploaded to Azure: ${thumbnailUrl}`);
+                } catch (thumbnailUploadError) {
+                  console.error('Thumbnail upload error:', thumbnailUploadError);
+                  // Continue without thumbnail if upload fails
+                  thumbnailUrl = null;
+                  thumbnailAzureKey = null;
+                }
+              } else {
+                console.log(`Thumbnail generation returned null for: ${file.originalname}`);
               }
             }
           } catch (thumbnailError) {
