@@ -3,6 +3,7 @@
 const Anthropic = require('@anthropic-ai/sdk');
 const PropertyListing = require('../models/PropertyListing');
 const PropertyAnalysis = require('../models/PropertyAnalysis');
+const RenovationAnalysis = require('../models/RenovationAnalysis');
 const optimizedDocumentProcessor = require('../utils/optimizedDocumentProcessor');
 
 const anthropic = new Anthropic({
@@ -68,12 +69,13 @@ class OptimizedChatController {
       `You are a helpful, trustworthy AI real estate assistant designed to help buyers and agents analyze properties using provided data.`,
       `Today's date is ${today}.`,
       offerDueDate ? `The offer due date for this property is ${offerDueDate}.` : null,
-      `You have access to structured property details, valuation data, and key excerpts from disclosure documents.`,
+      `You have access to structured property details, valuation data, renovation estimates, and key excerpts from disclosure documents.`,
       `You also have access to AI-generated analysis summaries that provide structured insights from documents.`,
+      `Renovation estimates are based on AI analysis of property photos and provide detailed cost breakdowns by category.`,
       `Always reference only the provided data. Never guess, assume, or invent information.`,
       `If a question can't be answered from the information you have, respond with: "I'm not sure based on the available documents."`,
       `Your tone should be professional, accurate, clear, and concise.`,
-      `When referencing analysis summaries, mention that the information comes from an AI analysis of the document.`
+      `When referencing analysis summaries or renovation estimates, mention that the information comes from an AI analysis.`
     ].filter(Boolean).join(' ');
 
     const propertyContext = this.createCompactPropertyContext(knowledgeBase);
@@ -83,6 +85,44 @@ class OptimizedChatController {
     const documentChunks = chunks.filter(chunk => chunk.chunkType === 'document');
 
     let documentContext = '';
+    
+    // Add renovation analysis if available
+    if (knowledgeBase.renovationAnalysis?.renovationEstimate && knowledgeBase.renovationAnalysis.status === 'completed') {
+      try {
+        documentContext += `## RENOVATION ANALYSIS\n`;
+        const renovation = knowledgeBase.renovationAnalysis.renovationEstimate;
+        
+        if (renovation.summary) {
+          documentContext += `\n### Summary\n`;
+          documentContext += `${renovation.summary}\n\n`;
+        }
+        
+        if (renovation.breakdown && Array.isArray(renovation.breakdown)) {
+          documentContext += `### Detailed Breakdown\n`;
+          renovation.breakdown.forEach((item, i) => {
+            if (item && item.category) {
+              documentContext += `\n**${item.category}**\n`;
+              documentContext += `- Condition: ${item.condition || 'Unknown'}\n`;
+              documentContext += `- Renovation Needed: ${item.renovationNeeded ? 'Yes' : 'No'}\n`;
+              if (item.renovationNeeded && item.estimatedCost) {
+                documentContext += `- Estimated Cost: $${item.estimatedCost.toLocaleString()}\n`;
+                documentContext += `- Priority: ${item.priority || 'None'}\n`;
+              }
+              if (item.description) {
+                documentContext += `- Description: ${item.description}\n`;
+              }
+              if (item.notes) {
+                documentContext += `- Notes: ${item.notes}\n`;
+              }
+            }
+          });
+        }
+        documentContext += '\n---\n\n';
+      } catch (error) {
+        console.error('Error formatting renovation analysis:', error);
+        // Continue without renovation data if there's an error
+      }
+    }
     
     // Add analysis chunks first (prioritized)
     if (analysisChunks.length > 0) {
@@ -219,10 +259,23 @@ class OptimizedChatController {
   createCompactPropertyContext(knowledgeBase) {
     const p = knowledgeBase.propertyInfo;
     const v = knowledgeBase.valuation;
+    const r = knowledgeBase.renovationAnalysis;
+
+    let renovationContext = '';
+    if (r?.renovationEstimate && r.status === 'completed') {
+      const totalCost = r.renovationEstimate.totalEstimatedCost;
+      const itemsNeedingRenovation = r.renovationEstimate.breakdown.filter(item => item.renovationNeeded);
+      const moveInReady = itemsNeedingRenovation.length === 0;
+      
+      renovationContext = `RENOVATION: ${moveInReady ? 'Move-in Ready' : `$${totalCost?.toLocaleString()} total`} | ${itemsNeedingRenovation.length} categories need work`;
+    } else {
+      renovationContext = 'RENOVATION: Analysis not available';
+    }
 
     return `PROPERTY: ${p.address} - $${p.price?.toLocaleString()} | ${p.beds}bed/${p.baths}bath | ${p.sqft} sqft | Built ${p.yearBuilt}\n` +
       `VALUATION: Est. $${v.estimatedValue?.toLocaleString()} | Range $${v.priceRange.low?.toLocaleString()}–$${v.priceRange.high?.toLocaleString()}\n` +
-      `COMPS: ${v.comparables?.map(c => `$${c.price}`).join(', ')}`;
+      `COMPS: ${v.comparables?.map(c => `$${c.price}`).join(', ')}\n` +
+      `${renovationContext}`;
   }
 
   /**
@@ -252,9 +305,10 @@ class OptimizedChatController {
       if (Date.now() - cached.timestamp < 1800000) return cached.knowledgeBase;
     }
 
-    const [property, analysis] = await Promise.all([
+    const [property, analysis, renovationAnalysis] = await Promise.all([
       PropertyListing.findById(propertyId),
-      PropertyAnalysis.findOne({ propertyId })
+      PropertyAnalysis.findOne({ propertyId }),
+      RenovationAnalysis.findOne({ propertyId })
     ]);
 
     const knowledgeBase = {
@@ -275,7 +329,12 @@ class OptimizedChatController {
           high: analysis?.valuation?.priceRangeHigh
         },
         comparables: analysis?.valuation?.comparables?.slice(0, 3) || []
-      }
+      },
+      renovationAnalysis: renovationAnalysis?.status === 'completed' ? {
+        status: renovationAnalysis.status,
+        renovationEstimate: renovationAnalysis.renovationEstimate,
+        propertyLocation: renovationAnalysis.propertyLocation
+      } : null
     };
 
     this.propertyCache.set(key, { knowledgeBase, timestamp: Date.now() });
