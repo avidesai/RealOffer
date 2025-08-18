@@ -582,10 +582,33 @@ const parseRenovationBreakdown = (content) => {
         // Remove trailing commas before closing braces/brackets
         jsonString = jsonString.replace(/,(\s*[}\]])/g, '$1');
         
-        // Fix unclosed quotes by finding the last complete object
+        // Try to fix common issues with incomplete JSON
         const lastCompleteObject = findLastCompleteObject(jsonString);
         if (lastCompleteObject) {
           jsonString = lastCompleteObject;
+        } else {
+          // If we can't find a complete object, try to salvage partial data
+          // Look for at least one complete category object
+          const categoryMatches = jsonString.match(/"category":\s*"[^"]*"[^}]*}/g);
+          if (categoryMatches && categoryMatches.length > 0) {
+            // Try to reconstruct minimal valid JSON
+            const validCategories = [];
+            for (const match of categoryMatches) {
+              try {
+                // Try to extract category data from partial match
+                const categoryData = extractCategoryFromPartialJSON(match);
+                if (categoryData) {
+                  validCategories.push(categoryData);
+                }
+              } catch (e) {
+                console.log('Failed to extract category from:', match.substring(0, 100));
+              }
+            }
+            
+            if (validCategories.length > 0) {
+              return validCategories;
+            }
+          }
         }
         
         const parsed = JSON.parse(jsonString);
@@ -648,14 +671,35 @@ const findLastCompleteObject = (jsonString) => {
     // Try to find the last complete object by looking for balanced braces
     let braceCount = 0;
     let lastCompleteIndex = -1;
+    let inString = false;
+    let escapeNext = false;
     
     for (let i = 0; i < jsonString.length; i++) {
-      if (jsonString[i] === '{') {
-        braceCount++;
-      } else if (jsonString[i] === '}') {
-        braceCount--;
-        if (braceCount === 0) {
-          lastCompleteIndex = i;
+      const char = jsonString[i];
+      
+      if (escapeNext) {
+        escapeNext = false;
+        continue;
+      }
+      
+      if (char === '\\') {
+        escapeNext = true;
+        continue;
+      }
+      
+      if (char === '"' && !escapeNext) {
+        inString = !inString;
+        continue;
+      }
+      
+      if (!inString) {
+        if (char === '{') {
+          braceCount++;
+        } else if (char === '}') {
+          braceCount--;
+          if (braceCount === 0) {
+            lastCompleteIndex = i;
+          }
         }
       }
     }
@@ -667,7 +711,38 @@ const findLastCompleteObject = (jsonString) => {
       return completeJson;
     }
   } catch (error) {
-    // If this fails, return null and use the original fallback
+    console.log('Error in findLastCompleteObject:', error.message);
+  }
+  
+  return null;
+};
+
+// Helper function to extract category data from partial JSON
+const extractCategoryFromPartialJSON = (partialMatch) => {
+  try {
+    // Try to extract basic information from the partial match
+    const categoryMatch = partialMatch.match(/"category":\s*"([^"]*)"/);
+    const costMatch = partialMatch.match(/"estimatedCost":\s*(\d+)/);
+    const conditionMatch = partialMatch.match(/"condition":\s*"([^"]*)"/);
+    const renovationNeededMatch = partialMatch.match(/"renovationNeeded":\s*(true|false)/);
+    const descriptionMatch = partialMatch.match(/"description":\s*"([^"]*)"/);
+    
+    if (categoryMatch) {
+      const validCategories = ['Kitchen', 'Bathrooms', 'Flooring', 'Paint', 'Landscaping', 'Exterior', 'Other'];
+      const category = validCategories.includes(categoryMatch[1]) ? categoryMatch[1] : 'Other';
+      
+      return {
+        category: category,
+        estimatedCost: costMatch ? parseInt(costMatch[1]) : 0,
+        description: descriptionMatch ? descriptionMatch[1] : 'Partial analysis recovered',
+        condition: conditionMatch ? conditionMatch[1] : 'Fair',
+        renovationNeeded: renovationNeededMatch ? renovationNeededMatch[1] === 'true' : false,
+        notes: 'Recovered from partial AI response',
+        priority: 'None'
+      };
+    }
+  } catch (error) {
+    console.log('Error extracting from partial JSON:', error.message);
   }
   
   return null;
