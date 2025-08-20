@@ -159,6 +159,35 @@ const BuyerPackageAnalysis = ({ buyerPackageId }) => {
     <div className="analysis-tab">
       <div className="analysis-content">
         <div className="analysis-header">
+          <div className="header-content">
+            <div>
+              <h2>Property Analysis</h2>
+              <p>Valuation estimates and comparable sales data</p>
+            </div>
+            <div className="header-actions">
+              <span className="last-updated">
+                Last updated: {analysisData.lastUpdated ? new Date(analysisData.lastUpdated).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }) : 'Never'}
+              </span>
+              <button
+                onClick={() => fetchAnalysisData(true)}
+                className="refresh-button"
+                disabled={loading}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 4V10H7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M23 20V14H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M20.49 9C19.2214 5.33127 15.6907 2.5 11.5 2.5C6.80546 2.5 2.5 6.80546 2.5 11.5C2.5 12.9297 2.80546 14.2811 3.35418 15.5M20.49 9H14M20.49 9V15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Refresh
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="valuation-cards">

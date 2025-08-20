@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import InputMask from 'react-input-mask';
+// Remove InputMask import as we'll use a custom solution
 import { useAuth } from '../../context/AuthContext';
 import './SignupForm.css';
 
@@ -53,6 +53,33 @@ function SignupForm() {
       ...prevData,
       [name]: type === 'radio' ? (value === 'true') : value
     }));
+    // Clear specific field errors and general error when user starts typing
+    clearErrors();
+  };
+
+  // Add custom phone input handler
+  const handlePhoneChange = (e) => {
+    const { value } = e.target;
+    // Remove all non-numeric characters
+    const numericValue = value.replace(/\D/g, '');
+    
+    // Format the phone number
+    let formattedValue = '';
+    if (numericValue.length > 0) {
+      formattedValue = '(' + numericValue.substring(0, 3);
+      if (numericValue.length > 3) {
+        formattedValue += ') ' + numericValue.substring(3, 6);
+        if (numericValue.length > 6) {
+          formattedValue += '-' + numericValue.substring(6, 10);
+        }
+      }
+    }
+    
+    setFormData(prevData => ({
+      ...prevData,
+      phone: formattedValue
+    }));
+    
     // Clear specific field errors and general error when user starts typing
     clearErrors();
   };
@@ -334,22 +361,15 @@ function SignupForm() {
         </div>
         <div className="sup-form-group">
           <label htmlFor="phone" className="sup-label">Phone Number</label>
-          <InputMask
-            mask="(999) 999-9999"
-            value={formData.phone || ''}
-            onChange={handleChange}
-          >
-            {(inputProps) => (
-              <input
-                {...inputProps}
-                type="text"
-                id="phone"
-                name="phone"
-                className={`sup-input ${errors.phone ? 'sup-input-invalid' : ''}`}
-                placeholder="Enter your phone number"
-              />
-            )}
-          </InputMask>
+          <input
+            type="text"
+            id="phone"
+            name="phone"
+            value={formData.phone}
+            onChange={handlePhoneChange}
+            className={`sup-input ${errors.phone ? 'sup-input-invalid' : ''}`}
+            placeholder="Enter your phone number (e.g., (123) 456-7890)"
+          />
           {errors.phone && <div className="sup-error">{errors.phone}</div>}
         </div>
         <div className="sup-form-group">

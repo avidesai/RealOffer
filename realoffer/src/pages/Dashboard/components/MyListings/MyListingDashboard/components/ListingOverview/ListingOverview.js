@@ -10,7 +10,7 @@ import OfferDueReminder from '../../../../../../../components/OfferDueReminder/O
 import EnhancedPropertyChat from '../../../../../../../components/PropertyChat/EnhancedPropertyChat';
 import './ListingOverview.css';
 
-function ListingOverview({ listing }) {
+function ListingOverview({ listing, onListingRefresh }) {
   const [agents, setAgents] = useState([]);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -88,6 +88,11 @@ function ListingOverview({ listing }) {
       }
       
       setCurrentListing(refreshedListing);
+      
+      // Call the parent's refresh function to update the main listing state
+      if (onListingRefresh) {
+        onListingRefresh();
+      }
     } catch (error) {
       console.error('Error refreshing listing:', error);
     } finally {

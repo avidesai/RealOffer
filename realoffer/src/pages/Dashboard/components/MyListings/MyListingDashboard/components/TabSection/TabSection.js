@@ -74,12 +74,12 @@ const TabSection = ({ listing }) => {
         ))}
       </div>
       <div className="tab-content" role="tabpanel">
-        {activeTab === 'docs' && <Documents listingId={updatedListing._id} />}
-        {activeTab === 'analysis' && <Analysis listingId={updatedListing._id} />}
-        {activeTab === 'activity' && <Activity listingId={updatedListing._id} />}
-        {activeTab === 'messages' && <Messages listingId={updatedListing._id} />}
-        {activeTab === 'offers' && <Offers listingId={updatedListing._id} />}
-        {activeTab === 'settings' && <Settings listing={updatedListing} onStatusChange={handleStatusChange} />}
+        {activeTab === 'docs' && <Documents key={`docs-${updatedListing._id}`} listingId={updatedListing._id} />}
+        {activeTab === 'analysis' && <Analysis key={`analysis-${updatedListing._id}`} listingId={updatedListing._id} />}
+        {activeTab === 'activity' && <Activity key={`activity-${updatedListing._id}`} listingId={updatedListing._id} />}
+        {activeTab === 'messages' && <Messages key={`messages-${updatedListing._id}`} listingId={updatedListing._id} />}
+        {activeTab === 'offers' && <Offers key={`offers-${updatedListing._id}`} listingId={updatedListing._id} />}
+        {activeTab === 'settings' && <Settings key={`settings-${updatedListing._id}`} listing={updatedListing} onStatusChange={handleStatusChange} />}
       </div>
     </div>
   );

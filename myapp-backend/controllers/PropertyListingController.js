@@ -505,6 +505,20 @@ exports.updateListing = async (req, res) => {
     const newDueDate = req.body.offerDueDate ? new Date(req.body.offerDueDate).getTime() : null;
     const isOfferDueDateUpdated = currentDueDate !== newDueDate;
 
+    // Check if property characteristics are being updated (which would affect analysis data)
+    const isPropertyCharacteristicsUpdated = req.body.homeCharacteristics && 
+      (req.body.homeCharacteristics.price !== currentListing.homeCharacteristics.price ||
+       req.body.homeCharacteristics.beds !== currentListing.homeCharacteristics.beds ||
+       req.body.homeCharacteristics.baths !== currentListing.homeCharacteristics.baths ||
+       req.body.homeCharacteristics.squareFootage !== currentListing.homeCharacteristics.squareFootage ||
+       req.body.homeCharacteristics.lotSize !== currentListing.homeCharacteristics.lotSize ||
+       req.body.homeCharacteristics.yearBuilt !== currentListing.homeCharacteristics.yearBuilt ||
+       req.body.homeCharacteristics.propertyType !== currentListing.homeCharacteristics.propertyType ||
+       req.body.homeCharacteristics.address !== currentListing.homeCharacteristics.address ||
+       req.body.homeCharacteristics.city !== currentListing.homeCharacteristics.city ||
+       req.body.homeCharacteristics.state !== currentListing.homeCharacteristics.state ||
+       req.body.homeCharacteristics.zip !== currentListing.homeCharacteristics.zip);
+
     const updatedListing = await PropertyListing.findOneAndUpdate(
       { _id: req.params.id },
       req.body,
@@ -519,6 +533,18 @@ exports.updateListing = async (req, res) => {
       } catch (error) {
         console.error('Error resetting notification flags:', error);
         // Don't fail the request if notification reset fails
+      }
+    }
+
+    // Invalidate cached property analysis data if property characteristics were updated
+    if (isPropertyCharacteristicsUpdated) {
+      try {
+        const PropertyAnalysis = require('../models/PropertyAnalysis');
+        await PropertyAnalysis.deleteOne({ propertyId: req.params.id });
+        console.log(`Invalidated cached property analysis for listing ${req.params.id} due to property characteristics update`);
+      } catch (error) {
+        console.error('Error invalidating property analysis:', error);
+        // Don't fail the request if analysis invalidation fails
       }
     }
     
