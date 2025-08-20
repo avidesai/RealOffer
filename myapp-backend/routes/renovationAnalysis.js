@@ -8,6 +8,8 @@ const authMiddleware = require('../middleware/auth');
 // Add debugging middleware
 router.use((req, res, next) => {
   console.log(`Renovation Analysis Route: ${req.method} ${req.path}`);
+  console.log('Request body:', req.body);
+  console.log('Request params:', req.params);
   next();
 });
 
