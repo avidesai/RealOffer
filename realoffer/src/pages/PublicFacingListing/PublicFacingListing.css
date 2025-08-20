@@ -932,6 +932,74 @@
   }
 }
 
+/* Autofill detection and handling */
+@keyframes onAutoFillStart {
+  from {/**/}
+  to {/**/}
+}
+
+@keyframes onAutoFillCancel {
+  from {/**/}
+  to {/**/}
+}
+
+.pfl-form-group input:-webkit-autofill {
+  animation-name: onAutoFillStart;
+}
+
+.pfl-form-group input:not(:-webkit-autofill) {
+  animation-name: onAutoFillCancel;
+}
+
+/* Ensure autofilled inputs maintain proper styling */
+.pfl-form-group input:-webkit-autofill,
+.pfl-form-group input:-webkit-autofill:hover,
+.pfl-form-group input:-webkit-autofill:focus,
+.pfl-form-group input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: var(--pfl-text-primary) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Additional stability improvements for form inputs */
+.pfl-form-group input,
+.pfl-form-group select {
+  /* Ensure consistent rendering */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  
+  /* Prevent autofill styling issues */
+  background-clip: padding-box;
+  
+  /* Ensure proper text rendering */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent autofill from changing input appearance */
+.pfl-form-group input:-webkit-autofill {
+  -webkit-animation-name: autofill;
+  -webkit-animation-fill-mode: both;
+}
+
+@keyframes autofill {
+  to {
+    color: var(--pfl-text-primary);
+    background: transparent;
+  }
+}
+
+/* Ensure form stability during autofill */
+.pfl-inquiry-form {
+  /* Prevent layout shifts during autofill */
+  contain: layout style paint;
+  
+  /* Ensure stable rendering */
+  will-change: auto;
+}
+
 /* Radio button styles for PublicFacingListing */
 .pfl-radio-group {
   display: flex;
