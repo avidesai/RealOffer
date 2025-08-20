@@ -205,8 +205,7 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
   }
 
   // Only show estimate if status is 'completed' AND we have a renovation estimate
-  // For buyer view, also check if it's hidden from buyers
-  if (!renovationData?.renovationEstimate || renovationData?.status !== 'completed' || (isBuyerView && hiddenFromBuyers)) {
+  if (!renovationData?.renovationEstimate || renovationData?.status !== 'completed') {
     // Check if analysis is currently processing
     if (renovationData?.status === 'processing') {
       const processingDetails = renovationData?.processingDetails || {};
@@ -261,35 +260,27 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
       );
     }
 
-          // If it's hidden from buyers and this is a buyer view, show hidden message
-      if (isBuyerView && hiddenFromBuyers) {
-        return (
-          <div className="renovation-estimate">
-            <div className="renovation-empty">
-              <div className="renovation-empty-icon">👁️</div>
-              <h3>Renovation Estimate</h3>
-              <p>This renovation estimate has been hidden by the seller</p>
-            </div>
-          </div>
-        );
-      }
+    // For buyer package side, don't show the generate estimate option
+    if (!showRegenerateButton) {
+      return null;
+    }
 
-      return (
-        <div className="renovation-estimate">
-          <div className="renovation-empty">
-            <div className="renovation-empty-icon">🏠</div>
-            <h3>Renovation Estimate</h3>
-            <p>Generate a detailed renovation cost estimate based on property photos</p>
-            <button 
-              onClick={generateRenovationEstimate}
-              disabled={generating}
-              className="generate-estimate-button"
-            >
-              {generating ? 'Generating...' : 'Generate Estimate'}
-            </button>
-          </div>
+    return (
+      <div className="renovation-estimate">
+        <div className="renovation-empty">
+          <div className="renovation-empty-icon">🏠</div>
+          <h3>Renovation Estimate</h3>
+          <p>Generate a detailed renovation cost estimate based on property photos</p>
+          <button 
+            onClick={generateRenovationEstimate}
+            disabled={generating}
+            className="generate-estimate-button"
+          >
+            {generating ? 'Generating...' : 'Generate Estimate'}
+          </button>
         </div>
-      );
+      </div>
+    );
   }
 
   const { renovationEstimate } = renovationData;
@@ -297,7 +288,7 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
   const filteredBreakdown = getFilteredBreakdown();
 
   return (
-    <div className="renovation-estimate">
+    <div className={`renovation-estimate ${hiddenFromBuyers ? 'renovation-hidden' : ''}`}>
       <div className="renovation-header">
         <h3>
           Renovation Estimate
