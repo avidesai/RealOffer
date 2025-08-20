@@ -173,7 +173,7 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
   };
 
   // If hidden and this is the buyer package side, don't render at all
-  if (hiddenFromBuyers) {
+  if (hiddenFromBuyers && !showRegenerateButton) {
     return null;
   }
 
