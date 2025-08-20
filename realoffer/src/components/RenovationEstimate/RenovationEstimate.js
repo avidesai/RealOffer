@@ -215,36 +215,40 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
       return (
         <div className="renovation-estimate">
           <div className="renovation-header">
-            <h3>
-              Renovation Estimate
-              <span className="beta-badge">Beta</span>
-            </h3>
+            <h3>Renovation Estimate</h3>
           </div>
           <div className="renovation-content">
             <div className="processing-status">
-              <div className="processing-info">
-                <div className="spinner"></div>
-                <div className="processing-text">
-                  <p>
-                    {processingDetails.processingMessage || 'Analyzing property photos...'}
-                  </p>
-                  {processingDetails.currentBatch && processingDetails.totalBatches && (
-                    <p className="processing-note">
-                      Processing batch {processingDetails.currentBatch} of {processingDetails.totalBatches}
+              <div className="processing-main">
+                <div className="processing-header">
+                  <div className="spinner"></div>
+                  <div className="processing-title">
+                    <h4>Starting analysis...</h4>
+                    <p className="processing-subtitle">
+                      {processingDetails.processingMessage || 'Analyzing property photos...'}
                     </p>
-                  )}
+                  </div>
                 </div>
-              </div>
-              
-              <div className="progress-container">
-                <div className="progress-bar-container">
-                  <div className="progress-bar" style={{ width: `${Math.max(5, progress)}%` }}></div>
-                </div>
-                <div className="progress-text">
-                  <span className="progress-percentage">{Math.round(progress)}%</span>
-                  <span className="progress-fraction">
-                    {processingDetails.photosProcessed || 0} of {processingDetails.totalPhotos || 0} photos
-                  </span>
+                
+                <div className="progress-section">
+                  <div className="progress-bar-container">
+                    <div className="progress-bar" style={{ width: `${Math.max(5, progress)}%` }}></div>
+                  </div>
+                  <div className="progress-details">
+                    <div className="progress-stats">
+                      <span className="progress-percentage">{Math.round(progress)}%</span>
+                      <span className="progress-fraction">
+                        {processingDetails.photosProcessed || 0} of {processingDetails.totalPhotos || 0} photos
+                      </span>
+                    </div>
+                    {processingDetails.currentBatch && processingDetails.totalBatches && (
+                      <div className="batch-info">
+                        <span className="batch-text">
+                          Processing batch {processingDetails.currentBatch} of {processingDetails.totalBatches}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
               
