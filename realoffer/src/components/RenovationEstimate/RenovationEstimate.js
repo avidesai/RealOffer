@@ -451,8 +451,8 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
         </div>
       </div>
 
-      {/* Hidden State Overlay - Only show for seller view when hidden from buyers */}
-      {!isBuyerView && hiddenFromBuyers && (
+      {/* Hidden State Overlay */}
+      {hiddenFromBuyers && (
         <div className="renovation-hidden-overlay">
           <div className="renovation-hidden-content">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -461,6 +461,12 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
             </svg>
             <p>Renovation Estimate Hidden</p>
             <p className="renovation-hidden-subtext">The renovation estimate information will not be shown to buyer parties.</p>
+            <button 
+              onClick={handleToggleVisibility}
+              className="show-renovation-button"
+            >
+              Show Renovation Estimate
+            </button>
           </div>
         </div>
       )}

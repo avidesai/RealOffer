@@ -76,6 +76,12 @@ export const AuthProvider = ({ children }) => {
             updatedUserData._id = updatedUserData._id || updatedUserData.id;
             
             console.log('Updating user data with server response:', updatedUserData);
+            console.log('Trial fields in updated user data:', {
+              isOnTrial: updatedUserData.isOnTrial,
+              trialStartDate: updatedUserData.trialStartDate,
+              trialEndDate: updatedUserData.trialEndDate,
+              isPremium: updatedUserData.isPremium
+            });
             setUser(updatedUserData);
             localStorage.setItem('user', JSON.stringify(updatedUserData));
           }
@@ -107,6 +113,12 @@ export const AuthProvider = ({ children }) => {
         userData._id = userData._id || userData.id;
         
         console.log('Login successful, setting credentials');
+        console.log('Trial fields in login response:', {
+          isOnTrial: userData.isOnTrial,
+          trialStartDate: userData.trialStartDate,
+          trialEndDate: userData.trialEndDate,
+          isPremium: userData.isPremium
+        });
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('token', response.data.token);
         

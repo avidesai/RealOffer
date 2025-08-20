@@ -2,18 +2,40 @@
 
 // Check if user has premium access (either paid or on trial)
 export const hasPremiumAccess = (user) => {
-  if (!user) return false;
+  if (!user) {
+    console.log('hasPremiumAccess: No user provided');
+    return false;
+  }
+  
+  console.log('hasPremiumAccess check:', {
+    userId: user._id || user.id,
+    email: user.email,
+    isPremium: user.isPremium,
+    isOnTrial: user.isOnTrial,
+    trialEndDate: user.trialEndDate,
+    userData: user
+  });
   
   // If user has paid premium, they have access
-  if (user.isPremium) return true;
+  if (user.isPremium) {
+    console.log('hasPremiumAccess: User has paid premium');
+    return true;
+  }
   
   // If user is on trial, check if trial is still active
   if (user.isOnTrial && user.trialEndDate) {
     const now = new Date();
     const trialEnd = new Date(user.trialEndDate);
-    return now < trialEnd;
+    const isActive = now < trialEnd;
+    console.log('hasPremiumAccess: Trial check', {
+      now: now.toISOString(),
+      trialEnd: trialEnd.toISOString(),
+      isActive
+    });
+    return isActive;
   }
   
+  console.log('hasPremiumAccess: No premium access');
   return false;
 };
 
