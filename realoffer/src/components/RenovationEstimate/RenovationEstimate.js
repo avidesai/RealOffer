@@ -1,12 +1,11 @@
 // RenovationEstimate.js
 
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../../context/api';
 import { useAuth } from '../../context/AuthContext';
 import './RenovationEstimate.css';
 
 const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden = false, onToggleVisibility }) => {
-  const { token } = useAuth();
   const [renovationData, setRenovationData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -19,14 +18,7 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
       setLoading(true);
       setError(null);
       
-      const response = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/api/renovation-analysis/${propertyId}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
+      const response = await api.get(`/api/renovation-analysis/${propertyId}`);
       
       setRenovationData(response.data);
       setHiddenFromBuyers(response.data.hiddenFromBuyers || false);
@@ -42,18 +34,13 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
     } finally {
       setLoading(false);
     }
-  }, [propertyId, token]);
+  }, [propertyId]);
 
   const updateVisibility = async (hidden) => {
     try {
-      await axios.patch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/renovation-analysis/${propertyId}/visibility`,
-        { hiddenFromBuyers: hidden },
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
+      await api.patch(
+        `/api/renovation-analysis/${propertyId}/visibility`,
+        { hiddenFromBuyers: hidden }
       );
       setHiddenFromBuyers(hidden);
       if (onToggleVisibility) {
@@ -74,14 +61,9 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
       setGenerating(true);
       setError(null);
       
-      const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/api/renovation-analysis/${propertyId}/generate`,
-        {},
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
+      const response = await api.post(
+        `/api/renovation-analysis/${propertyId}/generate`,
+        {}
       );
       
       setRenovationData(response.data);
