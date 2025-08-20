@@ -384,6 +384,7 @@ const BuyerPackageAnalysis = ({ buyerPackageId }) => {
           showRegenerateButton={false} 
           isHidden={false}
           onToggleVisibility={() => {}}
+          isBuyerView={true} // This is the buyer view
         />
       </div>
     </div>

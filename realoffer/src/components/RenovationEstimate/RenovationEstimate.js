@@ -5,7 +5,7 @@ import api from '../../context/api';
 import { useAuth } from '../../context/AuthContext';
 import './RenovationEstimate.css';
 
-const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden = false, onToggleVisibility }) => {
+const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden = false, onToggleVisibility, isBuyerView = false }) => {
   const [renovationData, setRenovationData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -205,7 +205,8 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
   }
 
   // Only show estimate if status is 'completed' AND we have a renovation estimate
-  if (!renovationData?.renovationEstimate || renovationData?.status !== 'completed') {
+  // For buyer view, also check if it's hidden from buyers
+  if (!renovationData?.renovationEstimate || renovationData?.status !== 'completed' || (isBuyerView && hiddenFromBuyers)) {
     // Check if analysis is currently processing
     if (renovationData?.status === 'processing') {
       const processingDetails = renovationData?.processingDetails || {};
@@ -260,22 +261,35 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
       );
     }
 
-    return (
-      <div className="renovation-estimate">
-        <div className="renovation-empty">
-          <div className="renovation-empty-icon">🏠</div>
-          <h3>Renovation Estimate</h3>
-          <p>Generate a detailed renovation cost estimate based on property photos</p>
-          <button 
-            onClick={generateRenovationEstimate}
-            disabled={generating}
-            className="generate-estimate-button"
-          >
-            {generating ? 'Generating...' : 'Generate Estimate'}
-          </button>
+          // If it's hidden from buyers and this is a buyer view, show hidden message
+      if (isBuyerView && hiddenFromBuyers) {
+        return (
+          <div className="renovation-estimate">
+            <div className="renovation-empty">
+              <div className="renovation-empty-icon">👁️</div>
+              <h3>Renovation Estimate</h3>
+              <p>This renovation estimate has been hidden by the seller</p>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="renovation-estimate">
+          <div className="renovation-empty">
+            <div className="renovation-empty-icon">🏠</div>
+            <h3>Renovation Estimate</h3>
+            <p>Generate a detailed renovation cost estimate based on property photos</p>
+            <button 
+              onClick={generateRenovationEstimate}
+              disabled={generating}
+              className="generate-estimate-button"
+            >
+              {generating ? 'Generating...' : 'Generate Estimate'}
+            </button>
+          </div>
         </div>
-      </div>
-    );
+      );
   }
 
   const { renovationEstimate } = renovationData;
@@ -283,7 +297,7 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
   const filteredBreakdown = getFilteredBreakdown();
 
   return (
-    <div className={`renovation-estimate ${isHidden ? 'renovation-hidden' : ''}`}>
+    <div className="renovation-estimate">
       <div className="renovation-header">
         <h3>
           Renovation Estimate
@@ -437,8 +451,8 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
         </div>
       </div>
 
-      {/* Hidden State Overlay */}
-      {hiddenFromBuyers && (
+      {/* Hidden State Overlay - Only show for seller view when hidden from buyers */}
+      {!isBuyerView && hiddenFromBuyers && (
         <div className="renovation-hidden-overlay">
           <div className="renovation-hidden-content">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -756,6 +756,7 @@ const Analysis = ({ listingId }) => {
           propertyId={listingId} 
           isHidden={false} // Removed local state, always show RenovationEstimate
           onToggleVisibility={() => {}} // No longer needed
+          isBuyerView={false} // This is the seller view
         />
       </div>
     </div>
