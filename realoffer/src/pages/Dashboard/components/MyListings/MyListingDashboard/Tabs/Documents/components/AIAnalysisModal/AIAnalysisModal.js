@@ -194,27 +194,7 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTi
                 <ReactMarkdown 
                   components={{
                     h2: ({ node, children, ...props }) => {
-                      // Only show score bubble for Home Inspection Reports with a score in the heading
-                      const isHomeInspection = documentType && documentType.toLowerCase().includes('home');
-                      let headingText = '';
-                      if (Array.isArray(children)) {
-                        headingText = children.join('');
-                      } else if (typeof children === 'string') {
-                        headingText = children;
-                      }
-                      const scoreMatch = headingText.match(/(\d+)\/10/);
-                      const hasScore = !!scoreMatch;
-                      if (isHomeInspection && headingText.includes('Overall Condition') && hasScore) {
-                        return (
-                          <h2 
-                            {...props} 
-                            data-score={`${scoreMatch[0]}`}
-                          >
-                            {headingText.replace(/\s+\d+\/10$/, '')}
-                          </h2>
-                        );
-                      }
-                      // For all other cases, render h2 as-is (no bubble, no data-score)
+                      // Render h2 as-is (no bubble, no data-score)
                       return <h2 {...props}>{children}</h2>;
                     },
                     // Enhanced styling for new prompt structure

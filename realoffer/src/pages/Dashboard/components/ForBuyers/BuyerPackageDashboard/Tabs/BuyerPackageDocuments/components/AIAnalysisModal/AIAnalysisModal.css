@@ -189,26 +189,6 @@
   opacity: 0.7;
 }
 
-/* Style for condition score bubble */
-.aam-result h2:first-of-type {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.aam-result h2:first-of-type::after {
-  content: attr(data-score);
-  background-color: transparent;
-  color: #111827;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  border: 2px solid #d1d5db;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  margin-left: 0.25rem;
-}
-
 .aam-result h3 {
   color: #4a5568;
   margin-top: 1.5rem;
@@ -297,13 +277,6 @@
 
 .aam-result ol > li > ul > li {
   color: #4a5568;
-}
-
-/* Score highlighting */
-.aam-result p:first-child strong,
-.aam-result li:first-child strong {
-  color: #007bff;
-  font-size: 1.1em;
 }
 
 /* Cost highlighting - target strong tags that likely contain costs */
@@ -859,11 +832,6 @@
   }
   .aam-result h2::before {
     font-size: 1rem;
-  }
-  .aam-result h2:first-of-type::after {
-    font-size: 0.85rem;
-    padding: 0.15rem 0.5rem;
-    margin-left: 0.15rem;
   }
   .aam-result h3 {
     font-size: 1rem;
