@@ -73,6 +73,27 @@
   line-height: 1.4;
 }
 
+/* Show Renovation Button in Overlay */
+.show-renovation-button {
+  margin-top: 2rem;
+  padding: 0.75rem 1.5rem;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+}
+
+.show-renovation-button:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
 /* Toggle Visibility Button */
 .toggle-visibility-button {
   display: flex;
@@ -227,9 +248,6 @@
   color: #2c3e50;
   font-size: 1.2rem;
   font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
 }
 
 .beta-badge {
@@ -257,8 +275,9 @@
 
 .renovation-actions {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.75rem;
 }
 
 .regenerate-estimate-button {
@@ -417,161 +436,166 @@
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 2rem;
 }
 
-.processing-info {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
+.processing-main {
   flex: 1;
-  min-width: 0; /* Allow text to shrink if needed */
+  min-width: 0;
 }
 
-.processing-info .spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid #e9ecef;
-  border-top: 3px solid #007bff;
+.processing-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.processing-header .spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e9ecef;
+  border-top: 2px solid #007bff;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  flex-shrink: 0; /* Prevent spinner from shrinking */
+  flex-shrink: 0;
+  margin-top: 0.25rem;
 }
 
-.processing-text {
+.processing-title {
   flex: 1;
-  min-width: 0; /* Allow text to shrink if needed */
+  min-width: 0;
 }
 
-.processing-text p {
-  margin: 0;
+.processing-title h4 {
+  margin: 0 0 0.5rem 0;
   color: #2c3e50;
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.4;
-}
-
-.processing-text .processing-note {
-  color: #6c757d;
-  font-size: 0.85rem;
-  font-weight: 400;
-  margin-top: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
   line-height: 1.3;
 }
 
-.manual-refresh-button {
-  padding: 0.75rem 1.25rem;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
+.processing-subtitle {
+  margin: 0;
+  color: #6c757d;
   font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  flex-shrink: 0;
-  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+  font-weight: 400;
+  line-height: 1.4;
 }
 
-.manual-refresh-button:hover {
-  background: #0056b3;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
-}
-
-/* Progress Container */
-.progress-container {
-  margin: 2rem 0;
+.progress-section {
   width: 100%;
-  flex-shrink: 0;
 }
 
 .progress-bar-container {
   width: 100%;
-  height: 10px;
-  background-color: #f0f0f0;
-  border-radius: 6px;
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 1.25rem;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .progress-bar {
   height: 100%;
   background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
-  border-radius: 6px;
+  border-radius: 4px;
   transition: width 0.5s ease;
   box-shadow: 0 1px 3px rgba(0, 123, 255, 0.3);
 }
 
-.progress-text {
+.progress-details {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  padding: 0 0.25rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.progress-stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .progress-percentage {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #2c3e50;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .progress-fraction {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #6c757d;
   font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
+
+.batch-info {
+  display: flex;
+  align-items: center;
+}
+
+.batch-text {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 500;
+  background: #e9ecef;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+
+
+/* Progress Container - Legacy styles removed */
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .processing-status {
-    flex-direction: column;
-    gap: 1.5rem;
     padding: 1.5rem;
   }
   
-  .processing-info {
-    gap: 1rem;
+  .processing-header {
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
   }
   
-  .processing-info .spinner {
-    width: 28px;
-    height: 28px;
+  .processing-header .spinner {
+    width: 20px;
+    height: 20px;
   }
   
-  .processing-text p {
-    font-size: 0.95rem;
+  .processing-title h4 {
+    font-size: 1rem;
   }
   
-  .processing-text .processing-note {
-    font-size: 0.8rem;
+  .processing-subtitle {
+    font-size: 0.85rem;
   }
   
-  .progress-container {
-    margin: 1.5rem 0;
+  .progress-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
   }
   
-  .progress-bar-container {
-    height: 8px;
+  .progress-stats {
+    gap: 0.75rem;
   }
   
   .progress-percentage {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
   
   .progress-fraction {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
   }
   
-  .manual-refresh-button {
-    padding: 0.625rem 1rem;
-    font-size: 0.85rem;
+  .batch-text {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.6rem;
   }
   
   .renovation-loading .spinner {

@@ -85,11 +85,11 @@ const BuyerPackageTabSection = ({ buyerPackage }) => {
         ))}
       </div>
       <div className="tab-content" role="tabpanel">
-        {activeTab === 'docs' && <BuyerPackageDocuments buyerPackageId={updatedBuyerPackage._id} />}
-        {activeTab === 'analysis' && <BuyerPackageAnalysis buyerPackageId={updatedBuyerPackage._id} />}
-        {activeTab === 'activity' && <BuyerPackageActivity buyerPackageId={updatedBuyerPackage._id} listingId={updatedBuyerPackage.propertyListing} />}
-        {activeTab === 'offers' && buyerPackage?.userRole !== 'buyer' && <BuyerPackageOffers buyerPackageId={updatedBuyerPackage._id} listingId={updatedBuyerPackage.propertyListing} />}
-        {activeTab === 'settings' && <BuyerPackageSettings buyerPackage={updatedBuyerPackage} onBuyerPackageUpdate={handleBuyerPackageUpdate} />}
+        {activeTab === 'docs' && <BuyerPackageDocuments key={`docs-${updatedBuyerPackage._id}`} buyerPackageId={updatedBuyerPackage._id} />}
+        {activeTab === 'analysis' && <BuyerPackageAnalysis key={`analysis-${updatedBuyerPackage._id}`} buyerPackageId={updatedBuyerPackage._id} />}
+        {activeTab === 'activity' && <BuyerPackageActivity key={`activity-${updatedBuyerPackage._id}`} buyerPackageId={updatedBuyerPackage._id} listingId={updatedBuyerPackage.propertyListing} />}
+        {activeTab === 'offers' && buyerPackage?.userRole !== 'buyer' && <BuyerPackageOffers key={`offers-${updatedBuyerPackage._id}`} buyerPackageId={updatedBuyerPackage._id} listingId={updatedBuyerPackage.propertyListing} />}
+        {activeTab === 'settings' && <BuyerPackageSettings key={`settings-${updatedBuyerPackage._id}`} buyerPackage={updatedBuyerPackage} onBuyerPackageUpdate={handleBuyerPackageUpdate} />}
       </div>
     </div>
   );

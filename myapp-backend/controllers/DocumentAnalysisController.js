@@ -314,14 +314,7 @@ exports.analyzeDocument = async (req, res) => {
 
 Format your response exactly like this:
 
-## Overall Condition: X/10
-Give a score from 1–10:
-- 9–10 = Excellent (very few issues)  
-- 7–8 = Good (minor wear)  
-- 5–6 = Fair (some important repairs)  
-- 3–4 = Poor (many issues)  
-- 1–2 = Major concerns (not move-in ready)
-
+## Summary
 Write 3–4 sentences summarizing the home's general state and biggest strengths or weaknesses.
 
 ---
@@ -375,14 +368,7 @@ ${text}`;
 
 Format your response exactly like this:
 
-## Overall Roof Condition: X/10
-Give a score from 1–10:
-- 9–10 = Excellent (very few issues)  
-- 7–8 = Good (minor wear)  
-- 5–6 = Fair (some important repairs)  
-- 3–4 = Poor (many issues)  
-- 1–2 = Major concerns (not safe)
-
+## Summary
 Write 3–4 sentences summarizing the roof's general state and biggest strengths or weaknesses.
 
 ---
@@ -645,14 +631,7 @@ ${text}`;
 
 Format your response exactly like this:
 
-## Overall Condition: X/10
-Give a score from 1–10:
-- 9–10 = Excellent (very few issues)  
-- 7–8 = Good (minor wear)  
-- 5–6 = Fair (some important repairs)  
-- 3–4 = Poor (many issues)  
-- 1–2 = Major concerns (not functional)
-
+## Summary
 Write 3–4 sentences summarizing the sewer lateral's general state and biggest strengths or weaknesses.
 
 ---
@@ -717,12 +696,7 @@ ${text}`;
     let analysisResult = claudeResponse.data.content[0].text;
     
     // Ensure proper formatting for the new structure
-    if (document.type === 'Home Inspection Report') {
-      // Ensure score format is correct
-      if (!analysisResult.includes('Overall Condition:')) {
-        analysisResult = analysisResult.replace(/## Overall Condition\s*(\d+)\/10/, '## Overall Condition: $1/10');
-      }
-    } else if (document.type === 'Pest Inspection Report') {
+    if (document.type === 'Pest Inspection Report') {
       // Fix cost formatting and remove placeholders
       analysisResult = analysisResult.replace(/\$\\1/g, 'No overall cost listed in report');
       analysisResult = analysisResult.replace(/\*\*Total Repair Cost:\s*\$\\1\*\*/g, '*No overall cost listed in report.*');

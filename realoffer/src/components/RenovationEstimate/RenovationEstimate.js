@@ -205,8 +205,7 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
   }
 
   // Only show estimate if status is 'completed' AND we have a renovation estimate
-  // For buyer view, also check if it's hidden from buyers
-  if (!renovationData?.renovationEstimate || renovationData?.status !== 'completed' || (isBuyerView && hiddenFromBuyers)) {
+  if (!renovationData?.renovationEstimate || renovationData?.status !== 'completed') {
     // Check if analysis is currently processing
     if (renovationData?.status === 'processing') {
       const processingDetails = renovationData?.processingDetails || {};
@@ -216,80 +215,69 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
       return (
         <div className="renovation-estimate">
           <div className="renovation-header">
-            <h3>
-              Renovation Estimate
-              <span className="beta-badge">Beta</span>
-            </h3>
+            <h3>Renovation Estimate</h3>
           </div>
           <div className="renovation-content">
             <div className="processing-status">
-              <div className="processing-info">
-                <div className="spinner"></div>
-                <div className="processing-text">
-                  <p>
-                    {processingDetails.processingMessage || 'Analyzing property photos...'}
-                  </p>
-                  {processingDetails.currentBatch && processingDetails.totalBatches && (
-                    <p className="processing-note">
-                      Processing batch {processingDetails.currentBatch} of {processingDetails.totalBatches}
+              <div className="processing-main">
+                <div className="processing-header">
+                  <div className="spinner"></div>
+                  <div className="processing-title">
+                    <h4>Analyzing property photos...</h4>
+                    <p className="processing-subtitle">
+                      {processingDetails.processingMessage || 'Analyzing property photos...'}
                     </p>
-                  )}
+                  </div>
+                </div>
+                
+                <div className="progress-section">
+                  <div className="progress-bar-container">
+                    <div className="progress-bar" style={{ width: `${Math.max(5, progress)}%` }}></div>
+                  </div>
+                  <div className="progress-details">
+                    <div className="progress-stats">
+                      <span className="progress-percentage">{Math.round(progress)}%</span>
+                      <span className="progress-fraction">
+                        {processingDetails.photosProcessed || 0} of {processingDetails.totalPhotos || 0} photos
+                      </span>
+                    </div>
+                    {processingDetails.currentBatch && processingDetails.totalBatches && (
+                      <div className="batch-info">
+                        <span className="batch-text">
+                          Processing batch {processingDetails.currentBatch} of {processingDetails.totalBatches}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-              
-              <div className="progress-container">
-                <div className="progress-bar-container">
-                  <div className="progress-bar" style={{ width: `${Math.max(5, progress)}%` }}></div>
-                </div>
-                <div className="progress-text">
-                  <span className="progress-percentage">{Math.round(progress)}%</span>
-                  <span className="progress-fraction">
-                    {processingDetails.photosProcessed || 0} of {processingDetails.totalPhotos || 0} photos
-                  </span>
-                </div>
-              </div>
-              
-              <button 
-                onClick={fetchRenovationEstimate}
-                className="manual-refresh-button"
-              >
-                Check Status
-              </button>
             </div>
           </div>
         </div>
       );
     }
 
-          // If it's hidden from buyers and this is a buyer view, show hidden message
-      if (isBuyerView && hiddenFromBuyers) {
-        return (
-          <div className="renovation-estimate">
-            <div className="renovation-empty">
-              <div className="renovation-empty-icon">👁️</div>
-              <h3>Renovation Estimate</h3>
-              <p>This renovation estimate has been hidden by the seller</p>
-            </div>
-          </div>
-        );
-      }
+    // For buyer package side, don't show the generate estimate option
+    if (!showRegenerateButton) {
+      return null;
+    }
 
-      return (
-        <div className="renovation-estimate">
-          <div className="renovation-empty">
-            <div className="renovation-empty-icon">🏠</div>
-            <h3>Renovation Estimate</h3>
-            <p>Generate a detailed renovation cost estimate based on property photos</p>
-            <button 
-              onClick={generateRenovationEstimate}
-              disabled={generating}
-              className="generate-estimate-button"
-            >
-              {generating ? 'Generating...' : 'Generate Estimate'}
-            </button>
-          </div>
+    return (
+      <div className="renovation-estimate">
+        <div className="renovation-empty">
+          <div className="renovation-empty-icon">🏠</div>
+          <h3>Renovation Estimate</h3>
+          <p>Generate a detailed renovation cost estimate based on property photos</p>
+          <button 
+            onClick={generateRenovationEstimate}
+            disabled={generating}
+            className="generate-estimate-button"
+          >
+            {generating ? 'Generating...' : 'Generate Estimate'}
+          </button>
         </div>
-      );
+      </div>
+    );
   }
 
   const { renovationEstimate } = renovationData;
@@ -297,11 +285,9 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
   const filteredBreakdown = getFilteredBreakdown();
 
   return (
-    <div className="renovation-estimate">
+    <div className={`renovation-estimate ${hiddenFromBuyers ? 'renovation-hidden' : ''}`}>
       <div className="renovation-header">
-        <h3>
-          Renovation Estimate
-        </h3>
+        <h3>Renovation Estimate</h3>
         <div className="renovation-actions">
           {showRegenerateButton && (
             <button 
@@ -311,13 +297,7 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
               {hiddenFromBuyers ? 'Show Renovation Estimate' : 'Hide Renovation Estimate'}
             </button>
           )}
-        </div>
-      </div>
-
-      <div className="renovation-content">
-        {/* Regenerate Button - will be hidden behind overlay */}
-        {showRegenerateButton && (
-          <div className="regenerate-button-container">
+          {showRegenerateButton && (
             <button 
               onClick={generateRenovationEstimate}
               disabled={generating}
@@ -325,8 +305,11 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
             >
               {generating ? 'Regenerating...' : 'Regenerate Estimate'}
             </button>
-          </div>
-        )}
+          )}
+        </div>
+      </div>
+
+      <div className="renovation-content">
 
         {/* Summary Stats */}
         <div className="renovation-summary-stats">
@@ -451,8 +434,8 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
         </div>
       </div>
 
-      {/* Hidden State Overlay - Only show for seller view when hidden from buyers */}
-      {!isBuyerView && hiddenFromBuyers && (
+      {/* Hidden State Overlay */}
+      {hiddenFromBuyers && (
         <div className="renovation-hidden-overlay">
           <div className="renovation-hidden-content">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -461,6 +444,12 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
             </svg>
             <p>Renovation Estimate Hidden</p>
             <p className="renovation-hidden-subtext">The renovation estimate information will not be shown to buyer parties.</p>
+            <button 
+              onClick={handleToggleVisibility}
+              className="show-renovation-button"
+            >
+              Show Renovation Estimate
+            </button>
           </div>
         </div>
       )}

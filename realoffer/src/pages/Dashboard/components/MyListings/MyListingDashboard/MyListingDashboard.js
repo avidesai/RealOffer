@@ -62,6 +62,19 @@ function MyListingDashboard() {
     navigate('/dashboard');
   };
 
+  const handleListingRefresh = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      setListing(response.data);
+    } catch (error) {
+      console.error('Error refreshing listing:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="spinner-container">
@@ -92,7 +105,7 @@ function MyListingDashboard() {
     <div className="my-listing-dashboard">
       <MyListingDashboardHeader onBackClick={handleBackClick} />
       <div className="my-listing-dashboard-content">
-        <ListingOverview listing={listing} />
+        <ListingOverview listing={listing} onListingRefresh={handleListingRefresh} />
         <TabSection listing={listing} />
       </div>
       <Footer />

@@ -511,7 +511,10 @@ exports.verifyToken = async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
-        isPremium: user.isPremium
+        isPremium: user.isPremium,
+        isOnTrial: user.isOnTrial,
+        trialStartDate: user.trialStartDate,
+        trialEndDate: user.trialEndDate
       }
     });
   } catch (error) {

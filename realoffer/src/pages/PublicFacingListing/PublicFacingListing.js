@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import InputMask from 'react-input-mask';
+// Remove InputMask import as we'll use a custom solution
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import { useAuth } from '../../context/AuthContext';
@@ -168,6 +168,107 @@ const PublicFacingListing = () => {
     // Clear error when user starts typing
     if (error) setError('');
   };
+
+  // Add custom phone input handler
+  const handlePhoneChange = (e) => {
+    const { value } = e.target;
+    // Remove all non-numeric characters
+    const numericValue = value.replace(/\D/g, '');
+    
+    // Format the phone number
+    let formattedValue = '';
+    if (numericValue.length > 0) {
+      formattedValue = '(' + numericValue.substring(0, 3);
+      if (numericValue.length > 3) {
+        formattedValue += ') ' + numericValue.substring(3, 6);
+        if (numericValue.length > 6) {
+          formattedValue += '-' + numericValue.substring(6, 10);
+        }
+      }
+    }
+    
+    setFormData((prev) => ({
+      ...prev,
+      phone: formattedValue,
+    }));
+    
+    // Clear error when user starts typing
+    if (error) setError('');
+  };
+
+  // Handle autofill events
+  const handleAutofill = (e) => {
+    // This function handles autofill events that might not trigger onChange
+    const { name, value } = e.target;
+    
+    // Use setTimeout to ensure the autofill value is properly set
+    setTimeout(() => {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+      
+      // Clear error when autofill occurs
+      if (error) setError('');
+    }, 0);
+  };
+
+  // Add autofill event listeners
+  useEffect(() => {
+    const inputs = document.querySelectorAll('input[autocomplete]');
+    
+    const handleAnimationStart = (e) => {
+      if (e.animationName === 'onAutoFillStart') {
+        handleAutofill(e);
+      }
+    };
+
+    inputs.forEach(input => {
+      input.addEventListener('animationstart', handleAnimationStart);
+      // Also listen for input events that might be triggered by autofill
+      input.addEventListener('input', handleAutofill);
+    });
+
+    return () => {
+      inputs.forEach(input => {
+        input.removeEventListener('animationstart', handleAnimationStart);
+        input.removeEventListener('input', handleAutofill);
+      });
+    };
+  }, [error]);
+
+  // Add debounced form data update to prevent rapid state changes
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      // This effect runs after form data changes to ensure stability
+      // It helps prevent autofill-related crashes by debouncing updates
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [formData]);
+
+  // Add error recovery mechanism
+  useEffect(() => {
+    const handleUnhandledRejection = (event) => {
+      console.error('Unhandled promise rejection:', event.reason);
+      // Prevent the default browser behavior
+      event.preventDefault();
+    };
+
+    const handleError = (event) => {
+      console.error('Global error caught:', event.error);
+      // Prevent the default browser behavior
+      event.preventDefault();
+    };
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    window.addEventListener('error', handleError);
+
+    return () => {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      window.removeEventListener('error', handleError);
+    };
+  }, []);
 
   const handleKeyDown = (e) => {
     // Prevent form submission on Enter if there are validation errors
@@ -680,336 +781,347 @@ const PublicFacingListing = () => {
   }, [listing?.imagesUrls?.length, nextImage, previousImage]);
 
   const renderForm = () => {
-    // If user is already logged in but doesn't have access, show appropriate action
-    if (user && !formStep) {
-      // Check if user is the listing agent
-      const isListingAgent = listing && listing.createdBy === user._id;
-      
-      if (isListingAgent) {
+    try {
+      // If user is already logged in but doesn't have access, show appropriate action
+      if (user && !formStep) {
+        // Check if user is the listing agent
+        const isListingAgent = listing && listing.createdBy === user._id;
+        
+        if (isListingAgent) {
+          return (
+            <div className="pfl-form-container">
+              <h2>Manage Your Listing</h2>
+              <p>You're the listing agent for this property. Click below to manage your listing.</p>
+              
+              <div className="pfl-benefits-section">
+                <h4>What you can do:</h4>
+                <ul className="pfl-benefits-list">
+                  <li>View and manage offers</li>
+                  <li>Track buyer activity</li>
+                  <li>Update listing details</li>
+                  <li>Manage documents and disclosures</li>
+                </ul>
+              </div>
+
+              {error && <p className="pfl-error">{error}</p>}
+              
+              <button 
+                className="pfl-request-button" 
+                onClick={() => window.location.href = `/mylisting/${listing._id}`}
+                disabled={isLoading}
+              >
+                {isLoading ? 'Redirecting...' : 'Manage Listing'}
+              </button>
+            </div>
+          );
+        } else {
+          return (
+            <div className="pfl-form-container">
+              <h2>Access Listing</h2>
+              <p>You're already logged in. Click below to get access to this property.</p>
+              
+              <div className="pfl-benefits-section">
+                <h4>What you'll get access to:</h4>
+                <ul className="pfl-benefits-list">
+                  <li>Property disclosures & documents</li>
+                  <li>AI-powered valuation analysis</li>
+                  <li>Make offers directly</li>
+                </ul>
+              </div>
+
+              {error && <p className="pfl-error">{error}</p>}
+              
+              <button 
+                className="pfl-request-button" 
+                onClick={handleDirectAccess}
+                disabled={isLoading}
+              >
+                {isLoading ? 'Creating access...' : 'Get Access Now'}
+              </button>
+            </div>
+          );
+        }
+      }
+
+      if (formStep === 'success') {
         return (
           <div className="pfl-form-container">
-            <h2>Manage Your Listing</h2>
-            <p>You're the listing agent for this property. Click below to manage your listing.</p>
-            
-            <div className="pfl-benefits-section">
-              <h4>What you can do:</h4>
-              <ul className="pfl-benefits-list">
-                <li>View and manage offers</li>
-                <li>Track buyer activity</li>
-                <li>Update listing details</li>
-                <li>Manage documents and disclosures</li>
-              </ul>
+            <div className="pfl-success-state">
+              <div className="pfl-success-icon">✓</div>
+              <h2>{successMessage.title}</h2>
+              <p>{successMessage.message}</p>
+              <div className="pfl-next-steps">
+                <h4>What you can do now:</h4>
+                <ul>
+                  {successMessage.nextSteps.map((step, index) => (
+                    <li key={index}>{step}</li>
+                  ))}
+                </ul>
+              </div>
+              <p className="pfl-redirect-message">
+                Redirecting you to your dashboard...
+              </p>
             </div>
-
-            {error && <p className="pfl-error">{error}</p>}
-            
-            <button 
-              className="pfl-request-button" 
-              onClick={() => window.location.href = `/mylisting/${listing._id}`}
-              disabled={isLoading}
-            >
-              {isLoading ? 'Redirecting...' : 'Manage Listing'}
-            </button>
-          </div>
-        );
-      } else {
-        return (
-          <div className="pfl-form-container">
-            <h2>Access Listing</h2>
-            <p>You're already logged in. Click below to get access to this property.</p>
-            
-            <div className="pfl-benefits-section">
-              <h4>What you'll get access to:</h4>
-              <ul className="pfl-benefits-list">
-                <li>Property disclosures & documents</li>
-                <li>AI-powered valuation analysis</li>
-                <li>Make offers directly</li>
-              </ul>
-            </div>
-
-            {error && <p className="pfl-error">{error}</p>}
-            
-            <button 
-              className="pfl-request-button" 
-              onClick={handleDirectAccess}
-              disabled={isLoading}
-            >
-              {isLoading ? 'Creating access...' : 'Get Access Now'}
-            </button>
           </div>
         );
       }
-    }
 
-    if (formStep === 'success') {
-      return (
-        <div className="pfl-form-container">
-          <div className="pfl-success-state">
-            <div className="pfl-success-icon">✓</div>
-            <h2>{successMessage.title}</h2>
-            <p>{successMessage.message}</p>
-            <div className="pfl-next-steps">
-              <h4>What you can do now:</h4>
-              <ul>
-                {successMessage.nextSteps.map((step, index) => (
-                  <li key={index}>{step}</li>
-                ))}
-              </ul>
-            </div>
-            <p className="pfl-redirect-message">
-              Redirecting you to your dashboard...
-            </p>
-          </div>
-        </div>
-      );
-    }
-
-    if (formStep === 'login') {
-      return (
-        <div className="pfl-form-container">
-          <div className="pfl-back-button-container">
-            <button 
-              type="button" 
-              onClick={() => setFormStep('initial')}
-              className="pfl-back-button"
-            >
-              ← Back
-            </button>
-          </div>
-          <h2>Welcome back!</h2>
-          <p>Please enter your password to access this listing.</p>
-          {error && <p className="pfl-error">{error}</p>}
-          <form className="pfl-inquiry-form" onSubmit={handleLogin} onKeyDown={handleKeyDown}>
-            <div className="pfl-form-group">
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                autoComplete="current-password"
-              />
-            </div>
-            <button type="submit" className="pfl-request-button" disabled={isLoading}>
-              {isLoading ? 'Logging in...' : 'Login & View Listing'}
-            </button>
-          </form>
-        </div>
-      );
-    }
-
-    if (formStep === 'signup') {
-      return (
-        <div className="pfl-form-container">
-          <div className="pfl-back-button-container">
-            <button 
-              type="button" 
-              onClick={() => setFormStep('initial')}
-              className="pfl-back-button"
-            >
-              ← Back
-            </button>
-          </div>
-          <h2>Create your account</h2>
-          <p>Complete your registration to access this listing.</p>
-          {error && <p className="pfl-error">{error}</p>}
-          <form className="pfl-inquiry-form" onSubmit={handleSignup} onKeyDown={handleKeyDown}>
-            <div className="pfl-form-row">
-              <div className="pfl-form-group">
-                <label htmlFor="firstName">First Name</label>
-                <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  placeholder="Enter your first name"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  required
-                  autoComplete="given-name"
-                />
-              </div>
-              <div className="pfl-form-group">
-                <label htmlFor="lastName">Last Name</label>
-                <input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  placeholder="Enter your last name"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  required
-                  autoComplete="family-name"
-                />
-              </div>
-            </div>
-            <div className="pfl-form-group">
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                placeholder="Create a password (min 6 characters)"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                autoComplete="new-password"
-                minLength="6"
-              />
-            </div>
-            <div className="pfl-form-group">
-              <label htmlFor="confirmPassword">Confirm Password</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                placeholder="Confirm your password"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                required
-                autoComplete="new-password"
-                minLength="6"
-              />
-            </div>
-            <div className="pfl-form-group">
-              <label htmlFor="phone">Phone Number</label>
-              <InputMask
-                mask="(999) 999-9999"
-                value={formData.phone || ''}
-                onChange={handleInputChange}
+      if (formStep === 'login') {
+        return (
+          <div className="pfl-form-container">
+            <div className="pfl-back-button-container">
+              <button 
+                type="button" 
+                onClick={() => setFormStep('initial')}
+                className="pfl-back-button"
               >
-                {(inputProps) => (
+                ← Back
+              </button>
+            </div>
+            <h2>Welcome back!</h2>
+            <p>Please enter your password to access this listing.</p>
+            {error && <p className="pfl-error">{error}</p>}
+            <form className="pfl-inquiry-form" onSubmit={handleLogin} onKeyDown={handleKeyDown}>
+              <div className="pfl-form-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                  autoComplete="current-password"
+                />
+              </div>
+              <button type="submit" className="pfl-request-button" disabled={isLoading}>
+                {isLoading ? 'Logging in...' : 'Login & View Listing'}
+              </button>
+            </form>
+          </div>
+        );
+      }
+
+      if (formStep === 'signup') {
+        return (
+          <div className="pfl-form-container">
+            <div className="pfl-back-button-container">
+              <button 
+                type="button" 
+                onClick={() => setFormStep('initial')}
+                className="pfl-back-button"
+              >
+                ← Back
+              </button>
+            </div>
+            <h2>Create your account</h2>
+            <p>Complete your registration to access this listing.</p>
+            {error && <p className="pfl-error">{error}</p>}
+            <form className="pfl-inquiry-form" onSubmit={handleSignup} onKeyDown={handleKeyDown}>
+              <div className="pfl-form-row">
+                <div className="pfl-form-group">
+                  <label htmlFor="firstName">First Name</label>
                   <input
-                    {...inputProps}
                     type="text"
-                    id="phone"
-                    name="phone"
-                    placeholder="Enter your phone number"
+                    id="firstName"
+                    name="firstName"
+                    placeholder="Enter your first name"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
                     required
-                    autoComplete="tel"
+                    autoComplete="given-name"
                   />
-                )}
-              </InputMask>
-            </div>
-            <div className="pfl-form-group">
-              <label htmlFor="role">I am a...</label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleInputChange}
-                required
-              >
-                <option value="agent">Real Estate Agent</option>
-                <option value="buyer">Home Buyer</option>
-              </select>
-            </div>
-            {formData.role === 'agent' && (
-              <div className="pfl-form-group">
-                <label htmlFor="agentLicenseNumber">License Number</label>
-                <input
-                  type="text"
-                  id="agentLicenseNumber"
-                  name="agentLicenseNumber"
-                  placeholder="Enter your real estate license number"
-                  value={formData.agentLicenseNumber}
-                  onChange={handleInputChange}
-                  required
-                  autoComplete="off"
-                />
-              </div>
-            )}
-            {formData.role === 'buyer' && (
-              <div className="pfl-form-group">
-                <label>Do you have a real estate agent?</label>
-                <div className="pfl-radio-group">
-                  <label className="pfl-radio-label">
-                    <input
-                      type="radio"
-                      name="hasAgent"
-                      value="true"
-                      checked={formData.hasAgent === true}
-                      onChange={handleInputChange}
-                      className="pfl-radio-input"
-                    />
-                    <span className="pfl-radio-custom"></span>
-                    <span className="pfl-radio-text">Yes, I have an agent</span>
-                  </label>
-                  <label className="pfl-radio-label">
-                    <input
-                      type="radio"
-                      name="hasAgent"
-                      value="false"
-                      checked={formData.hasAgent === false}
-                      onChange={handleInputChange}
-                      className="pfl-radio-input"
-                    />
-                    <span className="pfl-radio-custom"></span>
-                    <span className="pfl-radio-text">No, I don't have an agent</span>
-                  </label>
+                </div>
+                <div className="pfl-form-group">
+                  <label htmlFor="lastName">Last Name</label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    placeholder="Enter your last name"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    required
+                    autoComplete="family-name"
+                  />
                 </div>
               </div>
-            )}
+              <div className="pfl-form-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Create a password (min 6 characters)"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                  autoComplete="new-password"
+                  minLength="6"
+                />
+              </div>
+              <div className="pfl-form-group">
+                <label htmlFor="confirmPassword">Confirm Password</label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  placeholder="Confirm your password"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  required
+                  autoComplete="new-password"
+                  minLength="6"
+                />
+              </div>
+              <div className="pfl-form-group">
+                <label htmlFor="phone">Phone Number</label>
+                <input
+                  type="text"
+                  id="phone"
+                  name="phone"
+                  placeholder="Enter your phone number"
+                  value={formData.phone}
+                  onChange={handlePhoneChange}
+                  required
+                  autoComplete="tel"
+                />
+              </div>
+              <div className="pfl-form-group">
+                <label htmlFor="role">I am a...</label>
+                <select
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="agent">Real Estate Agent</option>
+                  <option value="buyer">Home Buyer</option>
+                </select>
+              </div>
+              {formData.role === 'agent' && (
+                <div className="pfl-form-group">
+                  <label htmlFor="agentLicenseNumber">License Number</label>
+                  <input
+                    type="text"
+                    id="agentLicenseNumber"
+                    name="agentLicenseNumber"
+                    placeholder="Enter your real estate license number"
+                    value={formData.agentLicenseNumber}
+                    onChange={handleInputChange}
+                    required
+                    autoComplete="off"
+                  />
+                </div>
+              )}
+              {formData.role === 'buyer' && (
+                <div className="pfl-form-group">
+                  <label>Do you have a real estate agent?</label>
+                  <div className="pfl-radio-group">
+                    <label className="pfl-radio-label">
+                      <input
+                        type="radio"
+                        name="hasAgent"
+                        value="true"
+                        checked={formData.hasAgent === true}
+                        onChange={handleInputChange}
+                        className="pfl-radio-input"
+                      />
+                      <span className="pfl-radio-custom"></span>
+                      <span className="pfl-radio-text">Yes, I have an agent</span>
+                    </label>
+                    <label className="pfl-radio-label">
+                      <input
+                        type="radio"
+                        name="hasAgent"
+                        value="false"
+                        checked={formData.hasAgent === false}
+                        onChange={handleInputChange}
+                        className="pfl-radio-input"
+                      />
+                      <span className="pfl-radio-custom"></span>
+                      <span className="pfl-radio-text">No, I don't have an agent</span>
+                    </label>
+                  </div>
+                </div>
+              )}
+              <button type="submit" className="pfl-request-button" disabled={isLoading}>
+                {isLoading ? 'Creating account...' : 'Sign Up & View Listing'}
+              </button>
+            </form>
+          </div>
+        );
+      }
+
+      // Initial form
+      const isListingAgent = user && listing && listing.createdBy === user._id;
+      
+      return (
+        <div className="pfl-form-container">
+          <h2>{isListingAgent ? 'Manage Your Listing' : 'Access Listing'}</h2>
+          <p>{isListingAgent ? 'Manage your property listing, view offers, and track buyer activity.' : 'Enter your email to get started.'}</p>
+          
+          <div className="pfl-benefits-section">
+            <h4>{isListingAgent ? 'What you can do:' : 'What you\'ll get access to:'}</h4>
+            <ul className="pfl-benefits-list">
+              {isListingAgent ? (
+                <>
+                  <li>View and manage offers</li>
+                  <li>Track buyer activity</li>
+                  <li>Update listing details</li>
+                  <li>Manage documents and disclosures</li>
+                </>
+              ) : (
+                <>
+                  <li>Property disclosures & documents</li>
+                  <li>AI-powered valuation analysis</li>
+                  <li>Make offers directly</li>
+                </>
+              )}
+            </ul>
+          </div>
+
+          {error && <p className="pfl-error">{error}</p>}
+          
+          <form className="pfl-inquiry-form" onSubmit={handleInitialSubmit} onKeyDown={handleKeyDown}>
+            <div className="pfl-form-group">
+              <label htmlFor="email">Email Address</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Enter your email address"
+                value={formData.email}
+                onChange={handleInputChange}
+                required={!user}
+                autoComplete="email"
+              />
+            </div>
             <button type="submit" className="pfl-request-button" disabled={isLoading}>
-              {isLoading ? 'Creating account...' : 'Sign Up & View Listing'}
+              {isLoading ? 'Checking...' : (user ? (listing && listing.createdBy === user._id ? 'Manage Listing' : 'Get Access Now') : 'Continue')}
             </button>
           </form>
         </div>
       );
-    }
-
-    // Initial form
-    const isListingAgent = user && listing && listing.createdBy === user._id;
-    
-    return (
-      <div className="pfl-form-container">
-        <h2>{isListingAgent ? 'Manage Your Listing' : 'Access Listing'}</h2>
-        <p>{isListingAgent ? 'Manage your property listing, view offers, and track buyer activity.' : 'Enter your email to get started.'}</p>
-        
-        <div className="pfl-benefits-section">
-          <h4>{isListingAgent ? 'What you can do:' : 'What you\'ll get access to:'}</h4>
-          <ul className="pfl-benefits-list">
-            {isListingAgent ? (
-              <>
-                <li>View and manage offers</li>
-                <li>Track buyer activity</li>
-                <li>Update listing details</li>
-                <li>Manage documents and disclosures</li>
-              </>
-            ) : (
-              <>
-                <li>Property disclosures & documents</li>
-                <li>AI-powered valuation analysis</li>
-                <li>Make offers directly</li>
-              </>
-            )}
-          </ul>
-        </div>
-
-        {error && <p className="pfl-error">{error}</p>}
-        
-        <form className="pfl-inquiry-form" onSubmit={handleInitialSubmit} onKeyDown={handleKeyDown}>
-          <div className="pfl-form-group">
-            <label htmlFor="email">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="Enter your email address"
-              value={formData.email}
-              onChange={handleInputChange}
-              required={!user}
-              autoComplete="email"
-            />
+    } catch (error) {
+      console.error('Error rendering form:', error);
+      return (
+        <div className="pfl-form-container">
+          <div className="pfl-error">
+            <h3>Something went wrong</h3>
+            <p>Please refresh the page and try again.</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="pfl-request-button"
+            >
+              Refresh Page
+            </button>
           </div>
-          <button type="submit" className="pfl-request-button" disabled={isLoading}>
-            {isLoading ? 'Checking...' : (user ? (listing && listing.createdBy === user._id ? 'Manage Listing' : 'Get Access Now') : 'Continue')}
-          </button>
-        </form>
-      </div>
-    );
+        </div>
+      );
+    }
   };
 
   if (loading) {

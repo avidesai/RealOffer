@@ -17,6 +17,7 @@ import MyListingDashboard from './pages/Dashboard/components/MyListings/MyListin
 import BuyerPackageDashboard from './pages/Dashboard/components/ForBuyers/BuyerPackageDashboard/BuyerPackageDashboard';
 import UpgradeToPro from './pages/Dashboard/pages/UpgradeToPro/UpgradeToPro';
 import ManageSubscription from './pages/Dashboard/pages/ManageSubscription/ManageSubscription';
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import { useAuth } from './context/AuthContext'; // Import useAuth hook
 import './App.css'; // Your global styles
 
@@ -71,7 +72,11 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/features" element={<FeaturesPage />} />
-          <Route path="/listings/public/:token" element={<PublicFacingListing />} />
+          <Route path="/listings/public/:token" element={
+            <ErrorBoundary>
+              <PublicFacingListing />
+            </ErrorBoundary>
+          } />
           <Route path="/verify-email" element={<EmailVerification />} />
           <Route path="/reset-password" element={<PasswordReset />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
