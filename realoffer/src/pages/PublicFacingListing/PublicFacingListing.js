@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 // Remove InputMask import as we'll use a custom solution
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
@@ -58,6 +59,8 @@ const PublicFacingListing = () => {
     confirmPassword: '',
     agentLicenseNumber: '', // Add license number field
     hasAgent: null, // Add hasAgent field for buyers
+    showPassword: false,
+    showConfirmPassword: false,
   });
   
   // UI state
@@ -1016,31 +1019,51 @@ const PublicFacingListing = () => {
               </div>
               <div className="pfl-form-group">
                 <label htmlFor="password">Password</label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  placeholder="Create a password (min 6 characters)"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  required
-                  autoComplete="new-password"
-                  minLength="6"
-                />
+                <div className="pfl-password-input-group">
+                  <input
+                    type={formData.showPassword ? 'text' : 'password'}
+                    id="password"
+                    name="password"
+                    placeholder="Create a password (min 6 characters)"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    required
+                    autoComplete="new-password"
+                    minLength="6"
+                  />
+                  <button
+                    type="button"
+                    className="pfl-password-toggle-button"
+                    onClick={() => setFormData(prev => ({ ...prev, showPassword: !prev.showPassword }))}
+                    aria-label={formData.showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {formData.showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
               </div>
               <div className="pfl-form-group">
                 <label htmlFor="confirmPassword">Confirm Password</label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  placeholder="Confirm your password"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  required
-                  autoComplete="new-password"
-                  minLength="6"
-                />
+                <div className="pfl-password-input-group">
+                  <input
+                    type={formData.showConfirmPassword ? 'text' : 'password'}
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    placeholder="Confirm your password"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    required
+                    autoComplete="new-password"
+                    minLength="6"
+                  />
+                  <button
+                    type="button"
+                    className="pfl-password-toggle-button"
+                    onClick={() => setFormData(prev => ({ ...prev, showConfirmPassword: !prev.showConfirmPassword }))}
+                    aria-label={formData.showConfirmPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {formData.showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
               </div>
               <div className="pfl-form-group">
                 <label htmlFor="phone">Phone Number</label>
