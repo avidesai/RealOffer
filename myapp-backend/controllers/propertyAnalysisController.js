@@ -298,6 +298,10 @@ exports.updateCustomValue = async (req, res) => {
 
     await analysis.save();
 
+    // Clear AI chat cache for this property to ensure changes are reflected immediately
+    const optimizedChatController = require('./OptimizedChatController');
+    optimizedChatController.clearPropertyCache(propertyId);
+
     // Return updated analysis data
     const displayValue = analysis.valuation.isCustomValue 
       ? analysis.valuation.customValue 
@@ -369,6 +373,10 @@ exports.updateCustomRent = async (req, res) => {
     }
 
     await analysis.save();
+
+    // Clear AI chat cache for this property to ensure changes are reflected immediately
+    const optimizedChatController = require('./OptimizedChatController');
+    optimizedChatController.clearPropertyCache(propertyId);
 
     // Return updated analysis data
     const displayRent = analysis.rentEstimate.isCustomRent 

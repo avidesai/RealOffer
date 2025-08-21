@@ -863,6 +863,10 @@ exports.updateRenovationEstimateVisibility = async (req, res) => {
       { new: true, upsert: true }
     );
     
+    // Clear AI chat cache for this property to ensure changes are reflected immediately
+    const optimizedChatController = require('./OptimizedChatController');
+    optimizedChatController.clearPropertyCache(propertyId);
+    
     res.json({
       message: 'Renovation estimate visibility updated',
       hiddenFromBuyers: renovationAnalysis.hiddenFromBuyers

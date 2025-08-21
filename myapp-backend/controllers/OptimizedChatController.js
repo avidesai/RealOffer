@@ -5,6 +5,7 @@ const PropertyListing = require('../models/PropertyListing');
 const PropertyAnalysis = require('../models/PropertyAnalysis');
 const RenovationAnalysis = require('../models/RenovationAnalysis');
 const UserUsage = require('../models/UserUsage');
+const BuyerPackage = require('../models/BuyerPackage');
 const optimizedDocumentProcessor = require('../utils/optimizedDocumentProcessor');
 
 const anthropic = new Anthropic({
@@ -19,6 +20,53 @@ class OptimizedChatController {
   }
 
   /**
+   * Check user access to property and determine role
+   */
+  async checkUserAccess(propertyId, userId) {
+    const property = await PropertyListing.findById(propertyId);
+    if (!property) {
+      return { hasAccess: false, role: null, message: 'Property not found' };
+    }
+
+    // Check if user is the listing creator (owner)
+    const isOwner = property.createdBy.toString() === userId;
+    
+    // Check if user is an agent
+    const isAgent = property.agentIds.some(agentId => agentId.toString() === userId);
+    
+    // Check if user is a team member
+    const isTeamMember = property.teamMemberIds.some(teamMemberId => teamMemberId.toString() === userId);
+    
+    // If user is owner, agent, or team member, they have full access
+    if (isOwner || isAgent || isTeamMember) {
+      return { 
+        hasAccess: true, 
+        role: 'listing_agent', 
+        isOwner,
+        isAgent,
+        isTeamMember
+      };
+    }
+    
+    // Check if user has a buyer package for this listing
+    const buyerPackage = await BuyerPackage.findOne({
+      propertyListing: propertyId,
+      user: userId
+    });
+    
+    if (buyerPackage) {
+      return { 
+        hasAccess: true, 
+        role: 'buyer', 
+        buyerPackage,
+        userRole: buyerPackage.userRole // 'buyer' or 'agent' from buyer package
+      };
+    }
+    
+    return { hasAccess: false, role: null, message: 'Not authorized to access this property' };
+  }
+
+  /**
    * Main chat handler
    */
   async chatWithPropertyStream(req, res) {
@@ -27,6 +75,12 @@ class OptimizedChatController {
 
     try {
       this.setupStreamingHeaders(res);
+
+      // Check user access and role
+      const accessCheck = await this.checkUserAccess(propertyId, req.user.id);
+      if (!accessCheck.hasAccess) {
+        return this.sendError(res, accessCheck.message || 'Not authorized to access this property');
+      }
 
       const property = await this.getPropertyWithCache(propertyId);
       if (!property) return this.sendError(res, 'Property not found');
@@ -39,7 +93,7 @@ class OptimizedChatController {
         }
       }
 
-      const knowledgeBase = await this.getKnowledgeBaseWithCache(propertyId);
+      const knowledgeBase = await this.getKnowledgeBaseWithCache(propertyId, accessCheck);
 
       // Get both document chunks and analysis chunks
       const relevantChunks = await optimizedDocumentProcessor.findRelevantChunks(propertyId, message, 8);
@@ -49,7 +103,7 @@ class OptimizedChatController {
       const allChunks = [...analysisChunks, ...relevantChunks];
       console.log(`📌 Retrieved ${relevantChunks.length} document chunks and ${analysisChunks.length} analysis chunks`);
 
-      const promptComponents = this.buildPromptWithChunks(knowledgeBase, allChunks, message, conversationHistory);
+      const promptComponents = this.buildPromptWithChunks(knowledgeBase, allChunks, message, conversationHistory, accessCheck);
 
       await this.executeStream(res, promptComponents, propertyId, allChunks, startTime, cacheKey, req.user.id);
 
@@ -62,7 +116,7 @@ class OptimizedChatController {
   /**
    * Build Claude prompt from chunk context
    */
-  buildPromptWithChunks(knowledgeBase, chunks, userMessage, conversationHistory) {
+  buildPromptWithChunks(knowledgeBase, chunks, userMessage, conversationHistory, accessCheck) {
     const today = new Date().toISOString().split('T')[0]; // e.g. 2025-08-08
     const offerDueDate = knowledgeBase.propertyInfo.offerDueDate || null;
 
@@ -73,6 +127,9 @@ class OptimizedChatController {
       `You have access to structured property details, valuation data, renovation estimates, and key excerpts from disclosure documents.`,
       `You also have access to AI-generated analysis summaries that provide structured insights from documents.`,
       `Renovation estimates are based on AI analysis of property photos and provide detailed cost breakdowns by category.`,
+      `Valuation data may include custom values set by listing agents, which are marked as "(Custom)" in the property context.`,
+      `Rent estimates may also include custom values set by listing agents, which are marked as "(Custom)" in the property context.`,
+      `Renovation analysis may be hidden from buyers at the listing agent's discretion. If renovation data is not available, it may be because it has been hidden.`,
       `Always reference only the provided data. Never guess, assume, or invent information.`,
       `If a question can't be answered from the information you have, respond with: "I'm not sure based on the available documents."`,
       `Your tone should be professional, accurate, clear, and concise.`,
@@ -87,8 +144,10 @@ class OptimizedChatController {
 
     let documentContext = '';
     
-    // Add renovation analysis if available
-    if (knowledgeBase.renovationAnalysis?.renovationEstimate && knowledgeBase.renovationAnalysis.status === 'completed') {
+    // Add renovation analysis if available and not hidden from this user
+    if (knowledgeBase.renovationAnalysis?.renovationEstimate && 
+        knowledgeBase.renovationAnalysis.status === 'completed' &&
+        knowledgeBase.renovationAnalysis.includeInChat) {
       try {
         documentContext += `## RENOVATION ANALYSIS\n`;
         const renovation = knowledgeBase.renovationAnalysis.renovationEstimate;
@@ -332,7 +391,7 @@ class OptimizedChatController {
   /**
    * Get cached knowledge base
    */
-  async getKnowledgeBaseWithCache(propertyId) {
+  async getKnowledgeBaseWithCache(propertyId, accessCheck) {
     const key = `kb_${propertyId}`;
     if (this.propertyCache.has(key)) {
       const cached = this.propertyCache.get(key);
@@ -344,6 +403,30 @@ class OptimizedChatController {
       PropertyAnalysis.findOne({ propertyId }),
       RenovationAnalysis.findOne({ propertyId })
     ]);
+
+    // Determine which valuation to use (custom or API-provided)
+    let displayValue = analysis?.valuation?.estimatedValue;
+    let displayRent = analysis?.rentEstimate?.rent;
+    
+    if (analysis?.valuation?.isCustomValue && analysis?.valuation?.customValue) {
+      displayValue = analysis.valuation.customValue;
+    }
+    
+    if (analysis?.rentEstimate?.isCustomRent && analysis?.rentEstimate?.customRent) {
+      displayRent = analysis.rentEstimate.customRent;
+    }
+
+    // Determine if renovation analysis should be included in chat
+    let includeRenovationInChat = false;
+    if (renovationAnalysis?.status === 'completed') {
+      if (accessCheck.role === 'listing_agent') {
+        // Listing agents always see renovation data
+        includeRenovationInChat = true;
+      } else if (accessCheck.role === 'buyer') {
+        // Buyers only see renovation data if it's not hidden
+        includeRenovationInChat = !renovationAnalysis.hiddenFromBuyers;
+      }
+    }
 
     const knowledgeBase = {
       propertyInfo: {
@@ -357,17 +440,26 @@ class OptimizedChatController {
         description: property.description
       },
       valuation: {
-        estimatedValue: analysis?.valuation?.estimatedValue,
+        estimatedValue: displayValue,
         priceRange: {
           low: analysis?.valuation?.priceRangeLow,
           high: analysis?.valuation?.priceRangeHigh
         },
-        comparables: analysis?.valuation?.comparables?.slice(0, 3) || []
+        comparables: analysis?.valuation?.comparables?.slice(0, 5) || [],
+        isCustomValue: analysis?.valuation?.isCustomValue || false,
+        originalValue: analysis?.valuation?.originalValue
+      },
+      rentEstimate: {
+        rent: displayRent,
+        isCustomRent: analysis?.rentEstimate?.isCustomRent || false,
+        originalRent: analysis?.rentEstimate?.originalRent
       },
       renovationAnalysis: renovationAnalysis?.status === 'completed' ? {
         status: renovationAnalysis.status,
         renovationEstimate: renovationAnalysis.renovationEstimate,
-        propertyLocation: renovationAnalysis.propertyLocation
+        propertyLocation: renovationAnalysis.propertyLocation,
+        includeInChat: includeRenovationInChat,
+        hiddenFromBuyers: renovationAnalysis.hiddenFromBuyers
       } : null
     };
 
@@ -493,6 +585,26 @@ class OptimizedChatController {
     this.responseCache.clear();
     optimizedDocumentProcessor.clearCaches();
     console.log('All caches cleared');
+  }
+
+  clearPropertyCache(propertyId) {
+    // Clear property-specific caches
+    const propertyKey = `prop_${propertyId}`;
+    const knowledgeBaseKey = `kb_${propertyId}`;
+    
+    this.propertyCache.delete(propertyKey);
+    this.propertyCache.delete(knowledgeBaseKey);
+    
+    // Clear response cache entries for this property
+    const keysToDelete = [];
+    for (const [key, value] of this.responseCache.entries()) {
+      if (key.startsWith(`${propertyId}_`)) {
+        keysToDelete.push(key);
+      }
+    }
+    keysToDelete.forEach(key => this.responseCache.delete(key));
+    
+    console.log(`Cache cleared for property ${propertyId}`);
   }
 }
 
