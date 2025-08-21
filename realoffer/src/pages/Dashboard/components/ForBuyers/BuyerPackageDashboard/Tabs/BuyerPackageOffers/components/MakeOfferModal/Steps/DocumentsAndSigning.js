@@ -72,9 +72,8 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId, buyerP
   const [uploadLoading, setUploadLoading] = useState(false);
   const [error, setError] = useState(null);
   const [validation, setValidation] = useState({});
-  const [signaturePacketExists, setSignaturePacketExists] = useState(false);
-  const [signaturePacketDeleted, setSignaturePacketDeleted] = useState(false);
   const [uploadingDocuments, setUploadingDocuments] = useState([]); // Track documents being uploaded
+  const [isDragOver, setIsDragOver] = useState(false);
 
   // Document type options for dropdown
   const documentTypes = [
@@ -91,55 +90,40 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId, buyerP
     setValidation(validationResult);
   }, [documentWorkflow, validateDocuments]);
 
-  // Add useEffect to fetch signature packet document
-  useEffect(() => {
-    const fetchSignaturePacket = async () => {
-      try {
-        // Use buyer package endpoint for buyer context
-        const response = await api.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/buyerPackage/${buyerPackageId}/optimized`);
-        const documents = response.data;
-        
-        // Find the signature packet document
-        const signaturePacket = documents.find(doc => 
-          doc.title === 'To Be Signed by Buyer (For Offer)' && 
-          doc.purpose === 'signature_package'
-        );
-        
-        if (signaturePacket) {
-          setSignaturePacketExists(true);
-          setSignaturePacketDeleted(false);
-          
-          // Always add the signature packet to documents (it should be included automatically)
-          updateDocumentWorkflow(prev => {
-            const existingDoc = prev.documents.find(doc => doc.id === signaturePacket._id);
-            if (!existingDoc) {
-              const newSignatureDoc = {
-                id: signaturePacket._id,
-                title: signaturePacket.title,
-                type: 'Disclosure Signature Packet',
-                size: signaturePacket.size,
-                pages: signaturePacket.pages,
-                sendForSigning: true, // Default to true for signature packets
-                status: 'uploaded'
-              };
-              
-              return {
-                ...prev,
-                documents: [...prev.documents, newSignatureDoc]
-              };
-            }
-            return prev;
-          });
-        } else {
-          setSignaturePacketExists(false);
-        }
-      } catch (error) {
-        console.error('Error fetching signature packet:', error);
-      }
-    };
+  // Note: Disclosure signature packet is no longer automatically included
+  // Users can manually upload it if needed
 
-    fetchSignaturePacket();
-  }, [buyerPackageId, updateDocumentWorkflow]);
+  // Drag and drop handlers
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only set drag over to false if we're leaving the upload area entirely
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setIsDragOver(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      console.log('DocumentsAndSigning: Files dropped:', e.dataTransfer.files);
+      Array.from(e.dataTransfer.files).forEach(handleDocumentUpload);
+    }
+  };
 
   // Handle document upload
   const handleDocumentUpload = async (file) => {
@@ -236,32 +220,21 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId, buyerP
   // Handle document removal
   const handleRemoveDocument = useCallback(async (documentId) => {
     try {
-      // Check if this is a signature packet being removed
-      const documentToRemove = documentWorkflow.documents.find(doc => doc.id === documentId);
-      const isSignaturePacket = documentToRemove?.type === 'Disclosure Signature Packet';
-      
-      if (!isSignaturePacket) {
-        // Delete the document via the normal endpoint (buyer-uploaded docs)
-        await api.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${documentId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-      }
+      // Delete the document via the normal endpoint (buyer-uploaded docs)
+      await api.delete(`${process.env.REACT_APP_BACKEND_URL}/api/documents/${documentId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
 
-      // Update local state regardless of whether API deletion occurred
+      // Update local state
       updateDocumentWorkflow(prev => ({
         ...prev,
         documents: prev.documents.filter(doc => doc.id !== documentId)
       }));
-      
-      // If signature packet was removed and it existed, mark it as deleted
-      if (isSignaturePacket && signaturePacketExists) {
-        setSignaturePacketDeleted(true);
-      }
     } catch (error) {
       console.error('Error removing document:', error);
       setError('Failed to remove document');
     }
-  }, [updateDocumentWorkflow, token, signaturePacketExists, documentWorkflow.documents]);
+  }, [updateDocumentWorkflow, token, documentWorkflow.documents]);
 
   // Handle file input change
   const handleFileChange = (event) => {
@@ -271,49 +244,15 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId, buyerP
     event.target.value = '';
   };
 
-  // Handle restoring signature packet
-  const handleRestoreSignaturePacket = async () => {
-    setUploadLoading(true);
-    setError(null);
-    
-    try {
-      // Use buyer package endpoint for buyer context
-      const response = await api.get(`${process.env.REACT_APP_BACKEND_URL}/api/documents/buyerPackage/${buyerPackageId}/optimized`);
-      const documents = response.data;
-      
-      // Find the signature packet document
-      const signaturePacket = documents.find(doc => 
-        doc.title === 'To Be Signed by Buyer (For Offer)' && 
-        doc.purpose === 'signature_package'
-      );
-      
-      if (signaturePacket) {
-        const newSignatureDoc = {
-          id: signaturePacket._id,
-          title: signaturePacket.title,
-          type: 'Disclosure Signature Packet',
-          size: signaturePacket.size,
-          pages: signaturePacket.pages,
-          sendForSigning: true,
-          status: 'uploaded'
-        };
-        
-        updateDocumentWorkflow(prev => ({
-          ...prev,
-          documents: [...prev.documents, newSignatureDoc]
-        }));
-        
-        setSignaturePacketDeleted(false);
-      } else {
-        setError('Signature packet not found');
-      }
-    } catch (error) {
-      console.error('Error restoring signature packet:', error);
-      setError('Failed to restore signature packet');
-    } finally {
-      setUploadLoading(false);
+  // Handle upload area click
+  const handleUploadAreaClick = () => {
+    const fileInput = document.querySelector('.ds-file-input');
+    if (fileInput) {
+      fileInput.click();
     }
   };
+
+
 
   // Handle next step
   const handleNext = () => {
@@ -353,7 +292,15 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId, buyerP
         
         <div className="ds-section-content">
           {/* File Upload Area */}
-          <div className="ds-upload-area">
+          <div 
+            className={`ds-upload-area ${isDragOver ? 'ds-drag-over' : ''}`}
+            onDragOver={handleDragOver}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={handleUploadAreaClick}
+            style={{ cursor: 'pointer' }}
+          >
             <label className="ds-upload-label">
               <input
                 type="file"
@@ -366,6 +313,11 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId, buyerP
               <span>Choose files or drag and drop</span>
               <small>PDF, DOC, DOCX, JPG, PNG (max 50MB each)</small>
             </label>
+            {isDragOver && (
+              <div className="ds-drag-over-overlay">
+                Drop files here
+              </div>
+            )}
           </div>
 
           {/* Uploaded Documents List */}
@@ -373,15 +325,6 @@ const DocumentsAndSigning = ({ handleNextStep, handlePrevStep, listingId, buyerP
             <div className="ds-uploaded-documents">
               <div className="ds-uploaded-documents-header">
                 <h4>Uploaded Documents</h4>
-                {signaturePacketExists && signaturePacketDeleted && (
-                  <button
-                    className="ds-restore-signature-packet-btn"
-                    onClick={handleRestoreSignaturePacket}
-                    disabled={uploadLoading}
-                  >
-                    Add Disclosure Signature Packet
-                  </button>
-                )}
               </div>
               
               {/* Show uploading documents first */}

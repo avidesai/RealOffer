@@ -12,7 +12,6 @@ import Contingencies from './Steps/Contingencies';
 import AgentInformation from './Steps/AgentInformation';
 import OfferDetails from './Steps/OfferDetails';
 import DocumentsAndSigning from './Steps/DocumentsAndSigning';
-import DocuSignSection from './Steps/DocuSignSection';
 import FinalReview from './Steps/FinalReview';
 import axios from 'axios';
 
@@ -301,8 +300,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       purchaseAgreement: {
         sendForSigning: purchaseAgreement.sendForSigning || false
       },
-      signingDocuments,
-      docuSignConnected: documentWorkflow.signing?.docuSignConnected || false
+      signingDocuments
     }));
 
     formDataToSend.append('propertyListing', listingId);
@@ -331,50 +329,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         await Promise.all(documentUpdatePromises);
       }
 
-      if (documentsForSigning.length > 0 && documentWorkflow.signing?.docuSignConnected) {
-        try {
-          const recipients = documentWorkflow.signing.recipients.filter(r =>
-            r.name.trim() && r.email.trim() && /\S+@\S+\.\S+/.test(r.email)
-          ).map(r => ({
-            name: r.name,
-            email: r.email,
-            type: r.type,
-            order: r.order
-          }));
-
-          if (recipients.length > 0) {
-            await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/docusign/send`, {
-              offerId: createdOfferId,
-              documents: documentsForSigning,
-              recipients: recipients,
-              metadata: {
-                propertyAddress: response.data.propertyListing?.address || 'Property',
-                offerAmount: offerData.purchasePrice
-              }
-            }, {
-              headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            console.log(`Documents sent for DocuSign signing to ${recipients.length} recipient(s)`);
-          } else {
-            console.warn('No valid recipients configured for DocuSign - documents will be attached to offer only');
-          }
-        } catch (docusignError) {
-          console.error('Error sending documents for signing:', docusignError);
-
-          if (docusignError.response?.status === 401) {
-            console.warn('DocuSign authentication failed - user needs to reconnect');
-            updateDocumentWorkflow(prev => ({
-              ...prev,
-              signing: {
-                ...prev.signing,
-                docuSignConnected: false,
-                status: 'not_configured'
-              }
-            }));
-          }
-        }
-      }
+      // Note: DocuSign functionality has been removed from the offer workflow
 
       handleResetOffer();
       onClose();
@@ -429,14 +384,6 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       handlePrevStep={handlePrevStep}
       listingId={listingId}
     />,
-    electronicSignatures: <DocuSignSection
-      documentWorkflow={documentWorkflow}
-      loading={false}
-      offerData={offerData}
-      updateDocumentWorkflow={updateDocumentWorkflow}
-      handleNextStep={handleNextStep}
-      handlePrevStep={handlePrevStep}
-    />,
     finalReview: <FinalReview
       formData={offerData}
       handlePrevStep={handlePrevStep}
@@ -476,8 +423,7 @@ const MakeOfferModal = ({ onClose, listingId }) => {
         {step === 4 && memoizedComponents.agentInformation}
         {step === 5 && memoizedComponents.offerDetails}
         {step === 6 && memoizedComponents.documents}
-        {step === 7 && memoizedComponents.electronicSignatures}
-        {step === 8 && memoizedComponents.finalReview}
+        {step === 7 && memoizedComponents.finalReview}
       </div>
     </div>
   );

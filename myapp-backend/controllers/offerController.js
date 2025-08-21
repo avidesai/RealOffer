@@ -286,11 +286,31 @@ exports.updateOfferStatus = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to update offer status' });
     }
 
+    // Store the previous status to check if we need to send notification
+    const previousStatus = offer.offerStatus;
+
     const updatedOffer = await Offer.findByIdAndUpdate(
       id,
       { offerStatus },
       { new: true, runValidators: true }
     );
+
+    // Send email notification if status changed to 'under review'
+    if (previousStatus !== 'under review' && offerStatus === 'under review') {
+      try {
+        // Get the name of the person who updated the status
+        const updater = await User.findById(req.user.id);
+        const updaterName = `${updater.firstName} ${updater.lastName}`.trim();
+        
+        // Send notification to the offer creator (non-blocking)
+        notificationService.sendOfferUnderReviewNotification(id, updaterName).catch(error => {
+          console.error('Failed to send offer under review notification:', error);
+        });
+      } catch (notificationError) {
+        console.error('Error sending offer under review notification:', notificationError);
+        // Don't fail the request if notification fails
+      }
+    }
 
     res.status(200).json(updatedOffer);
   } catch (error) {
@@ -353,21 +373,25 @@ exports.respondToOffer = async (req, res) => {
     await offer.save();
 
     // Send email notification to the agent who created the offer
-    if (offer.presentedBy && offer.presentedBy.email) {
+    if (offer.buyersAgent) {
       try {
-        const propertyAddress = offer.propertyListing.homeCharacteristics?.address || 'Property Address';
-        const agentName = `${offer.presentedBy.firstName} ${offer.presentedBy.lastName}`.trim();
-        
-        await emailService.sendOfferResponseNotification(
-          offer.presentedBy.email,
-          agentName,
-          propertyAddress,
-          responseType,
-          subject,
-          message,
-          responderName,
-          offer.purchasePrice
-        );
+        // Get the buyer's agent info
+        const buyersAgent = await User.findById(offer.buyersAgent);
+        if (buyersAgent && buyersAgent.email) {
+          const propertyAddress = offer.propertyListing.homeCharacteristics?.address || 'Property Address';
+          const agentName = `${buyersAgent.firstName} ${buyersAgent.lastName}`.trim();
+          
+          await emailService.sendOfferResponseNotification(
+            buyersAgent.email,
+            agentName,
+            propertyAddress,
+            responseType,
+            subject,
+            message,
+            responderName,
+            offer.purchasePrice
+          );
+        }
       } catch (emailError) {
         console.error('Error sending offer response email:', emailError);
         // Don't fail the request if email fails

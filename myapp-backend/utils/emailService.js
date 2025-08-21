@@ -538,6 +538,129 @@ class EmailService {
     }
   }
 
+  // Send offer under review notification email
+  async sendOfferUnderReviewNotification(agentEmail, agentName, propertyAddress, offerAmount, listingAgentName) {
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: agentEmail,
+      subject: `Your Offer is Under Review - ${propertyAddress}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">Offer Under Review</h1>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${agentName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              Great news! Your offer has been reviewed and is now under consideration.
+            </p>
+            <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
+                ${propertyAddress}
+              </p>
+              <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
+                Offer Amount: $${Number(offerAmount)?.toLocaleString() || 'N/A'}
+              </p>
+              <p style="color: #666; margin: 0; font-size: 14px;">
+                Reviewed by: ${listingAgentName}
+              </p>
+            </div>
+            <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #856404; font-weight: 600; margin: 0 0 10px 0; font-size: 16px;">
+                Status: Under Review
+              </p>
+              <p style="color: #856404; margin: 0; line-height: 1.6;">
+                The listing agent has reviewed your offer and is now considering it. You'll be notified when they respond.
+              </p>
+            </div>
+            <p style="color: #666; line-height: 1.6;">
+              You can view the full details and any updates through your RealOffer dashboard.
+            </p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.FRONTEND_URL}/dashboard" 
+                 style="background-color: #007bff; color: white; padding: 12px 30px; 
+                        text-decoration: none; border-radius: 5px; display: inline-block;">
+                View Offer
+              </a>
+            </div>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('Offer under review notification send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Send new message notification email
+  async sendNewMessageNotification(recipientEmail, recipientName, senderName, propertyAddress, messageContent, offerAmount, messageId) {
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: recipientEmail,
+      subject: `New Offer Message - ${propertyAddress}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">New Message</h1>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${recipientName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              You have received a new message regarding an offer on RealOffer.
+            </p>
+            <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
+                ${propertyAddress}
+              </p>
+              <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
+                Offer Amount: $${Number(offerAmount)?.toLocaleString() || 'N/A'}
+              </p>
+              <p style="color: #666; margin: 0; font-size: 14px;">
+                From: ${senderName}
+              </p>
+            </div>
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #666; line-height: 1.6; margin: 0; white-space: pre-wrap;">
+                ${messageContent}
+              </p>
+            </div>
+            <p style="color: #666; line-height: 1.6;">
+              You can view the full conversation and respond through your RealOffer dashboard.
+            </p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.FRONTEND_URL}/dashboard" 
+                 style="background-color: #007bff; color: white; padding: 12px 30px; 
+                        text-decoration: none; border-radius: 5px; display: inline-block;">
+                View Message
+              </a>
+            </div>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('New message notification send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Send offer response notification email
   async sendOfferResponseNotification(agentEmail, agentName, propertyAddress, responseType, subject, message, responderName, offerAmount) {
     let responseTitle, responseColor;

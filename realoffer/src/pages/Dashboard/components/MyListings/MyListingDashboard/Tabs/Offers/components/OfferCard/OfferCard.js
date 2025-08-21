@@ -91,9 +91,8 @@ const OfferCard = ({ offer, onClick, onUpdate, onRespond }) => {
   };
 
   const handleViewClick = async () => {
-    // Only allow transition to 'under review' from 'pending-review' status
-    // 'pending-signatures' should stay as is until signatures are completed
-    if (status === 'pending-review') {
+    // Update status to 'under review' when opening offers with 'submitted' or 'pending-review' status
+    if (status === 'submitted' || status === 'pending-review') {
       try {
         const response = await axios.put(
           `${process.env.REACT_APP_BACKEND_URL}/api/offers/${offer._id}/status`,

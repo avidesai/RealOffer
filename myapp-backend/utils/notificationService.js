@@ -3,6 +3,8 @@
 const emailService = require('./emailService');
 const User = require('../models/User');
 const PropertyListing = require('../models/PropertyListing');
+const Offer = require('../models/Offer');
+const Message = require('../models/Message');
 
 class NotificationService {
   // Send buyer package creation notification
@@ -231,6 +233,144 @@ class NotificationService {
       return result;
     } catch (error) {
       console.error('Error sending offer submission confirmation:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Send offer under review notification to offer creator
+  async sendOfferUnderReviewNotification(offerId, listingAgentName) {
+    try {
+      const offer = await Offer.findById(offerId)
+        .populate('buyersAgent', 'firstName lastName email')
+        .populate('propertyListing', 'homeCharacteristics.address');
+
+      if (!offer) {
+        console.error('Offer not found for under review notification');
+        return { success: false, error: 'Offer not found' };
+      }
+
+      if (!offer.buyersAgent) {
+        console.error('Buyer agent not found for offer under review notification');
+        return { success: false, error: 'Buyer agent not found' };
+      }
+
+      const agentName = `${offer.buyersAgent.firstName} ${offer.buyersAgent.lastName}`;
+      const propertyAddress = offer.propertyListing.homeCharacteristics.address;
+      const offerAmount = offer.purchasePrice;
+
+      const result = await emailService.sendOfferUnderReviewNotification(
+        offer.buyersAgent.email,
+        agentName,
+        propertyAddress,
+        offerAmount,
+        listingAgentName
+      );
+
+      if (result.success) {
+        console.log(`Offer under review notification sent to ${offer.buyersAgent.email} for offer ${offerId}`);
+      } else {
+        console.error(`Failed to send offer under review notification to ${offer.buyersAgent.email}:`, result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('Error sending offer under review notification:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Send new message notification
+  async sendNewMessageNotification(messageId, senderId) {
+    try {
+      const message = await Message.findById(messageId)
+        .populate('sender', 'firstName lastName email')
+        .populate('offer');
+
+      if (!message) {
+        console.error('Message not found for notification');
+        return { success: false, error: 'Message not found' };
+      }
+
+      const offer = await Offer.findById(message.offer)
+        .populate('buyersAgent', 'firstName lastName email')
+        .populate('propertyListing', 'homeCharacteristics.address');
+
+      if (!offer) {
+        console.error('Offer not found for message notification');
+        return { success: false, error: 'Offer not found' };
+      }
+
+      // Determine who should receive the notification (the other party)
+      let recipientEmail, recipientName;
+      const senderName = `${message.sender.firstName} ${message.sender.lastName}`;
+      const propertyAddress = offer.propertyListing.homeCharacteristics.address;
+      const offerAmount = offer.purchasePrice;
+
+      // If sender is the buyer's agent, notify listing agents
+      if (message.sender._id.toString() === offer.buyersAgent._id.toString()) {
+        // Notify listing agents
+        const propertyListing = await PropertyListing.findById(offer.propertyListing._id)
+          .populate('agentIds', 'firstName lastName email');
+
+        if (!propertyListing || !propertyListing.agentIds.length) {
+          console.error('No listing agents found for message notification');
+          return { success: false, error: 'No listing agents found' };
+        }
+
+        const results = [];
+        for (const agent of propertyListing.agentIds) {
+          const agentName = `${agent.firstName} ${agent.lastName}`;
+          
+          const result = await emailService.sendNewMessageNotification(
+            agent.email,
+            agentName,
+            senderName,
+            propertyAddress,
+            message.content,
+            offerAmount,
+            messageId
+          );
+
+          if (result.success) {
+            console.log(`New message notification sent to ${agent.email} for message ${messageId}`);
+          } else {
+            console.error(`Failed to send new message notification to ${agent.email}:`, result.error);
+          }
+          
+          results.push(result);
+        }
+
+        const hasSuccess = results.some(result => result.success);
+        return { success: hasSuccess, results };
+      } else {
+        // If sender is a listing agent, notify the buyer's agent
+        if (!offer.buyersAgent) {
+          console.error('Buyer agent not found for message notification');
+          return { success: false, error: 'Buyer agent not found' };
+        }
+
+        const buyerAgentName = `${offer.buyersAgent.firstName} ${offer.buyersAgent.lastName}`;
+        
+        const result = await emailService.sendNewMessageNotification(
+          offer.buyersAgent.email,
+          buyerAgentName,
+          senderName,
+          propertyAddress,
+          message.content,
+          offerAmount,
+          messageId
+        );
+
+        if (result.success) {
+          console.log(`New message notification sent to ${offer.buyersAgent.email} for message ${messageId}`);
+        } else {
+          console.error(`Failed to send new message notification to ${offer.buyersAgent.email}:`, result.error);
+        }
+
+        return result;
+      }
+    } catch (error) {
+      console.error('Error sending new message notification:', error);
       return { success: false, error: error.message };
     }
   }

@@ -3,6 +3,7 @@
 const Message = require('../models/Message');
 const Offer = require('../models/Offer');
 const User = require('../models/User');
+const notificationService = require('../utils/notificationService');
 
 // Get all messages for an offer
 exports.getMessagesByOffer = async (req, res) => {
@@ -67,6 +68,18 @@ exports.sendMessage = async (req, res) => {
 
     // Populate sender info for response
     await message.populate('sender', 'firstName lastName email profilePhotoUrl');
+
+    // Send email notification to the other party (non-blocking)
+    if (messageType === 'general_message') {
+      try {
+        notificationService.sendNewMessageNotification(message._id, req.user.id).catch(error => {
+          console.error('Failed to send new message notification:', error);
+        });
+      } catch (notificationError) {
+        console.error('Error sending new message notification:', notificationError);
+        // Don't fail the request if notification fails
+      }
+    }
 
     res.status(201).json(message);
   } catch (error) {
