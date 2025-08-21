@@ -1838,7 +1838,27 @@ const createBuyerSignaturePacketInternal = async (req, res, progressCallback) =>
 
     const savedDocument = await newDocument.save();
 
-
+    // Handle document order for signature package
+    const currentDocumentOrder = propertyListing.documentOrder || [];
+    let updatedDocumentOrder;
+    
+    if (propertyListing.signaturePackage) {
+      // If updating an existing signature package, replace the old ID with the new one
+      const oldSignaturePackageId = propertyListing.signaturePackage.toString();
+      updatedDocumentOrder = currentDocumentOrder.map(id => 
+        id === oldSignaturePackageId ? savedDocument._id.toString() : id
+      );
+      
+      // If the old signature package wasn't in the order, add the new one to the beginning
+      if (!currentDocumentOrder.includes(oldSignaturePackageId)) {
+        updatedDocumentOrder = [savedDocument._id.toString(), ...updatedDocumentOrder];
+      }
+    } else {
+      // If creating a new signature package, add it to the beginning
+      updatedDocumentOrder = [savedDocument._id.toString(), ...currentDocumentOrder];
+    }
+    
+    propertyListing.documentOrder = updatedDocumentOrder;
     propertyListing.signaturePackage = savedDocument._id;
     await propertyListing.save();
 
