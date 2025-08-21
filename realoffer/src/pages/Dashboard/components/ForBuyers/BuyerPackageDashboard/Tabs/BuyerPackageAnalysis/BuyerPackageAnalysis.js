@@ -206,7 +206,28 @@ const BuyerPackageAnalysis = ({ buyerPackageId }) => {
                 <div className="value-section">
                   <div className="main-value">
                     {formatCurrency(analysisData.rentEstimate?.rent)}
-                    <div className="value-label">Estimated Monthly Rent</div>
+                    <div className="value-label">
+                      Estimated Monthly Rent
+                      {analysisData.rentEstimate?.isCustomRent && (
+                        <div className="info-tooltip-container">
+                          <svg 
+                            className="info-icon" 
+                            width="16" 
+                            height="16" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                            <path d="M12 16V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M12 8H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          <div className="info-tooltip">
+                            This is a custom rent estimate set by the listing agent
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   {analysisData.rentEstimate?.rentRangeLow && analysisData.rentEstimate?.rentRangeHigh && (
                     <div className="value-range">

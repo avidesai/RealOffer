@@ -158,20 +158,29 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
 
   // Add agent to selected list
   const addAgent = (agent) => {
-    const newSelectedAgents = [...selectedAgents, agent];
-    setSelectedAgents(newSelectedAgents);
-    setSearchQuery('');
-    setShowDropdown(false);
-    setSearchResults([]);
-    
-    // Update form data directly
-    const agentIds = newSelectedAgents.map(agent => agent._id);
-    handleChange({
-      target: {
-        name: 'agentIds',
-        value: agentIds,
-      },
-    });
+    if (agent.isInvite) {
+      // For invite options, add to selected and show form fields
+      setSelectedAgents([...selectedAgents, agent]);
+      setSearchQuery('');
+      setShowDropdown(false);
+      setSearchResults([]);
+    } else {
+      // For existing users, add directly
+      const newSelectedAgents = [...selectedAgents, agent];
+      setSelectedAgents(newSelectedAgents);
+      setSearchQuery('');
+      setShowDropdown(false);
+      setSearchResults([]);
+      
+      // Update form data directly
+      const agentIds = newSelectedAgents.map(agent => agent._id);
+      handleChange({
+        target: {
+          name: 'agentIds',
+          value: agentIds,
+        },
+      });
+    }
   };
 
   // Remove agent from selected list
@@ -179,8 +188,9 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
     const newSelectedAgents = selectedAgents.filter(agent => agent._id !== agentId);
     setSelectedAgents(newSelectedAgents);
     
-    // Update form data directly
-    const agentIds = newSelectedAgents.map(agent => agent._id);
+    // Update form data directly (only for non-invite agents)
+    const nonInviteAgents = newSelectedAgents.filter(agent => !agent.isInvite);
+    const agentIds = nonInviteAgents.map(agent => agent._id);
     handleChange({
       target: {
         name: 'agentIds',
@@ -323,6 +333,52 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
         ))}
       </div>
 
+      {/* Form Fields for Agent Invite */}
+      {selectedAgents.some(agent => agent.isInvite) && (
+        <div className="invite-form-section">
+          <h4>Listing Agent Details</h4>
+          <div className="form-row">
+            <div className="form-group">
+              <label>First Name *</label>
+              <input
+                type="text"
+                placeholder="Enter first name"
+                className="form-control"
+                onChange={(e) => {
+                  // Update the invite data with the entered name
+                  const firstName = e.target.value;
+                  setSelectedAgents(prev => 
+                    prev.map(agent => 
+                      agent.isInvite ? { ...agent, firstName: firstName } : agent
+                    )
+                  );
+                }}
+              />
+            </div>
+            <div className="form-group">
+              <label>Last Name *</label>
+              <input
+                type="text"
+                placeholder="Enter last name"
+                className="form-control"
+                onChange={(e) => {
+                  // Update the invite data with the entered name
+                  const lastName = e.target.value;
+                  setSelectedAgents(prev => 
+                    prev.map(agent => 
+                      agent.isInvite ? { ...agent, lastName: lastName } : agent
+                    )
+                  );
+                }}
+              />
+            </div>
+          </div>
+          <p className="invite-note">
+            * Listing agent invitation will be sent automatically when the listing package is created.
+          </p>
+        </div>
+      )}
+
       {/* Team Members Section */}
       <div className="team-members-section">
         <h3>Team Members</h3>
@@ -460,6 +516,13 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
 
       {errors.agent1 && <div className="clp-error">{errors.agent1}</div>}
 
+      {/* Validation for invite agents */}
+      {selectedAgents.some(agent => agent.isInvite && (!agent.firstName || !agent.lastName)) && (
+        <div className="clp-error">
+          Please fill in both first and last name for all invited listing agents.
+        </div>
+      )}
+
       {/* Validation for invite team members */}
       {selectedTeamMembers.some(tm => tm.isInvite && (!tm.firstName || !tm.lastName)) && (
         <div className="clp-error">
@@ -472,7 +535,8 @@ const ListingAgents = ({ formData, errors, handleChange, handleNextStep, handleP
         <button 
           className="clp-next-button" 
           onClick={handleNextStep}
-          disabled={selectedTeamMembers.some(tm => tm.isInvite && (!tm.firstName || !tm.lastName))}
+          disabled={selectedAgents.some(agent => agent.isInvite && (!agent.firstName || !agent.lastName)) || 
+                   selectedTeamMembers.some(tm => tm.isInvite && (!tm.firstName || !tm.lastName))}
         >
           Next
         </button>

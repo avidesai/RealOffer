@@ -23,6 +23,7 @@ function SignupForm() {
   });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [generalError, setGeneralError] = useState('');
@@ -91,6 +92,10 @@ function SignupForm() {
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   const validateForm = () => {
@@ -348,15 +353,25 @@ function SignupForm() {
         </div>
         <div className="sup-form-group">
           <label htmlFor="confirmPassword" className="sup-label">Confirm Password</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            className={`sup-input ${errors.confirmPassword ? 'sup-input-invalid' : ''}`}
-            placeholder="Confirm your password"
-          />
+          <div className="sup-password-field">
+            <input
+              type={showConfirmPassword ? 'text' : 'password'}
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className={`sup-input ${errors.confirmPassword ? 'sup-input-invalid' : ''}`}
+              placeholder="Confirm your password"
+            />
+            <button
+              type="button"
+              onClick={toggleConfirmPasswordVisibility}
+              className="sup-password-toggle"
+              aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+            >
+              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
           {errors.confirmPassword && <div className="sup-error">{errors.confirmPassword}</div>}
         </div>
         <div className="sup-form-group">

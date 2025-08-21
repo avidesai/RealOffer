@@ -225,9 +225,39 @@ const CreateListingPackageLogic = ({ onClose, addNewListing }) => {
                   'Authorization': `Bearer ${token}`
                 }
               });
-              console.log(`Invitation sent to ${invite.inviteEmail}`);
+              console.log(`Team member invitation sent to ${invite.inviteEmail}`);
             } catch (inviteError) {
-              console.error(`Failed to send invitation to ${invite.inviteEmail}:`, inviteError);
+              console.error(`Failed to send team member invitation to ${invite.inviteEmail}:`, inviteError);
+              // Don't fail the entire listing creation if invitation fails
+            }
+          }
+        }
+      }
+      
+      // Send agent invitations if any
+      if (formData.agentIds && formData.agentIds.length > 0) {
+        // Check if any of the selected agents are invites (they won't have _id)
+        const selectedAgents = formData.agentIds.filter(agent => agent.isInvite);
+        if (selectedAgents.length > 0) {
+          console.log('Sending agent invitations...');
+          for (const invite of selectedAgents) {
+            try {
+              await api.post('/api/users/invite-listing-agent', {
+                email: invite.inviteEmail,
+                firstName: invite.firstName,
+                lastName: invite.lastName,
+                listingId: response.data._id,
+                propertyAddress: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zip}`,
+                inviterName: `${user.firstName} ${user.lastName}`,
+                message: ''
+              }, {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              });
+              console.log(`Agent invitation sent to ${invite.inviteEmail}`);
+            } catch (inviteError) {
+              console.error(`Failed to send agent invitation to ${invite.inviteEmail}:`, inviteError);
               // Don't fail the entire listing creation if invitation fails
             }
           }

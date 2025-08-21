@@ -436,6 +436,11 @@
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  position: relative;
 }
 
 .processing-main {
@@ -445,61 +450,55 @@
 
 .processing-header {
   display: flex;
-  align-items: flex-start;
-  gap: 1rem;
+  align-items: center;
+  gap: 1.5rem;
   margin-bottom: 1.5rem;
 }
 
 .processing-header .spinner {
-  width: 24px;
-  height: 24px;
-  border: 2px solid #e9ecef;
-  border-top: 2px solid #007bff;
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e9ecef;
+  border-top: 3px solid #007bff;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   flex-shrink: 0;
-  margin-top: 0.25rem;
-}
-
-.processing-title {
-  flex: 1;
-  min-width: 0;
 }
 
 .processing-title h4 {
-  margin: 0 0 0.5rem 0;
-  color: #2c3e50;
-  font-size: 1.1rem;
-  font-weight: 600;
-  line-height: 1.3;
-}
-
-.processing-subtitle {
   margin: 0;
-  color: #6c757d;
-  font-size: 0.9rem;
-  font-weight: 400;
+  color: #2c3e50;
+  font-size: 1rem;
+  font-weight: 500;
   line-height: 1.4;
 }
 
+.processing-subtitle {
+  margin: 0.5rem 0 0 0;
+  color: #6c757d;
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
 .progress-section {
-  width: 100%;
+  position: relative;
 }
 
 .progress-bar-container {
   width: 100%;
-  height: 8px;
-  background-color: #e9ecef;
-  border-radius: 4px;
+  height: 10px;
+  background-color: #f0f0f0;
+  border-radius: 6px;
   overflow: hidden;
-  margin-bottom: 1rem;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.25rem;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .progress-bar {
   height: 100%;
   background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
-  border-radius: 4px;
+  border-radius: 6px;
   transition: width 0.5s ease;
   box-shadow: 0 1px 3px rgba(0, 123, 255, 0.3);
 }
@@ -508,8 +507,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: 0 0.25rem;
 }
 
 .progress-stats {
@@ -519,32 +518,28 @@
 }
 
 .progress-percentage {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #2c3e50;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  position: absolute;
+  top: -2rem;
+  right: 0;
 }
 
 .progress-fraction {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #6c757d;
   font-weight: 500;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .batch-info {
-  display: flex;
-  align-items: center;
+  text-align: right;
 }
 
 .batch-text {
   font-size: 0.85rem;
   color: #6c757d;
-  font-weight: 500;
-  background: #e9ecef;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  white-space: nowrap;
+  font-weight: 400;
 }
 
 
