@@ -379,7 +379,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
               <div className="docs-tab-document-info">
                 <div className="docs-tab-document-details">
                   <p className="docs-tab-document-title">
-                    {doc.purpose === 'signature_package' && <span className="docs-tab-signature-package-icon">✍🏼 </span>}
+                    {/* {doc.purpose === 'signature_package' && <span className="docs-tab-signature-package-icon">✍🏼 </span>} */}
                     {doc.title || 'Untitled'}
                   </p>
                   <p className="docs-tab-document-type">{doc.type || 'No type'}</p>

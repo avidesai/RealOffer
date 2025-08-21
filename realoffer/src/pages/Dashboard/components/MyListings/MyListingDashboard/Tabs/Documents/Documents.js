@@ -677,7 +677,7 @@ const Documents = ({ listingId }) => {
                 <div className="docs-tab-document-details">
                   {isRenameMode ? (
                     <div className="docs-tab-rename-input-container">
-                      {doc.purpose === 'signature_package' && <span className="docs-tab-signature-package-icon">✍🏼 </span>}
+                      {/* {doc.purpose === 'signature_package' && <span className="docs-tab-signature-package-icon">✍🏼 </span>} */}
                       <input
                         type="text"
                         className="docs-tab-rename-input"
@@ -689,7 +689,7 @@ const Documents = ({ listingId }) => {
                     </div>
                   ) : (
                     <p className="docs-tab-document-title">
-                      {doc.purpose === 'signature_package' && <span className="docs-tab-signature-package-icon">✍🏼 </span>}
+                      {/* {doc.purpose === 'signature_package' && <span className="docs-tab-signature-package-icon">✍🏼 </span>} */}
                       {doc.title || 'Untitled'}
                     </p>
                   )}
