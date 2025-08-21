@@ -543,7 +543,7 @@ class EmailService {
     const mailOptions = {
       from: `"RealOffer" <noreply@realoffer.io>`,
       to: agentEmail,
-      subject: `Your Offer is Under Review - ${propertyAddress}`,
+      subject: `Your Offer Is Being Reviewed - ${propertyAddress}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
@@ -552,7 +552,7 @@ class EmailService {
           <div style="padding: 20px;">
             <h2 style="color: #333;">Hi ${agentName},</h2>
             <p style="color: #666; line-height: 1.6;">
-              Great news! Your offer has been reviewed and is now under consideration.
+              Great news! Your offer has been viewed and is now under consideration.
             </p>
             <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
               <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
@@ -570,7 +570,7 @@ class EmailService {
                 Status: Under Review
               </p>
               <p style="color: #856404; margin: 0; line-height: 1.6;">
-                The listing agent has reviewed your offer and is now considering it. You'll be notified when they respond.
+                The listing agent has viewed your offer and is now considering it. You'll be notified when they respond.
               </p>
             </div>
             <p style="color: #666; line-height: 1.6;">
