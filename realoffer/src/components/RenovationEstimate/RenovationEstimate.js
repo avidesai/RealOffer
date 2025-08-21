@@ -223,7 +223,7 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
                 <div className="processing-header">
                   <div className="spinner"></div>
                   <div className="processing-title">
-                    <h4>Starting analysis...</h4>
+                    <h4>Analyzing property photos...</h4>
                     <p className="processing-subtitle">
                       {processingDetails.processingMessage || 'Analyzing property photos...'}
                     </p>
@@ -251,13 +251,6 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
                   </div>
                 </div>
               </div>
-              
-              <button 
-                onClick={fetchRenovationEstimate}
-                className="manual-refresh-button"
-              >
-                Check Status
-              </button>
             </div>
           </div>
         </div>
@@ -294,9 +287,7 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
   return (
     <div className={`renovation-estimate ${hiddenFromBuyers ? 'renovation-hidden' : ''}`}>
       <div className="renovation-header">
-        <h3>
-          Renovation Estimate
-        </h3>
+        <h3>Renovation Estimate</h3>
         <div className="renovation-actions">
           {showRegenerateButton && (
             <button 
@@ -306,13 +297,7 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
               {hiddenFromBuyers ? 'Show Renovation Estimate' : 'Hide Renovation Estimate'}
             </button>
           )}
-        </div>
-      </div>
-
-      <div className="renovation-content">
-        {/* Regenerate Button - will be hidden behind overlay */}
-        {showRegenerateButton && (
-          <div className="regenerate-button-container">
+          {showRegenerateButton && (
             <button 
               onClick={generateRenovationEstimate}
               disabled={generating}
@@ -320,8 +305,11 @@ const RenovationEstimate = ({ propertyId, showRegenerateButton = true, isHidden 
             >
               {generating ? 'Regenerating...' : 'Regenerate Estimate'}
             </button>
-          </div>
-        )}
+          )}
+        </div>
+      </div>
+
+      <div className="renovation-content">
 
         {/* Summary Stats */}
         <div className="renovation-summary-stats">
