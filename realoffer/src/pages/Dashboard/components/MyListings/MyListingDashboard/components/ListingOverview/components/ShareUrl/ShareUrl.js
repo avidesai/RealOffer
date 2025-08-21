@@ -163,7 +163,9 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
     });
     
     try {
-      const response = await api.post('/api/users/invite-team-member', {
+      const endpoint = shareData.role === 'listingAgent' ? '/api/users/invite-listing-agent' : '/api/users/invite-team-member';
+      
+      const response = await api.post(endpoint, {
         email: inviteData.inviteEmail,
         firstName: shareData.firstName,
         lastName: shareData.lastName,
@@ -294,85 +296,90 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
         return;
       }
 
-      // Ensure the selected agent is not an invite option
-      if (selectedAgent.isInvite) {
-        setError('Listing agents must already have an account in the system. Please search for an existing agent.');
-        return;
-      }
-
-      // Check if current user has permission to add listing agents
-      const isCreator = currentListing?.createdBy?.toString() === user._id;
-      const isAgent = currentListing?.agentIds?.some(id => id.toString() === user._id);
-      
-      if (!isCreator && !isAgent) {
-        setError('Only listing agents can add other listing agents.');
-        return;
-      }
-
       setIsSharing(true);
       setError('');
 
       try {
-        // Get current listing to preserve existing agents
-        const listingResponse = await api.get(`/api/propertyListings/${listingId}`);
-        const currentListing = listingResponse.data;
-        const currentAgentIds = currentListing.agentIds || [];
-        
-        // Check if we're at the maximum agent limit (2 agents total)
-        if (currentAgentIds.length >= 2) {
-          setError('Maximum of 2 listing agents allowed. Please remove an existing agent first.');
-          return;
-        }
-        
-        // Check if the selected agent is already an agent
-        if (currentAgentIds.some(id => id.toString() === selectedAgent._id)) {
-          setError('This agent is already associated with this listing.');
-          return;
-        }
-        
-        // Special case: If we're at the limit and current user is not the creator, 
-        // allow replacing the current user with the selected agent
-        if (currentAgentIds.length >= 2) {
-          const isCreator = currentListing.createdBy.toString() === user._id;
-          if (isCreator) {
-            setError('Maximum of 2 listing agents allowed. Please remove an existing agent first.');
-            return;
-          } else {
-            // Replace current user with selected agent
-            const updatedAgentIds = currentAgentIds.filter(id => id.toString() !== user._id);
-            updatedAgentIds.push(selectedAgent._id);
-            
-            await api.put(`/api/propertyListings/${listingId}`, {
-              agentIds: updatedAgentIds
-            });
-
-            setShareSuccess(true);
-            setSelectedAgent(null);
-            
-            // Auto-close after 3 seconds
-            setTimeout(() => {
-              setShareSuccess(false);
-              onClose();
-            }, 3000);
+        if (selectedAgent.isInvite) {
+          // Handle agent invitation
+          if (!shareData.firstName.trim() || !shareData.lastName.trim()) {
+            setError('Please fill in the first and last name for the invitation.');
             return;
           }
-        }
-        
-        // Normal case: Add the selected agent to existing agents
-        const updatedAgentIds = [...currentAgentIds, selectedAgent._id];
-        
-        await api.put(`/api/propertyListings/${listingId}`, {
-          agentIds: updatedAgentIds
-        });
 
-        setShareSuccess(true);
-        setSelectedAgent(null);
-        
-        // Auto-close after 3 seconds
-        setTimeout(() => {
-          setShareSuccess(false);
-          onClose();
-        }, 3000);
+          await inviteTeamMember(selectedAgent);
+          
+          setShareSuccess(true);
+          setSelectedAgent(null);
+          
+          // Auto-close after 3 seconds
+          setTimeout(() => {
+            setShareSuccess(false);
+            onClose();
+          }, 3000);
+        } else {
+          // Handle existing agent addition
+          // Get current listing to preserve existing agents
+          const listingResponse = await api.get(`/api/propertyListings/${listingId}`);
+          const currentListing = listingResponse.data;
+          const currentAgentIds = currentListing.agentIds || [];
+          
+          // Check if we're at the maximum agent limit (2 agents total)
+          if (currentAgentIds.length >= 2) {
+            setError('Maximum of 2 listing agents allowed. Please remove an existing agent first.');
+            return;
+          }
+          
+          // Check if the selected agent is already an agent
+          if (currentAgentIds.some(id => id.toString() === selectedAgent._id)) {
+            setError('This agent is already associated with this listing.');
+            return;
+          }
+          
+          // Special case: If we're at the limit and current user is not the creator, 
+          // allow replacing the current user with the selected agent
+          if (currentAgentIds.length >= 2) {
+            const isCreator = currentListing.createdBy.toString() === user._id;
+            if (isCreator) {
+              setError('Maximum of 2 listing agents allowed. Please remove an existing agent first.');
+              return;
+            } else {
+              // Replace current user with selected agent
+              const updatedAgentIds = currentAgentIds.filter(id => id.toString() !== user._id);
+              updatedAgentIds.push(selectedAgent._id);
+              
+              await api.put(`/api/propertyListings/${listingId}`, {
+                agentIds: updatedAgentIds
+              });
+
+              setShareSuccess(true);
+              setSelectedAgent(null);
+              
+              // Auto-close after 3 seconds
+              setTimeout(() => {
+                setShareSuccess(false);
+                onClose();
+              }, 3000);
+              return;
+            }
+          }
+          
+          // Normal case: Add the selected agent to existing agents
+          const updatedAgentIds = [...currentAgentIds, selectedAgent._id];
+          
+          await api.put(`/api/propertyListings/${listingId}`, {
+            agentIds: updatedAgentIds
+          });
+
+          setShareSuccess(true);
+          setSelectedAgent(null);
+          
+          // Auto-close after 3 seconds
+          setTimeout(() => {
+            setShareSuccess(false);
+            onClose();
+          }, 3000);
+        }
       } catch (error) {
         console.error('Error adding listing agent:', error);
         console.error('Error response data:', error.response?.data);
@@ -621,7 +628,10 @@ const ShareUrl = ({ isOpen, onClose, url, listingId }) => {
                     {/* Invitation status messages */}
                     {inviteSuccess && (
                       <div className="invite-success">
-                        ✓ {isExistingUser ? 'User added to team successfully!' : 'Invitation sent successfully!'}
+                        ✓ {isExistingUser 
+                          ? (shareData.role === 'listingAgent' ? 'User added as agent successfully!' : 'User added to team successfully!')
+                          : 'Invitation sent successfully!'
+                        }
                       </div>
                     )}
                     {inviteError && (

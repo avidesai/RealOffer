@@ -865,3 +865,139 @@ exports.sendTeamMemberInvitation = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.sendListingAgentInvitation = async (req, res) => {
+    try {
+        const { email, firstName, lastName, listingId, propertyAddress, inviterName, message } = req.body;
+        
+        console.log('Listing agent invitation request:', {
+            email,
+            firstName,
+            lastName,
+            listingId,
+            propertyAddress,
+            inviterName,
+            message
+        });
+        
+        // Validate required fields
+        if (!email || !listingId || !propertyAddress || !inviterName) {
+            return res.status(400).json({ 
+                message: 'Missing required fields: email, listingId, propertyAddress, and inviterName are required' 
+            });
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ 
+                message: 'Invalid email format' 
+            });
+        }
+
+        // Check if user already exists
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
+        if (existingUser) {
+            // For listing agent invitations, we can invite existing users
+            // Just add them to the listing agents instead of creating a new account
+            console.log('Existing user found for listing agent invitation:', existingUser.email);
+            
+            // Add the existing user to the listing's agents
+            const PropertyListing = require('../models/PropertyListing');
+            const listing = await PropertyListing.findById(listingId);
+            if (!listing) {
+                return res.status(404).json({ 
+                    message: 'Listing not found' 
+                });
+            }
+            
+            // Check if user is already an agent
+            const currentAgentIds = listing.agentIds || [];
+            if (currentAgentIds.some(id => id.toString() === existingUser._id.toString())) {
+                return res.status(409).json({ 
+                    message: 'This user is already a listing agent for this listing' 
+                });
+            }
+            
+            // Check if we're at the maximum agent limit (2 agents)
+            if (currentAgentIds.length >= 2) {
+                return res.status(400).json({ 
+                    message: 'Maximum of 2 listing agents allowed. Please remove an existing agent first.' 
+                });
+            }
+            
+            // Add user to agents
+            const updatedAgentIds = [...currentAgentIds, existingUser._id];
+            await PropertyListing.findByIdAndUpdate(listingId, {
+                agentIds: updatedAgentIds
+            });
+            
+            // Send notification email to existing user
+            const emailResult = await emailService.sendListingAgentAddedNotification(
+                existingUser.email,
+                `${existingUser.firstName} ${existingUser.lastName}`,
+                propertyAddress,
+                inviterName
+            );
+            
+            if (emailResult.success) {
+                res.status(200).json({ 
+                    message: 'Existing user added as listing agent successfully',
+                    email: email,
+                    userExists: true
+                });
+            } else {
+                res.status(500).json({ 
+                    message: 'Failed to send notification email',
+                    error: emailResult.error 
+                });
+            }
+            return;
+        }
+
+        // Get the listing to access its publicUrl
+        const PropertyListing = require('../models/PropertyListing');
+        const listing = await PropertyListing.findById(listingId);
+        if (!listing) {
+            return res.status(404).json({ 
+                message: 'Listing not found' 
+            });
+        }
+
+        if (!listing.publicUrl) {
+            return res.status(400).json({ 
+                message: 'Listing does not have a public URL' 
+            });
+        }
+
+        // Extract the token from the publicUrl
+        const publicUrlToken = listing.publicUrl.split('/').pop();
+        
+        // Send invitation email
+        const emailResult = await emailService.sendListingAgentInvitation(
+            email,
+            firstName || 'Listing Agent',
+            lastName || '',
+            inviterName,
+            propertyAddress,
+            publicUrlToken,
+            listingId,
+            message || ''
+        );
+
+        if (emailResult.success) {
+            res.status(200).json({ 
+                message: 'Listing agent invitation sent successfully',
+                email: email
+            });
+        } else {
+            res.status(500).json({ 
+                message: 'Failed to send invitation email',
+                error: emailResult.error 
+            });
+        }
+    } catch (error) {
+        console.error('Error sending listing agent invitation:', error);
+        res.status(500).json({ message: error.message });
+    }
+};

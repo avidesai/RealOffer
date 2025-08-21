@@ -81,7 +81,8 @@ const PublicFacingListing = () => {
         lastName: sharedLastName,
         email: sharedEmail,
         role: sharedRole === 'buyerAgent' ? 'agent' : 
-              sharedRole === 'teamMember' ? 'agent' : 'buyer' // Team members sign up as agents
+              sharedRole === 'teamMember' ? 'agent' : 
+              sharedRole === 'listingAgent' ? 'agent' : 'buyer' // Team members and listing agents sign up as agents
       }));
     }
   }, [searchParams, user]);
@@ -561,13 +562,79 @@ const PublicFacingListing = () => {
                 console.log('Team member assignment failed, redirecting to dashboard');
                 window.location.href = '/dashboard';
               }
-                          } catch (error) {
-                console.error('Error adding user as team member:', error);
+            } catch (error) {
+              console.error('Error adding user as team member:', error);
+              
+              // If team member assignment fails, redirect to dashboard instead
+              console.log('Team member assignment failed due to error, redirecting to dashboard');
+              window.location.href = '/dashboard';
+            }
+            return;
+          }
+          
+          // Check if this is a listing agent invitation (from URL parameters)
+          if (sharedRole === 'listingAgent') {
+            // Add the user as a listing agent to this listing
+            try {
+              console.log('Adding user as listing agent:', { userId, listingId: listing._id });
+              
+              // Get current listing to check agent count
+              const listingResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listing._id}`);
+              const currentListing = await listingResponse.json();
+              
+              if (currentListing.agentIds && currentListing.agentIds.length >= 2) {
+                console.error('Maximum of 2 listing agents allowed');
+                // If at limit, redirect to dashboard
+                window.location.href = '/dashboard';
+                return;
+              }
+              
+              // Add user to agents
+              const currentAgentIds = currentListing.agentIds || [];
+              const updatedAgentIds = [...currentAgentIds, userId];
+              
+              const updateListingResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/propertyListings/${listing._id}`, {
+                method: 'PUT',
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${loginData.token}`
+                },
+                body: JSON.stringify({
+                  agentIds: updatedAgentIds
+                }),
+              });
+              
+              if (updateListingResponse.ok) {
+                console.log('User added as listing agent to listing successfully');
                 
-                // If team member assignment fails, redirect to dashboard instead
-                console.log('Team member assignment failed due to error, redirecting to dashboard');
+                // Wait a moment to ensure the backend has processed the assignment
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Ensure the user data is properly stored in localStorage
+                if (loginData && loginData.user && loginData.token) {
+                  localStorage.setItem('user', JSON.stringify(loginData.user));
+                  localStorage.setItem('token', loginData.token);
+                  console.log('User data stored in localStorage:', loginData.user);
+                }
+                
+                // For listing agents, redirect to the listing dashboard
+                console.log('Redirecting to listing dashboard:', `/mylisting/${listing._id}`);
+                window.location.href = `/mylisting/${listing._id}`;
+              } else {
+                const errorData = await updateListingResponse.json();
+                console.error('Failed to add user as listing agent:', errorData);
+                
+                // If listing agent assignment fails, redirect to dashboard instead
+                console.log('Listing agent assignment failed, redirecting to dashboard');
                 window.location.href = '/dashboard';
               }
+            } catch (error) {
+              console.error('Error adding user as listing agent:', error);
+              
+              // If listing agent assignment fails, redirect to dashboard instead
+              console.log('Listing agent assignment failed due to error, redirecting to dashboard');
+              window.location.href = '/dashboard';
+            }
             return;
           }
           

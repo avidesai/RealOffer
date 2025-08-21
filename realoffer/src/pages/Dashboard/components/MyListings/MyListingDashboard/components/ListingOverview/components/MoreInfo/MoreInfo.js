@@ -262,39 +262,48 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
 
   // Add agent to selected list
   const addAgent = async (agent) => {
-    if (selectedAgents.length >= 1) {
-      setError('Maximum of 1 additional agent allowed.');
-      return;
-    }
-
-    // Check if current user has permission to add listing agents
-    const isCreator = listing?.createdBy?.toString() === user._id;
-    const isAgent = listing?.agentIds?.some(id => {
-      const agentId = typeof id === 'object' ? id._id : id;
-      return agentId === user._id;
-    });
-    
-    if (!isCreator && !isAgent) {
-      setError('Only listing agents can add other listing agents.');
-      return;
-    }
-
-    try {
-      const allAgentIds = [user._id, ...selectedAgents.map(a => a._id), agent._id];
-      
-      await api.put(`/api/propertyListings/${listingId}`, {
-        agentIds: allAgentIds
-      });
-
+    if (agent.isInvite) {
+      // For invite options, add to selected and show form fields
       setSelectedAgents([...selectedAgents, agent]);
       setSearchQuery('');
       setSearchResults([]);
       setShowDropdown(false);
-      setHasChanges(true);
-      setError(null);
-    } catch (error) {
-      console.error('Error adding agent:', error);
-      setError('Failed to add agent. Please try again.');
+    } else {
+      // For existing users, add directly
+      if (selectedAgents.length >= 1) {
+        setError('Maximum of 1 additional agent allowed.');
+        return;
+      }
+
+      // Check if current user has permission to add listing agents
+      const isCreator = listing?.createdBy?.toString() === user._id;
+      const isAgent = listing?.agentIds?.some(id => {
+        const agentId = typeof id === 'object' ? id._id : id;
+        return agentId === user._id;
+      });
+      
+      if (!isCreator && !isAgent) {
+        setError('Only listing agents can add other listing agents.');
+        return;
+      }
+
+      try {
+        const allAgentIds = [user._id, ...selectedAgents.map(a => a._id), agent._id];
+        
+        await api.put(`/api/propertyListings/${listingId}`, {
+          agentIds: allAgentIds
+        });
+
+        setSelectedAgents([...selectedAgents, agent]);
+        setSearchQuery('');
+        setSearchResults([]);
+        setShowDropdown(false);
+        setHasChanges(true);
+        setError(null);
+      } catch (error) {
+        console.error('Error adding agent:', error);
+        setError('Failed to add agent. Please try again.');
+      }
     }
   };
 
@@ -370,6 +379,48 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
     }
   };
 
+  // Invite listing agent who doesn't have an account
+  const inviteListingAgent = async (inviteData, firstName, lastName) => {
+    setInvitingTeamMember(true);
+    setInviteError('');
+    
+    try {
+      const response = await api.post('/api/users/invite-listing-agent', {
+        email: inviteData.inviteEmail,
+        firstName: firstName,
+        lastName: lastName,
+        listingId: listingId,
+        propertyAddress: listing.homeCharacteristics.address,
+        inviterName: `${user.firstName} ${user.lastName}`,
+        message: ''
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      console.log('Agent invitation response:', response.data);
+      setInviteSuccess(true);
+      setSearchQuery('');
+      setSearchResults([]);
+      setShowDropdown(false);
+      
+      // Remove the invite from selected agents
+      setSelectedAgents(prev => prev.filter(agent => agent._id !== inviteData._id));
+      
+      // Show success message for a few seconds
+      setTimeout(() => {
+        setInviteSuccess(false);
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Error inviting listing agent:', error);
+      setInviteError(error.response?.data?.message || 'Failed to send invitation. Please try again.');
+    } finally {
+      setInvitingTeamMember(false);
+    }
+  };
+
   // Remove agent from selected list
   const removeAgent = async (agentId) => {
     try {
@@ -381,7 +432,10 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
       }
 
       const newSelectedAgents = selectedAgents.filter(agent => agent._id !== agentId);
-      const allAgentIds = [user._id, ...newSelectedAgents.map(a => a._id)];
+      
+      // Only make API call for non-invite agents
+      const nonInviteAgents = newSelectedAgents.filter(agent => !agent.isInvite);
+      const allAgentIds = [user._id, ...nonInviteAgents.map(a => a._id)];
       
       await api.put(`/api/propertyListings/${listingId}`, {
         agentIds: allAgentIds
@@ -897,28 +951,93 @@ const MoreInfo = ({ isOpen, onClose, listingId }) => {
                 {selectedAgents.map(agent => (
                   <div key={agent._id} className="mlmi-selected-agent-item">
                     <div className="mlmi-agent-info">
-                      <span className="mlmi-agent-name">{`${agent.firstName} ${agent.lastName}`}</span>
+                      <span className="mlmi-agent-name">
+                        {agent.isInvite ? `Invite ${agent.firstName} ${agent.lastName}` : `${agent.firstName} ${agent.lastName}`}
+                      </span>
                       {agent.phone && (
                         <span className="mlmi-agent-phone">{agent.phone}</span>
                       )}
                       <span className="mlmi-agent-email">{agent.email}</span>
-                      {agent.agencyName && (
+                      {agent.agencyName && !agent.isInvite && (
                         <span className="mlmi-agent-agency">{agent.agencyName}</span>
                       )}
                     </div>
-                    {(isUserPrimaryAgent() || isUserAdditionalAgent()) && 
-                     listing.createdBy.toString() !== agent._id && (
-                      <button
-                        type="button"
-                        className="mlmi-remove-agent-btn"
-                        onClick={() => removeAgent(agent._id)}
-                      >
-                        ×
-                      </button>
-                    )}
+                    <div className="mlmi-agent-actions">
+                      {agent.isInvite && (
+                        <span className="mlmi-team-member-badge">Send Invitation</span>
+                      )}
+                      {(isUserPrimaryAgent() || isUserAdditionalAgent()) && 
+                       listing.createdBy.toString() !== agent._id && (
+                        <button
+                          type="button"
+                          className="mlmi-remove-agent-btn"
+                          onClick={() => removeAgent(agent._id)}
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
+
+              {/* Form Fields for Agent Invite */}
+              {selectedAgents.some(agent => agent.isInvite) && (
+                <div className="mlmi-invite-form-section">
+                  <h4>Invitation Details</h4>
+                  <div className="mlmi-form-row">
+                    <div className="mlmi-form-group">
+                      <label>First Name</label>
+                      <input
+                        type="text"
+                        placeholder="Enter first name"
+                        className="mlmi-form-control"
+                        onChange={(e) => {
+                          // Update the invite data with the entered name
+                          const firstName = e.target.value;
+                          setSelectedAgents(prev => 
+                            prev.map(agent => 
+                              agent.isInvite ? { ...agent, firstName: firstName } : agent
+                            )
+                          );
+                        }}
+                      />
+                    </div>
+                    <div className="mlmi-form-group">
+                      <label>Last Name</label>
+                      <input
+                        type="text"
+                        placeholder="Enter last name"
+                        className="mlmi-form-control"
+                        onChange={(e) => {
+                          // Update the invite data with the entered name
+                          const lastName = e.target.value;
+                          setSelectedAgents(prev => 
+                            prev.map(agent => 
+                              agent.isInvite ? { ...agent, lastName: lastName } : agent
+                            )
+                          );
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="mlmi-invite-send-btn"
+                    onClick={() => {
+                      const invite = selectedAgents.find(agent => agent.isInvite);
+                      if (invite && invite.firstName && invite.lastName) {
+                        inviteListingAgent(invite, invite.firstName, invite.lastName);
+                      } else {
+                        setError('Please fill in both first and last name for the invitation.');
+                      }
+                    }}
+                    disabled={invitingTeamMember}
+                  >
+                    {invitingTeamMember ? 'Sending...' : 'Send Invitation'}
+                  </button>
+                </div>
+              )}
 
               {/* Emergency section: Remove self as agent if stuck */}
               {listing && listing.agentIds && listing.agentIds.length >= 2 && 
