@@ -91,6 +91,12 @@ const Activity = ({ listingId }) => {
     const timeWindow = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
 
     activities.forEach(activity => {
+      // Skip activities with null user or handle them separately
+      if (!activity.user) {
+        console.warn('Activity with null user found:', activity);
+        return; // Skip this activity
+      }
+      
       const userId = activity.user._id;
       if (!userGroups[userId]) {
         userGroups[userId] = [];
@@ -141,7 +147,7 @@ const Activity = ({ listingId }) => {
 
       return {
         userId,
-        user: userActivities[0].user,
+        user: userActivities[0]?.user || null,
         activities: processedActivities,
         totalActivities: userActivities.length,
         lastActivity: processedActivities[0] // Most recent activity
