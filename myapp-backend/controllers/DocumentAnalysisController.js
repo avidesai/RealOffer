@@ -469,7 +469,7 @@ Ignore all unselected checkboxes and standard legal or template text. Focus only
 
 Organize your summary with the following structure, using clear section headers and bullet points:
 
-## 1. Maintenance, Repairs, and Upgrades
+## Maintenance, Repairs, and Upgrades
 
 List any upgrades, renovations, repairs, or replacements made to the property (interior or exterior).
 
@@ -477,7 +477,7 @@ List any upgrades, renovations, repairs, or replacements made to the property (i
 • Include recurring or seasonal maintenance routines (e.g., gutter cleaning, HVAC servicing)
 • Highlight any major improvements or renovations
 
-## 2. Known Issues or Defects
+## Known Issues or Defects
 
 Summarize any current or past problems with systems or structures (e.g., plumbing, electrical, HVAC, windows, roof, drainage).
 
@@ -485,7 +485,7 @@ Summarize any current or past problems with systems or structures (e.g., plumbin
 • Include any mention of past water intrusion, slow drains, moisture, or mold-related problems
 • Note the severity and impact of any issues
 
-## 3. Environmental & External Conditions
+## Environmental & External Conditions
 
 Note any natural features or risks disclosed: proximity to rivers, past flooding, soil saturation, high water tables, etc.
 
@@ -493,21 +493,21 @@ Note any natural features or risks disclosed: proximity to rivers, past flooding
 • If the seller mentioned cannabis use, smoking, or industrial nuisances, include that as well
 • Note any environmental hazards or concerns
 
-## 4. Neighborhood and Surrounding Factors
+## Neighborhood and Surrounding Factors
 
 **Death on Property (Past 3 Years):** [State whether the seller disclosed a death on the property in the past 3 years - "Yes, seller disclosed a death on the property." or "No death on the property was disclosed." or "No information provided regarding death on the property."]
 
 • Summarize any issues disclosed about neighbors, road noise, nearby businesses, odors, or wildlife activity
 • Note any neighborhood nuisances or benefits mentioned
 
-## 5. Legal, Easements, and Ownership Notes
+## Legal, Easements, and Ownership Notes
 
 Note any shared structures (fences, driveways), easements, boundary disputes, or public access disclosures.
 
 • Mention if the seller disclosed any liens, HOA disputes, lawsuits, or other legal claims
 • Include any boundary or access issues
 
-## 6. HOA and Community Restrictions
+## HOA and Community Restrictions
 
 If the property is in an HOA, list:
 
@@ -516,7 +516,7 @@ If the property is in an HOA, list:
 • Common areas maintained
 • Restrictions (e.g., basketball hoops, architectural approvals)
 
-## 7. Cosmetic and Other Notable Disclosures
+## Cosmetic and Other Notable Disclosures
 
 Mention any wear and tear, stains, markings, or cosmetic imperfections disclosed by the seller that may impact buyer perception.
 
