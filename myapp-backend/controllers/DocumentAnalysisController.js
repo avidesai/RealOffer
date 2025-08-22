@@ -357,6 +357,8 @@ Include a 1-sentence explanation if useful (max 2 sentences).
 
 Write clearly and helpfully. Avoid dollar figures. This summary should let regular buyers and agents quickly grasp what matters most.
 
+Use consistent formatting with proper bullet points and clear section headers.
+
 Report content:
 ${text}`;
     } else if (document.type === 'Roof Inspection Report') {
@@ -434,22 +436,29 @@ Mention whether the property has no major pest issues, some moderate concerns, o
 
 List any active signs of termites, wood-destroying organisms, or other pests.
 
-- Specify the type (subterranean termites, drywood termites, fungus, etc.).
-- Indicate where the infestation was found and whether it is considered minor, moderate, or severe.
+• Specify the type (subterranean termites, drywood termites, fungus, etc.)
+• Indicate where the infestation was found and whether it is considered minor, moderate, or severe
+• Note the extent and severity of any infestations
 
 ## Areas of Damage
 
 Summarize any physical damage caused by pests, including wood rot, structural weakening, or other deterioration.
 
-Indicate whether the damage is structural or surface-level and where it is located.
+• Indicate whether the damage is structural or surface-level and where it is located
+• Note the severity and potential impact of any damage
+• Mention any areas that may need immediate attention
 
 ## Treatment Recommendations
 
 List each recommended treatment (e.g., fumigation, local treatment, wood replacement, moisture correction).
 
-Label each one as **urgent**, **recommended**, or **preventative** based on the report's language.
+• Label each one as **urgent**, **recommended**, or **preventative** based on the report's language
+• Provide brief explanations for why each treatment is recommended
+• Note any timeline considerations for treatments
 
 Write clearly and use bullet points wherever possible. Avoid overly technical or inspection-specific jargon. This analysis should be useful to both real estate agents and everyday home buyers who are not experts in construction or pest management.
+
+Use consistent formatting with proper bullet points and clear section headers.
 
 Report content:
 ${text}`;
@@ -458,60 +467,65 @@ ${text}`;
 
 Ignore all unselected checkboxes and standard legal or template text. Focus only on content actually provided by the seller — either through checked boxes, explanations, or added notes.
 
-Organize your summary with the following structure:
+Organize your summary with the following structure, using clear section headers and bullet points:
 
 ## 1. Maintenance, Repairs, and Upgrades
 
 List any upgrades, renovations, repairs, or replacements made to the property (interior or exterior).
 
-Mention the year and vendor/contractor if provided.
-
-Include recurring or seasonal maintenance routines (e.g., gutter cleaning, HVAC servicing).
+• Mention the year and vendor/contractor if provided
+• Include recurring or seasonal maintenance routines (e.g., gutter cleaning, HVAC servicing)
+• Highlight any major improvements or renovations
 
 ## 2. Known Issues or Defects
 
 Summarize any current or past problems with systems or structures (e.g., plumbing, electrical, HVAC, windows, roof, drainage).
 
-Indicate whether the seller states the issue was resolved or still active.
-
-Include any mention of past water intrusion, slow drains, moisture, or mold-related problems.
+• Indicate whether the seller states the issue was resolved or still active
+• Include any mention of past water intrusion, slow drains, moisture, or mold-related problems
+• Note the severity and impact of any issues
 
 ## 3. Environmental & External Conditions
 
 Note any natural features or risks disclosed: proximity to rivers, past flooding, soil saturation, high water tables, etc.
 
-Include any comments about pests, wildlife, or pet-related conditions.
-
-If the seller mentioned cannabis use, smoking, or industrial nuisances, include that as well.
+• Include any comments about pests, wildlife, or pet-related conditions
+• If the seller mentioned cannabis use, smoking, or industrial nuisances, include that as well
+• Note any environmental hazards or concerns
 
 ## 4. Neighborhood and Surrounding Factors
 
 **Death on Property (Past 3 Years):** [State whether the seller disclosed a death on the property in the past 3 years - "Yes, seller disclosed a death on the property." or "No death on the property was disclosed." or "No information provided regarding death on the property."]
 
-Summarize any issues disclosed about neighbors, road noise, nearby businesses, odors, or wildlife activity.
+• Summarize any issues disclosed about neighbors, road noise, nearby businesses, odors, or wildlife activity
+• Note any neighborhood nuisances or benefits mentioned
 
 ## 5. Legal, Easements, and Ownership Notes
 
 Note any shared structures (fences, driveways), easements, boundary disputes, or public access disclosures.
 
-Mention if the seller disclosed any liens, HOA disputes, lawsuits, or other legal claims.
+• Mention if the seller disclosed any liens, HOA disputes, lawsuits, or other legal claims
+• Include any boundary or access issues
 
 ## 6. HOA and Community Restrictions
 
 If the property is in an HOA, list:
 
-- HOA name
-- Monthly dues
-- Common areas maintained
-- Restrictions (e.g., basketball hoops, architectural approvals)
+• HOA name
+• Monthly dues
+• Common areas maintained
+• Restrictions (e.g., basketball hoops, architectural approvals)
 
 ## 7. Cosmetic and Other Notable Disclosures
 
 Mention any wear and tear, stains, markings, or cosmetic imperfections disclosed by the seller that may impact buyer perception.
 
-Include any general material facts the seller added that don't fit cleanly into another section.
+• Include any general material facts the seller added that don't fit cleanly into another section
+• Note any items that may need attention or replacement
 
-Write your summary in a clear, readable format, using bullet points or short paragraphs. Keep the language natural and useful to buyers and agents — avoid legal terms or form language. If no material disclosures were made in a section, simply skip that section.
+Write your summary in a clear, readable format with proper bullet points and concise language. Keep the language natural and useful to buyers and agents — avoid legal terms or form language. If no material disclosures were made in a section, simply skip that section.
+
+Use consistent formatting and ensure each bullet point is clear and actionable for buyers.
 
 Report content:
 ${text}`;
@@ -532,22 +546,24 @@ Mention any general details the seller provided about the property, such as roof
 
 List key home features the seller confirmed are present (e.g., oven, water heater, sprinklers, pool, solar, garage door openers).
 
-Include any custom or non-standard additions (e.g., Tesla charger, fountain, TV equipment).
+• Include any custom or non-standard additions (e.g., Tesla charger, fountain, TV equipment)
+• Note any special features or upgrades mentioned
 
 ## 3. Items in Need of Repair or Not in Working Order
 
 Highlight any appliances, fixtures, or systems the seller disclosed as broken, malfunctioning, or in poor condition.
 
-Be specific about location or context if the seller provided it (e.g., "broken roof tile above garage").
+• Be specific about location or context if the seller provided it (e.g., "broken roof tile above garage")
+• Note the severity and impact of any issues
 
 ## 4. Structural and Material Defects
 
 Summarize any seller-reported issues related to:
 
-- Foundation
-- Roofing
-- Windows, floors, doors
-- Electrical, plumbing, sewer, or insulation
+• Foundation
+• Roofing
+• Windows, floors, doors
+• Electrical, plumbing, sewer, or insulation
 
 Clearly note if the seller added descriptive detail (e.g., "scrapes and dings in wood floors").
 
@@ -555,22 +571,22 @@ Clearly note if the seller added descriptive detail (e.g., "scrapes and dings in
 
 List any environmental hazards, easements, zoning issues, or property modifications disclosed by the seller.
 
-Include notes on:
-
-- Shared structures or boundaries
-- Drainage/fill concerns
-- HOA presence and dues
-- Any mention of neighborhood nuisances (e.g., road noise, helicopters, vineyard equipment)
+• Shared structures or boundaries
+• Drainage/fill concerns
+• HOA presence and dues
+• Any mention of neighborhood nuisances (e.g., road noise, helicopters, vineyard equipment)
 
 ## 6. HOA and Community Restrictions
 
 If the seller disclosed that the home is part of an HOA:
 
-- Include the HOA name
-- Monthly dues
-- Any noted CC&Rs or architectural limitations
+• Include the HOA name
+• Monthly dues
+• Any noted CC&Rs or architectural limitations
 
 Write the summary in clean, bullet-point or short-paragraph form. Avoid repeating form questions or legal language. The output should be immediately useful to both agents and homebuyers without requiring them to read the full form.
+
+Use consistent formatting with proper bullet points and clear section headers.
 
 Report content:
 ${text}`;
