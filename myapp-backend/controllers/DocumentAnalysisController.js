@@ -323,17 +323,41 @@ Write 3–4 sentences summarizing the home's general state and biggest strengths
 Label each system with ✅ Good, ⚠️ Needs attention, or ❌ Problem found.  
 If ⚠️ or ❌, add 1–2 sentences explaining why.
 
-**Roof**: [status] [explanation if needed]
+✅ **Roof**: [explanation if good]
 
-**Foundation**: [status] [explanation if needed]
+⚠️ **Roof**: [explanation if needs attention]
 
-**Plumbing**: [status] [explanation if needed]
+❌ **Roof**: [explanation if problem found]
 
-**Electrical**: [status] [explanation if needed]
+✅ **Foundation**: [explanation if good]
 
-**HVAC**: [status] [explanation if needed]
+⚠️ **Foundation**: [explanation if needs attention]
 
-**Water Heater**: [status] [explanation if needed]
+❌ **Foundation**: [explanation if problem found]
+
+✅ **Plumbing**: [explanation if good]
+
+⚠️ **Plumbing**: [explanation if needs attention]
+
+❌ **Plumbing**: [explanation if problem found]
+
+✅ **Electrical**: [explanation if good]
+
+⚠️ **Electrical**: [explanation if needs attention]
+
+❌ **Electrical**: [explanation if problem found]
+
+✅ **HVAC**: [explanation if good]
+
+⚠️ **HVAC**: [explanation if needs attention]
+
+❌ **HVAC**: [explanation if problem found]
+
+✅ **Water Heater**: [explanation if good]
+
+⚠️ **Water Heater**: [explanation if needs attention]
+
+❌ **Water Heater**: [explanation if problem found]
 
 ---
 

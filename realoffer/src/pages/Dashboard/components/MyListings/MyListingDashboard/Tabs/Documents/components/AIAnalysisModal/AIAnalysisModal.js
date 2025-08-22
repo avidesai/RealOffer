@@ -22,19 +22,19 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTi
   const getModalTitle = () => {
     console.log('AIAnalysisModal - documentType:', documentType);
     if (documentType && documentType.toLowerCase().includes('pest')) {
-      return 'Pest Inspection Report Analysis';
+      return 'Pest Inspection Report Summary';
     } else if (documentType && documentType.toLowerCase().includes('roof inspection')) {
-      return 'Roof Inspection Report Analysis';
+      return 'Roof Inspection Report Summary';
     } else if (documentType && documentType.toLowerCase().includes('sewer lateral')) {
-      return 'Sewer Lateral Inspection Analysis';
+      return 'Sewer Lateral Inspection Summary';
     } else if (documentType && documentType.toLowerCase().includes('seller property questionnaire')) {
-      return 'Seller Property Questionnaire Analysis';
+      return 'Seller Property Questionnaire Summary';
     } else if (documentType && documentType.toLowerCase().includes('real estate transfer disclosure statement')) {
-      return 'Transfer Disclosure Statement Analysis';
+      return 'Transfer Disclosure Statement Summary';
     } else if (documentType && documentType.toLowerCase().includes('agent visual inspection')) {
-      return 'Agent Visual Inspection Disclosure Analysis';
+      return 'Agent Visual Inspection Disclosure Summary';
     }
-    return 'Home Inspection Report Analysis';
+    return 'Home Inspection Report Summary';
   };
 
   const getProgressMessage = (progress) => {
@@ -298,10 +298,10 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTi
               </div>
               <div className="aam-actions">
                 <button className="aam-download-button" onClick={handleDownload}>
-                  Download Analysis
+                  Download
                 </button>
                 <button className="aam-refresh-button" onClick={handleRefreshAnalysis}>
-                  Refresh Analysis
+                  Refresh
                 </button>
               </div>
             </>
