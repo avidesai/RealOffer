@@ -248,21 +248,31 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
   };
 
   const handleDownloadAllDocuments = async () => {
-    if (documents.length === 0) return;
+    console.log('handleDownloadAllDocuments called, documents length:', documents.length);
+    console.log('documents:', documents);
+    
+    if (documents.length === 0) {
+      console.log('No documents to download');
+      return;
+    }
     
     if (documents.length === 1) {
+      console.log('Single document download');
       // Single document download
       handleDownloadDocument(documents[0]);
       return;
     }
     
+    console.log('Multiple documents - downloading as zip');
     // Multiple documents - download as zip
     try {
       const zip = new JSZip();
       
-      // Record download activity for each document
-      const activityPromises = documents.map(async (doc) => {
+      // Record download activity for each document sequentially to avoid overwhelming the server
+      console.log('Recording download activity for', documents.length, 'documents');
+      for (const doc of documents) {
         try {
+          console.log('Recording download for document:', doc.title, 'ID:', doc._id);
           await api.post(`/api/buyerPackages/download`, {
             buyerPackageId,
             documentId: doc._id,
@@ -272,10 +282,11 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
               'Authorization': `Bearer ${token}`
             }
           });
+          console.log('Successfully recorded download for:', doc.title);
         } catch (error) {
           console.error(`Error recording download for ${doc.title}:`, error);
         }
-      });
+      }
       
       // Download each document and add to zip
       const downloadPromises = documents.map(async (doc) => {
@@ -294,10 +305,13 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
         }
       });
       
-      // Wait for both activity recording and document downloading
-      await Promise.all([...activityPromises, ...downloadPromises]);
+      // Wait for document downloading to complete
+      console.log('Waiting for document downloads to complete...');
+      await Promise.all(downloadPromises);
+      console.log('All document downloads completed successfully');
       
       // Generate and download the zip file
+      console.log('Generating zip file...');
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const url = window.URL.createObjectURL(zipBlob);
       const link = document.createElement('a');
@@ -307,6 +321,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+      console.log('Zip file downloaded successfully');
     } catch (error) {
       console.error('Error creating zip file:', error);
     }
