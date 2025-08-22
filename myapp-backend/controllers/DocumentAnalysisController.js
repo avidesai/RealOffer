@@ -512,9 +512,14 @@ Summarize any physical damage caused by pests, including wood rot, structural we
 
 List each recommended treatment (e.g., fumigation, local treatment, wood replacement, moisture correction).
 
- - Label each one as **urgent**, **recommended**, or **preventative** based on the report's language
+ - Label each one as **Urgent:**, **Recommended:**, or **Preventative:** (with colon and proper bold formatting)
  - Provide brief explanations for why each treatment is recommended
  - Note any timeline considerations for treatments
+
+Format each treatment recommendation exactly like this:
+- **Urgent:** [treatment description]
+- **Recommended:** [treatment description]  
+- **Preventative:** [treatment description]
 
 Write clearly and use bullet points wherever possible. Avoid overly technical or inspection-specific jargon. This analysis should be useful to both real estate agents and everyday home buyers who are not experts in construction or pest management.
 
