@@ -22,6 +22,9 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
   const [selectedDocumentForAnalysis, setSelectedDocumentForAnalysis] = useState(null);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
   const [showDownloadDropdown, setShowDownloadDropdown] = useState(false);
+  const [isDownloadingSelected, setIsDownloadingSelected] = useState(false);
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+  const [downloadingDocumentId, setDownloadingDocumentId] = useState(null);
 
   const fetchListingData = useCallback(async () => {
     try {
@@ -110,9 +113,13 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
     e.stopPropagation();
     e.preventDefault();
     
+    if (downloadingDocumentId === doc._id) return; // Prevent multiple clicks
+    
+    setDownloadingDocumentId(doc._id);
+    
     try {
       // Record the download activity
-              await api.post(`/api/buyerPackages/download`, {
+      await api.post(`/api/buyerPackages/download`, {
         buyerPackageId,
         documentId: doc._id,
         documentTitle: doc.title || 'Untitled'
@@ -128,6 +135,8 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
       console.error('Error recording download:', error);
       // Still open the file even if tracking fails
       window.open(`${doc.thumbnailUrl}?${doc.sasToken}`, '_blank', 'noopener,noreferrer');
+    } finally {
+      setDownloadingDocumentId(null);
     }
   };
 
@@ -181,22 +190,24 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
   };
 
   const handleDownloadSelectedDocuments = async () => {
-    if (selectedDocuments.length === 0) return;
+    if (selectedDocuments.length === 0 || isDownloadingSelected) return;
     
-    const selectedDocs = documents.filter(doc => selectedDocuments.includes(doc._id));
+    setIsDownloadingSelected(true);
     
-    if (selectedDocs.length === 1) {
-      // Single document download
-      handleDownloadDocument(selectedDocs[0]);
-      return;
-    }
-    
-    // Multiple documents - download as zip
     try {
+      const selectedDocs = documents.filter(doc => selectedDocuments.includes(doc._id));
+      
+      if (selectedDocs.length === 1) {
+        // Single document download
+        await handleDownloadDocument(selectedDocs[0]);
+        return;
+      }
+      
+      // Multiple documents - download as zip
       const zip = new JSZip();
       
       // Record download activity for each document
-      const activityPromises = selectedDocs.map(async (doc) => {
+      for (const doc of selectedDocs) {
         try {
           await api.post(`/api/buyerPackages/download`, {
             buyerPackageId,
@@ -210,7 +221,7 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
         } catch (error) {
           console.error(`Error recording download for ${doc.title}:`, error);
         }
-      });
+      }
       
       // Download each document and add to zip
       const downloadPromises = selectedDocs.map(async (doc) => {
@@ -229,8 +240,8 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
         }
       });
       
-      // Wait for both activity recording and document downloading
-      await Promise.all([...activityPromises, ...downloadPromises]);
+      // Wait for document downloading to complete
+      await Promise.all(downloadPromises);
       
       // Generate and download the zip file
       const zipBlob = await zip.generateAsync({ type: 'blob' });
@@ -244,6 +255,8 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error creating zip file:', error);
+    } finally {
+      setIsDownloadingSelected(false);
     }
   };
 
@@ -251,21 +264,23 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
     console.log('handleDownloadAllDocuments called, documents length:', documents.length);
     console.log('documents:', documents);
     
-    if (documents.length === 0) {
-      console.log('No documents to download');
+    if (documents.length === 0 || isDownloadingAll) {
+      console.log('No documents to download or already downloading');
       return;
     }
     
-    if (documents.length === 1) {
-      console.log('Single document download');
-      // Single document download
-      handleDownloadDocument(documents[0]);
-      return;
-    }
+    setIsDownloadingAll(true);
     
-    console.log('Multiple documents - downloading as zip');
-    // Multiple documents - download as zip
     try {
+      if (documents.length === 1) {
+        console.log('Single document download');
+        // Single document download
+        await handleDownloadDocument(documents[0]);
+        return;
+      }
+      
+      console.log('Multiple documents - downloading as zip');
+      // Multiple documents - download as zip
       const zip = new JSZip();
       
       // Record download activity for each document sequentially to avoid overwhelming the server
@@ -324,6 +339,8 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
       console.log('Zip file downloaded successfully');
     } catch (error) {
       console.error('Error creating zip file:', error);
+    } finally {
+      setIsDownloadingAll(false);
     }
   };
 
@@ -364,9 +381,9 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
             <button 
               className="docs-tab-download-button" 
               onClick={toggleDownloadDropdown}
-              disabled={documents.length === 0}
+              disabled={documents.length === 0 || isDownloadingSelected || isDownloadingAll}
             >
-              Download
+              {isDownloadingSelected || isDownloadingAll ? 'Processing...' : 'Download'}
             </button>
             {showDownloadDropdown && (
               <div className="docs-tab-dropdown-menu">
@@ -376,9 +393,9 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
                     handleDownloadSelectedDocuments();
                     setShowDownloadDropdown(false);
                   }}
-                  disabled={selectedDocuments.length === 0}
+                  disabled={selectedDocuments.length === 0 || isDownloadingSelected || isDownloadingAll}
                 >
-                  Download Selected ({selectedDocuments.length})
+                  {isDownloadingSelected ? 'Processing...' : `Download Selected (${selectedDocuments.length})`}
                 </button>
                 <button 
                   className="docs-tab-dropdown-item"
@@ -386,8 +403,9 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
                     handleDownloadAllDocuments();
                     setShowDownloadDropdown(false);
                   }}
+                  disabled={isDownloadingSelected || isDownloadingAll}
                 >
-                  Download All ({documents.length})
+                  {isDownloadingAll ? 'Processing...' : `Download All (${documents.length})`}
                 </button>
               </div>
             )}
@@ -468,8 +486,9 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
                 <button 
                   className="docs-tab-delete-button docs-tab-document-actions-button"
                   onClick={(e) => handleDownload(e, doc)}
+                  disabled={downloadingDocumentId === doc._id || isDownloadingSelected || isDownloadingAll}
                 >
-                  Download
+                  {downloadingDocumentId === doc._id ? 'Processing...' : 'Download'}
                 </button>
               </div>
             </div>
