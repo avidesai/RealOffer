@@ -159,10 +159,24 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
 
   const handleDownloadDocument = async (doc) => {
     try {
+      // Record the download activity
+      await api.post(`/api/buyerPackages/download`, {
+        buyerPackageId,
+        documentId: doc._id,
+        documentTitle: doc.title || 'Untitled'
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
       const documentUrlWithSAS = `${doc.thumbnailUrl}?${doc.sasToken}`;
       window.open(documentUrlWithSAS, '_blank', 'noopener,noreferrer');
     } catch (error) {
-      console.error('Error downloading document:', error);
+      console.error('Error recording download:', error);
+      // Still open the file even if tracking fails
+      const documentUrlWithSAS = `${doc.thumbnailUrl}?${doc.sasToken}`;
+      window.open(documentUrlWithSAS, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -181,6 +195,23 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
     try {
       const zip = new JSZip();
       
+      // Record download activity for each document
+      const activityPromises = selectedDocs.map(async (doc) => {
+        try {
+          await api.post(`/api/buyerPackages/download`, {
+            buyerPackageId,
+            documentId: doc._id,
+            documentTitle: doc.title || 'Untitled'
+          }, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+        } catch (error) {
+          console.error(`Error recording download for ${doc.title}:`, error);
+        }
+      });
+      
       // Download each document and add to zip
       const downloadPromises = selectedDocs.map(async (doc) => {
         try {
@@ -198,7 +229,8 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
         }
       });
       
-      await Promise.all(downloadPromises);
+      // Wait for both activity recording and document downloading
+      await Promise.all([...activityPromises, ...downloadPromises]);
       
       // Generate and download the zip file
       const zipBlob = await zip.generateAsync({ type: 'blob' });
@@ -228,6 +260,23 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
     try {
       const zip = new JSZip();
       
+      // Record download activity for each document
+      const activityPromises = documents.map(async (doc) => {
+        try {
+          await api.post(`/api/buyerPackages/download`, {
+            buyerPackageId,
+            documentId: doc._id,
+            documentTitle: doc.title || 'Untitled'
+          }, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+        } catch (error) {
+          console.error(`Error recording download for ${doc.title}:`, error);
+        }
+      });
+      
       // Download each document and add to zip
       const downloadPromises = documents.map(async (doc) => {
         try {
@@ -245,7 +294,8 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
         }
       });
       
-      await Promise.all(downloadPromises);
+      // Wait for both activity recording and document downloading
+      await Promise.all([...activityPromises, ...downloadPromises]);
       
       // Generate and download the zip file
       const zipBlob = await zip.generateAsync({ type: 'blob' });
