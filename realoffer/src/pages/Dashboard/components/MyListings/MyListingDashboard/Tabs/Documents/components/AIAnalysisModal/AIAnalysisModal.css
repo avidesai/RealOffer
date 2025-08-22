@@ -43,6 +43,63 @@
   border-bottom: 1px solid #f1f3f4;
   background: #fafbfc;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.aam-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  color: #1a1a1a;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  flex: 1;
+}
+
+.aam-header-actions {
+  display: flex;
+  gap: 12px;
+  margin-right: 6rem;
+}
+
+.aam-header-actions .aam-download-button,
+.aam-header-actions .aam-refresh-button {
+  color: #ffffff;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 80px;
+}
+
+.aam-header-actions .aam-download-button {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.aam-header-actions .aam-refresh-button {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+}
+
+.aam-header-actions .aam-download-button:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.aam-header-actions .aam-refresh-button:hover {
+  background: linear-gradient(135deg, #4b5563, #374151);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
 }
 
 .aam-header h2 {
@@ -61,12 +118,12 @@
   background: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 16px;
+  font-size: 20px;
   cursor: pointer;
   color: #666;
   transition: all 0.3s ease;
@@ -597,18 +654,27 @@
   
   .aam-header {
     padding: 16px 20px 12px 20px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
   
   .aam-header h2 {
     font-size: 18px;
+    flex: none;
+  }
+  
+  .aam-header-actions {
+    margin-right: 0;
+    align-self: flex-start;
   }
   
   .aam-close-button {
     top: 16px;
     right: 16px;
-    width: 32px;
-    height: 32px;
-    font-size: 16px;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
   }
   
   .aam-content {
@@ -616,7 +682,7 @@
   }
   
   .aam-result {
-    padding: 20px;
+    padding: 20px 20px 40px 20px;
     font-size: 14px;
   }
   

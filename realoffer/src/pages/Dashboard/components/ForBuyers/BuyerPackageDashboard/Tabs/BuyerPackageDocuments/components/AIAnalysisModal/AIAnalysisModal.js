@@ -137,6 +137,11 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTi
       <div className="aam-modal" onClick={(e) => e.stopPropagation()}>
         <div className="aam-header">
           <h2>{getModalTitle()}</h2>
+          <div className="aam-header-actions">
+            <button className="aam-download-button" onClick={handleDownload}>
+              Download
+            </button>
+          </div>
           <button className="aam-close-button" onClick={onClose} aria-label="Close">×</button>
         </div>
         <div className="aam-content">
@@ -263,16 +268,7 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTi
                   {analysis.result}
                 </ReactMarkdown>
               </div>
-              <div className="aam-footer">
-                <button className="aam-close-button" onClick={onClose} aria-label="Close">
-                  ×
-                </button>
-              </div>
-              <div className="aam-actions">
-                <button className="aam-download-button" onClick={handleDownload}>
-                  Download
-                </button>
-              </div>
+
             </>
           )}
         </div>

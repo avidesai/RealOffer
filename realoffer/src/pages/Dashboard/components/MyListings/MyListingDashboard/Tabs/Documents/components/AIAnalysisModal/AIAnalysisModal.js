@@ -140,8 +140,8 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTi
   // Check if user has premium access (paid or trial) - if not, show paywall
   if (!hasPremiumAccess(user)) {
     return (
-      <div className="aam-overlay">
-        <div className="aam-modal">
+      <div className="aam-overlay" onClick={onClose}>
+        <div className="aam-modal" onClick={(e) => e.stopPropagation()}>
           <div className="aam-header">
             <h2>{getModalTitle()}</h2>
             <button className="aam-close-button" onClick={onClose} aria-label="Close">×</button>
@@ -155,10 +155,18 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTi
   }
 
   return (
-    <div className="aam-overlay">
-      <div className="aam-modal">
+    <div className="aam-overlay" onClick={onClose}>
+      <div className="aam-modal" onClick={(e) => e.stopPropagation()}>
         <div className="aam-header">
           <h2>{getModalTitle()}</h2>
+          <div className="aam-header-actions">
+            <button className="aam-download-button" onClick={handleDownload}>
+              Download
+            </button>
+            <button className="aam-refresh-button" onClick={handleRefreshAnalysis}>
+              Refresh
+            </button>
+          </div>
           <button className="aam-close-button" onClick={onClose} aria-label="Close">×</button>
         </div>
         <div className="aam-content">
@@ -291,19 +299,7 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTi
                   {analysis.result}
                 </ReactMarkdown>
               </div>
-              <div className="aam-footer">
-                <button className="aam-close-button" onClick={onClose} aria-label="Close">
-                  ×
-                </button>
-              </div>
-              <div className="aam-actions">
-                <button className="aam-download-button" onClick={handleDownload}>
-                  Download
-                </button>
-                <button className="aam-refresh-button" onClick={handleRefreshAnalysis}>
-                  Refresh
-                </button>
-              </div>
+
             </>
           )}
         </div>
