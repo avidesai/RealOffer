@@ -24,7 +24,6 @@ const initialOfferState = {
   inspectionContingencyDays: '',
   homeSaleContingency: 'Waived',
   closeOfEscrow: '',
-  submittedOn: new Date().toISOString(),
   specialTerms: '',
   buyersAgentMessage: '',
   sellerRentBack: '',

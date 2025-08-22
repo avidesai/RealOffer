@@ -142,7 +142,6 @@ const MakeOfferModal = ({ onClose, listingId }) => {
       inspectionContingencyDays: '',
       homeSaleContingency: 'Waived',
       closeOfEscrow: '',
-      submittedOn: new Date().toISOString(),
       specialTerms: '',
       buyersAgentMessage: '',
       sellerRentBack: '',

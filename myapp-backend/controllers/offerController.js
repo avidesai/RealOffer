@@ -62,6 +62,8 @@ exports.createOffer = async (req, res) => {
       'buyerDetails.buyerName': req.body.buyerName,
       documentWorkflow: documentWorkflow,
       buyerPackage: req.body.buyerPackage, // Add buyer package ID
+      // Set submittedOn to the actual submission time
+      submittedOn: new Date(),
       // Handle percentage fields - convert to numbers if they exist
       initialDepositPercent: req.body.initialDepositPercent ? parseFloat(req.body.initialDepositPercent) : undefined,
       downPaymentPercent: req.body.downPaymentPercent ? parseFloat(req.body.downPaymentPercent) : undefined,

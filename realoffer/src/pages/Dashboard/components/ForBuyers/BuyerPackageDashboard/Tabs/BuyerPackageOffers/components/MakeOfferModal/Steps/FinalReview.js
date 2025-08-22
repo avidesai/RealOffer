@@ -85,7 +85,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
   const formattedLoanAmount = useMemo(() => formatNumber(calculatedFinancialValues.loanAmount), [calculatedFinancialValues.loanAmount]);
   const formattedDownPayment = useMemo(() => formatNumber(calculatedFinancialValues.downPaymentDollar), [calculatedFinancialValues.downPaymentDollar]);
   const formattedBalanceOfDownPayment = useMemo(() => formatNumber(calculatedFinancialValues.balanceOfDownPayment), [calculatedFinancialValues.balanceOfDownPayment]);
-  const formattedSubmittedOn = useMemo(() => formatDate(formData.submittedOn), [formData.submittedOn]);
+
   const formattedOfferExpiryDate = useMemo(() => formatDate(formData.offerExpiryDate), [formData.offerExpiryDate]);
 
   // Document workflow analysis
@@ -443,10 +443,6 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
         </div>
         <div className="ds-section-content">
           <div className="ds-summary-grid">
-            <div className="ds-summary-item">
-              <span className="ds-summary-label">Offer Submitted</span>
-              <span className="ds-summary-value">{formattedSubmittedOn}</span>
-            </div>
             <div className="ds-summary-item">
               <span className="ds-summary-label">Offer Expires</span>
               <span className="ds-summary-value">{formattedOfferExpiryDate}</span>
