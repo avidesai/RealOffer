@@ -161,6 +161,59 @@ class NotificationService {
     }
   }
 
+  // Send bulk download notification
+  async sendBulkDownloadNotification(propertyListingId, downloaderName, downloaderRole, documentTitles, documentCount) {
+    try {
+      const propertyListing = await PropertyListing.findById(propertyListingId)
+        .populate('createdBy', 'firstName lastName email')
+        .populate('agentIds', 'firstName lastName email');
+
+      if (!propertyListing) {
+        console.error('Property listing not found for notification');
+        return { success: false, error: 'Property listing not found' };
+      }
+
+      // Check if notifications are enabled for downloads
+      if (!propertyListing.notificationSettings?.downloads) {
+        console.log('Download notifications disabled for this listing');
+        return { success: true, skipped: true };
+      }
+
+      const propertyAddress = propertyListing.homeCharacteristics.address;
+      const results = [];
+
+      // Send notification to all listing agents
+      for (const agent of propertyListing.agentIds) {
+        const agentName = `${agent.firstName} ${agent.lastName}`;
+        
+        const result = await emailService.sendBulkDownloadNotification(
+          agent.email,
+          agentName,
+          propertyAddress,
+          downloaderName,
+          downloaderRole,
+          documentTitles,
+          documentCount
+        );
+
+        if (result.success) {
+          console.log(`Bulk download notification sent to ${agent.email} for property ${propertyAddress}`);
+        } else {
+          console.error(`Failed to send bulk download notification to ${agent.email}:`, result.error);
+        }
+        
+        results.push(result);
+      }
+
+      // Return success if at least one notification was sent successfully
+      const hasSuccess = results.some(result => result.success);
+      return { success: hasSuccess, results };
+    } catch (error) {
+      console.error('Error sending bulk download notification:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Send offer notification
   async sendOfferNotification(propertyListingId, offerAmount, buyerName, buyerRole) {
     try {

@@ -206,21 +206,23 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
       // Multiple documents - download as zip
       const zip = new JSZip();
       
-      // Record download activity for each document
-      for (const doc of selectedDocs) {
-        try {
-          await api.post(`/api/buyerPackages/download`, {
-            buyerPackageId,
-            documentId: doc._id,
-            documentTitle: doc.title || 'Untitled'
-          }, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-        } catch (error) {
-          console.error(`Error recording download for ${doc.title}:`, error);
-        }
+      // Record download activity for all documents in bulk
+      try {
+        const documentsData = selectedDocs.map(doc => ({
+          documentId: doc._id,
+          documentTitle: doc.title || 'Untitled'
+        }));
+        
+        await api.post(`/api/buyerPackages/bulk-download`, {
+          buyerPackageId,
+          documents: documentsData
+        }, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      } catch (error) {
+        console.error('Error recording bulk download:', error);
       }
       
       // Download each document and add to zip
@@ -283,24 +285,26 @@ const BuyerPackageDocuments = ({ buyerPackageId }) => {
       // Multiple documents - download as zip
       const zip = new JSZip();
       
-      // Record download activity for each document sequentially to avoid overwhelming the server
+      // Record download activity for all documents in bulk
       console.log('Recording download activity for', documents.length, 'documents');
-      for (const doc of documents) {
-        try {
-          console.log('Recording download for document:', doc.title, 'ID:', doc._id);
-          await api.post(`/api/buyerPackages/download`, {
-            buyerPackageId,
-            documentId: doc._id,
-            documentTitle: doc.title || 'Untitled'
-          }, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-          console.log('Successfully recorded download for:', doc.title);
-        } catch (error) {
-          console.error(`Error recording download for ${doc.title}:`, error);
-        }
+      try {
+        const documentsData = documents.map(doc => ({
+          documentId: doc._id,
+          documentTitle: doc.title || 'Untitled'
+        }));
+        
+        console.log('Sending bulk download request for', documentsData.length, 'documents');
+        await api.post(`/api/buyerPackages/bulk-download`, {
+          buyerPackageId,
+          documents: documentsData
+        }, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        console.log('Successfully recorded bulk download for', documentsData.length, 'documents');
+      } catch (error) {
+        console.error('Error recording bulk download:', error);
       }
       
       // Download each document and add to zip

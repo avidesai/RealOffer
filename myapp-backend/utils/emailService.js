@@ -377,6 +377,78 @@ class EmailService {
     }
   }
 
+  // Send notification email for bulk document downloads
+  async sendBulkDownloadNotification(listingAgentEmail, listingAgentName, propertyAddress, downloaderName, downloaderRole, documentTitles, documentCount) {
+    const subject = `Multiple Documents Downloaded - ${propertyAddress}`;
+    const roleText = downloaderRole === 'agent' ? 'Buyer Agent' : 'Buyer';
+    
+    // Create a list of documents (limit to first 10 to avoid overly long emails)
+    const displayTitles = documentTitles.slice(0, 10);
+    const remainingCount = documentTitles.length - 10;
+    
+    const documentsList = displayTitles.map(title => `<li style="color: #666; margin: 5px 0;">${title}</li>`).join('');
+    const remainingText = remainingCount > 0 ? `<li style="color: #666; margin: 5px 0; font-style: italic;">... and ${remainingCount} more documents</li>` : '';
+    
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: listingAgentEmail,
+      subject: subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">Multiple Documents Downloaded</h1>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${listingAgentName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              Someone has downloaded multiple documents from your property listing.
+            </p>
+            <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
+                ${propertyAddress}
+              </p>
+              <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">
+                Documents Downloaded: ${documentCount}
+              </p>
+              <p style="color: #666; margin: 0 0 10px 0; font-size: 14px;">
+                Downloaded by: ${downloaderName} (${roleText})
+              </p>
+              <div style="margin-top: 10px;">
+                <p style="color: #666; margin: 0 0 5px 0; font-size: 14px; font-weight: 600;">Documents:</p>
+                <ul style="margin: 5px 0; padding-left: 20px;">
+                  ${documentsList}
+                  ${remainingText}
+                </ul>
+              </div>
+            </div>
+            <p style="color: #666; line-height: 1.6;">
+              You can track all document activity for this property through your RealOffer dashboard.
+            </p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.FRONTEND_URL}/dashboard" 
+                 style="background-color: #007bff; color: white; padding: 12px 30px; 
+                        text-decoration: none; border-radius: 5px; display: inline-block;">
+                View Activity
+              </a>
+            </div>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('Bulk download notification send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Send notification email for new offer
   async sendOfferNotification(listingAgentEmail, listingAgentName, propertyAddress, offerAmount, buyerName, buyerRole) {
     const subject = `New Offer Received - ${propertyAddress}`;

@@ -351,6 +351,75 @@ exports.recordDocumentDownload = async (req, res) => {
   }
 };
 
+// Record bulk document downloads
+exports.recordBulkDocumentDownload = async (req, res) => {
+  try {
+    const { buyerPackageId, documents } = req.body;
+
+    if (!Array.isArray(documents) || documents.length === 0) {
+      return res.status(400).json({ message: 'Documents array is required and must not be empty' });
+    }
+
+    const buyerPackage = await BuyerPackage.findOne({
+      _id: buyerPackageId,
+      user: req.user.id
+    });
+
+    if (!buyerPackage) {
+      return res.status(404).json({ message: 'Buyer package not found' });
+    }
+
+    // Update download count for each document
+    buyerPackage.downloadCount += documents.length;
+    await buyerPackage.save();
+
+    // Create download activities for each document
+    const activities = [];
+    const documentTitles = [];
+    
+    for (const doc of documents) {
+      const activity = new Activity({
+        user: req.user.id,
+        action: `downloaded ${doc.documentTitle}`,
+        type: 'download',
+        documentModified: doc.documentId,
+        propertyListing: buyerPackage.propertyListing,
+        buyerPackage: buyerPackage._id,
+        metadata: {
+          documentTitle: doc.documentTitle,
+          userRole: buyerPackage.userRole
+        }
+      });
+      
+      activities.push(activity);
+      documentTitles.push(doc.documentTitle);
+    }
+
+    // Save all activities
+    await Activity.insertMany(activities);
+
+    // Send consolidated notification to listing agent (non-blocking)
+    const downloaderName = `${req.user.firstName || 'Unknown'} ${req.user.lastName || 'User'}`;
+    notificationService.sendBulkDownloadNotification(
+      buyerPackage.propertyListing,
+      downloaderName,
+      buyerPackage.userRole,
+      documentTitles,
+      documents.length
+    ).catch(error => {
+      console.error('Failed to send bulk download notification:', error);
+    });
+
+    res.status(200).json({ 
+      message: 'Bulk download recorded successfully',
+      documentsProcessed: documents.length
+    });
+  } catch (error) {
+    console.error('Error recording bulk document download:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Check if user has access to a property listing
 exports.checkAccess = async (req, res) => {
   try {
