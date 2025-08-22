@@ -206,6 +206,26 @@ const extractSectionTitle = (text) => {
   return headerMatch ? headerMatch[1].trim() : 'General';
 };
 
+// Normalize AI output so bullets render as real Markdown lists
+const normalizeMarkdownBullets = (text) => {
+  if (!text) return text;
+  let t = String(text).replace(/\r\n/g, '\n');
+
+  // Convert various bullet glyphs to markdown hyphen list items at line start
+  t = t.replace(/^\s*[•·‣▪◦]\s+/gm, '- ');
+
+  // If bullets appear inline within a paragraph, split them onto new lines as list items
+  t = t.replace(/(\S)\s*[•·‣▪◦]\s+/g, '$1\n- ');
+
+  // Ensure lines that begin with status emojis become list items
+  t = t.replace(/^\s*(?=[✅⚠️❌])(?=.*)/gm, '- ');
+
+  // Collapse triple or more newlines to a maximum of two to keep markdown tidy
+  t = t.replace(/\n{3,}/g, '\n\n');
+
+  return t;
+};
+
 exports.analyzeDocument = async (req, res) => {
   let analysis = null;
   try {
@@ -308,9 +328,10 @@ exports.analyzeDocument = async (req, res) => {
     if (document.type === 'Home Inspection Report') {
       prompt = `You are an expert home inspector and real-estate advisor. Read the home-inspection report below and produce a plain-language summary for buyers and agents.
 
-• **No technical jargon.**  
-• **No dollar estimates.**  
-• **Every bullet point should be 1–2 sentences** so readers understand why it matters.
+- Use real Markdown lists with a leading hyphen and space ("- "). Do not use the dot bullet ("•").
+- **No technical jargon.**  
+- **No dollar estimates.**  
+- **Every bullet point should be 1–2 sentences** so readers understand why it matters.
 
 Format your response exactly like this:
 
@@ -390,9 +411,10 @@ ${text}`;
 
 CRITICAL FORMATTING REQUIREMENT: Every bullet point must be on its own separate line. Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
-• **No technical jargon.**  
-• **No dollar estimates.**  
-• **Every bullet point should be 1–2 sentences** so readers understand why it matters.
+- Use real Markdown lists with a leading hyphen and space ("- "). Do not use the dot bullet ("•").
+- **No technical jargon.**  
+- **No dollar estimates.**  
+- **Every bullet point should be 1–2 sentences** so readers understand why it matters.
 
 Format your response exactly like this:
 
@@ -441,11 +463,11 @@ Write clearly and helpfully. Avoid dollar figures. This summary should let regul
 
 IMPORTANT: Format each bullet point on its own line with proper markdown formatting. Use this exact format:
 
-• [First bullet point content]
+- [First bullet point content]
 
-• [Second bullet point content]
+- [Second bullet point content]
 
-• [Third bullet point content]
+- [Third bullet point content]
 
 Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
@@ -474,35 +496,35 @@ Mention whether the property has no major pest issues, some moderate concerns, o
 
 List any active signs of termites, wood-destroying organisms, or other pests.
 
-• Specify the type (subterranean termites, drywood termites, fungus, etc.)
-• Indicate where the infestation was found and whether it is considered minor, moderate, or severe
-• Note the extent and severity of any infestations
+ - Specify the type (subterranean termites, drywood termites, fungus, etc.)
+ - Indicate where the infestation was found and whether it is considered minor, moderate, or severe
+ - Note the extent and severity of any infestations
 
 ## Areas of Damage
 
 Summarize any physical damage caused by pests, including wood rot, structural weakening, or other deterioration.
 
-• Indicate whether the damage is structural or surface-level and where it is located
-• Note the severity and potential impact of any damage
-• Mention any areas that may need immediate attention
+ - Indicate whether the damage is structural or surface-level and where it is located
+ - Note the severity and potential impact of any damage
+ - Mention any areas that may need immediate attention
 
 ## Treatment Recommendations
 
 List each recommended treatment (e.g., fumigation, local treatment, wood replacement, moisture correction).
 
-• Label each one as **urgent**, **recommended**, or **preventative** based on the report's language
-• Provide brief explanations for why each treatment is recommended
-• Note any timeline considerations for treatments
+ - Label each one as **urgent**, **recommended**, or **preventative** based on the report's language
+ - Provide brief explanations for why each treatment is recommended
+ - Note any timeline considerations for treatments
 
 Write clearly and use bullet points wherever possible. Avoid overly technical or inspection-specific jargon. This analysis should be useful to both real estate agents and everyday home buyers who are not experts in construction or pest management.
 
 IMPORTANT: Format each bullet point on its own line with proper markdown formatting. Use this exact format:
 
-• [First bullet point content]
+- [First bullet point content]
 
-• [Second bullet point content]
+- [Second bullet point content]
 
-• [Third bullet point content]
+- [Third bullet point content]
 
 Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
@@ -521,65 +543,65 @@ Organize your summary with the following structure, using clear section headers 
 
 List any upgrades, renovations, repairs, or replacements made to the property (interior or exterior).
 
-• Mention the year and vendor/contractor if provided
-• Include recurring or seasonal maintenance routines (e.g., gutter cleaning, HVAC servicing)
-• Highlight any major improvements or renovations
+ - Mention the year and vendor/contractor if provided
+ - Include recurring or seasonal maintenance routines (e.g., gutter cleaning, HVAC servicing)
+ - Highlight any major improvements or renovations
 
 ## Known Issues or Defects
 
 Summarize any current or past problems with systems or structures (e.g., plumbing, electrical, HVAC, windows, roof, drainage).
 
-• Indicate whether the seller states the issue was resolved or still active
-• Include any mention of past water intrusion, slow drains, moisture, or mold-related problems
-• Note the severity and impact of any issues
+ - Indicate whether the seller states the issue was resolved or still active
+ - Include any mention of past water intrusion, slow drains, moisture, or mold-related problems
+ - Note the severity and impact of any issues
 
 ## Environmental & External Conditions
 
 Note any natural features or risks disclosed: proximity to rivers, past flooding, soil saturation, high water tables, etc.
 
-• Include any comments about pests, wildlife, or pet-related conditions
-• If the seller mentioned cannabis use, smoking, or industrial nuisances, include that as well
-• Note any environmental hazards or concerns
+ - Include any comments about pests, wildlife, or pet-related conditions
+ - If the seller mentioned cannabis use, smoking, or industrial nuisances, include that as well
+ - Note any environmental hazards or concerns
 
 ## Neighborhood and Surrounding Factors
 
 **Death on Property (Past 3 Years):** [State whether the seller disclosed a death on the property in the past 3 years - "Yes, seller disclosed a death on the property." or "No death on the property was disclosed." or "No information provided regarding death on the property."]
 
-• Summarize any issues disclosed about neighbors, road noise, nearby businesses, odors, or wildlife activity
-• Note any neighborhood nuisances or benefits mentioned
+ - Summarize any issues disclosed about neighbors, road noise, nearby businesses, odors, or wildlife activity
+ - Note any neighborhood nuisances or benefits mentioned
 
 ## Legal, Easements, and Ownership Notes
 
 Note any shared structures (fences, driveways), easements, boundary disputes, or public access disclosures.
 
-• Mention if the seller disclosed any liens, HOA disputes, lawsuits, or other legal claims
-• Include any boundary or access issues
+ - Mention if the seller disclosed any liens, HOA disputes, lawsuits, or other legal claims
+ - Include any boundary or access issues
 
 ## HOA and Community Restrictions
 
 If the property is in an HOA, list:
 
-• HOA name
-• Monthly dues
-• Common areas maintained
-• Restrictions (e.g., basketball hoops, architectural approvals)
+ - HOA name
+ - Monthly dues
+ - Common areas maintained
+ - Restrictions (e.g., basketball hoops, architectural approvals)
 
 ## Cosmetic and Other Notable Disclosures
 
 Mention any wear and tear, stains, markings, or cosmetic imperfections disclosed by the seller that may impact buyer perception.
 
-• Include any general material facts the seller added that don't fit cleanly into another section
-• Note any items that may need attention or replacement
+ - Include any general material facts the seller added that don't fit cleanly into another section
+ - Note any items that may need attention or replacement
 
 Write your summary in a clear, readable format with proper bullet points and concise language. Keep the language natural and useful to buyers and agents — avoid legal terms or form language. If no material disclosures were made in a section, simply skip that section.
 
 IMPORTANT: Format each bullet point on its own line with proper markdown formatting. Use this exact format:
 
-• [First bullet point content]
+- [First bullet point content]
 
-• [Second bullet point content]
+- [Second bullet point content]
 
-• [Third bullet point content]
+- [Third bullet point content]
 
 Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
@@ -604,24 +626,24 @@ Mention any general details the seller provided about the property, such as roof
 
 List key home features the seller confirmed are present (e.g., oven, water heater, sprinklers, pool, solar, garage door openers).
 
-• Include any custom or non-standard additions (e.g., Tesla charger, fountain, TV equipment)
-• Note any special features or upgrades mentioned
+ - Include any custom or non-standard additions (e.g., Tesla charger, fountain, TV equipment)
+ - Note any special features or upgrades mentioned
 
 ## 3. Items in Need of Repair or Not in Working Order
 
 Highlight any appliances, fixtures, or systems the seller disclosed as broken, malfunctioning, or in poor condition.
 
-• Be specific about location or context if the seller provided it (e.g., "broken roof tile above garage")
-• Note the severity and impact of any issues
+ - Be specific about location or context if the seller provided it (e.g., "broken roof tile above garage")
+ - Note the severity and impact of any issues
 
 ## 4. Structural and Material Defects
 
 Summarize any seller-reported issues related to:
 
-• Foundation
-• Roofing
-• Windows, floors, doors
-• Electrical, plumbing, sewer, or insulation
+ - Foundation
+ - Roofing
+ - Windows, floors, doors
+ - Electrical, plumbing, sewer, or insulation
 
 Clearly note if the seller added descriptive detail (e.g., "scrapes and dings in wood floors").
 
@@ -629,28 +651,28 @@ Clearly note if the seller added descriptive detail (e.g., "scrapes and dings in
 
 List any environmental hazards, easements, zoning issues, or property modifications disclosed by the seller.
 
-• Shared structures or boundaries
-• Drainage/fill concerns
-• HOA presence and dues
-• Any mention of neighborhood nuisances (e.g., road noise, helicopters, vineyard equipment)
+ - Shared structures or boundaries
+ - Drainage/fill concerns
+ - HOA presence and dues
+ - Any mention of neighborhood nuisances (e.g., road noise, helicopters, vineyard equipment)
 
 ## 6. HOA and Community Restrictions
 
 If the seller disclosed that the home is part of an HOA:
 
-• Include the HOA name
-• Monthly dues
-• Any noted CC&Rs or architectural limitations
+ - Include the HOA name
+ - Monthly dues
+ - Any noted CC&Rs or architectural limitations
 
 Write the summary in clean, bullet-point or short-paragraph form. Avoid repeating form questions or legal language. The output should be immediately useful to both agents and homebuyers without requiring them to read the full form.
 
 IMPORTANT: Format each bullet point on its own line with proper markdown formatting. Use this exact format:
 
-• [First bullet point content]
+- [First bullet point content]
 
-• [Second bullet point content]
+- [Second bullet point content]
 
-• [Third bullet point content]
+- [Third bullet point content]
 
 Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
@@ -707,11 +729,11 @@ Keep your summary clean, brief, and structured using bullet points or short para
 
 IMPORTANT: Format each bullet point on its own line with proper markdown formatting. Use this exact format:
 
-• [First bullet point content]
+- [First bullet point content]
 
-• [Second bullet point content]
+- [Second bullet point content]
 
-• [Third bullet point content]
+- [Third bullet point content]
 
 Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
@@ -766,11 +788,11 @@ Write clearly and helpfully. Focus on functionality and condition. This summary 
 
 IMPORTANT: Format each bullet point on its own line with proper markdown formatting. Use this exact format:
 
-• [First bullet point content]
+- [First bullet point content]
 
-• [Second bullet point content]
+- [Second bullet point content]
 
-• [Third bullet point content]
+- [Third bullet point content]
 
 Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
@@ -827,6 +849,9 @@ ${text}`;
       // Clean up any malformed cost displays
       analysisResult = analysisResult.replace(/\*\*Total Repair Cost:\s*\$[^0-9]*\*\*/g, '*No overall cost listed in report.*');
     }
+
+    // Normalize bullets to Markdown hyphen lists to ensure proper rendering on the frontend
+    analysisResult = normalizeMarkdownBullets(analysisResult);
 
     // Save analysis results
     await updateAnalysisProgress(analysis._id, 'saving', 90, 'Saving analysis results...');

@@ -50,6 +50,23 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTi
     return progress?.message || messages[progress?.currentStep] || 'Processing...';
   };
 
+  // Normalize bullets to proper Markdown lists so ReactMarkdown renders <li> instead of paragraphs
+  const normalizeBullets = useCallback((text) => {
+    if (!text) return text;
+    let t = text.replace(/\r\n/g, '\n');
+
+    // Convert leading unicode bullets to markdown list items
+    t = t.replace(/^\s*•\s+/gm, '- ');
+
+    // If bullets appear inline (e.g., "... text • item one • item two"), split to new lines
+    t = t.replace(/(\S)\s*•\s+/g, '$1\n- ');
+
+    // Ensure emoji-led lines are treated as list items
+    t = t.replace(/^\s*(?=[✅⚠️❌])/gm, '- ');
+
+    return t;
+  }, []);
+
   const stopPolling = useCallback(() => {
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
@@ -265,7 +282,7 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTi
                     }
                   }}
                 >
-                  {analysis.result}
+                  {normalizeBullets(analysis.result)}
                 </ReactMarkdown>
               </div>
 
