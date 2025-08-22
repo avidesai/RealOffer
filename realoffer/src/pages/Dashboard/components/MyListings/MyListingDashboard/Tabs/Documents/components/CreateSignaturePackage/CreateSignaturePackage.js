@@ -368,8 +368,8 @@ const CreateSignaturePackage = ({ listingId, isOpen, onClose, refreshDocuments }
 
   return (
     isOpen && (
-      <div className="csp-modal">
-        <div className={`csp-modal-container ${isLoading ? 'loading' : ''}`}>
+      <div className="csp-modal" onClick={onClose}>
+        <div className={`csp-modal-container ${isLoading ? 'loading' : ''}`} onClick={(e) => e.stopPropagation()}>
           {isLoading && (
             <div className="csp-spinner-overlay">
               <div className="csp-spinner"></div>

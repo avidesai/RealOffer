@@ -16,8 +16,8 @@ const CreateSignaturePackageProgress = ({
   const progress = totalDocuments > 0 ? (currentDocument / totalDocuments) * 100 : 0;
 
   return (
-    <div className="csp-progress-overlay">
-      <div className="csp-progress-modal">
+    <div className="csp-progress-overlay" onClick={onClose}>
+      <div className="csp-progress-modal" onClick={(e) => e.stopPropagation()}>
         <div className="csp-progress-header">
           <h2>Creating Signature Packet</h2>
           <button className="csp-progress-close-button" onClick={onClose} aria-label="Close">×</button>

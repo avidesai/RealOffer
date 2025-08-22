@@ -374,8 +374,8 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
   // Check if user has premium access (paid or trial) - if not, show paywall
   if (!hasPremiumAccess(user)) {
     return (
-      <div className="pchat-overlay">
-        <div className="pchat-modal paywall-visible">
+      <div className="pchat-overlay" onClick={onClose}>
+        <div className="pchat-modal paywall-visible" onClick={(e) => e.stopPropagation()}>
           <div className="pchat-header">
             <div className="header-title-container">
               <h3>AI Assistant</h3>
@@ -392,8 +392,8 @@ const EnhancedPropertyChat = ({ propertyId, onClose, isOpen }) => {
   }
 
   return (
-    <div className="pchat-overlay">
-      <div className="pchat-modal">
+    <div className="pchat-overlay" onClick={onClose}>
+      <div className="pchat-modal" onClick={(e) => e.stopPropagation()}>
         <div className="pchat-header">
           <div className="header-title-container">
             <h3>AI Assistant</h3>

@@ -68,8 +68,8 @@ function RespondToOfferModal({ isOpen, onClose, offer, propertyListing }) {
 
 
   return (
-    <div className="respond-to-offer-modal-overlay">
-      <div className="respond-to-offer-modal-content">
+    <div className="respond-to-offer-modal-overlay" onClick={() => onClose(false)}>
+      <div className="respond-to-offer-modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="respond-to-offer-modal-header">
           <h2>Respond to Offer</h2>
           <button className="respond-to-offer-modal-close-button" onClick={() => onClose(false)}></button>

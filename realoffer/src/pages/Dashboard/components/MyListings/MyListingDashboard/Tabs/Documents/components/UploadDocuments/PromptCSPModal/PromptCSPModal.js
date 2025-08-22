@@ -14,8 +14,8 @@ const PromptCSPModal = ({ onClose, onCreatePackage, hasSignaturePackage = false 
   };
 
   return (
-    <div className="prompt-csp-modal">
-      <div className="modal-content">
+    <div className="prompt-csp-modal" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="prompt-csp-close-button" onClick={onClose}></button>
         <div className='offer-modal-header'>
           <h2>{title}</h2>

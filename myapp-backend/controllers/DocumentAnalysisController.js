@@ -388,6 +388,8 @@ ${text}`;
     } else if (document.type === 'Roof Inspection Report') {
       prompt = `You are an expert roof inspector and real-estate advisor. Read the roof inspection report below and produce a plain-language summary for buyers and agents.
 
+CRITICAL FORMATTING REQUIREMENT: Every bullet point must be on its own separate line. Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
+
 • **No technical jargon.**  
 • **No dollar estimates.**  
 • **Every bullet point should be 1–2 sentences** so readers understand why it matters.
@@ -437,10 +439,22 @@ Include a 1-sentence explanation if useful (max 2 sentences).
 
 Write clearly and helpfully. Avoid dollar figures. This summary should let regular buyers and agents quickly grasp what matters most about the roof condition.
 
+IMPORTANT: Format each bullet point on its own line with proper markdown formatting. Use this exact format:
+
+• [First bullet point content]
+
+• [Second bullet point content]
+
+• [Third bullet point content]
+
+Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
+
 Report content:
 ${text}`;
     } else if (document.type === 'Pest Inspection Report') {
       prompt = `You are a licensed pest inspector and real estate advisor. Your job is to read a pest inspection report and provide a clear, helpful summary for both home buyers and real estate agents.
+
+CRITICAL FORMATTING REQUIREMENT: Every bullet point must be on its own separate line. Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
 Structure your response as follows:
 
@@ -496,6 +510,8 @@ Report content:
 ${text}`;
     } else if (document.type === 'Seller Property Questionnaire') {
       prompt = `You are a real estate advisor. Review the following Seller Property Questionnaire (SPQ) and produce a clean, buyer- and agent-friendly summary that highlights the most important information disclosed by the seller.
+
+CRITICAL FORMATTING REQUIREMENT: Every bullet point must be on its own separate line. Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
 Ignore all unselected checkboxes and standard legal or template text. Focus only on content actually provided by the seller — either through checked boxes, explanations, or added notes.
 
@@ -572,6 +588,8 @@ ${text}`;
     } else if (document.type === 'Real Estate Transfer Disclosure Statement') {
       prompt = `You are a real estate advisor. Read the following Transfer Disclosure Statement (TDS) and produce a concise, easy-to-read summary of all meaningful information provided by the seller.
 
+CRITICAL FORMATTING REQUIREMENT: Every bullet point must be on its own separate line. Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
+
 Ignore all legal form text, unselected checkboxes, and empty fields. Focus only on content that the seller actually disclosed — including any explanations or added notes.
 
 Organize your summary using the following structure:
@@ -641,6 +659,8 @@ ${text}`;
     } else if (document.type === 'Agent Visual Inspection') {
       prompt = `You are a real estate advisor. Read the following Agent Visual Inspection Disclosure (AVID) and generate a summary of the agent's material observations made during their visual walkthrough of the home.
 
+CRITICAL FORMATTING REQUIREMENT: Every bullet point must be on its own separate line. Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
+
 This form includes room-by-room notes. Your job is to ignore:
 
 - Any unfilled or blank sections
@@ -699,6 +719,8 @@ Report content:
 ${text}`;
     } else if (document.type === 'Sewer Lateral Inspection') {
       prompt = `You are an expert sewer lateral inspector and real estate advisor. Read the sewer lateral inspection report below and produce a plain-language summary for buyers and agents.
+
+CRITICAL FORMATTING REQUIREMENT: Every bullet point must be on its own separate line. Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
 • **No technical jargon.**  
 • **Every bullet point should be 1–2 sentences** so readers understand why it matters.

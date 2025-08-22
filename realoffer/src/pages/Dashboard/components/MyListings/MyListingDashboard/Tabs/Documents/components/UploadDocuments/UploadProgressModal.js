@@ -17,8 +17,8 @@ const UploadProgressModal = ({
   const isComplete = isFullyComplete && totalFiles > 0;
 
   return (
-    <div className="upm-overlay">
-      <div className="upm-modal">
+    <div className="upm-overlay" onClick={onClose}>
+      <div className="upm-modal" onClick={(e) => e.stopPropagation()}>
         <div className="upm-header">
           <h2>Uploading Documents</h2>
           <button className="upm-close-button" onClick={onClose} aria-label="Close">×</button>

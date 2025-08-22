@@ -23,8 +23,8 @@ const ContactInfoModal = ({ isOpen, onClose, user }) => {
   const agencyAddress = [user.agencyAddressLine1, user.agencyAddressLine2].filter(Boolean).join(', ');
 
   return (
-    <div className="cim-overlay">
-      <div className="cim-content">
+    <div className="cim-overlay" onClick={onClose}>
+      <div className="cim-content" onClick={(e) => e.stopPropagation()}>
         <div className="cim-header">
           <h2>Contact Information</h2>
           <button className="cim-close-button" onClick={onClose}></button>

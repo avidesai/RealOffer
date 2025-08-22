@@ -403,8 +403,8 @@ const MakeOfferModal = ({ onClose, listingId }) => {
   ]);
 
   return (
-    <div className="make-offer-modal">
-      <div className="modal-content">
+    <div className="make-offer-modal" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="mom-close-button" onClick={onClose}></button>
         <div className="modal-header">
           <button
