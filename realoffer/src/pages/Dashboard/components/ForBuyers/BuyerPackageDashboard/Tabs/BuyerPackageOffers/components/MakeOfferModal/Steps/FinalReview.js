@@ -443,7 +443,7 @@ const FinalReview = ({ formData, handlePrevStep, handleSubmit }) => {
         </div>
         <div className="ds-section-content">
           <div className="ds-summary-grid">
-            <div className="ds-summary-item">
+            <div className="ds-summary-item full-width">
               <span className="ds-summary-label">Offer Expires</span>
               <span className="ds-summary-value">{formattedOfferExpiryDate}</span>
             </div>
