@@ -121,7 +121,7 @@ exports.getUserWithListingPackages = async (req, res) => {
 };
 
 exports.createUser = async (req, res) => {
-    const { firstName, lastName, email, password, role, agentLicenseNumber, hasAgent, invitationToken } = req.body;
+    const { firstName, lastName, email, password, role, agentLicenseNumber, hasAgent, invitationToken, phone } = req.body;
     
     try {
         // Validate required fields
@@ -194,7 +194,7 @@ exports.createUser = async (req, res) => {
             lastLogin: null,
             twoFactorAuthenticationEnabled: false,
             notificationSettings: '',
-            phone: '',
+            phone: phone ? phone.trim() : '',
             brokeragePhoneNumber: '',
             addressLine1: '',
             addressLine2: '',
