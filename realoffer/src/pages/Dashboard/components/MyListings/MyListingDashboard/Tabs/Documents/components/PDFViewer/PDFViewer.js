@@ -277,9 +277,14 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
     <div 
       className="ml-pdf-viewer-modal"
       onMouseMove={showToolbar}
-      onClick={showToolbar}
+      onClick={(e) => {
+        // Only close if clicking on the modal background, not on PDF content
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
     >
-      <div className="ml-pdf-viewer-header">
+      <div className="ml-pdf-viewer-header" onClick={(e) => e.stopPropagation()}>
         <div className="ml-pdf-title-container">
           <h2 className="ml-pdf-title">{docTitle}</h2>
           <span className="ml-pdf-type">{docType}</span>
@@ -300,6 +305,7 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
         ref={containerRef}
         onMouseEnter={showToolbar}
         onMouseLeave={hideToolbarWithDelay}
+        onClick={(e) => e.stopPropagation()}
       >
         {isLoading && (
           <div className="ml-pdf-spinner-overlay">

@@ -260,8 +260,13 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
   }, [numPages, visiblePages, scale, determineVisiblePage]);
 
   return (
-    <div className="ov-pdf-viewer-modal">
-      <div className="ov-pdf-viewer-header">
+    <div className="ov-pdf-viewer-modal" onClick={(e) => {
+      // Only close if clicking on the modal background, not on PDF content
+      if (e.target === e.currentTarget) {
+        onClose();
+      }
+    }}>
+      <div className="ov-pdf-viewer-header" onClick={(e) => e.stopPropagation()}>
         <div className="ov-pdf-title-container">
           <h2 className="ov-pdf-title">{docTitle}</h2>
           <p className="ov-pdf-type">{docType}</p>
@@ -275,6 +280,7 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose }) => {
         ref={containerRef}
         onMouseMove={showToolbar}
         onMouseLeave={hideToolbarWithDelay}
+        onClick={(e) => e.stopPropagation()}
       >
         <Document
           file={fileUrl}

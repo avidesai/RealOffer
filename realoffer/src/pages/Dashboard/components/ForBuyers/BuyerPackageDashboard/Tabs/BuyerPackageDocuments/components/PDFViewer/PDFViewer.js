@@ -277,9 +277,14 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose, buyerPackageId }) => {
     <div 
       className="fb-pdf-viewer-modal"
       onMouseMove={showToolbar}
-      onClick={showToolbar}
+      onClick={(e) => {
+        // Only close if clicking on the modal background, not on PDF content
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
     >
-      <div className="fb-pdf-viewer-header">
+      <div className="fb-pdf-viewer-header" onClick={(e) => e.stopPropagation()}>
         <div className="fb-pdf-title-container">
           <h2 className="fb-pdf-title">{docTitle}</h2>
           <span className="fb-pdf-type">{docType}</span>
@@ -300,6 +305,7 @@ const PDFViewer = ({ fileUrl, docTitle, docType, onClose, buyerPackageId }) => {
         ref={containerRef}
         onMouseEnter={showToolbar}
         onMouseLeave={hideToolbarWithDelay}
+        onClick={(e) => e.stopPropagation()}
       >
         {isLoading && (
           <div className="fb-pdf-spinner-overlay">
