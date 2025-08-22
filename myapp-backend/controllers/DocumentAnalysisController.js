@@ -458,7 +458,15 @@ List each recommended treatment (e.g., fumigation, local treatment, wood replace
 
 Write clearly and use bullet points wherever possible. Avoid overly technical or inspection-specific jargon. This analysis should be useful to both real estate agents and everyday home buyers who are not experts in construction or pest management.
 
-Use consistent formatting with proper bullet points and clear section headers.
+IMPORTANT: Format each bullet point on its own line with proper markdown formatting. Use this exact format:
+
+• [First bullet point content]
+
+• [Second bullet point content]
+
+• [Third bullet point content]
+
+Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
 Report content:
 ${text}`;
@@ -525,7 +533,15 @@ Mention any wear and tear, stains, markings, or cosmetic imperfections disclosed
 
 Write your summary in a clear, readable format with proper bullet points and concise language. Keep the language natural and useful to buyers and agents — avoid legal terms or form language. If no material disclosures were made in a section, simply skip that section.
 
-Use consistent formatting and ensure each bullet point is clear and actionable for buyers.
+IMPORTANT: Format each bullet point on its own line with proper markdown formatting. Use this exact format:
+
+• [First bullet point content]
+
+• [Second bullet point content]
+
+• [Third bullet point content]
+
+Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
 Report content:
 ${text}`;
@@ -586,7 +602,15 @@ If the seller disclosed that the home is part of an HOA:
 
 Write the summary in clean, bullet-point or short-paragraph form. Avoid repeating form questions or legal language. The output should be immediately useful to both agents and homebuyers without requiring them to read the full form.
 
-Use consistent formatting with proper bullet points and clear section headers.
+IMPORTANT: Format each bullet point on its own line with proper markdown formatting. Use this exact format:
+
+• [First bullet point content]
+
+• [Second bullet point content]
+
+• [Third bullet point content]
+
+Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
 Report content:
 ${text}`;
@@ -637,6 +661,16 @@ Only include items mentioned by the agent, not assumptions or advice.
 
 Keep your summary clean, brief, and structured using bullet points or short paragraphs. Focus on what would matter to a buyer when deciding how well the property has been maintained. Do not repeat legal warnings or explain the agent's limitations — focus only on what was visibly observed and disclosed.
 
+IMPORTANT: Format each bullet point on its own line with proper markdown formatting. Use this exact format:
+
+• [First bullet point content]
+
+• [Second bullet point content]
+
+• [Third bullet point content]
+
+Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
+
 Report content:
 ${text}`;
     } else if (document.type === 'Sewer Lateral Inspection') {
@@ -683,6 +717,16 @@ Include a 1-sentence explanation if useful (max 2 sentences).
 ---
 
 Write clearly and helpfully. Focus on functionality and condition. This summary should let regular buyers and agents quickly grasp what matters most about the sewer lateral condition.
+
+IMPORTANT: Format each bullet point on its own line with proper markdown formatting. Use this exact format:
+
+• [First bullet point content]
+
+• [Second bullet point content]
+
+• [Third bullet point content]
+
+Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
 Report content:
 ${text}`;
