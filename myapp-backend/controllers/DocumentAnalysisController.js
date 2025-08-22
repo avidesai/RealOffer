@@ -427,17 +427,41 @@ Write 3–4 sentences summarizing the roof's general state and biggest strengths
 Label each component with ✅ Good, ⚠️ Needs attention, or ❌ Problem found.  
 If ⚠️ or ❌, add 1–2 sentences explaining why.
 
-- **Shingles/Tiles**: [status] [explanation if needed]
+- ✅ **Shingles/Tiles**: [explanation if good]
 
-- **Flashing**: [status] [explanation if needed]
+- ⚠️ **Shingles/Tiles**: [explanation if needs attention]
 
-- **Gutters & Downspouts**: [status] [explanation if needed]
+- ❌ **Shingles/Tiles**: [explanation if problem found]
 
-- **Ventilation**: [status] [explanation if needed]
+- ✅ **Flashing**: [explanation if good]
 
-- **Skylights**: [status] [explanation if needed]
+- ⚠️ **Flashing**: [explanation if needs attention]
 
-- **Chimney**: [status] [explanation if needed]
+- ❌ **Flashing**: [explanation if problem found]
+
+- ✅ **Gutters & Downspouts**: [explanation if good]
+
+- ⚠️ **Gutters & Downspouts**: [explanation if needs attention]
+
+- ❌ **Gutters & Downspouts**: [explanation if problem found]
+
+- ✅ **Ventilation**: [explanation if good]
+
+- ⚠️ **Ventilation**: [explanation if needs attention]
+
+- ❌ **Ventilation**: [explanation if problem found]
+
+- ✅ **Skylights**: [explanation if good]
+
+- ⚠️ **Skylights**: [explanation if needs attention]
+
+- ❌ **Skylights**: [explanation if problem found]
+
+- ✅ **Chimney**: [explanation if good]
+
+- ⚠️ **Chimney**: [explanation if needs attention]
+
+- ❌ **Chimney**: [explanation if problem found]
 
 ---
 

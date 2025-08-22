@@ -220,8 +220,9 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTi
                     li: ({ node, children, ...props }) => {
                       const text = Array.isArray(children) ? children.join('') : children;
                       
-                      // Add visual indicators for system status in home inspection
-                      if (documentType && documentType.toLowerCase().includes('home')) {
+                      // Add visual indicators for system status in home inspection and roof inspection
+                      if ((documentType && documentType.toLowerCase().includes('home')) || 
+                          (documentType && documentType.toLowerCase().includes('roof inspection'))) {
                         if (text.includes('✅')) {
                           return <li {...props} className="status-good">{children}</li>;
                         } else if (text.includes('⚠️')) {
@@ -230,18 +231,20 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTi
                           return <li {...props} className="status-problem">{children}</li>;
                         }
                         
-                        // Style home inspection structured items
-                        if (!text.includes('**Location**') && !text.includes('**Risk**') && 
-                            !text.includes('**Urgency**') && !text.includes('**Expected Outcome**')) {
-                          return <li {...props} className="home-item-main">{children}</li>;
-                        }
-                        // Sub-bullet points for details
-                        else if (text.includes('**Location**') || text.includes('**Urgency**')) {
-                          return <li {...props} className="home-item-detail">{children}</li>;
-                        }
-                        // Risk items (should be styled differently)
-                        else if (text.includes('**Risk**') || text.includes('**Expected Outcome**')) {
-                          return <li {...props} className="home-item-risk">{children}</li>;
+                        // Style home inspection structured items (only for home inspection)
+                        if (documentType && documentType.toLowerCase().includes('home')) {
+                          if (!text.includes('**Location**') && !text.includes('**Risk**') && 
+                              !text.includes('**Urgency**') && !text.includes('**Expected Outcome**')) {
+                            return <li {...props} className="home-item-main">{children}</li>;
+                          }
+                          // Sub-bullet points for details
+                          else if (text.includes('**Location**') || text.includes('**Urgency**')) {
+                            return <li {...props} className="home-item-detail">{children}</li>;
+                          }
+                          // Risk items (should be styled differently)
+                          else if (text.includes('**Risk**') || text.includes('**Expected Outcome**')) {
+                            return <li {...props} className="home-item-risk">{children}</li>;
+                          }
                         }
                       }
                       

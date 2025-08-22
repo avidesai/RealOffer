@@ -420,36 +420,54 @@
 /* Status indicators */
 .status-good {
   border-left: 3px solid #10b981;
-  padding-left: 20px;
   background-color: #f0fdf4;
   margin: 8px 0;
-  padding: 8px 20px;
+  padding: 12px 20px 12px 32px;
   border-radius: 0 6px 6px 0;
 }
 
 .status-warning {
   border-left: 3px solid #f59e0b;
-  padding-left: 20px;
   background-color: #fffbeb;
   margin: 8px 0;
-  padding: 8px 20px;
+  padding: 12px 20px 12px 32px;
   border-radius: 0 6px 6px 0;
 }
 
 .status-problem {
   border-left: 3px solid #dc2626;
-  padding-left: 20px;
   background-color: #fef2f2;
   margin: 8px 0;
-  padding: 8px 20px;
+  padding: 12px 20px 12px 32px;
   border-radius: 0 6px 6px 0;
 }
 
-/* Hide bullet points for lists that contain status indicators (Key System Highlights) */
+/* Completely hide bullet points for Key System Highlights section */
 .aam-result ul li.status-good::before,
 .aam-result ul li.status-warning::before,
-.aam-result ul li.status-problem::before {
-  display: none;
+.aam-result ul li.status-problem::before,
+.aam-result ul li:has(.status-good)::before,
+.aam-result ul li:has(.status-warning)::before,
+.aam-result ul li:has(.status-problem)::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* Remove left padding from list items that contain status indicators */
+.aam-result ul li.status-good,
+.aam-result ul li.status-warning,
+.aam-result ul li.status-problem,
+.aam-result ul li:has(.status-good),
+.aam-result ul li:has(.status-warning),
+.aam-result ul li:has(.status-problem) {
+  padding-left: 0.2rem !important;
+}
+
+/* Remove left padding from ul elements that contain status indicators */
+.aam-result ul:has(li.status-good),
+.aam-result ul:has(li.status-warning),
+.aam-result ul:has(li.status-problem) {
+  padding-left: 0.2rem !important;
 }
 
 /* Cost highlighting */
