@@ -341,6 +341,8 @@ Write 3–4 sentences summarizing the home's general state and biggest strengths
 ---
 
 ## Key System Highlights
+IMPORTANT: You MUST include ALL of the following systems. If a system is not mentioned in the report, mark it as ✅ Good with a brief note.
+
 Label each system with ✅ Good, ⚠️ Needs attention, or ❌ Problem found.  
 If ⚠️ or ❌, add 1–2 sentences explaining why.
 
@@ -424,6 +426,8 @@ Write 3–4 sentences summarizing the roof's general state and biggest strengths
 ---
 
 ## Key Roof Components
+IMPORTANT: You MUST include ALL of the following components. If a component is not mentioned in the report, mark it as ✅ Good with a brief note.
+
 Label each component with ✅ Good, ⚠️ Needs attention, or ❌ Problem found.  
 If ⚠️ or ❌, add 1–2 sentences explaining why.
 
