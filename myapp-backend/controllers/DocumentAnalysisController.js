@@ -616,27 +616,27 @@ Ignore all legal form text, unselected checkboxes, and empty fields. Focus only 
 
 Organize your summary using the following structure:
 
-## 1. Property Overview
+## Property Overview
 
 State whether the seller is the occupant.
 
 Mention any general details the seller provided about the property, such as roof type and age, HVAC systems, or unique features.
 
-## 2. Included Features and Systems
+## Included Features and Systems
 
 List key home features the seller confirmed are present (e.g., oven, water heater, sprinklers, pool, solar, garage door openers).
 
  - Include any custom or non-standard additions (e.g., Tesla charger, fountain, TV equipment)
  - Note any special features or upgrades mentioned
 
-## 3. Items in Need of Repair or Not in Working Order
+## Items in Need of Repair or Not in Working Order
 
 Highlight any appliances, fixtures, or systems the seller disclosed as broken, malfunctioning, or in poor condition.
 
  - Be specific about location or context if the seller provided it (e.g., "broken roof tile above garage")
  - Note the severity and impact of any issues
 
-## 4. Structural and Material Defects
+## Structural and Material Defects
 
 Summarize any seller-reported issues related to:
 
@@ -647,7 +647,7 @@ Summarize any seller-reported issues related to:
 
 Clearly note if the seller added descriptive detail (e.g., "scrapes and dings in wood floors").
 
-## 5. Environmental, Easement, or Legal Disclosures
+## Environmental, Easement, or Legal Disclosures
 
 List any environmental hazards, easements, zoning issues, or property modifications disclosed by the seller.
 
@@ -656,7 +656,7 @@ List any environmental hazards, easements, zoning issues, or property modificati
  - HOA presence and dues
  - Any mention of neighborhood nuisances (e.g., road noise, helicopters, vineyard equipment)
 
-## 6. HOA and Community Restrictions
+## HOA and Community Restrictions
 
 If the seller disclosed that the home is part of an HOA:
 
@@ -693,7 +693,7 @@ Instead, extract only meaningful visual observations that might matter to a home
 
 Structure your response into the following categories:
 
-## 1. Interior Observations
+## Interior Observations
 
 Summarize all relevant interior findings across rooms (e.g., scuffs, discoloration, trim issues, missing fixtures).
 
@@ -701,25 +701,25 @@ Group rooms together where appropriate (e.g., "Minor scuffs in multiple bedrooms
 
 Specify rooms only when the issue is room-specific and relevant.
 
-## 2. Exterior Observations
+## Exterior Observations
 
 Include any findings related to the building exterior, yard, fencing, visible drainage issues, paint, or wear and tear.
 
 Note anything that might suggest maintenance or cosmetic attention is needed.
 
-## 3. Garage, Parking, and Storage Areas
+## Garage, Parking, and Storage Areas
 
 List any garage-related issues disclosed (e.g., unfinished drywall, limited access, visible mechanicals).
 
 Include comments about Tesla chargers, irrigation systems, or stored personal items that impacted visibility.
 
-## 4. Accessibility or Inspection Limitations
+## Accessibility or Inspection Limitations
 
 Mention any spaces or areas the agent was unable to inspect due to personal items, furniture, or lack of access.
 
 Example: "Closet full of personal items; unable to inspect interior."
 
-## 5. Other Notable Visual Conditions
+## Other Notable Visual Conditions
 
 Include anything not fitting into the above categories, such as missing smoke detectors, attic access, or notable wear in unexpected locations.
 
