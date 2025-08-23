@@ -1,39 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { MessageCircle, HelpCircle } from 'lucide-react';
+import React from 'react';
+import { MessageCircle } from 'lucide-react';
 
-const StandardFeedback = ({ userType, onModalOpen }) => {
-  const [animation, setAnimation] = useState('');
-
-  // Add subtle animations to draw attention
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setAnimation('pulse');
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
+const StandardFeedback = ({ userType, onToggle }) => {
   const handleClick = () => {
-    setAnimation('bounce');
-    onModalOpen();
-    
-    // Reset animation after bounce
-    setTimeout(() => {
-      setAnimation('');
-    }, 1000);
+    onToggle();
   };
 
   // Choose icon based on user type
   const getIcon = () => {
-    if (userType === 'recent') {
-      return <HelpCircle size={24} />;
-    }
-    return <MessageCircle size={24} />;
+    // Always use MessageCircle for the circular icon
+    return <MessageCircle size={20} />;
   };
 
   return (
     <div 
-      className={`fw-widget fw-standard-feedback ${animation}`}
+      className="fw-widget fw-standard-feedback"
       onClick={handleClick}
       role="button"
       tabIndex={0}

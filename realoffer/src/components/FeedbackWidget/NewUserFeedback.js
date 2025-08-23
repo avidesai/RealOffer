@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { MessageCircle, HelpCircle, Star, X } from 'lucide-react';
+import { HelpCircle, Star, X, MessageCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
-const NewUserFeedback = ({ onInteraction, onModalOpen }) => {
+const NewUserFeedback = ({ onInteraction, onClose }) => {
   const { token } = useAuth();
   const [rating, setRating] = useState(null);
   const [feedback, setFeedback] = useState('');
@@ -11,9 +11,8 @@ const NewUserFeedback = ({ onInteraction, onModalOpen }) => {
 
   const handleRatingClick = async (selectedRating) => {
     setRating(selectedRating);
-    onInteraction();
     
-    // Submit rating immediately
+    // Submit rating immediately but don't close the widget
     setIsSubmitting(true);
     try {
       await submitFeedback({
@@ -30,14 +29,16 @@ const NewUserFeedback = ({ onInteraction, onModalOpen }) => {
 
   const handleClose = () => {
     setIsClosing(true);
+    // Call the parent's close handler instead of interaction
+    if (onClose) {
+      onClose();
+    }
+    // Also call interaction to record the close action
     onInteraction();
-    setTimeout(() => {
-      // Component will be unmounted by parent
-    }, 500);
   };
 
-  const handleNeedHelp = () => {
-    onModalOpen();
+  const handleContact = () => {
+    window.location.href = 'mailto:avi@realoffer.io?subject=RealOffer Support Request';
   };
 
   const handleSubmitFeedback = async () => {
@@ -45,12 +46,22 @@ const NewUserFeedback = ({ onInteraction, onModalOpen }) => {
     
     setIsSubmitting(true);
     try {
+      // Submit to backend
       await submitFeedback({
         type: 'feature_request',
         message: feedback,
         userType: 'new'
       });
+      
+      // Also send email
+      const emailSubject = 'RealOffer Feedback';
+      const emailBody = `Feedback from user:\n\n${feedback}`;
+      window.location.href = `mailto:avi@realoffer.io?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+      
       setFeedback('');
+      
+      // Close the widget after successful submission
+      onInteraction();
     } catch (error) {
       console.error('Error submitting feedback:', error);
     } finally {
@@ -78,26 +89,28 @@ const NewUserFeedback = ({ onInteraction, onModalOpen }) => {
   return (
     <div className={`fw-widget fw-new-user-feedback ${isClosing ? 'slide-out' : ''}`}>
       <button className="fw-close-button" onClick={handleClose} aria-label="Close feedback">
-        <X size={14} />
+        <X size={12} />
       </button>
       
       <h3>
-        <Star size={20} />
         How's your first week going?
       </h3>
       
-      <p>We'd love to hear about your experience with RealOffer so far!</p>
-      
       <div className="fw-rating-buttons">
-        {[1, 2, 3, 4, 5].map((value) => (
+        {[
+          { value: 1, emoji: '😞', label: 'Not great' },
+          { value: 3, emoji: '😊', label: 'Good' },
+          { value: 5, emoji: '🤩', label: 'Amazing' }
+        ].map(({ value, emoji, label }) => (
           <button
             key={value}
             className={`fw-rating-button ${rating === value ? 'selected' : ''}`}
             onClick={() => handleRatingClick(value)}
             disabled={isSubmitting}
-            aria-label={`Rate ${value} out of 5`}
+            aria-label={label}
+            title={label}
           >
-            {value === 1 ? '😞' : value === 2 ? '😐' : value === 3 ? '😊' : value === 4 ? '😄' : '🤩'}
+            {emoji}
           </button>
         ))}
       </div>
@@ -116,17 +129,17 @@ const NewUserFeedback = ({ onInteraction, onModalOpen }) => {
           onClick={handleSubmitFeedback}
           disabled={!feedback.trim() || isSubmitting}
         >
-          <MessageCircle size={16} />
+          <MessageCircle size={12} />
           Send Feedback
         </button>
         
         <button
           className="fw-feedback-button"
-          onClick={handleNeedHelp}
+          onClick={handleContact}
           disabled={isSubmitting}
         >
-          <HelpCircle size={16} />
-          Need Help?
+          <HelpCircle size={12} />
+          Contact
         </button>
       </div>
     </div>

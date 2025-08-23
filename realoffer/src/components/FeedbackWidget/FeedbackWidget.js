@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import NewUserFeedback from './NewUserFeedback';
 import StandardFeedback from './StandardFeedback';
-import FeedbackModal from './FeedbackModal';
 import './FeedbackWidget.css';
 
 const FeedbackWidget = () => {
@@ -10,12 +9,16 @@ const FeedbackWidget = () => {
   const [userType, setUserType] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const [showModal, setShowModal] = useState(false);
   const [lastShown, setLastShown] = useState(null);
+  const [showFullWidget, setShowFullWidget] = useState(true);
 
   // Determine user type based on signup date
   useEffect(() => {
-    if (!user?.createdAt) return;
+    if (!user?.createdAt) {
+      // For testing purposes, if no createdAt, treat as new user
+      setUserType('new');
+      return;
+    }
 
     const daysSinceSignup = Math.floor(
       (new Date() - new Date(user.createdAt)) / (1000 * 60 * 60 * 24)
@@ -32,48 +35,41 @@ const FeedbackWidget = () => {
 
   // Check if widget should be visible
   useEffect(() => {
-    if (!userType) return;
-
-    // For new users, show immediately
-    if (userType === 'new') {
-      setIsVisible(true);
+    if (!userType) {
       return;
     }
 
-    // For established users, check if they've interacted recently
-    const lastInteraction = localStorage.getItem(`feedback_interaction_${user.id}`);
+    // Always show the widget (either full or circular icon)
+    setIsVisible(true);
+
+    // Check if user has interacted before to determine if we should show full widget
+    const userId = user?.id || user?._id;
+    const lastInteraction = localStorage.getItem(`feedback_interaction_${userId}`);
+    
     if (lastInteraction) {
-      const daysSinceInteraction = Math.floor(
-        (new Date() - new Date(lastInteraction)) / (1000 * 60 * 60 * 24)
-      );
-      
-      // Show for established users if no interaction in last 7 days
-      if (daysSinceInteraction >= 7) {
-        setIsVisible(true);
-      }
+      // User has interacted before, show circular icon
+      setShowFullWidget(false);
     } else {
-      // First time user, show the widget
-      setIsVisible(true);
+      // First time user, show full widget
+      setShowFullWidget(true);
     }
   }, [userType, user]);
 
   const handleInteraction = () => {
     setHasInteracted(true);
-    localStorage.setItem(`feedback_interaction_${user.id}`, new Date().toISOString());
+    const userId = user?.id || user?._id;
+    localStorage.setItem(`feedback_interaction_${userId}`, new Date().toISOString());
     
-    // For new users, hide after interaction
-    if (userType === 'new') {
-      setTimeout(() => setIsVisible(false), 500);
-    }
+    // Switch to circular icon mode
+    setShowFullWidget(false);
   };
 
-  const handleModalOpen = () => {
-    setShowModal(true);
-    handleInteraction();
+  const handleWidgetToggle = () => {
+    setShowFullWidget(!showFullWidget);
   };
 
-  const handleModalClose = () => {
-    setShowModal(false);
+  const handleWidgetClose = () => {
+    setShowFullWidget(false);
   };
 
   // Don't render if not visible or user type not determined
@@ -83,22 +79,15 @@ const FeedbackWidget = () => {
 
   return (
     <>
-      {userType === 'new' ? (
+      {showFullWidget ? (
         <NewUserFeedback 
           onInteraction={handleInteraction}
-          onModalOpen={handleModalOpen}
+          onClose={handleWidgetClose}
         />
       ) : (
         <StandardFeedback 
           userType={userType}
-          onModalOpen={handleModalOpen}
-        />
-      )}
-      
-      {showModal && (
-        <FeedbackModal 
-          userType={userType}
-          onClose={handleModalClose}
+          onToggle={handleWidgetToggle}
         />
       )}
     </>
