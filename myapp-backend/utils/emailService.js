@@ -1431,6 +1431,159 @@ class EmailService {
     }
   }
 
+  // Send feedback notification email
+  async sendFeedbackNotification(feedbackData, userData) {
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: 'avi@realoffer.io',
+      subject: `New Feedback Received - ${feedbackData.type}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">New Feedback Received</h1>
+            <p style="color: #666; margin: 10px 0 0 0;">RealOffer Feedback System</p>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi Avi,</h2>
+            <p style="color: #666; line-height: 1.6;">
+              A new feedback submission has been received through the RealOffer platform.
+            </p>
+            
+            <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #1976d2; margin: 0 0 15px 0;">Feedback Details</h3>
+              <p style="color: #666; margin: 0 0 8px 0; font-size: 14px;">
+                <strong>Type:</strong> ${feedbackData.type}
+              </p>
+              <p style="color: #666; margin: 0 0 8px 0; font-size: 14px;">
+                <strong>User Type:</strong> ${feedbackData.userType}
+              </p>
+              ${feedbackData.rating ? `
+              <p style="color: #666; margin: 0 0 8px 0; font-size: 14px;">
+                <strong>Rating:</strong> ${feedbackData.rating}/5
+              </p>
+              ` : ''}
+              ${feedbackData.message ? `
+              <p style="color: #666; margin: 0 0 8px 0; font-size: 14px;">
+                <strong>Message:</strong>
+              </p>
+              <div style="background-color: #f8f9fa; padding: 10px; border-radius: 6px; margin: 10px 0;">
+                <p style="color: #666; line-height: 1.6; margin: 0; white-space: pre-wrap;">${feedbackData.message}</p>
+              </div>
+              ` : ''}
+            </div>
+            
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #333; margin: 0 0 15px 0;">User Information</h3>
+              <p style="color: #666; margin: 0 0 8px 0; font-size: 14px;">
+                <strong>Name:</strong> ${userData.firstName} ${userData.lastName}
+              </p>
+              <p style="color: #666; margin: 0 0 8px 0; font-size: 14px;">
+                <strong>Email:</strong> ${userData.email}
+              </p>
+              <p style="color: #666; margin: 0 0 8px 0; font-size: 14px;">
+                <strong>User ID:</strong> ${userData.id}
+              </p>
+              <p style="color: #666; margin: 0; font-size: 14px;">
+                <strong>Account Created:</strong> ${new Date(userData.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+            
+            <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+              <h4 style="color: #856404; margin: 0 0 10px 0;">📊 Feedback Summary</h4>
+              <p style="color: #856404; line-height: 1.6; margin: 0;">
+                This feedback has been automatically saved to the database and can be reviewed in the admin dashboard. 
+                The user has also been sent a confirmation email.
+              </p>
+            </div>
+            
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('Feedback notification send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Send feedback confirmation email to user
+  async sendFeedbackConfirmation(userEmail, userName, feedbackData) {
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: userEmail,
+      subject: 'Thank you for your feedback - RealOffer',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">Thank You!</h1>
+            <p style="color: #666; margin: 10px 0 0 0;">Your feedback has been received</p>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${userName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              Thank you for taking the time to provide feedback about RealOffer. We appreciate your input and will use it to improve our platform.
+            </p>
+            
+            <div style="background-color: #e8f5e8; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
+              <h3 style="color: #2e7d32; margin: 0 0 10px 0;">✅ Feedback Received</h3>
+              <p style="color: #2e7d32; line-height: 1.6; margin: 0;">
+                Your feedback has been successfully submitted and our team will review it. 
+                We'll use your input to make RealOffer even better for all users.
+              </p>
+            </div>
+            
+            ${feedbackData.message ? `
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <h4 style="color: #333; margin: 0 0 10px 0;">Your Feedback:</h4>
+              <p style="color: #666; line-height: 1.6; margin: 0; white-space: pre-wrap;">${feedbackData.message}</p>
+            </div>
+            ` : ''}
+            
+            <p style="color: #666; line-height: 1.6;">
+              If you have any additional questions or need support, please don't hesitate to reach out to us directly.
+            </p>
+            
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0;">
+              <h4 style="color: #333; margin: 0 0 10px 0;">Need Help?</h4>
+              <p style="color: #666; line-height: 1.6; margin: 0;">
+                <strong>Avi Desai</strong><br>
+                Founder of RealOffer<br>
+                <a href="mailto:avi@realoffer.io" style="color: #007bff; text-decoration: none;">avi@realoffer.io</a><br>
+                <a href="tel:+14086019407" style="color: #007bff; text-decoration: none;">(408) 601-9407</a>
+              </p>
+            </div>
+            
+            <p style="color: #666; line-height: 1.6;">
+              Thank you for helping us improve RealOffer!<br>
+              The RealOffer Team
+            </p>
+            
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return { success: true };
+    } catch (error) {
+      console.error('Feedback confirmation send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Send seller activity notification
   async sendSellerActivityNotification(sellerEmail, sellerName, activityData) {
     const mailOptions = {

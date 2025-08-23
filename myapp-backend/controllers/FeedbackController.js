@@ -2,6 +2,7 @@
 
 const Feedback = require('../models/Feedback');
 const User = require('../models/User');
+const emailService = require('../utils/emailService');
 
 // Submit feedback
 const submitFeedback = async (req, res) => {
@@ -64,6 +65,46 @@ const submitFeedback = async (req, res) => {
     });
 
     await feedback.save();
+
+    // Get user data for email
+    const user = await User.findById(userId);
+    
+    // Send email notification to Avi
+    try {
+      await emailService.sendFeedbackNotification({
+        type,
+        rating,
+        message,
+        userType,
+        context
+      }, {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        createdAt: user.createdAt
+      });
+    } catch (emailError) {
+      console.error('Error sending feedback notification email:', emailError);
+      // Don't fail the request if email fails
+    }
+
+    // Send confirmation email to user
+    try {
+      await emailService.sendFeedbackConfirmation(
+        user.email,
+        `${user.firstName} ${user.lastName}`,
+        {
+          type,
+          rating,
+          message,
+          userType
+        }
+      );
+    } catch (emailError) {
+      console.error('Error sending feedback confirmation email:', emailError);
+      // Don't fail the request if email fails
+    }
 
     // Log feedback submission for analytics
     console.log(`Feedback submitted: ${type} by ${userType} user ${userId}`);

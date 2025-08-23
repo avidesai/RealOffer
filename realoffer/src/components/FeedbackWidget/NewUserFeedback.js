@@ -46,17 +46,12 @@ const NewUserFeedback = ({ onInteraction, onClose }) => {
     
     setIsSubmitting(true);
     try {
-      // Submit to backend
+      // Submit to backend (includes email functionality)
       await submitFeedback({
         type: 'feature_request',
         message: feedback,
         userType: 'new'
       });
-      
-      // Also send email
-      const emailSubject = 'RealOffer Feedback';
-      const emailBody = `Feedback from user:\n\n${feedback}`;
-      window.location.href = `mailto:avi@realoffer.io?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
       
       setFeedback('');
       
