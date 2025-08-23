@@ -193,6 +193,7 @@ const offerDueDateNotificationsRouter = require('./routes/offerDueDateNotificati
 const enhancedChatRouter = require('./routes/enhancedChat');
 const trialManagementRouter = require('./routes/trialManagement');
 const renovationAnalysisRouter = require('./routes/renovationAnalysis');
+const feedbackRouter = require('./routes/feedback');
 
 // Initialize offer due date notification service
 require('./utils/offerDueDateNotificationService');
@@ -218,6 +219,7 @@ app.use('/api/offer-due-date-notifications', offerDueDateNotificationsRouter);
 app.use('/api/chat/enhanced', enhancedChatRouter);
 app.use('/api/trial-management', trialManagementRouter);
 app.use('/api/renovation-analysis', renovationAnalysisRouter);
+app.use('/api/feedback', feedbackRouter);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

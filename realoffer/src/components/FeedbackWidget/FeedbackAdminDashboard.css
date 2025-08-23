@@ -1,0 +1,407 @@
+/* FeedbackAdminDashboard.css */
+
+.fad-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.fad-error {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+.fad-error h2 {
+  color: #ef4444;
+  margin-bottom: 12px;
+}
+
+.fad-loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+.fad-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid #1b5cf3;
+  border-radius: 50%;
+  animation: fad-spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes fad-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.fad-header {
+  margin-bottom: 32px;
+}
+
+.fad-header h1 {
+  margin: 0 0 24px 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.fad-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.fad-stat-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.fad-stat-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fad-stat-card p {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1b5cf3;
+}
+
+.fad-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.fad-filter-btn {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fad-filter-btn:hover {
+  border-color: #1b5cf3;
+  background: #f0f7ff;
+}
+
+.fad-filter-btn.active {
+  background: #1b5cf3;
+  border-color: #1b5cf3;
+  color: white;
+}
+
+.fad-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fad-item {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.fad-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.fad-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.fad-item-type {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1b5cf3;
+  font-weight: 600;
+}
+
+.fad-type-label {
+  text-transform: capitalize;
+  font-size: 14px;
+}
+
+.fad-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: #6b7280;
+  flex-wrap: wrap;
+}
+
+.fad-user-info {
+  font-weight: 500;
+  color: #374151;
+}
+
+.fad-user-type {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fad-user-type.new {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.fad-user-type.recent {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.fad-user-type.established {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.fad-item-rating {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fad-star {
+  color: #d1d5db;
+  font-size: 16px;
+}
+
+.fad-star.filled {
+  color: #fbbf24;
+}
+
+.fad-item-message {
+  margin-bottom: 16px;
+}
+
+.fad-item-message p {
+  margin: 0;
+  line-height: 1.5;
+  color: #374151;
+}
+
+.fad-item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.fad-item-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.fad-status-resolved {
+  color: #10b981;
+}
+
+.fad-status-progress {
+  color: #f59e0b;
+}
+
+.fad-status-pending {
+  color: #6b7280;
+}
+
+.fad-status-closed {
+  color: #ef4444;
+}
+
+.fad-item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.fad-action-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fad-action-btn.review {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.fad-action-btn.review:hover {
+  background: #fde68a;
+}
+
+.fad-action-btn.resolve {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.fad-action-btn.resolve:hover {
+  background: #a7f3d0;
+}
+
+.fad-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .fad-dashboard {
+    padding: 16px;
+  }
+
+  .fad-header h1 {
+    font-size: 24px;
+  }
+
+  .fad-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .fad-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .fad-item-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .fad-item-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .fad-item-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .fad-dashboard {
+    background: #1f2937;
+    color: white;
+  }
+
+  .fad-stat-card,
+  .fad-item {
+    background: #374151;
+    border-color: #4b5563;
+    color: white;
+  }
+
+  .fad-stat-card h3 {
+    color: #9ca3af;
+  }
+
+  .fad-stat-card p {
+    color: #60a5fa;
+  }
+
+  .fad-filter-btn {
+    background: #374151;
+    border-color: #4b5563;
+    color: #d1d5db;
+  }
+
+  .fad-filter-btn:hover {
+    border-color: #60a5fa;
+    background: #1e3a8a;
+  }
+
+  .fad-filter-btn.active {
+    background: #60a5fa;
+    border-color: #60a5fa;
+    color: white;
+  }
+
+  .fad-item-type {
+    color: #60a5fa;
+  }
+
+  .fad-user-info {
+    color: #d1d5db;
+  }
+
+  .fad-item-meta {
+    color: #9ca3af;
+  }
+
+  .fad-item-message p {
+    color: #d1d5db;
+  }
+
+  .fad-item-footer {
+    border-top-color: #4b5563;
+  }
+
+  .fad-action-btn.review {
+    background: #451a03;
+    color: #fbbf24;
+  }
+
+  .fad-action-btn.review:hover {
+    background: #78350f;
+  }
+
+  .fad-action-btn.resolve {
+    background: #064e3b;
+    color: #34d399;
+  }
+
+  .fad-action-btn.resolve:hover {
+    background: #065f46;
+  }
+}

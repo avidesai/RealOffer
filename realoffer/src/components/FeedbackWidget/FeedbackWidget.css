@@ -1,0 +1,315 @@
+/* FeedbackWidget.css */
+
+/* Base widget positioning */
+.fw-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Animation keyframes */
+@keyframes fw-slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fw-slideOutToRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes fw-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes fw-bounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%, 43% {
+    transform: translate3d(0, -8px, 0);
+  }
+  70% {
+    transform: translate3d(0, -4px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+/* New user feedback card */
+.fw-new-user-feedback {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  color: white;
+  max-width: 320px;
+  animation: fw-slideInFromRight 0.5s ease-out;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fw-new-user-feedback.slide-out {
+  animation: fw-slideOutToRight 0.5s ease-out;
+}
+
+.fw-new-user-feedback h3 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fw-new-user-feedback p {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  line-height: 1.4;
+  opacity: 0.9;
+}
+
+/* Rating buttons */
+.fw-rating-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.fw-rating-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 16px;
+  min-width: 40px;
+  text-align: center;
+}
+
+.fw-rating-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.fw-rating-button.selected {
+  background: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Action buttons */
+.fw-feedback-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fw-feedback-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fw-feedback-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.fw-feedback-button.primary {
+  background: rgba(255, 255, 255, 0.9);
+  color: #667eea;
+  font-weight: 600;
+}
+
+.fw-feedback-button.primary:hover {
+  background: white;
+  transform: translateY(-1px);
+}
+
+/* Standard feedback icon */
+.fw-standard-feedback {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1b5cf3 0%, #3b82f6 100%);
+  box-shadow: 0 4px 16px rgba(27, 92, 243, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: fw-slideInFromRight 0.5s ease-out;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.fw-standard-feedback:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 24px rgba(27, 92, 243, 0.4);
+}
+
+.fw-standard-feedback.pulse {
+  animation: fw-pulse 2s infinite;
+}
+
+.fw-standard-feedback.bounce {
+  animation: fw-bounce 1s ease-in-out;
+}
+
+.fw-standard-feedback svg {
+  width: 24px;
+  height: 24px;
+  color: white;
+}
+
+/* Close button */
+.fw-close-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.fw-close-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* Text input */
+.fw-feedback-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  color: white;
+  font-size: 14px;
+  margin-bottom: 12px;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.fw-feedback-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.fw-feedback-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .fw-widget {
+    bottom: 16px;
+    right: 16px;
+  }
+
+  .fw-new-user-feedback {
+    max-width: calc(100vw - 32px);
+    padding: 16px;
+  }
+
+  .fw-standard-feedback {
+    width: 64px;
+    height: 64px;
+  }
+
+  .fw-standard-feedback svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .fw-rating-buttons {
+    justify-content: center;
+  }
+
+  .fw-feedback-actions {
+    flex-direction: column;
+  }
+
+  .fw-feedback-button {
+    justify-content: center;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .fw-new-user-feedback {
+    background: linear-gradient(135deg, #4c63d2 0%, #6b46c1 100%);
+  }
+}
+
+/* Accessibility */
+.fw-widget:focus-within {
+  outline: 2px solid #1b5cf3;
+  outline-offset: 2px;
+}
+
+/* Loading states */
+.fw-feedback-loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.fw-feedback-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: fw-spin 1s linear infinite;
+}
+
+@keyframes fw-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

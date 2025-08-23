@@ -6,6 +6,7 @@ import MyListings from './components/MyListings/MyListings';
 import ForBuyers from './components/ForBuyers/ForBuyers';
 import Footer from '../../components/Footer/Footer';
 import CreateListingPackageLogic from './components/MyListings/CreateListingPackage/CreateListingPackageLogic';
+import FeedbackWidget from '../../components/FeedbackWidget/FeedbackWidget';
 import { useAuth } from '../../context/AuthContext';
 import './Dashboard.css';
 
@@ -43,6 +44,7 @@ function Dashboard({ userId }) {
         <Footer /> {/* Footer component wrapped in a div for specific styling */}
       </div>
       {showCreateListingModal && <CreateListingPackageLogic onClose={handleCloseModal} userId={userId} />}
+      <FeedbackWidget />
     </div>
   );
 }

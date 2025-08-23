@@ -8,6 +8,7 @@ import BuyerPackageDashboardHeader from './Header/BuyerPackageDashboardHeader';
 import BuyerPackageListingOverview from './components/BuyerPackageListingOverview/BuyerPackageListingOverview';
 import BuyerPackageTabSection from './components/BuyerPackageTabSection/BuyerPackageTabSection';
 import Footer from '../../../../../components/Footer/Footer';
+import FeedbackWidget from '../../../../../components/FeedbackWidget/FeedbackWidget';
 import './BuyerPackageDashboard.css';
 
 function BuyerPackageDashboard() {
@@ -91,6 +92,7 @@ function BuyerPackageDashboard() {
         <BuyerPackageTabSection buyerPackage={buyerPackage} />
       </div>
       <Footer />
+      <FeedbackWidget />
     </div>
   );
 }
