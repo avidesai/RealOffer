@@ -54,7 +54,7 @@ const PublicFacingListing = () => {
     lastName: user?.lastName || '',
     email: user?.email || '',
     phone: user?.phone || '',
-    role: user?.role || 'buyer', // Default to buyer for minimal registration
+    role: user?.role || 'agent', // Default to agent for role selection
     password: '',
     confirmPassword: '',
     agentLicenseNumber: '', // Add license number field
@@ -86,7 +86,8 @@ const PublicFacingListing = () => {
         email: sharedEmail,
         role: sharedRole === 'buyerAgent' ? 'agent' : 
               sharedRole === 'teamMember' ? 'agent' : 
-              sharedRole === 'listingAgent' ? 'agent' : 'buyer' // Team members and listing agents sign up as agents
+              sharedRole === 'listingAgent' ? 'agent' : 
+              sharedRole === 'buyer' ? 'buyer' : 'agent' // Default to agent if no role specified
       }));
     }
   }, [searchParams, user]);
@@ -324,6 +325,11 @@ const PublicFacingListing = () => {
       return;
     }
 
+    if (!formData.role) {
+      setError('Please select your role.');
+      return;
+    }
+
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
@@ -341,8 +347,14 @@ const PublicFacingListing = () => {
         // User exists - show login form
         setFormStep('login');
       } else {
-        // User doesn't exist - show minimal registration form
-        setFormStep('minimal');
+        // User doesn't exist - check role to determine next step
+        if (formData.role === 'agent') {
+          // Agent selected - show full account creation
+          setFormStep('signup');
+        } else {
+          // Buyer selected - show minimal registration
+          setFormStep('minimal');
+        }
       }
     } catch (error) {
       setError('Unable to verify your email. Please try again.');
@@ -1531,6 +1543,19 @@ const PublicFacingListing = () => {
                 required={!user}
                 autoComplete="email"
               />
+            </div>
+            <div className="pfl-form-group">
+              <label htmlFor="role">I am a...</label>
+              <select
+                id="role"
+                name="role"
+                value={formData.role}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="agent">Real Estate Agent</option>
+                <option value="buyer">Home Buyer</option>
+              </select>
             </div>
             <button type="submit" className="pfl-request-button" disabled={isLoading}>
               {isLoading ? 'Checking...' : (user ? (listing && listing.createdBy === user._id ? 'Manage Listing' : 'Get Access Now') : 'Continue')}
