@@ -23,12 +23,102 @@ function ForBuyers() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareListingUrl, setShareListingUrl] = useState('');
   const [shareListingId, setShareListingId] = useState('');
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordFormData, setPasswordFormData] = useState({
+    password: '',
+    confirmPassword: ''
+  });
+  const [passwordErrors, setPasswordErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isSettingPassword, setIsSettingPassword] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState('');
 
   // Calculate counts for different statuses
   const activePackagesCount = buyerPackages.filter(pkg => pkg.status === 'active').length;
   const archivedPackagesCount = buyerPackages.filter(pkg => pkg.status === 'archived').length;
 
   const { user, token, logout } = useAuth();
+
+  // Password setup functions
+  const handlePasswordInputChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear errors when user starts typing
+    if (passwordErrors[name]) {
+      setPasswordErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const validatePasswordForm = () => {
+    const newErrors = {};
+    
+    if (!passwordFormData.password) {
+      newErrors.password = 'Password is required';
+    } else if (passwordFormData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters long';
+    }
+    
+    if (!passwordFormData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (passwordFormData.password !== passwordFormData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+    
+    setPasswordErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validatePasswordForm()) return;
+    
+    setIsSettingPassword(true);
+    setPasswordErrors({});
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/set-password`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          email: user.email,
+          password: passwordFormData.password
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Update user data in localStorage
+        const currentUser = JSON.parse(localStorage.getItem('user'));
+        const updatedUser = { ...currentUser, isMinimalRegistration: false };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        
+        setPasswordSuccess('Password set successfully!');
+        setTimeout(() => {
+          setShowPasswordModal(false);
+          setPasswordFormData({ password: '', confirmPassword: '' });
+          setPasswordSuccess('');
+          // Refresh the page to update the user state
+          window.location.reload();
+        }, 1500);
+      } else {
+        setPasswordErrors({ general: data.message || 'Failed to set password. Please try again.' });
+      }
+    } catch (error) {
+      console.error('Error setting password:', error);
+      setPasswordErrors({ general: 'Failed to set password. Please try again.' });
+    } finally {
+      setIsSettingPassword(false);
+    }
+  };
 
   const fetchBuyerPackages = useCallback(async () => {
     if ((user?._id || user?.id) && token) {
@@ -237,6 +327,25 @@ function ForBuyers() {
         </div>
       )}
       
+      {/* Minimal User Banner */}
+      {user?.isMinimalRegistration && (
+        <div className="fb-minimal-user-banner">
+          <div className="fb-banner-content">
+            <div className="fb-banner-icon">🔒</div>
+            <div className="fb-banner-text">
+              <h4>Complete Your Account</h4>
+              <p>Your account was created with minimal registration. Set a password to secure your account and enable normal login.</p>
+            </div>
+            <button 
+              className="fb-banner-action-btn" 
+              onClick={() => setShowPasswordModal(true)}
+            >
+              Set Password
+            </button>
+          </div>
+        </div>
+      )}
+      
       <BuyerPackageFilterSortBar
         onFilterChange={handleFilterChange}
         onSortChange={handleSortChange}
@@ -305,6 +414,97 @@ function ForBuyers() {
           url={shareListingUrl}
           listingId={shareListingId}
         />
+      )}
+      
+      {/* Password Setup Modal */}
+      {showPasswordModal && (
+        <div className="fb-modal-overlay">
+          <div className="fb-modal-content">
+            <div className="fb-modal-header">
+              <h3>Set Your Password</h3>
+              <button className="fb-modal-close" onClick={() => setShowPasswordModal(false)}>×</button>
+            </div>
+            
+            {passwordSuccess ? (
+              <div className="fb-modal-body">
+                <div className="fb-success-message">
+                  <p>{passwordSuccess}</p>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handlePasswordSubmit} className="fb-modal-body">
+                <p className="fb-modal-description">
+                  Please set a password to secure your account. You'll be able to log in normally after setting your password.
+                </p>
+                
+                {passwordErrors.general && (
+                  <div className="fb-error-message">
+                    {passwordErrors.general}
+                  </div>
+                )}
+                
+                <div className="fb-form-group">
+                  <label htmlFor="password">New Password</label>
+                  <div className="fb-password-input-group">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      id="password"
+                      name="password"
+                      value={passwordFormData.password}
+                      onChange={handlePasswordInputChange}
+                      className={`fb-form-control ${passwordErrors.password ? 'fb-input-error' : ''}`}
+                      placeholder="Create a password (min 6 characters)"
+                      minLength="6"
+                    />
+                    <button
+                      type="button"
+                      className="fb-password-toggle"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? '👁️' : '👁️‍🗨️'}
+                    </button>
+                  </div>
+                  {passwordErrors.password && <div className="fb-error-text">{passwordErrors.password}</div>}
+                </div>
+                
+                <div className="fb-form-group">
+                  <label htmlFor="confirmPassword">Confirm Password</label>
+                  <div className="fb-password-input-group">
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      value={passwordFormData.confirmPassword}
+                      onChange={handlePasswordInputChange}
+                      className={`fb-form-control ${passwordErrors.confirmPassword ? 'fb-input-error' : ''}`}
+                      placeholder="Confirm your password"
+                      minLength="6"
+                    />
+                    <button
+                      type="button"
+                      className="fb-password-toggle"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                    </button>
+                  </div>
+                  {passwordErrors.confirmPassword && <div className="fb-error-text">{passwordErrors.confirmPassword}</div>}
+                </div>
+                
+                <div className="fb-modal-actions">
+                  <button type="button" className="fb-btn-secondary" onClick={() => setShowPasswordModal(false)}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="fb-btn-primary" disabled={isSettingPassword}>
+                    {isSettingPassword ? 'Setting Password...' : 'Set Password'}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

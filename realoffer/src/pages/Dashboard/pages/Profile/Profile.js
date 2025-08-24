@@ -11,6 +11,7 @@ import EditEmailModal from './components/EditEmailModal/EditEmailModal';
 import Avatar from '../../../../components/Avatar/Avatar';
 import { hasPremiumAccess, getTrialStatus, formatTrialEndDate } from '../../../../utils/trialUtils';
 import './Profile.css';
+import '../components/ForBuyers/ForBuyers.css'; // Import for consistent styling
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -50,15 +51,15 @@ const Profile = () => {
           
           {/* Minimal User Notice */}
           {profileData.isMinimalRegistration && (
-            <div className="pp-minimal-user-notice">
-              <div className="pp-notice-content">
-                <div className="pp-notice-icon">🔒</div>
-                <div className="pp-notice-text">
+            <div className="fb-minimal-user-banner">
+              <div className="fb-banner-content">
+                <div className="fb-banner-icon">🔒</div>
+                <div className="fb-banner-text">
                   <h4>Complete Your Account</h4>
                   <p>Your account was created with minimal registration. Set a password to secure your account and enable normal login.</p>
                 </div>
                 <button 
-                  className="pp-notice-action-btn" 
+                  className="fb-banner-action-btn" 
                   onClick={() => setShowPasswordModal(true)}
                 >
                   Set Password
@@ -514,86 +515,86 @@ const PasswordSetupModal = ({ isOpen, onClose, onSuccess }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="pp-modal-overlay">
-      <div className="pp-modal-content">
-        <div className="pp-modal-header">
+    <div className="fb-modal-overlay">
+      <div className="fb-modal-content">
+        <div className="fb-modal-header">
           <h3>Set Your Password</h3>
-          <button className="pp-modal-close" onClick={onClose}>×</button>
+          <button className="fb-modal-close" onClick={onClose}>×</button>
         </div>
         
         {successMessage ? (
-          <div className="pp-modal-body">
-            <div className="pp-success-message">
+          <div className="fb-modal-body">
+            <div className="fb-success-message">
               <p>{successMessage}</p>
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="pp-modal-body">
-            <p className="pp-modal-description">
+          <form onSubmit={handleSubmit} className="fb-modal-body">
+            <p className="fb-modal-description">
               Please set a password to secure your account. You'll be able to log in normally after setting your password.
             </p>
             
             {errors.general && (
-              <div className="pp-error-message">
+              <div className="fb-error-message">
                 {errors.general}
               </div>
             )}
             
-            <div className="pp-form-group">
+            <div className="fb-form-group">
               <label htmlFor="password">New Password</label>
-              <div className="pp-password-input-group">
+              <div className="fb-password-input-group">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   id="password"
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className={`pp-form-control ${errors.password ? 'pp-input-error' : ''}`}
+                  className={`fb-form-control ${errors.password ? 'fb-input-error' : ''}`}
                   placeholder="Create a password (min 6 characters)"
                   minLength="6"
                 />
                 <button
                   type="button"
-                  className="pp-password-toggle"
+                  className="fb-password-toggle"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? '👁️' : '👁️‍🗨️'}
                 </button>
               </div>
-              {errors.password && <div className="pp-error-text">{errors.password}</div>}
+              {errors.password && <div className="fb-error-text">{errors.password}</div>}
             </div>
             
-            <div className="pp-form-group">
+            <div className="fb-form-group">
               <label htmlFor="confirmPassword">Confirm Password</label>
-              <div className="pp-password-input-group">
+              <div className="fb-password-input-group">
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   id="confirmPassword"
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className={`pp-form-control ${errors.confirmPassword ? 'pp-input-error' : ''}`}
+                  className={`fb-form-control ${errors.confirmPassword ? 'fb-input-error' : ''}`}
                   placeholder="Confirm your password"
                   minLength="6"
                 />
                 <button
                   type="button"
-                  className="pp-password-toggle"
+                  className="fb-password-toggle"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                 >
                   {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
                 </button>
               </div>
-              {errors.confirmPassword && <div className="pp-error-text">{errors.confirmPassword}</div>}
+              {errors.confirmPassword && <div className="fb-error-text">{errors.confirmPassword}</div>}
             </div>
             
-            <div className="pp-modal-actions">
-              <button type="button" className="pp-btn-secondary" onClick={onClose}>
+            <div className="fb-modal-actions">
+              <button type="button" className="fb-btn-secondary" onClick={onClose}>
                 Cancel
               </button>
-              <button type="submit" className="pp-btn-primary" disabled={isLoading}>
+              <button type="submit" className="fb-btn-primary" disabled={isLoading}>
                 {isLoading ? 'Setting Password...' : 'Set Password'}
               </button>
             </div>

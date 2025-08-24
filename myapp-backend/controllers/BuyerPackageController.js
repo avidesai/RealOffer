@@ -5,6 +5,7 @@ const PropertyListing = require('../models/PropertyListing');
 const Activity = require('../models/Activity');
 const User = require('../models/User');
 const notificationService = require('../utils/notificationService');
+const emailService = require('../utils/emailService');
 
 // Create a new buyer package
 exports.createBuyerPackage = async (req, res) => {
@@ -118,6 +119,16 @@ exports.createBuyerPackage = async (req, res) => {
       userRole
     ).catch(error => {
       console.error('Failed to send buyer package notification:', error);
+    });
+
+    // Send confirmation email to the user (non-blocking)
+    emailService.sendBuyerPackageConfirmation(
+      req.user.email,
+      req.user.firstName,
+      propertyListing.homeCharacteristics.address,
+      savedPackage._id
+    ).catch(error => {
+      console.error('Failed to send buyer package confirmation email:', error);
     });
 
     res.status(201).json({
@@ -323,6 +334,16 @@ exports.createBuyerPackageMinimal = async (req, res) => {
       'buyer'
     ).catch(error => {
       console.error('Failed to send buyer package notification:', error);
+    });
+
+    // Send confirmation email to the user (non-blocking)
+    emailService.sendBuyerPackageConfirmation(
+      userInfo.email,
+      userInfo.firstName,
+      propertyListing.homeCharacteristics.address,
+      savedPackage._id
+    ).catch(error => {
+      console.error('Failed to send buyer package confirmation email:', error);
     });
 
     // Get the user data for response

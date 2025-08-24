@@ -1689,6 +1689,80 @@ class EmailService {
       return { success: false, error: error.message };
     }
   }
+
+  // Send buyer package confirmation email
+  async sendBuyerPackageConfirmation(userEmail, firstName, propertyAddress, buyerPackageId) {
+    const buyerPackageUrl = `${process.env.FRONTEND_URL}/buyerpackage/${buyerPackageId}`;
+    
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: userEmail,
+      subject: `You've joined the listing on ${propertyAddress}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">Welcome to Your Buyer Package!</h1>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${firstName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              Great news! You've successfully joined the listing for <strong>${propertyAddress}</strong>. 
+              Your buyer package has been created and you now have access to all property details, 
+              documents, and the ability to make offers.
+            </p>
+            <div style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="color: #1976d2; font-weight: 600; margin: 0 0 10px 0;">
+                ${propertyAddress}
+              </p>
+              <p style="color: #666; margin: 0; font-size: 14px;">
+                Your buyer package is now active
+              </p>
+            </div>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${buyerPackageUrl}" 
+                 style="background-color: #007bff; color: white; padding: 12px 30px; 
+                        text-decoration: none; border-radius: 5px; display: inline-block;">
+                Access Your Buyer Package
+              </a>
+            </div>
+            <p style="color: #666; line-height: 1.6;">
+              If the button doesn't work, you can copy and paste this link into your browser:
+            </p>
+            <p style="color: #007bff; word-break: break-all;">
+              ${buyerPackageUrl}
+            </p>
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #333; margin: 0 0 10px 0;">What you can do now:</h3>
+              <ul style="color: #666; line-height: 1.6; margin: 0; padding-left: 20px;">
+                <li>View property details and photos</li>
+                <li>Access all property documents and disclosures</li>
+                <li>Review property analysis and insights</li>
+                <li>Make offers when you're ready</li>
+                <li>Track your offer status and activity</li>
+              </ul>
+            </div>
+            <p style="color: #666; line-height: 1.6;">
+              You can access your buyer package anytime by logging into your RealOffer account 
+              and visiting the "For Buyers" section of your dashboard.
+            </p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      console.log(`Buyer package confirmation email sent to ${userEmail} for property: ${propertyAddress}`);
+      return { success: true };
+    } catch (error) {
+      console.error('Buyer package confirmation email send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 module.exports = new EmailService(); 
