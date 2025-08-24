@@ -881,6 +881,14 @@ exports.shareListing = async (req, res) => {
 
       if (!emailResult.success) {
         console.error('Failed to send sharing email:', emailResult.error);
+        
+        // Check if it's a SendGrid quota issue
+        if (emailResult.error && emailResult.error.includes('Maximum credits exceeded')) {
+          return res.status(500).json({ 
+            message: 'Email service temporarily unavailable. Please copy and share the link using the copy button in the bottom left corner.' 
+          });
+        }
+        
         return res.status(500).json({ 
           message: 'Failed to send sharing email. Please try again later.' 
         });
@@ -894,6 +902,14 @@ exports.shareListing = async (req, res) => {
       });
     } catch (emailError) {
       console.error('Email sending error:', emailError);
+      
+      // Check if it's a SendGrid quota issue
+      if (emailError.message && emailError.message.includes('Maximum credits exceeded')) {
+        return res.status(500).json({ 
+          message: 'Email service temporarily unavailable due to quota limits. Please try again later or contact support.' 
+        });
+      }
+      
       return res.status(500).json({ 
         message: 'Failed to send sharing email. Please try again later.' 
       });

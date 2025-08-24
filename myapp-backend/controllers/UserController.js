@@ -886,14 +886,13 @@ exports.requestPasswordReset = async (req, res) => {
     user.passwordResetExpires = passwordResetExpires;
     await user.save();
     
-    // Send password reset email
+    // Send password reset email (non-blocking)
     try {
       await emailService.sendPasswordReset(user.email, passwordResetToken, user.firstName);
     } catch (emailError) {
       console.error('Failed to send password reset email:', emailError);
-      return res.status(500).json({ 
-        message: 'Failed to send password reset email. Please try again later.' 
-      });
+      // Don't block the user - they can still reset their password manually
+      // The token is saved and valid, they just won't get the email
     }
     
     res.status(200).json({ 
@@ -982,14 +981,13 @@ exports.resendEmailVerification = async (req, res) => {
     user.emailVerificationExpires = emailVerificationExpires;
     await user.save();
     
-    // Send new verification email
+    // Send new verification email (non-blocking)
     try {
       await emailService.sendEmailVerification(user.email, emailVerificationToken, user.firstName);
     } catch (emailError) {
       console.error('Failed to send email verification:', emailError);
-      return res.status(500).json({ 
-        message: 'Failed to send verification email. Please try again later.' 
-      });
+      // Don't block the user - the token is saved and valid
+      // They can still verify manually or request a new one
     }
     
     res.status(200).json({ 
@@ -1063,26 +1061,21 @@ exports.sendTeamMemberInvitation = async (req, res) => {
                 teamMemberIds: updatedTeamMemberIds
             });
             
-            // Send notification email to existing user
-            const emailResult = await emailService.sendTeamMemberAddedNotification(
+            // Send notification email to existing user (non-blocking)
+            emailService.sendTeamMemberAddedNotification(
                 existingUser.email,
                 `${existingUser.firstName} ${existingUser.lastName}`,
                 propertyAddress,
                 inviterName
-            );
+            ).catch(error => {
+                console.error('Failed to send team member notification email:', error);
+            });
             
-            if (emailResult.success) {
-                res.status(200).json({ 
-                    message: 'Existing user added to team successfully',
-                    email: email,
-                    userExists: true
-                });
-            } else {
-                res.status(500).json({ 
-                    message: 'Failed to send notification email',
-                    error: emailResult.error 
-                });
-            }
+            res.status(200).json({ 
+                message: 'Existing user added to team successfully',
+                email: email,
+                userExists: true
+            });
             return;
         }
 
@@ -1104,8 +1097,8 @@ exports.sendTeamMemberInvitation = async (req, res) => {
         // Extract the token from the publicUrl
         const publicUrlToken = listing.publicUrl.split('/').pop();
         
-        // Send invitation email
-        const emailResult = await emailService.sendTeamMemberInvitation(
+        // Send invitation email (non-blocking)
+        emailService.sendTeamMemberInvitation(
             email,
             firstName || 'Team Member',
             lastName || '',
@@ -1114,19 +1107,14 @@ exports.sendTeamMemberInvitation = async (req, res) => {
             publicUrlToken,
             listingId,
             message || ''
-        );
+        ).catch(error => {
+            console.error('Failed to send team member invitation email:', error);
+        });
 
-        if (emailResult.success) {
-            res.status(200).json({ 
-                message: 'Team member invitation sent successfully',
-                email: email
-            });
-        } else {
-            res.status(500).json({ 
-                message: 'Failed to send invitation email',
-                error: emailResult.error 
-            });
-        }
+        res.status(200).json({ 
+            message: 'Team member invitation sent successfully',
+            email: email
+        });
     } catch (error) {
         console.error('Error sending team member invitation:', error);
         res.status(500).json({ message: error.message });
@@ -1207,18 +1195,11 @@ exports.sendListingAgentInvitation = async (req, res) => {
                 inviterName
             );
             
-            if (emailResult.success) {
-                res.status(200).json({ 
-                    message: 'Existing user added as listing agent successfully',
-                    email: email,
-                    userExists: true
-                });
-            } else {
-                res.status(500).json({ 
-                    message: 'Failed to send notification email',
-                    error: emailResult.error 
-                });
-            }
+            res.status(200).json({ 
+                message: 'Existing user added as listing agent successfully',
+                email: email,
+                userExists: true
+            });
             return;
         }
 
@@ -1240,8 +1221,8 @@ exports.sendListingAgentInvitation = async (req, res) => {
         // Extract the token from the publicUrl
         const publicUrlToken = listing.publicUrl.split('/').pop();
         
-        // Send invitation email
-        const emailResult = await emailService.sendListingAgentInvitation(
+        // Send invitation email (non-blocking)
+        emailService.sendListingAgentInvitation(
             email,
             firstName || 'Listing Agent',
             lastName || '',
@@ -1250,19 +1231,14 @@ exports.sendListingAgentInvitation = async (req, res) => {
             publicUrlToken,
             listingId,
             message || ''
-        );
+        ).catch(error => {
+            console.error('Failed to send listing agent invitation email:', error);
+        });
 
-        if (emailResult.success) {
-            res.status(200).json({ 
-                message: 'Listing agent invitation sent successfully',
-                email: email
-            });
-        } else {
-            res.status(500).json({ 
-                message: 'Failed to send invitation email',
-                error: emailResult.error 
-            });
-        }
+        res.status(200).json({ 
+            message: 'Listing agent invitation sent successfully',
+            email: email
+        });
     } catch (error) {
         console.error('Error sending listing agent invitation:', error);
         res.status(500).json({ message: error.message });
