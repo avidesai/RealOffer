@@ -1722,7 +1722,7 @@ class EmailService {
     const mailOptions = {
       from: `"RealOffer" <noreply@realoffer.io>`,
       to: userEmail,
-      subject: `You've joined the listing on ${propertyAddress}`,
+      subject: `Welcome to RealOffer - Your Login Information`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
