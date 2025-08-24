@@ -27,6 +27,7 @@ const Profile = () => {
   } = useProfileLogic();
 
   const [isEmailModalOpen, setEmailModalOpen] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   const handleUpgradeClick = () => {
     navigate('/upgrade');
@@ -46,6 +47,26 @@ const Profile = () => {
       <div className="pp-profile-background">
         <div className="pp-profile-container">
           <h2 className="pp-profile-title">Profile</h2>
+          
+          {/* Minimal User Notice */}
+          {profileData.isMinimalRegistration && (
+            <div className="pp-minimal-user-notice">
+              <div className="pp-notice-content">
+                <div className="pp-notice-icon">🔒</div>
+                <div className="pp-notice-text">
+                  <h4>Complete Your Account</h4>
+                  <p>Your account was created with minimal registration. Set a password to secure your account and enable normal login.</p>
+                </div>
+                <button 
+                  className="pp-notice-action-btn" 
+                  onClick={() => setShowPasswordModal(true)}
+                >
+                  Set Password
+                </button>
+              </div>
+            </div>
+          )}
+          
           {profileData.role !== 'buyer' && (
             <p className="pp-profile-autosave-notice">
               Changes are saved automatically.
@@ -200,6 +221,24 @@ const Profile = () => {
                 </InputMask>
                 {updating.phone && <div className="pp-input-spinner"></div>}
               </div>
+              
+              {/* Password Setup for Minimal Users */}
+              {profileData.isMinimalRegistration && (
+                <div className="pp-form-group">
+                  <label>Account Security</label>
+                  <div className="pp-password-setup-section">
+                    <div className="pp-password-setup-notice">
+                      <p>Your account was created with minimal registration. Set a password to secure your account.</p>
+                    </div>
+                    <button 
+                      className="pp-set-password-btn" 
+                      onClick={() => setShowPasswordModal(true)}
+                    >
+                      Set Password
+                    </button>
+                  </div>
+                </div>
+              )}
               {/* Address Line 1 */}
               <div className="pp-form-group">
                 <label htmlFor="addressLine1">Address Line 1</label>
@@ -365,11 +404,204 @@ const Profile = () => {
             )}
           </div>
           <EditEmailModal isOpen={isEmailModalOpen} onClose={() => setEmailModalOpen(false)} />
+          
+          {/* Password Setup Modal */}
+          {showPasswordModal && (
+            <PasswordSetupModal 
+              isOpen={showPasswordModal} 
+              onClose={() => setShowPasswordModal(false)}
+              onSuccess={() => {
+                setShowPasswordModal(false);
+                // Refresh profile data to update isMinimalRegistration status
+                window.location.reload();
+              }}
+            />
+          )}
         </div>
         <Footer />
       </div>
     </>
   );
 }
+
+// Password Setup Modal Component
+const PasswordSetupModal = ({ isOpen, onClose, onSuccess }) => {
+  const [formData, setFormData] = useState({
+    password: '',
+    confirmPassword: ''
+  });
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear errors when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters long';
+    }
+    
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
+    
+    setIsLoading(true);
+    setErrors({});
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/set-password`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          email: JSON.parse(localStorage.getItem('user')).email,
+          password: formData.password
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Update user data in localStorage
+        const currentUser = JSON.parse(localStorage.getItem('user'));
+        const updatedUser = { ...currentUser, isMinimalRegistration: false };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        
+        setSuccessMessage('Password set successfully!');
+        setTimeout(() => {
+          onSuccess();
+        }, 1500);
+      } else {
+        setErrors({ general: data.message || 'Failed to set password. Please try again.' });
+      }
+    } catch (error) {
+      console.error('Error setting password:', error);
+      setErrors({ general: 'Failed to set password. Please try again.' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="pp-modal-overlay">
+      <div className="pp-modal-content">
+        <div className="pp-modal-header">
+          <h3>Set Your Password</h3>
+          <button className="pp-modal-close" onClick={onClose}>×</button>
+        </div>
+        
+        {successMessage ? (
+          <div className="pp-modal-body">
+            <div className="pp-success-message">
+              <p>{successMessage}</p>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="pp-modal-body">
+            <p className="pp-modal-description">
+              Please set a password to secure your account. You'll be able to log in normally after setting your password.
+            </p>
+            
+            {errors.general && (
+              <div className="pp-error-message">
+                {errors.general}
+              </div>
+            )}
+            
+            <div className="pp-form-group">
+              <label htmlFor="password">New Password</label>
+              <div className="pp-password-input-group">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  className={`pp-form-control ${errors.password ? 'pp-input-error' : ''}`}
+                  placeholder="Create a password (min 6 characters)"
+                  minLength="6"
+                />
+                <button
+                  type="button"
+                  className="pp-password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                </button>
+              </div>
+              {errors.password && <div className="pp-error-text">{errors.password}</div>}
+            </div>
+            
+            <div className="pp-form-group">
+              <label htmlFor="confirmPassword">Confirm Password</label>
+              <div className="pp-password-input-group">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  className={`pp-form-control ${errors.confirmPassword ? 'pp-input-error' : ''}`}
+                  placeholder="Confirm your password"
+                  minLength="6"
+                />
+                <button
+                  type="button"
+                  className="pp-password-toggle"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                </button>
+              </div>
+              {errors.confirmPassword && <div className="pp-error-text">{errors.confirmPassword}</div>}
+            </div>
+            
+            <div className="pp-modal-actions">
+              <button type="button" className="pp-btn-secondary" onClick={onClose}>
+                Cancel
+              </button>
+              <button type="submit" className="pp-btn-primary" disabled={isLoading}>
+                {isLoading ? 'Setting Password...' : 'Set Password'}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export default Profile;

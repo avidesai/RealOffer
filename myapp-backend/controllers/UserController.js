@@ -598,6 +598,19 @@ exports.loginUser = async (req, res) => {
             });
         }
 
+        // Check if user is a minimal registration user
+        if (user.isMinimalRegistration) {
+            // For minimal users, check if they're trying to use their temp password
+            if (user.tempPassword && password === user.tempPassword) {
+                // They're using the temp password, prompt them to set a real password
+                return res.status(401).json({ 
+                    message: 'Please set a password for your account',
+                    requiresPasswordSetup: true,
+                    email: user.email
+                });
+            }
+        }
+
         const isPasswordValid = await bcrypt.compare(password, user.password);
         
         if (!isPasswordValid) {
@@ -638,6 +651,7 @@ exports.loginUser = async (req, res) => {
             firstName: user.firstName,
             lastName: user.lastName,
             role: user.role,
+            isMinimalRegistration: user.isMinimalRegistration,
             isPremium: user.isPremium,
             isOnTrial: user.isOnTrial,
             trialStartDate: user.trialStartDate,
@@ -1202,5 +1216,93 @@ exports.sendListingAgentInvitation = async (req, res) => {
     } catch (error) {
         console.error('Error sending listing agent invitation:', error);
         res.status(500).json({ message: error.message });
+    }
+};
+
+exports.setPasswordForMinimalUser = async (req, res) => {
+    const { email, password } = req.body;
+    
+    try {
+        // Validate required fields
+        if (!email || !password) {
+            return res.status(400).json({ 
+                message: 'Email and password are required' 
+            });
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ 
+                message: 'Invalid email format' 
+            });
+        }
+
+        // Validate password strength
+        if (password.length < 6) {
+            return res.status(400).json({ 
+                message: 'Password must be at least 6 characters long' 
+            });
+        }
+
+        const user = await User.findOne({ email: email.toLowerCase() });
+        
+        if (!user) {
+            return res.status(404).json({ 
+                message: 'User not found' 
+            });
+        }
+
+        // Check if user is a minimal registration user
+        if (!user.isMinimalRegistration) {
+            return res.status(400).json({ 
+                message: 'This user is not a minimal registration user' 
+            });
+        }
+
+        // Update user password and remove minimal registration status
+        user.password = password;
+        user.isMinimalRegistration = false;
+        user.tempPassword = undefined; // Clear temporary password
+        user.registrationSource = 'full'; // Update registration source
+
+        await user.save();
+        
+        // Generate JWT token for immediate login
+        const payload = {
+            user: {
+                id: user._id,
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                role: user.role
+            }
+        };
+        
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '3h' });
+        
+        res.status(200).json({
+            message: 'Password set successfully. You are now logged in.',
+            user: {
+                _id: user._id,
+                id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                role: user.role,
+                isMinimalRegistration: user.isMinimalRegistration,
+                isPremium: user.isPremium,
+                isOnTrial: user.isOnTrial,
+                trialStartDate: user.trialStartDate,
+                trialEndDate: user.trialEndDate
+            },
+            token
+        });
+    } catch (error) {
+        console.error('Error setting password for minimal user:', error);
+        res.status(500).json({ 
+            message: 'Internal server error while setting password',
+            error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
+        });
     }
 };

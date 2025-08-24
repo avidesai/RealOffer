@@ -395,6 +395,13 @@ const PublicFacingListing = () => {
         // User is not the listing agent, create buyer package
         await createBuyerPackage(userId, data.token);
       } else {
+        // Check if this is a minimal user who needs to set a password
+        if (response.status === 401 && data.requiresPasswordSetup) {
+          // Show password setup form
+          setFormStep('password-setup');
+          return;
+        }
+        
         // Parse error message for better user experience
         const errorMessage = data.message?.toLowerCase() || '';
         
@@ -877,7 +884,8 @@ const PublicFacingListing = () => {
           nextSteps: [
             "View your buyer package in the 'For Buyers' section",
             "Access property documents and disclosures",
-            "Make offers when ready"
+            "Make offers when ready",
+            "Set a password for your account to log in later"
           ]
         });
         
@@ -903,6 +911,72 @@ const PublicFacingListing = () => {
       } else {
         setError('Failed to create buyer package. Please try again or contact support.');
       }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePasswordSetup = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!formData.password || !formData.confirmPassword) {
+      setError('Please fill in all required fields.');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/set-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Store authentication data
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token);
+        
+        // Show success state
+        setFormStep('success');
+        setSuccessMessage({
+          title: "Password Set Successfully!",
+          message: "Your account is now complete and you're logged in.",
+          nextSteps: [
+            "You can now log in with your email and password",
+            "Access your buyer packages",
+            "Complete your profile anytime"
+          ]
+        });
+        
+        // Auto-redirect after 3 seconds
+        setTimeout(() => {
+          window.location.href = `/dashboard`;
+        }, 3000);
+      } else {
+        setError(data.message || 'Failed to set password. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error setting password:', error);
+      setError('Failed to set password. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -1057,6 +1131,78 @@ const PublicFacingListing = () => {
               </div>
               <button type="submit" className="pfl-request-button" disabled={isLoading}>
                 {isLoading ? 'Logging in...' : 'Login & View Listing'}
+              </button>
+            </form>
+          </div>
+        );
+      }
+
+      if (formStep === 'password-setup') {
+        return (
+          <div className="pfl-form-container">
+            <div className="pfl-back-button-container">
+              <button 
+                type="button" 
+                onClick={() => setFormStep('login')}
+                className="pfl-back-button"
+              >
+                ← Back
+              </button>
+            </div>
+            <h2>Set Your Password</h2>
+            <p>Please set a password for your account to complete your registration.</p>
+            {error && <p className="pfl-error">{error}</p>}
+            <form className="pfl-inquiry-form" onSubmit={handlePasswordSetup} onKeyDown={handleKeyDown}>
+              <div className="pfl-form-group">
+                <label htmlFor="password">Password</label>
+                <div className="pfl-password-input-group">
+                  <input
+                    type={formData.showPassword ? 'text' : 'password'}
+                    id="password"
+                    name="password"
+                    placeholder="Create a password (min 6 characters)"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    required
+                    autoComplete="new-password"
+                    minLength="6"
+                  />
+                  <button
+                    type="button"
+                    className="pfl-password-toggle-button"
+                    onClick={() => setFormData(prev => ({ ...prev, showPassword: !prev.showPassword }))}
+                    aria-label={formData.showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {formData.showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+              </div>
+              <div className="pfl-form-group">
+                <label htmlFor="confirmPassword">Confirm Password</label>
+                <div className="pfl-password-input-group">
+                  <input
+                    type={formData.showConfirmPassword ? 'text' : 'password'}
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    placeholder="Confirm your password"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    required
+                    autoComplete="new-password"
+                    minLength="6"
+                  />
+                  <button
+                    type="button"
+                    className="pfl-password-toggle-button"
+                    onClick={() => setFormData(prev => ({ ...prev, showConfirmPassword: !prev.showConfirmPassword }))}
+                    aria-label={formData.showConfirmPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {formData.showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+              </div>
+              <button type="submit" className="pfl-request-button" disabled={isLoading}>
+                {isLoading ? 'Setting Password...' : 'Set Password & Continue'}
               </button>
             </form>
           </div>

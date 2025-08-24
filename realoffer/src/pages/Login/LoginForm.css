@@ -325,6 +325,30 @@
   text-decoration: underline;
 }
 
+.log-link-button {
+  background: none;
+  border: none;
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  transition: color 0.2s ease;
+}
+
+.log-link-button:hover {
+  color: #0056b3;
+  text-decoration: none;
+}
+
+.log-link-button:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .log-form {
