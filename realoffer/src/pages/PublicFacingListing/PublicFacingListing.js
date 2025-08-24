@@ -68,6 +68,7 @@ const PublicFacingListing = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState(null);
+  const [createdBuyerPackageId, setCreatedBuyerPackageId] = useState(null); // Store buyer package ID
 
   // Check for shared recipient information in URL parameters
   useEffect(() => {
@@ -878,6 +879,9 @@ const PublicFacingListing = () => {
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
         
+        // Store buyer package ID for potential password setup flow
+        setCreatedBuyerPackageId(data.buyerPackage._id);
+        
         // Show success state
         setFormStep('success');
         setSuccessMessage({
@@ -971,7 +975,13 @@ const PublicFacingListing = () => {
         
         // Auto-redirect after 3 seconds
         setTimeout(() => {
-          window.location.href = `/dashboard`;
+          // If we have a buyer package ID from minimal registration, redirect there
+          if (createdBuyerPackageId) {
+            window.location.href = `/buyerpackage/${createdBuyerPackageId}`;
+          } else {
+            // Otherwise redirect to dashboard
+            window.location.href = `/dashboard`;
+          }
         }, 3000);
       } else {
         setError(data.message || 'Failed to set password. Please try again.');
