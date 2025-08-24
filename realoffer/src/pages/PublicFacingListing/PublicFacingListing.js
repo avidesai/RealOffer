@@ -829,7 +829,7 @@ const PublicFacingListing = () => {
     e.preventDefault();
     e.stopPropagation();
     
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
+    if (!formData.firstName || !formData.lastName || !formData.email) {
       setError('Please fill in all required fields.');
       return;
     }
@@ -841,12 +841,14 @@ const PublicFacingListing = () => {
       return;
     }
 
-    // Validate phone number format
-    const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
-    const cleanPhone = formData.phone.replace(/[\s\-()]/g, '');
-    if (!phoneRegex.test(cleanPhone)) {
-      setError('Please enter a valid phone number.');
-      return;
+    // Validate phone number format only if provided
+    if (formData.phone && formData.phone.trim()) {
+      const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
+      const cleanPhone = formData.phone.replace(/[\s\-()]/g, '');
+      if (!phoneRegex.test(cleanPhone)) {
+        setError('Please enter a valid phone number.');
+        return;
+      }
     }
 
     setIsLoading(true);
@@ -864,7 +866,7 @@ const PublicFacingListing = () => {
             firstName: formData.firstName,
             lastName: formData.lastName,
             email: formData.email,
-            phone: formData.phone
+            phone: formData.phone || ''
           }
         }),
       });
@@ -1403,7 +1405,7 @@ const PublicFacingListing = () => {
               </button>
             </div>
             <h2>Quick Access</h2>
-            <p>Enter your name and email to get immediate access to this property. Phone number is optional.</p>
+            <p>Enter your information to get immediate access to this property.</p>
             {error && <p className="pfl-error">{error}</p>}
             <form className="pfl-inquiry-form" onSubmit={handleMinimalSignup} onKeyDown={handleKeyDown}>
               <div className="pfl-form-row">
@@ -1458,7 +1460,6 @@ const PublicFacingListing = () => {
                   onChange={handlePhoneChange}
                   autoComplete="tel"
                 />
-                <small className="pfl-field-help">We'll use this to contact you about the property if needed</small>
               </div>
               <button type="submit" className="pfl-request-button" disabled={isLoading}>
                 {isLoading ? 'Getting Access...' : 'Get Access'}

@@ -160,9 +160,9 @@ exports.createBuyerPackageMinimal = async (req, res) => {
       });
     }
 
-    if (!userInfo.firstName || !userInfo.lastName || !userInfo.email || !userInfo.phone) {
+    if (!userInfo.firstName || !userInfo.lastName || !userInfo.email) {
       return res.status(400).json({ 
-        message: 'Missing required user info: firstName, lastName, email, and phone are required' 
+        message: 'Missing required user info: firstName, lastName, and email are required' 
       });
     }
 
