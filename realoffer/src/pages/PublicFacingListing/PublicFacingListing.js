@@ -1402,7 +1402,7 @@ const PublicFacingListing = () => {
               </button>
             </form>
             <div className="pfl-form-footer">
-              <p>Want quick access? <button 
+              <p>Are you a home buyer? <button 
                 type="button" 
                 onClick={() => setFormStep('minimal')}
                 className="pfl-link-button"
