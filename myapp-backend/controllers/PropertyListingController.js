@@ -824,13 +824,32 @@ exports.shareListing = async (req, res) => {
       });
     }
 
-    // Find the listing and verify ownership
-    const listing = await PropertyListing.findOne({
-      _id: listingId,
-      createdBy: userId
-    });
-
+    // Find the listing and verify access (creator, agent, team member, or buyer package user)
+    const listing = await PropertyListing.findById(listingId);
+    
     if (!listing) {
+      return res.status(404).json({ 
+        message: 'Listing not found' 
+      });
+    }
+
+    // Check if user has access to this listing
+    const isCreator = listing.createdBy.toString() === userId;
+    const isAgent = listing.agentIds && listing.agentIds.some(agentId => agentId.toString() === userId);
+    const isTeamMember = listing.teamMemberIds && listing.teamMemberIds.some(teamMemberId => teamMemberId.toString() === userId);
+    
+    // For buyer package users, check if they have a buyer package for this listing
+    let hasBuyerPackage = false;
+    if (!isCreator && !isAgent && !isTeamMember) {
+      const BuyerPackage = require('../models/BuyerPackage');
+      const buyerPackage = await BuyerPackage.findOne({
+        user: userId,
+        propertyListing: listingId
+      });
+      hasBuyerPackage = !!buyerPackage;
+    }
+
+    if (!isCreator && !isAgent && !isTeamMember && !hasBuyerPackage) {
       return res.status(404).json({ 
         message: 'Listing not found or you do not have permission to share it' 
       });

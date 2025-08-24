@@ -22,6 +22,7 @@ function ForBuyers() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareListingUrl, setShareListingUrl] = useState('');
+  const [shareListingId, setShareListingId] = useState('');
 
   // Calculate counts for different statuses
   const activePackagesCount = buyerPackages.filter(pkg => pkg.status === 'active').length;
@@ -205,6 +206,7 @@ function ForBuyers() {
       return;
     }
     setShareListingUrl(buyerPackage.propertyListing.publicUrl);
+    setShareListingId(buyerPackage.propertyListing._id);
     setShowShareModal(true);
   };
 
@@ -295,8 +297,13 @@ function ForBuyers() {
       {showShareModal && (
         <ShareUrl
           isOpen={showShareModal}
-          onClose={() => setShowShareModal(false)}
+          onClose={() => {
+            setShowShareModal(false);
+            setShareListingId('');
+            setShareListingUrl('');
+          }}
           url={shareListingUrl}
+          listingId={shareListingId}
         />
       )}
     </div>
