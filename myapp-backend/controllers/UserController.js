@@ -767,6 +767,55 @@ exports.logout = async (req, res) => {
   }
 };
 
+// Delete user account and cancel Stripe subscription
+exports.deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Cancel Stripe subscription if user has one
+    if (user.stripeSubscriptionId) {
+      try {
+        const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+        await stripe.subscriptions.cancel(user.stripeSubscriptionId);
+        console.log(`Stripe subscription ${user.stripeSubscriptionId} cancelled for user ${userId}`);
+      } catch (stripeError) {
+        console.error('Error cancelling Stripe subscription:', stripeError);
+        // Continue with account deletion even if Stripe cancellation fails
+      }
+    }
+
+    // Delete all buyer packages for this user
+    const BuyerPackage = require('../models/BuyerPackage');
+    await BuyerPackage.deleteMany({ user: userId });
+    console.log(`Deleted buyer packages for user ${userId}`);
+
+    // Delete all activities for this user
+    const Activity = require('../models/Activity');
+    await Activity.deleteMany({ user: userId });
+    console.log(`Deleted activities for user ${userId}`);
+
+    // Delete the user account
+    await User.findByIdAndDelete(userId);
+    console.log(`User account ${userId} deleted`);
+
+    res.status(200).json({ 
+      message: 'Account deleted successfully',
+      subscriptionCancelled: !!user.stripeSubscriptionId
+    });
+  } catch (error) {
+    console.error('Delete account error:', error);
+    res.status(500).json({ 
+      message: 'Server error during account deletion',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
+    });
+  }
+};
+
 // Email verification endpoint
 exports.verifyEmail = async (req, res) => {
   const { token } = req.params;

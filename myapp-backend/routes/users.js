@@ -23,5 +23,6 @@ router.post('/request-password-reset', UserController.requestPasswordReset);
 router.post('/reset-password', UserController.resetPassword);
 router.post('/:id/upload-photo', UserController.uploadPhoto);
 router.post('/resend-verification', UserController.resendEmailVerification);
+router.delete('/account', authMiddleware, UserController.deleteAccount);
 
 module.exports = router;

@@ -1,6 +1,6 @@
 // Profile.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import InputMask from 'react-input-mask';
 import { useNavigate } from 'react-router-dom';
 import useProfileLogic from './ProfileLogic';
@@ -29,6 +29,9 @@ const Profile = () => {
 
   const [isEmailModalOpen, setEmailModalOpen] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [confirmationTimeout, setConfirmationTimeout] = useState(null);
+  const [deleteError, setDeleteError] = useState('');
 
   const handleUpgradeClick = () => {
     navigate('/upgrade');
@@ -37,6 +40,63 @@ const Profile = () => {
   const handleManageSubscription = () => {
     navigate('/dashboard/manage-subscription');
   };
+
+  const handleDeleteAccount = async () => {
+    if (isConfirmingDelete) {
+      // Confirm delete
+      setDeleteError('');
+      try {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/account`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          // Clear local storage and redirect to login
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        } else {
+          const data = await response.json();
+          setDeleteError(data.message || 'Failed to delete account. Please try again.');
+          setIsConfirmingDelete(false);
+          if (confirmationTimeout) {
+            clearTimeout(confirmationTimeout);
+            setConfirmationTimeout(null);
+          }
+        }
+      } catch (error) {
+        console.error('Error deleting account:', error);
+        setDeleteError('Failed to delete account. Please try again.');
+        setIsConfirmingDelete(false);
+        if (confirmationTimeout) {
+          clearTimeout(confirmationTimeout);
+          setConfirmationTimeout(null);
+        }
+      }
+    } else {
+      // Start confirmation process
+      setIsConfirmingDelete(true);
+      setDeleteError('');
+      const timeout = setTimeout(() => {
+        setIsConfirmingDelete(false);
+        setConfirmationTimeout(null);
+      }, 3000);
+      setConfirmationTimeout(timeout);
+    }
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (confirmationTimeout) {
+        clearTimeout(confirmationTimeout);
+      }
+    };
+  }, [confirmationTimeout]);
 
   if (loading) return <ProfileSpinner />;
 
@@ -410,6 +470,28 @@ const Profile = () => {
             </div>
             )}
           </div>
+
+          {/* Delete Account Section */}
+          <div className="pp-form-group">
+            <div className="pp-danger-zone">
+              <h3 className="pp-danger-zone-title">Danger Zone</h3>
+              <p className="pp-danger-zone-description">
+                Delete your account. This action cannot be undone and will cancel any active subscriptions.
+              </p>
+              {deleteError && (
+                <div className="pp-error-message">
+                  {deleteError}
+                </div>
+              )}
+              <button 
+                className={`pp-delete-account-button ${isConfirmingDelete ? 'confirm-delete' : ''}`} 
+                onClick={handleDeleteAccount}
+              >
+                {isConfirmingDelete ? 'Confirm Delete?' : 'Delete Account'}
+              </button>
+            </div>
+          </div>
+
           <EditEmailModal isOpen={isEmailModalOpen} onClose={() => setEmailModalOpen(false)} />
           
           {/* Password Setup Modal */}
