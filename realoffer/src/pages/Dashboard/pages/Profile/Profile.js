@@ -105,9 +105,15 @@ const Profile = () => {
               <div className="pp-account-status-section">
                 <div className="pp-account-status-row">
                   {hasPremiumAccess(profileData) ? (
-                    <span className="pp-pro-status">
-                      Pro Account
-                    </span>
+                    profileData.isOnTrial ? (
+                      <span className="pp-pro-status">
+                        Pro Trial
+                      </span>
+                    ) : (
+                      <span className="pp-pro-status">
+                        Pro Account
+                      </span>
+                    )
                   ) : (
                     <span className="pp-pro-status pp-disabled">
                       Free Account
