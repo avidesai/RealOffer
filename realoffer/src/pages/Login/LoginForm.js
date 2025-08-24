@@ -212,6 +212,7 @@ function LoginForm() {
       // Check if this is a minimal user who needs to set a password
       if (error.response?.status === 401 && error.response?.data?.requiresPasswordSetup) {
         setIsPasswordSetup(true);
+        setFormData(prev => ({ ...prev, password: '', confirmPassword: '' })); // Clear password fields
         setGeneralError('');
         return;
       }
@@ -326,7 +327,10 @@ function LoginForm() {
           <button 
             type="button" 
             className="log-button" 
-            onClick={() => setIsPasswordSetup(true)}
+            onClick={() => {
+              setIsPasswordSetup(true);
+              setFormData(prev => ({ ...prev, password: '', confirmPassword: '' })); // Clear password fields
+            }}
             disabled={isLoading}
           >
             Set Password
