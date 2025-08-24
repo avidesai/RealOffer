@@ -1190,3 +1190,41 @@
     padding: 4px;
   }
 }
+
+/* Form Footer - New styles for minimal registration */
+.pfl-form-footer {
+  margin-top: var(--pfl-space-xl);
+  padding-top: var(--pfl-space-lg);
+  border-top: 1px solid var(--pfl-border-color);
+  text-align: center;
+}
+
+.pfl-form-footer p {
+  margin: 0;
+  color: var(--pfl-text-secondary);
+  font-size: 0.875rem;
+}
+
+.pfl-link-button {
+  background: none;
+  border: none;
+  color: var(--pfl-primary-blue);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  transition: color var(--pfl-transition-base);
+}
+
+.pfl-link-button:hover {
+  color: var(--pfl-primary-blue-dark);
+  text-decoration: none;
+}
+
+.pfl-link-button:focus {
+  outline: 2px solid var(--pfl-primary-blue);
+  outline-offset: 2px;
+  border-radius: var(--pfl-radius-sm);
+}

@@ -4,7 +4,10 @@ const router = express.Router();
 const BuyerPackageController = require('../controllers/BuyerPackageController');
 const authMiddleware = require('../middleware/auth');
 
-// Apply auth middleware to all routes
+// Add minimal buyer package creation route (no auth required)
+router.post('/minimal', BuyerPackageController.createBuyerPackageMinimal);
+
+// Apply auth middleware to all other routes
 router.use(authMiddleware);
 
 // Buyer package routes

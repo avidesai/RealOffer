@@ -45,6 +45,10 @@ const userSchema = new mongoose.Schema({
     trialEndDate: { type: Date },
     isOnTrial: { type: Boolean, default: false },
     hasAgent: { type: Boolean, default: null }, // New field for buyers to indicate if they have an agent
+    // Minimal registration fields
+    isMinimalRegistration: { type: Boolean, default: false },
+    tempPassword: { type: String },
+    registrationSource: { type: String, enum: ['full', 'minimal', 'invitation'], default: 'full' },
     templates: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ListingTemplate', default: [] }],
     contacts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
     listingPackages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'PropertyListing', default: [] }],

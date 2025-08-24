@@ -148,6 +148,244 @@ exports.createBuyerPackage = async (req, res) => {
   }
 };
 
+// Create a buyer package with minimal user registration
+exports.createBuyerPackageMinimal = async (req, res) => {
+  try {
+    const { propertyListingId, publicUrl, userInfo } = req.body;
+    
+    // Validate required fields
+    if (!propertyListingId || !publicUrl || !userInfo) {
+      return res.status(400).json({ 
+        message: 'Missing required fields: propertyListingId, publicUrl, and userInfo are required' 
+      });
+    }
+
+    if (!userInfo.firstName || !userInfo.lastName || !userInfo.email || !userInfo.phone) {
+      return res.status(400).json({ 
+        message: 'Missing required user info: firstName, lastName, email, and phone are required' 
+      });
+    }
+
+    // Verify the property listing exists and is accessible via the public URL
+    console.log('Looking for property listing with:', { propertyListingId, publicUrl });
+    
+    // First try to find by ID and publicUrl
+    let propertyListing = await PropertyListing.findOne({ 
+      _id: propertyListingId, 
+      publicUrl: publicUrl 
+    });
+    
+    // If not found, try to find by ID only and check if the URL format matches
+    if (!propertyListing) {
+      console.log('Property listing not found with exact URL match. Trying to find by ID only...');
+      const listingById = await PropertyListing.findOne({ _id: propertyListingId });
+      if (listingById) {
+        console.log('Listing exists but URL mismatch. Stored URL:', listingById.publicUrl);
+        console.log('Requested URL:', publicUrl);
+        
+        // Extract the token from both URLs and compare
+        const storedToken = listingById.publicUrl.split('/').pop();
+        const requestedToken = publicUrl.split('/').pop();
+        
+        if (storedToken === requestedToken) {
+          console.log('Tokens match, accepting the request despite URL format difference');
+          propertyListing = listingById;
+        }
+      }
+    }
+    
+    if (!propertyListing) {
+      return res.status(404).json({ 
+        message: 'Property listing not found or no longer accessible via this URL' 
+      });
+    }
+
+    // Check if the listing is still active
+    if (propertyListing.status !== 'active') {
+      return res.status(400).json({ 
+        message: 'This property listing is no longer active and cannot be accessed' 
+      });
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: userInfo.email.toLowerCase() });
+    let userId;
+
+    if (existingUser) {
+      // User exists, check if they already have a buyer package for this listing
+      const existingPackage = await BuyerPackage.findOne({
+        user: existingUser._id,
+        propertyListing: propertyListingId
+      });
+
+      if (existingPackage) {
+        return res.status(200).json({
+          message: 'You already have access to this property',
+          buyerPackage: existingPackage,
+          user: existingUser,
+          existingUser: true
+        });
+      }
+      
+      userId = existingUser._id;
+    } else {
+      // Create minimal user
+      const crypto = require('crypto');
+      const tempPassword = crypto.randomBytes(8).toString('hex');
+      
+      // Set up trial period for new users (3 months)
+      const trialStartDate = new Date();
+      const trialEndDate = new Date(trialStartDate);
+      trialEndDate.setMonth(trialEndDate.getMonth() + 3);
+
+      const newUser = new User({
+        firstName: userInfo.firstName.trim(),
+        lastName: userInfo.lastName.trim(),
+        email: userInfo.email.toLowerCase().trim(),
+        phone: userInfo.phone.trim(),
+        password: tempPassword, // Will be hashed by pre-save hook
+        role: 'buyer',
+        isMinimalRegistration: true,
+        tempPassword: tempPassword,
+        registrationSource: 'minimal',
+        profilePhotoUrl: '',
+        isActive: true,
+        emailConfirmed: true,
+        lastLogin: null,
+        twoFactorAuthenticationEnabled: false,
+        notificationSettings: '',
+        brokeragePhoneNumber: '',
+        addressLine1: '',
+        addressLine2: '',
+        homepage: '',
+        agentLicenseNumber: '',
+        brokerageLicenseNumber: '',
+        agencyName: '',
+        agencyWebsite: '',
+        agencyImage: '',
+        agencyAddressLine1: '',
+        agencyAddressLine2: '',
+        linkedIn: '',
+        twitter: '',
+        facebook: '',
+        bio: '',
+        isVerifiedAgent: false,
+        receiveMarketingMaterials: false,
+        isPremium: false,
+        premiumPlan: '',
+        trialStartDate,
+        trialEndDate,
+        isOnTrial: true,
+        hasAgent: null,
+      });
+
+      const savedUser = await newUser.save();
+      userId = savedUser._id;
+    }
+
+    // Create new buyer package
+    const buyerPackage = new BuyerPackage({
+      user: userId,
+      propertyListing: propertyListingId,
+      createdFromPublicUrl: publicUrl,
+      userRole: 'buyer',
+      userInfo: {
+        name: `${userInfo.firstName} ${userInfo.lastName}`,
+        email: userInfo.email,
+        phone: userInfo.phone,
+        role: 'buyer'
+      }
+    });
+
+    const savedPackage = await buyerPackage.save();
+
+    // Create activity record
+    const activity = new Activity({
+      user: userId,
+      action: `created a buyer package for ${propertyListing.homeCharacteristics.address}`,
+      type: 'buyer_package_created',
+      propertyListing: propertyListingId,
+      buyerPackage: savedPackage._id,
+      metadata: {
+        userRole: 'buyer',
+        documentTitle: propertyListing.homeCharacteristics.address,
+        registrationType: 'minimal'
+      }
+    });
+
+    await activity.save();
+
+    // Send notification to listing agent (non-blocking)
+    const buyerName = `${userInfo.firstName || 'Unknown'} ${userInfo.lastName || 'User'}`;
+    notificationService.sendBuyerPackageNotification(
+      propertyListingId,
+      buyerName,
+      'buyer'
+    ).catch(error => {
+      console.error('Failed to send buyer package notification:', error);
+    });
+
+    // Get the user data for response
+    const user = await User.findById(userId);
+    
+    // Generate JWT token for immediate access
+    const jwt = require('jsonwebtoken');
+    const payload = {
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role
+      }
+    };
+    
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '3h' });
+
+    res.status(201).json({
+      message: 'Buyer package created successfully',
+      buyerPackage: savedPackage,
+      user: {
+        _id: user._id,
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        isMinimalRegistration: user.isMinimalRegistration,
+        isPremium: user.isPremium,
+        isOnTrial: user.isOnTrial,
+        trialStartDate: user.trialStartDate,
+        trialEndDate: user.trialEndDate,
+        createdAt: user.createdAt
+      },
+      token
+    });
+  } catch (error) {
+    console.error('Error creating buyer package with minimal user:', error);
+    
+    // Handle specific database errors
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ 
+        message: 'Invalid data provided for buyer package creation',
+        details: Object.values(error.errors).map(err => err.message)
+      });
+    }
+    
+    if (error.name === 'CastError') {
+      return res.status(400).json({ 
+        message: 'Invalid property listing ID format' 
+      });
+    }
+    
+    res.status(500).json({ 
+      message: 'Internal server error while creating buyer package',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
+    });
+  }
+};
+
 // Get all buyer packages for a user
 exports.getUserBuyerPackages = async (req, res) => {
   try {

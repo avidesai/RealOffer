@@ -54,7 +54,7 @@ const PublicFacingListing = () => {
     lastName: user?.lastName || '',
     email: user?.email || '',
     phone: user?.phone || '',
-    role: user?.role || 'agent', // Default to agent as requested
+    role: user?.role || 'buyer', // Default to buyer for minimal registration
     password: '',
     confirmPassword: '',
     agentLicenseNumber: '', // Add license number field
@@ -64,7 +64,7 @@ const PublicFacingListing = () => {
   });
   
   // UI state
-  const [formStep, setFormStep] = useState('initial'); // 'initial', 'login', 'signup', 'success'
+  const [formStep, setFormStep] = useState('initial'); // 'initial', 'login', 'signup', 'minimal', 'success'
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState(null);
@@ -340,8 +340,8 @@ const PublicFacingListing = () => {
         // User exists - show login form
         setFormStep('login');
       } else {
-        // User doesn't exist - show signup form
-        setFormStep('signup');
+        // User doesn't exist - show minimal registration form
+        setFormStep('minimal');
       }
     } catch (error) {
       setError('Unable to verify your email. Please try again.');
@@ -818,6 +818,96 @@ const PublicFacingListing = () => {
     }
   };
 
+  const handleMinimalSignup = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
+      setError('Please fill in all required fields.');
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
+    // Validate phone number format
+    const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
+    const cleanPhone = formData.phone.replace(/[\s\-()]/g, '');
+    if (!phoneRegex.test(cleanPhone)) {
+      setError('Please enter a valid phone number.');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      // Create buyer package with minimal user registration
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/buyerPackages/minimal`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          propertyListingId: listing._id,
+          publicUrl: listing.publicUrl || `${window.location.origin}/listings/public/${token}`,
+          userInfo: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phone: formData.phone
+          }
+        }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Store authentication data
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token);
+        
+        // Show success state
+        setFormStep('success');
+        setSuccessMessage({
+          title: "Welcome to RealOffer!",
+          message: "Your buyer package has been created successfully.",
+          nextSteps: [
+            "View your buyer package in the 'For Buyers' section",
+            "Access property documents and disclosures",
+            "Make offers when ready"
+          ]
+        });
+        
+        // Auto-redirect after 3 seconds
+        setTimeout(() => {
+          window.location.href = `/buyerpackage/${data.buyerPackage._id}`;
+        }, 3000);
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create buyer package');
+      }
+    } catch (error) {
+      console.error('Error creating buyer package with minimal registration:', error);
+      
+      // Provide specific error messages based on the error type
+      if (error.message.includes('Property listing is no longer available')) {
+        setError('This property is no longer available. Please contact the listing agent.');
+      } else if (error.message.includes('already has a buyer package')) {
+        setError('You already have access to this property. Check your buyer packages.');
+      } else if (error.message.includes('email address already exists')) {
+        setError('An account with this email already exists. Please log in instead.');
+        setFormStep('login');
+      } else {
+        setError('Failed to create buyer package. Please try again or contact support.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const nextImage = useCallback(() => {
     if (listing?.imagesUrls && listing.imagesUrls.length > 1) {
       setIsImageLoading(true);
@@ -1138,9 +1228,105 @@ const PublicFacingListing = () => {
                 </div>
               )}
               <button type="submit" className="pfl-request-button" disabled={isLoading}>
-                {isLoading ? 'Creating account...' : 'Sign Up & View Listing'}
+                {isLoading ? 'Creating Account...' : 'Create Account'}
               </button>
             </form>
+            <div className="pfl-form-footer">
+              <p>Want quick access? <button 
+                type="button" 
+                onClick={() => setFormStep('minimal')}
+                className="pfl-link-button"
+              >
+                Get immediate access
+              </button></p>
+            </div>
+          </div>
+        );
+      }
+
+      if (formStep === 'minimal') {
+        return (
+          <div className="pfl-form-container">
+            <div className="pfl-back-button-container">
+              <button 
+                type="button" 
+                onClick={() => setFormStep('initial')}
+                className="pfl-back-button"
+              >
+                ← Back
+              </button>
+            </div>
+            <h2>Quick Access</h2>
+            <p>Enter your information to get immediate access to this property.</p>
+            {error && <p className="pfl-error">{error}</p>}
+            <form className="pfl-inquiry-form" onSubmit={handleMinimalSignup} onKeyDown={handleKeyDown}>
+              <div className="pfl-form-row">
+                <div className="pfl-form-group">
+                  <label htmlFor="firstName">First Name</label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    name="firstName"
+                    placeholder="Enter your first name"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                    required
+                    autoComplete="given-name"
+                  />
+                </div>
+                <div className="pfl-form-group">
+                  <label htmlFor="lastName">Last Name</label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    placeholder="Enter your last name"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    required
+                    autoComplete="family-name"
+                  />
+                </div>
+              </div>
+              <div className="pfl-form-group">
+                <label htmlFor="email">Email Address</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="Enter your email address"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  autoComplete="email"
+                />
+              </div>
+              <div className="pfl-form-group">
+                <label htmlFor="phone">Phone Number</label>
+                <input
+                  type="text"
+                  id="phone"
+                  name="phone"
+                  placeholder="Enter your phone number"
+                  value={formData.phone}
+                  onChange={handlePhoneChange}
+                  required
+                  autoComplete="tel"
+                />
+              </div>
+              <button type="submit" className="pfl-request-button" disabled={isLoading}>
+                {isLoading ? 'Getting Access...' : 'Get Access'}
+              </button>
+            </form>
+            <div className="pfl-form-footer">
+              <p>Want to create a full account? <button 
+                type="button" 
+                onClick={() => setFormStep('signup')}
+                className="pfl-link-button"
+              >
+                Sign up here
+              </button></p>
+            </div>
           </div>
         );
       }

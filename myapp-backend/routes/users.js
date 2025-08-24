@@ -14,6 +14,8 @@ router.post('/invite-listing-agent', authMiddleware, UserController.sendListingA
 router.get('/:id', UserController.getUserById);
 router.get('/:id/listingPackages', UserController.getUserWithListingPackages);
 router.post('/', UserController.createUser);
+router.post('/minimal', UserController.createMinimalUser); // Add minimal registration route (no auth required)
+router.post('/complete-profile', authMiddleware, UserController.completeMinimalProfile); // Add complete profile route
 router.post('/login', UserController.loginUser);
 router.post('/check-email', UserController.checkEmailExists);
 router.post('/:id/upload-photo', UserController.uploadPhoto);

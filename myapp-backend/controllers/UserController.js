@@ -300,6 +300,209 @@ exports.createUser = async (req, res) => {
     }
 };
 
+exports.createMinimalUser = async (req, res) => {
+    const { firstName, lastName, email, phone } = req.body;
+    
+    try {
+        // Validate required fields
+        if (!firstName || !lastName || !email || !phone) {
+            return res.status(400).json({ 
+                message: 'Missing required fields: firstName, lastName, email, and phone are required' 
+            });
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ 
+                message: 'Invalid email format' 
+            });
+        }
+
+        // Validate phone number format
+        const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
+        const cleanPhone = phone.replace(/[\s\-()]/g, '');
+        if (!phoneRegex.test(cleanPhone)) {
+            return res.status(400).json({ 
+                message: 'Please enter a valid phone number' 
+            });
+        }
+
+        // Check if user already exists
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
+        if (existingUser) {
+            return res.status(409).json({ 
+                message: 'A user with this email address already exists' 
+            });
+        }
+
+        // Generate temporary password
+        const tempPassword = crypto.randomBytes(8).toString('hex');
+        
+        // Set up trial period for new users (3 months)
+        const trialStartDate = new Date();
+        const trialEndDate = new Date(trialStartDate);
+        trialEndDate.setMonth(trialEndDate.getMonth() + 3);
+
+        const newUser = new User({
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            email: email.toLowerCase().trim(),
+            phone: phone.trim(),
+            password: tempPassword, // Will be hashed by pre-save hook
+            role: 'buyer',
+            isMinimalRegistration: true,
+            tempPassword: tempPassword,
+            registrationSource: 'minimal',
+            profilePhotoUrl: '',
+            isActive: true, // Set to true so users can log in immediately
+            emailConfirmed: true, // Set to true so users can log in immediately
+            lastLogin: null,
+            twoFactorAuthenticationEnabled: false,
+            notificationSettings: '',
+            brokeragePhoneNumber: '',
+            addressLine1: '',
+            addressLine2: '',
+            homepage: '',
+            agentLicenseNumber: '',
+            brokerageLicenseNumber: '',
+            agencyName: '',
+            agencyWebsite: '',
+            agencyImage: '',
+            agencyAddressLine1: '',
+            agencyAddressLine2: '',
+            linkedIn: '',
+            twitter: '',
+            facebook: '',
+            bio: '',
+            isVerifiedAgent: false,
+            receiveMarketingMaterials: false,
+            isPremium: false,
+            premiumPlan: '',
+            trialStartDate,
+            trialEndDate,
+            isOnTrial: true,
+            hasAgent: null, // Will be set later when user completes profile
+        });
+
+        const savedUser = await newUser.save();
+        
+        // Generate JWT token for immediate access
+        const payload = {
+            user: {
+                id: savedUser._id,
+                email: savedUser.email,
+                firstName: savedUser.firstName,
+                lastName: savedUser.lastName,
+                role: savedUser.role
+            }
+        };
+        
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '3h' });
+        
+        // Return user data without password and ensure consistent ID field
+        const userResponse = {
+            _id: savedUser._id,
+            id: savedUser._id, // Include both for compatibility
+            firstName: savedUser.firstName,
+            lastName: savedUser.lastName,
+            email: savedUser.email,
+            role: savedUser.role,
+            phone: savedUser.phone,
+            isMinimalRegistration: savedUser.isMinimalRegistration,
+            isPremium: savedUser.isPremium,
+            isOnTrial: savedUser.isOnTrial,
+            trialStartDate: savedUser.trialStartDate,
+            trialEndDate: savedUser.trialEndDate,
+            createdAt: savedUser.createdAt
+        };
+        
+        res.status(201).json({
+            message: 'Minimal user created successfully.',
+            user: userResponse,
+            token
+        });
+    } catch (error) {
+        console.error('Error creating minimal user:', error);
+        
+        // Handle specific database errors
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ 
+                message: 'Invalid data provided for user creation',
+                details: Object.values(error.errors).map(err => err.message)
+            });
+        }
+        
+        if (error.code === 11000) {
+            return res.status(409).json({ 
+                message: 'A user with this email address already exists' 
+            });
+        }
+        
+        res.status(500).json({ 
+            message: 'Internal server error while creating user',
+            error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
+        });
+    }
+};
+
+exports.completeMinimalProfile = async (req, res) => {
+    const { password, hasAgent } = req.body;
+    const userId = req.user.id;
+    
+    try {
+        // Find the user
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ 
+                message: 'User not found' 
+            });
+        }
+
+        // Check if user is a minimal registration user
+        if (!user.isMinimalRegistration) {
+            return res.status(400).json({ 
+                message: 'This user is not a minimal registration user' 
+            });
+        }
+
+        // Validate password
+        if (!password || password.length < 6) {
+            return res.status(400).json({ 
+                message: 'Password must be at least 6 characters long' 
+            });
+        }
+
+        // Update user profile
+        user.password = password;
+        user.isMinimalRegistration = false;
+        user.hasAgent = hasAgent;
+        user.tempPassword = undefined; // Clear temporary password
+        user.registrationSource = 'full'; // Update registration source
+
+        await user.save();
+        
+        res.status(200).json({
+            message: 'Profile completed successfully',
+            user: {
+                _id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                role: user.role,
+                hasAgent: user.hasAgent,
+                isMinimalRegistration: user.isMinimalRegistration
+            }
+        });
+    } catch (error) {
+        console.error('Error completing minimal profile:', error);
+        res.status(500).json({ 
+            message: 'Internal server error while completing profile',
+            error: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
+        });
+    }
+};
+
 exports.updateUser = async (req, res) => {
     const { firstName, lastName, email, role, ...otherDetails } = req.body;
     try {
