@@ -19,6 +19,7 @@ function LoginForm() {
   const [successMessage, setSuccessMessage] = useState('');
   const [generalError, setGeneralError] = useState('');
   const [isPasswordSetup, setIsPasswordSetup] = useState(false);
+  const [isMinimalUserFlow, setIsMinimalUserFlow] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -48,18 +49,27 @@ function LoginForm() {
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
     }
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (isPasswordSetup && formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters long';
-    }
     
-    // Add password confirmation validation for password setup mode
+    // For password setup mode, require password validation
     if (isPasswordSetup) {
+      if (!formData.password) {
+        newErrors.password = 'Password is required';
+      } else if (formData.password.length < 6) {
+        newErrors.password = 'Password must be at least 6 characters long';
+      }
+      
       if (!formData.confirmPassword) {
         newErrors.confirmPassword = 'Please confirm your password';
       } else if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = 'Passwords do not match';
+      }
+    } else if (isMinimalUserFlow) {
+      // For minimal user flow, no password validation needed
+      // User will set password in the next step
+    } else {
+      // For normal login, require password
+      if (!formData.password) {
+        newErrors.password = 'Password is required';
       }
     }
     
@@ -239,9 +249,50 @@ function LoginForm() {
     }
   };
 
+  const checkMinimalUser = async () => {
+    if (!formData.email.trim()) {
+      setErrors({ email: 'Email is required' });
+      return;
+    }
+
+    setIsLoading(true);
+    setGeneralError('');
+    setErrors({});
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/check-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.exists && data.user.isMinimalRegistration) {
+        // User exists and is a minimal user
+        setIsMinimalUserFlow(true);
+        setGeneralError('');
+      } else if (response.ok && data.exists) {
+        // User exists but is not a minimal user
+        setGeneralError('This account already has a password. Please use the normal login form.');
+      } else {
+        // User doesn't exist
+        setGeneralError('No account found with this email address. Please sign up first.');
+      }
+    } catch (error) {
+      console.error('Error checking user:', error);
+      setGeneralError('Unable to check account status. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="log-form">
-      <h1 className="log-title">{isPasswordSetup ? 'Set Your Password' : 'Log In'}</h1>
+      <h1 className="log-title">
+        {isPasswordSetup ? 'Set Your Password' : 
+         isMinimalUserFlow ? 'Complete Your Account' : 'Log In'}
+      </h1>
       {successMessage && (
         <div className="log-alert log-alert-success">
           {successMessage}
@@ -252,26 +303,122 @@ function LoginForm() {
           {generalError}
         </div>
       )}
-      <form onSubmit={handleSubmit} className="log-form-inner" onKeyDown={handleKeyDown}>
-        <div className="log-form-group">
-          <label htmlFor="email" className="log-label">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className={`log-input ${errors.email ? 'log-input-invalid' : ''}`}
-            placeholder="Enter your email address"
-            disabled={isPasswordSetup}
-          />
-          {errors.email && <div className="log-error">{errors.email}</div>}
+      
+      {isMinimalUserFlow ? (
+        // Minimal user flow - show password setup directly
+        <div className="log-form-inner">
+          <div className="log-form-group">
+            <label htmlFor="email" className="log-label">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              className="log-input"
+              disabled={true}
+            />
+          </div>
+          
+          <div className="log-minimal-user-notice">
+            <p>Your account was created with minimal registration. Set a password to complete your account setup.</p>
+          </div>
+          
+          <button 
+            type="button" 
+            className="log-button" 
+            onClick={() => setIsPasswordSetup(true)}
+            disabled={isLoading}
+          >
+            Set Password
+          </button>
+          
+          <div className="log-footer">
+            <p>Remember your password? <button 
+              type="button" 
+              onClick={() => {
+                setIsMinimalUserFlow(false);
+                setFormData({ email: formData.email, password: '', confirmPassword: '' });
+                setErrors({});
+                setGeneralError('');
+              }}
+              className="log-link-button"
+            >
+              Try Login Instead
+            </button></p>
+          </div>
         </div>
-        
-        {isPasswordSetup ? (
-          <>
+      ) : (
+        // Normal login form
+        <form onSubmit={handleSubmit} className="log-form-inner" onKeyDown={handleKeyDown}>
+          <div className="log-form-group">
+            <label htmlFor="email" className="log-label">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className={`log-input ${errors.email ? 'log-input-invalid' : ''}`}
+              placeholder="Enter your email address"
+              disabled={isPasswordSetup}
+            />
+            {errors.email && <div className="log-error">{errors.email}</div>}
+          </div>
+          
+          {isPasswordSetup ? (
+            <>
+              <div className="log-form-group">
+                <label htmlFor="password" className="log-label">New Password</label>
+                <div className="log-password-field">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className={`log-input ${errors.password ? 'log-input-invalid' : ''}`}
+                    placeholder="Create a password (min 6 characters)"
+                    minLength="6"
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="log-password-toggle"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+                {errors.password && <div className="log-error">{errors.password}</div>}
+              </div>
+              <div className="log-form-group">
+                <label htmlFor="confirmPassword" className="log-label">Confirm Password</label>
+                <div className="log-password-field">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className={`log-input ${errors.confirmPassword ? 'log-input-invalid' : ''}`}
+                    placeholder="Confirm your password"
+                    minLength="6"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="log-password-toggle"
+                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+                {errors.confirmPassword && <div className="log-error">{errors.confirmPassword}</div>}
+              </div>
+            </>
+          ) : (
             <div className="log-form-group">
-              <label htmlFor="password" className="log-label">New Password</label>
+              <label htmlFor="password" className="log-label">Password</label>
               <div className="log-password-field">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -280,8 +427,7 @@ function LoginForm() {
                   value={formData.password}
                   onChange={handleChange}
                   className={`log-input ${errors.password ? 'log-input-invalid' : ''}`}
-                  placeholder="Create a password (min 6 characters)"
-                  minLength="6"
+                  placeholder="Enter your password"
                 />
                 <button
                   type="button"
@@ -294,61 +440,13 @@ function LoginForm() {
               </div>
               {errors.password && <div className="log-error">{errors.password}</div>}
             </div>
-            <div className="log-form-group">
-              <label htmlFor="confirmPassword" className="log-label">Confirm Password</label>
-              <div className="log-password-field">
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className={`log-input ${errors.confirmPassword ? 'log-input-invalid' : ''}`}
-                  placeholder="Confirm your password"
-                  minLength="6"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="log-password-toggle"
-                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-                </button>
-              </div>
-              {errors.confirmPassword && <div className="log-error">{errors.confirmPassword}</div>}
-            </div>
-          </>
-        ) : (
-          <div className="log-form-group">
-            <label htmlFor="password" className="log-label">Password</label>
-            <div className="log-password-field">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className={`log-input ${errors.password ? 'log-input-invalid' : ''}`}
-                placeholder="Enter your password"
-              />
-              <button
-                type="button"
-                onClick={togglePasswordVisibility}
-                className="log-password-toggle"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </button>
-            </div>
-            {errors.password && <div className="log-error">{errors.password}</div>}
-          </div>
-        )}
-        
-        <button type="submit" className="log-button" disabled={isLoading}>
-          {isLoading ? (isPasswordSetup ? 'Setting Password...' : 'Logging in...') : (isPasswordSetup ? 'Set Password' : 'Log In')}
-        </button>
-      </form>
+          )}
+          
+          <button type="submit" className="log-button" disabled={isLoading}>
+            {isLoading ? (isPasswordSetup ? 'Setting Password...' : 'Logging in...') : (isPasswordSetup ? 'Set Password' : 'Log In')}
+          </button>
+        </form>
+      )}
       
       {isPasswordSetup && (
         <div className="log-footer">
@@ -356,6 +454,7 @@ function LoginForm() {
             type="button" 
             onClick={() => {
               setIsPasswordSetup(false);
+              setIsMinimalUserFlow(false);
               setFormData({ email: formData.email, password: '', confirmPassword: '' });
               setErrors({});
               setGeneralError('');
@@ -367,10 +466,21 @@ function LoginForm() {
         </div>
       )}
       
-      {!isPasswordSetup && (
+      {!isPasswordSetup && !isMinimalUserFlow && (
         <div className="log-footer">
-          <p>Need an account? <Link to="/signup">Sign Up</Link></p>
-          <p><Link to="/forgot-password">Forgot Password?</Link></p>
+          <p>Don't have a password? <button 
+            type="button" 
+            onClick={checkMinimalUser}
+            className="log-link-button"
+            disabled={isLoading}
+          >
+            Set Password
+          </button></p>
+          <p className="log-footer-links">
+            <Link to="/signup">Sign Up</Link>
+            <span className="log-footer-divider">•</span>
+            <Link to="/forgot-password">Forgot Password?</Link>
+          </p>
         </div>
       )}
     </div>

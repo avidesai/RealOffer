@@ -325,16 +325,17 @@
   text-decoration: underline;
 }
 
+/* Link button styling */
 .log-link-button {
   background: none;
   border: none;
   color: #007bff;
   text-decoration: underline;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: inherit;
+  font-family: inherit;
   padding: 0;
   margin: 0;
-  font-family: inherit;
   transition: color 0.2s ease;
 }
 
@@ -343,10 +344,57 @@
   text-decoration: none;
 }
 
-.log-link-button:focus {
-  outline: 2px solid #007bff;
-  outline-offset: 2px;
-  border-radius: 4px;
+.log-link-button:disabled {
+  color: #6c757d;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+/* Set Password link specific styling */
+.log-footer p:first-child {
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.log-footer p:first-child .log-link-button {
+  font-weight: 600;
+  color: #007bff;
+}
+
+.log-footer p:first-child .log-link-button:hover {
+  color: #0056b3;
+}
+
+/* Footer links layout */
+.log-footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.log-footer-divider {
+  color: #6c757d;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+/* Minimal user flow styling */
+.log-minimal-user-notice {
+  background: #f8f9fa;
+  border: 1px solid #e3e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.log-minimal-user-notice p {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.5;
 }
 
 /* Responsive adjustments */
