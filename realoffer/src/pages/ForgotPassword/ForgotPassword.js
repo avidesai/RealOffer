@@ -8,10 +8,11 @@ import './ForgotPassword.css';
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState('form'); // 'form', 'success', 'error'
   const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [isMinimalUser, setIsMinimalUser] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,7 +39,14 @@ const ForgotPassword = () => {
       
       if (response.status === 200) {
         setStatus('success');
-        setMessage('If an account with this email exists, a password reset link has been sent to your inbox.');
+        // Check if this is a minimal user
+        if (response.data.isMinimalUser) {
+          setMessage(response.data.message);
+          setIsMinimalUser(true);
+        } else {
+          setMessage('If an account with this email exists, a password reset link has been sent to your inbox.');
+          setIsMinimalUser(false);
+        }
       }
     } catch (error) {
       setStatus('error');
@@ -60,6 +68,7 @@ const ForgotPassword = () => {
     setStatus('form');
     setMessage('');
     setError('');
+    setIsMinimalUser(false);
   };
 
   const renderContent = () => {
@@ -67,15 +76,31 @@ const ForgotPassword = () => {
       return (
         <div className="forgot-password-form">
           <div className="forgot-password-icon success">✓</div>
-          <h1 className="forgot-password-title">Check Your Email</h1>
+          <h1 className="forgot-password-title">
+            {isMinimalUser ? 'Account Found' : 'Check Your Email'}
+          </h1>
           <p className="forgot-password-message">{message}</p>
           <div className="forgot-password-actions">
-            <button 
-              className="forgot-password-button primary"
-              onClick={handleBackToLogin}
-            >
-              Back to Login
-            </button>
+            {isMinimalUser ? (
+              <>
+                <button 
+                  className="forgot-password-button primary"
+                  onClick={handleBackToLogin}
+                >
+                  Go to Login Page
+                </button>
+                <p className="forgot-password-help-text">
+                  Use the "Set Password" option on the login page to complete your account setup.
+                </p>
+              </>
+            ) : (
+              <button 
+                className="forgot-password-button primary"
+                onClick={handleBackToLogin}
+              >
+                Back to Login
+              </button>
+            )}
           </div>
         </div>
       );

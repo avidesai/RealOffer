@@ -19,6 +19,8 @@ router.post('/complete-profile', authMiddleware, UserController.completeMinimalP
 router.post('/set-password', UserController.setPasswordForMinimalUser); // Add set password route (no auth required)
 router.post('/login', UserController.loginUser);
 router.post('/check-email', UserController.checkEmailExists);
+router.post('/request-password-reset', UserController.requestPasswordReset);
+router.post('/reset-password', UserController.resetPassword);
 router.post('/:id/upload-photo', UserController.uploadPhoto);
 router.post('/resend-verification', UserController.resendEmailVerification);
 

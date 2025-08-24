@@ -219,9 +219,10 @@ exports.createBuyerPackageMinimal = async (req, res) => {
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email: userInfo.email.toLowerCase() });
+    let existingUser = await User.findOne({ email: userInfo.email.toLowerCase() });
     let userId;
-
+    let tempPassword = null; // Declare tempPassword at higher scope
+    
     if (existingUser) {
       // User exists, check if they already have a buyer package for this listing
       const existingPackage = await BuyerPackage.findOne({
@@ -238,59 +239,31 @@ exports.createBuyerPackageMinimal = async (req, res) => {
         });
       }
       
+      // User exists, use existing user
       userId = existingUser._id;
     } else {
-      // Create minimal user
-      const crypto = require('crypto');
-      const tempPassword = crypto.randomBytes(8).toString('hex');
+      // Generate a temporary password for minimal registration
+      tempPassword = emailService.generateTemporaryPassword();
       
-      // Set up trial period for new users (3 months)
-      const trialStartDate = new Date();
-      const trialEndDate = new Date(trialStartDate);
-      trialEndDate.setMonth(trialEndDate.getMonth() + 3);
-
-      const newUser = new User({
+      // Create new user with minimal registration
+      const user = new User({
         firstName: userInfo.firstName.trim(),
         lastName: userInfo.lastName.trim(),
         email: userInfo.email.toLowerCase().trim(),
-        phone: userInfo.phone ? userInfo.phone.trim() : '', // Make phone optional
+        phone: userInfo.phone || '', // Handle optional phone
         password: tempPassword, // Will be hashed by pre-save hook
         role: 'buyer',
         isMinimalRegistration: true,
         tempPassword: tempPassword,
         registrationSource: 'minimal',
-        profilePhotoUrl: '',
         isActive: true,
         emailConfirmed: true,
-        lastLogin: null,
-        twoFactorAuthenticationEnabled: false,
-        notificationSettings: '',
-        brokeragePhoneNumber: '',
-        addressLine1: '',
-        addressLine2: '',
-        homepage: '',
-        agentLicenseNumber: '',
-        brokerageLicenseNumber: '',
-        agencyName: '',
-        agencyWebsite: '',
-        agencyImage: '',
-        agencyAddressLine1: '',
-        agencyAddressLine2: '',
-        linkedIn: '',
-        twitter: '',
-        facebook: '',
-        bio: '',
-        isVerifiedAgent: false,
-        receiveMarketingMaterials: false,
-        isPremium: false,
-        premiumPlan: '',
-        trialStartDate,
-        trialEndDate,
         isOnTrial: true,
-        hasAgent: null,
+        trialStartDate: new Date(),
+        trialEndDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 14 days
       });
 
-      const savedUser = await newUser.save();
+      const savedUser = await user.save();
       userId = savedUser._id;
     }
 
@@ -341,7 +314,8 @@ exports.createBuyerPackageMinimal = async (req, res) => {
       userInfo.email,
       userInfo.firstName,
       propertyListing.homeCharacteristics.address,
-      savedPackage._id
+      savedPackage._id,
+      tempPassword // Pass the temporary password for minimal users
     ).catch(error => {
       console.error('Failed to send buyer package confirmation email:', error);
     });

@@ -338,56 +338,37 @@ exports.createMinimalUser = async (req, res) => {
             });
         }
 
-        // Generate temporary password
-        const tempPassword = crypto.randomBytes(8).toString('hex');
+        // Generate a temporary password for minimal registration
+        const tempPassword = emailService.generateTemporaryPassword();
         
-        // Set up trial period for new users (3 months)
-        const trialStartDate = new Date();
-        const trialEndDate = new Date(trialStartDate);
-        trialEndDate.setMonth(trialEndDate.getMonth() + 3);
-
-        const newUser = new User({
-            firstName: firstName.trim(),
-            lastName: lastName.trim(),
-            email: email.toLowerCase().trim(),
-            phone: phone ? phone.trim() : '', // Make phone optional
-            password: tempPassword, // Will be hashed by pre-save hook
-            role: 'buyer',
-            isMinimalRegistration: true,
-            tempPassword: tempPassword,
-            registrationSource: 'minimal',
-            profilePhotoUrl: '',
-            isActive: true, // Set to true so users can log in immediately
-            emailConfirmed: true, // Set to true so users can log in immediately
-            lastLogin: null,
-            twoFactorAuthenticationEnabled: false,
-            notificationSettings: '',
-            brokeragePhoneNumber: '',
-            addressLine1: '',
-            addressLine2: '',
-            homepage: '',
-            agentLicenseNumber: '',
-            brokerageLicenseNumber: '',
-            agencyName: '',
-            agencyWebsite: '',
-            agencyImage: '',
-            agencyAddressLine1: '',
-            agencyAddressLine2: '',
-            linkedIn: '',
-            twitter: '',
-            facebook: '',
-            bio: '',
-            isVerifiedAgent: false,
-            receiveMarketingMaterials: false,
-            isPremium: false,
-            premiumPlan: '',
-            trialStartDate,
-            trialEndDate,
-            isOnTrial: true,
-            hasAgent: null, // Will be set later when user completes profile
+        // Create new user with minimal registration
+        const user = new User({
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          email: email.toLowerCase().trim(),
+          phone: phone ? phone.trim() : '', // Make phone optional
+          password: tempPassword, // Will be hashed by pre-save hook
+          role: 'buyer',
+          isMinimalRegistration: true,
+          tempPassword: tempPassword,
+          registrationSource: 'minimal',
+          isActive: true,
+          emailConfirmed: true,
+          isOnTrial: true,
+          trialStartDate: new Date(),
+          trialEndDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 14 days
         });
 
-        const savedUser = await newUser.save();
+        const savedUser = await user.save();
+        
+        // Send welcome email with credentials (non-blocking)
+        emailService.sendMinimalUserWelcome(
+          savedUser.email,
+          savedUser.firstName,
+          tempPassword
+        ).catch(error => {
+          console.error('Failed to send minimal user welcome email:', error);
+        });
         
         // Generate JWT token for immediate access
         const payload = {
@@ -699,7 +680,17 @@ exports.checkEmailExists = async (req, res) => {
     
     res.status(200).json({ 
       exists: !!user,
-      message: user ? 'User found' : 'User not found'
+      message: user ? 'User found' : 'User not found',
+      user: user ? {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        isMinimalRegistration: user.isMinimalRegistration,
+        isPremium: user.isPremium,
+        isOnTrial: user.isOnTrial
+      } : null
     });
   } catch (error) {
     console.error('Error checking email existence:', error);
@@ -827,6 +818,14 @@ exports.requestPasswordReset = async (req, res) => {
       // Don't reveal if user exists or not for security
       return res.status(200).json({ 
         message: 'If an account with this email exists, a password reset link has been sent.' 
+      });
+    }
+    
+    // Check if this is a minimal user who hasn't set a password yet
+    if (user.isMinimalRegistration && !user.password) {
+      return res.status(200).json({ 
+        message: 'This account was created with minimal registration and doesn\'t have a password set yet. Please use the "Set Password" option on the login page instead.',
+        isMinimalUser: true
       });
     }
     

@@ -268,7 +268,7 @@ function LoginForm() {
       
       const data = await response.json();
       
-      if (response.ok && data.exists && data.user.isMinimalRegistration) {
+      if (response.ok && data.exists && data.user && data.user.isMinimalRegistration) {
         // User exists and is a minimal user
         setIsMinimalUserFlow(true);
         setGeneralError('');

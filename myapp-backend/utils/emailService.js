@@ -24,6 +24,31 @@ class EmailService {
     return crypto.randomBytes(32).toString('hex');
   }
 
+  // Generate user-friendly temporary password
+  generateTemporaryPassword() {
+    // Create a password that's 8 characters long (meets all requirements)
+    // Mix of uppercase, lowercase, numbers for better security
+    const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+    const numbers = '0123456789';
+    
+    let password = '';
+    
+    // Ensure at least one of each type
+    password += uppercase[Math.floor(Math.random() * uppercase.length)];
+    password += lowercase[Math.floor(Math.random() * lowercase.length)];
+    password += numbers[Math.floor(Math.random() * numbers.length)];
+    
+    // Fill the rest with random characters from all types
+    const allChars = uppercase + lowercase + numbers;
+    for (let i = 3; i < 8; i++) {
+      password += allChars[Math.floor(Math.random() * allChars.length)];
+    }
+    
+    // Shuffle the password to make it more random
+    return password.split('').sort(() => Math.random() - 0.5).join('');
+  }
+
   // Send email verification email
   async sendEmailVerification(userEmail, verificationToken, firstName) {
     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
@@ -1691,7 +1716,7 @@ class EmailService {
   }
 
   // Send buyer package confirmation email
-  async sendBuyerPackageConfirmation(userEmail, firstName, propertyAddress, buyerPackageId) {
+  async sendBuyerPackageConfirmation(userEmail, firstName, propertyAddress, buyerPackageId, tempPassword = null) {
     const buyerPackageUrl = `${process.env.FRONTEND_URL}/buyerpackage/${buyerPackageId}`;
     
     const mailOptions = {
@@ -1718,6 +1743,20 @@ class EmailService {
                 Your buyer package is now active
               </p>
             </div>
+            ${tempPassword ? `
+            <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+              <h3 style="color: #856404; margin: 0 0 10px 0;">Your Login Credentials</h3>
+              <p style="color: #856404; margin: 0 0 8px 0; font-size: 14px;">
+                <strong>Email:</strong> ${userEmail}
+              </p>
+              <p style="color: #856404; margin: 0; font-size: 14px;">
+                <strong>Temporary Password:</strong> <span style="font-family: monospace; background-color: #f8f9fa; padding: 2px 6px; border-radius: 3px;">${tempPassword}</span>
+              </p>
+              <p style="color: #856404; margin: 10px 0 0 0; font-size: 13px; font-style: italic;">
+                You can use these credentials to log in, or set a permanent password using the "Set Password" option on the login page.
+              </p>
+            </div>
+            ` : ''}
             <div style="text-align: center; margin: 30px 0;">
               <a href="${buyerPackageUrl}" 
                  style="background-color: #007bff; color: white; padding: 12px 30px; 
@@ -1760,6 +1799,76 @@ class EmailService {
       return { success: true };
     } catch (error) {
       console.error('Buyer package confirmation email send error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Send welcome email for standalone minimal users
+  async sendMinimalUserWelcome(userEmail, firstName, tempPassword) {
+    const loginUrl = `${process.env.FRONTEND_URL}/login`;
+    
+    const mailOptions = {
+      from: `"RealOffer" <noreply@realoffer.io>`,
+      to: userEmail,
+      subject: 'Welcome to RealOffer - Your Account is Ready!',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+            <h1 style="color: #333; margin: 0;">Welcome to RealOffer!</h1>
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #333;">Hi ${firstName},</h2>
+            <p style="color: #666; line-height: 1.6;">
+              Welcome to RealOffer! Your account has been created successfully and you're now ready 
+              to explore properties, view listings, and make offers.
+            </p>
+            <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+              <h3 style="color: #856404; margin: 0 0 10px 0;">Your Login Credentials</h3>
+              <p style="color: #856404; margin: 0 0 8px 0; font-size: 14px;">
+                <strong>Email:</strong> ${userEmail}
+              </p>
+              <p style="color: #856404; margin: 0; font-size: 14px;">
+                <strong>Temporary Password:</strong> <span style="font-family: monospace; background-color: #f8f9fa; padding: 2px 6px; border-radius: 3px;">${tempPassword}</span>
+              </p>
+              <p style="color: #856404; margin: 10px 0 0 0; font-size: 13px; font-style: italic;">
+                You can use these credentials to log in, or set a permanent password using the "Set Password" option on the login page.
+              </p>
+            </div>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${loginUrl}" 
+                 style="background-color: #007bff; color: white; padding: 12px 30px; 
+                        text-decoration: none; border-radius: 5px; display: inline-block;">
+                Log In to Your Account
+              </a>
+            </div>
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #333; margin: 0 0 10px 0;">What you can do now:</h3>
+              <ul style="color: #666; line-height: 1.6; margin: 0; padding-left: 20px;">
+                <li>Browse available properties</li>
+                <li>Join buyer packages for properties you're interested in</li>
+                <li>View property details and documents</li>
+                <li>Make offers when you're ready</li>
+                <li>Track your offer status and activity</li>
+              </ul>
+            </div>
+            <p style="color: #666; line-height: 1.6;">
+              You can access your account anytime by visiting the login page and using your credentials above.
+            </p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">
+              RealOffer - Making real estate transactions simple and secure.
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      console.log(`Minimal user welcome email sent to ${userEmail}`);
+      return { success: true };
+    } catch (error) {
+      console.error('Minimal user welcome email send error:', error);
       return { success: false, error: error.message };
     }
   }
