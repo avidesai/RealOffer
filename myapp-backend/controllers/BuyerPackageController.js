@@ -242,7 +242,7 @@ exports.createBuyerPackageMinimal = async (req, res) => {
         firstName: userInfo.firstName.trim(),
         lastName: userInfo.lastName.trim(),
         email: userInfo.email.toLowerCase().trim(),
-        phone: userInfo.phone.trim(),
+        phone: userInfo.phone ? userInfo.phone.trim() : '', // Make phone optional
         password: tempPassword, // Will be hashed by pre-save hook
         role: 'buyer',
         isMinimalRegistration: true,
@@ -292,7 +292,7 @@ exports.createBuyerPackageMinimal = async (req, res) => {
       userInfo: {
         name: `${userInfo.firstName} ${userInfo.lastName}`,
         email: userInfo.email,
-        phone: userInfo.phone,
+        phone: userInfo.phone || '', // Handle optional phone
         role: 'buyer'
       }
     });

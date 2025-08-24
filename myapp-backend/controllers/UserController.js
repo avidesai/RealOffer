@@ -304,10 +304,10 @@ exports.createMinimalUser = async (req, res) => {
     const { firstName, lastName, email, phone } = req.body;
     
     try {
-        // Validate required fields
-        if (!firstName || !lastName || !email || !phone) {
+        // Validate required fields (phone is now optional)
+        if (!firstName || !lastName || !email) {
             return res.status(400).json({ 
-                message: 'Missing required fields: firstName, lastName, email, and phone are required' 
+                message: 'Missing required fields: firstName, lastName, and email are required' 
             });
         }
 
@@ -319,13 +319,15 @@ exports.createMinimalUser = async (req, res) => {
             });
         }
 
-        // Validate phone number format
-        const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
-        const cleanPhone = phone.replace(/[\s\-()]/g, '');
-        if (!phoneRegex.test(cleanPhone)) {
-            return res.status(400).json({ 
-                message: 'Please enter a valid phone number' 
-            });
+        // Validate phone number format only if provided
+        if (phone && phone.trim()) {
+            const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
+            const cleanPhone = phone.replace(/[\s\-()]/g, '');
+            if (!phoneRegex.test(cleanPhone)) {
+                return res.status(400).json({ 
+                    message: 'Please enter a valid phone number' 
+                });
+            }
         }
 
         // Check if user already exists
@@ -348,7 +350,7 @@ exports.createMinimalUser = async (req, res) => {
             firstName: firstName.trim(),
             lastName: lastName.trim(),
             email: email.toLowerCase().trim(),
-            phone: phone.trim(),
+            phone: phone ? phone.trim() : '', // Make phone optional
             password: tempPassword, // Will be hashed by pre-save hook
             role: 'buyer',
             isMinimalRegistration: true,

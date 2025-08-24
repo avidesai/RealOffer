@@ -1228,3 +1228,19 @@
   outline-offset: 2px;
   border-radius: var(--pfl-radius-sm);
 }
+
+/* Optional field styling */
+.pfl-optional-text {
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.pfl-field-help {
+  display: block;
+  color: #64748b;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}

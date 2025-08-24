@@ -1403,7 +1403,7 @@ const PublicFacingListing = () => {
               </button>
             </div>
             <h2>Quick Access</h2>
-            <p>Enter your information to get immediate access to this property.</p>
+            <p>Enter your name and email to get immediate access to this property. Phone number is optional.</p>
             {error && <p className="pfl-error">{error}</p>}
             <form className="pfl-inquiry-form" onSubmit={handleMinimalSignup} onKeyDown={handleKeyDown}>
               <div className="pfl-form-row">
@@ -1448,17 +1448,17 @@ const PublicFacingListing = () => {
                 />
               </div>
               <div className="pfl-form-group">
-                <label htmlFor="phone">Phone Number</label>
+                <label htmlFor="phone">Phone Number <span className="pfl-optional-text">(Optional)</span></label>
                 <input
                   type="text"
                   id="phone"
                   name="phone"
-                  placeholder="Enter your phone number"
+                  placeholder="Enter your phone number (optional)"
                   value={formData.phone}
                   onChange={handlePhoneChange}
-                  required
                   autoComplete="tel"
                 />
+                <small className="pfl-field-help">We'll use this to contact you about the property if needed</small>
               </div>
               <button type="submit" className="pfl-request-button" disabled={isLoading}>
                 {isLoading ? 'Getting Access...' : 'Get Access'}
