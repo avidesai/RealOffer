@@ -11,7 +11,7 @@ import EditEmailModal from './components/EditEmailModal/EditEmailModal';
 import Avatar from '../../../../components/Avatar/Avatar';
 import { hasPremiumAccess, getTrialStatus, formatTrialEndDate } from '../../../../utils/trialUtils';
 import './Profile.css';
-import '../components/ForBuyers/ForBuyers.css'; // Import for consistent styling
+import '../../components/ForBuyers/ForBuyers.css'; // Import for consistent styling
 
 const Profile = () => {
   const navigate = useNavigate();
