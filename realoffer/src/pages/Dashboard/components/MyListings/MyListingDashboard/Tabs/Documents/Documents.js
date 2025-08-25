@@ -69,6 +69,14 @@ const Documents = ({ listingId }) => {
     }
   }, [getUploadState, listingId, uploadNotification]);
 
+  // Auto-show progress modal when upload starts
+  useEffect(() => {
+    const uploadState = getUploadState(listingId);
+    if (uploadState && uploadState.status === 'uploading' && !showProgressModal) {
+      setShowProgressModal(true);
+    }
+  }, [getUploadState, listingId, showProgressModal]);
+
   const fetchListingData = useCallback(async () => {
     try {
       const response = await api.get(`/api/propertyListings/${listingId}`);
@@ -611,7 +619,7 @@ const Documents = ({ listingId }) => {
           >
             {hasActiveUpload(listingId) ? (
               <>
-                <span className="upload-indicator">🔄</span>
+                <span className="upload-spinner"></span>
                 Uploading...
               </>
             ) : (

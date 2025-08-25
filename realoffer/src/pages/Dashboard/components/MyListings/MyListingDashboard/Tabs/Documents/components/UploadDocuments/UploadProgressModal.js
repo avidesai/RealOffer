@@ -46,7 +46,7 @@ const UploadProgressModal = ({
         <div className="upm-header">
           <h2>Upload Progress</h2>
           <div className="upm-header-actions">
-            <span className="upm-close-hint">You can close this window</span>
+            <span className="upm-close-hint">Feel free to close this window. The upload will continue in the background.</span>
             <button className="upm-close-button" onClick={onClose} aria-label="Close">×</button>
           </div>
         </div>
@@ -93,9 +93,11 @@ const UploadProgressModal = ({
 
                 {isUploading && (
                   <div className="upm-background-notice">
-                    <div className="upm-background-icon">🔄</div>
-                    <h4>Upload Running in Background</h4>
-                    <p>Your documents are being processed. You can safely close this window and continue working - the upload will continue in the background.</p>
+                    <div className="upm-background-icon">
+                      <span className="upm-spinner"></span>
+                    </div>
+                    <h4>Upload in Progress</h4>
+                    <p>Your documents are being uploaded in the background. You can safely close this window and the upload will continue automatically.</p>
                     <div className="upm-elapsed-time">
                       Elapsed time: {minutes}m {seconds}s
                     </div>

@@ -264,6 +264,9 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
     
     setUploading(true);
     
+    // Close the upload modal and show progress modal
+    onClose();
+    
     try {
       // Actual upload with real progress tracking
       const formData = new FormData();

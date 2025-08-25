@@ -167,6 +167,22 @@
   margin-bottom: 0.75rem;
 }
 
+.upm-spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(25, 118, 210, 0.3);
+  border-radius: 50%;
+  border-top-color: #1976d2;
+  animation: upm-spin 1s ease-in-out infinite;
+}
+
+@keyframes upm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .upm-background-notice h4 {
   margin: 0 0 0.5rem 0;
   color: #1976d2;
