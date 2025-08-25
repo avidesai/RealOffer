@@ -89,6 +89,7 @@ const Documents = ({ listingId }) => {
   const [showDeleteDropdown, setShowDeleteDropdown] = useState(false);
   const [uploadNotification, setUploadNotification] = useState(null);
 
+  // Helper to prevent duplicate completion notifications per upload run
   const getCompletedKey = useCallback((listingIdArg, startTime) => {
     return `realoffer_upload_completed_notified_${listingIdArg}_${startTime || 'na'}`;
   }, []);
@@ -112,7 +113,7 @@ const Documents = ({ listingId }) => {
         });
 
         // Refresh documents once
-        refreshDocumentsWithLoading(documentOrder);
+        refreshDocumentsWithLoading();
 
         // Mark this upload as notified and clear upload state to stop re-triggers
         try { localStorage.setItem(getCompletedKey(listingId, uploadState.startTime), '1'); } catch (_) {}
@@ -126,16 +127,16 @@ const Documents = ({ listingId }) => {
     } else if (uploadState.status === 'failed' && !uploadNotification) {
       setUploadNotification({
         type: 'error',
-        message: `❌ Upload failed: ${uploadState.error || 'Unknown error occurred'}`,
+        message: `Upload failed: ${uploadState.error || 'Unknown error occurred'}`,
         timestamp: Date.now()
       });
-      
+
       // Auto-hide notification after 8 seconds
       setTimeout(() => {
         setUploadNotification(null);
       }, 8000);
     }
-  }, [getUploadState, listingId, uploadNotification, refreshDocumentsWithLoading, documentOrder, clearUpload, getCompletedKey]);
+  }, [getUploadState, listingId, uploadNotification, refreshDocumentsWithLoading, clearUpload, getCompletedKey]);
 
 
   useEffect(() => {
@@ -618,7 +619,7 @@ const Documents = ({ listingId }) => {
         <div className={`upload-notification ${uploadNotification.type}`}>
           <div className="notification-content">
             <span className="notification-icon">
-              {uploadNotification.type === 'error' ? '❌' : ''}
+              {uploadNotification.type === 'success' ? '✅' : '❌'}
             </span>
             <span className="notification-message">{uploadNotification.message}</span>
             <button 
