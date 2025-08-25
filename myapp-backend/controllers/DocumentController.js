@@ -17,6 +17,8 @@ const imagemagick = require('imagemagick');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const { runAnalysisInBackground } = require('../services/documentAnalysisService');
+const { isSupportedForAnalysis } = require('../utils/documentAnalysisSupport');
 
 const anthropic = new Anthropic({
   apiKey: process.env.CLAUDE_API_KEY,
@@ -1237,6 +1239,15 @@ exports.addDocumentToPropertyListing = async (req, res) => {
           console.error('Unexpected error in AI processing for document:', savedDocument._id, err.message);
           console.warn(`⚠️ AI processing encountered an unexpected error for ${file.originalname} - document uploaded successfully`);
         }
+      }
+      
+      // Trigger AI analysis in background for supported documents
+      try {
+        if (isSupportedForAnalysis(savedDocument.type)) {
+          runAnalysisInBackground(savedDocument._id, { forceRefresh: false });
+        }
+      } catch (e) {
+        console.warn('Failed to start background analysis (listing add):', e?.message || e);
       }
       
       propertyListing.documents.push(savedDocument._id);
@@ -2601,6 +2612,15 @@ exports.uploadDocumentForBuyerPackage = async (req, res) => {
         }
       }
       
+      // Trigger AI analysis in background for supported documents
+      try {
+        if (isSupportedForAnalysis(savedDocument.type)) {
+          runAnalysisInBackground(savedDocument._id, { forceRefresh: false });
+        }
+      } catch (e) {
+        console.warn('Failed to start background analysis (buyer package upload):', e?.message || e);
+      }
+
       documents.push(savedDocument);
     }
 
@@ -2809,6 +2829,16 @@ exports.uploadDocumentsWithProgress = async (req, res) => {
             console.error('Unexpected error in AI processing for document:', savedDocument._id, err.message);
             res.write(`data: {"processing": "⚠️ AI processing encountered an unexpected error for ${file.originalname} - document uploaded successfully"}\n\n`);
           }
+        }
+
+        // Start AI analysis in background for supported documents
+        try {
+          if (isSupportedForAnalysis(savedDocument.type)) {
+            res.write(`data: {"processing": "Starting AI analysis for ${file.originalname} (type: ${savedDocument.type})..."}\n\n`);
+            runAnalysisInBackground(savedDocument._id, { forceRefresh: false });
+          }
+        } catch (e) {
+          res.write(`data: {"processing": "⚠️ Failed to start AI analysis for ${file.originalname}: ${String(e?.message || e)}"}\n\n`);
         }
 
         propertyListing.documents.push(savedDocument._id);
