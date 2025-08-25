@@ -59,7 +59,7 @@ const Documents = ({ listingId }) => {
     if (uploadState && uploadState.status === 'uploading' && userClosedProgressModal) {
       setUserClosedProgressModal(false);
     }
-  }, [getUploadState, listingId, showProgressModal, userClosedProgressModal]);
+  }, [getUploadState, listingId, userClosedProgressModal]);
 
   const fetchListingData = useCallback(async () => {
     try {
