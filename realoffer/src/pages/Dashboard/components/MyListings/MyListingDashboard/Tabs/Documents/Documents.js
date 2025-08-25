@@ -95,49 +95,7 @@ const Documents = ({ listingId }) => {
     return `realoffer_upload_completed_notified_${listingIdArg}_${startTime || 'na'}`;
   }, []);
 
-  // Check for completed uploads and show notifications
-  useEffect(() => {
-    const uploadState = getUploadState(listingId);
-    if (!uploadState) return;
-
-    if (uploadState.status === 'completed' && !uploadNotification) {
-      // Prevent duplicate notifications for the same upload run
-      const notified = (() => {
-        try { return !!localStorage.getItem(getCompletedKey(listingId, uploadState.startTime)); } catch (_) { return false; }
-      })();
-      if (!notified) {
-        const docCount = uploadState.documentIds?.length || 0;
-        setUploadNotification({
-          type: 'success',
-          message: `Upload completed! ${docCount} document${docCount !== 1 ? 's' : ''} processed successfully.`,
-          timestamp: Date.now()
-        });
-
-        // Refresh documents once
-        refreshDocumentsWithLoading();
-
-        // Mark this upload as notified and clear upload state to stop re-triggers
-        try { localStorage.setItem(getCompletedKey(listingId, uploadState.startTime), '1'); } catch (_) {}
-        clearUpload(listingId);
-
-        // Auto-hide notification after 5 seconds
-        setTimeout(() => {
-          setUploadNotification(null);
-        }, 5000);
-      }
-    } else if (uploadState.status === 'failed' && !uploadNotification) {
-      setUploadNotification({
-        type: 'error',
-        message: `Upload failed: ${uploadState.error || 'Unknown error occurred'}`,
-        timestamp: Date.now()
-      });
-
-      // Auto-hide notification after 8 seconds
-      setTimeout(() => {
-        setUploadNotification(null);
-      }, 8000);
-    }
-  }, [getUploadState, listingId, uploadNotification, refreshDocumentsWithLoading, clearUpload, getCompletedKey]);
+  
 
   // Fetch documents with optional stored order
   const fetchDocuments = useCallback(async (storedOrder = []) => {
@@ -181,6 +139,50 @@ const Documents = ({ listingId }) => {
       setLoading(false);
     }
   }, [fetchDocuments]);
+
+  // Check for completed uploads and show notifications
+  useEffect(() => {
+    const uploadState = getUploadState(listingId);
+    if (!uploadState) return;
+
+    if (uploadState.status === 'completed' && !uploadNotification) {
+      // Prevent duplicate notifications for the same upload run
+      const notified = (() => {
+        try { return !!localStorage.getItem(getCompletedKey(listingId, uploadState.startTime)); } catch (_) { return false; }
+      })();
+      if (!notified) {
+        const docCount = uploadState.documentIds?.length || 0;
+        setUploadNotification({
+          type: 'success',
+          message: `Upload completed! ${docCount} document${docCount !== 1 ? 's' : ''} processed successfully.`,
+          timestamp: Date.now()
+        });
+
+        // Refresh documents once
+        refreshDocumentsWithLoading();
+
+        // Mark this upload as notified and clear upload state to stop re-triggers
+        try { localStorage.setItem(getCompletedKey(listingId, uploadState.startTime), '1'); } catch (_) {}
+        clearUpload(listingId);
+
+        // Auto-hide notification after 5 seconds
+        setTimeout(() => {
+          setUploadNotification(null);
+        }, 5000);
+      }
+    } else if (uploadState.status === 'failed' && !uploadNotification) {
+      setUploadNotification({
+        type: 'error',
+        message: `Upload failed: ${uploadState.error || 'Unknown error occurred'}`,
+        timestamp: Date.now()
+      });
+
+      // Auto-hide notification after 8 seconds
+      setTimeout(() => {
+        setUploadNotification(null);
+      }, 8000);
+    }
+  }, [getUploadState, listingId, uploadNotification, refreshDocumentsWithLoading, clearUpload, getCompletedKey]);
 
   useEffect(() => {
     if (!token || !listingId) return;
