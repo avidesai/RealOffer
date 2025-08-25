@@ -89,86 +89,41 @@ const Documents = ({ listingId }) => {
   const [showDeleteDropdown, setShowDeleteDropdown] = useState(false);
   const [uploadNotification, setUploadNotification] = useState(null);
 
-
-
-  // Auto-show progress modal when upload starts (only for active uploads)
-  // (Removed duplicate effect that reset userClosedProgressModal)
-
-  const fetchListingData = useCallback(async () => {
-    try {
-      const response = await api.get(`/api/propertyListings/${listingId}`);
-      
-      // Get stored document order if it exists
-      return response.data.documentOrder || [];
-    } catch (error) {
-      console.error('Error fetching listing data:', error);
-      return [];
-    }
-  }, [listingId]);
-
-  const [addressLine, setAddressLine] = useState('');
-
-  const fetchDocuments = useCallback(async (storedOrder = []) => {
-    try {
-      const response = await api.get(`/api/documents/${listingId}/optimized`);
-      const listingDocuments = response.data.filter(doc => doc.purpose === 'listing' || doc.purpose === 'signature_package');
-      
-      // Check if a signature package document actually exists
-      const signaturePackageExists = response.data.some(doc => doc.purpose === 'signature_package');
-      setHasSignaturePackage(signaturePackageExists);
-      
-      // Sort documents according to stored order, or by creation date if no order exists
-      if (storedOrder.length > 0) {
-        const orderMap = new Map(storedOrder.map((id, index) => [id, index]));
-        listingDocuments.sort((a, b) => {
-          const orderA = orderMap.has(a._id) ? orderMap.get(a._id) : Number.MAX_SAFE_INTEGER;
-          const orderB = orderMap.has(b._id) ? orderMap.get(b._id) : Number.MAX_SAFE_INTEGER;
-          return orderA - orderB;
-        });
-        setDocumentOrder(storedOrder);
-      } else {
-        // If no stored order, create order from current document list
-        listingDocuments.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-        const newOrder = listingDocuments.map(doc => doc._id);
-        setDocumentOrder(newOrder);
-      }
-      
-      setDocuments(listingDocuments);
-    } catch (error) {
-      console.error('Error fetching documents:', error);
-    }
-  }, [listingId]);
-
-  const refreshDocumentsWithLoading = useCallback(async (orderToUse) => {
-    setLoading(true);
-    try {
-      // If no order is provided, use the current documentOrder from ref
-      const orderToUseFinal = orderToUse || documentOrderRef.current;
-      await fetchDocuments(orderToUseFinal);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchDocuments]);
+  const getCompletedKey = useCallback((listingIdArg, startTime) => {
+    return `realoffer_upload_completed_notified_${listingIdArg}_${startTime || 'na'}`;
+  }, []);
 
   // Check for completed uploads and show notifications
   useEffect(() => {
     const uploadState = getUploadState(listingId);
-    if (uploadState && uploadState.status === 'completed' && !uploadNotification) {
-      const docCount = uploadState.documentIds?.length || 0;
-      setUploadNotification({
-        type: 'success',
-        message: `✅ Upload completed! ${docCount} document${docCount !== 1 ? 's' : ''} processed successfully.`,
-        timestamp: Date.now()
-      });
-      
-      // Refresh documents to show newly uploaded ones
-      refreshDocumentsWithLoading(documentOrder);
-      
-      // Auto-hide notification after 5 seconds
-      setTimeout(() => {
-        setUploadNotification(null);
-      }, 5000);
-    } else if (uploadState && uploadState.status === 'failed' && !uploadNotification) {
+    if (!uploadState) return;
+
+    if (uploadState.status === 'completed' && !uploadNotification) {
+      // Prevent duplicate notifications for the same upload run
+      const notified = (() => {
+        try { return !!localStorage.getItem(getCompletedKey(listingId, uploadState.startTime)); } catch (_) { return false; }
+      })();
+      if (!notified) {
+        const docCount = uploadState.documentIds?.length || 0;
+        setUploadNotification({
+          type: 'success',
+          message: `Upload completed! ${docCount} document${docCount !== 1 ? 's' : ''} processed successfully.`,
+          timestamp: Date.now()
+        });
+
+        // Refresh documents once
+        refreshDocumentsWithLoading(documentOrder);
+
+        // Mark this upload as notified and clear upload state to stop re-triggers
+        try { localStorage.setItem(getCompletedKey(listingId, uploadState.startTime), '1'); } catch (_) {}
+        clearUpload(listingId);
+
+        // Auto-hide notification after 5 seconds
+        setTimeout(() => {
+          setUploadNotification(null);
+        }, 5000);
+      }
+    } else if (uploadState.status === 'failed' && !uploadNotification) {
       setUploadNotification({
         type: 'error',
         message: `❌ Upload failed: ${uploadState.error || 'Unknown error occurred'}`,
@@ -180,7 +135,7 @@ const Documents = ({ listingId }) => {
         setUploadNotification(null);
       }, 8000);
     }
-  }, [getUploadState, listingId, uploadNotification, refreshDocumentsWithLoading]);
+  }, [getUploadState, listingId, uploadNotification, refreshDocumentsWithLoading, documentOrder, clearUpload, getCompletedKey]);
 
 
   useEffect(() => {
