@@ -49,15 +49,22 @@ const Documents = ({ listingId }) => {
 
 
 
-  // Auto-show progress modal when upload starts
+  // Auto-show progress modal when upload starts (only for active uploads)
   useEffect(() => {
     const uploadState = getUploadState(listingId);
-    if (uploadState && uploadState.status === 'uploading' && !showProgressModal && !userClosedProgressModal) {
-      setShowProgressModal(true);
-    }
-    // Reset user closed flag when upload status changes to uploading (new upload)
+
+    // If a new upload starts, allow the modal to auto-open again
     if (uploadState && uploadState.status === 'uploading' && userClosedProgressModal) {
       setUserClosedProgressModal(false);
+    }
+
+    // Only auto-open for truly active uploads
+    if (
+      uploadState &&
+      uploadState.status === 'uploading' &&
+      !userClosedProgressModal
+    ) {
+      setShowProgressModal(true);
     }
   }, [getUploadState, listingId, userClosedProgressModal]);
 
@@ -220,9 +227,12 @@ const Documents = ({ listingId }) => {
   const closeProgressModal = () => {
     setShowProgressModal(false);
     setUserClosedProgressModal(true);
-    // Clear the upload state if it's completed or failed
+    // Clear the upload state if it's completed/failed/interrupted
     const uploadState = getUploadState(listingId);
-    if (uploadState && (uploadState.status === 'completed' || uploadState.status === 'failed')) {
+    if (
+      uploadState &&
+      (uploadState.status === 'completed' || uploadState.status === 'failed' || uploadState.status === 'interrupted')
+    ) {
       clearUpload(listingId);
       setUserClosedProgressModal(false); // Reset flag when upload is done
       // Refresh documents to show newly uploaded ones

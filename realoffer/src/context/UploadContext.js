@@ -14,6 +14,9 @@ export const useUploadContext = () => {
 export const UploadProvider = ({ children }) => {
   const [activeUploads, setActiveUploads] = useState(new Map()); // Map of listingId -> upload state
 
+  // Consider uploads stale (interrupted) if no update for this long
+  const STALE_UPLOAD_MS = 2 * 60 * 1000; // 2 minutes
+
   // Load upload state from localStorage on mount
   useEffect(() => {
     try {
@@ -22,23 +25,73 @@ export const UploadProvider = ({ children }) => {
         const parsedUploads = JSON.parse(savedUploads);
         const uploadsMap = new Map();
         
-        // Convert back to Map and filter out completed/failed uploads older than 1 hour
-        const oneHourAgo = Date.now() - (60 * 60 * 1000);
+        const now = Date.now();
+        const oneHourAgo = now - (60 * 60 * 1000);
         Object.entries(parsedUploads).forEach(([listingId, upload]) => {
+          let restored = { ...upload };
+
+          // Auto-mark stale uploads as interrupted
+          if (restored.status === 'uploading') {
+            const last = restored.lastUpdated || restored.startTime || 0;
+            if (now - last > STALE_UPLOAD_MS) {
+              restored = {
+                ...restored,
+                status: 'interrupted',
+                interruptedAt: now,
+              };
+            }
+          }
+
           // Only restore uploads that are still active or completed/failed recently
-          if (upload.status === 'uploading' || 
-              (upload.completedAt && upload.completedAt > oneHourAgo) ||
-              (upload.failedAt && upload.failedAt > oneHourAgo)) {
-            uploadsMap.set(listingId, upload);
+          if (
+            restored.status === 'uploading' ||
+            restored.status === 'interrupted' ||
+            (restored.completedAt && restored.completedAt > oneHourAgo) ||
+            (restored.failedAt && restored.failedAt > oneHourAgo)
+          ) {
+            uploadsMap.set(listingId, restored);
           }
         });
         
         setActiveUploads(uploadsMap);
-        console.log('Restored upload state from localStorage:', uploadsMap.size, 'uploads');
+        // Persist back any interrupted updates
+        const uploadsObject = Object.fromEntries(uploadsMap);
+        localStorage.setItem('realoffer_active_uploads', JSON.stringify(uploadsObject));
       }
     } catch (error) {
       console.warn('Failed to restore upload state from localStorage:', error);
     }
+  }, []);
+
+  // Mark all active uploads as interrupted on page unload
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleBeforeUnload = () => {
+      setActiveUploads(prev => {
+        const now = Date.now();
+        const newUploads = new Map(prev);
+        let changed = false;
+        for (const [listingId, upload] of newUploads.entries()) {
+          if (upload.status === 'uploading') {
+            newUploads.set(listingId, {
+              ...upload,
+              status: 'interrupted',
+              interruptedAt: now,
+            });
+            changed = true;
+          }
+        }
+        if (changed) {
+          const uploadsObject = Object.fromEntries(newUploads);
+          try { localStorage.setItem('realoffer_active_uploads', JSON.stringify(uploadsObject)); } catch (_) {}
+        }
+        return newUploads;
+      });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
 
   // Save upload state to localStorage whenever it changes
@@ -51,6 +104,36 @@ export const UploadProvider = ({ children }) => {
     }
   }, []);
 
+  // Periodically mark stuck uploads as interrupted
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveUploads(prev => {
+        const now = Date.now();
+        let changed = false;
+        const newUploads = new Map(prev);
+        for (const [listingId, upload] of newUploads.entries()) {
+          if (upload.status === 'uploading') {
+            const last = upload.lastUpdated || upload.startTime || 0;
+            if (now - last > STALE_UPLOAD_MS) {
+              newUploads.set(listingId, {
+                ...upload,
+                status: 'interrupted',
+                interruptedAt: now,
+              });
+              changed = true;
+            }
+          }
+        }
+        if (changed) {
+          saveToLocalStorage(newUploads);
+        }
+        return newUploads;
+      });
+    }, 30 * 1000); // check every 30s
+
+    return () => clearInterval(timer);
+  }, [saveToLocalStorage]);
+
   // Start a new upload
   const startUpload = useCallback((listingId, uploadData) => {
     setActiveUploads(prev => {
@@ -58,6 +141,7 @@ export const UploadProvider = ({ children }) => {
       const uploadState = {
         ...uploadData,
         startTime: Date.now(),
+        lastUpdated: Date.now(),
         status: 'uploading'
       };
       newUploads.set(listingId, uploadState);
@@ -72,9 +156,12 @@ export const UploadProvider = ({ children }) => {
       const newUploads = new Map(prev);
       const currentUpload = newUploads.get(listingId);
       if (currentUpload) {
+        // If previously interrupted, revive it
+        const revivedStatus = currentUpload.status === 'interrupted' ? 'uploading' : currentUpload.status;
         const updatedUpload = {
           ...currentUpload,
           ...progressData,
+          status: revivedStatus,
           lastUpdated: Date.now()
         };
         newUploads.set(listingId, updatedUpload);
@@ -132,6 +219,23 @@ export const UploadProvider = ({ children }) => {
     });
   }, [saveToLocalStorage]);
 
+  // Mark an upload as interrupted (manual)
+  const interruptUpload = useCallback((listingId) => {
+    setActiveUploads(prev => {
+      const newUploads = new Map(prev);
+      const currentUpload = newUploads.get(listingId);
+      if (currentUpload && currentUpload.status === 'uploading') {
+        newUploads.set(listingId, {
+          ...currentUpload,
+          status: 'interrupted',
+          interruptedAt: Date.now(),
+        });
+        saveToLocalStorage(newUploads);
+      }
+      return newUploads;
+    });
+  }, [saveToLocalStorage]);
+
   // Get upload state for a specific listing
   const getUploadState = useCallback((listingId) => {
     return activeUploads.get(listingId);
@@ -151,35 +255,6 @@ export const UploadProvider = ({ children }) => {
     }));
   }, [activeUploads]);
 
-  // Clean up old upload states (completed/failed uploads older than 1 hour)
-  const cleanupOldUploads = useCallback(() => {
-    setActiveUploads(prev => {
-      const newUploads = new Map(prev);
-      const oneHourAgo = Date.now() - (60 * 60 * 1000);
-      let cleaned = false;
-      
-      for (const [listingId, upload] of newUploads.entries()) {
-        if ((upload.status === 'completed' && upload.completedAt && upload.completedAt < oneHourAgo) ||
-            (upload.status === 'failed' && upload.failedAt && upload.failedAt < oneHourAgo)) {
-          newUploads.delete(listingId);
-          cleaned = true;
-        }
-      }
-      
-      if (cleaned) {
-        saveToLocalStorage(newUploads);
-      }
-      
-      return newUploads;
-    });
-  }, [saveToLocalStorage]);
-
-  // Clean up old uploads every 30 minutes
-  useEffect(() => {
-    const cleanupInterval = setInterval(cleanupOldUploads, 30 * 60 * 1000);
-    return () => clearInterval(cleanupInterval);
-  }, [cleanupOldUploads]);
-
   const value = {
     activeUploads,
     startUpload,
@@ -187,6 +262,7 @@ export const UploadProvider = ({ children }) => {
     completeUpload,
     failUpload,
     clearUpload,
+    interruptUpload,
     getUploadState,
     hasActiveUpload,
     getAllActiveUploads
