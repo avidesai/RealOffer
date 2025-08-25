@@ -618,7 +618,7 @@ const Documents = ({ listingId }) => {
         <div className={`upload-notification ${uploadNotification.type}`}>
           <div className="notification-content">
             <span className="notification-icon">
-              {uploadNotification.type === 'success' ? '✅' : '❌'}
+              {uploadNotification.type === 'error' ? '❌' : ''}
             </span>
             <span className="notification-message">{uploadNotification.message}</span>
             <button 
