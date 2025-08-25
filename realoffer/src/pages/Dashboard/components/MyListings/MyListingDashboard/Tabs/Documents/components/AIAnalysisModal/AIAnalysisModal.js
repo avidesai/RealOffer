@@ -33,6 +33,10 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTi
       return 'Transfer Disclosure Statement Summary';
     } else if (documentType && documentType.toLowerCase().includes('agent visual inspection')) {
       return 'Agent Visual Inspection Disclosure Summary';
+    } else if (documentType && documentType.toLowerCase().includes('natural hazard')) {
+      return 'Natural Hazard Disclosure Summary';
+    } else if (documentType && documentType.toLowerCase().includes('preliminary title')) {
+      return 'Preliminary Title Report Summary';
     }
     return 'Home Inspection Report Summary';
   };
@@ -302,6 +306,16 @@ const AIAnalysisModal = ({ isOpen, onClose, documentId, documentType, documentTi
                       // Style AVID items
                       if (documentType && documentType.toLowerCase().includes('agent visual inspection')) {
                         return <li {...props} className="avid-item-standard">{children}</li>;
+                      }
+                      
+                      // Style NHD items
+                      if (documentType && documentType.toLowerCase().includes('natural hazard')) {
+                        return <li {...props} className="nhd-item-standard">{children}</li>;
+                      }
+                      
+                      // Style PTR items
+                      if (documentType && documentType.toLowerCase().includes('preliminary title')) {
+                        return <li {...props} className="ptr-item-standard">{children}</li>;
                       }
                       
                       return <li {...props}>{children}</li>;

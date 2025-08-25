@@ -426,6 +426,14 @@
   border-radius: 0 6px 6px 0;
 }
 
+/* NHD and PTR item styling aligns with existing list style */
+.nhd-item-standard,
+.ptr-item-standard {
+  margin-bottom: 16px;
+  color: #4b5563;
+  line-height: 1.7;
+}
+
 /* Completely hide bullet points for Key System Highlights section */
 .aam-result ul li.status-good::before,
 .aam-result ul li.status-warning::before,
@@ -444,14 +452,14 @@
 .aam-result ul li:has(.status-good),
 .aam-result ul li:has(.status-warning),
 .aam-result ul li:has(.status-problem) {
-  padding-left: 0.5rem !important;
+  padding-left: 0.2rem !important;
 }
 
 /* Remove left padding from ul elements that contain status indicators */
 .aam-result ul:has(li.status-good),
 .aam-result ul:has(li.status-warning),
 .aam-result ul:has(li.status-problem) {
-  padding-left: 0.5rem !important;
+  padding-left: 0.2rem !important;
 }
 
 /* Cost highlighting */

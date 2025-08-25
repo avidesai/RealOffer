@@ -442,6 +442,14 @@
   border-radius: 0 6px 6px 0;
 }
 
+/* NHD and PTR item styling aligns with existing list style */
+.nhd-item-standard,
+.ptr-item-standard {
+  margin-bottom: 16px;
+  color: #4b5563;
+  line-height: 1.7;
+}
+
 /* Completely hide bullet points for Key System Highlights section */
 .aam-result ul li.status-good::before,
 .aam-result ul li.status-warning::before,

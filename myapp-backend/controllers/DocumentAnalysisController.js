@@ -282,6 +282,10 @@ exports.analyzeDocument = async (req, res) => {
         analysisType = 'agent_visual_inspection_disclosure';
       } else if (document.type === 'Sewer Lateral Inspection') {
         analysisType = 'sewer_lateral_inspection';
+      } else if (document.type === 'Natural Hazard Disclosures') {
+        analysisType = 'natural_hazard_disclosure';
+      } else if (document.type === 'Preliminary Title Report') {
+        analysisType = 'preliminary_title_report';
       }
       
       analysis = new DocumentAnalysis({

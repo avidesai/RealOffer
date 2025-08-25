@@ -852,7 +852,7 @@ const Documents = ({ listingId }) => {
               </div>
               {!isReorderMode && !isRenameMode && (
                 <div className="docs-tab-document-actions">
-                                    {(doc.type === 'Home Inspection Report' || doc.type === 'Roof Inspection Report' || doc.type === 'Pest Inspection Report' || doc.type === 'Seller Property Questionnaire' || doc.type === 'Real Estate Transfer Disclosure Statement' || doc.type === 'Agent Visual Inspection' || doc.type === 'Sewer Lateral Inspection' || doc.type === 'Preliminary Title Report') && (
+                                    {(doc.type === 'Home Inspection Report' || doc.type === 'Roof Inspection Report' || doc.type === 'Pest Inspection Report' || doc.type === 'Seller Property Questionnaire' || doc.type === 'Real Estate Transfer Disclosure Statement' || doc.type === 'Agent Visual Inspection' || doc.type === 'Sewer Lateral Inspection' || doc.type === 'Preliminary Title Report' || doc.type === 'Natural Hazard Disclosures') && (
                     <button 
                       className="docs-tab-add-documents-button docs-tab-document-actions-button docs-tab-ai-analysis-ribbon"
                       onClick={(e) => {
