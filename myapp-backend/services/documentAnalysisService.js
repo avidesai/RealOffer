@@ -719,6 +719,102 @@ Do NOT combine multiple items into a single bullet point. Each distinct item sho
 Report content:
 ${text}`;
           break;
+        case 'Natural Hazard Disclosures':
+          prompt = `You are a California real estate advisor. Review the Natural Hazard Disclosure (NHD) report and produce a concise, buyer-friendly summary focused on material risk, insurance/financing implications, and action items.
+
+CRITICAL FORMATTING REQUIREMENT: Every bullet point must be on its own separate line. Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
+
+Structure your response exactly as follows:
+
+## Summary
+Write 2–3 sentences describing the property's risk posture given the disclosed hazard zones. Avoid jargon and dollar figures.
+
+---
+
+## State-Mapped Hazard Zones (Gov Code 8589.3 & 51178)
+For each that applies, label it and give 1–2 sentences on implications for buyers/financing/insurance.
+- ❗ Flood Hazard Area (FEMA Special Flood Hazard Area)
+- ❗ Dam Inundation Zone
+- ❗ Very High Fire Hazard Severity Zone (VHFHSZ)
+- ❗ Wildland Fire Area (SRA)
+- ❗ Earthquake Fault Zone (AP Fault Rupture Zone)
+- ❗ Seismic Hazard Zone (Liquefaction/Landslide)
+
+---
+
+## Local/Additional Hazards (if disclosed)
+List any additional hazards flagged (tsunami, coastal erosion, methane, airport influence, industrial, etc.) and note buyer-relevant consequences in 1 sentence each.
+
+---
+
+## Insurance, Lending, and Cost Considerations
+Use short bullets to indicate likely impacts (no prices):
+- Homeowners insurance availability/underwriting considerations (especially for fire zones)
+- Possible lender conditions (e.g., flood insurance for SFHA)
+- Brush clearance/defensible space requirements (fire)
+- Retrofit or disclosure follow-ups (seismic/liquefaction)
+
+---
+
+## Buyer Action Items
+Provide crisp, actionable bullets (1 line each):
+- Verify specific insurance eligibility and premiums with carrier/agent
+- Confirm lender requirements (e.g., mandatory flood policy)
+- Review local defensible space/brush requirements and timeline (if fire zone)
+- Consider further geologic/foundation evaluation (if seismic/liquefaction/fault)
+
+Write clearly. Use proper markdown bullets ("- "). Avoid dollar figures. Do not repeat boilerplate NHD text. Focus only on hazards explicitly indicated in the report below.
+
+NHD report content:
+${text}`;
+          break;
+        case 'Preliminary Title Report':
+          prompt = `You are a California real estate advisor. Read the Preliminary Title Report (PTR) and summarize the material items buyers and buyer's agents care about.
+
+CRITICAL FORMATTING REQUIREMENT: Every bullet point must be on its own separate line. Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
+
+Structure your response exactly as follows:
+
+## Summary
+Write 2–3 sentences highlighting any unusual or impactful items (easements, liens, exceptions) that affect use, financing, or closing.
+
+---
+
+## Vesting & Ownership
+- State how title is vested (if explicitly shown) and any relevant vesting notes.
+
+---
+
+## Liens, Deeds of Trust, and Assessments
+- List deeds of trust, liens, or recorded assessments that will need payoff/reconveyance or may remain after close. Avoid dollar figures.
+
+---
+
+## Easements, Rights, and Encroachments
+- Identify recorded easements (access, utilities, shared driveways, CC&Rs). Note the beneficiary and functional impact in 1 line.
+
+---
+
+## Exceptions & Exclusions (Schedule B)
+- Summarize key policy exceptions that limit coverage (CC&Rs, easements, unrecorded matters). Use one bullet per item.
+
+---
+
+## HOA/CC&Rs (if applicable)
+- Note presence of CC&Rs/HOA and any material restrictions referenced.
+
+---
+
+## Buyer Action Items
+- Obtain and review full documents for any listed easements/CC&Rs before removing contingencies
+- Confirm payoffs/reconveyance for liens with escrow
+- Verify access/encroachment issues with survey/HOA if unclear
+
+Keep it concise and buyer-focused. Use proper markdown bullets ("- "). Avoid legal boilerplate and dollar figures. Focus only on items explicitly disclosed below.
+
+Preliminary Title Report content:
+${text}`;
+          break;
         default:
           prompt = text || '';
       }

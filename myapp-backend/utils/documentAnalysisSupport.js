@@ -10,7 +10,9 @@ const SUPPORTED_TYPES = [
   'Seller Property Questionnaire',
   'Real Estate Transfer Disclosure Statement',
   'Agent Visual Inspection',
-  'Sewer Lateral Inspection'
+  'Sewer Lateral Inspection',
+  'Natural Hazard Disclosures'
+  , 'Preliminary Title Report'
 ];
 
 function isSupportedForAnalysis(documentType) {
@@ -33,6 +35,10 @@ function getAnalysisTypeForDocType(documentType) {
       return 'agent_visual_inspection_disclosure';
     case 'Sewer Lateral Inspection':
       return 'sewer_lateral_inspection';
+    case 'Natural Hazard Disclosures':
+      return 'natural_hazard_disclosure';
+    case 'Preliminary Title Report':
+      return 'preliminary_title_report';
     default:
       return null;
   }

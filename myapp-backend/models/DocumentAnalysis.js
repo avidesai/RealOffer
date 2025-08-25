@@ -10,7 +10,7 @@ const documentAnalysisSchema = new mongoose.Schema({
   },
   analysisType: {
     type: String,
-    enum: ['home_inspection', 'roof_inspection', 'pest_inspection', 'seller_property_questionnaire', 'transfer_disclosure_statement', 'agent_visual_inspection_disclosure', 'sewer_lateral_inspection'],
+    enum: ['home_inspection', 'roof_inspection', 'pest_inspection', 'seller_property_questionnaire', 'transfer_disclosure_statement', 'agent_visual_inspection_disclosure', 'sewer_lateral_inspection', 'natural_hazard_disclosure', 'preliminary_title_report'],
     required: true
   },
   status: {
