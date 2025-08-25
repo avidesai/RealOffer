@@ -44,9 +44,10 @@ const Documents = ({ listingId }) => {
   useEffect(() => {
     const uploadState = getUploadState(listingId);
     if (uploadState && uploadState.status === 'completed' && !uploadNotification) {
+      const docCount = uploadState.documentIds?.length || 0;
       setUploadNotification({
         type: 'success',
-        message: `Upload completed! ${uploadState.documentIds?.length || 0} documents processed.`,
+        message: `✅ Upload completed! ${docCount} document${docCount !== 1 ? 's' : ''} processed successfully.`,
         timestamp: Date.now()
       });
       
@@ -57,7 +58,7 @@ const Documents = ({ listingId }) => {
     } else if (uploadState && uploadState.status === 'failed' && !uploadNotification) {
       setUploadNotification({
         type: 'error',
-        message: `Upload failed: ${uploadState.error || 'Unknown error'}`,
+        message: `❌ Upload failed: ${uploadState.error || 'Unknown error occurred'}`,
         timestamp: Date.now()
       });
       
@@ -178,11 +179,13 @@ const Documents = ({ listingId }) => {
   }, [token, listingId, fetchListingData]);
 
   const handleUploadClick = () => {
+    // Prevent rapid clicking when upload is active
     if (hasActiveUpload(listingId)) {
       setShowProgressModal(true);
-    } else {
-      setShowUploadModal(true);
+      return;
     }
+    
+    setShowUploadModal(true);
   };
 
   const closeUploadModal = () => {
@@ -601,11 +604,15 @@ const Documents = ({ listingId }) => {
       
       <div className="docs-tab-documents-header">
         <div className="docs-tab-action-buttons">
-          <button className="docs-tab-add-documents-button" onClick={handleUploadClick} disabled={isReorderMode || isRenameMode}>
+          <button 
+            className={`docs-tab-add-documents-button ${hasActiveUpload(listingId) ? 'uploading' : ''}`} 
+            onClick={handleUploadClick} 
+            disabled={isReorderMode || isRenameMode}
+          >
             {hasActiveUpload(listingId) ? (
               <>
                 <span className="upload-indicator">🔄</span>
-                View Upload Progress
+                Uploading...
               </>
             ) : (
               'Upload'
@@ -795,7 +802,7 @@ const Documents = ({ listingId }) => {
           ))
         )}
       </div>
-      {showUploadModal && (
+      {showUploadModal && !hasActiveUpload(listingId) && (
         <UploadDocumentsLogic
           onClose={closeUploadModal}
           listingId={listingId}

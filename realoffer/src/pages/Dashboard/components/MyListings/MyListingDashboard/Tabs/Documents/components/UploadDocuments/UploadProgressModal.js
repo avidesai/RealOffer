@@ -44,8 +44,11 @@ const UploadProgressModal = ({
     <div className="upm-overlay" onClick={onClose}>
       <div className="upm-modal" onClick={(e) => e.stopPropagation()}>
         <div className="upm-header">
-          <h2>Uploading Documents</h2>
-          <button className="upm-close-button" onClick={onClose} aria-label="Close">×</button>
+          <h2>Upload Progress</h2>
+          <div className="upm-header-actions">
+            <span className="upm-close-hint">You can close this window</span>
+            <button className="upm-close-button" onClick={onClose} aria-label="Close">×</button>
+          </div>
         </div>
         
         <div className="upm-content">
@@ -91,7 +94,8 @@ const UploadProgressModal = ({
                 {isUploading && (
                   <div className="upm-background-notice">
                     <div className="upm-background-icon">🔄</div>
-                    <p>Upload is running in the background. You can close this window and continue working.</p>
+                    <h4>Upload Running in Background</h4>
+                    <p>Your documents are being processed. You can safely close this window and continue working - the upload will continue in the background.</p>
                     <div className="upm-elapsed-time">
                       Elapsed time: {minutes}m {seconds}s
                     </div>

@@ -1080,3 +1080,20 @@
 .notification-close:hover {
   opacity: 1;
 }
+
+.docs-tab-add-documents-button.uploading {
+  background: #4a90e2;
+  color: white;
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+.docs-tab-add-documents-button.uploading:hover {
+  background: #357abd;
+  opacity: 1;
+}
+
+.docs-tab-add-documents-button.uploading:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
