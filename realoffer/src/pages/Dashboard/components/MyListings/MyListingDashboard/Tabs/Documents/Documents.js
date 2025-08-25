@@ -139,6 +139,48 @@ const Documents = ({ listingId }) => {
     }
   }, [getUploadState, listingId, uploadNotification, refreshDocumentsWithLoading, clearUpload, getCompletedKey]);
 
+  // Fetch documents with optional stored order
+  const fetchDocuments = useCallback(async (storedOrder = []) => {
+    try {
+      const response = await api.get(`/api/documents/${listingId}/optimized`);
+      const listingDocuments = response.data.filter(doc => doc.purpose === 'listing' || doc.purpose === 'signature_package');
+
+      // Check if a signature package document actually exists
+      const signaturePackageExists = response.data.some(doc => doc.purpose === 'signature_package');
+      setHasSignaturePackage(signaturePackageExists);
+
+      // Sort documents according to stored order, or by creation date if no order exists
+      if (storedOrder.length > 0) {
+        const orderMap = new Map(storedOrder.map((id, index) => [id, index]));
+        listingDocuments.sort((a, b) => {
+          const orderA = orderMap.has(a._id) ? orderMap.get(a._id) : Number.MAX_SAFE_INTEGER;
+          const orderB = orderMap.has(b._id) ? orderMap.get(b._id) : Number.MAX_SAFE_INTEGER;
+          return orderA - orderB;
+        });
+        setDocumentOrder(storedOrder);
+      } else {
+        // If no stored order, create order from current document list
+        listingDocuments.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        const newOrder = listingDocuments.map(doc => doc._id);
+        setDocumentOrder(newOrder);
+      }
+
+      setDocuments(listingDocuments);
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+    }
+  }, [listingId]);
+
+  // Refresh documents with loading spinner
+  const refreshDocumentsWithLoading = useCallback(async (orderToUse) => {
+    setLoading(true);
+    try {
+      const orderToUseFinal = orderToUse || documentOrderRef.current;
+      await fetchDocuments(orderToUseFinal);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchDocuments]);
 
   useEffect(() => {
     if (!token || !listingId) return;
