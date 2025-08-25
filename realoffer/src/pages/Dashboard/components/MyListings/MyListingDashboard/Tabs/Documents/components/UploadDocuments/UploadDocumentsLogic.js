@@ -3,8 +3,8 @@
 import { useState, useRef } from 'react';
 import api from '../../../../../../../../../context/api';
 import { useAuth } from '../../../../../../../../../context/AuthContext';
+import { useUploadContext } from '../../../../../../../../../context/UploadContext';
 import UploadDocumentsModal from './UploadDocumentsModal';
-import UploadProgressModal from './UploadProgressModal';
 import PromptCSPModal from './PromptCSPModal/PromptCSPModal';
 import CreateSignaturePackage from '../CreateSignaturePackage/CreateSignaturePackage';
 
@@ -158,17 +158,9 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
   const [errors, setErrors] = useState([]);
   const [showCSPPrompt, setShowCSPPrompt] = useState(false);
   const [showCreateSignaturePackage, setShowCreateSignaturePackage] = useState(false);
-  const [showProgressModal, setShowProgressModal] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState({
-    currentFile: 0,
-    totalFiles: 0,
-    currentFileName: '',
-    processingMessage: '',
-    error: null,
-    isFullyComplete: false
-  });
   const fileInputRef = useRef(null);
   const { user } = useAuth();
+  const { startUpload, updateUploadProgress, completeUpload, failUpload } = useUploadContext();
 
   // Removed unused validateAndClearErrors function
 
@@ -261,16 +253,15 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
       return;
     }
     
-    // Initialize progress tracking
-    setUploadProgress({
+    // Start the upload in the context
+    startUpload(listingId, {
       currentFile: 1,
       totalFiles: files.length,
       currentFileName: files[0]?.title || files[0]?.file.name || '',
       processingMessage: '',
-      error: null,
-      isFullyComplete: false
+      error: null
     });
-    setShowProgressModal(true);
+    
     setUploading(true);
     
     try {
@@ -328,29 +319,26 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
               }
               
               if (data.progress !== undefined) {
-                // Update progress
-                setUploadProgress(prev => ({
-                  ...prev,
+                // Update progress in context
+                updateUploadProgress(listingId, {
                   currentFile: data.currentFile,
                   totalFiles: data.totalFiles,
                   currentFileName: data.fileName
-                }));
+                });
               }
               
               if (data.processing) {
-                // Update processing message
-                setUploadProgress(prev => ({
-                  ...prev,
+                // Update processing message in context
+                updateUploadProgress(listingId, {
                   processingMessage: data.processing
-                }));
+                });
               }
               
               if (data.complete) {
-                // Upload complete - set the fully complete flag
-                setUploadProgress(prev => ({
-                  ...prev,
-                  isFullyComplete: true
-                }));
+                // Upload complete - mark as completed in context
+                completeUpload(listingId, {
+                  documentIds: data.documentIds || data.documents?.map(doc => doc._id) || []
+                });
                 uploadedDocumentIds = data.documentIds || data.documents?.map(doc => doc._id) || [];
                 break;
               }
@@ -378,10 +366,9 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
               }
               
               if (data.complete) {
-                setUploadProgress(prev => ({
-                  ...prev,
-                  isFullyComplete: true
-                }));
+                completeUpload(listingId, {
+                  documentIds: data.documentIds || data.documents?.map(doc => doc._id) || []
+                });
                 uploadedDocumentIds = data.documentIds || data.documents?.map(doc => doc._id) || [];
                 break;
               }
@@ -411,9 +398,9 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
         // Update the document order in the property listing
         try {
           await api.put(
-                          `/api/propertyListings/${listingId}/documentOrder`,
-              { documentOrder: finalDocumentOrder }
-            );
+            `/api/propertyListings/${listingId}/documentOrder`,
+            { documentOrder: finalDocumentOrder }
+          );
         } catch (orderError) {
           console.warn('Could not update document order:', orderError);
           // If the specific endpoint doesn't exist, try the general listing update
@@ -440,13 +427,14 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
       }
       
       setUploading(false);
-      // The progress modal will handle showing the CSP prompt when closed
+      // Close the upload modal - progress will continue in background
+      onClose();
+      
     } catch (error) {
       setUploading(false);
-      setUploadProgress(prev => ({
-        ...prev,
+      failUpload(listingId, {
         error: 'An error occurred while uploading. Please try again.'
-      }));
+      });
       setErrors(['An error occurred while uploading. Please try again.']);
     }
   };
@@ -468,27 +456,6 @@ const UploadDocumentsLogic = ({ onClose, listingId, onUploadSuccess, hasSignatur
     onClose();
     onUploadSuccess();
   };
-
-  if (showProgressModal) {
-    return (
-      <UploadProgressModal
-        isOpen={showProgressModal}
-        onClose={() => {
-          setShowProgressModal(false);
-          // Check if upload is fully complete (backend sent complete message)
-          if (uploadProgress.isFullyComplete && uploadProgress.totalFiles > 0) {
-            setShowCSPPrompt(true);
-          }
-        }}
-        totalFiles={uploadProgress.totalFiles}
-        currentFile={uploadProgress.currentFile}
-        currentFileName={uploadProgress.currentFileName}
-        processingMessage={uploadProgress.processingMessage}
-        isFullyComplete={uploadProgress.isFullyComplete}
-        error={uploadProgress.error}
-      />
-    );
-  }
 
   if (showCreateSignaturePackage) {
     return (

@@ -1,20 +1,44 @@
 import React from 'react';
+import { useUploadContext } from '../../../../../../../../../context/UploadContext';
 import './UploadProgressModal.css';
 
 const UploadProgressModal = ({ 
   isOpen, 
   onClose, 
-  currentFile, 
-  totalFiles, 
-  currentFileName,
-  processingMessage,
-  isFullyComplete,
-  error 
+  listingId,
+  uploadState
 }) => {
+  const { getUploadState } = useUploadContext();
+  
   if (!isOpen) return null;
 
+  // Get the current upload state
+  const currentUploadState = uploadState || getUploadState(listingId);
+  
+  if (!currentUploadState) {
+    return null;
+  }
+
+  const { 
+    currentFile, 
+    totalFiles, 
+    currentFileName,
+    processingMessage,
+    status,
+    error,
+    startTime,
+    lastUpdated
+  } = currentUploadState;
+
   const progress = totalFiles > 0 ? (currentFile / totalFiles) * 100 : 0;
-  const isComplete = isFullyComplete && totalFiles > 0;
+  const isComplete = status === 'completed';
+  const isFailed = status === 'failed';
+  const isUploading = status === 'uploading';
+
+  // Calculate elapsed time
+  const elapsedTime = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+  const minutes = Math.floor(elapsedTime / 60);
+  const seconds = elapsedTime % 60;
 
   return (
     <div className="upm-overlay" onClick={onClose}>
@@ -25,11 +49,11 @@ const UploadProgressModal = ({
         </div>
         
         <div className="upm-content">
-          {error ? (
+          {isFailed ? (
             <div className="upm-error">
               <div className="upm-error-icon">⚠️</div>
               <h3>Upload Error</h3>
-              <p>{error}</p>
+              <p>{error || 'An error occurred during upload'}</p>
               <button className="upm-retry-button" onClick={onClose}>
                 Close
               </button>
@@ -63,6 +87,16 @@ const UploadProgressModal = ({
                     </div>
                   )}
                 </div>
+
+                {isUploading && (
+                  <div className="upm-background-notice">
+                    <div className="upm-background-icon">🔄</div>
+                    <p>Upload is running in the background. You can close this window and continue working.</p>
+                    <div className="upm-elapsed-time">
+                      Elapsed time: {minutes}m {seconds}s
+                    </div>
+                  </div>
+                )}
               </div>
 
               {isComplete && (

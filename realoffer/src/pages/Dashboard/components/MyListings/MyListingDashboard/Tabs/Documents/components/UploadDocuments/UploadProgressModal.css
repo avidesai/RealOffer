@@ -6,108 +6,91 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  font-family: 'Inter', sans-serif;
 }
 
 .upm-modal {
   background: #ffffff;
   padding: 2rem;
   border-radius: 16px;
-  width: 900px;
+  width: 500px;
   max-width: 95%;
-  height: 90vh;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   position: relative;
-  overflow-y: auto;
-  animation: upm-fadeIn 0.3s ease-in-out;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-@keyframes upm-fadeIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .upm-header {
-  margin-bottom: 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 1.5rem;
 }
 
 .upm-header h2 {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 1.5em;
+  font-size: 1.5rem;
+  color: #1a1a1a;
   margin: 0;
-  color: #333;
   font-weight: 600;
 }
 
 .upm-close-button {
-  position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
   background: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 50%;
-  width: 42px;
-  height: 42px;
+  width: 32px;
+  height: 32px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.5em;
+  font-size: 1.2em;
   cursor: pointer;
   color: #666;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  font-weight: 400;
-  z-index: 2;
 }
 
-.upm-close-button:hover,
-.upm-close-button:focus {
-  color: #fff;
+.upm-close-button:hover {
+  color: #ffffff;
   background-color: #e74c3c;
   border-color: #e74c3c;
-  box-shadow: 0 6px 16px rgba(231, 76, 60, 0.2);
-  outline: none;
 }
 
 .upm-content {
-  padding: 0.5rem 0.5rem 1.5rem 0.5rem;
-  background: #f7fafd;
-  border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-  margin-bottom: 1rem;
-}
-
-.upm-loading {
-  padding: 3rem 0;
+  text-align: center;
 }
 
 .upm-progress-container {
-  margin-bottom: 3rem;
+  margin-bottom: 1.5rem;
 }
 
 .upm-progress {
   width: 100%;
   height: 8px;
-  background-color: #f5f5f5;
+  background-color: #f0f0f0;
   border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .upm-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #4a90e2 0%, #357abd 100%);
+  background: linear-gradient(90deg, #4a90e2, #357abd);
   border-radius: 4px;
   transition: width 0.3s ease;
 }
@@ -115,70 +98,77 @@
 .upm-progress-text {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 0.9rem;
+  color: #666;
 }
 
 .upm-progress-percentage {
-  font-size: 1.25rem;
   font-weight: 600;
-  color: #2c3e50;
-}
-
-.upm-progress-fraction {
-  font-size: 0.9rem;
-  color: #7f8c8d;
-  font-weight: 500;
+  color: #4a90e2;
 }
 
 .upm-current-document {
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 1.5rem;
-  border: 1px solid #e9ecef;
+  margin-bottom: 1.5rem;
 }
 
 .upm-document-info {
   display: flex;
-  align-items: flex-start;
-  gap: 1rem;
+  align-items: center;
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
 }
 
 .upm-document-icon {
   font-size: 1.5rem;
-  margin-top: 0.125rem;
+  margin-right: 1rem;
 }
 
 .upm-document-details {
   flex: 1;
-  min-width: 0;
+  text-align: left;
 }
 
 .upm-document-name {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 1rem;
   font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 0.5rem;
-  word-break: break-word;
-  line-height: 1.4;
+  color: #1a1a1a;
+  margin-bottom: 0.25rem;
 }
 
 .upm-document-status {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 0.875rem;
-  color: #4a90e2;
-  font-weight: 500;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.upm-background-notice {
   background: #e3f2fd;
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  display: inline-block;
-  border-left: 3px solid #2196f3;
+  border: 1px solid #bbdefb;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.upm-background-icon {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.upm-background-notice p {
+  margin: 0 0 0.5rem 0;
+  color: #1976d2;
+  font-size: 0.9rem;
+}
+
+.upm-elapsed-time {
+  font-size: 0.8rem;
+  color: #666;
+  font-weight: 500;
 }
 
 .upm-completion {
   text-align: center;
-  padding: 2rem 0;
 }
 
 .upm-success-icon {
@@ -187,42 +177,32 @@
 }
 
 .upm-completion h3 {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: #28a745;
+  color: #2e7d32;
   margin-bottom: 0.5rem;
-  font-size: 1.3rem;
-  font-weight: 600;
 }
 
 .upm-completion p {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #666;
   margin-bottom: 1.5rem;
-  line-height: 1.5;
 }
 
 .upm-close-button-success {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #28a745;
+  background: #4a90e2;
   color: white;
   border: none;
-  padding: 0.75rem 2rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 8px;
-  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 .upm-close-button-success:hover {
-  background: #218838;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+  background: #357abd;
 }
 
 .upm-error {
   text-align: center;
-  padding: 2rem 0;
 }
 
 .upm-error-icon {
@@ -231,9 +211,8 @@
 }
 
 .upm-error h3 {
-  color: #dc3545;
+  color: #d32f2f;
   margin-bottom: 0.5rem;
-  font-size: 1.3rem;
 }
 
 .upm-error p {
@@ -242,45 +221,16 @@
 }
 
 .upm-retry-button {
-  background: #dc3545;
+  background: #d32f2f;
   color: white;
   border: none;
-  padding: 0.75rem 2rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 8px;
-  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 .upm-retry-button:hover {
-  background: #c82333;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .upm-modal {
-    width: 98%;
-    padding: 1.25rem;
-    border-radius: 12px;
-  }
-
-  .upm-header h2 {
-    font-size: 1.3rem;
-  }
-
-  .upm-current-document {
-    padding: 1rem;
-  }
-  
-  .upm-document-name {
-    font-size: 0.9rem;
-  }
-  
-  .upm-document-status {
-    font-size: 0.8rem;
-    padding: 0.4rem 0.6rem;
-  }
+  background: #b71c1c;
 } 

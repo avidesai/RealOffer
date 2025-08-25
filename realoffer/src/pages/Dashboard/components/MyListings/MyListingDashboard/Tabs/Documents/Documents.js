@@ -4,8 +4,10 @@ import React, { useEffect, useState, useCallback } from 'react';
 import api from '../../../../../../../context/api';
 import JSZip from 'jszip';
 import { useAuth } from '../../../../../../../context/AuthContext';
+import { useUploadContext } from '../../../../../../../context/UploadContext';
 import './Documents.css';
 import UploadDocumentsLogic from './components/UploadDocuments/UploadDocumentsLogic';
+import UploadProgressModal from './components/UploadDocuments/UploadProgressModal';
 import PDFViewer from './components/PDFViewer/PDFViewer';
 import CreateSignaturePackage from './components/CreateSignaturePackage/CreateSignaturePackage';
 import AIAnalysisModal from './components/AIAnalysisModal/AIAnalysisModal';
@@ -14,9 +16,11 @@ import AIAnalysisModal from './components/AIAnalysisModal/AIAnalysisModal';
 
 const Documents = ({ listingId }) => {
   const { token } = useAuth();
+  const { hasActiveUpload, getUploadState, clearUpload } = useUploadContext();
   const [documents, setDocuments] = useState([]);
   const [documentOrder, setDocumentOrder] = useState([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showProgressModal, setShowProgressModal] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPDFViewer, setShowPDFViewer] = useState(false);
@@ -34,6 +38,35 @@ const Documents = ({ listingId }) => {
   const [dragOverIndex, setDragOverIndex] = useState(null);
   const [showDownloadDropdown, setShowDownloadDropdown] = useState(false);
   const [showDeleteDropdown, setShowDeleteDropdown] = useState(false);
+  const [uploadNotification, setUploadNotification] = useState(null);
+
+  // Check for completed uploads and show notifications
+  useEffect(() => {
+    const uploadState = getUploadState(listingId);
+    if (uploadState && uploadState.status === 'completed' && !uploadNotification) {
+      setUploadNotification({
+        type: 'success',
+        message: `Upload completed! ${uploadState.documentIds?.length || 0} documents processed.`,
+        timestamp: Date.now()
+      });
+      
+      // Auto-hide notification after 5 seconds
+      setTimeout(() => {
+        setUploadNotification(null);
+      }, 5000);
+    } else if (uploadState && uploadState.status === 'failed' && !uploadNotification) {
+      setUploadNotification({
+        type: 'error',
+        message: `Upload failed: ${uploadState.error || 'Unknown error'}`,
+        timestamp: Date.now()
+      });
+      
+      // Auto-hide notification after 8 seconds
+      setTimeout(() => {
+        setUploadNotification(null);
+      }, 8000);
+    }
+  }, [getUploadState, listingId, uploadNotification]);
 
   const fetchListingData = useCallback(async () => {
     try {
@@ -145,11 +178,24 @@ const Documents = ({ listingId }) => {
   }, [token, listingId, fetchListingData]);
 
   const handleUploadClick = () => {
-    setShowUploadModal(true);
+    if (hasActiveUpload(listingId)) {
+      setShowProgressModal(true);
+    } else {
+      setShowUploadModal(true);
+    }
   };
 
   const closeUploadModal = () => {
     setShowUploadModal(false);
+  };
+
+  const closeProgressModal = () => {
+    setShowProgressModal(false);
+    // Clear the upload state if it's completed or failed
+    const uploadState = getUploadState(listingId);
+    if (uploadState && (uploadState.status === 'completed' || uploadState.status === 'failed')) {
+      clearUpload(listingId);
+    }
   };
 
   const handleDocumentSelect = (id) => {
@@ -535,10 +581,35 @@ const Documents = ({ listingId }) => {
 
   return (
     <div className="docs-tab-documents-tab">
+      {/* Upload Notification */}
+      {uploadNotification && (
+        <div className={`upload-notification ${uploadNotification.type}`}>
+          <div className="notification-content">
+            <span className="notification-icon">
+              {uploadNotification.type === 'success' ? '✅' : '❌'}
+            </span>
+            <span className="notification-message">{uploadNotification.message}</span>
+            <button 
+              className="notification-close" 
+              onClick={() => setUploadNotification(null)}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+      
       <div className="docs-tab-documents-header">
         <div className="docs-tab-action-buttons">
           <button className="docs-tab-add-documents-button" onClick={handleUploadClick} disabled={isReorderMode || isRenameMode}>
-            Upload
+            {hasActiveUpload(listingId) ? (
+              <>
+                <span className="upload-indicator">🔄</span>
+                View Upload Progress
+              </>
+            ) : (
+              'Upload'
+            )}
           </button>
           <div className="docs-tab-download-dropdown">
             <button 
@@ -764,6 +835,14 @@ const Documents = ({ listingId }) => {
             />
           );
         })()
+      )}
+      {showProgressModal && (
+        <UploadProgressModal
+          isOpen={showProgressModal}
+          onClose={closeProgressModal}
+          listingId={listingId}
+          uploadState={getUploadState(listingId)}
+        />
       )}
     </div>
   );
