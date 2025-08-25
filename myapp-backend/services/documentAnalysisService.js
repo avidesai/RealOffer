@@ -173,6 +173,10 @@ async function runAnalysisInBackground(documentId, { forceRefresh = false } = {}
       if (init.status === 'unsupported' || init.status === 'error' || init.status === 'failed') {
         return;
       }
+      // If already completed and no force refresh requested, do nothing
+      if (init.status === 'completed' && !forceRefresh) {
+        return;
+      }
       const document = await Document.findById(documentId);
       if (!document) return;
       analysis = await DocumentAnalysis.findById(document.analysis);
