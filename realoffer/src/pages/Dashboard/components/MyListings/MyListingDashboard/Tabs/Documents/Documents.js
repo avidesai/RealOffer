@@ -1,6 +1,6 @@
 // /Tabs/Documents.js
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import api from '../../../../../../../context/api';
 import JSZip from 'jszip';
 import { useAuth } from '../../../../../../../context/AuthContext';
@@ -19,6 +19,12 @@ const Documents = ({ listingId }) => {
   const { hasActiveUpload, getUploadState, clearUpload } = useUploadContext();
   const [documents, setDocuments] = useState([]);
   const [documentOrder, setDocumentOrder] = useState([]);
+  const documentOrderRef = useRef(documentOrder);
+
+  // Keep ref updated with current documentOrder
+  useEffect(() => {
+    documentOrderRef.current = documentOrder;
+  }, [documentOrder]);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [userClosedProgressModal, setUserClosedProgressModal] = useState(false);
@@ -53,7 +59,7 @@ const Documents = ({ listingId }) => {
       });
       
       // Refresh documents to show newly uploaded ones
-      refreshDocumentsWithLoading();
+      refreshDocumentsWithLoading(documentOrder);
       
       // Auto-hide notification after 5 seconds
       setTimeout(() => {
@@ -130,14 +136,16 @@ const Documents = ({ listingId }) => {
     }
   }, [listingId]);
 
-  const refreshDocumentsWithLoading = useCallback(async (orderToUse = documentOrder) => {
+  const refreshDocumentsWithLoading = useCallback(async (orderToUse) => {
     setLoading(true);
     try {
-      await fetchDocuments(orderToUse);
+      // If no order is provided, use the current documentOrder from ref
+      const orderToUseFinal = orderToUse || documentOrderRef.current;
+      await fetchDocuments(orderToUseFinal);
     } finally {
       setLoading(false);
     }
-  }, [fetchDocuments, documentOrder]);
+  }, [fetchDocuments]);
 
 
 
@@ -217,7 +225,7 @@ const Documents = ({ listingId }) => {
       clearUpload(listingId);
       setUserClosedProgressModal(false); // Reset flag when upload is done
       // Refresh documents to show newly uploaded ones
-      refreshDocumentsWithLoading();
+      refreshDocumentsWithLoading(documentOrder);
     }
   };
 
@@ -826,7 +834,7 @@ const Documents = ({ listingId }) => {
         <UploadDocumentsLogic
           onClose={closeUploadModal}
           listingId={listingId}
-          onUploadSuccess={() => refreshDocumentsWithLoading()}
+          onUploadSuccess={() => refreshDocumentsWithLoading(documentOrder)}
           hasSignaturePackage={hasSignaturePackage}
         />
       )}
@@ -845,7 +853,7 @@ const Documents = ({ listingId }) => {
           listingId={listingId}
           isOpen={showSignaturePackageModal}
           onClose={closeSignaturePackageModal}
-          refreshDocuments={() => refreshDocumentsWithLoading()}
+          refreshDocuments={() => refreshDocumentsWithLoading(documentOrder)}
         />
       )}
       {showAIAnalysis && selectedDocumentForAnalysis && (
