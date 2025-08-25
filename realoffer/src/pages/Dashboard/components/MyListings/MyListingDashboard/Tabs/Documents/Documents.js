@@ -28,6 +28,35 @@ const Documents = ({ listingId }) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [userClosedProgressModal, setUserClosedProgressModal] = useState(false);
+  const showProgressModalRef = useRef(showProgressModal);
+  const lastUploadStartRef = useRef(null);
+  const closedForStartRef = useRef(null);
+
+  // Keep ref updated with current showProgressModal state
+  useEffect(() => {
+    showProgressModalRef.current = showProgressModal;
+  }, [showProgressModal]);
+
+  // Auto-show progress modal when upload starts; respect manual close until a NEW upload starts
+  useEffect(() => {
+    const uploadState = getUploadState(listingId);
+    if (!uploadState) return;
+
+    if (uploadState.status === 'uploading') {
+      // Detect a new upload by a different startTime
+      if (lastUploadStartRef.current !== uploadState.startTime) {
+        lastUploadStartRef.current = uploadState.startTime;
+        // New upload: allow auto-open again
+        setUserClosedProgressModal(false);
+        closedForStartRef.current = null;
+      }
+
+      // Only auto-open if user hasn't closed for this upload and it's not already open
+      if (!userClosedProgressModal && !showProgressModalRef.current) {
+        setShowProgressModal(true);
+      }
+    }
+  }, [getUploadState, listingId, userClosedProgressModal]);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPDFViewer, setShowPDFViewer] = useState(false);
@@ -226,9 +255,17 @@ const Documents = ({ listingId }) => {
 
   const closeProgressModal = () => {
     setShowProgressModal(false);
+
+    const uploadState = getUploadState(listingId);
+    if (uploadState && uploadState.status === 'uploading') {
+      // User intentionally closed during an active upload; remember for this upload run
+      setUserClosedProgressModal(true);
+      closedForStartRef.current = uploadState.startTime;
+      return;
+    }
+
     setUserClosedProgressModal(true);
     // Clear the upload state if it's completed/failed/interrupted
-    const uploadState = getUploadState(listingId);
     if (
       uploadState &&
       (uploadState.status === 'completed' || uploadState.status === 'failed' || uploadState.status === 'interrupted')
