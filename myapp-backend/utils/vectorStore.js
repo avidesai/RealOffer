@@ -11,6 +11,9 @@ const VECTOR_DIM = Number(process.env.PINECONE_VECTOR_DIM || 1536);
 
 /**
  * Upsert a batch of document chunks into Pinecone + Mongo
+ * 
+ * Note: This function implements batching to avoid Pinecone's 4MB API request size limit.
+ * Vectors are sent in batches of 100 to ensure requests stay well under the limit.
  */
 async function upsertChunksToPinecone(propertyId, documentId, chunksWithEmbeddings, chunkType = 'document') {
   // Filter out any empty/invalid vectors
@@ -37,13 +40,30 @@ async function upsertChunksToPinecone(propertyId, documentId, chunksWithEmbeddin
     console.warn(`[vectorStore] No valid vectors to upsert for ${chunkType} ${documentId} (after filtering).`);
   } else {
     console.log(`[vectorStore] Upserting ${vectors.length} ${chunkType} vectors to Pinecone for document ${documentId}.`);
-    try {
-      // New JS SDKs accept an array directly
-      await index.upsert(vectors);
-    } catch (err) {
-      console.error('[vectorStore] Pinecone upsert failed:', err?.message || err);
-      // Don't throw — we still want to save to Mongo below.
+    
+    // Batch vectors to avoid Pinecone's 4MB request size limit
+    const BATCH_SIZE = 100; // Conservative batch size to stay well under 4MB
+    let successCount = 0;
+    let errorCount = 0;
+    
+    for (let i = 0; i < vectors.length; i += BATCH_SIZE) {
+      const batch = vectors.slice(i, i + BATCH_SIZE);
+      const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
+      const totalBatches = Math.ceil(vectors.length / BATCH_SIZE);
+      
+      try {
+        console.log(`[vectorStore] Upserting batch ${batchNumber}/${totalBatches} (${batch.length} vectors)...`);
+        await index.upsert(batch);
+        successCount += batch.length;
+        console.log(`[vectorStore] ✅ Batch ${batchNumber}/${totalBatches} completed successfully`);
+      } catch (err) {
+        console.error(`[vectorStore] ❌ Pinecone upsert failed for batch ${batchNumber}/${totalBatches}:`, err?.message || err);
+        errorCount += batch.length;
+        // Continue with next batch even if one fails
+      }
     }
+    
+    console.log(`[vectorStore] Pinecone upsert summary: ${successCount} successful, ${errorCount} failed out of ${vectors.length} total vectors`);
   }
 
   // Also write to Mongo for local fallback/reference (only for document chunks, not analysis)

@@ -142,7 +142,7 @@ const convertPageWithImageMagick = async (pdfPath, pageNumber) => {
     // Use the imagemagick module directly (more reliable than spawning processes)
     imagemagick.convert(args, (err, stdout) => {
       if (err) {
-        console.error(`ImageMagick module conversion failed:`, err);
+        console.error('ImageMagick module conversion failed:', err);
         console.error(`Command was: convert ${args.join(' ')}`);
         
         // Try alternative approach for better text rendering
@@ -1216,9 +1216,26 @@ exports.addDocumentToPropertyListing = async (req, res) => {
       // Only process embeddings for documents that need to be searchable
       if (purpose === 'listing' || purpose === 'public') {
         try {
-          await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
+          const processingResult = await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
+          
+          if (processingResult.success) {
+            console.log(`✅ AI processing completed for ${file.originalname} (${processingResult.chunksProcessed} chunks processed in ${processingResult.duration}ms)`);
+          } else {
+            // AI processing failed but document upload succeeded
+            const reason = processingResult.reason || 'unknown_error';
+            console.warn(`⚠️ AI processing failed for ${file.originalname} (${reason}) - document uploaded successfully`);
+            
+            // Log detailed failure information
+            console.warn(`AI processing failed for ${file.originalname}:`, {
+              reason: processingResult.reason,
+              error: processingResult.error,
+              processingSteps: processingResult.processingSteps,
+              duration: processingResult.duration
+            });
+          }
         } catch (err) {
-          console.error('Embedding failed for document:', savedDocument._id, err.message);
+          console.error('Unexpected error in AI processing for document:', savedDocument._id, err.message);
+          console.warn(`⚠️ AI processing encountered an unexpected error for ${file.originalname} - document uploaded successfully`);
         }
       }
       
@@ -2561,9 +2578,26 @@ exports.uploadDocumentForBuyerPackage = async (req, res) => {
       // Only process embeddings for documents that need to be searchable
       if (purpose === 'listing' || purpose === 'public') {
         try {
-          await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
+          const processingResult = await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
+          
+          if (processingResult.success) {
+            console.log(`✅ AI processing completed for ${file.originalname} (${processingResult.chunksProcessed} chunks processed in ${processingResult.duration}ms)`);
+          } else {
+            // AI processing failed but document upload succeeded
+            const reason = processingResult.reason || 'unknown_error';
+            console.warn(`⚠️ AI processing failed for ${file.originalname} (${reason}) - document uploaded successfully`);
+            
+            // Log detailed failure information
+            console.warn(`AI processing failed for ${file.originalname}:`, {
+              reason: processingResult.reason,
+              error: processingResult.error,
+              processingSteps: processingResult.processingSteps,
+              duration: processingResult.duration
+            });
+          }
         } catch (err) {
-          console.error('Embedding failed for document:', savedDocument._id, err.message);
+          console.error('Unexpected error in AI processing for document:', savedDocument._id, err.message);
+          console.warn(`⚠️ AI processing encountered an unexpected error for ${file.originalname} - document uploaded successfully`);
         }
       }
       
@@ -2753,11 +2787,27 @@ exports.uploadDocumentsWithProgress = async (req, res) => {
           res.write(`data: {"processing": "Processing ${file.originalname} for AI search..."}\n\n`);
           
           try {
-            await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
-            res.write(`data: {"processing": "Completed processing ${file.originalname}"}\n\n`);
+            const processingResult = await optimizedDocumentProcessor.processDocumentForSearch(savedDocument, file.buffer);
+            
+            if (processingResult.success) {
+              res.write(`data: {"processing": "✅ Completed AI processing for ${file.originalname} (${processingResult.chunksProcessed} chunks processed in ${processingResult.duration}ms)"}\n\n`);
+            } else {
+              // AI processing failed but document upload succeeded
+              const reason = processingResult.reason || 'unknown_error';
+              const errorMsg = processingResult.error ? `: ${processingResult.error}` : '';
+              res.write(`data: {"processing": "⚠️ AI processing failed for ${file.originalname} (${reason})${errorMsg} - document uploaded successfully"}\n\n`);
+              
+              // Log detailed failure information
+              console.warn(`AI processing failed for ${file.originalname}:`, {
+                reason: processingResult.reason,
+                error: processingResult.error,
+                processingSteps: processingResult.processingSteps,
+                duration: processingResult.duration
+              });
+            }
           } catch (err) {
-            console.error('Embedding failed for document:', savedDocument._id, err.message);
-            res.write(`data: {"processing": "Warning: AI processing failed for ${file.originalname}"}\n\n`);
+            console.error('Unexpected error in AI processing for document:', savedDocument._id, err.message);
+            res.write(`data: {"processing": "⚠️ AI processing encountered an unexpected error for ${file.originalname} - document uploaded successfully"}\n\n`);
           }
         }
 
