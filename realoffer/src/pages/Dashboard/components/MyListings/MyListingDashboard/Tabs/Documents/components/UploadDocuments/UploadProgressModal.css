@@ -18,10 +18,12 @@
   background: #ffffff;
   padding: 2rem;
   border-radius: 16px;
-  width: 500px;
+  width: 900px;
   max-width: 95%;
+  height: 90vh;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   position: relative;
+  overflow-y: auto;
   animation: fadeIn 0.3s ease-in-out;
 }
 

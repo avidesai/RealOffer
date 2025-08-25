@@ -21,6 +21,7 @@ const Documents = ({ listingId }) => {
   const [documentOrder, setDocumentOrder] = useState([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
+  const [userClosedProgressModal, setUserClosedProgressModal] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPDFViewer, setShowPDFViewer] = useState(false);
@@ -51,6 +52,9 @@ const Documents = ({ listingId }) => {
         timestamp: Date.now()
       });
       
+      // Refresh documents to show newly uploaded ones
+      refreshDocumentsWithLoading();
+      
       // Auto-hide notification after 5 seconds
       setTimeout(() => {
         setUploadNotification(null);
@@ -67,15 +71,19 @@ const Documents = ({ listingId }) => {
         setUploadNotification(null);
       }, 8000);
     }
-  }, [getUploadState, listingId, uploadNotification]);
+  }, [getUploadState, listingId, uploadNotification, refreshDocumentsWithLoading]);
 
   // Auto-show progress modal when upload starts
   useEffect(() => {
     const uploadState = getUploadState(listingId);
-    if (uploadState && uploadState.status === 'uploading' && !showProgressModal) {
+    if (uploadState && uploadState.status === 'uploading' && !showProgressModal && !userClosedProgressModal) {
       setShowProgressModal(true);
     }
-  }, [getUploadState, listingId, showProgressModal]);
+    // Reset user closed flag when upload status changes to uploading (new upload)
+    if (uploadState && uploadState.status === 'uploading' && userClosedProgressModal) {
+      setUserClosedProgressModal(false);
+    }
+  }, [getUploadState, listingId, showProgressModal, userClosedProgressModal]);
 
   const fetchListingData = useCallback(async () => {
     try {
@@ -202,10 +210,14 @@ const Documents = ({ listingId }) => {
 
   const closeProgressModal = () => {
     setShowProgressModal(false);
+    setUserClosedProgressModal(true);
     // Clear the upload state if it's completed or failed
     const uploadState = getUploadState(listingId);
     if (uploadState && (uploadState.status === 'completed' || uploadState.status === 'failed')) {
       clearUpload(listingId);
+      setUserClosedProgressModal(false); // Reset flag when upload is done
+      // Refresh documents to show newly uploaded ones
+      refreshDocumentsWithLoading();
     }
   };
 
