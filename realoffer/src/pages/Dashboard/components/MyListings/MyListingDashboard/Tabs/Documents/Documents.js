@@ -47,37 +47,7 @@ const Documents = ({ listingId }) => {
   const [showDeleteDropdown, setShowDeleteDropdown] = useState(false);
   const [uploadNotification, setUploadNotification] = useState(null);
 
-  // Check for completed uploads and show notifications
-  useEffect(() => {
-    const uploadState = getUploadState(listingId);
-    if (uploadState && uploadState.status === 'completed' && !uploadNotification) {
-      const docCount = uploadState.documentIds?.length || 0;
-      setUploadNotification({
-        type: 'success',
-        message: `✅ Upload completed! ${docCount} document${docCount !== 1 ? 's' : ''} processed successfully.`,
-        timestamp: Date.now()
-      });
-      
-      // Refresh documents to show newly uploaded ones
-      refreshDocumentsWithLoading(documentOrder);
-      
-      // Auto-hide notification after 5 seconds
-      setTimeout(() => {
-        setUploadNotification(null);
-      }, 5000);
-    } else if (uploadState && uploadState.status === 'failed' && !uploadNotification) {
-      setUploadNotification({
-        type: 'error',
-        message: `❌ Upload failed: ${uploadState.error || 'Unknown error occurred'}`,
-        timestamp: Date.now()
-      });
-      
-      // Auto-hide notification after 8 seconds
-      setTimeout(() => {
-        setUploadNotification(null);
-      }, 8000);
-    }
-  }, [getUploadState, listingId, uploadNotification, refreshDocumentsWithLoading]);
+
 
   // Auto-show progress modal when upload starts
   useEffect(() => {
@@ -147,6 +117,37 @@ const Documents = ({ listingId }) => {
     }
   }, [fetchDocuments]);
 
+  // Check for completed uploads and show notifications
+  useEffect(() => {
+    const uploadState = getUploadState(listingId);
+    if (uploadState && uploadState.status === 'completed' && !uploadNotification) {
+      const docCount = uploadState.documentIds?.length || 0;
+      setUploadNotification({
+        type: 'success',
+        message: `✅ Upload completed! ${docCount} document${docCount !== 1 ? 's' : ''} processed successfully.`,
+        timestamp: Date.now()
+      });
+      
+      // Refresh documents to show newly uploaded ones
+      refreshDocumentsWithLoading(documentOrder);
+      
+      // Auto-hide notification after 5 seconds
+      setTimeout(() => {
+        setUploadNotification(null);
+      }, 5000);
+    } else if (uploadState && uploadState.status === 'failed' && !uploadNotification) {
+      setUploadNotification({
+        type: 'error',
+        message: `❌ Upload failed: ${uploadState.error || 'Unknown error occurred'}`,
+        timestamp: Date.now()
+      });
+      
+      // Auto-hide notification after 8 seconds
+      setTimeout(() => {
+        setUploadNotification(null);
+      }, 8000);
+    }
+  }, [getUploadState, listingId, uploadNotification, refreshDocumentsWithLoading]);
 
 
   useEffect(() => {
