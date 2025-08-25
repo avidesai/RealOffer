@@ -205,6 +205,8 @@ async function runAnalysisInBackground(documentId, { forceRefresh = false } = {}
 
       // Build prompt per type (mirrors controller)
       let prompt;
+      const MAX_INPUT_CHARS = 80000; // keep well under provider input token limits
+      const safeText = String(text || '').slice(0, MAX_INPUT_CHARS);
       switch (document.type) {
         case 'Home Inspection Report':
           prompt = `You are an expert home inspector and real-estate advisor. Read the home-inspection report below and produce a plain-language summary for buyers and agents.
@@ -288,7 +290,7 @@ Write clearly and helpfully. Avoid dollar figures. This summary should let regul
 Use consistent formatting with proper bullet points and clear section headers.
 
 Report content:
-${text}`;
+${safeText}`;
           break;
         case 'Roof Inspection Report':
           prompt = `You are an expert roof inspector and real-estate advisor. Read the roof inspection report below and produce a plain-language summary for buyers and agents.
@@ -382,7 +384,7 @@ IMPORTANT: Format each bullet point on its own line with proper markdown formatt
 Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
 Report content:
-${text}`;
+${safeText}`;
           break;
         case 'Pest Inspection Report':
           prompt = `You are a licensed pest inspector and real estate advisor. Your job is to read a pest inspection report and provide a clear, helpful summary for both home buyers and real estate agents.
@@ -445,7 +447,7 @@ IMPORTANT: Format each bullet point on its own line with proper markdown formatt
 Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
 Report content:
-${text}`;
+${safeText}`;
           break;
         case 'Seller Property Questionnaire':
           prompt = `You are a real estate advisor. Review the following Seller Property Questionnaire (SPQ) and produce a clean, buyer- and agent-friendly summary that highlights the most important information disclosed by the seller.
@@ -523,7 +525,7 @@ IMPORTANT: Format each bullet point on its own line with proper markdown formatt
 Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
 Report content:
-${text}`;
+${safeText}`;
           break;
         case 'Real Estate Transfer Disclosure Statement':
           prompt = `You are a real estate advisor. Read the following Transfer Disclosure Statement (TDS) and produce a concise, easy-to-read summary of all meaningful information provided by the seller.
@@ -595,7 +597,7 @@ IMPORTANT: Format each bullet point on its own line with proper markdown formatt
 Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
 Report content:
-${text}`;
+${safeText}`;
           break;
         case 'Agent Visual Inspection':
           prompt = `You are a real estate advisor. Read the following Agent Visual Inspection Disclosure (AVID) and generate a summary of the agent's material observations made during their visual walkthrough of the home.
@@ -657,7 +659,7 @@ IMPORTANT: Format each bullet point on its own line with proper markdown formatt
 Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
 Report content:
-${text}`;
+${safeText}`;
           break;
         case 'Sewer Lateral Inspection':
           prompt = `You are an expert sewer lateral inspector and real estate advisor. Read the sewer lateral inspection report below and produce a plain-language summary for buyers and agents.
@@ -717,7 +719,7 @@ IMPORTANT: Format each bullet point on its own line with proper markdown formatt
 Do NOT combine multiple items into a single bullet point. Each distinct item should be its own bullet point on its own line.
 
 Report content:
-${text}`;
+${safeText}`;
           break;
         case 'Natural Hazard Disclosures':
           prompt = `You are a California real estate advisor. Review the Natural Hazard Disclosure (NHD) report and produce a concise, buyer-friendly summary focused on material risk, insurance/financing implications, and action items.
@@ -766,7 +768,7 @@ Provide crisp, actionable bullets (1 line each):
 Write clearly. Use proper markdown bullets ("- "). Avoid dollar figures. Do not repeat boilerplate NHD text. Focus only on hazards explicitly indicated in the report below.
 
 NHD report content:
-${text}`;
+${safeText}`;
           break;
         case 'Preliminary Title Report':
           prompt = `You are a California real estate advisor. Read the Preliminary Title Report (PTR) and summarize the material items buyers and buyer's agents care about.
@@ -813,24 +815,41 @@ Write 2–3 sentences highlighting any unusual or impactful items (easements, li
 Keep it concise and buyer-focused. Use proper markdown bullets ("- "). Avoid legal boilerplate and dollar figures. Focus only on items explicitly disclosed below.
 
 Preliminary Title Report content:
-${text}`;
+${safeText}`;
           break;
         default:
-          prompt = text || '';
+          prompt = safeText || '';
       }
 
-      const claudeResponse = await axios.post('https://api.anthropic.com/v1/messages', {
-        model: 'claude-3-haiku-20240307',
-        max_tokens: 1500,
-        temperature: 0.1,
-        messages: [{ role: 'user', content: prompt }]
-      }, {
-        headers: {
-          'x-api-key': process.env.CLAUDE_API_KEY,
-          'anthropic-version': '2023-06-01',
-          'content-type': 'application/json'
+      async function callClaude(p) {
+        return axios.post('https://api.anthropic.com/v1/messages', {
+          model: 'claude-3-haiku-20240307',
+          max_tokens: 1500,
+          temperature: 0.1,
+          messages: [{ role: 'user', content: p }]
+        }, {
+          headers: {
+            'x-api-key': process.env.CLAUDE_API_KEY,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json'
+          },
+          timeout: 15000
+        });
+      }
+
+      let claudeResponse;
+      try {
+        claudeResponse = await callClaude(prompt);
+      } catch (err) {
+        if (err?.response?.status === 429) {
+          // brief backoff then retry once
+          const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+          await sleep(3000 + Math.floor(Math.random() * 2000));
+          claudeResponse = await callClaude(prompt);
+        } else {
+          throw err;
         }
-      });
+      }
 
       let analysisResult = claudeResponse.data.content[0].text;
 

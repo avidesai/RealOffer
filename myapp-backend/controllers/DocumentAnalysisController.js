@@ -933,23 +933,36 @@ ${text}`;
 
     // Call Claude API with Haiku for cost-effective summaries
     await updateAnalysisProgress(analysis._id, 'analyzing', 70, 'Analyzing document content with AI...');
-    const claudeResponse = await axios.post('https://api.anthropic.com/v1/messages', {
+    const MAX_INPUT_CHARS = 80000;
+    const callBody = {
       model: 'claude-3-haiku-20240307',
-      max_tokens: 1500, // Reduced for Haiku - sufficient for summaries
+      max_tokens: 1500,
       temperature: 0.1,
       messages: [
-        {
-          role: 'user',
-          content: prompt
-        }
+        { role: 'user', content: String(prompt || '').slice(0, MAX_INPUT_CHARS) }
       ]
-    }, {
-      headers: {
-        'x-api-key': process.env.CLAUDE_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json'
+    };
+    async function callClaudeOnce() {
+      return axios.post('https://api.anthropic.com/v1/messages', callBody, {
+        headers: {
+          'x-api-key': process.env.CLAUDE_API_KEY,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json'
+        },
+        timeout: 15000
+      });
+    }
+    let claudeResponse;
+    try {
+      claudeResponse = await callClaudeOnce();
+    } catch (err) {
+      if (err?.response?.status === 429) {
+        await new Promise(r => setTimeout(r, 3000 + Math.floor(Math.random() * 2000)));
+        claudeResponse = await callClaudeOnce();
+      } else {
+        throw err;
       }
-    });
+    }
 
     // Get the analysis result from Claude Haiku
     let analysisResult = claudeResponse.data.content[0].text;
