@@ -92,23 +92,7 @@ const Documents = ({ listingId }) => {
 
 
   // Auto-show progress modal when upload starts (only for active uploads)
-  useEffect(() => {
-    const uploadState = getUploadState(listingId);
-
-    // If a new upload starts, allow the modal to auto-open again
-    if (uploadState && uploadState.status === 'uploading' && userClosedProgressModal) {
-      setUserClosedProgressModal(false);
-    }
-
-    // Only auto-open for truly active uploads
-    if (
-      uploadState &&
-      uploadState.status === 'uploading' &&
-      !userClosedProgressModal
-    ) {
-      setShowProgressModal(true);
-    }
-  }, [getUploadState, listingId, userClosedProgressModal]);
+  // (Removed duplicate effect that reset userClosedProgressModal)
 
   const fetchListingData = useCallback(async () => {
     try {
