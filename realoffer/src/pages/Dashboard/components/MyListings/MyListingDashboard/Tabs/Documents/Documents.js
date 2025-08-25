@@ -32,6 +32,10 @@ const Documents = ({ listingId }) => {
   const lastUploadStartRef = useRef(null);
   const closedForStartRef = useRef(null);
 
+  const getSuppressKey = useCallback((listingIdArg, startTime) => {
+    return `realoffer_suppress_progress_${listingIdArg}_${startTime || 'na'}`;
+  }, []);
+
   // Keep ref updated with current showProgressModal state
   useEffect(() => {
     showProgressModalRef.current = showProgressModal;
@@ -46,17 +50,26 @@ const Documents = ({ listingId }) => {
       // Detect a new upload by a different startTime
       if (lastUploadStartRef.current !== uploadState.startTime) {
         lastUploadStartRef.current = uploadState.startTime;
-        // New upload: allow auto-open again
+        // New upload: clear any previous suppression for this upload
+        try { localStorage.removeItem(getSuppressKey(listingId, uploadState.startTime)); } catch (_) {}
         setUserClosedProgressModal(false);
-        closedForStartRef.current = null;
       }
 
-      // Only auto-open if user hasn't closed for this upload and it's not already open
-      if (!userClosedProgressModal && !showProgressModalRef.current) {
+      // Only auto-open if user hasn't closed for this upload and it's not already open, and no local suppression flag
+      const suppressed = (() => {
+        try { return !!localStorage.getItem(getSuppressKey(listingId, uploadState.startTime)); } catch (_) { return false; }
+      })();
+
+      if (!userClosedProgressModal && !suppressed && !showProgressModalRef.current) {
         setShowProgressModal(true);
       }
     }
-  }, [getUploadState, listingId, userClosedProgressModal]);
+
+    // If upload ended, clear suppression for this upload
+    if (uploadState.status === 'completed' || uploadState.status === 'failed' || uploadState.status === 'interrupted') {
+      try { localStorage.removeItem(getSuppressKey(listingId, uploadState.startTime)); } catch (_) {}
+    }
+  }, [getUploadState, listingId, userClosedProgressModal, getSuppressKey]);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPDFViewer, setShowPDFViewer] = useState(false);
@@ -258,9 +271,9 @@ const Documents = ({ listingId }) => {
 
     const uploadState = getUploadState(listingId);
     if (uploadState && uploadState.status === 'uploading') {
-      // User intentionally closed during an active upload; remember for this upload run
+      // Persist suppression for this upload run
+      try { localStorage.setItem(getSuppressKey(listingId, uploadState.startTime), '1'); } catch (_) {}
       setUserClosedProgressModal(true);
-      closedForStartRef.current = uploadState.startTime;
       return;
     }
 
@@ -270,6 +283,7 @@ const Documents = ({ listingId }) => {
       uploadState &&
       (uploadState.status === 'completed' || uploadState.status === 'failed' || uploadState.status === 'interrupted')
     ) {
+      try { localStorage.removeItem(getSuppressKey(listingId, uploadState.startTime)); } catch (_) {}
       clearUpload(listingId);
       setUserClosedProgressModal(false); // Reset flag when upload is done
       // Refresh documents to show newly uploaded ones
