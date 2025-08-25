@@ -76,6 +76,7 @@ const Documents = ({ listingId }) => {
   const [currentFileUrl, setCurrentFileUrl] = useState('');
   const [currentDocTitle, setCurrentDocTitle] = useState('');
   const [currentDocType, setCurrentDocType] = useState('');
+  const [addressLine, setAddressLine] = useState('');
   const [showSignaturePackageModal, setShowSignaturePackageModal] = useState(false);
   const [hasSignaturePackage, setHasSignaturePackage] = useState(false);
   const [showAIAnalysis, setShowAIAnalysis] = useState(false);
@@ -190,7 +191,7 @@ const Documents = ({ listingId }) => {
     };
     
     loadData();
-  }, [token, listingId, fetchListingData]);
+  }, [token, listingId]);
 
   const handleUploadClick = () => {
     // Prevent rapid clicking when upload is active
@@ -618,9 +619,7 @@ const Documents = ({ listingId }) => {
       {uploadNotification && (
         <div className={`upload-notification ${uploadNotification.type}`}>
           <div className="notification-content">
-            <span className="notification-icon">
-              {uploadNotification.type === 'success' ? '✅' : '❌'}
-            </span>
+            <span className="notification-icon"></span>
             <span className="notification-message">{uploadNotification.message}</span>
             <button 
               className="notification-close" 
